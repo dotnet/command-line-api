@@ -1,30 +1,54 @@
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 // Import the utility functionality.
 
 import jobs.generation.Utilities;
 
 def project = GithubProject
 def branch = GithubBranchName
+def isPR = true
 
-// Define build string
-def buildString = '''call "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\Tools\\VsDevCmd.bat" && build.cmd'''
+def platformList = ['Ubuntu:x64:Release', 'OSX:x64:Release', 'Windows_NT:x64:Release']
 
-// Generate the builds for debug and release
-
-[true, false].each { isPR ->
-    def newJob = job(Utilities.getFullJobName(project, '', isPR)) {
-      steps {
-        batchFile(buildString)
-      }
-    }
-    
-    Utilities.setMachineAffinity(newJob, 'Windows_NT', 'latest-or-auto')
-    Utilities.standardJobSetup(newJob, project, isPR, "*/${branch}")
-    if (isPR) {
-        Utilities.addGithubPRTriggerForBranch(newJob, branch, 'Innerloop Windows Debug')
-    }
-    else {
-        Utilities.addGithubPushTrigger(newJob)
-    }
+def static getBuildJobName(def configuration, def os, def architecture) {
+    return configuration.toLowerCase() + '_' + os.toLowerCase() + '_' + architecture.toLowerCase()
 }
 
-Utilities.addCROSSCheck(this, project, branch)
+platformList.each { platform ->
+    // Calculate names
+    def (os, architecture, configuration) = platform.tokenize(':')
+
+    // Calculate job name
+    def jobName = getBuildJobName(configuration, os, architecture)
+    def buildCommand = '';
+
+    // Calculate the build command
+    if (os == 'Windows_NT') {
+        buildCommand = ".\\build.cmd"
+    }
+    else {
+        buildCommand = "./build.sh"
+    }
+
+    def newJob = job(Utilities.getFullJobName(project, jobName, isPR)) {
+        // Set the label.
+        steps {
+            if (os == 'Windows_NT') {
+                // Batch
+                batchFile(buildCommand)
+            }
+            else {
+                // Shell
+                shell(buildCommand)
+            }
+        }
+    }
+
+    Utilities.setMachineAffinity(newJob, os, 'latest-or-auto')
+    Utilities.standardJobSetup(newJob, project, isPR, "*/${branch}")
+    Utilities.addXUnitDotNETResults(newJob, '**/*-testResults.xml')
+    Utilities.addGithubPRTriggerForBranch(newJob, branch, "${os} ${architecture} ${configuration} Build")
+}
+
+
