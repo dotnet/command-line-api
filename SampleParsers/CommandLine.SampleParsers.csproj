@@ -114,9 +114,6 @@
     <Compile Include="Dotnet\HelpText\Sln.List.cs" />
     <Compile Include="Dotnet\HelpText\Sln.Remove.cs" />
     <Compile Include="Dotnet\HelpText\Test.cs" />
-    <Compile Include="git\Create.cs" />
-    <Compile Include="git\GitParserTests.cs" />
-    <Compile Include="git\HelpText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
