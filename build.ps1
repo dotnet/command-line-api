@@ -29,7 +29,7 @@
 [cmdletbinding()]
 param(
     [string]$InstallDir="./.dotnet",
-    [string]$CliVersion="1.0.0-rc4-004771",
+    [string]$CliVersion="1.0.0-rc4-004911",
     [string]$Configuration="Debug",
     [bool]$Pack=$TRUE,
     [bool]$SkipInstall=$FALSE,

@@ -28,8 +28,11 @@ export DOTNET_INSTALL_DIR="$REPOROOT/.dotnet"
 echo DOTNET_INSTALL_DIR=$DOTNET_INSTALL_DIR
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 
-mkdir $DOTNET_INSTALL_DIR
-curl -sSL https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.sh | bash /dev/stdin --install-dir $DOTNET_INSTALL_DIR
+if [ ! -d "$DOTNET_INSTALL_DIR" ]; then
+  mkdir $DOTNET_INSTALL_DIR
+fi
+
+curl -sSL https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.sh | bash /dev/stdin --install-dir $DOTNET_INSTALL_DIR --version 1.0.0-rc4-004911
 
 PATH="$DOTNET_INSTALL_DIR:$PATH"
 
