@@ -351,6 +351,19 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void When_a_subcommand_has_a_name_conflict_with_its_uncle_then_the_innermost_subcommand_is_attached_to_the_subcommand()
+        {
+            var command = Command("one", "",
+                                  Command("two", "",
+                                          Command("three", "")),
+                                  Command("three", ""));
+
+            var result = command.Parse("one two three");
+
+            result.Diagram().Should().Be("[ one [ two [ three ] ] ]");
+        }
+
+        [Fact]
         public void When_child_option_will_not_accept_arg_then_parent_can()
         {
             var parser = new Parser(
