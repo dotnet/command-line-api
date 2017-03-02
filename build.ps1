@@ -72,4 +72,5 @@ if ($SkipInstall -eq $TRUE) {
 $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 
 & $LocalDotnet restore CommandLine-netcore.sln
+& $LocalDotnet test CommandLine.Tests/CommandLine.Tests-netcore.csproj -l:trx
 & $LocalDotnet pack CommandLine/CommandLine-netcore.csproj
