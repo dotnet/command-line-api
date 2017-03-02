@@ -6,12 +6,20 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
     public class MaterializerTests
     {
+        private readonly ITestOutputHelper output;
+
+        public MaterializerTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
         [Fact]
         public void A_command_can_be_materialized_using_options_and_arguments()
         {
@@ -22,10 +30,14 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                         {
                             Option("-d|--destination", "", Accept.ExactlyOneArgument)
                         },
-                        materialize: p => new FileMoveOperation
-                        {
-                            Files = p.Arguments.Select(f => new FileInfo(f)).ToList(),
-                            Destination = new DirectoryInfo(p["destination"].Arguments.Single())
+                        materialize: p => {
+                            output.WriteLine(p.ToString()); 
+                            
+                            return new FileMoveOperation
+                            {
+                                Files = p.Arguments.Select(f => new FileInfo(f)).ToList(),
+                                Destination = new DirectoryInfo(p["destination"].Arguments.Single())
+                            };
                         }));
 
             var folder = new DirectoryInfo(Path.Combine("temp"));
