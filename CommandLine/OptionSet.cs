@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CommandLine
+namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class OptionSet<T> :
         IReadOnlyCollection<T>

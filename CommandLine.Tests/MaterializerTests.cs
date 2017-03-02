@@ -3,9 +3,9 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using static CommandLine.Create;
+using static Microsoft.DotNet.Cli.CommandLine.Create;
 
-namespace CommandLine.Tests
+namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
     public class MaterializerTests
     {

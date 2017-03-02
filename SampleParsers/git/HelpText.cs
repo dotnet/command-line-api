@@ -1,4 +1,4 @@
-﻿namespace CommandLine.SampleParsers.git
+﻿namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.git
 {
     public static class root
     {

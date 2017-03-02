@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using static CommandLine.Create;
+using static Microsoft.DotNet.Cli.CommandLine.Create;
 
-namespace CommandLine.SampleParsers.git
+namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.git
 {
     public class Create
     {

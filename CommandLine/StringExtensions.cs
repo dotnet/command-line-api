@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CommandLine
+namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class StringExtensions
     {
