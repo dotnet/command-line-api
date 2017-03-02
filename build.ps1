@@ -19,7 +19,7 @@ if (-Not (Test-Path $DOTNET_INSTALL_DIR))
     New-Item -Type "directory" -Path $DOTNET_INSTALL_DIR 
 }
 
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.ps1" -OutFile "./$InstallDir/dotnet-install.ps1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.ps1" -OutFile "$DOTNET_INSTALL_DIR/dotnet-install.ps1"
 & $DOTNET_INSTALL_DIR/dotnet-install.ps1 -Version $CliVersion -InstallDir $InstallDir
 
 $env:PATH="$DOTNET_INSTALL_DIR;$env:PATH"
