@@ -25,7 +25,7 @@ platformList.each { platform ->
 
     // Calculate the build command
     if (os == 'Windows_NT') {
-        buildCommand = ".\\build.ps1"
+        buildCommand = ".\\build.cmd"
     }
     else {
         buildCommand = "./build.sh"
