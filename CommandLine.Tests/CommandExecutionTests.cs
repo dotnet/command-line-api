@@ -1,0 +1,25 @@
+using System;
+using FluentAssertions;
+using Xunit;
+
+namespace CommandLine.Tests
+{
+    public class CommandExecutionTests
+    {
+        [Fact]
+        public void When_there_are_parse_errors_then_result_code_is_1()
+        {
+            var result = new Command("do-something", "").Parse("oops");
+
+            result.Execute().Code.Should().Be(1);
+        }
+
+        [Fact]
+        public void When_there_are_no_parse_errors_then_result_code_is_0()
+        {
+            var result = new Command("do-something", "").Parse("do-something");
+
+            result.Execute().Code.Should().Be(0);
+        }
+    }
+}

@@ -1,0 +1,60 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace CommandLine
+{
+    public class ArgumentsRule
+    {
+        private readonly Func<AppliedOption, string> validate;
+        private readonly Func<ParseResult, IEnumerable<string>> suggest;
+        private readonly Lazy<string> defaultValue;
+
+        public ArgumentsRule(
+            Func<AppliedOption, string> validate,
+            IReadOnlyCollection<string> allowedValues = null,
+            Func<string> defaultValue = null,
+            string description = null,
+            string name = null,
+            Func<ParseResult, IEnumerable<string>> suggest = null)
+        {
+            if (validate == null)
+            {
+                throw new ArgumentNullException(nameof(validate));
+            }
+
+            this.defaultValue = new Lazy<string>(defaultValue ?? (() => null));
+            Description = description;
+            Name = name;
+            this.validate = validate;
+
+            if (suggest == null)
+            {
+                this.suggest = result =>
+                    AllowedValues.FindSuggestions(result);
+            }
+            else
+            {
+                this.suggest = result =>
+                    suggest(result).ToArray()
+                                   .FindSuggestions(
+                                       result.TextToMatch());
+            }
+
+            AllowedValues = allowedValues ?? Array.Empty<string>();
+        }
+
+        public string Validate(AppliedOption option) => validate(option);
+
+        public IReadOnlyCollection<string> AllowedValues { get; }
+
+        public string DefaultValue => defaultValue.Value;
+
+        public string Description { get; }
+
+        public string Name { get; }
+
+        internal IEnumerable<string> Suggest(ParseResult parseResult) =>
+            suggest(parseResult);
+    }
+}
