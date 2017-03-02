@@ -71,7 +71,6 @@ if ($SkipInstall -eq $TRUE) {
 
 $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 
-& $LocalDotnet restore CommandLine-netcore.sln -r win10-x64
-& $LocalDotnet build CommandLine-netcore.sln -r win10-x64
+& $LocalDotnet restore CommandLine-netcore.sln 
 & $LocalDotnet publish dotnet/dotnet-netcore.csproj -r win10-x64 -f netcoreapp1.0
 & $LocalDotnet pack CommandLine/CommandLine-netcore.csproj
