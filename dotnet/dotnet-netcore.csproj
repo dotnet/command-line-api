@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>exe</OutputType>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>dotnet</AssemblyName>
+    <RootNamespace>dotnet</RootNamespace>
+    <RuntimeIdentifiers>win10-x64;osx.10.11-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommandLine\CommandLine-netcore.csproj" />
+    <ProjectReference Include="..\SampleParsers\CommandLine.SampleParsers-netcore.csproj" />
+  </ItemGroup>
+
+</Project>
+
+
+
