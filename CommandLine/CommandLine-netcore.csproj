@@ -3,5 +3,8 @@
     <TargetFramework>netstandard1.5</TargetFramework>
      <AssemblyName>CommandLine</AssemblyName>
      <RootNamespace>CommandLine</RootNamespace>
+    <AssemblyOriginatorKeyFile>../tools/Key.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
   </PropertyGroup>
 </Project>
