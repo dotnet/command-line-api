@@ -86,10 +86,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 builder.Diagram(childOption);
             }
 
-            if (option.Arguments.Any())
+            foreach (var arg in option.Arguments)
             {
                 builder.Append(" <");
-                builder.Append(string.Join(" ", option.Arguments));
+                builder.Append(arg);
                 builder.Append(">");
             }
 

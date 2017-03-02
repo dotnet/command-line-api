@@ -83,11 +83,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                         Option("-x", "Specifies value x", ExactlyOneArgument),
                         Option("-y", "Specifies value y", NoArguments)));
 
-            var result = parser.Parse("the-command -x one -y two");
+            var result = parser.Parse("the-command -x one -y two three");
 
             result.Diagram()
                   .Should()
-                  .Be("[ the-command [ -x <one> ] [ -y ] <two> ]");
+                  .Be("[ the-command [ -x <one> ] [ -y ] <two> <three> ]");
         }
 
         [Fact]
