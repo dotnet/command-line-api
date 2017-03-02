@@ -1,0 +1,11 @@
+<Project DefaultTargets="DoBuild">
+  <Target Name="DoBuild">
+    <Exec Command="dotnet restore CommandLine-netcore.sln" />
+    <Exec Command="dotnet build CommandLine-netcore.sln" />
+    <Exec Command="dotnet test CommandLine.Tests/CommandLine.Tests-netcore.csproj -l:trx" />
+  </Target>
+
+  <Target Name="DoPublish">
+    <Exec Command="dotnet pack CommandLine/CommandLine-netcore.csproj --no-build" />
+  </Target>
+</Project>
