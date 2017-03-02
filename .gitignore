@@ -13,6 +13,7 @@
 *.vsp
 *.xml
 .dotnet
+.nuget
 ._.DS_Store
 .DS_Store
 .idea
