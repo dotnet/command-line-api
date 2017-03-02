@@ -1,9 +1,9 @@
 using System;
 using Xunit;
 using Xunit.Abstractions;
-using static CommandLine.SampleParsers.Dotnet.Create;
+using static Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet.Create;
 
-namespace CommandLine.SampleParsers.Dotnet
+namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
 {
     public class DotnetParserHelpTextExamples
     {

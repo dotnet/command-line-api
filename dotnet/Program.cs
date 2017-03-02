@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using CommandLine;
+using Microsoft.DotNet.Cli.CommandLine;
 using System.Linq;
-using Create = CommandLine.SampleParsers.Dotnet.Create;
+using Create = Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet.Create;
 
 namespace dotnet
 {

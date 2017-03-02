@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CommandLine
+namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class ArgumentsRuleExtensions
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CommandLine
+namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class OptionExtensions
     {

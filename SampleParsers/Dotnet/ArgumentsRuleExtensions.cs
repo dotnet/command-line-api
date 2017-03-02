@@ -1,4 +1,4 @@
-﻿namespace CommandLine.SampleParsers.Dotnet
+﻿namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
 {
     public static class ArgumentsRuleExtensions
     {
