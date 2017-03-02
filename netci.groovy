@@ -9,7 +9,7 @@ def project = GithubProject
 def branch = GithubBranchName
 def isPR = true
 
-def platformList = ['Ubuntu:x64:Release', 'OSX:x64:Release', 'Windows_NT:x64:Release']
+def platformList = ['OSX:x64:Release', 'Windows_NT:x64:Release']
 
 def static getBuildJobName(def configuration, def os, def architecture) {
     return configuration.toLowerCase() + '_' + os.toLowerCase() + '_' + architecture.toLowerCase()
