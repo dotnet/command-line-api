@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace CommandLine
+namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class CommandExecutionResult
     {

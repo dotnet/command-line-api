@@ -4,10 +4,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using Newtonsoft.Json.Linq;
-using static CommandLine.Accept;
-using static CommandLine.Create;
+using static Microsoft.DotNet.Cli.CommandLine.Accept;
+using static Microsoft.DotNet.Cli.CommandLine.Create;
 
-namespace CommandLine.SampleParsers.Dotnet
+namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
 {
     public static class Create
     {

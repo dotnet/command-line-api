@@ -1,4 +1,4 @@
-namespace CommandLine.SampleParsers.Dotnet.HelpText
+namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet.HelpText
 {
     public static class Migrate
     {

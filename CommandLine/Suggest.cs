@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CommandLine
+namespace Microsoft.DotNet.Cli.CommandLine
 {
     public delegate IEnumerable<string> Suggest(ParseResult parseResult);
 }

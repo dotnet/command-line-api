@@ -2,7 +2,7 @@ using System;
 using FluentAssertions;
 using Xunit;
 
-namespace CommandLine.SampleParsers.git
+namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.git
 {
     public class GitParserTests
     {

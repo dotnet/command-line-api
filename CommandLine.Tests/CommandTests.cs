@@ -3,10 +3,10 @@ using FluentAssertions;
 using System.Linq;
 using Xunit;
 using static System.Console;
-using static CommandLine.Accept;
-using static CommandLine.Create;
+using static Microsoft.DotNet.Cli.CommandLine.Accept;
+using static Microsoft.DotNet.Cli.CommandLine.Create;
 
-namespace CommandLine.Tests
+namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
     public class CommandTests
     {

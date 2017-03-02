@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace CommandLine
+namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class Parser
     {

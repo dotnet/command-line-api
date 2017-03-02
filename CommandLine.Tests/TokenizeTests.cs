@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace CommandLine.Tests
+namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
     public class TokenizeTests
     {

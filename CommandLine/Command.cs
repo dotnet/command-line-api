@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static CommandLine.Accept;
-using static CommandLine.Create;
+using static Microsoft.DotNet.Cli.CommandLine.Accept;
+using static Microsoft.DotNet.Cli.CommandLine.Create;
 
-namespace CommandLine
+namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class Command : Option
     {
