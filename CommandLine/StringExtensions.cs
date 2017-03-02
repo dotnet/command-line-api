@@ -76,7 +76,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 source.Length - length,
                 length);
 
-        internal static IEnumerable<string> Lex(this IEnumerable<string> args)
+        internal static IEnumerable<string> Lex(
+            this IEnumerable<string> args,
+            IReadOnlyCollection<string> validTokens)
         {
             foreach (var arg in args)
             {
@@ -89,7 +91,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     yield return parts[0];
                     yield return parts[1];
                 }
-                else if (argHasPrefix && !arg.StartsWith("--"))
+                else if (argHasPrefix &&
+                         !arg.StartsWith("--") &&
+                         arg.RemovePrefix()
+                            .All(c => validTokens.Contains(c.ToString())))
                 {
                     foreach (var character in arg.Skip(1))
                     {
@@ -108,7 +113,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             arg.Contains("=") ||
             arg.Contains(":");
 
-        private static bool HasPrefix(string arg) => 
+        private static bool HasPrefix(string arg) =>
             optionPrefixCharacters.Contains(arg[0]);
 
         public static IEnumerable<string> Tokenize(this string s)

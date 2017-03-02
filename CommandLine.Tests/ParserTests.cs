@@ -528,5 +528,41 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             result1.Diagram().Should().Be(result2.Diagram());
         }
+
+        [Fact]
+        public void Absolute_unix_style_paths_are_lexed_correctly()
+        {
+            var command =
+                @"rm ""/temp/the file.txt""";
+
+            var parser = new Parser(
+                Command("rm", "", ZeroOrMoreArguments));
+
+            var result = parser.Parse(command);
+
+            result.AppliedOptions["rm"]
+                  .Arguments
+                  .Should()
+                  .OnlyContain(a => a == @"/temp/the file.txt");
+        }
+
+        [Fact]
+        public void Absolite_Windows_style_paths_are_lexed_correctly()
+        {
+            var command =
+                @"rm ""c:\temp\the file.txt\""";
+
+            var parser = new Parser(
+                Command("rm", "", ZeroOrMoreArguments));
+
+            var result = parser.Parse(command);
+
+            Console.WriteLine(result);
+
+            result.AppliedOptions["rm"]
+                  .Arguments
+                  .Should()
+                  .OnlyContain(a => a == @"c:\temp\the file.txt\");
+        }
     }
 }

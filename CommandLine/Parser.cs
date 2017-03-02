@@ -28,7 +28,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             IReadOnlyCollection<string> rawArgs,
             bool isProgressive)
         {
-            var unparsedTokens = new Queue<string>(Normalize(rawArgs).Lex());
+            var validTokens = DefinedOptions
+                .FlattenBreadthFirst()
+                .SelectMany(o => o.Aliases)
+                .Distinct()
+                .ToArray();
+
+            var unparsedTokens = new Queue<string>(Normalize(rawArgs).Lex(validTokens));
             var appliedOptions = new OptionSet<AppliedOption>();
             var errors = new List<OptionError>();
             var unmatchedTokens = new List<string>();
