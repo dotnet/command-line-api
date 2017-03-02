@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" >
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.5</TargetFrameworks>
+    <TargetFramework>netstandard1.5</TargetFramework>
      <AssemblyName>CommandLine</AssemblyName>
      <RootNamespace>CommandLine</RootNamespace>
   </PropertyGroup>

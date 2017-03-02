@@ -8,6 +8,8 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 REPOROOT="$DIR"
+export XDG_DATA_HOME="$REPOROOT/.nuget/packages"
+echo XDG_DATA_HOME=$XDG_DATA_HOME
 export NUGET_PACKAGES="$REPOROOT/.nuget/packages"
 echo NUGET_PACKAGES=$NUGET_PACKAGES
 export NUGET_HTTP_CACHE_PATH="$REPOROOT/.nuget/packages"
