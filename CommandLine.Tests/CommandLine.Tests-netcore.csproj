@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>Microsoft.DotNet.Cli.CommandLine.Tests</AssemblyName>
+    <RootNamespace>Microsoft.DotNet.Cli.CommandLine.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
