@@ -40,4 +40,5 @@ curl -sSL https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/
 
 PATH="$DOTNET_INSTALL_DIR:$PATH"
 
+dotnet msbuild build.proj /t:MakeVersionProps
 dotnet msbuild build.proj /v:diag /fl /flp:v=diag "${args[@]}"

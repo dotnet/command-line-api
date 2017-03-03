@@ -24,4 +24,5 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/s
 
 $env:PATH="$DOTNET_INSTALL_DIR;$env:PATH"
 
+& dotnet msbuild build.proj /t:MakeVersionProps
 & dotnet msbuild build.proj /v:diag /fl /flp:v=diag $ExtraParameters

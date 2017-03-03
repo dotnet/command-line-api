@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" >
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
-     <AssemblyName>CommandLine</AssemblyName>
-     <RootNamespace>CommandLine</RootNamespace>
+    <AssemblyName>CommandLine</AssemblyName>
+    <RootNamespace>CommandLine</RootNamespace>
     <AssemblyOriginatorKeyFile>../tools/Key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
+    <Version>1.0.0-alpha-$(CommitCount)</Version>
   </PropertyGroup>
 </Project>

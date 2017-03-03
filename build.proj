@@ -8,4 +8,27 @@
   <Target Name="DoPublish">
     <Exec Command="dotnet pack CommandLine/CommandLine-netcore.csproj --no-build" />
   </Target>
+
+  <Target Name="MakeVersionProps">
+    <MakeDir Condition="!Exists('obj')"
+             Directories="obj" />
+    <Exec Command="git rev-list --count HEAD" 
+          ConsoleToMSBuild="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="CommitCount" />
+    </Exec>
+
+    <PropertyGroup>
+      <GitCommitInfoPropsContent>
+&lt;Project ToolsVersion=&quot;15.0&quot;&gt;
+    &lt;PropertyGroup&gt;
+        &lt;CommitCount&gt;$(CommitCount)&lt;/CommitCount&gt;
+    &lt;/PropertyGroup&gt;
+&lt;/Project&gt;
+      </GitCommitInfoPropsContent>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="obj/CommitCount.props"
+                      Lines="$(GitCommitInfoPropsContent)"
+                      Overwrite="true" />
+  </Target>
 </Project>
