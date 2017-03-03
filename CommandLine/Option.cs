@@ -72,7 +72,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (options != null)
             {
-                ArgumentsRule = Accept.ZeroOrMoreOf(options).And(ArgumentsRule);
+                ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(options));
             }
 
             AllowedValues = ArgumentsRule.AllowedValues;

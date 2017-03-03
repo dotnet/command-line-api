@@ -53,6 +53,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string DefaultValue => defaultValue.Value;
 
+        internal Func<string> GetDefaultValue => () => defaultValue.Value;
+
         public string Description { get; }
 
         public string Name { get; }

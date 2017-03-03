@@ -564,5 +564,18 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Should()
                   .OnlyContain(a => a == @"c:\temp\the file.txt\");
         }
+
+        [Fact]
+        public void When_a_default_argument_value_is_not_provided_then_the_default_value_can_be_accessed_from_the_parse_result()
+        {
+            var option = Command("command", "",
+                                 ExactlyOneArgument.With(defaultValue: () => "default"),
+                                 Command("subcommand", "",
+                                         ExactlyOneArgument));
+
+            var result = option.Parse("command subcommand subcommand-arg");
+
+            result["command"].Arguments.Should().BeEquivalentTo("default");
+        }
     }
 }
