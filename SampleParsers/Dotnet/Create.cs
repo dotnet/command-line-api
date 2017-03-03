@@ -41,10 +41,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Complete() =>
             Command("complete", "",
                     ExactlyOneArgument
-                        .Named("path"),
+                        .With(name: "path"),
                     Option("--position", "",
                            ExactlyOneArgument
-                               .Named("command"),
+                               .With(name: "command"),
                            o => int.Parse(o.Arguments.Single())));
 
         private static Command Add() =>
@@ -61,7 +61,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Option("-o|--output",
                            "Output directory in which to place built artifacts.",
                            ExactlyOneArgument
-                               .Named("OUTPUT_DIR")),
+                               .With(name: "OUTPUT_DIR")),
                     Option("-f|--framework",
                            "Target framework to build for. The target framework has to be specified in the project file.",
                            AnyOneOf(FrameworksFromProjectFile())),
@@ -71,11 +71,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Option("-c|--configuration",
                            "Configuration to use for building the project. Default for most projects is  \"Debug\".",
                            ExactlyOneArgument
-                               .Named("CONFIGURATION")
-                               .Default("DEBUG")),
+                               .With(name: "CONFIGURATION",
+                                     defaultValue: () => "DEBUG")),
                     Option("--version-suffix", "Defines the value for the $(VersionSuffix) property in the project",
                            ExactlyOneArgument
-                               .Named("VERSION_SUFFIX")),
+                               .With(name: "VERSION_SUFFIX")),
                     Option("--no-incremental", "Disables incremental build."),
                     Option("--no-dependencies", "Set this flag to ignore project-to-project references and only build the root project"),
                     VerbosityOption());
@@ -86,25 +86,25 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     HelpOption(),
                     Option("-o|--output", "Directory in which the build outputs have been placed.",
                            ExactlyOneArgument
-                               .Named("OUTPUT_DIR")),
+                               .With(name: "OUTPUT_DIR")),
                     Option("-f|--framework", "Clean a specific framework.",
                            ExactlyOneArgument
-                               .Named("FRAMEWORK")),
+                               .With(name: "FRAMEWORK")),
                     Option("-c|--configuration", "Clean a specific configuration.",
                            ExactlyOneArgument
-                               .Named("CONFIGURATION")));
+                               .With(name: "CONFIGURATION")));
 
         private static Command List() =>
             Command("list", "",
                     ExactlyOneArgument
-                        .Named("PROJECT")
-                        .Description(
-                            "The project file to operate on. If a file is not specified, the command will search the current directory for one."),
+                        .With(name: "PROJECT",
+                              description:
+                              "The project file to operate on. If a file is not specified, the command will search the current directory for one."),
                     HelpOption(),
                     Command("reference", "Command to list project to project references",
                             ExactlyOneArgument
-                                .Named("PROJECT")
-                                .Description("The project file to operate on. If a file is not specified, the command will search the current directory for one."),
+                                .With(name: "PROJECT")
+                                .With(description: "The project file to operate on. If a file is not specified, the command will search the current directory for one."),
                             HelpOption()));
 
         private static Command Migrate() =>
@@ -160,29 +160,30 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                            "Show version information"),
                     Option("-v|--verbosity",
                            "The verbosity of logging to use. Allowed values: Debug, Verbose, Information, Minimal, Warning, Error.",
-                           ExactlyOneArgument.Named("verbosity")),
+                           ExactlyOneArgument
+                               .With(name: "verbosity")),
                     Command("delete",
                             "Deletes a package from the server.",
                             ExactlyOneArgument
-                                .Named("root")
-                                .Description("The Package Id and version."),
+                                .With(name: "root",
+                                      description: "The Package Id and version."),
                             HelpOption(),
                             Option("--force-english-output",
                                    "Forces the application to run using an invariant, English-based culture."),
                             Option("-s|--source",
                                    "Specifies the server URL",
                                    ExactlyOneArgument
-                                       .Named("source")),
+                                       .With(name: "source")),
                             Option("--non-interactive",
                                    "Do not prompt for user input or confirmations."),
                             Option("-k|--api-key",
                                    "The API key for the server.",
                                    ExactlyOneArgument
-                                       .Named("apiKey"))),
+                                       .With(name: "apiKey"))),
                     Command("locals",
                             "Clears or lists local NuGet resources such as http requests cache, packages cache or machine-wide global packages folder.",
                             AnyOneOf(@"all", @"http-cache", @"global-packages", @"temp")
-                                .Description("Cache Location(s)  Specifies the cache location(s) to list or clear."),
+                                .With(description: "Cache Location(s)  Specifies the cache location(s) to list or clear."),
                             HelpOption(),
                             Option("--force-english-output",
                                    "Forces the application to run using an invariant, English-based culture."),
@@ -196,21 +197,21 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                             Option("-s|--source",
                                    "Specifies the server URL",
                                    ExactlyOneArgument
-                                       .Named("source")),
+                                       .With(name: "source")),
                             Option("-ss|--symbol-source",
                                    "Specifies the symbol server URL. If not specified, nuget.smbsrc.net is used when pushing to nuget.org.",
                                    ExactlyOneArgument
-                                       .Named("source")),
+                                       .With(name: "source")),
                             Option("-t|--timeout",
                                    "Specifies the timeout for pushing to a server in seconds. Defaults to 300 seconds (5 minutes).",
                                    ExactlyOneArgument
-                                       .Named("timeout")),
+                                       .With(name: "timeout")),
                             Option("-k|--api-key", "The API key for the server.",
                                    ExactlyOneArgument
-                                       .Named("apiKey")),
+                                       .With(name: "apiKey")),
                             Option("-sk|--symbol-api-key", "The API key for the symbol server.",
                                    ExactlyOneArgument
-                                       .Named("apiKey")),
+                                       .With(name: "apiKey")),
                             Option("-d|--disable-buffering",
                                    "Disable buffering when pushing to an HTTP(S) server to decrease memory usage."),
                             Option("-n|--no-symbols",
@@ -223,7 +224,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Option("-o|--output",
                            "Directory in which to place built packages.",
                            ExactlyOneArgument
-                               .Named("OUTPUT_DIR")),
+                               .With(name: "OUTPUT_DIR")),
                     Option("--no-build",
                            "Skip building the project prior to packing. By default, the project will be built."),
                     Option("--include-symbols",
@@ -233,11 +234,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Option("-c|--configuration",
                            "Configuration to use for building the project.  Default for most projects is  \"Debug\".",
                            ExactlyOneArgument
-                               .Named("CONFIGURATION")),
+                               .With(name: "CONFIGURATION")),
                     Option("--version-suffix",
                            "Defines the value for the $(VersionSuffix) property in the project.",
                            ExactlyOneArgument
-                               .Named("VERSION_SUFFIX")),
+                               .With(name: "VERSION_SUFFIX")),
                     Option("-s|--serviceable",
                            "Set the serviceable flag in the package. For more information, please see https://aka.ms/nupkgservicing."),
                     VerbosityOption()
@@ -252,11 +253,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Option("-v|--version",
                            "Version for the package to be added.",
                            ExactlyOneArgument
-                               .Named("VERSION")),
+                               .With(name: "VERSION")),
                     Option("-f|--framework",
                            "Add reference only when targetting a specific framework",
                            ExactlyOneArgument
-                               .Named("FRAMEWORK")),
+                               .With(name: "FRAMEWORK")),
                     Option("-n|--no-restore ",
                            "Add reference without performing restore preview and compatibility check."),
                     Option("-s|--source",
@@ -264,58 +265,31 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Option("--package-directory",
                            "Restore the packages to this Directory .",
                            ExactlyOneArgument
-                               .Named("PACKAGE_DIRECTORY")));
-
-        private static IEnumerable<string> QueryNuGet(string match)
-        {
-            var httpClient = new HttpClient();
-
-            string result = null;
-
-            try
-            {
-                var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                var response = httpClient.GetAsync($"https://api-v2v3search-0.nuget.org/query?q={match}&skip=0&take=100&prerelease=true", cancellation.Token)
-                                         .Result;
-
-                result = response.Content.ReadAsStringAsync().Result;
-            }
-            catch (Exception)
-            {
-                yield break;
-            }
-
-            var json = JObject.Parse(result);
-
-            foreach (var id in json["data"])
-            {
-                yield return id["id"].Value<string>();
-            }
-        }
+                               .With(name: "PACKAGE_DIRECTORY")));
 
         private static Command Publish() =>
             Command("publish",
                     ".NET Publisher",
-                    ExactlyOneArgument, 
+                    ExactlyOneArgument,
                     HelpOption(),
                     Option("-f|--framework",
                            "Target framework to publish for. The target framework has to be specified in the project file.",
                            ExactlyOneArgument
-                               .Named("FRAMEWORK")),
+                               .With(name: "FRAMEWORK")),
                     Option("-r|--runtime",
                            "Publish the project for a given runtime. This is used when creating self-contained deployment. Default is to publish a framework-dependent app.",
                            ExactlyOneArgument
-                               .Named("RUNTIME_IDENTIFIER")),
+                               .With(name: "RUNTIME_IDENTIFIER")),
                     Option("-o|--output",
                            "Output directory in which to place the published artifacts.",
                            ExactlyOneArgument
-                               .Named("OUTPUT_DIR")),
+                               .With(name: "OUTPUT_DIR")),
                     Option("-c|--configuration", "Configuration to use for building the project.  Default for most projects is  \"Debug\".",
                            ExactlyOneArgument
-                               .Named("CONFIGURATION")),
+                               .With(name: "CONFIGURATION")),
                     Option("--version-suffix", "Defines the value for the $(VersionSuffix) property in the project.",
                            ExactlyOneArgument
-                               .Named("VERSION_SUFFIX")),
+                               .With(name: "VERSION_SUFFIX")),
                     VerbosityOption());
 
         private static Command Remove() =>
@@ -331,7 +305,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                             Option("-f|--framework",
                                    "Remove reference only when targetting a specific framework",
                                    ExactlyOneArgument
-                                       .Named("FRAMEWORK"))));
+                                       .With(name: "FRAMEWORK"))));
 
         private static Command Reference() =>
             Command("reference",
@@ -341,7 +315,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Option("-f|--framework",
                            "Add reference only when targetting a specific framework",
                            ExactlyOneArgument
-                               .Named("FRAMEWORK")));
+                               .With(name: "FRAMEWORK")));
 
         private static Command Restore() =>
             Command("restore",
@@ -350,21 +324,21 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Option("-s|--source",
                            "Specifies a NuGet package source to use during the restore.",
                            ExactlyOneArgument
-                               .Named("SOURCE")),
+                               .With(name: "SOURCE")),
                     Option("-r|--runtime",
                            "Target runtime to restore packages for.",
                            AnyOneOf(RunTimesFromProjectFile())
-                               .Named("RUNTIME_IDENTIFIER")),
+                               .With(name: "RUNTIME_IDENTIFIER")),
                     Option("--packages",
                            "Directory to install packages in.",
                            ExactlyOneArgument
-                               .Named("PACKAGES_DIRECTORY")),
+                               .With(name: "PACKAGES_DIRECTORY")),
                     Option("--disable-parallel",
                            "Disables restoring multiple projects in parallel."),
                     Option("--configfile",
                            "The NuGet configuration file to use.",
                            ExactlyOneArgument
-                               .Named("FILE")),
+                               .With(name: "FILE")),
                     Option("--no-cache",
                            "Do not cache packages and http requests."),
                     Option("--ignore-failed-sources",
@@ -393,12 +367,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Command("add",
                             ".NET Add project(s) to a solution file Command",
                             ExactlyOneArgument
-                                .Named("SLN_FILE"),
+                                .With(name: "SLN_FILE"),
                             HelpOption()),
                     Command("list",
                             "List all projects in the solution.",
                             ExactlyOneArgument
-                                .Named("SLN_FILE"),
+                                .With(name: "SLN_FILE"),
                             HelpOption()),
                     Command("remove",
                             "Remove the specified project(s) from the solution. The project is not impacted."));
@@ -411,7 +385,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Option("-s|--settings",
                            "Settings to use when running tests.",
                            ExactlyOneArgument
-                               .Named("SETTINGS_FILE")),
+                               .With(name: "SETTINGS_FILE")),
                     Option("-t|--list-tests",
                            "Lists discovered tests"),
                     Option("--filter",
@@ -421,28 +395,29 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                                         Run a test with the specified full name: --filter ""FullyQualifiedName=Namespace.ClassName.MethodName""
                                         Run tests that contain the specified name: --filter ""FullyQualifiedName~Namespace.Class""
                                         More info on filtering support: https://aka.ms/vstest-filtering",
-                           ExactlyOneArgument.Named("EXPRESSION")),
+                           ExactlyOneArgument
+                               .With(name: "EXPRESSION")),
                     Option("-a|--test-adapter-path",
                            "Use custom adapters from the given path in the test run.\r\n                          Example: --test-adapter-path <PATH_TO_ADAPTER>"),
                     Option("-l|--logger",
                            "Specify a logger for test results.\r\n                          Example: --logger \"trx[;LogFileName=<Defaults to unique file name>]\"",
                            ExactlyOneArgument
-                               .Named("LoggerUri/FriendlyName")),
+                               .With(name: "LoggerUri/FriendlyName")),
                     Option("-c|--configuration", "Configuration to use for building the project.  Default for most projects is  \"Debug\".",
                            ExactlyOneArgument
-                               .Named("CONFIGURATION")),
+                               .With(name: "CONFIGURATION")),
                     Option("-f|--framework",
                            "Looks for test binaries for a specific framework",
                            ExactlyOneArgument
-                               .Named("FRAMEWORK")),
+                               .With(name: "FRAMEWORK")),
                     Option("-o|--output",
                            "Directory in which to find the binaries to be run",
                            ExactlyOneArgument
-                               .Named("OUTPUT_DIR")),
+                               .With(name: "OUTPUT_DIR")),
                     Option("-d|--diag",
                            "Enable verbose logs for test platform.\r\n                          Logs are written to the provided file.",
                            ExactlyOneArgument
-                               .Named("PATH_TO_FILE")),
+                               .With(name: "PATH_TO_FILE")),
                     Option("--no-build",
                            "Do not build project before testing."),
                     VerbosityOption());
@@ -462,7 +437,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                             "d[etailed]"));
 
         private static string[] FrameworksFromProjectFile() =>
-            new string[] { }; 
+            new string[] { };
 
         public static string[] KnownRuntimes =
         {
@@ -478,6 +453,33 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
             "ubuntu.14.04-x64",
             "ubuntu.16.04-x64",
         };
+
+        private static IEnumerable<string> QueryNuGet(string match)
+        {
+            var httpClient = new HttpClient();
+
+            string result = null;
+
+            try
+            {
+                var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                var response = httpClient.GetAsync($"https://api-v2v3search-0.nuget.org/query?q={match}&skip=0&take=100&prerelease=true", cancellation.Token)
+                                         .Result;
+
+                result = response.Content.ReadAsStringAsync().Result;
+            }
+            catch (Exception)
+            {
+                yield break;
+            }
+
+            var json = JObject.Parse(result);
+
+            foreach (var id in json["data"])
+            {
+                yield return id["id"].Value<string>();
+            }
+        }
 
         private static string[] RunTimesFromProjectFile() => Array.Empty<string>();
     }
