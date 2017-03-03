@@ -61,8 +61,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public AppliedOption this[string alias] => AppliedOptions[alias];
 
-        public bool HasOption(string alias) => AppliedOptions.Contains(alias);
-
         private void CheckForOptionErrors()
         {
             foreach (var option in AppliedOptions.FlattenBreadthFirst())

@@ -179,13 +179,26 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command --one --two");
 
-            System.Console.WriteLine(result);
-
             result
                 .Errors
                 .Select(e => e.Message)
                 .Should()
                 .Contain("Options '--one' and '--two' cannot be used together.");
+        }
+
+        [Fact]
+        public void HasOption_can_be_used_to_check_the_presence_of_an_option()
+        {
+            var command = Command("the-command", "",
+                                  Option("-h|--help", ""));
+
+            var result = command.Parse("the-command -h");
+
+            result.AppliedOptions
+                  .Single()
+                  .HasOption("help")
+                  .Should()
+                  .BeTrue();
         }
     }
 }
