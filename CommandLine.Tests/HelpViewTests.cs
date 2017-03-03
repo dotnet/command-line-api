@@ -47,15 +47,15 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Command_help_view_includes_names_of_parent_commands()
         {
-            var command = Command("outer", "",
-                                  Command("inner", "",
-                                          Command("inner-er", "",
-                                                  Option("some-option", ""))));
+            var command = Command("outer", "the outer command",
+                                  Command("inner", "the inner command",
+                                          Command("inner-er", "the inner-er command",
+                                                  Option("some-option", "some option"))));
 
             command["inner"]["inner-er"]
                 .HelpView()
                 .Should()
-                .StartWith("usage: outer inner inner-er [<options>]");
+                .StartWith("usage: outer inner inner-er [options]");
         }
 
         [Fact]

@@ -23,10 +23,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var options = command.DefinedOptions.ToArray();
 
-            var commands = command.AllCommands().ToArray();
-
             options = options
                 .Where(o => !o.IsCommand)
+                .Where(o => !o.IsHidden())
                 .ToArray();
 
             var s = new StringBuilder();
@@ -35,18 +34,40 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             s.Append(command.FullyQualifiedName());
 
-            if (commands.Any())
+            if (options.Any())
             {
-                s.Append(" [<options>]");
+                s.Append(" [options]");
             }
 
-            s.AppendLine(" [--] <operands>...");
+            s.Append(" [arguments]");
 
             s.AppendLine();
 
-            foreach (var option in options.Where(o => !o.IsHidden()))
+            if (options.Any())
             {
-                WriteHelpText(option, s);
+                s.AppendLine();
+                s.AppendLine("Options:");
+                s.AppendLine();
+
+                foreach (var option in options)
+                {
+                    WriteHelpSummary(option, s);
+                }
+            }
+
+            var subcommands = command
+                .DefinedOptions
+                .OfType<Command>()
+                .ToArray();
+
+            if (subcommands.Any())
+            {
+                s.AppendLine();
+                s.AppendLine("Commands:");
+                foreach (var subcommand in subcommands)
+                {
+                    WriteHelpSummary(subcommand, s);
+                }
             }
 
             return s.ToString();
@@ -62,28 +83,31 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var s = new StringBuilder();
 
-            WriteHelpText(option, s);
+            WriteHelpSummary(option, s);
 
             return s.ToString();
         }
 
-        private static void WriteHelpText(Option option, StringBuilder s)
+        private static void WriteHelpSummary(Option option, StringBuilder s)
         {
-            var optionString = "    " +
-                               string.Join(", ",
-                                           option.Aliases
-                                                 .OrderBy(a => a.Length)
-                                                 .Select(a => a.Length == 1
-                                                                  ? $"-{a}"
-                                                                  : $"--{a}"));
+            var aliases = "    " +
+                          string.Join(", ",
+                                      option.Aliases
+                                            .OrderBy(a => a.Length)
+                                            .Select(a =>
+                                                        option.IsCommand
+                                                            ? a
+                                                            : a.Length == 1
+                                                                ? $"-{a}"
+                                                                : $"--{a}"));
 
-            s.Append(optionString);
+            s.Append(aliases);
 
             var colWidth = 26;
 
-            if (optionString.Length <= colWidth - 2)
+            if (aliases.Length <= colWidth - 2)
             {
-                s.Append(new string(' ', colWidth - optionString.Length));
+                s.Append(new string(' ', colWidth - aliases.Length));
             }
             else
             {
