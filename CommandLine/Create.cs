@@ -11,7 +11,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         internal static ArgumentsRule ParseRule(
             Func<AppliedOption, string> validate,
-            IReadOnlyCollection<string> values) =>
+            IReadOnlyCollection<string> values = null) =>
             new ArgumentsRule(validate, values);
 
         internal static ArgumentsRule And(

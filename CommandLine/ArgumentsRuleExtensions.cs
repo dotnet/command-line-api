@@ -24,7 +24,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 defaultValue: defaultValue ??
                               (() => rule.DefaultValue),
                 description: name ?? rule.Name,
-                name: description ?? rule.Description);
+                name: description ?? rule.Description, 
+                suggest: rule.Suggest);
         }
     }
 }

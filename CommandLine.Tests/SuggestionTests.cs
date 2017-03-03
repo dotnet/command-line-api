@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 using static Microsoft.DotNet.Cli.CommandLine.Accept;
@@ -101,6 +102,32 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                    .Should()
                    .BeEquivalentTo("animal",
                                    "mineral");
+        }
+
+        [Fact]
+        public void Validations_and_suggestions_can_be_provided_using_a_delegate()
+        {
+            var command = Command("the-command", "",
+                                  Command("one", "",
+                                          AnyOneOf(() => new[]
+                                          {
+                                              "vegetable",
+                                              "mineral",
+                                              "animal"
+                                          })));
+
+            command.Parse("the-command one m")
+                   .Suggestions()
+                   .Should()
+                   .BeEquivalentTo("animal",
+                                   "mineral");
+
+            command
+                .Parse("the-command one fungus")
+                .Errors
+                .Select(e => e.Message)
+                .Should()
+                .BeEquivalentTo("Required argument missing for command: one");
         }
 
         [Fact]
