@@ -112,6 +112,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return new CommandExecutionResult(parseResult);
         }
 
+        public static bool HasOption(
+            this ParseResult parseResult,
+            string alias)
+        {
+            if (parseResult == null)
+            {
+                throw new ArgumentNullException(nameof(parseResult));
+            }
+
+            return parseResult.AppliedOptions.Contains(alias);
+        }
+
         public static IEnumerable<string> Suggestions(this ParseResult parseResult) =>
             parseResult?.CurrentOption()
                        ?.Option

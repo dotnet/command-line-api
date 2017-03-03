@@ -30,5 +30,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 yield return item;
             }
         }
+
+        public static bool HasOption(
+            this AppliedOption option,
+            string alias)
+        {
+            if (option == null)
+            {
+                throw new ArgumentNullException(nameof(option));
+            }
+
+            return option.AppliedOptions.Contains(alias);
+        }
     }
 }
