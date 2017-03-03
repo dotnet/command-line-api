@@ -21,10 +21,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             rules = new[] { rule }.Concat(rules).ToArray();
 
             return new ArgumentsRule(
-                option => rules.Select(r => r.Validate(option))
+                validate:   option => rules.Select(r => r.Validate(option))
                                .FirstOrDefault(result => !string.IsNullOrWhiteSpace(result)),
-                rules.SelectMany(r => r.AllowedValues).Distinct().ToArray(),
-                suggest: result => rules.SelectMany(r => r.Suggest(result)));
+                allowedValues:  rules.SelectMany(r => r.AllowedValues).Distinct().ToArray(),
+                suggest: result => rules.SelectMany(r => r.Suggest(result)), 
+                name: rule.Name,
+                description: rule.Description,
+                defaultValue: rule.GetDefaultValue);
         }
 
         public static Option Option(
