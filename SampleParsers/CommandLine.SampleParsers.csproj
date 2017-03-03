@@ -82,7 +82,6 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="Dotnet\ArgumentsRuleExtensions.cs" />
     <Compile Include="Dotnet\SuggestionTests.cs" />
     <Compile Include="Dotnet\DotnetParserTests.cs" />
     <Compile Include="Dotnet\HelpText\Add.cs" />
