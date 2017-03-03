@@ -20,6 +20,23 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                        : "",
                               values));
 
+        public static ArgumentsRule AnyOneOf(
+            Func<IEnumerable<string>> getValues) =>
+            ExactlyOneArgument
+                .And(
+                    ParseRule(o =>
+                    {
+                        var values = getValues().ToArray();
+
+                        return !values
+                                   .Contains(
+                                       o.Arguments.Single(),
+                                       StringComparer.OrdinalIgnoreCase)
+                                   ? $"Argument '{o.Arguments.Single()}' not recognized. Must be one of:\n\t{string.Join("\n\t", values.Select(v => $"'{v}'"))}"
+                                   : "";
+                    }))
+                .WithSuggestionsFrom(_ => getValues());
+
         public static ArgumentsRule ExactlyOneArgument { get; } =
             new ArgumentsRule(o =>
             {
