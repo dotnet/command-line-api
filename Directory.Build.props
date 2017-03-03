@@ -1,0 +1,7 @@
+<Project ToolsVersion="15.0">
+    <Import Condition="Exists('obj/CommitCount.props')"
+            Project="obj/CommitCount.props" />
+    <PropertyGroup>
+        <CommitCount Condition="'$(CommitCount)' == ''">0</CommitCount>
+    </PropertyGroup>
+</Project>
