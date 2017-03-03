@@ -1,4 +1,6 @@
-<Project DefaultTargets="DoBuild">
+<Project DefaultTargets="BuildAll">
+  <Target Name="BuildAll" DependsOnTargets="DoBuild;DoPublish" />
+
   <Target Name="DoBuild">
     <Exec Command="dotnet restore CommandLine-netcore.sln" />
     <Exec Command="dotnet build CommandLine-netcore.sln" />
