@@ -154,7 +154,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Parse("-o \"some stuff\" -- -x -y -z");
 
             result.HasOption("o")
-                  .Should().BeTrue();
+                  .Should()
+                  .BeTrue();
 
             result.AppliedOptions
                   .Should()
@@ -322,13 +323,15 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse("-a cat -v carrot -a dog");
 
-            result["animals"].Arguments
-                             .Should()
-                             .BeEquivalentTo("cat", "dog");
+            result["animals"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("cat", "dog");
 
-            result["vegetables"].Arguments
-                                .Should()
-                                .BeEquivalentTo("carrot");
+            result["vegetables"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("carrot");
         }
 
         [Fact]
@@ -341,8 +344,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var parser = new Parser(option);
 
             var result = parser.Parse("outer inner1 argument1 inner2 argument2");
-
-            System.Console.WriteLine(result);
 
             var applied = result.AppliedOptions.Single();
 
@@ -576,6 +577,21 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = option.Parse("command subcommand subcommand-arg");
 
             result["command"].Arguments.Should().BeEquivalentTo("default");
+        }
+
+        [Fact]
+        public void Unmatched_options_are_not_split_into_smaller_tokens()
+        {
+            var command = Command("command",
+                                  "",
+                                  ExactlyOneArgument,
+                                  Option("-o", "", NoArguments));
+
+            var result = command.Parse("command argument -o /p:RandomThing=random",
+                                       new char[0]);
+
+            result["command"].Arguments.Should().BeEquivalentTo("argument");
+            result.UnmatchedTokens.Should().BeEquivalentTo("/p:RandomThing=random");
         }
     }
 }

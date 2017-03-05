@@ -13,7 +13,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public static class StringExtensions
     {
         private static readonly char[] optionPrefixCharacters = { '-', '/' };
-        private static readonly char[] argumentDelimiterCharacters = { '=', ':' };
 
         private static readonly Regex tokenizer = new Regex(
             @"(""(?<q>[^""]+)"")|(?<q>\S+)",
@@ -78,7 +77,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal static IEnumerable<string> Lex(
             this IEnumerable<string> args,
-            IReadOnlyCollection<string> validTokens)
+            IReadOnlyCollection<string> validTokens,
+            char[] delimiters)
         {
             foreach (var arg in args)
             {
@@ -86,15 +86,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                 if (argHasPrefix && HasDelimiter(arg))
                 {
-                    var parts = arg.Split(argumentDelimiterCharacters, 2);
+                    var parts = arg.Split(delimiters, 2);
 
                     yield return parts[0];
-                    yield return parts[1];
+
+                    if (parts.Length > 1)
+                    {
+                        yield return parts[1];
+                    }
                 }
                 else if (argHasPrefix &&
                          !arg.StartsWith("--") &&
-                         arg.RemovePrefix()
-                            .All(c => validTokens.Contains(c.ToString())))
+                         arg.CanBeUnbundled(validTokens))
                 {
                     foreach (var character in arg.Skip(1))
                     {
@@ -108,6 +111,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
         }
+
+        private static bool CanBeUnbundled(
+            this string arg,
+            IReadOnlyCollection<string> validTokens) =>
+                arg.RemovePrefix()
+                   .All(c => validTokens.Contains(c.ToString()));
 
         private static bool HasDelimiter(string arg) =>
             arg.Contains("=") ||

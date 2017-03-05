@@ -73,7 +73,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ParseResult Parse(
             this Option option,
-            string commandLine) =>
-            new Parser(option).Parse(commandLine);
+            string commandLine,
+            char[] delimiters = null) =>
+            new Parser(delimiters, option).Parse(commandLine);
     }
 }
