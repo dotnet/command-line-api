@@ -103,12 +103,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            var command = parseResult.Command();
-            if (command != null)
-            {
-                var value = parseResult[command.Name].Value();
-            }
-
             return new CommandExecutionResult(parseResult);
         }
 

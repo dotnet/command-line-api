@@ -11,6 +11,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly List<string> arguments = new List<string>();
 
+        private readonly Func< object> materialize;
+
         private readonly OptionSet<AppliedOption> appliedOptions = new OptionSet<AppliedOption>();
 
         public AppliedOption(Option option, string token = null)
@@ -23,6 +25,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Option = option;
 
             Token = token ?? option.ToString();
+
+            this.materialize = () => option.ArgumentsRule.Materialize(this);
         }
 
         public OptionSet<AppliedOption> AppliedOptions =>
@@ -124,7 +128,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public T Value<T>() => (T) Value();
 
-        public object Value() => Option.Materialize(this);
+        public object Value() => materialize();
 
         public override string ToString() => this.Diagram();
     }

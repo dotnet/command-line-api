@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
@@ -25,19 +26,20 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("move", "",
-                        arguments: Accept.OneOrMoreArguments,
+                        arguments: Accept.OneOrMoreArguments
+                                         .MaterializeAs(p =>
+                                         {
+                                             output.WriteLine(p.ToString());
+
+                                             return new FileMoveOperation
+                                             {
+                                                 Files = p.Arguments.Select(f => new FileInfo(f)).ToList(),
+                                                 Destination = new DirectoryInfo(p["destination"].Arguments.Single())
+                                             };
+                                         }),
                         options: new[]
                         {
                             Option("-d|--destination", "", Accept.ExactlyOneArgument)
-                        },
-                        materialize: p => {
-                            output.WriteLine(p.ToString()); 
-                            
-                            return new FileMoveOperation
-                            {
-                                Files = p.Arguments.Select(f => new FileInfo(f)).ToList(),
-                                Destination = new DirectoryInfo(p["destination"].Arguments.Single())
-                            };
                         }));
 
             var folder = new DirectoryInfo(Path.Combine("temp"));
@@ -60,7 +62,36 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                              file1.FullName);
         }
 
-        [Fact(Skip="Not implemented")]
+        [Fact]
+        public void An_option_with_a_single_argument_materializes_as_the_argument_string_value_by_default()
+        {
+            var command = Command("the-command", "",
+                                  Option("-x", "", Accept.ExactlyOneArgument));
+
+            var result = command.Parse("the-command -x the-argument");
+
+            result["the-command"]["x"]
+                .Value()
+                .Should()
+                .Be("the-argument");
+        }
+
+        [Fact]
+        public void An_option_with_multiple_arguments_materializes_as_a_sequence_of_strings_by_default()
+        {
+            var command = Command("the-command", "",
+                                  Option("-x", "", Accept.ZeroOrMoreArguments));
+
+            command.Parse("the-command -x arg1 arg2")["the-command"]["x"]
+                   .Value()
+                   .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
+
+            command.Parse("the-command -x arg1")["the-command"]["x"]
+                   .Value()
+                   .ShouldBeEquivalentTo(new[] { "arg1" });
+        }
+
+        [Fact]
         public void An_option_without_arguments_materializes_as_true_when_it_is_applied()
         {
             var command = Command("something", "",
@@ -72,7 +103,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result["something"]["x"].Value<bool>().Should().BeTrue();
         }
 
-        [Fact(Skip="Not implemented")]
+        [Fact(Skip = "Not implemented yet")]
         public void An_option_without_arguments_materializes_as_false_when_it_is_not_applied()
         {
             var command = Command("something", "", Option("-x", ""));

@@ -17,9 +17,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string name,
             string help,
             Option[] options = null,
-            ArgumentsRule arguments = null,
-            Func<AppliedOption, object> materialize = null) :
-            base(new[] { name }, help, arguments, options, materialize)
+            ArgumentsRule arguments = null) :
+            base(new[] { name }, help, arguments, options)
         {
         }
 

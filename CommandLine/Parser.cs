@@ -97,7 +97,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 unmatchedTokens.Select(UnrecognizedArg));
 
             return new ParseResult(
-                this,
                 rawArgs,
                 appliedOptions,
                 isProgressive,

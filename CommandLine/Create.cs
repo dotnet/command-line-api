@@ -27,7 +27,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 suggest: result => rules.SelectMany(r => r.Suggest(result)), 
                 name: rule.Name,
                 description: rule.Description,
-                defaultValue: rule.GetDefaultValue);
+                defaultValue: rule.GetDefaultValue,
+                materialize: rule.Materialize);
         }
 
         public static Option Option(
@@ -35,20 +36,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string help,
             ArgumentsRule arguments = null,
             Func<AppliedOption, object> materialize = null) =>
-            new Option(aliases.Split('|'), help, arguments, materialize: materialize);
-
-        public static Command Command(
-            string name,
-            string help,
-            ArgumentsRule arguments = null,
-            Option[] options = null,
-            Func<AppliedOption, object> materialize = null) =>
-            new Command(
-                name,
-                help,
-                options,
-                arguments,
-                materialize);
+            new Option(aliases.Split('|'), help, arguments);
 
         public static Command Command(
             string name,

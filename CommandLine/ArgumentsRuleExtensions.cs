@@ -7,11 +7,28 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class ArgumentsRuleExtensions
     {
+        public static ArgumentsRule MaterializeAs<T>(
+            this ArgumentsRule rule,
+            Func<AppliedOption, T> materialize)
+        {
+            if (rule == null)
+            {
+                throw new ArgumentNullException(nameof(rule));
+            }
+            if (materialize == null)
+            {
+                throw new ArgumentNullException(nameof(materialize));
+            }
+
+            return rule.With(materialize: o => materialize(o));
+        }
+
         public static ArgumentsRule With(
             this ArgumentsRule rule,
             string description = null,
             string name = null,
-            Func<string> defaultValue = null)
+            Func<string> defaultValue = null,
+            Func<AppliedOption, object> materialize = null)
         {
             if (rule == null)
             {
@@ -24,8 +41,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 defaultValue: defaultValue ??
                               (() => rule.DefaultValue),
                 description: name ?? rule.Name,
-                name: description ?? rule.Description, 
-                suggest: rule.Suggest);
+                name: description ?? rule.Description,
+                suggest: rule.Suggest,
+                materialize: materialize ?? rule.Materialize);
         }
     }
 }

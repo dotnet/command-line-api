@@ -27,7 +27,5 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                 .Should()
                 .BeEquivalentTo("bar1.csproj", "bar2.csproj");
         }
-
-
     }
 }
