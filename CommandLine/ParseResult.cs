@@ -3,17 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ParseResult
     {
-        private readonly Parser parser;
         private readonly List<OptionError> errors = new List<OptionError>();
 
         internal ParseResult(
-            Parser parser,
             IReadOnlyCollection<string> tokens,
             OptionSet<AppliedOption> appliedOptions,
             bool isProgressive,
@@ -30,8 +27,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 throw new ArgumentNullException(nameof(appliedOptions));
             }
-
-            this.parser = parser;
 
             Tokens = tokens;
             AppliedOptions = appliedOptions;
