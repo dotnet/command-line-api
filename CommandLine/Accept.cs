@@ -55,7 +55,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
 
                 return null;
-            });
+            }, 
+                materialize: o => o.Arguments.Single());
 
         public static ArgumentsRule WithSuggestionsFrom(
             params string[] values) =>
@@ -76,15 +77,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule ZeroOrOneArgument { get; } =
             new ArgumentsRule(o =>
-            {
-                if (o.Arguments.Count > 1)
-                {
-                    var optionType = o.Option.IsCommand ? "Command" : "Option";
-                    return $"{optionType} '{o.Option}' only accepts a single argument but {o.Arguments.Count} were provided.";
-                }
+                              {
+                                  if (o.Arguments.Count > 1)
+                                  {
+                                      var optionType = o.Option.IsCommand ? "Command" : "Option";
+                                      return $"{optionType} '{o.Option}' only accepts a single argument but {o.Arguments.Count} were provided.";
+                                  }
 
-                return null;
-            });
+                                  return null;
+                              },
+                              materialize: o => o.Arguments);
 
         internal static ArgumentsRule ExactlyOneCommandRequired { get; } =
             new ArgumentsRule(o =>
@@ -108,7 +110,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             new ArgumentsRule(o =>
                                   o.Arguments.Any()
                                       ? $"Arguments not allowed for option: {o.Option}"
-                                      : null);
+                                      : null,
+                materialize: _ => true);
 
         public static ArgumentsRule OneOrMoreArguments { get; } =
             new ArgumentsRule(o =>
@@ -158,6 +161,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public static ArgumentsRule ZeroOrMoreArguments { get; } =
-            new ArgumentsRule(_ => null);
+            new ArgumentsRule(_ => null,
+                              materialize: o => o.Arguments);
     }
 }

@@ -11,8 +11,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly HashSet<string> aliases = new HashSet<string>();
 
-        private readonly Func<AppliedOption, object> materialize;
-
         private readonly Suggest suggest;
 
         public Option(
@@ -27,8 +25,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string[] aliases,
             string help,
             ArgumentsRule arguments = null,
-            Option[] options = null,
-            Func<AppliedOption, object> materialize = null)
+            Option[] options = null)
         {
             if (aliases == null)
             {
@@ -56,8 +53,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 .Select(a => a.RemovePrefix())
                 .OrderBy(a => a.Length)
                 .Last();
-
-            this.materialize = materialize;
 
             if (options != null && options.Any())
             {
@@ -102,18 +97,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public Option this[string alias] => DefinedOptions[alias];
 
-        public string AliasesString() =>
-            string.Join("|",
-                        aliases.Select(a => IsCommand
-                                                ? a
-                                                : a.AddPrefix()));
-
         public override string ToString() =>
             IsCommand
                 ? Name
                 : Name.AddPrefix();
-
-        internal object Materialize(AppliedOption appliedOption) =>
-            materialize?.Invoke(appliedOption);
     }
 }

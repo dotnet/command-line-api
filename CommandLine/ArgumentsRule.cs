@@ -10,16 +10,22 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public class ArgumentsRule
     {
         private readonly Func<AppliedOption, string> validate;
+        private readonly Func<AppliedOption, object> materialize;
         private readonly Func<ParseResult, IEnumerable<string>> suggest;
         private readonly Lazy<string> defaultValue;
 
-        public ArgumentsRule(
+        public ArgumentsRule(Func<AppliedOption, string> validate) : this(validate, null)
+        {
+        }
+
+        internal ArgumentsRule(
             Func<AppliedOption, string> validate,
             IReadOnlyCollection<string> allowedValues = null,
             Func<string> defaultValue = null,
             string description = null,
             string name = null,
-            Func<ParseResult, IEnumerable<string>> suggest = null)
+            Func<ParseResult, IEnumerable<string>> suggest = null,
+            Func<AppliedOption, object> materialize = null)
         {
             if (validate == null)
             {
@@ -45,6 +51,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             AllowedValues = allowedValues ?? Array.Empty<string>();
+
+            this.materialize = materialize;
         }
 
         public string Validate(AppliedOption option) => validate(option);
@@ -61,5 +69,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal IEnumerable<string> Suggest(ParseResult parseResult) =>
             suggest(parseResult);
+
+        internal object Materialize(AppliedOption appliedOption) => 
+            materialize?.Invoke(appliedOption);
     }
 }
