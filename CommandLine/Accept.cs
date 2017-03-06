@@ -39,30 +39,30 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule ExactlyOneArgument { get; } =
             new ArgumentsRule(o =>
-            {
-                var argumentCount = o.Arguments.Count;
+                              {
+                                  var argumentCount = o.Arguments.Count;
 
-                if (argumentCount == 0)
-                {
-                    var optionType = o.Option.IsCommand ? "command" : "option";
-                    return $"Required argument missing for {optionType}: {o.Option}";
-                }
+                                  if (argumentCount == 0)
+                                  {
+                                      var optionType = o.Option.IsCommand ? "command" : "option";
+                                      return $"Required argument missing for {optionType}: {o.Option}";
+                                  }
 
-                if (argumentCount > 1)
-                {
-                    var optionType = o.Option.IsCommand ? "Command" : "Option";
-                    return $"{optionType} '{o.Option}' only accepts a single argument but {argumentCount} were provided.";
-                }
+                                  if (argumentCount > 1)
+                                  {
+                                      var optionType = o.Option.IsCommand ? "Command" : "Option";
+                                      return $"{optionType} '{o.Option}' only accepts a single argument but {argumentCount} were provided.";
+                                  }
 
-                return null;
-            }, 
-                materialize: o => o.Arguments.Single());
+                                  return null;
+                              },
+                              materialize: o => o.Arguments.Single());
 
         public static ArgumentsRule WithSuggestionsFrom(
             params string[] values) =>
             new ArgumentsRule(
                 _ => null,
-                suggest: parseResult =>  values.FindSuggestions(parseResult.TextToMatch()));
+                suggest: parseResult => values.FindSuggestions(parseResult.TextToMatch()));
 
         public static ArgumentsRule WithSuggestionsFrom(
             Func<string, IEnumerable<string>> suggest) =>
@@ -74,6 +74,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentsRule rule,
             Func<string, IEnumerable<string>> suggest) =>
             rule.And(WithSuggestionsFrom(suggest));
+
+        public static ArgumentsRule WithSuggestionsFrom(
+            this ArgumentsRule rule,
+            params string[] values) =>
+            rule.And(WithSuggestionsFrom(values));
 
         public static ArgumentsRule ZeroOrOneArgument { get; } =
             new ArgumentsRule(o =>
@@ -111,7 +116,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                   o.Arguments.Any()
                                       ? $"Arguments not allowed for option: {o.Option}"
                                       : null,
-                materialize: _ => true);
+                              materialize: _ => true);
 
         public static ArgumentsRule OneOrMoreArguments { get; } =
             new ArgumentsRule(o =>

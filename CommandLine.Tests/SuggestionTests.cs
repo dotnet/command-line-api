@@ -69,12 +69,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var command = Command("the-command", "",
                                   Option("-t", "",
                                          ExactlyOneArgument
-                                             .WithSuggestionsFrom(s => new[]
-                                             {
+                                             .WithSuggestionsFrom(
                                                  "vegetable",
                                                  "mineral",
-                                                 "animal"
-                                             })));
+                                                 "animal")));
 
             command.Parse("the-command -t m")
                    .Suggestions()

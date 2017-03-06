@@ -26,7 +26,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             Token = token ?? option.ToString();
 
-            this.materialize = () => option.ArgumentsRule.Materialize(this);
+            materialize = () => option.ArgumentsRule.Materialize(this);
         }
 
         public OptionSet<AppliedOption> AppliedOptions =>
