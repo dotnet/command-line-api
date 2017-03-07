@@ -55,7 +55,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             if (option == null)
             {
-                yield break;
+                throw new ArgumentNullException(nameof(option));
             }
 
             yield return option;

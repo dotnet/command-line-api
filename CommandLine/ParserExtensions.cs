@@ -39,7 +39,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 s.Append(" [options]");
             }
 
-            s.Append(" [arguments]");
+            var argumentName = command.ArgumentsRule.Name;
+            if (!string.IsNullOrWhiteSpace(argumentName))
+            {
+                s.Append($" [{argumentName}]");
+            }
 
             s.AppendLine();
 
@@ -101,9 +105,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                                                 ? $"-{a}"
                                                                 : $"--{a}"));
 
+            var argumentName = option.ArgumentsRule.Name;
+            if (!string.IsNullOrWhiteSpace(argumentName))
+            {
+                aliases += $" <{argumentName}>";
+            }
+
             s.Append(aliases);
 
-            var colWidth = 26;
+            var colWidth = 38;
 
             if (aliases.Length <= colWidth - 2)
             {
@@ -115,7 +125,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 s.Append(new string(' ', colWidth));
             }
 
-            s.AppendLine(option.HelpText);
+            s.AppendLine(option.HelpText
+                               .Replace(Environment.NewLine,
+                                        Environment.NewLine + new string(' ', colWidth)));
         }
 
         public static ParseResult Parse(this Parser parser, string s) =>
