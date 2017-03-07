@@ -40,6 +40,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="CommandExecutionResult.cs" />
     <Compile Include="IAliased.cs" />
+    <Compile Include="ParseException.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="ParseResultExtensions.cs" />
     <Compile Include="ParserExtensions.cs" />

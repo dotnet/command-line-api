@@ -113,6 +113,25 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result["something"]["x"].Value<bool>().Should().BeFalse();
         }
 
+        [Fact]
+        public void When_a_materializer_throws_then_an_informative_exception_message_is_given()
+        {
+            var command = Command("the-command", "",
+                                  Option("-o|--one", "",
+                                         Accept.ExactlyOneArgument
+                                               .MaterializeAs(o => int.Parse(o.Arguments.Single()))));
+
+            var result = command.Parse("the-command -o not-an-int");
+
+            Action getValue = () => result["the-command"]["one"].Value();
+
+            getValue.ShouldThrow<ParseException>()
+                    .Which
+                    .Message
+                    .Should()
+                    .Be("An exception occurred while getting the value for option 'one' based on argument(s): not-an-int.");
+        }
+
         public class FileMoveOperation
         {
             public List<FileInfo> Files { get; set; }
