@@ -10,9 +10,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class Parser
     {
-        private readonly char[] delimiters = null;
+        private static readonly char[] defaultTokenSplitDelimiters = { '=', ':' };
 
-        public char[] DefaultArgumentSplitDelimiters { get; set; } = { '=', ':' };
+        private readonly char[] tokenSplitDelimiters = null;
 
         public Parser(params Option[] options)
         {
@@ -22,12 +22,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             DefinedOptions.AddRange(options);
-            delimiters = DefaultArgumentSplitDelimiters;
+            tokenSplitDelimiters = defaultTokenSplitDelimiters;
         }
 
         public Parser(char[] delimiters, params Option[] options) : this(options)
         {
-            this.delimiters = delimiters ?? DefaultArgumentSplitDelimiters;
+            tokenSplitDelimiters = delimiters ?? defaultTokenSplitDelimiters;
         }
 
         public OptionSet<Option> DefinedOptions { get; } = new OptionSet<Option>();
@@ -44,7 +44,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 .Distinct()
                 .ToArray();
 
-            var unparsedTokens = new Queue<string>(Normalize(rawArgs).Lex(validTokens, delimiters));
+            var unparsedTokens = new Queue<string>(Normalize(rawArgs).Lex(validTokens, tokenSplitDelimiters));
             var appliedOptions = new OptionSet<AppliedOption>();
             var errors = new List<OptionError>();
             var unmatchedTokens = new List<string>();
@@ -136,6 +136,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             return args;
         }
+
+        public Parser this[string alias] =>
+            new Parser(tokenSplitDelimiters, DefinedOptions[alias].DefinedOptions.ToArray());
 
         private static OptionError UnrecognizedArg(string arg) =>
             new OptionError(

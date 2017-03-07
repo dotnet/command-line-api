@@ -593,5 +593,48 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result["command"].Arguments.Should().BeEquivalentTo("argument");
             result.UnmatchedTokens.Should().BeEquivalentTo("/p:RandomThing=random");
         }
+
+        [Fact]
+        public void A_sub_parser_can_be_obtained_by_the_alias_of_the_command()
+        {
+            var parser = new Parser(
+                Command("outer", "",
+                        Command("inner-one", "",
+                                Option("--option-one", "")),
+                        Command("inner-two", "",
+                                Option("--option-two", ""))));
+
+            parser["outer"]
+                .DefinedOptions
+                .Select(o => o.Name)
+                .Should()
+                .BeEquivalentTo("inner-one", "inner-two");
+
+            parser["outer"]["inner-two"]
+                .DefinedOptions
+                .Select(o => o.Name)
+                .Should()
+                .BeEquivalentTo("option-two");
+        }
+
+        [Fact]
+        public void A_sub_parser_has_the_parent_parser_configurations()
+        {
+            var parser = new Parser(
+                new char[0],
+                Command("outer", "",
+                        NoArguments,
+                        Command("inner", "",
+                                ZeroOrMoreArguments)));
+
+            var child = parser["outer"];
+
+            var result = child.Parse("inner /x:this=that");
+
+            result["inner"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("/x:this=that");
+        }
     }
 }
