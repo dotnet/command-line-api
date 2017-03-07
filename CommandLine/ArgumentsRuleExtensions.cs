@@ -40,8 +40,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 allowedValues: rule.AllowedValues,
                 defaultValue: defaultValue ??
                               (() => rule.DefaultValue),
-                description: name ?? rule.Name,
-                name: description ?? rule.Description,
+                name: name ?? rule.Name,
+                description: description ?? rule.Description,
                 suggest: rule.Suggest,
                 materialize: materialize ?? rule.Materialize);
         }

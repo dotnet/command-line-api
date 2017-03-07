@@ -128,5 +128,64 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             suggestions.Should().NotContain("-x");
         }
+
+        [Fact]
+        public void When_a_command_accepts_arguments_then_the_usage_string_mentions_them()
+        {
+            var command = Command("the-command", "command help",
+                                  ZeroOrMoreArguments.With(name: "the-args"),
+                                  Option("-v|--verbosity", "Sets the verbosity"));
+
+            var helpView = command.HelpView();
+
+            helpView
+                .Should()
+                .Contain("usage: the-command [options] [the-args]");
+        }
+
+        [Fact]
+        public void When_a_command_does_not_accept_arguments_then_the_usage_string_does_not_mention_them()
+        {
+            var command = Command("the-command",
+                                  "command help",
+                                  NoArguments,
+                                  Option("-v|--verbosity", "Sets the verbosity"));
+
+            var helpView = command.HelpView();
+
+            helpView
+                .Should()
+                .NotContain("arguments");
+        }
+
+        [Fact]
+        public void Help_view_wraps_with_aligned_column_when_help_text_contains_newline()
+        {
+            var command = Command("the-command",
+                                  "command help",
+                                  Option("-v|--verbosity",
+                                         $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud", ExactlyOneArgument));
+
+            var helpView = command.HelpView();
+
+            var indent = new string(' ', 38);
+
+            helpView.Should()
+                    .Contain($"Sets the verbosity. Accepted values are:{NewLine}{indent}- quiet{NewLine}{indent}- loud{NewLine}{indent}- very-loud");
+        }
+
+        [Fact]
+        public void Argument_names_are_included_in_help_view()
+        {
+            var command = Command("the-command",
+                                  "command help",
+                                  Option("-v|--verbosity",
+                                         "Sets the verbosity.",
+                                         ExactlyOneArgument.With(name: "LEVEL")));
+
+            command.HelpView()
+                   .Should()
+                   .Contain("  -v, --verbosity <LEVEL>           Sets the verbosity.");
+        }
     }
 }
