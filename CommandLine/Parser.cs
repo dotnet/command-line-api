@@ -10,7 +10,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class Parser
     {
-        private char[] Delimiters { get; }
+        private readonly char[] delimiters = null;
+
+        public char[] DefaultArgumentSplitDelimiters { get; set; } = { '=', ':' };
 
         public Parser(params Option[] options)
         {
@@ -20,12 +22,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             DefinedOptions.AddRange(options);
-            Delimiters = new[] { '=', ':' };
+            delimiters = DefaultArgumentSplitDelimiters;
         }
 
         public Parser(char[] delimiters, params Option[] options) : this(options)
         {
-            Delimiters = delimiters ?? new [] { '=', ':' };
+            this.delimiters = delimiters ?? DefaultArgumentSplitDelimiters;
         }
 
         public OptionSet<Option> DefinedOptions { get; } = new OptionSet<Option>();
@@ -42,7 +44,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 .Distinct()
                 .ToArray();
 
-            var unparsedTokens = new Queue<string>(Normalize(rawArgs).Lex(validTokens, Delimiters));
+            var unparsedTokens = new Queue<string>(Normalize(rawArgs).Lex(validTokens, delimiters));
             var appliedOptions = new OptionSet<AppliedOption>();
             var errors = new List<OptionError>();
             var unmatchedTokens = new List<string>();
