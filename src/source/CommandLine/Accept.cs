@@ -109,6 +109,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return null;
             }));
 
+        public static ArgumentsRule  OfType<T>(this ArgumentsRule rule)
+        {
+            return rule.And(ParseRule(o =>
+            {
+                foreach (var arg in o.Arguments)
+                {
+                    if ()
+                    {
+                        return "!";
+                    }
+                }
+            }) );
+        }
+
         public static ArgumentsRule WithSuggestionsFrom(
             params string[] values) =>
             new ArgumentsRule(

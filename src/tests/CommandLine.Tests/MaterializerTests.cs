@@ -179,6 +179,36 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result["something"]["x"].Value<bool>().Should().BeFalse();
         }
 
+        [Fact]
+        public void When_OfType_is_used_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
+        {
+            var command = Command("tally", "",
+                                  Accept.ExactlyOneArgument
+                                        .OfType<int>());
+
+            var result = command.Parse("tally one");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("oops wrong type");
+        }
+
+        [Fact]
+        public void When_OfType_is_used_and_an_argument_is_of_the_expected_type_then_it_can_be_materialized_as_that_type()
+        {
+            var command = Command("tally", "",
+                                  Accept.ExactlyOneArgument
+                                        .OfType<int>());
+
+            var result = command.Parse("tally 123");
+
+            result["tally"]
+                .Value()
+                .Should()
+                .BeOfType<int>();
+        }
+
         public class FileMoveOperation
         {
             public List<FileInfo> Files { get; set; }
