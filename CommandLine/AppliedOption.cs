@@ -128,7 +128,22 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public T Value<T>() => (T) Value();
 
-        public object Value() => materialize();
+        public object Value()
+        {
+            try
+            {
+                return materialize();
+            }
+            catch (Exception exception)
+            {
+                var argumentsDescription = Arguments.Any()
+                                               ? string.Join(", ", Arguments)
+                                               : " (none)";
+                throw new ParseException(
+                    $"An exception occurred while getting the value for option '{Option.Name}' based on argument(s): {argumentsDescription}.",
+                    exception);
+            }
+        }
 
         public override string ToString() => this.Diagram();
     }
