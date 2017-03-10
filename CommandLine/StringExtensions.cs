@@ -75,9 +75,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 source.Length - length,
                 length);
 
-        internal static IEnumerable<string> Lex(
+        internal static IEnumerable<Token> Lex(
             this IEnumerable<string> args,
-            IReadOnlyCollection<string> validTokens,
+            HashSet<string> knownTokens,
             char[] delimiters)
         {
             foreach (var arg in args)
@@ -88,35 +88,40 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     var parts = arg.Split(delimiters, 2);
 
-                    yield return parts[0];
+                    yield return new Token(parts[0], TokenType.Option);
 
                     if (parts.Length > 1)
                     {
-                        yield return parts[1];
+                        yield return new Token(parts[1], TokenType.Argument);
                     }
                 }
-                else if (argHasPrefix &&
-                         !arg.StartsWith("--") &&
-                         arg.CanBeUnbundled(validTokens))
+                else if (arg.CanBeUnbundled(knownTokens))
                 {
                     foreach (var character in arg.Skip(1))
                     {
                         // unbundle e.g. -xyz into -x -y -z
-                        yield return $"-{character}";
+                        yield return new Token($"-{character}", TokenType.Option);
                     }
+                }
+                else if (!knownTokens.Contains(arg))
+                {
+                    yield return new Token(arg, TokenType.Argument);
                 }
                 else
                 {
-                    yield return arg;
+                    yield return new Token(arg, argHasPrefix ? TokenType.Option : TokenType.Command);
                 }
             }
         }
 
         private static bool CanBeUnbundled(
             this string arg,
-            IReadOnlyCollection<string> validTokens) =>
-                arg.RemovePrefix()
-                   .All(c => validTokens.Contains(c.ToString()));
+            IReadOnlyCollection<string> knownTokens) =>
+            arg.StartsWith("-") &&
+            arg.RemovePrefix()
+               .All(c => knownTokens
+                        .Select(t => t.RemovePrefix())
+                        .Contains(c.ToString()));
 
         private static bool HasDelimiter(string arg) =>
             arg.Contains("=") ||

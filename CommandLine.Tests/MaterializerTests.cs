@@ -26,7 +26,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("move", "",
-                        arguments: Accept.OneOrMoreArguments
+                        arguments: Accept.OneOrMoreArguments()
                                          .MaterializeAs(p =>
                                          {
                                              output.WriteLine(p.ToString());
@@ -39,7 +39,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                          }),
                         options: new[]
                         {
-                            Option("-d|--destination", "", Accept.ExactlyOneArgument)
+                            Option("-d|--destination", "", Accept.ExactlyOneArgument())
                         }));
 
             var folder = new DirectoryInfo(Path.Combine("temp"));
@@ -66,7 +66,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void An_option_with_a_single_argument_materializes_as_the_argument_string_value_by_default()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", Accept.ExactlyOneArgument));
+                                  Option("-x", "", Accept.ExactlyOneArgument()));
 
             var result = command.Parse("the-command -x the-argument");
 
@@ -80,7 +80,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void An_option_with_multiple_arguments_materializes_as_a_sequence_of_strings_by_default()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", Accept.ZeroOrMoreArguments));
+                                  Option("-x", "", Accept.ZeroOrMoreArguments()));
 
             command.Parse("the-command -x arg1 arg2")["the-command"]["x"]
                    .Value()
@@ -95,7 +95,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void An_option_without_arguments_materializes_as_true_when_it_is_applied()
         {
             var command = Command("something", "",
-                                  Accept.NoArguments,
+                                  Accept.NoArguments(),
                                   Option("-x", ""));
 
             var result = command.Parse("something -x");
@@ -118,7 +118,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Option("-o|--one", "",
-                                         Accept.ExactlyOneArgument
+                                         Accept.ExactlyOneArgument()
                                                .MaterializeAs(o => int.Parse(o.Arguments.Single()))));
 
             var result = command.Parse("the-command -o not-an-int");

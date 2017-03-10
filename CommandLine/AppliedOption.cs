@@ -87,7 +87,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var childOption =
                 Option.DefinedOptions
-                      .Where(o => o.HasAlias(firstToken))
+                      .Where(o => o.RawAliases.Any(a => a == firstToken))
                       .Select(o => new AppliedOption(o, firstToken))
                       .Do(appliedOptions.TryAdd)
                       .FirstOrDefault();

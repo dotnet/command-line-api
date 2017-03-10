@@ -18,7 +18,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var parser = new Parser(
                 Command("the-command",
                         "Does the thing.",
-                        ExactlyOneArgument));
+                        ExactlyOneArgument()));
 
             var result = parser.Parse("the-command");
 
@@ -34,7 +34,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var parser = new Parser(
                 Command("the-command",
                         "Does the thing.",
-                        Option("-x", "Specifies value x", ExactlyOneArgument)));
+                        Option("-x", "Specifies value x", ExactlyOneArgument())));
 
             var result = parser.Parse("the-command -x");
 
@@ -79,9 +79,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var parser = new Parser(
                 Command("the-command",
                         "Does the thing.",
-                        ZeroOrMoreArguments,
-                        Option("-x", "Specifies value x", ExactlyOneArgument),
-                        Option("-y", "Specifies value y", NoArguments)));
+                        ZeroOrMoreArguments(),
+                        Option("-x", "Specifies value x", ExactlyOneArgument()),
+                        Option("-y", "Specifies value y", NoArguments())));
 
             var result = parser.Parse("the-command -x one -y two three");
 
@@ -133,7 +133,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_a_command_accepts_arguments_then_the_usage_string_mentions_them()
         {
             var command = Command("the-command", "command help",
-                                  ZeroOrMoreArguments.With(name: "the-args"),
+                                  ZeroOrMoreArguments().With(name: "the-args"),
                                   Option("-v|--verbosity", "Sets the verbosity"));
 
             var helpView = command.HelpView();
@@ -148,7 +148,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command",
                                   "command help",
-                                  NoArguments,
+                                  NoArguments(),
                                   Option("-v|--verbosity", "Sets the verbosity"));
 
             var helpView = command.HelpView();
@@ -164,7 +164,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var command = Command("the-command",
                                   "command help",
                                   Option("-v|--verbosity",
-                                         $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud", ExactlyOneArgument));
+                                         $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud", ExactlyOneArgument()));
 
             var helpView = command.HelpView();
 
@@ -181,7 +181,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   "command help",
                                   Option("-v|--verbosity",
                                          "Sets the verbosity.",
-                                         ExactlyOneArgument.With(name: "LEVEL")));
+                                         ExactlyOneArgument().With(name: "LEVEL")));
 
             command.HelpView()
                    .Should()

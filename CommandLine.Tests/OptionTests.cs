@@ -46,7 +46,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "",
-                Accept.NoArguments);
+                Accept.NoArguments());
 
             option.HasAlias("-o").Should().BeTrue();
         }
@@ -56,7 +56,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "",
-                Accept.NoArguments);
+                Accept.NoArguments());
 
             option.HasAlias("o").Should().BeTrue();
         }
@@ -66,7 +66,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "",
-                Accept.NoArguments);
+                Accept.NoArguments());
 
             option.HasAlias("--option").Should().BeTrue();
         }
@@ -76,7 +76,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "",
-                Accept.NoArguments);
+                Accept.NoArguments());
 
             option.HasAlias("option").Should().BeTrue();
         }
@@ -86,7 +86,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "o" }, "",
-                Accept.NoArguments);
+                Accept.NoArguments());
 
             option.HasAlias("o").Should().BeTrue();
             option.HasAlias("-o").Should().BeTrue();
@@ -95,7 +95,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void An_option_must_have_at_least_one_alias()
         {
-            Action create = () => new Option(Array.Empty<string>(), "", Accept.NoArguments);
+            Action create = () => new Option(Array.Empty<string>(), "", Accept.NoArguments());
 
             create.ShouldThrow<ArgumentException>()
                   .Which
@@ -107,7 +107,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new Option(new[] { "" }, "", Accept.NoArguments);
+            Action create = () => new Option(new[] { "" }, "", Accept.NoArguments());
 
             create.ShouldThrow<ArgumentException>()
                   .Which
@@ -119,13 +119,22 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new Option(new[] { "  \t" }, "", Accept.NoArguments);
+            Action create = () => new Option(new[] { "  \t" }, "", Accept.NoArguments());
 
             create.ShouldThrow<ArgumentException>()
                   .Which
                   .Message
                   .Should()
                   .Be("An option alias cannot be null, empty, or consist entirely of whitespace.");
+        }
+
+        [Fact]
+        public void When_specifying_several_aliases_in_a_single_string_then_spaces_is_not_significant()
+        {
+            var option = Create.Option("-x | --exact", "");
+
+            option.Parse("-x").HasOption("x").Should().BeTrue();
+            option.Parse("--exact").HasOption("x").Should().BeTrue();
         }
     }
 }

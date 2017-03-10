@@ -15,7 +15,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Applied_option_with_exactly_one_argument_accepts_single_argument()
         {
-            var option = Option("-x", "", ExactlyOneArgument);
+            var option = Option("-x", "", ExactlyOneArgument());
 
             var applied = new AppliedOption(option, "-x");
 
@@ -32,7 +32,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Applied_option_with_exactly_one_argument_does_not_accept_two_arguments()
         {
-            var option = Option("-x", "", ExactlyOneArgument);
+            var option = Option("-x", "", ExactlyOneArgument());
 
             var applied = new AppliedOption(option, "-x");
 
@@ -63,7 +63,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Applied_option_with_no_arguments_does_not_accept_arguments()
         {
-            var option = Option("-x", "", NoArguments);
+            var option = Option("-x", "", NoArguments());
 
             var applied = new AppliedOption(option, "-x");
 
@@ -77,7 +77,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Applied_option_returns_empty_remainder_when_TryTakeTokens_is_called_with_empty_array()
         {
-            var option = Option("-x", "", ZeroOrMoreArguments);
+            var option = Option("-x", "", ZeroOrMoreArguments());
 
             var applied = new AppliedOption(option, "-x");
 
@@ -91,7 +91,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = Command("outer", "",
                                  Option("inner", "",
-                                        ExactlyOneArgument));
+                                        ExactlyOneArgument()));
 
             var applied = new AppliedOption(option, "outer");
 
@@ -108,8 +108,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Applied_option_can_have_multiple_nested_options_with_args()
         {
             var option = Command("outer", "",
-                                 Option("inner1", "", ExactlyOneArgument),
-                                 Option("inner2", "", ExactlyOneArgument));
+                                 Option("inner1", "", ExactlyOneArgument()),
+                                 Option("inner2", "", ExactlyOneArgument()));
 
             var applied = new AppliedOption(option, "outer");
 
@@ -184,6 +184,22 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .Contain("Options '--one' and '--two' cannot be used together.");
+        }
+
+        [Fact]
+        public void ExactlyOneArgument_error_message_can_be_customized()
+        {
+            var option =
+                Command("the-command", "",
+                        ExactlyOneArgument(
+                            o => $"Expected 1 arg for option `{o.Name}`, found none"));
+
+            var result = option.Parse("the-command");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .BeEquivalentTo("Expected 1 arg for option `the-command`, found none");
         }
 
         [Fact]
