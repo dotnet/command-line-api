@@ -68,7 +68,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Option("-t", "",
-                                         ExactlyOneArgument
+                                         ExactlyOneArgument()
                                              .WithSuggestionsFrom(
                                                  "vegetable",
                                                  "mineral",
@@ -133,7 +133,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("outer", "",
-                        NoArguments,
+                        NoArguments(),
                         Option("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
                         Option("two", "", arguments: AnyOneOf("two-a", "two-b", "two-c")),
                         Option("three", "", arguments: AnyOneOf("three-a", "three-b", "three-c"))));
@@ -152,7 +152,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("outer", "",
-                        NoArguments,
+                        NoArguments(),
                         Option("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
                         Option("two", "", arguments: AnyOneOf("two-a", "two-b", "two-c")),
                         Option("three", "", arguments: AnyOneOf("three-a", "three-b", "three-c"))));
@@ -169,7 +169,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("outer", "",
-                        NoArguments,
+                        NoArguments(),
                         Command("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
                         Command("two", "", arguments: AnyOneOf("two-a", "two-b", "two-c")),
                         Command("three", "", arguments: AnyOneOf("three-a", "three-b", "three-c"))));

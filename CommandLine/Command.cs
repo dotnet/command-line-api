@@ -31,7 +31,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
 
             var rule =
-                ExactlyOneCommandRequired
+                ExactlyOneCommandRequired()
                     .And(
                         ParseRule(o => !commandNames.Any(
                                            o.AppliedOptions.Single().HasAlias)

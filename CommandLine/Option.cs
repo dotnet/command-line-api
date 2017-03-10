@@ -42,6 +42,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
+            RawAliases = aliases;
+
             foreach (var alias in aliases)
             {
                 this.aliases.Add(alias.RemovePrefix());
@@ -63,7 +65,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            ArgumentsRule = arguments ?? Accept.NoArguments;
+            ArgumentsRule = arguments ?? Accept.NoArguments();
 
             if (options != null)
             {
@@ -76,6 +78,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public IReadOnlyCollection<string> Aliases => aliases.ToArray();
+
+        internal IReadOnlyCollection<string> RawAliases { get; }
 
         protected internal virtual IReadOnlyCollection<string> AllowedValues { get; }
 

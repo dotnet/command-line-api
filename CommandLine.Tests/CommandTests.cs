@@ -21,7 +21,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 Command("outer", "",
                         Command("inner", "",
                                 Option("--option", "",
-                                       arguments: ExactlyOneArgument))));
+                                       arguments: ExactlyOneArgument()))));
         }
 
         [Fact]
@@ -120,9 +120,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("outer", "",
-                        ExactlyOneArgument,
+                        ExactlyOneArgument(),
                         Command("inner", "",
-                                ZeroOrMoreArguments)));
+                                ZeroOrMoreArguments())));
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
@@ -143,10 +143,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void ParseResult_Command_identifies_innermost_command()
         {
             var command = Command("outer", "",
-                                  Command("sibling", "", ZeroOrMoreArguments),
+                                  Command("sibling", "", ZeroOrMoreArguments()),
                                   Command("inner", "",
                                           Command("inner-er", "",
-                                                  Option("-x", "", ZeroOrMoreArguments))));
+                                                  Option("-x", "", ZeroOrMoreArguments()))));
 
             var result = command.Parse("outer inner inner-er -x arg");
 
@@ -179,7 +179,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Subcommands_names_are_available_as_suggestions()
         {
             var command = Command("test", "",
-                ExactlyOneArgument,
+                ExactlyOneArgument(),
                 new Command("foo", "Command one"),
                 new Command("bar", "Command two"));
 

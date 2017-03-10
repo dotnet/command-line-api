@@ -36,7 +36,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string help,
             ArgumentsRule arguments = null,
             Func<AppliedOption, object> materialize = null) =>
-            new Option(aliases.Split('|'), help, arguments);
+            new Option(
+                aliases.Split(
+                    new[] { '|', ' ' }, StringSplitOptions.RemoveEmptyEntries), help, arguments);
 
         public static Command Command(
             string name,

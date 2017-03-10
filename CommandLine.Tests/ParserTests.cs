@@ -6,6 +6,7 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
@@ -13,6 +14,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
     public class ParserTests
     {
+        private readonly ITestOutputHelper output;
+
+        public ParserTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
         [Fact]
         public void An_option_without_a_long_form_can_be_checked_for_using_a_prefix()
         {
@@ -77,7 +85,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void A_short_form_option_can_be_invoked_using_a_slash_prefix()
         {
             var result = new Parser(
-                    Option("-o|--one", "", ZeroOrMoreArguments))
+                    Option("/o|/one", "", ZeroOrMoreArguments()))
                 .Parse("/o");
 
             result.HasOption("one").Should().BeTrue();
@@ -87,7 +95,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void A_long_form_option_can_be_invoked_using_a_slash_prefix()
         {
             var result = new Parser(
-                    Option("-o|--one", "", ZeroOrMoreArguments))
+                    Option("/o|/one", "", ZeroOrMoreArguments()))
                 .Parse("/one");
 
             result.HasOption("one").Should().BeTrue();
@@ -111,8 +119,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Parse_result_contains_arguments_to_options()
         {
             var result = new Parser(
-                    Option("-o|--one", "", ExactlyOneArgument),
-                    Option("-t|--two", "", ExactlyOneArgument))
+                    Option("-o|--one", "", ExactlyOneArgument()),
+                    Option("-t|--two", "", ExactlyOneArgument()))
                 .Parse("-o args_for_one -t args_for_two");
 
             result["one"].Arguments.Single().Should().Be("args_for_one");
@@ -122,13 +130,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_no_options_are_specified_then_an_error_is_returned()
         {
-            var result = new Parser().Parse("-x");
+            Action create = () => new Parser();
 
-            result.Errors
-                  .Single()
+            create.ShouldThrow<ArgumentException>()
+                  .Which
                   .Message
                   .Should()
-                  .Be("Option '-x' is not recognized.");
+                  .Be("You must specify at least one option.");
         }
 
         [Fact]
@@ -177,7 +185,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(Option("-x", "", ExactlyOneArgument));
+            var parser = new Parser(Option("-x", "", ExactlyOneArgument()));
 
             var result = parser.Parse("-x");
 
@@ -204,7 +212,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(Option("-x", "", NoArguments));
+            var parser = new Parser(Option("-x", "", NoArguments()));
 
             var result = parser.Parse("-x some-arg");
 
@@ -243,7 +251,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Should()
                   .BeEquivalentTo("rye", "sourdough", "wheat");
 
-            result = parser.Parse("--bread wheat ---cheese ");
+            result = parser.Parse("--bread wheat --cheese ");
 
             result.Suggestions()
                   .Should()
@@ -253,7 +261,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Short_form_arguments_can_be_specified_using_equals_delimiter()
         {
-            var parser = new Parser(Option("-x", "", ExactlyOneArgument));
+            var parser = new Parser(Option("-x", "", ExactlyOneArgument()));
 
             var result = parser.Parse("-x=some-value");
 
@@ -265,7 +273,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Long_form_arguments_can_be_specified_using_equals_delimiter()
         {
-            var parser = new Parser(Option("--hello", "", ExactlyOneArgument));
+            var parser = new Parser(Option("--hello", "", ExactlyOneArgument()));
 
             var result = parser.Parse("--hello=there");
 
@@ -277,7 +285,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Short_form_arguments_can_be_specified_using_colon_delimiter()
         {
-            var parser = new Parser(Option("-x", "", ExactlyOneArgument));
+            var parser = new Parser(Option("-x", "", ExactlyOneArgument()));
 
             var result = parser.Parse("/x:some-value");
 
@@ -289,7 +297,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Long_form_arguments_can_be_specified_using_colon_delimiter()
         {
-            var parser = new Parser(Option("--hello", "", ExactlyOneArgument));
+            var parser = new Parser(Option("--hello", "", ExactlyOneArgument()));
 
             var result = parser.Parse("/hello:there");
 
@@ -302,9 +310,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Argument_short_forms_can_be_bundled()
         {
             var parser = new Parser(
-                Option("-x", "", NoArguments),
-                Option("-y", "", NoArguments),
-                Option("-z", "", NoArguments));
+                Option("-x", "", NoArguments()),
+                Option("-y", "", NoArguments()),
+                Option("-z", "", NoArguments()));
 
             var result = parser.Parse("-xyz");
 
@@ -318,8 +326,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
             var parser = new Parser(
-                Option("-a|--animals", "", ZeroOrMoreArguments),
-                Option("-v|--vegetables", "", ZeroOrMoreArguments));
+                Option("-a|--animals", "", ZeroOrMoreArguments()),
+                Option("-v|--vegetables", "", ZeroOrMoreArguments()));
 
             var result = parser.Parse("-a cat -v carrot -a dog");
 
@@ -338,8 +346,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Option_with_multiple_nested_options_allowed_is_parsed_correctly()
         {
             var option = Command("outer", "",
-                                 Option("inner1", "", ExactlyOneArgument),
-                                 Option("inner2", "", ExactlyOneArgument));
+                                 Option("inner1", "", ExactlyOneArgument()),
+                                 Option("inner2", "", ExactlyOneArgument()));
 
             var parser = new Parser(option);
 
@@ -369,8 +377,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("move", "",
-                        OneOrMoreArguments,
-                        Option("-x", "", ExactlyOneArgument)));
+                        OneOrMoreArguments(),
+                        Option("-x", "", ExactlyOneArgument())));
 
             // option before args
             var result1 = parser.Parse(
@@ -398,8 +406,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void An_error_is_returned_when_multiple_sibling_commands_are_passed()
         {
             var option = Command("outer", "",
-                                 Command("inner1", "", ExactlyOneArgument),
-                                 Command("inner2", "", ExactlyOneArgument));
+                                 Command("inner1", "", ExactlyOneArgument()),
+                                 Command("inner2", "", ExactlyOneArgument()));
 
             var parser = new Parser(option);
 
@@ -416,8 +424,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("the-command", "",
-                        ZeroOrMoreArguments,
-                        Option("-x", "", NoArguments)));
+                        ZeroOrMoreArguments(),
+                        Option("-x", "", NoArguments())));
 
             var result = parser.Parse("the-command -x two");
 
@@ -431,8 +439,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("the-command", "",
-                        NoArguments,
-                        Option("-x", "", ExactlyOneArgument)));
+                        NoArguments(),
+                        Option("-x", "", ExactlyOneArgument())));
 
             var result = parser.Parse("the-command -x two");
 
@@ -445,7 +453,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_outer_command()
         {
-            var parser = new Parser(Command("outer", "", NoArguments,
+            var parser = new Parser(Command("outer", "", NoArguments(),
                                             Command("inner", "",
                                                     Option("-x", "")),
                                             Option("-x", "")));
@@ -487,9 +495,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Command("complete", "",
-                                          ExactlyOneArgument,
+                                          ExactlyOneArgument(),
                                           Option("--position", "",
-                                                 ExactlyOneArgument)));
+                                                 ExactlyOneArgument())));
 
             var result = command.Parse("the-command",
                                        "complete",
@@ -507,7 +515,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("outer",
                                   "",
-                                  Command("inner", "", Option("-x", "", ExactlyOneArgument)));
+                                  Command("inner", "", Option("-x", "", ExactlyOneArgument())));
 
             var result1 = command.Parse("inner -x hello");
             var result2 = command.Parse("outer inner -x hello");
@@ -520,7 +528,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("outer",
                                   "",
-                                  Command("inner", "", Option("-x", "", ExactlyOneArgument)));
+                                  Command("inner", "", Option("-x", "", ExactlyOneArgument())));
 
             var result1 = command.Parse("inner -x hello");
 
@@ -537,7 +545,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 @"rm ""/temp/the file.txt""";
 
             var parser = new Parser(
-                Command("rm", "", ZeroOrMoreArguments));
+                Command("rm", "", ZeroOrMoreArguments()));
 
             var result = parser.Parse(command);
 
@@ -554,7 +562,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 @"rm ""c:\temp\the file.txt\""";
 
             var parser = new Parser(
-                Command("rm", "", ZeroOrMoreArguments));
+                Command("rm", "", ZeroOrMoreArguments()));
 
             var result = parser.Parse(command);
 
@@ -570,9 +578,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_a_default_argument_value_is_not_provided_then_the_default_value_can_be_accessed_from_the_parse_result()
         {
             var option = Command("command", "",
-                                 ExactlyOneArgument.With(defaultValue: () => "default"),
+                                 ExactlyOneArgument().With(defaultValue: () => "default"),
                                  Command("subcommand", "",
-                                         ExactlyOneArgument));
+                                         ExactlyOneArgument()));
 
             var result = option.Parse("command subcommand subcommand-arg");
 
@@ -584,8 +592,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("command",
                                   "",
-                                  ExactlyOneArgument,
-                                  Option("-o", "", NoArguments));
+                                  ExactlyOneArgument(),
+                                  Option("-o", "", NoArguments()));
 
             var result = command.Parse("command argument -o /p:RandomThing=random",
                                        new char[0]);
@@ -595,46 +603,18 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void A_sub_parser_can_be_obtained_by_the_alias_of_the_command()
+        public void Argument_names_can_collide_with_option_names()
         {
-            var parser = new Parser(
-                Command("outer", "",
-                        Command("inner-one", "",
-                                Option("--option-one", "")),
-                        Command("inner-two", "",
-                                Option("--option-two", ""))));
+            var command = Command("the-command", "",
+                                  Option("--one", "",
+                                         ExactlyOneArgument()));
 
-            parser["outer"]
-                .DefinedOptions
-                .Select(o => o.Name)
-                .Should()
-                .BeEquivalentTo("inner-one", "inner-two");
+            var result = command.Parse("the-command --one one");
 
-            parser["outer"]["inner-two"]
-                .DefinedOptions
-                .Select(o => o.Name)
-                .Should()
-                .BeEquivalentTo("option-two");
-        }
-
-        [Fact]
-        public void A_sub_parser_has_the_parent_parser_configurations()
-        {
-            var parser = new Parser(
-                new char[0],
-                Command("outer", "",
-                        NoArguments,
-                        Command("inner", "",
-                                ZeroOrMoreArguments)));
-
-            var child = parser["outer"];
-
-            var result = child.Parse("inner /x:this=that");
-
-            result["inner"]
+            result["the-command"]["one"]
                 .Arguments
                 .Should()
-                .BeEquivalentTo("/x:this=that");
+                .BeEquivalentTo("one");
         }
     }
 }

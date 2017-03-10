@@ -11,7 +11,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public static class Accept
     {
         public static ArgumentsRule AnyOneOf(params string[] values) =>
-            ExactlyOneArgument
+            ExactlyOneArgument()
                 .And(
                     ParseRule(o => !values.Contains(
                                        o.Arguments.Single(),
@@ -22,7 +22,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule AnyOneOf(
             Func<IEnumerable<string>> getValues) =>
-            ExactlyOneArgument
+            ExactlyOneArgument()
                 .And(
                     ParseRule(o =>
                     {
@@ -37,26 +37,46 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }))
                 .WithSuggestionsFrom(_ => getValues());
 
-        public static ArgumentsRule ExactlyOneArgument { get; } =
+        public static ArgumentsRule ExactlyOneArgument(
+            Func<AppliedOption, string> errorMessage = null) =>
             new ArgumentsRule(o =>
                               {
                                   var argumentCount = o.Arguments.Count;
 
                                   if (argumentCount == 0)
                                   {
-                                      var optionType = o.Option.IsCommand ? "command" : "option";
-                                      return $"Required argument missing for {optionType}: {o.Option}";
+                                      if (errorMessage == null)
+                                      {
+                                          return $"Required argument missing for {(o.Option.IsCommand ? "command" : "option")}: {o.Option}";
+                                      }
+                                      else
+                                      {
+                                          return errorMessage(o);
+                                      }
                                   }
 
                                   if (argumentCount > 1)
                                   {
-                                      var optionType = o.Option.IsCommand ? "Command" : "Option";
-                                      return $"{optionType} '{o.Option}' only accepts a single argument but {argumentCount} were provided.";
+                                      if (errorMessage == null)
+                                      {
+                                          return $"{(o.Option.IsCommand ? "Command" : "Option")} '{o.Option}' only accepts a single argument but {argumentCount} were provided.";
+                                      }
+                                      else
+                                      {
+                                          return errorMessage(o);
+                                      }
                                   }
 
                                   return null;
                               },
                               materialize: o => o.Arguments.Single());
+
+        public static ArgumentsRule WithErrorMessage(
+            this ArgumentsRule rule,
+            Func<AppliedOption, string> onError)
+        {
+            return rule;
+        }
 
         public static ArgumentsRule WithSuggestionsFrom(
             params string[] values) =>
@@ -80,53 +100,88 @@ namespace Microsoft.DotNet.Cli.CommandLine
             params string[] values) =>
             rule.And(WithSuggestionsFrom(values));
 
-        public static ArgumentsRule ZeroOrOneArgument { get; } =
+        public static ArgumentsRule ZeroOrOneArgument() =>
             new ArgumentsRule(o =>
                               {
                                   if (o.Arguments.Count > 1)
                                   {
-                                      var optionType = o.Option.IsCommand ? "Command" : "Option";
-                                      return $"{optionType} '{o.Option}' only accepts a single argument but {o.Arguments.Count} were provided.";
+                                      return $"{(o.Option.IsCommand ? "Command" : "Option")} '{o.Option}' only accepts a single argument but {o.Arguments.Count} were provided.";
                                   }
 
                                   return null;
                               },
                               materialize: o => o.Arguments);
 
-        internal static ArgumentsRule ExactlyOneCommandRequired { get; } =
+        internal static ArgumentsRule ExactlyOneCommandRequired(
+            Func<AppliedOption, string> errorMessage = null) =>
             new ArgumentsRule(o =>
             {
                 var optionCount = o.AppliedOptions.Count;
 
                 if (optionCount == 0)
                 {
-                    return $"Required option missing for command: {o.Option}";
+                    if (errorMessage == null)
+                    {
+                        return $"Required option missing for command: {o.Option}";
+                    }
+                    else
+                    {
+                        return errorMessage(o);
+                    }
                 }
 
                 if (optionCount > 1)
                 {
-                    return $"Command '{o.Option}' only accepts a single subcommand but {optionCount} were provided: {string.Join(", ", o.AppliedOptions.Select(a => a.Option))}";
+                    if (errorMessage == null)
+                    {
+                        return
+                            $"Command '{o.Option}' only accepts a single subcommand but {optionCount} were provided: {string.Join(", ", o.AppliedOptions.Select(a => a.Option))}";
+                    }
+                    else
+                    {
+                        return errorMessage(o);
+                    }
                 }
 
                 return null;
             });
 
-        public static ArgumentsRule NoArguments { get; } =
+        public static ArgumentsRule NoArguments(
+            Func<AppliedOption, string> errorMessage = null) =>
             new ArgumentsRule(o =>
-                                  o.Arguments.Any()
-                                      ? $"Arguments not allowed for option: {o.Option}"
-                                      : null,
+                              {
+                                  if (!o.Arguments.Any())
+                                  {
+                                      return null;
+                                  }
+
+                                  if (errorMessage == null)
+                                  {
+                                      return $"Arguments not allowed for option: {o.Option}";
+                                  }
+                                  else
+                                  {
+                                      return errorMessage(o);
+                                  }
+                              },
                               materialize: _ => true);
 
-        public static ArgumentsRule OneOrMoreArguments { get; } =
+        public static ArgumentsRule OneOrMoreArguments(
+            Func<AppliedOption, string> errorMessage = null) =>
             new ArgumentsRule(o =>
             {
                 var optionCount = o.Arguments.Count;
 
                 if (optionCount == 0)
                 {
-                    var optionType = o.Option.IsCommand ? "command" : "option";
-                    return $"Required argument missing for {optionType}: {o.Option}";
+                    if (errorMessage == null)
+                    {
+                        return $"Required argument missing for {(o.Option.IsCommand ? "command" : "option")}: {o.Option}";
+                    }
+                    else
+                    {
+                        return errorMessage(o);
+                    }
                 }
 
                 return null;
@@ -165,7 +220,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                           completionValues);
         }
 
-        public static ArgumentsRule ZeroOrMoreArguments { get; } =
+        public static ArgumentsRule ZeroOrMoreArguments() =>
             new ArgumentsRule(_ => null,
                               materialize: o => o.Arguments);
     }
