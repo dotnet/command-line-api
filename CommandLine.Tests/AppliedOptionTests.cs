@@ -160,33 +160,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
-        {
-            var validator = new ArgumentsRule(p =>
-            {
-                if (p.AppliedOptions.Contains("one") &&
-                    p.AppliedOptions.Contains("two"))
-                {
-                    return "Options '--one' and '--two' cannot be used together.";
-                }
-                return null;
-            });
-
-            var command = Command("the-command", "",
-                                  validator,
-                                  Option("--one", ""),
-                                  Option("--two", ""));
-
-            var result = command.Parse("the-command --one --two");
-
-            result
-                .Errors
-                .Select(e => e.Message)
-                .Should()
-                .Contain("Options '--one' and '--two' cannot be used together.");
-        }
-
-        [Fact]
         public void ExactlyOneArgument_error_message_can_be_customized()
         {
             var option =

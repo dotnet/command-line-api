@@ -2,11 +2,29 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class ArgumentsRuleExtensions
     {
+        public static ArgumentsRule And(
+            this ArgumentsRule rule,
+            params ArgumentsRule[] rules)
+        {
+            rules = new[] { rule }.Concat(rules).ToArray();
+
+            return new ArgumentsRule(
+                validate: option => rules.Select(r => r.Validate(option))
+                                         .FirstOrDefault(result => !String.IsNullOrWhiteSpace(result)),
+                allowedValues: rules.SelectMany(r => r.AllowedValues).Distinct().ToArray(),
+                suggest: result => rules.SelectMany(r => r.Suggest(result)),
+                name: rule.Name,
+                description: rule.Description,
+                defaultValue: rule.GetDefaultValue,
+                materialize: rule.Materialize);
+        }
+
         public static ArgumentsRule MaterializeAs<T>(
             this ArgumentsRule rule,
             Func<AppliedOption, T> materialize)
