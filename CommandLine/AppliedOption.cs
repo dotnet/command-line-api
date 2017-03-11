@@ -11,7 +11,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly List<string> arguments = new List<string>();
 
-        private readonly Func< object> materialize;
+        private readonly Func<object> materialize;
 
         private readonly OptionSet<AppliedOption> appliedOptions = new OptionSet<AppliedOption>();
 

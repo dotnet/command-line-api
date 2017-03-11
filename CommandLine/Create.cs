@@ -2,35 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class Create
     {
-        internal static ArgumentsRule ParseRule(
-            Func<AppliedOption, string> validate,
-            IReadOnlyCollection<string> values = null) =>
-            new ArgumentsRule(validate, values);
-
-        internal static ArgumentsRule And(
-            this ArgumentsRule rule,
-            params ArgumentsRule[] rules)
-        {
-            rules = new[] { rule }.Concat(rules).ToArray();
-
-            return new ArgumentsRule(
-                validate:   option => rules.Select(r => r.Validate(option))
-                               .FirstOrDefault(result => !string.IsNullOrWhiteSpace(result)),
-                allowedValues:  rules.SelectMany(r => r.AllowedValues).Distinct().ToArray(),
-                suggest: result => rules.SelectMany(r => r.Suggest(result)), 
-                name: rule.Name,
-                description: rule.Description,
-                defaultValue: rule.GetDefaultValue,
-                materialize: rule.Materialize);
-        }
-
         public static Option Option(
             string aliases,
             string help,

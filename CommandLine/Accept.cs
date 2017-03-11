@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -13,18 +13,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static ArgumentsRule AnyOneOf(params string[] values) =>
             ExactlyOneArgument()
                 .And(
-                    ParseRule(o => !values.Contains(
-                                       o.Arguments.Single(),
-                                       StringComparer.OrdinalIgnoreCase)
-                                       ? $"Argument '{o.Arguments.Single()}' not recognized. Must be one of:\n\t{string.Join("\n\t", values.Select(v => $"'{v}'"))}"
-                                       : "",
-                              values));
+                    new ArgumentsRule(o => !values.Contains(
+                                               o.Arguments.Single(),
+                                               StringComparer.OrdinalIgnoreCase)
+                                               ? $"Argument '{o.Arguments.Single()}' not recognized. Must be one of:\n\t{string.Join("\n\t", values.Select(v => $"'{v}'"))}"
+                                               : "", values));
 
         public static ArgumentsRule AnyOneOf(
             Func<IEnumerable<string>> getValues) =>
             ExactlyOneArgument()
                 .And(
-                    ParseRule(o =>
+                    new ArgumentsRule(o =>
                     {
                         var values = getValues().ToArray();
 
@@ -34,7 +33,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                        StringComparer.OrdinalIgnoreCase)
                                    ? $"Argument '{o.Arguments.Single()}' not recognized. Must be one of:\n\t{string.Join("\n\t", values.Select(v => $"'{v}'"))}"
                                    : "";
-                    }))
+                    }, null))
                 .WithSuggestionsFrom(_ => getValues());
 
         public static ArgumentsRule ExactlyOneArgument(
@@ -71,13 +70,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               },
                               materialize: o => o.Arguments.Single());
 
-        public static ArgumentsRule WithErrorMessage(
-            this ArgumentsRule rule,
-            Func<AppliedOption, string> onError)
-        {
-            return rule;
-        }
+        public static ArgumentsRule ExistingFilesOnly(
+            this ArgumentsRule rule) =>
+            rule.And(new ArgumentsRule(o =>
+            {
+                foreach (var filePath in o.Arguments)
+                {
+                    if (!File.Exists(filePath))
+                    {
+                        return $"File does not exist: {filePath}";
+                    }
+                }
 
+                return null;
+            }));
+     
         public static ArgumentsRule WithSuggestionsFrom(
             params string[] values) =>
             new ArgumentsRule(
@@ -205,19 +212,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 .ToArray();
 
             return
-                ParseRule(o =>
-                          {
-                              var unrecognized = values
-                                  .Where(v => !o.Option
-                                                .DefinedOptions
-                                                .Any(oo => oo.HasAlias(v)))
-                                  .ToArray();
+                new ArgumentsRule(
+                    o =>
+                    {
+                        var unrecognized = values
+                            .Where(v => !o.Option
+                                          .DefinedOptions
+                                          .Any(oo => oo.HasAlias(v)))
+                            .ToArray();
 
-                              return unrecognized.Any()
-                                         ? $"Options '{string.Join(", ", unrecognized)}' not recognized. Must be one of:\n\t{string.Join(Environment.NewLine + "\t", values.Select(v => $"'{v}'"))}"
-                                         : "";
-                          },
-                          completionValues);
+                        return unrecognized.Any()
+                                   ? $"Options '{string.Join(", ", unrecognized)}' not recognized. Must be one of:\n\t{string.Join(Environment.NewLine + "\t", values.Select(v => $"'{v}'"))}"
+                                   : null;
+                    },
+                    completionValues);
         }
 
         public static ArgumentsRule ZeroOrMoreArguments() =>

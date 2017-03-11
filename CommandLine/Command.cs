@@ -33,11 +33,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var rule =
                 ExactlyOneCommandRequired()
                     .And(
-                        ParseRule(o => !commandNames.Any(
-                                           o.AppliedOptions.Single().HasAlias)
-                                           ? $"Command '{o.AppliedOptions.Single()}' not recognized. Must be one of:\n\t{string.Join("\n\t", commandNames.Select(v => $"'{v}'"))}"
-                                           : "",
-                                  commandNames));
+                        new ArgumentsRule(o => !commandNames.Any(
+                                                   o.AppliedOptions.Single().HasAlias)
+                                                   ? $"Command '{o.AppliedOptions.Single()}' not recognized. Must be one of:\n\t{string.Join("\n\t", commandNames.Select(v => $"'{v}'"))}"
+                                                   : "", commandNames));
 
             ArgumentsRule = rule;
 
