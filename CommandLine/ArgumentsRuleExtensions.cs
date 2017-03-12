@@ -10,19 +10,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public static ArgumentsRule And(
             this ArgumentsRule rule,
-            params ArgumentsRule[] rules)
+            ArgumentsRule rule2)
         {
-            rules = new[] { rule }.Concat(rules).ToArray();
+            var rules = new[] { rule, rule2 };
 
             return new ArgumentsRule(
                 validate: option => rules.Select(r => r.Validate(option))
                                          .FirstOrDefault(result => !String.IsNullOrWhiteSpace(result)),
-                allowedValues: rules.SelectMany(r => r.AllowedValues).Distinct().ToArray(),
+                allowedValues: rules.SelectMany(r => r.AllowedValues)
+                                    .Distinct()
+                                    .ToArray(),
                 suggest: result => rules.SelectMany(r => r.Suggest(result)),
-                name: rule.Name,
-                description: rule.Description,
-                defaultValue: rule.GetDefaultValue,
-                materialize: rule.Materialize);
+                name: rule.Name ?? rule2.Name,
+                description: rule.Description ?? rule2.Description,
+                defaultValue: rule.GetDefaultValue ?? rule2.GetDefaultValue,
+                materialize: rule.Materializer ?? rule2.Materializer);
         }
 
         public static ArgumentsRule MaterializeAs<T>(

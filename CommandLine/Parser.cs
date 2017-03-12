@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Authentication.ExtendedProtection;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -44,61 +43,74 @@ namespace Microsoft.DotNet.Cli.CommandLine
             IReadOnlyCollection<string> rawArgs,
             bool isProgressive)
         {
-            var knownTokens = new HashSet<string>(
+            var knownTokens = new HashSet<Token>(
                 DefinedOptions
                     .FlattenBreadthFirst()
-                    .SelectMany(o => o.RawAliases));
+                    .SelectMany(
+                        o =>
+                            o.RawAliases.Select(
+                                a =>
+                                    new Token(a, o.IsCommand
+                                                     ? TokenType.Command
+                                                     : TokenType.Option))));
 
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawArgs)
                     .Lex(knownTokens, tokenSplitDelimiters));
-            var appliedOptions = new OptionSet<AppliedOption>();
+            var rootAppliedOptions = new OptionSet<AppliedOption>();
+            var allAppliedOptions = new List<AppliedOption>();
             var errors = new List<OptionError>();
             var unmatchedTokens = new List<string>();
 
-            AppliedOption currentOption = null;
-
-            Token arg;
-
             while (unparsedTokens.Any())
             {
-                arg = unparsedTokens.Dequeue();
+                var token = unparsedTokens.Dequeue();
 
-                if (arg.Value == "--")
+                if (token.Value == "--")
                 {
-                    // stop parsing further args
+                    // stop parsing further tokens
                     break;
                 }
 
-                if (DefinedOptions.Any(o => o.HasAlias(arg.Value)))
+                if (token.Type != TokenType.Argument)
                 {
-                    var option = appliedOptions.SingleOrDefault(o => o.HasAlias(arg.Value));
+                    var definedOption =
+                        DefinedOptions.SingleOrDefault(o => o.HasAlias(token.Value));
 
-                    var alreadySeen = option != null;
-
-                    if (!alreadySeen)
+                    if (definedOption != null)
                     {
-                        option = new AppliedOption(
-                            DefinedOptions.Single(s => s.HasAlias(arg.Value)),
-                            arg.Value);
+                        var appliedOption = allAppliedOptions
+                            .LastOrDefault(o => o.HasAlias(token.Value));
 
-                        appliedOptions.Add(option);
-                    }
+                        if (appliedOption == null)
+                        {
+                            appliedOption = new AppliedOption(definedOption, token.Value);
+                            rootAppliedOptions.Add(appliedOption);
+                        }
 
-                    if (!option.Option.IsCommand || !alreadySeen)
-                    {
-                        currentOption = option;
+                        allAppliedOptions.Add(appliedOption);
+
                         continue;
                     }
                 }
 
-                unmatchedTokens.Add(arg.Value);
+                var added = false;
 
-                if (currentOption != null)
+                foreach (var appliedOption in Enumerable.Reverse(allAppliedOptions))
                 {
-                    unmatchedTokens = currentOption
-                        .TryTakeTokens(unmatchedTokens.ToArray())
-                        .ToList();
+                    var option = appliedOption.TryTakeToken(token);
+
+                    if (option != null)
+                    {
+                        allAppliedOptions.Add(option);
+                        added = true;
+                        break;
+                    }
+                }
+
+                if (!added)
+                {
+                    unmatchedTokens.Add(token.Value);
                 }
             }
 
@@ -107,7 +119,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             return new ParseResult(
                 rawArgs,
-                appliedOptions,
+                rootAppliedOptions,
                 isProgressive,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,
@@ -150,29 +162,5 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private static OptionError UnrecognizedArg(string arg) =>
             new OptionError(
                 $"Option '{arg}' is not recognized.", arg);
-    }
-
-    internal enum TokenType
-    {
-        Argument,
-        Command,
-        Option
-    }
-
-    internal class Token
-    {
-        public Token(string value, TokenType type)
-        {
-            Value = value;
-            Type = type;
-        }
-
-        public string Value { get; }
-        public TokenType Type { get; }
-
-        public override string ToString()
-        {
-            return $"{Type}: {Value}";
-        }
     }
 }

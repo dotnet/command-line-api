@@ -30,7 +30,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var s = new StringBuilder();
 
-            s.Append("usage: ");
+            if (!string.IsNullOrWhiteSpace(command.HelpText))
+            {
+                s.AppendLine(command.HelpText);
+            }
+
+            s.Append("Usage: ");
 
             s.Append(command.FullyQualifiedName());
 

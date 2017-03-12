@@ -77,9 +77,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal static IEnumerable<Token> Lex(
             this IEnumerable<string> args,
-            HashSet<string> knownTokens,
+            HashSet<Token> knownTokens,
             char[] delimiters)
         {
+            var foundCommandss = new HashSet<string>();
+
             foreach (var arg in args)
             {
                 var argHasPrefix = HasPrefix(arg);
@@ -88,11 +90,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     var parts = arg.Split(delimiters, 2);
 
-                    yield return new Token(parts[0], TokenType.Option);
+                    yield return Option(parts[0]);
 
                     if (parts.Length > 1)
                     {
-                        yield return new Token(parts[1], TokenType.Argument);
+                        yield return Argument(parts[1]);
                     }
                 }
                 else if (arg.CanBeUnbundled(knownTokens))
@@ -100,27 +102,44 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     foreach (var character in arg.Skip(1))
                     {
                         // unbundle e.g. -xyz into -x -y -z
-                        yield return new Token($"-{character}", TokenType.Option);
+                        yield return Option($"-{character}");
                     }
                 }
-                else if (!knownTokens.Contains(arg))
+                else if (knownTokens.All(t => t.Value != arg) ||
+                         // a given command can only occur once in a command line
+                         foundCommandss.Contains(arg))
                 {
-                    yield return new Token(arg, TokenType.Argument);
+                    yield return Argument(arg);
                 }
                 else
                 {
-                    yield return new Token(arg, argHasPrefix ? TokenType.Option : TokenType.Command);
+                    if (argHasPrefix)
+                    {
+                        yield return Option(arg);
+                    }
+                    else
+                    {
+                        foundCommandss.Add(arg);
+                        yield return Command(arg);
+                    }
                 }
             }
         }
 
+        private static Token Argument(this string value) => new Token(value, TokenType.Argument);
+
+        private static Token Command(this string value) => new Token(value, TokenType.Command);
+
+        private static Token Option(this string value) => new Token(value, TokenType.Option);
+
         private static bool CanBeUnbundled(
             this string arg,
-            IReadOnlyCollection<string> knownTokens) =>
+            IReadOnlyCollection<Token> knownTokens) =>
             arg.StartsWith("-") &&
             arg.RemovePrefix()
                .All(c => knownTokens
-                        .Select(t => t.RemovePrefix())
+                        .Where(t => t.Type == TokenType.Option)
+                        .Select(t => t.Value.RemovePrefix())
                         .Contains(c.ToString()));
 
         private static bool HasDelimiter(string arg) =>

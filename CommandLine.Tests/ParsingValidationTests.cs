@@ -19,23 +19,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void An_error_is_returned_when_multiple_sibling_commands_are_passed()
-        {
-            var option = Command("outer", "",
-                                 Command("inner1", "", ExactlyOneArgument()),
-                                 Command("inner2", "", ExactlyOneArgument()));
-
-            var parser = new Parser(option);
-
-            var result = parser.Parse("outer inner1 argument1 inner2 argument2");
-
-            result.Errors
-                  .Select(e => e.Message)
-                  .Should()
-                  .Contain("Command 'outer' only accepts a single subcommand but 2 were provided: inner1, inner2");
-        }
-
-        [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
             var parser = new Parser(

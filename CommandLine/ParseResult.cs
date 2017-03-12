@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
+    [DebuggerDisplay("{" + nameof(ToString) + "()}")]
     public class ParseResult
     {
         private readonly List<OptionError> errors = new List<OptionError>();

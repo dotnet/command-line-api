@@ -55,7 +55,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             command["inner"]["inner-er"]
                 .HelpView()
                 .Should()
-                .StartWith("usage: outer inner inner-er [options]");
+                .Contain("Usage: outer inner inner-er [options]");
         }
 
         [Fact]
@@ -140,7 +140,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             helpView
                 .Should()
-                .Contain("usage: the-command [options] [the-args]");
+                .Contain("Usage: the-command [options] [the-args]");
         }
 
         [Fact]

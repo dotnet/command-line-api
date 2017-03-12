@@ -19,10 +19,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var applied = new AppliedOption(option, "-x");
 
-            var remainder = applied.TryTakeTokens("some argument");
-
-            remainder.Should()
-                     .BeEmpty();
+            applied.TryTakeToken(new Token("some argument", TokenType.Argument))
+                   .Should()
+                   .NotBeNull();
 
             applied.Arguments
                    .Should()
@@ -36,14 +35,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var applied = new AppliedOption(option, "-x");
 
-            var remainder = applied.TryTakeTokens("argument1", "argument2");
-
-            remainder.Should()
-                     .BeEquivalentTo("argument2");
+            applied.TryTakeToken(new Token("argument1", TokenType.Argument));
 
             applied.Arguments
                    .Should()
-                   .HaveCount(1);
+                   .BeEquivalentTo("argument1");
         }
 
         [Fact]
@@ -53,11 +49,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var applied = new AppliedOption(option, "-x");
 
-            var remainder = applied.TryTakeTokens("t");
+            applied.TryTakeToken(new Token("t", TokenType.Argument));
 
-            remainder
-                .Should()
-                .BeEquivalentTo("t");
+            applied.Arguments.Should().BeEmpty();
         }
 
         [Fact]
@@ -67,23 +61,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var applied = new AppliedOption(option, "-x");
 
-            applied.TryTakeTokens("argument1");
+            applied.TryTakeToken(new Token("argument1", TokenType.Argument));
 
             applied.Arguments
                    .Should()
                    .HaveCount(0);
-        }
-
-        [Fact]
-        public void Applied_option_returns_empty_remainder_when_TryTakeTokens_is_called_with_empty_array()
-        {
-            var option = Option("-x", "", ZeroOrMoreArguments());
-
-            var applied = new AppliedOption(option, "-x");
-
-            var remainder = applied.TryTakeTokens(Array.Empty<string>());
-
-            remainder.Should().BeEmpty();
         }
 
         [Fact]
@@ -95,7 +77,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var applied = new AppliedOption(option, "outer");
 
-            applied.TryTakeTokens("inner", "argument1");
+            applied.TryTakeToken(new Token("inner", TokenType.Option));
+            applied.TryTakeToken(new Token("argument1", TokenType.Argument));
 
             applied.AppliedOptions
                    .Should()
@@ -113,10 +96,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var applied = new AppliedOption(option, "outer");
 
-            applied.TryTakeTokens("inner1", "argument1");
-            applied.TryTakeTokens("inner2", "argument2");
-
-            System.Console.WriteLine(applied.Diagram());
+            applied.TryTakeToken(new Token("inner1", TokenType.Option));
+            applied.TryTakeToken(new Token("argument1", TokenType.Argument));
+            applied.TryTakeToken(new Token("inner2", TokenType.Option));
+            applied.TryTakeToken(new Token("argument2", TokenType.Argument));
 
             applied.AppliedOptions
                    .Should()
@@ -153,9 +136,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var applied = new AppliedOption(option, "-x");
 
-            var remainder = applied.TryTakeTokens("two");
+            applied.TryTakeToken(new Token("two", TokenType.Argument));
 
-            remainder.Should().BeEmpty();
             applied.Arguments.Should().BeEquivalentTo("two");
         }
 
@@ -188,6 +170,112 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .HasOption("help")
                   .Should()
                   .BeTrue();
+        }
+
+        [Fact]
+        public void TakeToken_will_accept_the_next_command_in_the_tree()
+        {
+            var command = Command("one", "",
+                                  Command("two", "",
+                                          Command("three", "")));
+
+            var applied = new AppliedOption(command);
+
+            applied.TryTakeToken(new Token("two", TokenType.Command))
+                   .Name
+                   .Should()
+                   .Be("two");
+            applied.TryTakeToken(new Token("three", TokenType.Command))
+                   .Name
+                   .Should()
+                   .Be("three");
+        }
+
+        [Fact]
+        public void TakeToken_is_accepts_long_form_option()
+        {
+            var command = Command("command", "", Option("-o|--one", "", NoArguments()));
+
+            var applied = new AppliedOption(command);
+
+            applied.TryTakeToken(new Token("--one", TokenType.Option))
+                   .Name
+                   .Should()
+                   .Be("one");
+        }
+
+        [Fact]
+        public void TakeToken_is_accepts_short_form_option()
+        {
+            var command = Command("command", "", Option("-o|--one", "", NoArguments()));
+
+            var applied = new AppliedOption(command);
+
+            applied.TryTakeToken(new Token("-o", TokenType.Option))
+                   .Name
+                   .Should()
+                   .Be("one");
+        }
+
+        [Fact]
+        public void TryTakeToken_does_not_accept_incorrectly_prefixed_options()
+        {
+            var command = Command("command", "", Option("-o|--one", "", NoArguments()));
+
+            var applied = new AppliedOption(command);
+
+            applied.TryTakeToken(new Token("--o", TokenType.Option))
+                   .Should()
+                   .BeNull();
+
+            applied.TryTakeToken(new Token("-one", TokenType.Option))
+                   .Should()
+                   .BeNull();
+        }
+
+        [Fact]
+        public void TakeToken_will_not_skip_a_level()
+        {
+            var command = Command("one", "",
+                                  Command("two", "",
+                                          Command("three", "")));
+
+            var applied = new AppliedOption(command);
+
+            applied.TryTakeToken(new Token("three", TokenType.Command))
+                   .Should()
+                   .BeNull();
+        }
+
+        [Fact]
+        public void TakeToken_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
+        {
+            var command = Command("outer", "",
+                                  Command("inner-one", ""),
+                                  Command("inner-two", ""));
+
+            var applied = new AppliedOption(command);
+
+            applied.TryTakeToken(new Token("inner-one", TokenType.Command))
+                   .Name
+                   .Should()
+                   .Be("inner-one");
+
+            applied.TryTakeToken(new Token("inner-two", TokenType.Command))
+                   .Should()
+                   .BeNull();
+        }
+
+        [Fact]
+        public void TakeToken_will_not_accept_an_argument_even_if_it_is_invalid()
+        {
+            var option = Option("--one", "", NoArguments());
+
+            var applied = new AppliedOption(option);
+
+            applied.TryTakeToken(new Token("inner-one", TokenType.Argument))
+                   .Should()
+                   .BeNull();
         }
     }
 }

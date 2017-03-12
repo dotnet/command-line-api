@@ -54,62 +54,66 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Token { get; }
 
-        public IReadOnlyCollection<string> TryTakeTokens(params string[] tokens)
+        public AppliedOption TryTakeToken(Token token) =>
+            TryTakeArgument(token) ??
+            TryTakeOptionOrCommand(token);
+
+        private AppliedOption TryTakeArgument(Token token)
         {
-            if (!tokens.Any())
+            if (token.Type != TokenType.Argument)
             {
-                return Array.Empty<string>();
-            }
-
-            var remainder = AddTokensToChildOption(tokens);
-
-            while (remainder.Any())
-            {
-                arguments.Add(remainder.First());
-
-                if (Validate() == null)
-                {
-                    remainder = remainder.Skip(1).ToArray();
-                }
-                else
-                {
-                    arguments.RemoveAt(arguments.Count - 1);
-                    break;
-                }
-            }
-
-            return remainder;
-        }
-
-        private IReadOnlyCollection<string> AddTokensToChildOption(IReadOnlyCollection<string> tokens)
-        {
-            var firstToken = tokens.First();
-
-            var childOption =
-                Option.DefinedOptions
-                      .Where(o => o.RawAliases.Any(a => a == firstToken))
-                      .Select(o => new AppliedOption(o, firstToken))
-                      .Do(appliedOptions.TryAdd)
-                      .FirstOrDefault();
-
-            if (childOption != null)
-            {
-                IReadOnlyCollection<string> remainder = tokens.Skip(1).ToArray();
-
-                if (remainder.Any())
-                {
-                    remainder = childOption.TryTakeTokens(remainder.ToArray());
-                }
-
-                return remainder;
+                return null;
             }
 
             foreach (var appliedOption in appliedOptions)
             {
-                tokens = appliedOption.TryTakeTokens(tokens.ToArray());
+                var a = appliedOption.TryTakeToken(token);
+                if (a != null)
+                {
+                    return a;
+                }
             }
 
-            return tokens;
+            arguments.Add(token.Value);
+
+            if (Validate() == null)
+            {
+                return this;
+            }
+
+            arguments.RemoveAt(arguments.Count - 1);
+            return null;
+        }
+
+        private AppliedOption TryTakeOptionOrCommand(Token token)
+        {
+            var childOption = appliedOptions
+                .SingleOrDefault(o =>
+                                     o.Option.DefinedOptions
+                                      .Any(oo => oo.RawAliases.Contains(token.Value)));
+
+            if (childOption != null)
+            {
+                return childOption.TryTakeToken(token);
+            }
+
+            if (token.Type == TokenType.Command &&
+                appliedOptions.Any(o => o.Option.IsCommand && !o.HasAlias(token.Value)))
+            {
+                return null;
+            }
+
+            var applied = Option.DefinedOptions
+                                .Where(o => o.RawAliases.Contains(token.Value))
+                                .Select(o => new AppliedOption(o, token.Value))
+                                .SingleOrDefault();
+
+            if (applied != null)
+            {
+                appliedOptions.Add(applied);
+            }
+
+            return applied;
         }
 
         internal OptionError Validate()
