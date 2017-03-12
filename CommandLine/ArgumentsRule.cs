@@ -67,6 +67,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Name { get; }
 
+        internal Func<AppliedOption, object> Materializer => materialize;
+
         internal IEnumerable<string> Suggest(ParseResult parseResult) =>
             suggest(parseResult);
 

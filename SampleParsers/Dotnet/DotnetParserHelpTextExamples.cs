@@ -19,7 +19,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
             this.output = output;
         }
 
-        [Theory]
+        [Theory(Skip="Work in progress")]
         [InlineData("dotnet -h")]
         [InlineData("dotnet add -h")]
         [InlineData("dotnet add package -h")]

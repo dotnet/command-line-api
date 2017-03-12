@@ -58,6 +58,8 @@
     <Compile Include="Option.cs" />
     <Compile Include="OptionSet.cs" />
     <Compile Include="Suggest.cs" />
+    <Compile Include="Token.cs" />
+    <Compile Include="TokenType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -289,6 +289,26 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void Options_need_not_be_respecified_in_order_to_add_arguments()
+        {
+            var parser = new Parser(
+                Option("-a|--animals", "", ZeroOrMoreArguments()),
+                Option("-v|--vegetables", "", ZeroOrMoreArguments()));
+
+            var result = parser.Parse("-a cat dog -v carrot");
+
+            result["animals"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("cat", "dog");
+
+            result["vegetables"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("carrot");
+        }
+
+        [Fact]
         public void Option_with_multiple_nested_options_allowed_is_parsed_correctly()
         {
             var option = Command("outer", "",
@@ -351,6 +371,66 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void An_outer_command_with_the_same_name_does_not_capture()
+        {
+            var command = Command("one", "",
+                                  Command("two", "",
+                                          Command("three", "")),
+                                  Command("three", ""));
+
+            var result = command.Parse("one two three");
+
+            result.Diagram().Should().Be("[ one [ two [ three ] ] ]");
+        }
+
+        [Fact]
+        public void An_inner_command_with_the_same_name_does_not_capture()
+        {
+            var command = Command("one", "",
+                                  Command("two", "",
+                                          Command("three", "")),
+                                  Command("three", ""));
+
+            var result = command.Parse("one three");
+
+            result.Diagram().Should().Be("[ one [ three ] ]");
+        }
+
+        [Fact]
+        public void When_nested_commands_all_acccept_arguments_then_the_nearest_captures_the_arguments()
+        {
+            var command = Command("outer", "",
+                                  ZeroOrOneArgument(),
+                                  Command("inner", "",
+                                          ZeroOrOneArgument()));
+
+            var result = command.Parse("outer arg1 inner arg2");
+
+            result["outer"].Arguments.Should().BeEquivalentTo("arg1");
+
+            result["outer"]["inner"].Arguments.Should().BeEquivalentTo("arg2");
+        }
+
+        [Fact]
+        public void Nested_commands_with_colliding_names_cannot_both_be_applied()
+        {
+            var command = Command("outer", " ",
+                                  ExactlyOneArgument(),
+                                  Command("non-unique", "",
+                                          ExactlyOneArgument()),
+                                  Command("inner", "",
+                                          ExactlyOneArgument(),
+                                          Command("non-unique", "",
+                                                  ExactlyOneArgument())));
+
+            var result = command.Parse("outer arg1 inner arg2 non-unique arg3 ");
+
+            output.WriteLine(result.Diagram());
+
+            result.Diagram().Should().Be("[ outer [ inner [ non-unique <arg3> ] <arg2> ] <arg1> ]");
+        }
+
+        [Fact]
         public void When_child_option_will_not_accept_arg_then_parent_can()
         {
             var parser = new Parser(
@@ -382,7 +462,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_outer_command()
+        public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_inner_command()
         {
             var parser = new Parser(Command("outer", "", NoArguments(),
                                             Command("inner", "",
@@ -391,11 +471,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse("outer inner -x");
 
-            result["outer"]["inner"]
+            result["outer"]
                 .AppliedOptions
                 .Should()
-                .BeEmpty();
-            result["outer"]
+                .NotContain(o => o.Name == "x");
+            result["outer"]["inner"]
                 .AppliedOptions
                 .Should()
                 .ContainSingle(o => o.Name == "x");
@@ -422,7 +502,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void When_args_have_names_matching_options()
+        public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
             var command = Command("the-command", "",
                                   Command("complete", "",
@@ -437,6 +517,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                        "the-command");
 
             var complete = result["the-command"]["complete"];
+
+            output.WriteLine(result.Diagram());
 
             complete.Arguments.Should().BeEquivalentTo("the-command");
         }
@@ -514,6 +596,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                          ExactlyOneArgument()));
 
             var result = option.Parse("command subcommand subcommand-arg");
+
+            output.WriteLine(result.Diagram());
 
             result["command"].Arguments.Should().BeEquivalentTo("default");
         }

@@ -18,7 +18,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                   .BeEquivalentTo("reference", "package", "-h", "--help");
         }
 
-        [Fact(Skip="Bug")]
+        [Fact]
         public void dotnet_sln_add()
         {
             var command = DotnetCommand();

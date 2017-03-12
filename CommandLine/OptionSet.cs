@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
+    [DebuggerStepThrough]
     public class OptionSet<T> :
         IReadOnlyCollection<T>
         where T : IAliased

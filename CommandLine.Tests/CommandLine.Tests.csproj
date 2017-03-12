@@ -77,6 +77,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AppliedOptionTests.cs" />
+    <Compile Include="ArgumentsRuleCompositionTests.cs" />
     <Compile Include="ParsingValidationTests.cs" />
     <Compile Include="CommandTests.cs" />
     <Compile Include="CommandExecutionTests.cs" />
