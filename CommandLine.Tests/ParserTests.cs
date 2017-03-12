@@ -289,6 +289,26 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void Options_need_not_be_respecified_in_order_to_add_arguments()
+        {
+            var parser = new Parser(
+                Option("-a|--animals", "", ZeroOrMoreArguments()),
+                Option("-v|--vegetables", "", ZeroOrMoreArguments()));
+
+            var result = parser.Parse("-a cat dog -v carrot");
+
+            result["animals"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("cat", "dog");
+
+            result["vegetables"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("carrot");
+        }
+
+        [Fact]
         public void Option_with_multiple_nested_options_allowed_is_parsed_correctly()
         {
             var option = Command("outer", "",
