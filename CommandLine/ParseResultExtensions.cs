@@ -34,6 +34,25 @@ namespace Microsoft.DotNet.Cli.CommandLine
                   .OfType<Command>()
                   .LastOrDefault();
 
+        public static AppliedOption AppliedCommand(this ParseResult result)
+        {
+            var commandPath = result
+                .Command()
+                .RecurseWhileNotNull(c => c.Parent as Command)
+                .Select(c => c.Name)
+                .Reverse()
+                .ToArray();
+
+            AppliedOption option = result[commandPath.First()];
+
+            foreach (var commandName in commandPath.Skip(1))
+            {
+                option = option[commandName];
+            }
+
+            return option;
+        }
+
         internal static AppliedOption CurrentOption(this ParseResult result) =>
             result.AppliedOptions
                   .LastOrDefault()
