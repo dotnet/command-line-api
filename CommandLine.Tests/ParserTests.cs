@@ -82,26 +82,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void A_short_form_option_can_be_invoked_using_a_slash_prefix()
-        {
-            var result = new Parser(
-                    Option("/o|/one", "", ZeroOrMoreArguments()))
-                .Parse("/o");
-
-            result.HasOption("one").Should().BeTrue();
-        }
-
-        [Fact]
-        public void A_long_form_option_can_be_invoked_using_a_slash_prefix()
-        {
-            var result = new Parser(
-                    Option("/o|/one", "", ZeroOrMoreArguments()))
-                .Parse("/one");
-
-            result.HasOption("one").Should().BeTrue();
-        }
-
-        [Fact]
         public void Two_options_are_parsed_correctly()
         {
             var result = new Parser(
@@ -233,7 +213,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(Option("-x", "", ExactlyOneArgument()));
 
-            var result = parser.Parse("/x:some-value");
+            var result = parser.Parse("-x:some-value");
 
             result.Errors.Should().BeEmpty();
 
@@ -245,7 +225,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new Parser(Option("--hello", "", ExactlyOneArgument()));
 
-            var result = parser.Parse("/hello:there");
+            var result = parser.Parse("--hello:there");
 
             result.Errors.Should().BeEmpty();
 
