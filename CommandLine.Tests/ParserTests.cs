@@ -249,7 +249,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
+        public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
             var parser = new Parser(
                 Option("-a|--animals", "", ZeroOrMoreArguments()),
@@ -263,6 +263,26 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .BeEquivalentTo("cat", "dog");
 
             result["vegetables"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("carrot");
+        }
+        
+        [Fact]
+        public void Command_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
+        {
+            var parser = new Parser(
+                Command("the-command", "", Option("-a|--animals", "", ZeroOrMoreArguments()),
+                        Option("-v|--vegetables", "", ZeroOrMoreArguments())));
+
+            var result = parser.Parse("the-command -a cat -v carrot -a dog");
+
+            result["the-command"]["animals"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("cat", "dog");
+
+            result["the-command"]["vegetables"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("carrot");

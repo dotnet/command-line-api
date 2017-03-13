@@ -103,10 +103,19 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return null;
             }
 
-            var applied = Option.DefinedOptions
-                                .Where(o => o.RawAliases.Contains(token.Value))
-                                .Select(o => new AppliedOption(o, token.Value))
-                                .SingleOrDefault();
+            var applied =
+                appliedOptions.SingleOrDefault(o => o.HasAlias(token.Value));
+
+            if (applied != null)
+            {
+                return applied;
+            }
+
+            applied =
+                Option.DefinedOptions
+                      .Where(o => o.RawAliases.Contains(token.Value))
+                      .Select(o => new AppliedOption(o, token.Value))
+                      .SingleOrDefault();
 
             if (applied != null)
             {
