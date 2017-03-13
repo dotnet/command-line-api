@@ -158,6 +158,28 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void ParseResult_AppliedCommand_identifies_the_AppliedOption_for_the_innermost_command()
+        {
+            var command = Command("outer", "",
+                                  Command("sibling", "",
+                                          ExactlyOneArgument()),
+                                  Command("inner", "",
+                                          Command("inner-er", "",
+                                                  Option("-x", "",
+                                                         ExactlyOneArgument()))));
+
+            var result = command.Parse("outer inner inner-er -x arg");
+
+            var appliedOption = result.AppliedCommand()["x"];
+
+            appliedOption.Value().Should().Be("arg");
+
+            result = command.Parse("outer sibling arg");
+
+            result.AppliedCommand().Value().Should().Be("arg");
+        }
+
+        [Fact]
         public void Option_Command_identifies_the_parent_Command()
         {
             var option = Option("option", "");
