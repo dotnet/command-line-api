@@ -3,7 +3,7 @@
 
 using FluentAssertions;
 using Xunit;
-using static Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet.Create;
+using static Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet.DotNetParser;
 
 namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
 {
@@ -12,7 +12,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         [Fact]
         public void dotnet_add()
         {
-            var result = DotnetCommand().Parse("dotnet add ");
+            var result = Instance.Parse("dotnet add ");
             result.Suggestions()
                   .Should()
                   .BeEquivalentTo("reference", "package", "-h", "--help");
@@ -21,9 +21,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         [Fact]
         public void dotnet_sln_add()
         {
-            var command = DotnetCommand();
-
-            var result = command.Parse("dotnet sln add ");
+            var result = Instance.Parse("dotnet sln add ");
 
             result.Suggestions()
                   .Should()

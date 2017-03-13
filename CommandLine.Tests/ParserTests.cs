@@ -236,16 +236,38 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Argument_short_forms_can_be_bundled()
         {
             var parser = new Parser(
-                Option("-x", "", NoArguments()),
-                Option("-y", "", NoArguments()),
-                Option("-z", "", NoArguments()));
+                Command("the-command", "",
+                        Option("-x", "", NoArguments()),
+                        Option("-y", "", NoArguments()),
+                        Option("-z", "", NoArguments())));
 
-            var result = parser.Parse("-xyz");
+            var result = parser.Parse("the-command -xyz");
 
-            result.AppliedOptions
-                  .Select(o => o.Name)
-                  .Should()
-                  .BeEquivalentTo("x", "y", "z");
+            result["the-command"]
+                .AppliedOptions
+                .Select(o => o.Name)
+                .Should()
+                .BeEquivalentTo("x", "y", "z");
+        }
+
+        [Fact]
+        public void Argument_long_forms_do_not_get_unbundled()
+        {
+            var parser = new Parser(
+                Command(
+                    "the-command", "",
+                    Option("--xyz", "", NoArguments()),
+                    Option("-x", "", NoArguments()),
+                    Option("-y", "", NoArguments()),
+                    Option("-z", "", NoArguments())));
+
+            var result = parser.Parse("the-command --xyz");
+
+            result["the-command"]
+                .AppliedOptions
+                .Select(o => o.Name)
+                .Should()
+                .BeEquivalentTo("xyz");
         }
 
         [Fact]

@@ -39,6 +39,7 @@
     <Compile Include="ArgumentsRuleExtensions.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandExecutionResult.cs" />
+    <Compile Include="HelpViewExtensions.cs" />
     <Compile Include="IAliased.cs" />
     <Compile Include="ParseException.cs" />
     <Compile Include="StringExtensions.cs" />

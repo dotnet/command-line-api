@@ -117,5 +117,24 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Should()
                 .BeEmpty();
         }
+
+        [Fact]
+        public void An_argument_can_be_invalid_based_on_directory_existence()
+        {
+            var command = Command("move", "",
+                                  ExactlyOneArgument()
+                                      .ExistingFilesOnly(),
+                                  Option("--to", "",
+                                         ExactlyOneArgument()));
+
+            var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+
+            output.WriteLine(result.Diagram());
+
+            result["move"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo(Directory.GetCurrentDirectory());
+        }
     }
 }

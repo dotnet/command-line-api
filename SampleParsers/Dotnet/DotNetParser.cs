@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -12,9 +13,13 @@ using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
 {
-    public static class Create
+    public static class DotNetParser
     {
-        public static Command DotnetCommand() =>
+        public static Parser Instance = new Parser(
+            delimiters: Array.Empty<char>(),
+            options: DotnetCommand());
+
+        private static Command DotnetCommand() =>
             Command("dotnet",
                     ".NET Command Line Tools (2.0.0-alpha-alpha-004866)",
                     NoArguments(),
@@ -95,7 +100,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                                .With(name: "CONFIGURATION")));
 
         private static Command List() =>
-            Command("list", "",
+            Command("list", 
+                    ".NET List Command",
                     ExactlyOneArgument()
                         .With(name: "PROJECT",
                               description:
@@ -277,7 +283,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                            ExactlyOneArgument()
                                .With(name: "FRAMEWORK")),
                     Option("-r|--runtime",
-                           "Publish the project for a given runtime. This is used when creating self-contained deployment. Default is to publish a framework-dependent app.",
+                           "Publish the project for a given runtime.\nThis is used when creating self-contained deployment.\nDefault is to publish a framework-dependent app.",
                            ExactlyOneArgument()
                                .With(name: "RUNTIME_IDENTIFIER")),
                     Option("-o|--output",
@@ -363,19 +369,22 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Sln() =>
             Command("sln",
                     ".NET modify solution file command",
+                    ExactlyOneArgument()
+                        .ExistingFilesOnly()
+                        .With(defaultValue: Directory.GetCurrentDirectory)
+                        .With(name: "SLN_FILE"),
                     HelpOption(),
                     Command("add",
                             ".NET Add project(s) to a solution file Command",
-                            ExactlyOneArgument()
-                                .With(name: "SLN_FILE"),
+                            OneOrMoreArguments(),
                             HelpOption()),
                     Command("list",
                             "List all projects in the solution.",
-                            ExactlyOneArgument()
-                                .With(name: "SLN_FILE"),
                             HelpOption()),
                     Command("remove",
-                            "Remove the specified project(s) from the solution. The project is not impacted."));
+                            "Remove the specified project(s) from the solution. The project is not impacted.",
+                            OneOrMoreArguments(),
+                            HelpOption()));
 
         private static Command Test() =>
             Command("test",
@@ -390,11 +399,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                            "Lists discovered tests"),
                     Option("--filter",
                            @"Run tests that match the given expression.
-                                        Examples:
-                                        Run tests with priority set to 1: --filter ""Priority = 1""
-                                        Run a test with the specified full name: --filter ""FullyQualifiedName=Namespace.ClassName.MethodName""
-                                        Run tests that contain the specified name: --filter ""FullyQualifiedName~Namespace.Class""
-                                        More info on filtering support: https://aka.ms/vstest-filtering",
+                             Examples:
+                             Run tests with priority set to 1: --filter ""Priority = 1""
+                             Run a test with the specified full name: --filter ""FullyQualifiedName=Namespace.ClassName.MethodName""
+                             Run tests that contain the specified name: --filter ""FullyQualifiedName~Namespace.Class""
+                             More info on filtering support: https://aka.ms/vstest-filtering",
                            ExactlyOneArgument()
                                .With(name: "EXPRESSION")),
                     Option("-a|--test-adapter-path",

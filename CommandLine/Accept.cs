@@ -76,7 +76,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 foreach (var filePath in o.Arguments)
                 {
-                    if (!File.Exists(filePath))
+                    if (!File.Exists(filePath) &&
+                        !Directory.Exists(filePath))
                     {
                         return $"File does not exist: {filePath}";
                     }
@@ -84,7 +85,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                 return null;
             }));
-     
+
         public static ArgumentsRule WithSuggestionsFrom(
             params string[] values) =>
             new ArgumentsRule(

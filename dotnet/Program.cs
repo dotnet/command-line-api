@@ -4,22 +4,20 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Microsoft.DotNet.Cli.CommandLine;
 using System.Linq;
-using Create = Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet.Create;
+using Microsoft.DotNet.Cli.CommandLine;
+using Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet;
 
 namespace dotnet
 {
     class Program
     {
-        private static readonly Command dotnetCommand = Create.DotnetCommand();
-
         static void Main(string[] args)
         {
             File.WriteAllLines(@"console1.log",
                                args.Select(a => $"\"{a}\" ({a.Length})"));
 
-            var result = dotnetCommand.Parse(args);
+            var result = DotNetParser.Instance.Parse(args);
 
             var complete = result["dotnet"]["complete"];
 
@@ -53,7 +51,7 @@ namespace dotnet
                 }
             }
 
-            var result = dotnetCommand.Parse(input);
+            var result = DotNetParser.Instance.Parse(input);
 
             return result.Suggestions()
                          .ToArray();

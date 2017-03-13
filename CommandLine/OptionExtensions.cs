@@ -45,11 +45,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static bool IsHidden(this Option  option) => 
             string.IsNullOrWhiteSpace(option.HelpText);
 
-        public static string FullyQualifiedName(this Command command) =>
-            string.Join(" ",
-                        command.RecurseWhileNotNull(c => c.Parent as Command)
-                               .Reverse());
-
         internal static IEnumerable<AppliedOption> AllOptions(
             this AppliedOption option)
         {

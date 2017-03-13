@@ -136,6 +136,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this string arg,
             IReadOnlyCollection<Token> knownTokens) =>
             arg.StartsWith("-") &&
+            !arg.StartsWith("--") &&
             arg.RemovePrefix()
                .All(c => knownTokens
                         .Where(t => t.Type == TokenType.Option)
