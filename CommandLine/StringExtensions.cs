@@ -12,7 +12,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class StringExtensions
     {
-        private static readonly char[] optionPrefixCharacters = { '-', '/' };
+        private static readonly char[] optionPrefixCharacters = { '-' };
 
         private static readonly Regex tokenizer = new Regex(
             @"(""(?<q>[^""]+)"")|(?<q>\S+)",
