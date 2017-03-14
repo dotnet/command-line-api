@@ -49,37 +49,42 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var name = command.ArgumentsRule.Name;
             var description = command.ArgumentsRule.Description;
 
-            if (string.IsNullOrWhiteSpace(name) ||
-                string.IsNullOrWhiteSpace(description))
+            var shouldWriteCommandArguments = !string.IsNullOrWhiteSpace(name) &&
+                                              !string.IsNullOrWhiteSpace(description);
+
+            var parentCommand = command.Parent as Command;
+
+            var parentArgName = parentCommand?.ArgumentsRule?.Name;
+            var parentArgDescription = parentCommand?.ArgumentsRule?.Description;
+
+            var shouldWriteParentCommandArguments = !string.IsNullOrWhiteSpace(parentArgName) &&
+                                                    !string.IsNullOrWhiteSpace(parentArgDescription);
+
+            if (shouldWriteCommandArguments ||
+                shouldWriteParentCommandArguments)
+            {
+                helpView.AppendLine();
+                helpView.AppendLine("Arguments:");
+            }
+            else
             {
                 return;
             }
 
-            helpView.AppendLine();
-            helpView.AppendLine("Arguments:");
-
-            WriteColumnizedSummary(
-                $"  <{name}>",
-                description,
-                18,
-                helpView);
-
-            var parentCommand = command.Parent as Command;
-
-            if (parentCommand != null)
+            if (shouldWriteCommandArguments)
             {
-                name = parentCommand.ArgumentsRule.Name;
-                description = parentCommand.ArgumentsRule.Description;
-
-                if (string.IsNullOrWhiteSpace(name) ||
-                    string.IsNullOrWhiteSpace(description))
-                {
-                    return;
-                }
-
                 WriteColumnizedSummary(
                     $"  <{name}>",
                     description,
+                    18,
+                    helpView);
+            }
+
+            if (shouldWriteParentCommandArguments)
+            {
+                WriteColumnizedSummary(
+                    $"  <{parentArgName}>",
+                    parentArgDescription,
                     18,
                     helpView);
             }
@@ -173,10 +178,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var optionHelpText = option.HelpText;
 
-            WriteColumnizedSummary(aliases, 
-                optionHelpText, 
-                43, 
-                helpView);
+            WriteColumnizedSummary(aliases,
+                                   optionHelpText,
+                                   43,
+                                   helpView);
         }
 
         private static void WriteColumnizedSummary(

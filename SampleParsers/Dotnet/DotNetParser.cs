@@ -377,7 +377,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     ExactlyOneArgument()
                         .ExistingFilesOnly()
                         .With(defaultValue: Directory.GetCurrentDirectory)
-                        .With(name: "SLN_FILE"),
+                        .With(name: "SLN_FILE",
+                              description: "Solution file to operate on. If not specified, the command will search the current directory for one."),
                     HelpOption(),
                     Command("add",
                             ".NET Add project(s) to a solution file Command",
@@ -394,6 +395,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Test() =>
             Command("test",
                     ".NET Test Driver",
+                    ExactlyOneArgument()
+                        .With(name: "PROJECT",
+                              description: "The project to test, defaults to the current directory."),
                     Option("-h|--help",
                            "Show help information"),
                     Option("-s|--settings",
