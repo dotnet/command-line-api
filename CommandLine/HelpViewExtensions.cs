@@ -57,7 +57,32 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             helpView.AppendLine();
             helpView.AppendLine("Arguments:");
-            helpView.AppendLine($"  <{name}>  {description}");
+
+            WriteColumnizedSummary(
+                $"  <{name}>",
+                description,
+                18,
+                helpView);
+
+            var parentCommand = command.Parent as Command;
+
+            if (parentCommand != null)
+            {
+                name = parentCommand.ArgumentsRule.Name;
+                description = parentCommand.ArgumentsRule.Description;
+
+                if (string.IsNullOrWhiteSpace(name) ||
+                    string.IsNullOrWhiteSpace(description))
+                {
+                    return;
+                }
+
+                WriteColumnizedSummary(
+                    $"  <{name}>",
+                    description,
+                    18,
+                    helpView);
+            }
         }
 
         private static void WriteSubcommandsSection(
@@ -129,7 +154,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Option option,
             StringBuilder helpView)
         {
-            var aliases = "    " +
+            var aliases = "  " +
                           string.Join(", ",
                                       option.Aliases
                                             .OrderBy(a => a.Length)
@@ -146,26 +171,39 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 aliases += $" <{argumentName}>";
             }
 
-            helpView.Append(aliases);
+            var optionHelpText = option.HelpText;
 
-            var colWidth = 38;
+            WriteColumnizedSummary(aliases, 
+                optionHelpText, 
+                43, 
+                helpView);
+        }
 
-            if (aliases.Length <= colWidth - 2)
+        private static void WriteColumnizedSummary(
+            string leftColumnText,
+            string rightColumnText,
+            int width,
+            StringBuilder helpView)
+        {
+            helpView.Append(leftColumnText);
+
+            if (leftColumnText.Length <= width - 2)
             {
-                helpView.Append(new string(' ', colWidth - aliases.Length));
+                helpView.Append(new string(' ', width - leftColumnText.Length));
             }
             else
             {
                 helpView.AppendLine();
-                helpView.Append(new string(' ', colWidth));
+                helpView.Append(new string(' ', width));
             }
 
-            helpView.AppendLine(
-                string.Join(
-                    Environment.NewLine + new string(' ', colWidth), option
-                        .HelpText
-                        .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(s => s.Trim())));
+            var descriptionWithLineWraps = string.Join(
+                Environment.NewLine + new string(' ', width),
+                rightColumnText
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim()));
+
+            helpView.AppendLine(descriptionWithLineWraps);
         }
 
         private static void WriteUsageSummary(

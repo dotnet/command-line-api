@@ -176,7 +176,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var helpView = command.HelpView();
 
-            var indent = new string(' ', 38);
+            var indent = new string(' ', 43);
 
             helpView.Should()
                     .Contain($"Sets the verbosity. Accepted values are:{NewLine}{indent}- quiet{NewLine}{indent}- loud{NewLine}{indent}- very-loud");
@@ -193,7 +193,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             command.HelpView()
                    .Should()
-                   .Contain("  -v, --verbosity <LEVEL>           Sets the verbosity.");
+                   .Contain("  -v, --verbosity <LEVEL>                  Sets the verbosity.");
         }
 
         [Fact]
@@ -201,7 +201,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command", "The help text for the command",
                                   ZeroOrOneArgument()
-                                      .With(name: "the-command-arg",
+                                      .With(name: "the-arg",
                                             description: "This is the argument for the command."),
                                   Option("-o|--one", "The first option"));
 
@@ -210,7 +210,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             output.WriteLine(helpView);
 
             helpView.Should()
-                    .Contain($"Arguments:{NewLine}  <the-command-arg>  This is the argument for the command.");
+                    .Contain($"Arguments:{NewLine}  <the-arg>       This is the argument for the command.");
         }
     }
 }
