@@ -31,7 +31,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 helpView.AppendLine();
             }
 
-            WriteUsageSummary(command, helpView);
+            WriteSyntaxDiagram(command, helpView);
 
             WriteArgumentsSection(command, helpView);
 
@@ -49,16 +49,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var name = command.ArgumentsRule.Name;
             var description = command.ArgumentsRule.Description;
 
-            var shouldWriteCommandArguments = !string.IsNullOrWhiteSpace(name) &&
-                                              !string.IsNullOrWhiteSpace(description);
+            var shouldWriteCommandArguments =
+                !string.IsNullOrWhiteSpace(name) &&
+                !string.IsNullOrWhiteSpace(description);
 
             var parentCommand = command.Parent as Command;
 
             var parentArgName = parentCommand?.ArgumentsRule?.Name;
             var parentArgDescription = parentCommand?.ArgumentsRule?.Description;
 
-            var shouldWriteParentCommandArguments = !string.IsNullOrWhiteSpace(parentArgName) &&
-                                                    !string.IsNullOrWhiteSpace(parentArgDescription);
+            var shouldWriteParentCommandArguments =
+                !string.IsNullOrWhiteSpace(parentArgName) &&
+                !string.IsNullOrWhiteSpace(parentArgDescription);
 
             if (shouldWriteCommandArguments ||
                 shouldWriteParentCommandArguments)
@@ -71,20 +73,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return;
             }
 
-            if (shouldWriteCommandArguments)
-            {
-                WriteColumnizedSummary(
-                    $"  <{name}>",
-                    description,
-                    18,
-                    helpView);
-            }
-
             if (shouldWriteParentCommandArguments)
             {
                 WriteColumnizedSummary(
                     $"  <{parentArgName}>",
                     parentArgDescription,
+                    18,
+                    helpView);
+            }
+
+            if (shouldWriteCommandArguments)
+            {
+                WriteColumnizedSummary(
+                    $"  <{name}>",
+                    description,
                     18,
                     helpView);
             }
@@ -211,19 +213,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
             helpView.AppendLine(descriptionWithLineWraps);
         }
 
-        private static void WriteUsageSummary(
+        private static void WriteSyntaxDiagram(
             Command command,
             StringBuilder helpView)
         {
             helpView.Append("Usage:");
 
-            foreach (var subcommand in command.RecurseWhileNotNull(c => c.Parent as Command)
-                                              .Reverse())
+            foreach (var subcommand in command
+                .RecurseWhileNotNull(c => c.Parent as Command)
+                .Reverse())
             {
                 helpView.Append($" {subcommand.Name}");
 
                 var argsName = subcommand.ArgumentsRule.Name;
-                if (!string.IsNullOrWhiteSpace(argsName))
+                if (subcommand != command &&
+                    !string.IsNullOrWhiteSpace(argsName))
                 {
                     helpView.Append($" <{argsName}>");
                 }
@@ -234,6 +238,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                  !o.IsHidden()))
             {
                 helpView.Append($" [options]");
+            }
+
+            var argumentsName = command.ArgumentsRule.Name;
+            if (!string.IsNullOrWhiteSpace(argumentsName))
+            {
+                helpView.Append($" <{argumentsName}>");
             }
 
             if (command.DefinedOptions.OfType<Command>().Any())

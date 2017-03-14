@@ -138,7 +138,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_command_accepts_arguments_then_the_usage_string_mentions_them()
+        public void When_a_command_accepts_arguments_then_the_syntax_diagram_shows_them()
         {
             var command = Command("the-command", "command help",
                                   ZeroOrMoreArguments().With(name: "the-args"),
@@ -148,11 +148,27 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             helpView
                 .Should()
-                .Contain("Usage: the-command <the-args> [options]");
+                .Contain("Usage: the-command [options] <the-args>");
         }
 
         [Fact]
-        public void When_a_command_does_not_accept_arguments_then_the_usage_string_does_not_mention_them()
+        public void When_a_command_and_subcommand_both_accept_arguments_then_the_syntax_diagram_for_the_inner_command_shows_them()
+        {
+            var command = Command("outer-command", "command help",
+                                  ZeroOrMoreArguments().With(name: "outer-args"),
+                                  Command("inner-command", "command help",
+                                          ZeroOrOneArgument().With(name: "inner-args"),
+                                          Option("-v|--verbosity", "Sets the verbosity")));
+
+            var helpView = command["inner-command"].HelpView();
+
+            helpView
+                .Should()
+                .Contain("Usage: outer-command <outer-args> inner-command [options] <inner-args>");
+        }
+
+        [Fact]
+        public void When_a_command_does_not_accept_arguments_then_the_syntax_diagram_does_not_show_them()
         {
             var command = Command("the-command",
                                   "command help",
