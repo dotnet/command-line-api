@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.DotNet.Cli.CommandLine
@@ -57,23 +56,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal static string RemovePrefix(this string option) =>
             option.TrimStart(optionPrefixCharacters);
-
-        internal static void RemoveEnd(
-            this StringBuilder source,
-            string value)
-        {
-            if (source.ToString().EndsWith(value))
-            {
-                RemoveEnd(source, value.Length);
-            }
-        }
-
-        internal static void RemoveEnd(
-            this StringBuilder source,
-            int length) =>
-            source.Remove(
-                source.Length - length,
-                length);
 
         internal static IEnumerable<Token> Lex(
             this IEnumerable<string> args,

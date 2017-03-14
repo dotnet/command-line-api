@@ -53,8 +53,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                            o => int.Parse(o.Arguments.Single())));
 
         private static Command Add() =>
-            Command("add", "",
-                    ExactlyOneArgument(),
+            Command("add", 
+                    ".NET Add Command",
+                    ExactlyOneArgument()
+                        .With(name: "PROJECT",
+                        description: "The project file to operate on. If a file is not specified, the command will search the current directory for one."),
                     Package(),
                     Reference(),
                     HelpOption());
@@ -100,7 +103,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                                .With(name: "CONFIGURATION")));
 
         private static Command List() =>
-            Command("list", 
+            Command("list",
                     ".NET List Command",
                     ExactlyOneArgument()
                         .With(name: "PROJECT",
@@ -254,7 +257,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
             Command("package",
                     ".NET Add Package reference Command",
                     ExactlyOneArgument()
-                        .WithSuggestionsFrom(QueryNuGet),
+                        .WithSuggestionsFrom(QueryNuGet)
+                        .With(name: "PACKAGE_ID"),
                     HelpOption(),
                     Option("-v|--version",
                            "Version for the package to be added.",

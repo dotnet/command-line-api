@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -29,20 +28,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
             if (!string.IsNullOrWhiteSpace(command.HelpText))
             {
                 helpView.AppendLine(command.HelpText);
+                helpView.AppendLine();
             }
 
-            var options = command.DefinedOptions.ToArray();
-
-            options = options
-                .Where(o => !o.IsCommand)
-                .Where(o => !o.IsHidden())
-                .ToArray();
-
-            WriteUsageSummary(command, options, helpView);
-
-            WriteOptionsSection(options, helpView);
+            WriteUsageSummary(command, helpView);
 
             WriteArgumentsSection(command, helpView);
+
+            WriteOptionsSection(command, helpView);
 
             WriteSubcommandsSection(command, helpView);
 
@@ -91,9 +84,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         private static void WriteOptionsSection(
-            IReadOnlyCollection<Option> options,
+            Command command,
             StringBuilder helpView)
         {
+            var options = VisibleOptions(command);
+
             if (!options.Any())
             {
                 return;
@@ -106,32 +101,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 WriteHelpSummary(option, helpView);
             }
-        }
-
-        private static void WriteUsageSummary(
-            Command command,
-            IReadOnlyCollection<Option> options,
-            StringBuilder helpView)
-        {
-            helpView.Append("Usage:");
-
-            foreach (var c in command.RecurseWhileNotNull(c => c.Parent as Command)
-                                     .Reverse())
-            {
-                helpView.Append($" {c.Name}");
-                var argsName = c.ArgumentsRule.Name;
-                if (!string.IsNullOrWhiteSpace(argsName))
-                {
-                    helpView.Append($" [{argsName}]");
-                }
-            }
-
-            if (options.Any())
-            {
-                helpView.Append(" [options]");
-            }
-
-            helpView.AppendLine();
         }
 
         public static string HelpView(this Option option)
@@ -148,6 +117,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             return helpView.ToString();
         }
+
+        private static Option[] VisibleOptions(
+            this Command command) =>
+            command.DefinedOptions
+                   .Where(o => !o.IsCommand)
+                   .Where(o => !o.IsHidden())
+                   .ToArray();
 
         private static void WriteHelpSummary(
             Option option,
@@ -190,6 +166,39 @@ namespace Microsoft.DotNet.Cli.CommandLine
                         .HelpText
                         .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(s => s.Trim())));
+        }
+
+        private static void WriteUsageSummary(
+            Command command,
+            StringBuilder helpView)
+        {
+            helpView.Append("Usage:");
+
+            foreach (var subcommand in command.RecurseWhileNotNull(c => c.Parent as Command)
+                                              .Reverse())
+            {
+                helpView.Append($" {subcommand.Name}");
+
+                var argsName = subcommand.ArgumentsRule.Name;
+                if (!string.IsNullOrWhiteSpace(argsName))
+                {
+                    helpView.Append($" <{argsName}>");
+                }
+            }
+
+            if (command.DefinedOptions
+                       .Any(o => !o.IsCommand &&
+                                 !o.IsHidden()))
+            {
+                helpView.Append($" [options]");
+            }
+
+            if (command.DefinedOptions.OfType<Command>().Any())
+            {
+                helpView.Append(" [command]");
+            }
+
+            helpView.AppendLine();
         }
     }
 }
