@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -41,7 +42,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 this.errors.AddRange(errors);
             }
 
-            CheckForOptionErrors();
+            CheckForErrors();
         }
 
         public OptionSet<AppliedOption> AppliedOptions { get; }
@@ -58,7 +59,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public AppliedOption this[string alias] => AppliedOptions[alias];
 
-        private void CheckForOptionErrors()
+        private void CheckForErrors()
         {
             foreach (var option in AppliedOptions.FlattenBreadthFirst())
             {
@@ -68,6 +69,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     errors.Add(error);
                 }
+            }
+
+            var command = this.Command();
+
+            if (command != null &&
+                command.DefinedOptions.Any(o => o.IsCommand))
+            {
+                errors.Insert(0, new OptionError(
+                    $"Required subcommand missing for command: {command}",
+                    command.Name));
             }
         }
 

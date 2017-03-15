@@ -118,7 +118,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                                   return null;
                               },
-                              materialize: o => o.Arguments);
+                              materialize: o => o.Arguments.SingleOrDefault());
 
         internal static ArgumentsRule ExactlyOneCommandRequired(
             Func<AppliedOption, string> errorMessage = null) =>

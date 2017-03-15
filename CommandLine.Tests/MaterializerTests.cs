@@ -63,7 +63,21 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_with_a_single_argument_materializes_as_the_argument_string_value_by_default()
+        public void An_option_with_zero_or_one_argument_materializes_as_the_argument_string_value_by_default()
+        {
+            var command = Command("the-command", "",
+                                  Option("-x", "", Accept.ZeroOrOneArgument()));
+
+            var result = command.Parse("the-command -x the-argument");
+
+            result["the-command"]["x"]
+                .Value()
+                .Should()
+                .Be("the-argument");
+        }
+
+        [Fact]
+        public void An_option_with_exactly_one_argument_materializes_as_the_argument_string_value_by_default()
         {
             var command = Command("the-command", "",
                                   Option("-x", "", Accept.ExactlyOneArgument()));
