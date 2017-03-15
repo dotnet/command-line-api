@@ -136,5 +136,21 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo(Directory.GetCurrentDirectory());
         }
+
+        [Fact]
+        public void When_there_are_subcommands_and_options_then_a_subcommand_must_be_provided()
+        {
+            var command = Command("outer", "",
+                                  Command("inner", "",
+                                          OneOrMoreArguments(),
+                                          Command("three", "")));
+
+            var result = command.Parse("outer inner arg");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .BeEquivalentTo("Required subcommand missing for command: inner");
+        }
     }
 }
