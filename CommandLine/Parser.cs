@@ -35,7 +35,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             tokenSplitDelimiters = delimiters ?? defaultTokenSplitDelimiters;
         }
 
-        public OptionSet<Option> DefinedOptions { get; } = new OptionSet<Option>();
+        public OptionSet DefinedOptions { get; } = new OptionSet();
 
         public ParseResult Parse(string[] args) => Parse(args, false);
 
@@ -57,7 +57,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawArgs)
                     .Lex(knownTokens, tokenSplitDelimiters));
-            var rootAppliedOptions = new OptionSet<AppliedOption>();
+            var rootAppliedOptions = new AppliedOptionSet();
             var allAppliedOptions = new List<AppliedOption>();
             var errors = new List<OptionError>();
             var unmatchedTokens = new List<string>();

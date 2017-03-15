@@ -125,7 +125,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Errors
                 .Select(e => e.Message)
                 .Should()
-                .BeEquivalentTo("Required argument missing for command: one");
+                .BeEquivalentTo(
+                    "Option 'fungus' is not recognized.",
+                    "Required argument missing for command: one");
         }
 
         [Fact]

@@ -2,17 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using static Microsoft.DotNet.Cli.CommandLine.Accept;
-using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class Command : Option
     {
-        private readonly List<string> allowedValues = new List<string>();
-
         public Command(
             string name,
             string help,
@@ -30,21 +26,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
 
-            var rule =
+            ArgumentsRule =
                 ExactlyOneCommandRequired()
-                    .And(
-                        new ArgumentsRule(o => !commandNames.Any(
-                                                   o.AppliedOptions.Single().HasAlias)
-                                                   ? $"Command '{o.AppliedOptions.Single()}' not recognized. Must be one of:\n\t{string.Join("\n\t", commandNames.Select(v => $"'{v}'"))}"
-                                                   : "", commandNames));
-
-            ArgumentsRule = rule;
-
-            allowedValues.AddRange(commandNames);
+                    .WithSuggestionsFrom(commandNames)
+                    .And(ArgumentsRule);
         }
-
-        protected internal override IReadOnlyCollection<string> AllowedValues =>
-            base.AllowedValues.Concat(allowedValues).ToArray();
 
         internal override bool IsCommand => true;
     }

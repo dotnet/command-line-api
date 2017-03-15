@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class Option : IAliased
+    public class Option
     {
         private readonly HashSet<string> aliases = new HashSet<string>();
 
@@ -83,7 +83,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         protected internal virtual IReadOnlyCollection<string> AllowedValues { get; }
 
-        public OptionSet<Option> DefinedOptions { get; } = new OptionSet<Option>();
+        public OptionSet DefinedOptions { get; } = new OptionSet();
 
         public string HelpText { get; }
 

@@ -36,11 +36,12 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppliedOptionSet.cs" />
     <Compile Include="ArgumentsRuleExtensions.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandExecutionResult.cs" />
     <Compile Include="HelpViewExtensions.cs" />
-    <Compile Include="IAliased.cs" />
+    <Compile Include="OptionSet{T}.cs" />
     <Compile Include="ParseException.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="ParseResultExtensions.cs" />

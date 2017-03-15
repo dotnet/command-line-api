@@ -7,13 +7,13 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class AppliedOption : IAliased
+    public class AppliedOption 
     {
         private readonly List<string> arguments = new List<string>();
 
         private readonly Func<object> materialize;
 
-        private readonly OptionSet<AppliedOption> appliedOptions = new OptionSet<AppliedOption>();
+        private readonly AppliedOptionSet appliedOptions = new AppliedOptionSet();
 
         public AppliedOption(Option option, string token = null)
         {

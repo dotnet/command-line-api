@@ -8,15 +8,26 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class ArgumentsRuleExtensions
     {
+
+
+        public static ArgumentsRule And(
+            this ArgumentsRule rule,
+            Func<AppliedOption, string> error)
+        {
+            return rule.And (new ArgumentsRule(error));
+        }
+
         public static ArgumentsRule And(
             this ArgumentsRule rule,
             ArgumentsRule rule2)
         {
             var rules = new[] { rule, rule2 };
 
+
+
             return new ArgumentsRule(
                 validate: option => rules.Select(r => r.Validate(option))
-                                         .FirstOrDefault(result => !String.IsNullOrWhiteSpace(result)),
+                                         .FirstOrDefault(result => !string.IsNullOrWhiteSpace(result)),
                 allowedValues: rules.SelectMany(r => r.AllowedValues)
                                     .Distinct()
                                     .ToArray(),
