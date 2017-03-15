@@ -7,12 +7,11 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class AppliedOption 
+    public class AppliedOption
     {
         private readonly List<string> arguments = new List<string>();
-
+        private readonly Lazy<string> defaultValue;
         private readonly Func<object> materialize;
-
         private readonly AppliedOptionSet appliedOptions = new AppliedOptionSet();
 
         public AppliedOption(Option option, string token = null)
@@ -23,6 +22,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             Option = option;
+
+            defaultValue = new Lazy<string>(option.ArgumentsRule.GetDefaultValue);
 
             Token = token ?? option.ToString();
 
@@ -36,15 +37,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             get
             {
-                if (arguments.Any()
-                    || Option.ArgumentsRule.DefaultValue == null)
+                if (arguments.Any() ||
+                    defaultValue.Value == null)
                 {
                     return arguments.ToArray();
                 }
-                else
-                {
-                    return new[] { Option.ArgumentsRule.DefaultValue };
-                }
+
+                return new[] { defaultValue.Value };
             }
         }
 

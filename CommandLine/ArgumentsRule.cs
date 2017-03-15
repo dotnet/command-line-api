@@ -12,7 +12,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private readonly Func<AppliedOption, string> validate;
         private readonly Func<AppliedOption, object> materialize;
         private readonly Func<ParseResult, IEnumerable<string>> suggest;
-        private readonly Lazy<string> defaultValue;
+        private readonly Func<string> defaultValue;
 
         public ArgumentsRule(Func<AppliedOption, string> validate) : this(validate, null)
         {
@@ -32,7 +32,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(validate));
             }
 
-            this.defaultValue = new Lazy<string>(defaultValue ?? (() => null));
+            this.defaultValue = defaultValue ?? (() => null);
             Description = description;
             Name = name;
             this.validate = validate;
@@ -59,9 +59,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IReadOnlyCollection<string> AllowedValues { get; }
 
-        public string DefaultValue => defaultValue.Value;
-
-        internal Func<string> GetDefaultValue => () => defaultValue.Value;
+        internal Func<string> GetDefaultValue => () => defaultValue();
 
         public string Description { get; }
 

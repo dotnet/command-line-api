@@ -70,7 +70,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 validate: rule.Validate,
                 allowedValues: rule.AllowedValues,
                 defaultValue: defaultValue ??
-                              (() => rule.DefaultValue),
+                              rule.GetDefaultValue,
                 name: name ?? rule.Name,
                 description: description ?? rule.Description,
                 suggest: rule.Suggest,

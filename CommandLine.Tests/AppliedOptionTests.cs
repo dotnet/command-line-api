@@ -5,6 +5,7 @@ using System;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
@@ -139,6 +140,29 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             applied.TryTakeToken(new Token("two", TokenType.Argument));
 
             applied.Arguments.Should().BeEquivalentTo("two");
+        }
+
+        [Fact]
+        public void Default_values_are_reevaluated_and_not_cached_between_parses()
+        {
+            var i = 0;
+            var option =
+                Option("-x",
+                       "",
+                       ExactlyOneArgument()
+                           .With(defaultValue: () => (++i).ToString()));
+
+            var result1 = option.Parse("-x");
+            var result2 = option.Parse("-x");
+
+            result1["x"]
+                .Value()
+                .Should()
+                .Be("1");
+            result2["x"]
+                .Value()
+                .Should()
+                .Be("2");
         }
 
         [Fact]
