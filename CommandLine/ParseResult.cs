@@ -77,8 +77,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 command.DefinedOptions.Any(o => o.IsCommand))
             {
                 errors.Insert(0, new OptionError(
-                    $"Required subcommand missing for command: {command}",
-                    command.Name));
+                                  "Required command was not provided.",
+                                  command.Name,
+                                  this.AppliedCommand()));
             }
         }
 

@@ -148,9 +148,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = command.Parse("outer inner arg");
 
             result.Errors
-                  .Select(e => e.Message)
                   .Should()
-                  .BeEquivalentTo("Required subcommand missing for command: inner");
+                  .ContainSingle(
+                      e => e.Message == "Required command was not provided." &&
+                           e.Option.Name == "inner");
         }
     }
 }
