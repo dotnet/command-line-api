@@ -291,13 +291,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void TakeToken_will_not_accept_an_argument_even_if_it_is_invalid()
+        public void TryTakeToken_will_not_accept_an_argument_if_it_is_invalid()
         {
             var option = Option("--one", "", NoArguments());
 
             var applied = new AppliedOption(option);
 
-            applied.TryTakeToken(new Token("inner-one", TokenType.Argument))
+            applied.TryTakeToken(new Token("arg", TokenType.Argument))
                    .Should()
                    .BeNull();
         }

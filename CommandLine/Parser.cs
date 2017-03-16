@@ -161,6 +161,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private static OptionError UnrecognizedArg(string arg) =>
             new OptionError(
-                $"Option '{arg}' is not recognized.", arg);
+                $"Unrecognized command or argument '{arg}'", arg);
     }
 }
