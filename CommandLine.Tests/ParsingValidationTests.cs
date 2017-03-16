@@ -69,7 +69,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .ContainSingle(e => e == "Option 'some-arg' is not recognized.");
+                  .ContainSingle(e => e == "Unrecognized command or argument 'some-arg'");
         }
 
         [Fact]
