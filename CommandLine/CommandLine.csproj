@@ -40,6 +40,7 @@
     <Compile Include="ArgumentsRuleExtensions.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandExecutionResult.cs" />
+    <Compile Include="DefaultHelpViewText.cs" />
     <Compile Include="HelpViewExtensions.cs" />
     <Compile Include="OptionSet{T}.cs" />
     <Compile Include="ParseException.cs" />

@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Text;
+using static System.Environment;
+using static Microsoft.DotNet.Cli.CommandLine.DefaultHelpViewText;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -39,7 +41,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             WriteSubcommandsSection(command, helpView);
 
+            WriteAdditionalArgumentsSection(command, helpView);
+
             return helpView.ToString();
+        }
+
+        private static void WriteAdditionalArgumentsSection(
+            Command command,
+            StringBuilder helpView)
+        {
+            if (command.TreatUnmatchedTokensAsErrors)
+            {
+                return;
+            }
+
+            helpView.Append(AdditionalArgumentsSection);
         }
 
         private static void WriteArgumentsSection(
@@ -66,7 +82,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 shouldWriteParentCommandArguments)
             {
                 helpView.AppendLine();
-                helpView.AppendLine("Arguments:");
+                helpView.AppendLine(ArgumentsSection.Title);
             }
             else
             {
@@ -107,7 +123,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             helpView.AppendLine();
-            helpView.AppendLine("Commands:");
+            helpView.AppendLine(CommandsSection.Title);
 
             foreach (var subcommand in subcommands)
             {
@@ -127,7 +143,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             helpView.AppendLine();
-            helpView.AppendLine("Options:");
+            helpView.AppendLine(OptionsSection.Title);
 
             foreach (var option in options)
             {
@@ -205,7 +221,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             var descriptionWithLineWraps = string.Join(
-                Environment.NewLine + new string(' ', width),
+                NewLine + new string(' ', width),
                 rightColumnText
                     .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(s => s.Trim()));
@@ -217,7 +233,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Command command,
             StringBuilder helpView)
         {
-            helpView.Append("Usage:");
+            helpView.Append(Synopsis.Title);
 
             foreach (var subcommand in command
                 .RecurseWhileNotNull(c => c.Parent as Command)
@@ -237,7 +253,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                        .Any(o => !o.IsCommand &&
                                  !o.IsHidden()))
             {
-                helpView.Append($" [options]");
+                helpView.Append(Synopsis.Options);
             }
 
             var argumentsName = command.ArgumentsRule.Name;
@@ -248,12 +264,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (command.DefinedOptions.OfType<Command>().Any())
             {
-                helpView.Append(" [command]");
+                helpView.Append(Synopsis.Command);
             }
 
             if (!command.TreatUnmatchedTokensAsErrors)
             {
-                helpView.Append(" [[--] <additional arguments>...]]");
+                helpView.Append(Synopsis.AdditionalArguments);
             }
 
             helpView.AppendLine();
