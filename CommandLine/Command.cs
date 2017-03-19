@@ -13,15 +13,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string name,
             string help,
             Option[] options = null,
-            ArgumentsRule arguments = null) :
+            ArgumentsRule arguments = null,
+            bool treatUnmatchedTokensAsErrors = true) :
             base(new[] { name }, help, arguments, options)
         {
+            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
         }
 
         public Command(
             string name,
             string help,
-            params Command[] subcommands) :
+            Command[] subcommands) :
             base(new[] { name }, help, options: subcommands)
         {
             var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
@@ -33,5 +35,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         internal override bool IsCommand => true;
+
+        public bool TreatUnmatchedTokensAsErrors { get; } = true;
     }
 }

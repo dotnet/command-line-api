@@ -228,5 +228,19 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             helpView.Should()
                     .Contain($"Arguments:{NewLine}  <the-arg>       This is the argument for the command.");
         }
+
+        [Fact]
+        public void When_unmatched_tokens_are_allowed_then_help_view_indicates_it()
+        {
+            var command = Command("some-command", "Does something",
+                                  treatUnmatchedTokensAsErrors: false,
+                                  options: Option("-x", "Indicates whether x"));
+
+            var helpView = command.HelpView();
+
+            output.WriteLine(helpView);
+
+            helpView.Should().Contain("Usage: some-command [options] [[--] <additional arguments>...]]");
+        }
     }
 }

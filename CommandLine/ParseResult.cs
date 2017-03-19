@@ -15,7 +15,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal ParseResult(
             IReadOnlyCollection<string> tokens,
-            OptionSet<AppliedOption> appliedOptions,
+            AppliedOptionSet appliedOptions,
             bool isProgressive,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
@@ -45,7 +45,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             CheckForErrors();
         }
 
-        public OptionSet<AppliedOption> AppliedOptions { get; }
+        public AppliedOptionSet AppliedOptions { get; }
 
         public IEnumerable<OptionError> Errors => errors;
 

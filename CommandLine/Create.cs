@@ -31,9 +31,24 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static Command Command(
             string name,
             string help,
+            bool treatUnmatchedTokensAsErrors,
+            params Option[] options) =>
+            new Command(name, help, options, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
+
+        public static Command Command(
+            string name,
+            string help,
             ArgumentsRule arguments,
             params Option[] options) =>
             new Command(name, help, options, arguments);
+
+        public static Command Command(
+            string name,
+            string help,
+            ArgumentsRule arguments,
+            bool treatUnmatchedTokensAsErrors,
+            params Option[] options) =>
+            new Command(name, help, options, arguments, treatUnmatchedTokensAsErrors);
 
         public static Command Command(
             string name,

@@ -640,6 +640,27 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void The_default_behavior_of_unmatched_tokens_resulting_in_errors_can_be_turned_off()
+        {
+            var command = Command("the-command",
+                                  "",
+                                  treatUnmatchedTokensAsErrors: false,
+                                  arguments: ExactlyOneArgument());
+
+            var parser = new Parser(
+                new ParserConfiguration(
+                    definedOptions: new[] { command }));
+
+            var result = parser.Parse("the-command arg1 arg2");
+
+            result.Errors.Should().BeEmpty();
+
+            result.UnmatchedTokens
+                  .Should()
+                  .BeEquivalentTo("arg2");
+        }
+
+        [Fact]
         public void Argument_names_can_collide_with_option_names()
         {
             var command = Command("the-command", "",

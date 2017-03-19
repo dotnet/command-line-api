@@ -361,15 +361,20 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Run() =>
             Command("run",
                     ".NET Run Command",
-                    HelpOption(),
-                    Option("-c|--configuration",
-                           @"Configuration to use for building the project. Default for most projects is ""Debug""."),
-                    Option("-f|--framework",
-                           "Build and run the app using the specified framework. The framework has to be specified in the project file.",
-                           AnyOneOf(FrameworksFromProjectFile())),
-                    Option("-p|--project",
-                           "The path to the project file to run (defaults to the current directory if there is only one project).",
-                           ZeroOrOneArgument()));
+                    treatUnmatchedTokensAsErrors: false,
+                    options:
+                    new[]
+                    {
+                        HelpOption(),
+                        Option("-c|--configuration",
+                               @"Configuration to use for building the project. Default for most projects is ""Debug""."),
+                        Option("-f|--framework",
+                               "Build and run the app using the specified framework. The framework has to be specified in the project file.",
+                               AnyOneOf(FrameworksFromProjectFile())),
+                        Option("-p|--project",
+                               "The path to the project file to run (defaults to the current directory if there is only one project).",
+                               ZeroOrOneArgument())
+                    });
 
         private static Command Sln() =>
             Command("sln",
