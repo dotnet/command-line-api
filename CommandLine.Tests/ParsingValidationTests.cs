@@ -62,9 +62,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(Option("-x", "", NoArguments()));
+            var parser = new Parser(Command("the-command", "", Option("-x", "", NoArguments())));
 
-            var result = parser.Parse("-x some-arg");
+            var result = parser.Parse("the-command -x some-arg");
 
             result.Errors
                   .Select(e => e.Message)

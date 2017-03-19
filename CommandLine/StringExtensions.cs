@@ -60,9 +60,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
         internal static IEnumerable<Token> Lex(
             this IEnumerable<string> args,
             HashSet<Token> knownTokens,
-            char[] delimiters)
+            ParserConfiguration configuration)
         {
             var foundCommandss = new HashSet<string>();
+
+            var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
             foreach (var arg in args)
             {
@@ -70,7 +72,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                 if (argHasPrefix && HasDelimiter(arg))
                 {
-                    var parts = arg.Split(delimiters, 2);
+                    var parts = arg.Split(argumentDelimiters, 2);
 
                     yield return Option(parts[0]);
 

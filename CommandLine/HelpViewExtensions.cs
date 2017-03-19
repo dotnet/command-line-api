@@ -31,7 +31,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 helpView.AppendLine();
             }
 
-            WriteSyntaxDiagram(command, helpView);
+            WriteSynopsis(command, helpView);
 
             WriteArgumentsSection(command, helpView);
 
@@ -213,7 +213,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             helpView.AppendLine(descriptionWithLineWraps);
         }
 
-        private static void WriteSyntaxDiagram(
+        private static void WriteSynopsis(
             Command command,
             StringBuilder helpView)
         {
@@ -249,6 +249,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
             if (command.DefinedOptions.OfType<Command>().Any())
             {
                 helpView.Append(" [command]");
+            }
+
+            if (!command.TreatUnmatchedTokensAsErrors)
+            {
+                helpView.Append(" [[--] <additional arguments>...]]");
             }
 
             helpView.AppendLine();

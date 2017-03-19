@@ -30,7 +30,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             materialize = () => option.ArgumentsRule.Materialize(this);
         }
 
-        public OptionSet<AppliedOption> AppliedOptions =>
+        public AppliedOptionSet AppliedOptions =>
             appliedOptions;
 
         public IReadOnlyCollection<string> Arguments

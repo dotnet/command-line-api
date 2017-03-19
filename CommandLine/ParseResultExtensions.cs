@@ -29,10 +29,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static Command Command(this ParseResult result) =>
             result.AppliedOptions
-                  .FlattenBreadthFirst()
-                  .Select(a => a.Option)
-                  .OfType<Command>()
-                  .LastOrDefault();
+                  .Command();
+
+        internal static Command Command(this AppliedOptionSet options) =>
+            options.FlattenBreadthFirst()
+                   .Select(a => a.Option)
+                   .OfType<Command>()
+                   .LastOrDefault();
 
         public static AppliedOption AppliedCommand(this ParseResult result)
         {
@@ -43,7 +46,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 .Reverse()
                 .ToArray();
 
-            AppliedOption option = result[commandPath.First()];
+            var option = result[commandPath.First()];
 
             foreach (var commandName in commandPath.Skip(1))
             {

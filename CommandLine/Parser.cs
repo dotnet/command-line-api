@@ -10,32 +10,26 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class Parser
     {
-        private static readonly char[] defaultTokenSplitDelimiters = { '=', ':' };
+        private readonly ParserConfiguration configuration;
 
-        private readonly char[] tokenSplitDelimiters = null;
-
-        public Parser(params Option[] options)
+        public Parser(params Option[] options) : this(new ParserConfiguration(options))
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            if (!options.Any())
-            {
-                throw new ArgumentException("You must specify at least one option.");
-            }
-
-            DefinedOptions.AddRange(options);
-            tokenSplitDelimiters = defaultTokenSplitDelimiters;
         }
 
-        public Parser(char[] delimiters, params Option[] options) : this(options)
+        public Parser(char[] delimiters, params Option[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
         {
-            tokenSplitDelimiters = delimiters ?? defaultTokenSplitDelimiters;
         }
 
-        public OptionSet DefinedOptions { get; } = new OptionSet();
+        public Parser(ParserConfiguration configuration)
+        {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+            this.configuration = configuration;
+        }
+
+        public OptionSet DefinedOptions => configuration.DefinedOptions;
 
         public ParseResult Parse(string[] args) => Parse(args, false);
 
@@ -56,7 +50,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawArgs)
-                    .Lex(knownTokens, tokenSplitDelimiters));
+                    .Lex(knownTokens, configuration));
             var rootAppliedOptions = new AppliedOptionSet();
             var allAppliedOptions = new List<AppliedOption>();
             var errors = new List<OptionError>();
@@ -114,8 +108,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            errors.AddRange(
-                unmatchedTokens.Select(UnrecognizedArg));
+            if (rootAppliedOptions.Command()?.TreatUnmatchedTokensAsErrors == true)
+            {
+                errors.AddRange(
+                    unmatchedTokens.Select(UnrecognizedArg));
+            }
 
             return new ParseResult(
                 rawArgs,
@@ -125,7 +122,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 unmatchedTokens,
                 errors);
         }
-
+        
         public IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {
             var firstArg = args.First();
