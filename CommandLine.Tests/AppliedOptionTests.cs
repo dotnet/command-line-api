@@ -5,7 +5,6 @@ using System;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
