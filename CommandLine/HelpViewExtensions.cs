@@ -94,7 +94,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 WriteColumnizedSummary(
                     $"  <{parentArgName}>",
                     parentArgDescription,
-                    18,
+                    15,
                     helpView);
             }
 
@@ -103,9 +103,30 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 WriteColumnizedSummary(
                     $"  <{name}>",
                     description,
-                    18,
+                    15,
                     helpView);
             }
+        }
+
+
+
+        private static void WriteOptionsSection(
+            Command command,
+            StringBuilder helpView)
+        {
+            var options = command
+                .DefinedOptions
+                .ToArray();
+
+            if (!options.Any())
+            {
+                return;
+            }
+
+            helpView.AppendLine();
+            helpView.AppendLine(OptionsSection.Title);
+
+            WriteOptionsList(options, helpView);
         }
 
         private static void WriteSubcommandsSection(
@@ -114,6 +135,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var subcommands = command
                 .DefinedOptions
+                .Where(o => !o.IsHidden())
                 .OfType<Command>()
                 .ToArray();
 
@@ -125,81 +147,63 @@ namespace Microsoft.DotNet.Cli.CommandLine
             helpView.AppendLine();
             helpView.AppendLine(CommandsSection.Title);
 
-            foreach (var subcommand in subcommands)
-            {
-                WriteHelpSummary(subcommand, helpView);
-            }
+            WriteOptionsList(subcommands, helpView);
         }
 
-        private static void WriteOptionsSection(
-            Command command,
+        private static void WriteOptionsList(
+            Option[] options,
             StringBuilder helpView)
         {
-            var options = VisibleOptions(command);
+            var leftColumnTextFor = options
+                .ToDictionary(o => o, LeftColumnText);
 
-            if (!options.Any())
-            {
-                return;
-            }
+            var leftColumnWidth = leftColumnTextFor
+                                      .Values
+                                      .Select(s => s.Length)
+                                      .OrderBy(length => length)
+                                      .Last() + 3;
 
+          
             helpView.AppendLine();
             helpView.AppendLine(OptionsSection.Title);
 
             foreach (var option in options)
             {
-                WriteHelpSummary(option, helpView);
+                WriteColumnizedSummary(leftColumnTextFor[option],
+                                       option.HelpText,
+                                       leftColumnWidth,
+                                       helpView);
             }
         }
 
-        public static string HelpView(this Option option)
+        private static string LeftColumnText(Option option)
         {
-            var command = option as Command;
-            if (command != null)
-            {
-                return command.HelpView();
-            }
-
-            var helpView = new StringBuilder();
-
-            WriteHelpSummary(option, helpView);
-
-            return helpView.ToString();
-        }
-
-        private static Option[] VisibleOptions(
-            this Command command) =>
-            command.DefinedOptions
-                   .Where(o => !o.IsCommand)
-                   .Where(o => !o.IsHidden())
-                   .ToArray();
-
-        private static void WriteHelpSummary(
-            Option option,
-            StringBuilder helpView)
-        {
-            var aliases = "  " +
-                          string.Join(", ",
-                                      option.Aliases
-                                            .OrderBy(a => a.Length)
-                                            .Select(a =>
-                                                        option.IsCommand
-                                                            ? a
-                                                            : a.Length == 1
-                                                                ? $"-{a}"
-                                                                : $"--{a}"));
+            var leftColumnText = "  " +
+                                 string.Join(", ",
+                                             option.Aliases
+                                                   .OrderBy(a => a.Length)
+                                                   .Select(a =>
+                                                   {
+                                                       if (option.IsCommand)
+                                                       {
+                                                           return a;
+                                                       }
+                                                       else
+                                                       {
+                                                           return a.Length == 1
+                                                                      ? $"-{a}"
+                                                                      : $"--{a}";
+                                                       }
+                                                   }));
 
             var argumentName = option.ArgumentsRule.Name;
+
             if (!string.IsNullOrWhiteSpace(argumentName))
             {
-                aliases += $" <{argumentName}>";
+                leftColumnText += $" <{argumentName}>";
             }
 
-            var optionHelpText = option.HelpText;
-
-            WriteColumnizedSummary(aliases,
-                                   optionHelpText,
-                                   43,
-                                   helpView);
+            return leftColumnText;
         }
 
         private static void WriteColumnizedSummary(

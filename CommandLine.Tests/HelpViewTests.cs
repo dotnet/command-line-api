@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -60,7 +61,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                           Command("inner-er", "the inner-er command",
                                                   Option("some-option", "some option"))));
 
-            command["inner"]["inner-er"]
+            ((Command) command["inner"]["inner-er"])
                 .HelpView()
                 .Should()
                 .Contain("Usage: outer inner inner-er [options]");
@@ -75,7 +76,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                           Command("inner-er", "",
                                                   Option("some-option", ""))));
 
-            command["inner"]
+            ((Command) command["inner"])
                 .HelpView()
                 .Should()
                 .NotContain("sibling");
@@ -160,7 +161,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                           ZeroOrOneArgument().With(name: "inner-args"),
                                           Option("-v|--verbosity", "Sets the verbosity")));
 
-            var helpView = command["inner-command"].HelpView();
+            var helpView = ((Command) command["inner-command"]).HelpView();
 
             helpView
                 .Should()
@@ -192,7 +193,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var helpView = command.HelpView();
 
-            var indent = new string(' ', 43);
+            var indent = "                    ";
 
             helpView.Should()
                     .Contain($"Sets the verbosity. Accepted values are:{NewLine}{indent}- quiet{NewLine}{indent}- loud{NewLine}{indent}- very-loud");
@@ -209,7 +210,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             command.HelpView()
                    .Should()
-                   .Contain("  -v, --verbosity <LEVEL>                  Sets the verbosity.");
+                   .Contain("  -v, --verbosity <LEVEL>   Sets the verbosity.");
         }
 
         [Fact]
@@ -226,7 +227,28 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             output.WriteLine(helpView);
 
             helpView.Should()
-                    .Contain($"Arguments:{NewLine}  <the-arg>       This is the argument for the command.");
+                    .Contain($"Arguments:{NewLine}  <the-arg>    This is the argument for the command.");
+        }
+
+        [Fact]
+        public void Column_for_options_descriptions_are_vertically_aligned()
+        {
+            var command = Command("the-command", "Help text for the command",
+                                  Option("-a|--aaa", "An option with 8 characters"),
+                                  Option("-b|--bbbbbbbbbb", "An option with 15 characters"));
+
+            var helpView = command.HelpView();
+
+            output.WriteLine(helpView);
+
+            var lines = helpView.Split(new[]{ '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var optionA = lines.Single(line => line.Contains("-a"));
+            var optionB = lines.Single(line => line.Contains("-b"));
+
+            optionA.IndexOf("An option")
+                   .Should()
+                   .Be(optionB.IndexOf("An option"));
         }
 
         [Fact]
