@@ -70,16 +70,31 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Command_help_view_does_not_include_names_of_sibling_commands()
         {
-            var command = Command("outer", "",
-                                  Command("sibling", ""),
-                                  Command("inner", "",
-                                          Command("inner-er", "",
-                                                  Option("some-option", ""))));
+            var command = Command("outer", "outer description",
+                                  Command("sibling", "sibling description"),
+                                  Command("inner", "inner description",
+                                          Command("inner-er", "inner-er description",
+                                                  Option("some-option", "some-option description"))));
 
             ((Command) command["inner"])
                 .HelpView()
                 .Should()
                 .NotContain("sibling");
+        }
+
+        [Fact]
+        public void Command_help_view_does_not_include_names_of_child_commands_under_options_section()
+        {
+            var command = Command("outer", "description for outer",
+                                  Command("inner", "description for inner"));
+
+            var helpView = command.HelpView();
+
+            output.WriteLine(helpView);
+
+           helpView
+                .Should()
+                .NotContain("Options:");
         }
 
         [Fact]
@@ -139,7 +154,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_command_accepts_arguments_then_the_syntax_diagram_shows_them()
+        public void When_a_command_accepts_arguments_then_the_synopsis_shows_them()
         {
             var command = Command("the-command", "command help",
                                   ZeroOrMoreArguments().With(name: "the-args"),
@@ -153,7 +168,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_command_and_subcommand_both_accept_arguments_then_the_syntax_diagram_for_the_inner_command_shows_them()
+        public void When_a_command_and_subcommand_both_accept_arguments_then_the_synopsis_for_the_inner_command_shows_them()
         {
             var command = Command("outer-command", "command help",
                                   ZeroOrMoreArguments().With(name: "outer-args"),
@@ -169,7 +184,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_command_does_not_accept_arguments_then_the_syntax_diagram_does_not_show_them()
+        public void When_a_command_does_not_accept_arguments_then_the_synopsis_does_not_show_them()
         {
             var command = Command("the-command",
                                   "command help",
@@ -227,7 +242,33 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             output.WriteLine(helpView);
 
             helpView.Should()
-                    .Contain($"Arguments:{NewLine}  <the-arg>    This is the argument for the command.");
+                    .Contain($"Arguments:{NewLine}  <the-arg>   This is the argument for the command.");
+        }
+
+        [Fact]
+        public void Column_for_argument_descriptions_are_vertically_aligned()
+        {
+            var command = Command("outer", "Help text for the outer command",
+                                  ExactlyOneArgument()
+                                      .With(name: "outer-command-arg",
+                                            description: "The argument for the inner command"),
+                                  Command("inner", "Help text for the inner command",
+                                          ExactlyOneArgument()
+                                              .With(name: "the-inner-command-arg",
+                                                    description: "The argument for the inner command")));
+
+            var helpView = ((Command) command["inner"]).HelpView();
+
+            output.WriteLine(helpView);
+
+            var lines = helpView.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var optionA = lines.Last(line => line.Contains("outer-command-arg"));
+            var optionB = lines.Last(line => line.Contains("the-inner-command-arg"));
+
+            optionA.IndexOf("The argument")
+                   .Should()
+                   .Be(optionB.IndexOf("The argument"));
         }
 
         [Fact]
@@ -239,12 +280,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var helpView = command.HelpView();
 
-            output.WriteLine(helpView);
-
             var lines = helpView.Split(new[]{ '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-            var optionA = lines.Single(line => line.Contains("-a"));
-            var optionB = lines.Single(line => line.Contains("-b"));
+            var optionA = lines.Last(line => line.Contains("-a"));
+            var optionB = lines.Last(line => line.Contains("-b"));
 
             optionA.IndexOf("An option")
                    .Should()
