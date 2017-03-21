@@ -108,14 +108,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-
-
         private static void WriteOptionsSection(
             Command command,
             StringBuilder helpView)
         {
             var options = command
                 .DefinedOptions
+                .Where(o => !o.IsHidden())
                 .ToArray();
 
             if (!options.Any())
@@ -162,10 +161,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                       .Select(s => s.Length)
                                       .OrderBy(length => length)
                                       .Last() + 3;
-
-          
-            helpView.AppendLine();
-            helpView.AppendLine(OptionsSection.Title);
 
             foreach (var option in options)
             {
