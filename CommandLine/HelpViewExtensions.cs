@@ -8,15 +8,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class HelpViewExtensions
     {
-        internal static string HelpView(this Parser parser) =>
-            parser.DefinedOptions
-                  .FlattenBreadthFirst()
-                  .OfType<Command>()
-                  .FirstOrDefault()
-                  ?.HelpView() ??
-            parser.DefinedOptions
-                  .First()
-                  .HelpText;
+        private static int columnGutterWidth = 3;
 
         public static string HelpView(this Command command)
         {
@@ -62,12 +54,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Command command,
             StringBuilder helpView)
         {
-            var name = command.ArgumentsRule.Name;
-            var description = command.ArgumentsRule.Description;
+            var argName = command.ArgumentsRule.Name;
+            var argDescription = command.ArgumentsRule.Description;
 
             var shouldWriteCommandArguments =
-                !string.IsNullOrWhiteSpace(name) &&
-                !string.IsNullOrWhiteSpace(description);
+                !string.IsNullOrWhiteSpace(argName) &&
+                !string.IsNullOrWhiteSpace(argDescription);
 
             var parentCommand = command.Parent as Command;
 
@@ -89,21 +81,29 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return;
             }
 
+            var indent = "  ";
+            var argLeftColumnText = $"{indent}<{argName}>";
+            var parentArgLeftColumnText = $"{indent}<{parentArgName}>";
+            var leftColumnWidth =
+                Math.Max(argLeftColumnText.Length,
+                         parentArgLeftColumnText.Length) +
+                columnGutterWidth;
+
             if (shouldWriteParentCommandArguments)
             {
                 WriteColumnizedSummary(
-                    $"  <{parentArgName}>",
+                    parentArgLeftColumnText,
                     parentArgDescription,
-                    15,
+                    leftColumnWidth,
                     helpView);
             }
 
             if (shouldWriteCommandArguments)
             {
                 WriteColumnizedSummary(
-                    $"  <{name}>",
-                    description,
-                    15,
+                    argLeftColumnText,
+                    argDescription,
+                    leftColumnWidth,
                     helpView);
             }
         }
@@ -114,6 +114,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var options = command
                 .DefinedOptions
+                .Where(o => !o.IsCommand)
                 .Where(o => !o.IsHidden())
                 .ToArray();
 
@@ -160,7 +161,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                       .Values
                                       .Select(s => s.Length)
                                       .OrderBy(length => length)
-                                      .Last() + 3;
+                                      .Last() + columnGutterWidth;
 
             foreach (var option in options)
             {
