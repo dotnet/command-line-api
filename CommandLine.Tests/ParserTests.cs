@@ -591,7 +591,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Absolite_Windows_style_paths_are_lexed_correctly()
+        public void Absolute_Windows_style_paths_are_lexed_correctly()
         {
             var command =
                 @"rm ""c:\temp\the file.txt\""";
@@ -629,14 +629,15 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("command",
                                   "",
-                                  ExactlyOneArgument(),
+                                  OneOrMoreArguments(),
                                   Option("-o", "", NoArguments()));
 
-            var result = command.Parse("command argument -o /p:RandomThing=random",
-                                       new char[0]);
+            var result = command.Parse("command argument -o -p:RandomThing=random");
 
-            result["command"].Arguments.Should().BeEquivalentTo("argument");
-            result.UnmatchedTokens.Should().BeEquivalentTo("/p:RandomThing=random");
+            result["command"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("argument", "-p:RandomThing=random");
         }
 
         [Fact]
@@ -674,5 +675,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo("one");
         }
+
+
     }
 }

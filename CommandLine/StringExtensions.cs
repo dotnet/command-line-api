@@ -74,11 +74,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     var parts = arg.Split(argumentDelimiters, 2);
 
-                    yield return Option(parts[0]);
-
-                    if (parts.Length > 1)
+                    if (knownTokens.Any(t => t.Value == parts.First()))
                     {
-                        yield return Argument(parts[1]);
+                        yield return Option(parts[0]);
+
+                        if (parts.Length > 1)
+                        {
+                            yield return Argument(parts[1]);
+                        }
+                    }
+                    else
+                    {
+                        yield return Argument(arg);
                     }
                 }
                 else if (arg.CanBeUnbundled(knownTokens))
