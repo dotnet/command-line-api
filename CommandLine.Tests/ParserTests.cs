@@ -135,7 +135,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void A_double_dash_delimiter_specifies_that_no_further_command_line_args_will_be_treated_options()
+        public void A_double_dash_delimiter_specifies_that_no_further_command_line_args_will_be_treated_as_options()
         {
             var result = new Parser(
                     Option("-o|--one", ""))
@@ -185,7 +185,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Short_form_arguments_can_be_specified_using_equals_delimiter()
+        public void Short_form_options_can_be_specified_using_equals_delimiter()
         {
             var parser = new Parser(Option("-x", "", ExactlyOneArgument()));
 
@@ -197,7 +197,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Long_form_arguments_can_be_specified_using_equals_delimiter()
+        public void Long_form_options_can_be_specified_using_equals_delimiter()
         {
             var parser = new Parser(Option("--hello", "", ExactlyOneArgument()));
 
@@ -209,7 +209,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Short_form_arguments_can_be_specified_using_colon_delimiter()
+        public void Short_form_options_can_be_specified_using_colon_delimiter()
         {
             var parser = new Parser(Option("-x", "", ExactlyOneArgument()));
 
@@ -221,7 +221,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Long_form_arguments_can_be_specified_using_colon_delimiter()
+        public void Long_form_options_can_be_specified_using_colon_delimiter()
         {
             var parser = new Parser(Option("--hello", "", ExactlyOneArgument()));
 
@@ -233,7 +233,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Argument_short_forms_can_be_bundled()
+        public void Option_short_forms_can_be_bundled()
         {
             var parser = new Parser(
                 Command("the-command", "",
@@ -251,7 +251,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Argument_long_forms_do_not_get_unbundled()
+        public void Option_long_forms_do_not_get_unbundled()
         {
             var parser = new Parser(
                 Command(
