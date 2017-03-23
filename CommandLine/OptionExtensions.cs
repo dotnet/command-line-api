@@ -9,25 +9,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class OptionExtensions
     {
-        internal static IEnumerable<Command> AllCommands(
-            this Command command)
-        {
-            if (command == null)
-            {
-               yield break;
-            }
-
-            yield return command;
-
-            foreach (var item in command
-                .DefinedOptions
-                .FlattenBreadthFirst(o => o.DefinedOptions)
-                .OfType<Command>())
-            {
-                yield return item;
-            }
-        }
-
         internal static IEnumerable<Option> FlattenBreadthFirst(
             this IEnumerable<Option> options)
         {
@@ -42,7 +23,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                   .OfType<Command>()
                   .FirstOrDefault();
 
-        public static bool IsHidden(this Option  option) => 
+        public static bool IsHidden(this Option option) =>
             string.IsNullOrWhiteSpace(option.HelpText);
 
         internal static IEnumerable<AppliedOption> AllOptions(

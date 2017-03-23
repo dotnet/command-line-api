@@ -59,12 +59,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal static IEnumerable<Token> Lex(
             this IEnumerable<string> args,
-            HashSet<Token> knownTokens,
             ParserConfiguration configuration)
         {
-            var foundCommandss = new HashSet<string>();
+            Option currentCommand = null;
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
+
+            var knownTokens = new HashSet<Token>(configuration.DefinedOptions.SelectMany(ValidTokens));
 
             foreach (var arg in args)
             {
@@ -97,8 +98,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }
                 }
                 else if (knownTokens.All(t => t.Value != arg) ||
-                         // a given command can only occur once in a command line
-                         foundCommandss.Contains(arg))
+                         // if token matches the current command name, consider it an argument
+                         currentCommand?.Name == arg)
                 {
                     yield return Argument(arg);
                 }
@@ -110,18 +111,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }
                     else
                     {
-                        foundCommandss.Add(arg);
+                        // when a subcommand is encountered, re-scope which tokens are valid
+                        currentCommand = (currentCommand?.DefinedOptions ??
+                                          configuration.DefinedOptions)[arg];
+                        knownTokens = currentCommand.ValidTokens();
                         yield return Command(arg);
                     }
                 }
             }
         }
 
-        private static Token Argument(this string value) => new Token(value, TokenType.Argument);
+        private static Token Argument(string value) => new Token(value, TokenType.Argument);
 
-        private static Token Command(this string value) => new Token(value, TokenType.Command);
+        private static Token Command(string value) => new Token(value, TokenType.Command);
 
-        private static Token Option(this string value) => new Token(value, TokenType.Option);
+        private static Token Option(string value) => new Token(value, TokenType.Option);
 
         private static bool CanBeUnbundled(
             this string arg,
@@ -153,5 +157,22 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
         }
+
+        private static HashSet<Token> ValidTokens(this Option option) =>
+            new HashSet<Token>(
+                option.RawAliases
+                      .Select(Command)
+                      .Concat(
+                          option.DefinedOptions
+                                .SelectMany(
+                                    o =>
+                                        o.RawAliases
+                                         .Select(
+                                             a =>
+                                                 new Token(
+                                                     a,
+                                                     o.IsCommand
+                                                         ? TokenType.Command
+                                                         : TokenType.Option)))));
     }
 }
