@@ -37,20 +37,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
             IReadOnlyCollection<string> rawArgs,
             bool isProgressive)
         {
-            var knownTokens = new HashSet<Token>(
-                DefinedOptions
-                    .FlattenBreadthFirst()
-                    .SelectMany(
-                        o =>
-                            o.RawAliases.Select(
-                                a =>
-                                    new Token(a, o.IsCommand
-                                                     ? TokenType.Command
-                                                     : TokenType.Option))));
-
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawArgs)
-                    .Lex(knownTokens, configuration));
+                    .Lex(configuration));
             var rootAppliedOptions = new AppliedOptionSet();
             var allAppliedOptions = new List<AppliedOption>();
             var errors = new List<OptionError>();

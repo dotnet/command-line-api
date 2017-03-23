@@ -271,6 +271,31 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void Options_do_not_get_unbundled_unless_all_resulting_options_would_be_valid_for_the_current_command()
+        {
+            var parser = new Parser(
+                Command("outer", "",
+                        Option("-a", ""),
+                        Command(
+                            "inner", "",
+                            ZeroOrMoreArguments(),
+                            Option("-b", ""),
+                            Option("-c", ""))));
+
+            var result = parser.Parse("outer inner -abc");
+
+            result.AppliedCommand()
+                  .AppliedOptions
+                  .Should()
+                  .BeEmpty();
+
+            result.AppliedCommand()
+                  .Arguments
+                  .Should()
+                  .BeEquivalentTo("-abc");
+        }
+
+        [Fact]
         public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
             var parser = new Parser(
@@ -627,17 +652,22 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Unmatched_options_are_not_split_into_smaller_tokens()
         {
-            var command = Command("command",
-                                  "",
-                                  OneOrMoreArguments(),
-                                  Option("-o", "", NoArguments()));
+            var command = Command("outer", "",
+                                  NoArguments(),
+                                  Option("-p", ""),
+                                  Command("inner",
+                                          "",
+                                          OneOrMoreArguments(),
+                                          Option("-o", "", NoArguments())));
 
-            var result = command.Parse("command argument -o -p:RandomThing=random");
+            var result = command.Parse("outer inner -p:RandomThing=random");
 
-            result["command"]
-                .Arguments
-                .Should()
-                .BeEquivalentTo("argument", "-p:RandomThing=random");
+            output.WriteLine(result.Diagram());
+
+            result.AppliedCommand()
+                  .Arguments
+                  .Should()
+                  .BeEquivalentTo("-p:RandomThing=random");
         }
 
         [Fact]
@@ -675,7 +705,5 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo("one");
         }
-
-
     }
 }

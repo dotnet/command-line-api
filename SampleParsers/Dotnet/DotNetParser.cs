@@ -16,7 +16,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
     public static class DotNetParser
     {
         public static Parser Instance = new Parser(
-            delimiters: Array.Empty<char>(),
             options: DotnetCommand());
 
         private static Command DotnetCommand() =>
@@ -65,6 +64,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Build() =>
             Command("build",
                     ".NET Builder",
+                    ZeroOrOneArgument()
+                        .With(name: "PROJECT",
+                              description:
+                              "The MSBuild project file to build. If a project file is not specified, MSBuild searches the current working directory for a file that has a file extension that ends in `proj` and uses that file."),
                     HelpOption(),
                     Option("-o|--output",
                            "Output directory in which to place built artifacts.",
@@ -388,8 +391,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Command("add",
                             ".NET Add project(s) to a solution file Command",
                             OneOrMoreArguments()
-                        .With(name: "args", 
-                                description: "Add one or more specified projects to the solution."),
+                                .With(name: "args",
+                                      description: "Add one or more specified projects to the solution."),
                             HelpOption()),
                     Command("list",
                             "List all projects in the solution.",
@@ -397,8 +400,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                     Command("remove",
                             "Remove the specified project(s) from the solution. The project is not impacted.",
                             OneOrMoreArguments()
-                        .With(name: "args", 
-                                description: "Remove the specified project(s) from the solution. The project is not impacted."),
+                                .With(name: "args",
+                                      description: "Remove the specified project(s) from the solution. The project is not impacted."),
                             HelpOption()));
 
         private static Command Test() =>
