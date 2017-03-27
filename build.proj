@@ -1,20 +1,31 @@
 <Project DefaultTargets="BuildAll">
-  <Target Name="BuildAll" DependsOnTargets="DoBuild;DoPublish" />
+  <Target Name="BuildAll" DependsOnTargets="Restore;Build;Test;Pack" />
 
-  <Target Name="DoBuild">
-    <Exec Command="dotnet restore CommandLine-netcore.sln" />
-    <Exec Command="dotnet build CommandLine-netcore.sln" />
-    <Exec Command="dotnet test CommandLine.Tests/CommandLine.Tests-netcore.csproj -l:trx" />
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+  </PropertyGroup>
+
+  <Target Name="Restore">
+    <Exec Command="dotnet restore CommandLine-netcore.sln /p:Configuration=$(Configuration)" />
   </Target>
 
-  <Target Name="DoPublish">
-    <Exec Command="dotnet pack CommandLine/CommandLine-netcore.csproj --no-build" />
+  <Target Name="Build">
+    <Exec Command="dotnet build CommandLine-netcore.sln /p:Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="Test">
+    <Exec Command="dotnet test CommandLine.Tests/CommandLine.Tests-netcore.csproj -l:trx /p:Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="Pack">
+    <Exec Command="dotnet pack CommandLine/CommandLine-netcore.csproj --no-build /p:Configuration=$(Configuration)" />
   </Target>
 
   <Target Name="MakeVersionProps">
     <MakeDir Condition="!Exists('obj')"
              Directories="obj" />
-    <Exec Command="git rev-list --count HEAD" 
+    <Exec Command="git rev-list --count HEAD"
+          Condition="'$(CommitCount)' == ''"
           ConsoleToMSBuild="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="CommitCount" />
     </Exec>
