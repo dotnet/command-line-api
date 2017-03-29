@@ -339,7 +339,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_Parser_root_option_is_not_respecified_then_the_following_token_is_considered_an_argument_to_the_outer_command()
+        public void When_a_Parser_root_option_is_not_respecified_then_the_following_token_is_unmatched()
         {
             var parser = new Parser(
                 Option("-a|--animals", "", ZeroOrMoreArguments()),
