@@ -314,45 +314,82 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo("carrot");
         }
-        
+
         [Fact]
         public void Command_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
             var parser = new Parser(
-                Command("the-command", "", Option("-a|--animals", "", ZeroOrMoreArguments()),
+                Command("the-command", "",
+                        Option("-a|--animals", "", ZeroOrMoreArguments()),
                         Option("-v|--vegetables", "", ZeroOrMoreArguments())));
 
             var result = parser.Parse("the-command -a cat -v carrot -a dog");
 
-            result["the-command"]["animals"]
+            var appliedCommand = result.AppliedCommand();
+
+            appliedCommand["animals"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
-            result["the-command"]["vegetables"]
+            appliedCommand["vegetables"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("carrot");
         }
 
         [Fact]
-        public void Options_need_not_be_respecified_in_order_to_add_arguments()
+        public void When_a_Parser_root_option_is_not_respecified_then_the_following_token_is_considered_an_argument_to_the_outer_command()
         {
             var parser = new Parser(
                 Option("-a|--animals", "", ZeroOrMoreArguments()),
                 Option("-v|--vegetables", "", ZeroOrMoreArguments()));
 
-            var result = parser.Parse("-a cat dog -v carrot");
+            var result = parser.Parse("-a cat some-arg -v carrot");
 
             result["animals"]
                 .Arguments
                 .Should()
-                .BeEquivalentTo("cat", "dog");
+                .BeEquivalentTo("cat");
 
             result["vegetables"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("carrot");
+
+            result
+                .UnmatchedTokens
+                .Should()
+                .BeEquivalentTo("some-arg");
+        }
+
+        [Fact]
+        public void When_a_Command_option_is_not_respecified_then_the_following_token_is_considered_an_argument_to_the_outer_command()
+        {
+            var parser = new Parser(
+                Command("the-command", "",
+                        ZeroOrMoreArguments(),
+                        Option("-a|--animals", "", ZeroOrMoreArguments()),
+                        Option("-v|--vegetables", "", ZeroOrMoreArguments())));
+
+            var result = parser.Parse("the-command -a cat some-arg -v carrot");
+
+            var appliedCommand = result.AppliedCommand();
+
+            appliedCommand["animals"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("cat");
+
+            appliedCommand["vegetables"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("carrot");
+
+            appliedCommand
+                  .Arguments
+                  .Should()
+                  .BeEquivalentTo("some-arg");
         }
 
         [Fact]
