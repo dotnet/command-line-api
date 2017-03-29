@@ -70,6 +70,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
                             appliedOption = new AppliedOption(definedOption, token.Value);
                             rootAppliedOptions.Add(appliedOption);
                         }
+                        else
+                        {
+                            appliedOption.OptionWasRespecified();
+                        }
 
                         allAppliedOptions.Add(appliedOption);
 

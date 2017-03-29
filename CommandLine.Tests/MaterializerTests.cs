@@ -96,7 +96,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var command = Command("the-command", "",
                                   Option("-x", "", Accept.ZeroOrMoreArguments()));
 
-            command.Parse("the-command -x arg1 arg2")["the-command"]["x"]
+            command.Parse("the-command -x arg1 -x arg2")["the-command"]["x"]
                    .Value()
                    .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
 

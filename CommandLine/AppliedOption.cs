@@ -13,6 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private readonly Lazy<string> defaultValue;
         private readonly Func<object> materialize;
         private readonly AppliedOptionSet appliedOptions = new AppliedOptionSet();
+        private bool considerAcceptingAnotherArgument = true;
 
         public AppliedOption(Option option, string token = null)
         {
@@ -64,6 +65,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return null;
             }
 
+            if (!considerAcceptingAnotherArgument &&
+                !Option.IsCommand)
+            {
+                // Options must be respecified in order to accept additional arguments. This is 
+                // not the case for commands.
+                return null;
+            }
+
             foreach (var appliedOption in appliedOptions)
             {
                 var a = appliedOption.TryTakeToken(token);
@@ -77,6 +86,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (Validate() == null)
             {
+                considerAcceptingAnotherArgument = false;
                 return this;
             }
 
@@ -86,6 +96,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private AppliedOption TryTakeOptionOrCommand(Token token)
         {
+
+            var val = new { considerAcceptingAnotherArgument };
+            Console.WriteLine($"{this} {GetHashCode() } {val}");
+
             var childOption = appliedOptions
                 .SingleOrDefault(o =>
                                      o.Option.DefinedOptions
@@ -107,6 +121,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (applied != null)
             {
+                applied.OptionWasRespecified();
                 return applied;
             }
 
@@ -123,6 +138,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             return applied;
         }
+
+        internal void OptionWasRespecified() => considerAcceptingAnotherArgument = true;
 
         internal OptionError Validate()
         {
