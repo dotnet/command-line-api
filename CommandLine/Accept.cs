@@ -195,21 +195,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return null;
             });
 
-        public static ArgumentsRule ZeroOrMoreOf(params Option[] options)
+        internal static ArgumentsRule ZeroOrMoreOf(params Option[] options)
         {
             var values = options
-                .SelectMany(o =>
-                                o.IsCommand
-                                    ? o.Aliases
-                                    : o.Aliases.Select(v => v.AddPrefix()))
+                .SelectMany(o => o.RawAliases)
                 .ToArray();
 
             var completionValues = options
                 .Where(o => !o.IsHidden())
-                .SelectMany(o =>
-                                o.IsCommand
-                                    ? o.Aliases
-                                    : o.Aliases.Select(v => v.AddPrefix()))
+                .SelectMany(o => o.RawAliases)
                 .ToArray();
 
             return
