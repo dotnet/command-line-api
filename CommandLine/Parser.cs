@@ -22,11 +22,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public Parser(ParserConfiguration configuration)
         {
-            if (configuration == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-            this.configuration = configuration;
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public OptionSet DefinedOptions => configuration.DefinedOptions;

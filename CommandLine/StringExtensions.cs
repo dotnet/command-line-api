@@ -18,12 +18,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             RegexOptions.Compiled | RegexOptions.ExplicitCapture
         );
 
-        internal static string AddPrefix(this string option) =>
-            (option = option.RemovePrefix())
-            .Length == 1
-                ? $"-{option}"
-                : $"--{option}";
-
         internal static bool ContainsCaseInsensitive(
             this string source,
             string value) =>

@@ -79,7 +79,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IReadOnlyCollection<string> Aliases => aliases.ToArray();
 
-        internal IReadOnlyCollection<string> RawAliases { get; }
+        public IReadOnlyCollection<string> RawAliases { get; }
 
         protected internal virtual IReadOnlyCollection<string> AllowedValues { get; }
 
@@ -104,6 +104,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public override string ToString() =>
             IsCommand
                 ? Name
-                : Name.AddPrefix();
+                : RawAliases.Single(a => a.RemovePrefix() == Name);
     }
 }

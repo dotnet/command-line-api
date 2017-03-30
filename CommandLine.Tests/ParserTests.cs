@@ -387,9 +387,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .BeEquivalentTo("carrot");
 
             appliedCommand
-                  .Arguments
-                  .Should()
-                  .BeEquivalentTo("some-arg");
+                .Arguments
+                .Should()
+                .BeEquivalentTo("some-arg");
         }
 
         [Fact]
