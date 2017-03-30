@@ -136,5 +136,15 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             option.Parse("-x").HasOption("x").Should().BeTrue();
             option.Parse("--exact").HasOption("x").Should().BeTrue();
         }
+
+        [Fact]
+        public void Raw_aliases_are_exposed_by_an_option()
+        {
+            var option = Create.Option("-h|--help|/?", "");
+
+            option.RawAliases
+                  .Should()
+                  .BeEquivalentTo("-h", "--help", "/?");
+        }
     }
 }
