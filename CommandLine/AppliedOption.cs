@@ -96,10 +96,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private AppliedOption TryTakeOptionOrCommand(Token token)
         {
-
-            var val = new { considerAcceptingAnotherArgument };
-            Console.WriteLine($"{this} {GetHashCode() } {val}");
-
             var childOption = appliedOptions
                 .SingleOrDefault(o =>
                                      o.Option.DefinedOptions
