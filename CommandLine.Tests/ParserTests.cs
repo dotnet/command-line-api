@@ -251,6 +251,45 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void Options_short_forms_do_not_get_unbundled_if_unbundling_is_turned_off()
+        {
+            var parser = new Parser(
+                false,
+                Command("the-command", "",
+                        Option("-x", "", NoArguments()),
+                        Option("-y", "", NoArguments()),
+                        Option("-z", "", NoArguments()),
+                        Option("-xyz", "", NoArguments())));
+
+            var result = parser.Parse("the-command -xyz");
+
+            result["the-command"]
+                .AppliedOptions
+                .Select(o => o.Name)
+                .Should()
+                .BeEquivalentTo("xyz");
+        }
+
+        [Fact]
+        public void Option_short_forms_get_unbundled_if_unbundling_is_explicitly_turned_on()
+        {
+            var parser = new Parser(
+                true,
+                Command("the-command", "",
+                        Option("-x", "", NoArguments()),
+                        Option("-y", "", NoArguments()),
+                        Option("-z", "", NoArguments())));
+
+            var result = parser.Parse("the-command -xyz");
+
+            result["the-command"]
+                .AppliedOptions
+                .Select(o => o.Name)
+                .Should()
+                .BeEquivalentTo("x", "y", "z");
+        }
+
+        [Fact]
         public void Option_long_forms_do_not_get_unbundled()
         {
             var parser = new Parser(

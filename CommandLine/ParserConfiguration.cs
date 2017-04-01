@@ -8,7 +8,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public ParserConfiguration(
             IReadOnlyCollection<Option> definedOptions,
-            IReadOnlyCollection<char> argumentDelimiters = null)
+            IReadOnlyCollection<char> argumentDelimiters = null,
+            bool allowUnbundling = true)
         {
             if (definedOptions == null)
             {
@@ -22,10 +23,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             DefinedOptions.AddRange(definedOptions);
             ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
+            AllowUnbundling = allowUnbundling;
         }
 
         public OptionSet DefinedOptions { get; } = new OptionSet();
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
+
+        public bool AllowUnbundling { get; }
     }
 }
