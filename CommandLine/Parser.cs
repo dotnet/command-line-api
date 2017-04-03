@@ -16,15 +16,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
         }
 
-        public Parser(bool unbundle, params Option[] options) : this(new ParserConfiguration(options, allowUnbundling: unbundle))
-        {
-        }
-
         public Parser(char[] delimiters, params Option[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
-        {
-        }
-
-        public Parser(char[] delimiters, bool unbundle, params Option[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters, allowUnbundling: unbundle))
         {
         }
 
