@@ -83,7 +83,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                         yield return Argument(arg);
                     }
                 }
-                else if (arg.CanBeUnbundled(knownTokens))
+                else if (configuration.AllowUnbundling && arg.CanBeUnbundled(knownTokens))
                 {
                     foreach (var character in arg.Skip(1))
                     {
