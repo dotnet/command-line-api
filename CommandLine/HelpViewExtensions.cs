@@ -176,19 +176,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var leftColumnText = "  " +
                                  string.Join(", ",
-                                             option.Aliases
+                                             option.RawAliases
                                                    .OrderBy(a => a.Length)
                                                    .Select(a =>
                                                    {
                                                        if (option.IsCommand)
                                                        {
-                                                           return a;
+                                                           return a.TrimStart(new[] { '-' });
                                                        }
                                                        else
                                                        {
-                                                           return a.Length == 1
-                                                                      ? $"-{a}"
-                                                                      : $"--{a}";
+                                                           return a;
                                                        }
                                                    }));
 
