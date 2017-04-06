@@ -86,6 +86,29 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return null;
             }));
 
+        public static ArgumentsRule LegalFilePathsOnly(
+            this ArgumentsRule rule) =>
+            rule.And(new ArgumentsRule(o =>
+            {
+                foreach (var arg in o.Arguments)
+                {
+                    try
+                    {
+                        var fileInfo = new FileInfo(arg);
+                    }
+                    catch (NotSupportedException ex)
+                    {
+                        return ex.Message;
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        return ex.Message;
+                    }
+                }
+
+                return null;
+            }));
+
         public static ArgumentsRule WithSuggestionsFrom(
             params string[] values) =>
             new ArgumentsRule(

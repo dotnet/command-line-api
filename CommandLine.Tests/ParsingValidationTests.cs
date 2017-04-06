@@ -100,6 +100,40 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
+        {
+            var command = Command("the-command", "",
+                                  ZeroOrMoreArguments()
+                                      .LegalFilePathsOnly());
+
+            var invalidPathName = "/t:SomeMsBuildArg";
+            var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
+
+            output.WriteLine(string.Join("\n", Path.GetInvalidPathChars()));
+
+            var result = command.Parse($"the-command {invalidPathName} {invalidCharacters}");
+
+            result.UnmatchedTokens
+                  .Should()
+                  .BeEquivalentTo(invalidPathName, invalidCharacters);
+        }
+
+        [Fact]
+        public void LegalFilePathsOnly_accepts_arguments_containing_valid_path_characters()
+        {
+            var command = Command("the-command", "",
+                                  ZeroOrMoreArguments()
+                                      .LegalFilePathsOnly());
+
+            var validPathName = Directory.GetCurrentDirectory();
+            var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
+
+            var result = command.Parse($"the-command {validPathName} {validNonExistingFileName}");
+
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
         public void An_argument_can_be_invalid_based_on_file_existence()
         {
             var command = Command("move", "",
