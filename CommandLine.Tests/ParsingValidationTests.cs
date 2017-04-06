@@ -106,16 +106,15 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   ZeroOrMoreArguments()
                                       .LegalFilePathsOnly());
 
-            var invalidPathName = "/t:SomeMsBuildArg";
             var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
 
             output.WriteLine(string.Join("\n", Path.GetInvalidPathChars()));
 
-            var result = command.Parse($"the-command {invalidPathName} {invalidCharacters}");
+            var result = command.Parse($"the-command {invalidCharacters}");
 
             result.UnmatchedTokens
                   .Should()
-                  .BeEquivalentTo(invalidPathName, invalidCharacters);
+                  .BeEquivalentTo(invalidCharacters);
         }
 
         [Fact]
