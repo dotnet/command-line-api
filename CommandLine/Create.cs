@@ -11,8 +11,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static Option Option(
             string aliases,
             string help,
-            ArgumentsRule arguments = null,
-            Func<AppliedOption, object> materialize = null) =>
+            ArgumentsRule arguments = null) =>
             new Option(
                 aliases.Split(
                     new[] { '|', ' ' }, StringSplitOptions.RemoveEmptyEntries), help, arguments);

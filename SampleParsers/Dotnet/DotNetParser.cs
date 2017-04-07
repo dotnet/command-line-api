@@ -48,8 +48,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                         .With(name: "path"),
                     Option("--position", "",
                            ExactlyOneArgument()
-                               .With(name: "command"),
-                           o => int.Parse(o.Arguments.Single())));
+                               .With(name: "command")));
 
         private static Command Add() =>
             Command("add",
@@ -455,8 +454,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Option HelpOption() =>
             Option("-h|--help",
                    "Show help information",
-                   NoArguments(),
-                   materialize: o => o.Option.Command().HelpView());
+                   NoArguments());
 
         private static Option VerbosityOption() =>
             Option("-v|--verbosity",
