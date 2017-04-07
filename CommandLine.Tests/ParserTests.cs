@@ -131,7 +131,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("Alias 'one' is already in use.");
+                  .Be("Alias '--one' is already in use.");
         }
 
         [Fact]
@@ -760,6 +760,29 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Arguments
                 .Should()
                 .BeEquivalentTo("one");
+        }
+
+        [Fact]
+        public void Option_and_Command_can_have_the_same_alias()
+        {
+            var parser = new Parser(
+                Command("outer", "",
+                        ZeroOrMoreArguments(),
+                        Command("inner", "",
+                                ZeroOrMoreArguments()),
+                        Option("--inner", "")));
+
+            parser.Parse("outer inner")
+                  .AppliedCommand()
+                  .Name
+                  .Should()
+                  .Be("inner");
+
+            parser.Parse("outer --inner")
+                  .AppliedCommand()
+                  .Name
+                  .Should()
+                  .Be("outer");
         }
     }
 }
