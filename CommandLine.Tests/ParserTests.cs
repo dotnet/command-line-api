@@ -605,6 +605,30 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void Arguments_only_apply_to_the_nearest_command()
+        {
+            var command = Command("outer", "",
+                                  ExactlyOneArgument(),
+                                  Command("inner", "",
+                                          ExactlyOneArgument()));
+
+            var result = command.Parse("outer inner arg1 arg2");
+
+            result["outer"]
+                .Arguments
+                .Should()
+                .BeEmpty();
+
+            result["outer"]["inner"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("arg1");
+            result.UnmatchedTokens
+                  .Should()
+                  .BeEquivalentTo("arg2");
+        }
+
+        [Fact]
         public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
             var command = Command("the-command", "",
