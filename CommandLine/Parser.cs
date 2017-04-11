@@ -63,7 +63,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                         if (appliedOption == null)
                         {
-                            appliedOption = new AppliedOption(definedOption, token.Value);
+                            appliedOption = new AppliedOption(
+                                definedOption,
+                                token.Value);
                             rootAppliedOptions.Add(appliedOption);
                         }
                         else
@@ -87,6 +89,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     {
                         allAppliedOptions.Add(option);
                         added = true;
+                        break;
+                    }
+
+                    if (token.Type == TokenType.Argument &&
+                        appliedOption.Option.IsCommand)
+                    {
                         break;
                     }
                 }

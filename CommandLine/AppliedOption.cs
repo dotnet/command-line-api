@@ -54,9 +54,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Token { get; }
 
-        public AppliedOption TryTakeToken(Token token) =>
-            TryTakeArgument(token) ??
-            TryTakeOptionOrCommand(token);
+        public AppliedOption TryTakeToken(Token token)
+        {
+            var option = TryTakeArgument(token) ??
+                               TryTakeOptionOrCommand(token);
+            considerAcceptingAnotherArgument = false;
+            return option;
+        }
 
         private AppliedOption TryTakeArgument(Token token)
         {
