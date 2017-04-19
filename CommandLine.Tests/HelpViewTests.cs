@@ -64,7 +64,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             ((Command) command["inner"]["inner-er"])
                 .HelpView()
                 .Should()
-                .Contain("Usage: outer inner inner-er [options]");
+                .StartWith("Usage: outer inner inner-er [options]");
         }
 
         [Fact]
@@ -164,7 +164,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             helpView
                 .Should()
-                .Contain("Usage: the-command [options] <the-args>");
+                .StartWith("Usage: the-command [options] <the-args>");
         }
 
         [Fact]
@@ -180,7 +180,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             helpView
                 .Should()
-                .Contain("Usage: outer-command <outer-args> inner-command [options] <inner-args>");
+                .StartWith("Usage: outer-command <outer-args> inner-command [options] <inner-args>");
         }
 
         [Fact]
@@ -301,7 +301,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(helpView);
 
-            helpView.Should().Contain("Usage: some-command [options] [[--] <additional arguments>...]]");
+            helpView.Should().StartWith("Usage: some-command [options] [[--] <additional arguments>...]]");
         }
 
         [Fact]
