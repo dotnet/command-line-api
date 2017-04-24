@@ -98,38 +98,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Parse_result_diagram_helps_explain_parse_operation()
-        {
-            var parser = new Parser(
-                Command("the-command",
-                        "Does the thing.",
-                        ZeroOrMoreArguments(),
-                        Option("-x", "Specifies value x", ExactlyOneArgument()),
-                        Option("-y", "Specifies value y", NoArguments())));
-
-            var result = parser.Parse("the-command -x one -y two three");
-
-            result.Diagram()
-                  .Should()
-                  .Be("[ the-command [ -x <one> ] [ -y ] <two> <three> ]");
-        }
-
-        [Fact]
-        public void Parse_result_diagram_helps_explain_partial_parse_operation()
-        {
-            var parser = new Parser(
-                Command("command", "",
-                        Option("-x", "",
-                               arguments: AnyOneOf("arg1", "arg2", "arg3"))));
-
-            var result = parser.Parse("command -x ar");
-
-            result.Diagram()
-                  .Should()
-                  .Be("[ command [ -x ] ]   ???--> ar");
-        }
-
-        [Fact]
         public void An_option_can_be_hidden_from_help_output_by_leaving_its_help_text_empty()
         {
             var command = Command("the-command", "Does things.",

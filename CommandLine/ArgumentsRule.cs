@@ -27,15 +27,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Func<ParseResult, IEnumerable<string>> suggest = null,
             Func<AppliedOption, object> materialize = null)
         {
-            if (validate == null)
-            {
-                throw new ArgumentNullException(nameof(validate));
-            }
+            this.validate = validate ?? throw new ArgumentNullException(nameof(validate));
 
             this.defaultValue = defaultValue ?? (() => null);
             Description = description;
             Name = name;
-            this.validate = validate;
 
             if (suggest == null)
             {
