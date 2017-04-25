@@ -68,23 +68,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                                   return null;
                               },
-                              materialize: o => o.Arguments.Single());
+                              materialize: o => o.Arguments.SingleOrDefault());
 
         public static ArgumentsRule ExistingFilesOnly(
             this ArgumentsRule rule) =>
-            rule.And(new ArgumentsRule(o =>
-            {
-                foreach (var filePath in o.Arguments)
-                {
-                    if (!File.Exists(filePath) &&
-                        !Directory.Exists(filePath))
-                    {
-                        return $"File does not exist: {filePath}";
-                    }
-                }
-
-                return null;
-            }));
+            rule.And(new ArgumentsRule(o => o.Arguments
+                                             .Where(filePath => !File.Exists(filePath) &&
+                                                                !Directory.Exists(filePath))
+                                             .Select(filePath => $"File does not exist: {filePath}")
+                                             .FirstOrDefault()));
 
         public static ArgumentsRule LegalFilePathsOnly(
             this ArgumentsRule rule) =>
@@ -200,23 +192,24 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static ArgumentsRule OneOrMoreArguments(
             Func<AppliedOption, string> errorMessage = null) =>
             new ArgumentsRule(o =>
-            {
-                var optionCount = o.Arguments.Count;
+                              {
+                                  var optionCount = o.Arguments.Count;
 
-                if (optionCount == 0)
-                {
-                    if (errorMessage == null)
-                    {
-                        return $"Required argument missing for {(o.Option.IsCommand ? "command" : "option")}: {o.Option}";
-                    }
-                    else
-                    {
-                        return errorMessage(o);
-                    }
-                }
+                                  if (optionCount == 0)
+                                  {
+                                      if (errorMessage == null)
+                                      {
+                                          return $"Required argument missing for {(o.Option.IsCommand ? "command" : "option")}: {o.Option}";
+                                      }
+                                      else
+                                      {
+                                          return errorMessage(o);
+                                      }
+                                  }
 
-                return null;
-            });
+                                  return null;
+                              },
+                              materialize: o => o.Arguments);
 
         internal static ArgumentsRule ZeroOrMoreOf(params Option[] options)
         {

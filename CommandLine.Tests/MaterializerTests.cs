@@ -110,6 +110,39 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void When_exactly_one_argument_is_expected_and_none_are_provided_then_Value_returns_null()
+        {
+            var command = Command("the-command", "",
+                                  Option("-x", "", Accept.ExactlyOneArgument()));
+
+            var result = command.Parse("the-command -x");
+
+            result["the-command"]["x"]
+                .Value()
+                .Should()
+                .BeNull();
+        }
+
+        [Fact]
+        public void When_one_or_more_arguments_are_expected_and_none_are_provided_then_Value_returns_empty()
+        {
+            var command = Command("the-command", "",
+                                  Option("-x", "", Accept.OneOrMoreArguments()));
+
+            var result = command.Parse("the-command -x");
+
+            var value = result["the-command"]["x"].Value();
+
+            value.Should().BeAssignableTo<IReadOnlyCollection<string>>();
+
+            var values = (IReadOnlyCollection<string>) value;
+
+            values
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
         public void By_default_an_option_with_multiple_arguments_materializes_as_a_sequence_of_strings_by_default()
         {
             var command = Command("the-command", "",
