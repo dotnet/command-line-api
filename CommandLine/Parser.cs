@@ -119,10 +119,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 unmatchedTokens,
                 errors);
         }
-        
-        public IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
+
+        internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {
-            var firstArg = args.First();
+            var firstArg = args.FirstOrDefault();
 
             if (DefinedOptions.Count != 1)
             {
@@ -134,12 +134,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 ?.Name;
 
             if (commandName == null ||
-                firstArg.Equals(commandName, StringComparison.OrdinalIgnoreCase))
+                string.Equals(firstArg, commandName, StringComparison.OrdinalIgnoreCase))
             {
                 return args;
             }
 
-            if (firstArg.Contains(Path.DirectorySeparatorChar) &&
+            if (firstArg != null &&
+                firstArg.Contains(Path.DirectorySeparatorChar) &&
                 (firstArg.EndsWith(commandName, StringComparison.OrdinalIgnoreCase) ||
                  firstArg.EndsWith($"{commandName}.exe", StringComparison.OrdinalIgnoreCase)))
             {
