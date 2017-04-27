@@ -22,12 +22,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var helpView = new StringBuilder();
 
-            if (!string.IsNullOrWhiteSpace(command.HelpText))
-            {
-                helpView.AppendLine(command.HelpText);
-                helpView.AppendLine();
-            }
-
             WriteSynopsis(command, helpView);
 
             WriteArgumentsSection(command, helpView);
