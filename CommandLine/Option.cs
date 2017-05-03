@@ -12,6 +12,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private readonly HashSet<string> aliases = new HashSet<string>();
 
         private readonly Suggest suggest;
+        private readonly HashSet<string> rawAliases;
 
         public Option(
             string[] aliases,
@@ -42,7 +43,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            RawAliases = aliases;
+            rawAliases = new HashSet<string>(aliases);
 
             foreach (var alias in aliases)
             {
@@ -79,7 +80,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IReadOnlyCollection<string> Aliases => aliases.ToArray();
 
-        public IReadOnlyCollection<string> RawAliases { get; }
+        public IReadOnlyCollection<string> RawAliases => rawAliases.ToArray();
 
         protected internal virtual IReadOnlyCollection<string> AllowedValues { get; }
 
@@ -97,7 +98,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public Option Parent { get; protected internal set; }
 
-        public bool HasAlias(string s) => aliases.Contains(s.RemovePrefix());
+        public bool HasAlias(string alias) => aliases.Contains(alias.RemovePrefix());
+
+        public bool HasRawAlias(string alias) => rawAliases.Contains(alias);
 
         public Option this[string alias] => DefinedOptions[alias];
 

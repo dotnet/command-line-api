@@ -21,7 +21,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentException("You must specify at least one option.");
             }
 
-            DefinedOptions.AddRange(definedOptions);
+            if (definedOptions.All(o => !o.IsCommand))
+            {
+                RootCommand = Create.Command(
+                    "root",
+                    "",
+                    Accept.NoArguments(),
+                    definedOptions.ToArray());
+                DefinedOptions.Add(RootCommand);
+            }
+            else
+            {
+                DefinedOptions.AddRange(definedOptions);
+            }
+
             ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
             AllowUnbundling = allowUnbundling;
         }
@@ -31,5 +44,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
         public bool AllowUnbundling { get; }
+
+        internal Option RootCommand { get; }
+
+        internal bool RootCommandIsImplicit => RootCommand != null;
     }
 }
