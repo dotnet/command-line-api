@@ -169,7 +169,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var command = result.Command();
 
             command.Should().NotBeNull();
-            command.Name.Should().Be("root");
+            command.Name.Should().Be(RootCommand().Name);
         }
 
         [Fact]

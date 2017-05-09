@@ -23,11 +23,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (definedOptions.All(o => !o.IsCommand))
             {
-                RootCommand = Create.Command(
-                    "root",
-                    "",
-                    Accept.NoArguments(),
-                    definedOptions.ToArray());
+                RootCommand = Create.RootCommand(definedOptions.ToArray());
                 DefinedOptions.Add(RootCommand);
             }
             else

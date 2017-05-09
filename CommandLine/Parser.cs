@@ -130,7 +130,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             if (configuration.RootCommandIsImplicit)
             {
-                args = new[] { "root" }.Concat(args).ToArray();
+                args = new[] { configuration.RootCommand.Name }.Concat(args).ToArray();
             }
 
             var firstArg = args.FirstOrDefault();
