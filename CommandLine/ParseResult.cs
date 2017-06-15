@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -77,7 +78,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 command.DefinedOptions.Any(o => o.IsCommand))
             {
                 errors.Insert(0, new OptionError(
-                                  "Required command was not provided.",
+                                  RequiredCommandWasNotProvided(),
                                   command.Name,
                                   this.AppliedCommand()));
             }

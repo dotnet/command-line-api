@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -155,7 +156,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         private static OptionError UnrecognizedArg(string arg) =>
-            new OptionError(
-                $"Unrecognized command or argument '{arg}'", arg);
+            new OptionError(UnrecognizedCommandOrArgument(arg), arg);
     }
 }
