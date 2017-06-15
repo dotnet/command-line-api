@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -13,11 +14,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static ArgumentsRule AnyOneOf(params string[] values) =>
             ExactlyOneArgument()
                 .And(
-                    new ArgumentsRule(o => !values.Contains(
-                                               o.Arguments.Single(),
-                                               StringComparer.OrdinalIgnoreCase)
-                                               ? $"Argument '{o.Arguments.Single()}' not recognized. Must be one of:\n\t{string.Join("\n\t", values.Select(v => $"'{v}'"))}"
-                                               : "", values));
+                    new ArgumentsRule(o =>
+                    {
+                        var arg = o.Arguments.Single();
+
+                        return !values.Contains(arg, StringComparer.OrdinalIgnoreCase)
+                                   ? UnrecognizedArgument(arg, values)
+                                   : "";
+                    }, values));
 
         public static ArgumentsRule AnyOneOf(
             Func<IEnumerable<string>> getValues) =>
@@ -27,11 +31,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     {
                         var values = getValues().ToArray();
 
+                        var arg = o.Arguments.Single();
+
                         return !values
-                                   .Contains(
-                                       o.Arguments.Single(),
-                                       StringComparer.OrdinalIgnoreCase)
-                                   ? $"Argument '{o.Arguments.Single()}' not recognized. Must be one of:\n\t{string.Join("\n\t", values.Select(v => $"'{v}'"))}"
+                                   .Contains(arg, StringComparer.OrdinalIgnoreCase)
+                                   ? UnrecognizedArgument(arg, values)
                                    : "";
                     }, null))
                 .WithSuggestionsFrom(_ => getValues());
@@ -46,7 +50,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                   {
                                       if (errorMessage == null)
                                       {
-                                          return $"Required argument missing for {(o.Option.IsCommand ? "command" : "option")}: {o.Option}";
+                                          return o.Option.IsCommand
+                                                     ? RequiredArgumentMissingForCommand(o.Option.ToString())
+                                                     : RequiredArgumentMissingForOption(o.Option.ToString());
                                       }
                                       else
                                       {
@@ -58,7 +64,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                   {
                                       if (errorMessage == null)
                                       {
-                                          return $"{(o.Option.IsCommand ? "Command" : "Option")} '{o.Option}' only accepts a single argument but {argumentCount} were provided.";
+                                          return o.Option.IsCommand
+                                                     ? CommandAcceptsOnlyOneArgument(o.Option.ToString(), argumentCount)
+                                                     : OptionAcceptsOnlyOneArgument(o.Option.ToString(), argumentCount);
                                       }
                                       else
                                       {
@@ -75,7 +83,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             rule.And(new ArgumentsRule(o => o.Arguments
                                              .Where(filePath => !File.Exists(filePath) &&
                                                                 !Directory.Exists(filePath))
-                                             .Select(filePath => $"File does not exist: {filePath}")
+                                             .Select(FileDoesNotExist)
                                              .FirstOrDefault()));
 
         public static ArgumentsRule LegalFilePathsOnly(
@@ -128,7 +136,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               {
                                   if (o.Arguments.Count > 1)
                                   {
-                                      return $"{(o.Option.IsCommand ? "Command" : "Option")} '{o.Option}' only accepts a single argument but {o.Arguments.Count} were provided.";
+                                      return o.Option.IsCommand
+                                                 ? CommandAcceptsOnlyOneArgument(o.Option.ToString(), o.Arguments.Count)
+                                                 : OptionAcceptsOnlyOneArgument(o.Option.ToString(), o.Arguments.Count);
                                   }
 
                                   return null;
@@ -145,7 +155,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     if (errorMessage == null)
                     {
-                        return $"Required option missing for command: {o.Option}";
+                        return RequiredArgumentMissingForCommand(o.Option.ToString());
                     }
                     else
                     {
@@ -157,8 +167,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     if (errorMessage == null)
                     {
-                        return
-                            $"Command '{o.Option}' only accepts a single subcommand but {optionCount} were provided: {string.Join(", ", o.AppliedOptions.Select(a => a.Option))}";
+                        return CommandAcceptsOnlyOneSubcommand(
+                            o.Option.ToString(),
+                            string.Join(", ", o.AppliedOptions.Select(a => a.Option)));
                     }
                     else
                     {
@@ -180,7 +191,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                                   if (errorMessage == null)
                                   {
-                                      return $"Arguments not allowed for option: {o.Option}";
+                                      return NoArgumentsAllowed(o.Option.ToString());
                                   }
                                   else
                                   {
@@ -199,7 +210,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                   {
                                       if (errorMessage == null)
                                       {
-                                          return $"Required argument missing for {(o.Option.IsCommand ? "command" : "option")}: {o.Option}";
+                                          return
+                                              o.Option.IsCommand
+                                                  ? RequiredArgumentMissingForCommand(o.Option.ToString())
+                                                  : RequiredArgumentMissingForOption(o.Option.ToString());
                                       }
                                       else
                                       {
@@ -227,14 +241,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     o =>
                     {
                         var unrecognized = values
-                            .Where(v => !o.Option
-                                          .DefinedOptions
-                                          .Any(oo => oo.HasAlias(v)))
-                            .ToArray();
+                            .FirstOrDefault(v => !o.Option
+                                                   .DefinedOptions
+                                                   .Any(oo => oo.HasAlias(v)));
 
-                        return unrecognized.Any()
-                                   ? $"Options '{string.Join(", ", unrecognized)}' not recognized. Must be one of:\n\t{string.Join(Environment.NewLine + "\t", values.Select(v => $"'{v}'"))}"
-                                   : null;
+                        if (unrecognized != null)
+                        {
+                            return UnrecognizedOption(unrecognized, values);
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     },
                     completionValues);
         }

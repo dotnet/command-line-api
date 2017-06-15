@@ -152,6 +152,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
+        internal static string NotWhitespace(this string value) =>
+            string.IsNullOrWhiteSpace(value) ? null : value;
+
         private static HashSet<Token> ValidTokens(this Option option) =>
             new HashSet<Token>(
                 option.RawAliases
