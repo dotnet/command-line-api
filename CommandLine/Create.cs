@@ -16,6 +16,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 aliases.Split(
                     new[] { '|', ' ' }, StringSplitOptions.RemoveEmptyEntries), help, arguments);
 
+      [Obsolete("Do not use this overload. It will be removed. materialize argument is unused.", error: true)]
+      public static Option Option(
+            string aliases,
+            string help,
+            ArgumentsRule arguments,
+            Func<AppliedOption, object> materialize) =>
+            Option(aliases, help, arguments);
+
         public static Command Command(
             string name,
             string help) =>
