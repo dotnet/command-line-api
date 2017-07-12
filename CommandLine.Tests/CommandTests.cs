@@ -158,6 +158,21 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void ParseResult_Command_identifies_implicit_root_command()
+        {
+            var parser1 = new Parser(
+                Option("-x", ""),
+                Option("-y", ""));
+
+            var result = parser1.Parse("-x -y");
+
+            var command = result.Command();
+
+            command.Should().NotBeNull();
+            command.Name.Should().Be(RootCommand().Name);
+        }
+
+        [Fact]
         public void ParseResult_AppliedCommand_identifies_the_AppliedOption_for_the_innermost_command()
         {
             var command = Command("outer", "",
@@ -194,7 +209,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var inner = Command("inner", "");
             var outer = Command("outer", "", inner);
 
-            inner.Command().Should().Be(inner);
+            outer["inner"].Command().Should().Be(inner);
         }
 
         [Fact]

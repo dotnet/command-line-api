@@ -12,28 +12,26 @@ namespace Microsoft.DotNet.Cli.CommandLine
     [DebuggerDisplay("{" + nameof(ToString) + "()}")]
     public class ParseResult
     {
+        private readonly ParserConfiguration configuration;
         private readonly List<OptionError> errors = new List<OptionError>();
+        private Command command;
 
         internal ParseResult(
             IReadOnlyCollection<string> tokens,
             AppliedOptionSet appliedOptions,
             bool isProgressive,
+            ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
             IReadOnlyCollection<OptionError> errors = null)
         {
-            if (tokens == null)
-            {
-                throw new ArgumentNullException(nameof(tokens));
-            }
+            Tokens = tokens ??
+                     throw new ArgumentNullException(nameof(tokens));
+            AppliedOptions = appliedOptions ??
+                             throw new ArgumentNullException(nameof(appliedOptions));
+            this.configuration = configuration ??
+                                 throw new ArgumentNullException(nameof(configuration));
 
-            if (appliedOptions == null)
-            {
-                throw new ArgumentNullException(nameof(appliedOptions));
-            }
-
-            Tokens = tokens;
-            AppliedOptions = appliedOptions;
             IsProgressive = isProgressive;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
@@ -60,6 +58,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public AppliedOption this[string alias] => AppliedOptions[alias];
 
+        public Command Command() =>
+            command ??
+            (command = configuration.RootCommandIsImplicit
+                           ? configuration.DefinedOptions.OfType<Command>().Single()
+                           : AppliedOptions.Command());
+
         private void CheckForErrors()
         {
             foreach (var option in AppliedOptions.FlattenBreadthFirst())
@@ -72,7 +76,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            var command = this.Command();
+            var command = Command();
 
             if (command != null &&
                 command.DefinedOptions.Any(o => o.IsCommand))

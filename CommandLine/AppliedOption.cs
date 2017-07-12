@@ -57,7 +57,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public AppliedOption TryTakeToken(Token token)
         {
             var option = TryTakeArgument(token) ??
-                               TryTakeOptionOrCommand(token);
+                         TryTakeOptionOrCommand(token);
             considerAcceptingAnotherArgument = false;
             return option;
         }
@@ -113,11 +113,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             if (token.Type == TokenType.Command &&
                 appliedOptions.Any(o => o.Option.IsCommand && !o.HasAlias(token.Value)))
             {
+                // if a subcommand has already been applied, don't accept this one
                 return null;
             }
 
             var applied =
-                appliedOptions.SingleOrDefault(o => o.HasAlias(token.Value));
+                appliedOptions.SingleOrDefault(o => o.Option.HasRawAlias(token.Value));
 
             if (applied != null)
             {

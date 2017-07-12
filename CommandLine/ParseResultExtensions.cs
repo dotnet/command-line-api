@@ -27,10 +27,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return source.UnmatchedTokens.LastOrDefault() ?? "";
         }
 
-        public static Command Command(this ParseResult result) =>
-            result.AppliedOptions
-                  .Command();
-
         internal static Command Command(this AppliedOptionSet options) =>
             options.FlattenBreadthFirst()
                    .Select(a => a.Option)

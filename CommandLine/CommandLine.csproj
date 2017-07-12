@@ -34,6 +34,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Runtime.Extensions" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppliedOptionSet.cs" />

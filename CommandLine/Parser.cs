@@ -69,10 +69,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                 token.Value);
                             rootAppliedOptions.Add(appliedOption);
                         }
-                        else
-                        {
-                            appliedOption.OptionWasRespecified();
-                        }
 
                         allAppliedOptions.Add(appliedOption);
 
@@ -112,10 +108,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     unmatchedTokens.Select(UnrecognizedArg));
             }
 
+            if (configuration.RootCommandIsImplicit)
+            {
+                rawArgs = rawArgs.Skip(1).ToArray();
+                var appliedOptions = rootAppliedOptions
+                    .SelectMany(o => o.AppliedOptions)
+                    .ToArray();
+                rootAppliedOptions = new AppliedOptionSet(appliedOptions);
+            }
+
             return new ParseResult(
                 rawArgs,
                 rootAppliedOptions,
                 isProgressive,
+                configuration,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,
                 errors);
@@ -123,6 +129,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {
+            if (configuration.RootCommandIsImplicit)
+            {
+                args = new[] { configuration.RootCommand.Name }.Concat(args).ToArray();
+            }
+
             var firstArg = args.FirstOrDefault();
 
             if (DefinedOptions.Count != 1)

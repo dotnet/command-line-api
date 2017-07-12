@@ -254,10 +254,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Options_short_forms_do_not_get_unbundled_if_unbundling_is_turned_off()
         {
             Command command = Command("the-command", "",
-                        Option("-x", "", NoArguments()),
-                        Option("-y", "", NoArguments()),
-                        Option("-z", "", NoArguments()),
-                        Option("-xyz", "", NoArguments()));
+                                      Option("-x", "", NoArguments()),
+                                      Option("-y", "", NoArguments()),
+                                      Option("-z", "", NoArguments()),
+                                      Option("-xyz", "", NoArguments()));
             ParserConfiguration parseConfig = new ParserConfiguration(new Option[] { command }, allowUnbundling: false);
             var parser = new Parser(parseConfig);
             var result = parser.Parse("the-command -xyz");
@@ -807,6 +807,17 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Name
                   .Should()
                   .Be("outer");
+
+            parser.Parse("outer --inner inner")
+                  .AppliedCommand()
+                  .Name
+                  .Should()
+                  .Be("inner");
+
+            parser.Parse("outer --inner inner")["outer"]
+                  .AppliedOptions
+                  .Should()
+                  .Contain(o => o.Name == "inner");
         }
     }
 }
