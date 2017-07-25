@@ -14,7 +14,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private static readonly char[] optionPrefixCharacters = { '-' };
 
         private static readonly Regex tokenizer = new Regex(
-            @"(""(?<q>[^""]+)"")|(?<q>\S+)",
+            @"(""(?<q>[^""]*)"")|(?<q>\S+)",
             RegexOptions.Compiled | RegexOptions.ExplicitCapture
         );
 
@@ -137,6 +137,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             arg.Contains(":");
 
         private static bool HasPrefix(string arg) =>
+            arg != string.Empty &&
             optionPrefixCharacters.Contains(arg[0]);
 
         public static IEnumerable<string> Tokenize(this string s)

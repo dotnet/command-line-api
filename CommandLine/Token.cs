@@ -9,11 +9,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public Token(string value, TokenType type)
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
-            }
-            Value = value;
+            Value = value ?? "";
             Type = type;
         }
 
@@ -21,9 +17,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public TokenType Type { get; }
 
-        public override string ToString()
-        {
-            return $"{Type}: {Value}";
-        }
+        public override string ToString() => $"{Type}: {Value}";
     }
 }
