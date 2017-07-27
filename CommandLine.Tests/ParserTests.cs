@@ -819,5 +819,17 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Should()
                   .Contain(o => o.Name == "inner");
         }
+
+        [Fact]
+        public void Empty_string_can_be_accepted_as_a_command_line_argument_when_enclosed_in_double_quotes()
+        {
+            var parseResult = new Parser(
+                Option("-x",
+                       "",
+                       ZeroOrMoreArguments())).Parse("-x \"\"");
+
+            parseResult["x"].Arguments
+                            .ShouldBeEquivalentTo(new[] { "" });
+        }
     }
 }
