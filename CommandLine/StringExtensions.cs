@@ -56,6 +56,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             ParserConfiguration configuration)
         {
             Option currentCommand = null;
+            bool foundEndOfArguments = false;
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
@@ -63,6 +64,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             foreach (var arg in args)
             {
+                if (foundEndOfArguments)
+                {
+                    yield return Operand(arg);
+                    continue;
+                }
+                else if (arg == "--")
+                {
+                    yield return EndOfArguments();
+                    foundEndOfArguments = true;
+                    continue;
+                }
+
                 var argHasPrefix = HasPrefix(arg);
 
                 if (argHasPrefix && HasDelimiter(arg))
@@ -120,6 +133,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private static Token Command(string value) => new Token(value, TokenType.Command);
 
         private static Token Option(string value) => new Token(value, TokenType.Option);
+
+        private static Token EndOfArguments() => new Token("--", TokenType.EndOfArguments);
+
+        private static Token Operand(string value) => new Token(value, TokenType.Operand);
 
         private static bool CanBeUnbundled(
             this string arg,

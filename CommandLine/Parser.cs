@@ -46,7 +46,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 var token = unparsedTokens.Dequeue();
 
-                if (token.Value == "--")
+                if (token.Type == TokenType.EndOfArguments)
                 {
                     // stop parsing further tokens
                     break;

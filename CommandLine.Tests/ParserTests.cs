@@ -139,7 +139,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var result = new Parser(
                     Option("-o|--one", ""))
-                .Parse("-o \"some stuff\" -- -x -y -z");
+                .Parse("-o \"some stuff\" -- -x -y -z -o:foo");
 
             result.HasOption("o")
                   .Should()
@@ -148,6 +148,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result.AppliedOptions
                   .Should()
                   .HaveCount(1);
+
+            result.UnparsedTokens
+                  .Should()
+                  .HaveCount(4);
         }
 
         [Fact]

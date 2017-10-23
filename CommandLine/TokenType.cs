@@ -7,6 +7,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         Argument,
         Command,
-        Option
+        Option,
+        EndOfArguments,
+        Operand
     }
 }
