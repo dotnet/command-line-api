@@ -14,7 +14,7 @@
   </Target>
 
   <Target Name="Test">
-    <Exec Command="dotnet test CommandLine.Tests/CommandLine.Tests-netcore.csproj -l:trx /p:Configuration=$(Configuration)" />
+    <Exec Command="dotnet test CommandLine.Tests/CommandLine.Tests-netcore.csproj -l:trx /p:Configuration=$(Configuration)" Condition="'$(SkipTests)' != 'true'" />
   </Target>
 
   <Target Name="Pack">
