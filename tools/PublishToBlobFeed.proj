@@ -8,8 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ItemsToPushGlobPattern Include="$(REPOROOT)/src/Microsoft.DotNet.ProjectJsonMigration/bin/$(Configuration)/Microsoft.DotNet.ProjectJsonMigration.*.nupkg" />
-    <ItemsToPushGlobPattern Include="$(REPOROOT)/src/Microsoft.DotNet.Tools.MigrateCommand/bin/$(Configuration)/Microsoft.DotNet.Tools.MigrateCommand.*.nupkg" />
+    <ItemsToPushGlobPattern Include="$(REPOROOT)/CommandLine/bin/$(Configuration)/Microsoft.DotNet.Cli.CommandLine.*.nupkg" />
   </ItemGroup>
 
   <Target Name="PublishNupkgToBlobFeed" >

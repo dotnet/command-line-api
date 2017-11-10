@@ -9,6 +9,7 @@ $ProgressPreference="SilentlyContinue"
 $RepoRoot = "$PSScriptRoot"
 $DOTNET_INSTALL_DIR="$REPOROOT/.dotnet"
 
+$env:REPOROOT="$RepoRoot"
 $env:XDG_DATA_HOME="$REPOROOT/.nuget/packages"
 $env:NUGET_PACKAGES="$REPOROOT/.nuget/packages"
 $env:NUGET_HTTP_CACHE_PATH="$REPOROOT/.nuget/packages"
