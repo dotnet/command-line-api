@@ -23,7 +23,7 @@
   </Target>
 
   <Target Name="PublishToBlobFeed">
-    <Exec Command="dotnet msbuild tools/PublishToBlobFeed.proj /t:PublishNupkgToBlobFeed /p:Configuration=$(Configuration) /p:BlobFeedAccessToken=V4+nZPxfl/FX5VtdhA4Bgk6dl0rBSLYyuHJTZHdYixBFgIxxlXRnjNDvWS4jcpQbGhszN2/v6lEncn58C/LAKQ==" />
+    <Exec Command="dotnet msbuild tools/PublishToBlobFeed.proj /t:PublishNupkgToBlobFeed /p:Configuration=$(Configuration) /p:BlobFeedAccessToken=$(BlobFeedAccessToken)" />
   </Target>
   
   <Target Name="MakeVersionProps">
