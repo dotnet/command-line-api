@@ -7,6 +7,7 @@
 
   <Target Name="Restore">
     <Exec Command="dotnet restore CommandLine-netcore.sln /p:Configuration=$(Configuration)" />
+    <Exec Command="dotnet restore tools/BuildToolset.proj /p:Configuration=$(Configuration)" />
   </Target>
 
   <Target Name="Build">
@@ -21,6 +22,10 @@
     <Exec Command="dotnet pack CommandLine/CommandLine-netcore.csproj --no-build /p:Configuration=$(Configuration)" />
   </Target>
 
+  <Target Name="PublishToBlobFeed">
+    <Exec Command="dotnet msbuild tools/PublishToBlobFeed.proj /t:PublishNupkgToBlobFeed /p:Configuration=$(Configuration) /p:BlobFeedAccessToken=V4+nZPxfl/FX5VtdhA4Bgk6dl0rBSLYyuHJTZHdYixBFgIxxlXRnjNDvWS4jcpQbGhszN2/v6lEncn58C/LAKQ==" />
+  </Target>
+  
   <Target Name="MakeVersionProps">
     <MakeDir Condition="!Exists('obj')"
              Directories="obj" />
