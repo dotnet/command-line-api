@@ -7,7 +7,7 @@
 
   <Target Name="Restore">
     <Exec Command="dotnet restore CommandLine-netcore.sln /p:Configuration=$(Configuration)" />
-    <Exec Command="dotnet restore tools/BuildToolset.proj /p:Configuration=$(Configuration)" />
+    <Exec Command="dotnet restore tools/BuildTools.proj /p:Configuration=$(Configuration)" />
   </Target>
 
   <Target Name="Build">
