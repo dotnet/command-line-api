@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(MSBuildThisFileDirectory)\PushToBlobFeed.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)/obj/BuildTools.proj.nuget.g.targets" Condition="Exists('$(MSBuildThisFileDirectory)/obj/BuildTools.proj.nuget.g.targets')" />
+  <Import Project="$(MSBuildThisFileDirectory)/PushToBlobFeed.targets" />
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
