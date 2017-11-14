@@ -26,6 +26,7 @@ args=( "$@" )
 temp="${args[@]}"
 args=($temp)
 
+export REPOROOT="$REPOROOT"
 export XDG_DATA_HOME="$REPOROOT/.nuget/packages"
 export NUGET_PACKAGES="$REPOROOT/.nuget/packages"
 export NUGET_HTTP_CACHE_PATH="$REPOROOT/.nuget/packages"
@@ -36,9 +37,9 @@ if [ ! -d "$DOTNET_INSTALL_DIR" ]; then
   mkdir $DOTNET_INSTALL_DIR
 fi
 
-curl -sSL https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.sh | bash /dev/stdin --install-dir $DOTNET_INSTALL_DIR --version 1.0.0-rc4-004911
+curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir $DOTNET_INSTALL_DIR --version 1.1.4
 
 PATH="$DOTNET_INSTALL_DIR:$PATH"
 
 dotnet msbuild build.proj /t:MakeVersionProps
-dotnet msbuild build.proj /v:diag /fl /flp:v=diag "${args[@]}"
+dotnet msbuild build.proj /v:n /fl /flp:v=n "${args[@]}"
