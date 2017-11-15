@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <AssemblyName>Microsoft.DotNet.Cli.CommandLine.Tests</AssemblyName>
     <RootNamespace>Microsoft.DotNet.Cli.CommandLine.Tests</RootNamespace>
+    <RestoreSources>$(RestoreSources)</RestoreSources>
   </PropertyGroup>
 
   <ItemGroup>
