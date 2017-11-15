@@ -2,7 +2,6 @@
   <Import Project="$(MSBuildThisFileDirectory)/PushToBlobFeed.targets" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
     <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
     <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
     <GenerateDependencyFile>false</GenerateDependencyFile>
