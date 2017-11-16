@@ -1,0 +1,9 @@
+<Project ToolsVersion="15.0">
+  <PropertyGroup>
+    <RestoreSources Condition="'$(RestoreSources)' == ''">
+      https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json;
+      https://api.nuget.org/v3/index.json
+    </RestoreSources>
+    <RestoreSources Condition="'$(ExternalRestoreSources)' != ''">$(ExternalRestoreSources);$(RestoreSources)</RestoreSources>
+  </PropertyGroup>
+</Project>

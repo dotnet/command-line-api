@@ -1,12 +1,8 @@
 <Project ToolsVersion="15.0">
     <Import Condition="Exists('obj/CommitCount.props')"
             Project="obj/CommitCount.props" />
+    <Import Project="RestoreSources.props" />
     <PropertyGroup>
       <CommitCount Condition="'$(CommitCount)' == ''">0</CommitCount>
-      <RestoreSources>
-        https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json;
-        https://api.nuget.org/v3/index.json
-      </RestoreSources>
-      <RestoreSources Condition="'$(ExternalRestoreSources)' != ''">$(ExternalRestoreSources);$(RestoreSources)</RestoreSources>
     </PropertyGroup>
 </Project>
