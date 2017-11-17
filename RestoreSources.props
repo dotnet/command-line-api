@@ -1,9 +1,10 @@
 <Project ToolsVersion="15.0">
   <PropertyGroup>
-    <RestoreSources Condition="'$(RestoreSources)' == ''">
+    <RestoreSources Condition="'$(DotNetBuildOffline)' != 'true'">
+      $(OverridePackageSource);
       https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json;
-      https://api.nuget.org/v3/index.json
+      https://api.nuget.org/v3/index.json;
+      $(RestoreSources)
     </RestoreSources>
-    <RestoreSources Condition="'$(ExternalRestoreSources)' != ''">$(ExternalRestoreSources);$(RestoreSources)</RestoreSources>
   </PropertyGroup>
 </Project>
