@@ -1,7 +1,8 @@
 <Project ToolsVersion="15.0">
     <Import Condition="Exists('obj/CommitCount.props')"
             Project="obj/CommitCount.props" />
+    <Import Project="RestoreSources.props" />
     <PropertyGroup>
-        <CommitCount Condition="'$(CommitCount)' == ''">0</CommitCount>
+      <CommitCount Condition="'$(CommitCount)' == ''">0</CommitCount>
     </PropertyGroup>
 </Project>
