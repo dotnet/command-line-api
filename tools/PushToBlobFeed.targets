@@ -18,8 +18,12 @@
     <Message Text="Publish NuPkgs to blob feed started: $(ExpectedFeedUrl)" Importance="High" />
     <Message Text="-pushing package: %(ItemsToPushGlobPattern.Identity)" Importance="High" />
     <PushToBlobFeed AccountKey="$(BlobFeedAccessToken)"
-                ExpectedFeedUrl="$(ExpectedFeedUrl)"
-                ItemsToPush="@(ItemsToPushGlobPattern)"
-                Overwrite="false" />
+                    ExpectedFeedUrl="$(ExpectedFeedUrl)"
+                    ItemsToPush="@(ItemsToPushGlobPattern)"
+                    Overwrite="false"
+                    ManifestName="$(BUILD_REPOSITORY_NAME)"
+                    ManifestBranch="$(BUILD_SOURCEBRANCH)"
+                    ManifestBuildId="$(BUILD_BUILDNUMBER)"
+                    ManifestCommit="$(BUILD_SOURCEVERSION)" />
   </Target>
 </Project>
