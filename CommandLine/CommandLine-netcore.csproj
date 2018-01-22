@@ -6,6 +6,6 @@
     <AssemblyOriginatorKeyFile>../tools/Key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
-    <Version>0.1.1-alpha-$(CommitCount)</Version>
+    <Version>0.2.1-alpha-$(CommitCount)</Version>
   </PropertyGroup>
 </Project>
