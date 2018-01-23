@@ -109,18 +109,22 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return null;
             }));
 
-        public static ArgumentsRule  OfType<T>(this ArgumentsRule rule)
+        public static ArgumentsRule OfType<T>(this ArgumentsRule rule)
         {
-            return rule.And(ParseRule(o =>
+            return rule.And(new ArgumentsRule(o =>
             {
                 foreach (var arg in o.Arguments)
                 {
-                    if ()
+                    if (!ArgumentConverter.TryParseAs<T>(
+                            arg, out var _))
                     {
-                        return "!";
+                        // FIX: (OfType) add to IValidationMessages
+                        return $"Argument '{arg}' is not convertible to {typeof(T)}";
                     }
                 }
-            }) );
+
+                return null;
+            }));
         }
 
         public static ArgumentsRule WithSuggestionsFrom(
