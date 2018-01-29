@@ -3,52 +3,55 @@
 
 // Import the utility functionality.
 
+import jobs.generation.ArchivalSettings;
 import jobs.generation.Utilities;
 
 def project = GithubProject
 def branch = GithubBranchName
-def isPR = true
-
-def platformList = ['OSX:x64:Release', 'Windows_NT:x64:Release']
 
 def static getBuildJobName(def configuration, def os, def architecture) {
     return configuration.toLowerCase() + '_' + os.toLowerCase() + '_' + architecture.toLowerCase()
 }
 
-platformList.each { platform ->
-    // Calculate names
-    def (os, architecture, configuration) = platform.tokenize(':')
+['OSX10.12', 'Ubuntu16.04', 'Windows_NT'].each { os ->
+    ['x64'].each { architecture ->
+        ['Debug', 'Release'].each { config ->
+            [true, false].each { isPR ->
+                // Calculate job name
+                def jobName = getBuildJobName(config, os, architecture)
+                def buildCommand = '';
 
-    // Calculate job name
-    def jobName = getBuildJobName(configuration, os, architecture)
-    def buildCommand = '';
+                def osBase = os
+                def machineAffinity = 'latest-or-auto'
 
-    // Calculate the build command
-    if (os == 'Windows_NT') {
-        buildCommand = ".\\build.cmd"
-    }
-    else {
-        buildCommand = "./build.sh"
-    }
+                def newJob = job(Utilities.getFullJobName(project, jobName, isPR)) {
+                    // Set the label.
+                    steps {
+                        if (osBase == 'Windows_NT') {
+                            // Batch
+                            batchFile(".\\build\\cibuild.cmd -configuration $config")
+                        }
+                        else {
+                            // Shell
+                            shell("./build/cibuild.sh --configuration $config")
+                        }
+                    }
+                }
 
-    def newJob = job(Utilities.getFullJobName(project, jobName, isPR)) {
-        // Set the label.
-        steps {
-            if (os == 'Windows_NT') {
-                // Batch
-                batchFile(buildCommand)
-            }
-            else {
-                // Shell
-                shell(buildCommand)
+                Utilities.setMachineAffinity(newJob, osBase, machineAffinity)
+                Utilities.standardJobSetup(newJob, project, isPR, "*/${branch}")
+
+                if (isPR) {
+                    Utilities.addGithubPRTriggerForBranch(newJob, branch, "$os $architecture $config")
+                }
+
+                def archiveSettings = new ArchivalSettings()
+                archiveSettings.addFiles("artifacts/$config/log/*")
+                archiveSettings.addFiles("artifacts/$config/TestResults/*")
+                archiveSettings.setFailIfNothingArchived()
+                archiveSettings.setArchiveOnFailure()
+                Utilities.addArchival(newJob, archiveSettings)
             }
         }
     }
-
-    Utilities.setMachineAffinity(newJob, os, 'latest-or-auto')
-    Utilities.standardJobSetup(newJob, project, isPR, "*/${branch}")
-    Utilities.addMSTestResults(newJob, '**/*.trx')
-    Utilities.addGithubPRTriggerForBranch(newJob, branch, "${os} ${architecture} ${configuration} Build")
 }
-
-

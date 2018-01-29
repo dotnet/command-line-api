@@ -1,9 +1,0 @@
-<Project ToolsVersion="15.0">
-  <PropertyGroup>
-    <RestoreSources Condition="'$(DotNetBuildOffline)' != 'true'">
-      $(ExternalRestoreSources);
-      https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json;
-      https://api.nuget.org/v3/index.json;
-    </RestoreSources>
-  </PropertyGroup>
-</Project>

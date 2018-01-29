@@ -108,7 +108,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
 
-            output.WriteLine(string.Join("\n", Path.GetInvalidPathChars()));
+            // Convert to ushort so the xUnit XML writer doesn't complain about invalid characters
+            output.WriteLine(string.Join("\n", Path.GetInvalidPathChars().Select((c) => (ushort)(c))));
 
             var result = command.Parse($"the-command {invalidCharacters}");
 
