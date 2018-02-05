@@ -59,7 +59,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Contain(e => e.Message == "Required argument missing for option: -x");
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/dotnet/CliCommandLineParser/issues/93")]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
             var parser = new Parser(Command("the-command", "", Option("-x", "", NoArguments())));
