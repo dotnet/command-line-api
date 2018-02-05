@@ -30,7 +30,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 suggest: result => rules.SelectMany(r => r.Suggest(result)),
                 name: rule.Name ?? rule2.Name,
                 description: rule.Description ?? rule2.Description,
-                defaultValue: rule.GetDefaultValue ?? rule2.GetDefaultValue,
+                defaultValue: (rule.HasDefaultValue
+                                   ? rule.GetDefaultValue
+                                   : null)
+                              ??
+                              (rule2.HasDefaultValue
+                                   ? rule2.GetDefaultValue
+                                   : null),
                 materialize: rule.Materializer ?? rule2.Materializer);
         }
 
@@ -66,7 +72,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 validate: rule.Validate,
                 allowedValues: rule.AllowedValues,
                 defaultValue: defaultValue ??
-                              rule.GetDefaultValue,
+                              (rule.HasDefaultValue
+                                   ? rule.GetDefaultValue
+                                   : null),
                 name: name ?? rule.Name,
                 description: description ?? rule.Description,
                 suggest: rule.Suggest,

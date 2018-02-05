@@ -31,7 +31,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public T this[string alias] =>
             options.SingleOrDefault(o => HasRawAlias(o, alias)) ??
-            options.Single(o => HasAlias(o, alias));
+            options.SingleOrDefault(o => HasAlias(o, alias));
 
         public int Count => options.Count;
 

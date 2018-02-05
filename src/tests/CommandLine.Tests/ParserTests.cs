@@ -734,6 +734,34 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
+        public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_from_the_parent_option_as_though_it_had_been_applied()
+        {
+            var command = Command("command", "",
+                                  Option("-o|--option", "", ExactlyOneArgument().With(defaultValue: () => "the-default")));
+
+            var result = command.Parse("command");
+
+            var appliedCommand = result.AppliedCommand();
+
+            appliedCommand.HasOption("o").Should().BeTrue();
+            appliedCommand.HasOption("option").Should().BeTrue();
+            appliedCommand["o"].Value<string>().Should().Be("the-default");
+        }
+
+        [Fact]
+        public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_from_the_parse_result_as_though_it_had_been_applied()
+        {
+            var option = Option("-o|--option", "",
+                                ExactlyOneArgument().With(defaultValue: () => "the-default"));
+
+            var result = option.Parse("");
+
+            result.HasOption("o").Should().BeTrue();
+            result.HasOption("option").Should().BeTrue();
+            result["o"].Value<string>().Should().Be("the-default");
+        }
+
+        [Fact]
         public void Unmatched_options_are_not_split_into_smaller_tokens()
         {
             var command = Command("outer", "",

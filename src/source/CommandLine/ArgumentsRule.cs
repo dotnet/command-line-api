@@ -29,7 +29,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             this.validate = validate ?? throw new ArgumentNullException(nameof(validate));
 
-            this.defaultValue = defaultValue ?? (() => null);
+            this.defaultValue = defaultValue;
             Description = description;
             Name = name;
 
@@ -55,13 +55,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IReadOnlyCollection<string> AllowedValues { get; }
 
-        internal Func<string> GetDefaultValue => () => defaultValue();
+        internal Func<string> GetDefaultValue => () => defaultValue?.Invoke();
 
         public string Description { get; }
 
         public string Name { get; }
 
         internal Func<AppliedOption, object> Materializer => materialize;
+
+        internal bool HasDefaultValue => defaultValue != null;
 
         internal IEnumerable<string> Suggest(ParseResult parseResult) =>
             suggest(parseResult);

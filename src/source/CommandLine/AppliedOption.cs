@@ -17,22 +17,35 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public AppliedOption(Option option, string token = null)
         {
-            if (option == null)
-            {
-                throw new ArgumentNullException(nameof(option));
-            }
-
-            Option = option;
+            Option = option ?? throw new ArgumentNullException(nameof(option));
 
             defaultValue = new Lazy<string>(option.ArgumentsRule.GetDefaultValue);
 
             Token = token ?? option.ToString();
 
             materialize = () => option.ArgumentsRule.Materialize(this);
+
+            AddImplicitOptions(option);
         }
 
-        public AppliedOptionSet AppliedOptions =>
-            appliedOptions;
+        private void AddImplicitOptions(Option option)
+        {
+            if (option.IsCommand)
+            {
+                foreach (var childOption in option.DefinedOptions)
+                {
+                    if (!childOption.IsCommand &&
+                        !AppliedOptions.Contains(childOption.Name) && 
+                        childOption.ArgumentsRule.HasDefaultValue)
+                    {
+                        AppliedOptions.Add(
+                            new AppliedOption(childOption, childOption.Name));
+                    }
+                }
+            }
+        }
+
+        public AppliedOptionSet AppliedOptions => appliedOptions;
 
         public IReadOnlyCollection<string> Arguments
         {
@@ -144,7 +157,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal OptionError Validate()
         {
-            var error = Option.ArgumentsRule.Validate(this);
+            var error = Option.Validate(this);
             return string.IsNullOrWhiteSpace(error)
                        ? null
                        : new OptionError(error, Token, this);
@@ -155,8 +168,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public IReadOnlyCollection<string> Aliases => Option.Aliases;
 
         public bool HasAlias(string alias) => Option.HasAlias(alias);
-
-        public T Value<T>() => (T) Value();
 
         public object Value()
         {

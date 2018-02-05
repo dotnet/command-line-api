@@ -42,5 +42,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             return option.AppliedOptions.Contains(alias);
         }
+
+        public static T Value<T>(this AppliedOption option)
+        {
+            if (option != null)
+            {
+                return (T) option.Value();
+            }
+            else
+            {
+                return default(T);
+            }
+        }
     }
 }

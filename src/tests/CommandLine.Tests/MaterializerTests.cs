@@ -169,7 +169,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result["something"]["x"].Value<bool>().Should().BeTrue();
         }
 
-        [Fact(Skip = "Not implemented yet")]
+        [Fact]
         public void By_default_an_option_without_arguments_materializes_as_false_when_it_is_not_applied()
         {
             var command = Command("something", "", Option("-x", ""));
@@ -179,7 +179,25 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result["something"]["x"].Value<bool>().Should().BeFalse();
         }
 
-        [Fact(Skip = "Not implemented yet")]
+        [Fact]
+        public void An_option_with_a_default_value_materializes_as_the_default_value_when_it_the_option_has_not_been_applied()
+        {
+            var command = Command(
+                "something", "",
+                Option("-x",
+                       "",
+                       Accept
+                           .ExactlyOneArgument()
+                           .With(defaultValue: () => "123")));
+
+            var result = command.Parse("something");
+
+            var appliedCommand = result.AppliedCommand();
+
+            var appliedOption = appliedCommand["x"];
+
+            appliedOption.Value<string>().Should().Be("123");
+        }
         public void When_OfType_is_used_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
         {
             var command = Command("tally", "",
