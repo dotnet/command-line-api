@@ -208,7 +208,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Should()
                 .BeOfType<int>();
         }
-
+    
+        
         public class FileMoveOperation
         {
             public List<FileInfo> Files { get; set; }
