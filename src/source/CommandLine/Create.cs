@@ -16,15 +16,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             ArgumentsRule arguments = null) =>
             new Option(
                 aliases.Split(
-                    new[] { '|', ' ' }, StringSplitOptions.RemoveEmptyEntries), help, arguments);
+                    new[] { '|', ' ' }, StringSplitOptions.RemoveEmptyEntries),
+                help,
+                arguments: arguments);
 
-      [Obsolete("Do not use this overload. It will be removed. materialize argument is unused.", error: true)]
-      public static Option Option(
-            string aliases,
-            string help,
-            ArgumentsRule arguments,
-            Func<AppliedOption, object> materialize) =>
-            Option(aliases, help, arguments);
 
         public static Command Command(
             string name,
@@ -64,6 +59,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string help,
             params Command[] commands) =>
             new Command(name, help, commands);
+
 
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));

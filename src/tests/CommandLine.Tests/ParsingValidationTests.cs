@@ -161,7 +161,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   Option("--to", "",
                                          ExactlyOneArgument()));
 
-            var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+            var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
             output.WriteLine(result.Diagram());
 

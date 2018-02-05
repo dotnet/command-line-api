@@ -46,7 +46,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public AppliedOptionSet AppliedOptions { get; }
 
-        public IEnumerable<OptionError> Errors => errors;
+        public IReadOnlyCollection<OptionError> Errors => errors;
 
         public bool IsProgressive { get; }
 

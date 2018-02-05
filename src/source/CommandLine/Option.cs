@@ -11,7 +11,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly HashSet<string> aliases = new HashSet<string>();
 
-        private readonly Suggest suggest;
         private readonly HashSet<string> rawAliases;
 
         public Option(
@@ -74,13 +73,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             AllowedValues = ArgumentsRule.AllowedValues;
-
-            suggest = ArgumentsRule.Suggest;
         }
 
-        public IReadOnlyCollection<string> Aliases => aliases.ToArray();
+        public IReadOnlyCollection<string> Aliases => aliases;
 
-        public IReadOnlyCollection<string> RawAliases => rawAliases.ToArray();
+        public IReadOnlyCollection<string> RawAliases => rawAliases;
 
         protected internal virtual IReadOnlyCollection<string> AllowedValues { get; }
 
@@ -88,11 +85,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string HelpText { get; }
 
-        public ArgumentsRule ArgumentsRule { get; protected set; }
+        protected internal ArgumentsRule ArgumentsRule { get; protected set; }
 
         public string Name { get; }
 
-        public IEnumerable<string> Suggest(ParseResult parseResult) => suggest(parseResult);
+        public IEnumerable<string> Suggest(ParseResult parseResult) => ArgumentsRule.Suggest(parseResult);
 
         internal virtual bool IsCommand => false;
 
@@ -101,6 +98,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public bool HasAlias(string alias) => aliases.Contains(alias.RemovePrefix());
 
         public bool HasRawAlias(string alias) => rawAliases.Contains(alias);
+
+        internal string Validate(AppliedOption appliedOption) => ArgumentsRule.Validate(appliedOption);
 
         public Option this[string alias] => DefinedOptions[alias];
 
