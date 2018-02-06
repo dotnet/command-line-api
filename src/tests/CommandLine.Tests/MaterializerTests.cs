@@ -198,11 +198,22 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             appliedOption.Value<string>().Should().Be("123");
         }
+
+        [Fact(Skip = "not implemented yet")]
         public void When_OfType_is_used_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
         {
             var command = Command("tally", "",
-                                  Accept.ExactlyOneArgument()
-                                        .OfType<int>());
+                                  Define.Arguments()
+                                        .OfType<int>(s =>
+                                        {
+                                            if (int.TryParse(s, out var i))
+                                            {
+                                                return ArgumentParser<int>.Success(i);
+                                            }
+
+                                            return ArgumentParser<int>.Failure;
+                                        })
+                                        .ExactlyOne());
 
             var result = command.Parse("tally one");
 
@@ -212,12 +223,21 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Contain("oops wrong type");
         }
 
-        [Fact(Skip = "Not implemented yet")]
-        public void OfType_can_be_used_to_require_an_argument_to_be_an_int_and_materialize_it_as_int()
+        [Fact(Skip = "not implemented yet")]
+        public void OfType_can_be_used_to_parse_an_argument_as_int()
         {
             var command = Command("tally", "",
-                                  Accept.ExactlyOneArgument()
-                                        .OfType<int>());
+                                  Define.Arguments()
+                                        .OfType<int>(s =>
+                                        {
+                                            if (int.TryParse(s, out var i))
+                                            {
+                                                return ArgumentParser<int>.Success(i);
+                                            }
+
+                                            return ArgumentParser<int>.Failure;
+                                        })
+                                        .ExactlyOne());
 
             var result = command.Parse("tally 123");
 
@@ -226,7 +246,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Should()
                 .BeOfType<int>();
         }
-    
         
         public class FileMoveOperation
         {
