@@ -40,17 +40,17 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         [InlineData("dotnet sln remove -h")]
         [InlineData("dotnet test -h")]
         //        [InlineData("dotnet vstest -h")]
-        public void HelpText(string commandLine)
+        public void HelpView(string commandLine)
         {
             var result = dotnet.Parse(commandLine);
 
             var helpView = result.Command().HelpView();
             output.WriteLine(helpView);
 
-            helpView.Should().MatchLineByLine(helpTextForCommandLine[commandLine]);
+            helpView.Should().MatchLineByLine(helpViewForCommandLine[commandLine]);
         }
 
-        private static readonly Dictionary<string, string> helpTextForCommandLine = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> helpViewForCommandLine = new Dictionary<string, string>
         {
             ["dotnet -h"] =
             @".NET Command Line Tools (2.0.0-alpha-alpha-004866)

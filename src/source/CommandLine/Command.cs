@@ -11,20 +11,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public Command(
             string name,
-            string help,
+            string description,
             Option[] options = null,
             ArgumentsRule arguments = null,
             bool treatUnmatchedTokensAsErrors = true) :
-            base(new[] { name }, help, arguments, options)
+            base(new[] { name }, description, arguments, options)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
         }
 
         public Command(
             string name,
-            string help,
+            string description,
             Command[] subcommands) :
-            base(new[] { name }, help, options: subcommands)
+            base(new[] { name }, description, options: subcommands)
         {
             var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
 

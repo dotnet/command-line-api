@@ -163,7 +163,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             foreach (var option in options)
             {
                 WriteColumnizedSummary(leftColumnTextFor[option],
-                                       option.HelpText,
+                                       option.Description,
                                        leftColumnWidth,
                                        helpView);
             }

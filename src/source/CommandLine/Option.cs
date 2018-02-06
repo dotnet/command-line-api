@@ -15,15 +15,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public Option(
             string[] aliases,
-            string help,
+            string description,
             ArgumentsRule arguments = null) :
-            this(aliases, help, arguments, null)
+            this(aliases, description, arguments, null)
         {
         }
 
         protected internal Option(
             string[] aliases,
-            string help,
+            string description,
             ArgumentsRule arguments = null,
             Option[] options = null)
         {
@@ -49,7 +49,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 this.aliases.Add(alias.RemovePrefix());
             }
 
-            HelpText = help;
+            Description = description;
 
             Name = aliases
                 .Select(a => a.RemovePrefix())
@@ -83,7 +83,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public OptionSet DefinedOptions { get; } = new OptionSet();
 
-        public string HelpText { get; }
+        public string Description { get; }
 
         protected internal ArgumentsRule ArgumentsRule { get; protected set; }
 

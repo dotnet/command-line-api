@@ -24,7 +24,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                   .FirstOrDefault();
 
         public static bool IsHidden(this Option option) =>
-            string.IsNullOrWhiteSpace(option.HelpText);
+            string.IsNullOrWhiteSpace(option.Description);
 
         internal static IEnumerable<AppliedOption> AllOptions(
             this AppliedOption option)
