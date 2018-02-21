@@ -20,7 +20,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 help,
                 arguments: arguments);
 
-
         public static Command Command(
             string name,
             string help) =>
@@ -60,11 +59,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             params Command[] commands) =>
             new Command(name, help, commands);
 
-
-        private static readonly Lazy<string> executableName =
-            new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-
         public static Command RootCommand(params Option[] options) =>
-            Command(executableName.Value, "", Accept.NoArguments(), options);
+            new Command(options);
     }
 }

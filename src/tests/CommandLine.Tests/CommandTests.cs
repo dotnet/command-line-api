@@ -2,8 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.IO;
 using FluentAssertions;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 using static System.Console;
 using static Microsoft.DotNet.Cli.CommandLine.Accept;
@@ -155,6 +157,16 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result = command.Parse("outer inner");
 
             result.Command().Name.Should().Be("inner");
+        }
+
+        [Fact]
+        public void By_default_the_name_of_the_command_is_the_name_of_the_executable()
+        {
+            var command = new Command(
+                Option("-x", ""),
+                Option("-y", ""));
+
+            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
         }
 
         [Fact]
