@@ -5,7 +5,7 @@ using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
-    internal class ApiFeedbackTests
+    public class ApiFeedbackTests
     {
         private readonly ITestOutputHelper output;
 
@@ -14,7 +14,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             this.output = output;
         }
 
-        [Fact]
+        [Fact(Skip = "sketch")]
         public void Parser_help_for_root_command()
         {
             // var command = Create.RootCommand(
@@ -35,7 +35,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             throw new NotImplementedException();
         }
 
-        [Fact]
+        [Fact(Skip = "sketch")]
         public void POSIX_separators()
         {
             //  $ diff -iarcu
