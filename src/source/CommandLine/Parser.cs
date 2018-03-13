@@ -1,36 +1,32 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class Parser
+    public abstract class Parser
     {
         private readonly ParserConfiguration configuration;
 
-        public Parser(params Option[] options) : this(new ParserConfiguration(options))
+        protected Parser(params Option[] options) : this(new ParserConfiguration(options))
         {
         }
 
-        public Parser(char[] delimiters, params Option[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
+        protected Parser(char[] delimiters, params Option[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
         {
         }
 
-        public Parser(ParserConfiguration configuration)
+        protected Parser(ParserConfiguration configuration)
         {
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public OptionSet DefinedOptions => configuration.DefinedOptions;
 
-        public ParseResult Parse(string[] args) => Parse(args, false);
+        public ParseResult Parse(string[] args) => ParseInternal(args, false);
 
-        internal ParseResult Parse(
+        internal virtual ParseResult ParseInternal(
             IReadOnlyCollection<string> rawArgs,
             bool isProgressive)
         {
@@ -112,8 +108,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 rawArgs = rawArgs.Skip(1).ToArray();
                 var appliedOptions = rootAppliedOptions
-                    .SelectMany(o => o.AppliedOptions)
-                    .ToArray();
+                                     .SelectMany(o => o.AppliedOptions)
+                                     .ToArray();
                 rootAppliedOptions = new AppliedOptionSet(appliedOptions);
             }
 
@@ -142,8 +138,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             var commandName = DefinedOptions
-                .SingleOrDefault(o => o.IsCommand)
-                ?.Name;
+                              .SingleOrDefault(o => o.IsCommand)
+                              ?.Name;
 
             if (commandName == null ||
                 string.Equals(firstArg, commandName, StringComparison.OrdinalIgnoreCase))
@@ -167,6 +163,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         private static OptionError UnrecognizedArg(string arg) =>
-            new OptionError(UnrecognizedCommandOrArgument(arg), arg);
+            new OptionError(ValidationMessages.UnrecognizedCommandOrArgument(arg), arg);
     }
 }

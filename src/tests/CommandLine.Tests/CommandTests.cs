@@ -15,11 +15,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
     public class CommandTests
     {
-        private readonly Parser parser;
+        private readonly OptionParser parser;
 
         public CommandTests()
         {
-            parser = new Parser(
+            parser = new OptionParser(
                 Command("outer", "",
                         Command("inner", "",
                                 Option("--option", "",
@@ -120,7 +120,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
-            var parser = new Parser(
+            var parser = new CommandParser(
                 Command("outer", "",
                         ExactlyOneArgument(),
                         Command("inner", "",
@@ -172,7 +172,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void ParseResult_Command_identifies_implicit_root_command()
         {
-            var parser1 = new Parser(
+            var parser1 = new OptionParser(
                 Option("-x", ""),
                 Option("-y", ""));
 

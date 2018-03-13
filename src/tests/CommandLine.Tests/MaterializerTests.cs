@@ -24,7 +24,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void A_materializer_can_be_specified_using_options_and_arguments_to_create_an_object()
         {
-            var parser = new Parser(
+            var parser = new CommandParser(
                 Command("move", "",
                         arguments: Accept.OneOrMoreArguments()
                                          .MaterializeAs(p =>

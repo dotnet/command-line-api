@@ -21,7 +21,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Option("-x", "",
                        Arguments()
                            .FromAmong("this", "that", "the-other-thing")
@@ -41,7 +41,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                           .FromAmong("this", "that")
                                           .OneOrMore());
 
-            var parser = new Parser(option);
+            var parser = new OptionParser(option);
 
             var result = parser.Parse("-x something_else");
 
@@ -54,7 +54,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(Option("-x", "", Arguments().ExactlyOne()));
+            var parser = new OptionParser(Option("-x", "", Arguments().ExactlyOne()));
 
             var result = parser.Parse("-x");
 
@@ -66,7 +66,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(Command("the-command", "", Option("-x", "", Arguments().None())));
+            var parser = new OptionParser(Command("the-command", "", Option("-x", "", Arguments().None())));
 
             var result = parser.Parse("the-command -x some-arg");
 

@@ -15,7 +15,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
 {
     public static class DotNetParser
     {
-        public static Parser Instance = new Parser(
+        public static OptionParser Instance = new OptionParser(
             options: DotnetCommand());
 
         private static Command DotnetCommand() =>

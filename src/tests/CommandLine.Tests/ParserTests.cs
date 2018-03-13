@@ -24,7 +24,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void An_option_without_a_long_form_can_be_checked_for_using_a_prefix()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("--flag", ""))
                 .Parse("--flag");
 
@@ -34,7 +34,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void An_option_without_a_long_form_can_be_checked_for_without_using_a_prefix()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("--flag", ""))
                 .Parse("--flag");
 
@@ -44,7 +44,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_invoked_by_its_short_form_an_option_with_an_alias_can_be_checked_for_by_its_short_form()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("-o|--one", ""))
                 .Parse("-o");
 
@@ -54,7 +54,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_invoked_by_its_long_form_an_option_with_an_alias_can_be_checked_for_by_its_short_form()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("-o|--one", ""))
                 .Parse("--one");
 
@@ -64,7 +64,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_invoked_by_its_short_form_an_option_with_an_alias_can_be_checked_for_by_its_long_form()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("-o|--one", ""))
                 .Parse("-o");
 
@@ -74,7 +74,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_invoked_by_its_long_form_an_option_with_an_alias_can_be_checked_for_by_its_long_form()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("-o|--one", ""))
                 .Parse("--one");
 
@@ -84,7 +84,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Two_options_are_parsed_correctly()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("-o|--one", ""),
                     Option("-t|--two", ""))
                 .Parse("-o -t");
@@ -98,7 +98,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parse_result_contains_arguments_to_options()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("-o|--one", "", ExactlyOneArgument()),
                     Option("-t|--two", "", ExactlyOneArgument()))
                 .Parse("-o args_for_one -t args_for_two");
@@ -110,7 +110,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_no_options_are_specified_then_an_error_is_returned()
         {
-            Action create = () => new Parser();
+            Action create = () => new OptionParser();
 
             create.ShouldThrow<ArgumentException>()
                   .Which
@@ -123,7 +123,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Two_options_cannot_have_conflicting_aliases()
         {
             Action create = () =>
-                new Parser(
+                new OptionParser(
                     Option("-o|--one", ""),
                     Option("-t|--one", ""));
 
@@ -137,7 +137,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void A_double_dash_delimiter_specifies_that_no_further_command_line_args_will_be_treated_as_options()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("-o|--one", ""))
                 .Parse("-o \"some stuff\" -- -x -y -z -o:foo");
 
@@ -157,7 +157,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void The_portion_of_the_command_line_following_a_double_slash_is_accessible_as_UnparsedTokens()
         {
-            var result = new Parser(
+            var result = new OptionParser(
                     Option("-o", ""))
                 .Parse("-o \"some stuff\" -- x y z");
 
@@ -169,7 +169,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parser_options_can_supply_context_sensitive_matches()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Option("--bread", "",
                        AnyOneOf("wheat", "sourdough", "rye")),
                 Option("--cheese", "",
@@ -191,7 +191,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Short_form_options_can_be_specified_using_equals_delimiter()
         {
-            var parser = new Parser(Option("-x", "", ExactlyOneArgument()));
+            var parser = new OptionParser(Option("-x", "", ExactlyOneArgument()));
 
             var result = parser.Parse("-x=some-value");
 
@@ -203,7 +203,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Long_form_options_can_be_specified_using_equals_delimiter()
         {
-            var parser = new Parser(Option("--hello", "", ExactlyOneArgument()));
+            var parser = new OptionParser(Option("--hello", "", ExactlyOneArgument()));
 
             var result = parser.Parse("--hello=there");
 
@@ -215,7 +215,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Short_form_options_can_be_specified_using_colon_delimiter()
         {
-            var parser = new Parser(Option("-x", "", ExactlyOneArgument()));
+            var parser = new OptionParser(Option("-x", "", ExactlyOneArgument()));
 
             var result = parser.Parse("-x:some-value");
 
@@ -227,7 +227,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Long_form_options_can_be_specified_using_colon_delimiter()
         {
-            var parser = new Parser(Option("--hello", "", ExactlyOneArgument()));
+            var parser = new OptionParser(Option("--hello", "", ExactlyOneArgument()));
 
             var result = parser.Parse("--hello:there");
 
@@ -239,7 +239,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Option_short_forms_can_be_bundled()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("the-command", "",
                         Option("-x", "", NoArguments()),
                         Option("-y", "", NoArguments()),
@@ -262,8 +262,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                       Option("-y", "", NoArguments()),
                                       Option("-z", "", NoArguments()),
                                       Option("-xyz", "", NoArguments()));
-            ParserConfiguration parseConfig = new ParserConfiguration(new Option[] { command }, allowUnbundling: false);
-            var parser = new Parser(parseConfig);
+            var parseConfig = new ParserConfiguration(new Option[] { command }, allowUnbundling: false);
+            var parser = new OptionParser(parseConfig);
             var result = parser.Parse("the-command -xyz");
 
             result["the-command"]
@@ -276,7 +276,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Option_long_forms_do_not_get_unbundled()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command(
                     "the-command", "",
                     Option("--xyz", "", NoArguments()),
@@ -296,7 +296,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Options_do_not_get_unbundled_unless_all_resulting_options_would_be_valid_for_the_current_command()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("outer", "",
                         Option("-a", ""),
                         Command(
@@ -321,7 +321,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Option("-a|--animals", "", ZeroOrMoreArguments()),
                 Option("-v|--vegetables", "", ZeroOrMoreArguments()));
 
@@ -341,7 +341,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Command_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("the-command", "",
                         Option("-a|--animals", "", ZeroOrMoreArguments()),
                         Option("-v|--vegetables", "", ZeroOrMoreArguments())));
@@ -364,7 +364,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_a_Parser_root_option_is_not_respecified_then_the_following_token_is_unmatched()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Option("-a|--animals", "", ZeroOrMoreArguments()),
                 Option("-v|--vegetables", "", ZeroOrMoreArguments()));
 
@@ -389,7 +389,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_a_Command_option_is_not_respecified_then_the_following_token_is_considered_an_argument_to_the_outer_command()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("the-command", "",
                         ZeroOrMoreArguments(),
                         Option("-a|--animals", "", ZeroOrMoreArguments()),
@@ -422,7 +422,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                  Option("--inner1", "", ExactlyOneArgument()),
                                  Option("--inner2", "", ExactlyOneArgument()));
 
-            var parser = new Parser(option);
+            var parser = new OptionParser(option);
 
             var result = parser.Parse("outer --inner1 argument1 --inner2 argument2");
 
@@ -450,7 +450,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Relative_order_of_arguments_and_options_does_not_matter()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("move", "",
                         OneOrMoreArguments(),
                         Option("-x", "", ExactlyOneArgument())));
@@ -540,7 +540,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_child_option_will_not_accept_arg_then_parent_can()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("the-command", "",
                         ZeroOrMoreArguments(),
                         Option("-x", "", NoArguments())));
@@ -555,7 +555,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_parent_option_will_not_accept_arg_then_child_can()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("the-command", "",
                         NoArguments(),
                         Option("-x", "", ExactlyOneArgument())));
@@ -571,7 +571,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_inner_command()
         {
-            var parser = new Parser(Command("outer", "", NoArguments(),
+            var parser = new OptionParser(Command("outer", "", NoArguments(),
                                             Command("inner", "",
                                                     Option("-x", "")),
                                             Option("-x", "")));
@@ -591,7 +591,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_in_between_then_it_attaches_to_the_outer_command()
         {
-            var parser = new Parser(Command("outer", "",
+            var parser = new OptionParser(Command("outer", "",
                                             Command("inner", "",
                                                     Option("-x", "")),
                                             Option("-x", "")));
@@ -688,7 +688,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var command =
                 @"rm ""/temp/the file.txt""";
 
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("rm", "", ZeroOrMoreArguments()));
 
             var result = parser.Parse(command);
@@ -705,7 +705,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var command =
                 @"rm ""c:\temp\the file.txt\""";
 
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("rm", "", ZeroOrMoreArguments()));
 
             var result = parser.Parse(command);
@@ -790,7 +790,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   treatUnmatchedTokensAsErrors: false,
                                   arguments: ExactlyOneArgument());
 
-            var parser = new Parser(
+            var parser = new OptionParser(
                 new ParserConfiguration(
                     definedOptions: new[] { command }));
 
@@ -821,7 +821,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Option_and_Command_can_have_the_same_alias()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Command("outer", "",
                         ZeroOrMoreArguments(),
                         Command("inner", "",
@@ -855,7 +855,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Empty_string_can_be_accepted_as_a_command_line_argument_when_enclosed_in_double_quotes()
         {
-            var parseResult = new Parser(
+            var parseResult = new OptionParser(
                 Option("-x",
                        "",
                        ZeroOrMoreArguments())).Parse("-x \"\"");

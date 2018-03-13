@@ -45,12 +45,23 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static ParseResult Parse(
             this Option option,
             params string[] args) =>
-            new Parser(option).Parse(args);
+            new OptionParser(option).Parse(args);
 
         public static ParseResult Parse(
             this Option option,
             string commandLine,
             char[] delimiters = null) =>
-            new Parser(delimiters, option).Parse(commandLine);
+            new OptionParser(new ParserConfiguration(argumentDelimiters: delimiters, definedOptions:new[] {option})).Parse(commandLine);
+
+        public static ParseResult Parse(
+            this Command command,
+            params string[] args) =>
+            new CommandParser(command).Parse(args);
+
+        public static ParseResult Parse(
+            this Command command,
+            string commandLine,
+            char[] delimiters = null) =>
+            new CommandParser( command).Parse(commandLine);
     }
 }

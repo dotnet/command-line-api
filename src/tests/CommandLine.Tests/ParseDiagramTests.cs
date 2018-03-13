@@ -11,7 +11,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parse_result_diagram_helps_explain_parse_operation()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Create.Command("the-command",
                                "Does the thing.",
                                Accept.ZeroOrMoreArguments(),
@@ -28,7 +28,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parse_result_diagram_helps_explain_partial_parse_operation()
         {
-            var parser = new Parser(
+            var parser = new OptionParser(
                 Create.Command("command", "",
                                Create.Option("-x", "",
                                              arguments: Accept.AnyOneOf("arg1", "arg2", "arg3"))));
