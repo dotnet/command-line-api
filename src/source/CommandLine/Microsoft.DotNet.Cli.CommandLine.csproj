@@ -1,13 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the MIT license. See License.txt in the project root for full license information. -->
-<Project>
+﻿<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the MIT license. See License.txt in the project root for full license information. -->
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
     <TargetFramework>netstandard1.5</TargetFramework>
   </PropertyGroup>
 
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <!-- <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" /> -->
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
@@ -17,6 +15,6 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
   </ItemGroup>
 
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <!-- <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" /> -->
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the MIT license. See License.txt in the project root for full license information. -->
-<Project>
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,20 +8,32 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <OutDirName>Tests\$(MSBuildProjectName)</OutDirName>
+    <!-- <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles> -->
+    <!-- <OutDirName>Tests\$(MSBuildProjectName)</OutDirName> -->
   </PropertyGroup>
 
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <ItemGroup>
+    <Compile Remove="TestResults\**" />
+    <EmbeddedResource Remove="TestResults\**" />
+    <None Remove="TestResults\**" />
+  </ItemGroup>
+
+  <!-- <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" /> -->
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
+    <PackageReference Include="FluentAssertions" Version="4.19.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\source\CommandLine\Microsoft.DotNet.Cli.CommandLine.csproj" />
+
+    <PackageReference Include="fluentassertions" Version="4.19.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="xunit" Version="2.3.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0" />
+    <PackageReference Include="newtonsoft.json" Version="10.0.3" />
   </ItemGroup>
 
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <!-- <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" /> -->
 
 </Project>
