@@ -103,7 +103,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 errors.AddRange(
                     unmatchedTokens.Select(UnrecognizedArg));
             }
-
+            
             if (configuration.RootCommandIsImplicit)
             {
                 rawArgs = rawArgs.Skip(1).ToArray();
@@ -113,7 +113,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 rootAppliedOptions = new AppliedOptionSet(appliedOptions);
             }
 
-            return new ParseResult(
+            return CreateParseResult(
                 rawArgs,
                 rootAppliedOptions,
                 isProgressive,
@@ -122,6 +122,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 unmatchedTokens,
                 errors);
         }
+
+        protected abstract ParseResult CreateParseResult(
+            IReadOnlyCollection<string> rawArgs, 
+            AppliedOptionSet rootAppliedOptions, 
+            bool isProgressive, 
+            ParserConfiguration parserConfiguration, 
+            string[] unparsedTokens, 
+            List<string> unmatchedTokens, 
+            List<OptionError> errors);
 
         internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {

@@ -31,7 +31,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 output.WriteLine(help);
             }
 
-            // FIX (Parser_help) write test
             throw new NotImplementedException();
         }
 
@@ -51,7 +50,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             output.WriteLine(command.Parse("diff -i=arcu").Diagram());
             output.WriteLine(command.Parse("diff -i:arcu").Diagram());
 
-            // FIX (POSIX_separators) write test
             throw new NotImplementedException();
         }
     }

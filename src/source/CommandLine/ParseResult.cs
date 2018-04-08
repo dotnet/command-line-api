@@ -9,8 +9,36 @@ using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
+    public class OptionParseResult : ParseResult
+    {
+        public OptionParseResult(
+            IReadOnlyCollection<string> tokens,
+            AppliedOptionSet appliedOptions,
+            bool isProgressive,
+            ParserConfiguration configuration,
+            IReadOnlyCollection<string> unparsedTokens = null,
+            IReadOnlyCollection<string> unmatchedTokens = null,
+            IReadOnlyCollection<OptionError> errors = null) : base(tokens, appliedOptions, isProgressive, configuration, unparsedTokens, unmatchedTokens, errors)
+        {
+        }
+    }
+
+    public class CommandParseResult : ParseResult
+    {
+        public CommandParseResult(
+            IReadOnlyCollection<string> tokens,
+            AppliedOptionSet appliedOptions,
+            bool isProgressive,
+            ParserConfiguration configuration,
+            IReadOnlyCollection<string> unparsedTokens = null,
+            IReadOnlyCollection<string> unmatchedTokens = null,
+            IReadOnlyCollection<OptionError> errors = null) : base(tokens, appliedOptions, isProgressive, configuration, unparsedTokens, unmatchedTokens, errors)
+        {
+        }
+    }
+
     [DebuggerDisplay("{" + nameof(ToString) + "()}")]
-    public class ParseResult
+    public abstract class ParseResult
     {
         private readonly ParserConfiguration configuration;
         private readonly List<OptionError> errors = new List<OptionError>();
@@ -48,7 +76,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IReadOnlyCollection<OptionError> Errors => errors;
 
-        public bool IsProgressive { get; }
+        internal bool IsProgressive { get; }
 
         public IReadOnlyCollection<string> Tokens { get; }
 
