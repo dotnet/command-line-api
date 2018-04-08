@@ -11,28 +11,28 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class OptionParseResult : ParseResult
     {
-        public OptionParseResult(
+        internal OptionParseResult(
             IReadOnlyCollection<string> tokens,
-            AppliedOptionSet appliedOptions,
+            ParsedOptionSet parsedOptions,
             bool isProgressive,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<OptionError> errors = null) : base(tokens, appliedOptions, isProgressive, configuration, unparsedTokens, unmatchedTokens, errors)
+            IReadOnlyCollection<OptionError> errors = null) : base(tokens, parsedOptions, isProgressive, configuration, unparsedTokens, unmatchedTokens, errors)
         {
         }
     }
 
     public class CommandParseResult : ParseResult
     {
-        public CommandParseResult(
+        internal CommandParseResult(
             IReadOnlyCollection<string> tokens,
-            AppliedOptionSet appliedOptions,
+            ParsedOptionSet parsedOptions,
             bool isProgressive,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<OptionError> errors = null) : base(tokens, appliedOptions, isProgressive, configuration, unparsedTokens, unmatchedTokens, errors)
+            IReadOnlyCollection<OptionError> errors = null) : base(tokens, parsedOptions, isProgressive, configuration, unparsedTokens, unmatchedTokens, errors)
         {
         }
     }
@@ -46,7 +46,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal ParseResult(
             IReadOnlyCollection<string> tokens,
-            AppliedOptionSet appliedOptions,
+            ParsedOptionSet parsedOptions,
             bool isProgressive,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
@@ -55,8 +55,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             Tokens = tokens ??
                      throw new ArgumentNullException(nameof(tokens));
-            AppliedOptions = appliedOptions ??
-                             throw new ArgumentNullException(nameof(appliedOptions));
+            ParsedOptions = parsedOptions ??
+                             throw new ArgumentNullException(nameof(parsedOptions));
             this.configuration = configuration ??
                                  throw new ArgumentNullException(nameof(configuration));
 
@@ -72,7 +72,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             CheckForErrors();
         }
 
-        public AppliedOptionSet AppliedOptions { get; }
+        public ParsedOptionSet ParsedOptions { get; }
 
         public IReadOnlyCollection<OptionError> Errors => errors;
 
@@ -84,17 +84,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public AppliedOption this[string alias] => AppliedOptions[alias];
+        public ParsedOption this[string alias] => ParsedOptions[alias];
 
         public Command Command() =>
             command ??
             (command = configuration.RootCommandIsImplicit
                            ? configuration.DefinedOptions.OfType<Command>().Single()
-                           : AppliedOptions.Command());
+                           : ParsedOptions.Command());
 
         private void CheckForErrors()
         {
-            foreach (var option in AppliedOptions.FlattenBreadthFirst())
+            foreach (var option in ParsedOptions.FlattenBreadthFirst())
             {
                 var error = option.Validate();
 
@@ -112,7 +112,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 errors.Insert(0, new OptionError(
                                   RequiredCommandWasNotProvided(),
                                   command.Name,
-                                  this.AppliedCommand()));
+                                  this.ParsedCommand()));
             }
         }
 

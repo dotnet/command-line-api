@@ -6,7 +6,7 @@ using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public delegate string Validate(AppliedOption appliedOption);
+    public delegate string Validate(ParsedOption parsedOption);
 
     public class ArgumentRuleBuilder
     {
@@ -24,14 +24,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
             validators.Add(validator);
         }
 
-        private string Validate(AppliedOption appliedOption)
+        private string Validate(ParsedOption parsedOption)
         {
-            if (appliedOption == null)
+            if (parsedOption == null)
             {
-                throw new ArgumentNullException(nameof(appliedOption));
+                throw new ArgumentNullException(nameof(parsedOption));
             }
 
-            return validators.Select(v => v(appliedOption))
+            return validators.Select(v => v(parsedOption))
                              .FirstOrDefault(e => e != null);
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule None(
             this ArgumentRuleBuilder builder,
-            Func<AppliedOption, string> errorMessage = null)
+            Func<ParsedOption, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {
@@ -76,7 +76,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule ExactlyOne(
             this ArgumentRuleBuilder builder,
-            Func<AppliedOption, string> errorMessage = null)
+            Func<ParsedOption, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {
@@ -118,14 +118,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule ZeroOrMore(
             this ArgumentRuleBuilder builder,
-            Func<AppliedOption, string> errorMessage = null)
+            Func<ParsedOption, string> errorMessage = null)
         {
             return builder.Build();
         }
 
         public static ArgumentsRule ZeroOrOne(
             this ArgumentRuleBuilder builder,
-            Func<AppliedOption, string> errorMessage = null)
+            Func<ParsedOption, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {
@@ -143,7 +143,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule OneOrMore(
             this ArgumentRuleBuilder builder,
-            Func<AppliedOption, string> errorMessage = null)
+            Func<ParsedOption, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {

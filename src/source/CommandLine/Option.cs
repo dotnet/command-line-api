@@ -99,7 +99,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public bool HasRawAlias(string alias) => rawAliases.Contains(alias);
 
-        internal string Validate(AppliedOption appliedOption) => ArgumentsRule.Validate(appliedOption);
+        internal string Validate(ParsedOption parsedOption) => ArgumentsRule.Validate(parsedOption);
 
         public Option this[string alias] => DefinedOptions[alias];
 

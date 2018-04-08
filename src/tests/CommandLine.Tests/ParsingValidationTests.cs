@@ -77,8 +77,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var validator = new ArgumentsRule(p =>
             {
-                if (p.AppliedOptions.Contains("one") &&
-                    p.AppliedOptions.Contains("two"))
+                if (p.ParsedOptions.Contains("one") &&
+                    p.ParsedOptions.Contains("two"))
                 {
                     return "Options '--one' and '--two' cannot be used together.";
                 }

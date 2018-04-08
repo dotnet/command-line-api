@@ -45,10 +45,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("outer inner --option argument1");
 
             var outer = result
-                .AppliedOptions
+                .ParsedOptions
                 .ElementAt(0);
             var inner = outer
-                .AppliedOptions
+                .ParsedOptions
                 .ElementAt(0);
 
             inner
@@ -63,13 +63,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("outer inner --option argument1");
 
             var outer = result
-                .AppliedOptions
+                .ParsedOptions
                 .ElementAt(0);
             var inner = outer
-                .AppliedOptions
+                .ParsedOptions
                 .ElementAt(0);
             var option = inner
-                .AppliedOptions
+                .ParsedOptions
                 .ElementAt(0);
 
             option
@@ -84,13 +84,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("outer inner --option argument1");
 
             var outer = result
-                .AppliedOptions
+                .ParsedOptions
                 .ElementAt(0);
             var inner = outer
-                .AppliedOptions
+                .ParsedOptions
                 .ElementAt(0);
             var option = inner
-                .AppliedOptions
+                .ParsedOptions
                 .ElementAt(0);
 
             option
@@ -185,7 +185,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseResult_AppliedCommand_identifies_the_AppliedOption_for_the_innermost_command()
+        public void ParsedCommand_identifies_the_ParsedCommand_for_the_innermost_command()
         {
             var command = Command("outer", "",
                                   Command("sibling", "",
@@ -197,13 +197,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("outer inner inner-er -x arg");
 
-            var appliedOption = result.AppliedCommand()["x"];
+            var parsedOption = result.ParsedCommand()["x"];
 
-            appliedOption.Value().Should().Be("arg");
+            parsedOption.Value().Should().Be("arg");
 
             result = command.Parse("outer sibling arg");
 
-            result.AppliedCommand().Value().Should().Be("arg");
+            result.ParsedCommand().Value().Should().Be("arg");
         }
 
         [Fact]

@@ -14,10 +14,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var fail = new ArgumentsRule(o => "fail");
             var succeed = new ArgumentsRule(o => "fail");
 
-            var appliedOption = new AppliedOption(Create.Option("-x", ""));
+            var parsedOption = new ParsedOption(Create.Option("-x", ""));
 
-            fail.And(succeed).Validate(appliedOption).Should().Be("fail");
-            succeed.And(fail).Validate(appliedOption).Should().Be("fail");
+            fail.And(succeed).Validate(parsedOption).Should().Be("fail");
+            succeed.And(fail).Validate(parsedOption).Should().Be("fail");
         }
 
         [Fact]
@@ -26,9 +26,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var first = new ArgumentsRule(o => "first error");
             var second = new ArgumentsRule(o => "second error");
 
-            var appliedOption = new AppliedOption(Create.Option("-x", ""));
+            var parsedOption = new ParsedOption(Create.Option("-x", ""));
 
-            first.And(second).Validate(appliedOption).Should().Be("first error");
+            first.And(second).Validate(parsedOption).Should().Be("first error");
         }
 
         [Fact]
@@ -42,9 +42,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 return "second error";
             });
 
-            var appliedOption = new AppliedOption(Create.Option("-x", ""));
+            var parsedOption = new ParsedOption(Create.Option("-x", ""));
 
-            first.And(second).Validate(appliedOption);
+            first.And(second).Validate(parsedOption);
 
             secondRuleWasCalled.Should().BeFalse();
         }

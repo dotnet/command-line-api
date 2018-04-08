@@ -26,8 +26,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static bool IsHidden(this Option option) =>
             string.IsNullOrWhiteSpace(option.Description);
 
-        internal static IEnumerable<AppliedOption> AllOptions(
-            this AppliedOption option)
+        internal static IEnumerable<ParsedOption> AllOptions(
+            this ParsedOption option)
         {
             if (option == null)
             {
@@ -36,7 +36,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             yield return option;
 
-            foreach (var item in option.AppliedOptions.FlattenBreadthFirst(o => o.AppliedOptions))
+            foreach (var item in option.ParsedOptions.FlattenBreadthFirst(o => o.ParsedOptions))
             {
                 yield return item;
             }

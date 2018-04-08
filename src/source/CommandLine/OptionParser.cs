@@ -19,7 +19,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         protected override ParseResult CreateParseResult(
             IReadOnlyCollection<string> rawArgs,
-            AppliedOptionSet rootAppliedOptions,
+            ParsedOptionSet rootParsedOptions,
             bool isProgressive,
             ParserConfiguration parserConfiguration,
             string[] unparsedTokens,
@@ -28,7 +28,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             return new OptionParseResult(
                 rawArgs,
-                rootAppliedOptions,
+                rootParsedOptions,
                 isProgressive,
                 parserConfiguration,
                 unparsedTokens,

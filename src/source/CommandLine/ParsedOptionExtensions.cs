@@ -7,32 +7,32 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public static class AppliedOptionExtensions
+    public static class ParsedOptionExtensions
     {
         public static IEnumerable<OptionError> ValidateAll(
-            this AppliedOption option) =>
+            this ParsedOption option) =>
             new[] { option.Validate() }
                 .Concat(
-                    option.AppliedOptions
+                    option.ParsedOptions
                           .SelectMany(ValidateAll))
                 .Where(o => o != null);
 
-        internal static IEnumerable<AppliedOption> FlattenBreadthFirst(
-            this IEnumerable<AppliedOption> options)
+        internal static IEnumerable<ParsedOption> FlattenBreadthFirst(
+            this IEnumerable<ParsedOption> options)
         {
             if (options == null)
             {
                 throw new ArgumentNullException(nameof(options));
             }
 
-            foreach (var item in options.FlattenBreadthFirst(o => o.AppliedOptions))
+            foreach (var item in options.FlattenBreadthFirst(o => o.ParsedOptions))
             {
                 yield return item;
             }
         }
 
         public static bool HasOption(
-            this AppliedOption option,
+            this ParsedOption option,
             string alias)
         {
             if (option == null)
@@ -40,10 +40,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(option));
             }
 
-            return option.AppliedOptions.Contains(alias);
+            return option.ParsedOptions.Contains(alias);
         }
 
-        public static T Value<T>(this AppliedOption option)
+        public static T Value<T>(this ParsedOption option)
         {
             if (option != null)
             {

@@ -192,11 +192,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("something");
 
-            var appliedCommand = result.AppliedCommand();
+            var parsedCommand = result.ParsedCommand();
 
-            var appliedOption = appliedCommand["x"];
+            var parsedOption = parsedCommand["x"];
 
-            appliedOption.Value<string>().Should().Be("123");
+            parsedOption.Value<string>().Should().Be("123");
         }
 
         [Fact(Skip = "not implemented yet")]

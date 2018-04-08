@@ -10,14 +10,14 @@ using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
-    public class AppliedOptionTests
+    public class ParsedOptionTests
     {
         [Fact]
-        public void Applied_option_with_exactly_one_argument_accepts_single_argument()
+        public void Parsed_option_with_exactly_one_argument_accepts_single_argument()
         {
             var option = Option("-x", "", ExactlyOneArgument());
 
-            var applied = new AppliedOption(option, "-x");
+            var applied = new ParsedOption(option, "-x");
 
             applied.TryTakeToken(new Token("some argument", TokenType.Argument))
                    .Should()
@@ -29,11 +29,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Applied_option_with_exactly_one_argument_does_not_accept_two_arguments()
+        public void Parsed_option_with_exactly_one_argument_does_not_accept_two_arguments()
         {
             var option = Option("-x", "", ExactlyOneArgument());
 
-            var applied = new AppliedOption(option, "-x");
+            var applied = new ParsedOption(option, "-x");
 
             applied.TryTakeToken(new Token("argument1", TokenType.Argument));
 
@@ -43,11 +43,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Applied_option_with_specific_arguments_does_not_accept_argument_that_does_not_match()
+        public void Parsed_option_with_specific_arguments_does_not_accept_argument_that_does_not_match()
         {
             var option = Option("-x", "", AnyOneOf("one", "two", "three"));
 
-            var applied = new AppliedOption(option, "-x");
+            var applied = new ParsedOption(option, "-x");
 
             applied.TryTakeToken(new Token("t", TokenType.Argument));
 
@@ -55,11 +55,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Applied_option_with_no_arguments_does_not_accept_arguments()
+        public void Parsed_option_with_no_arguments_does_not_accept_arguments()
         {
             var option = Option("-x", "", NoArguments());
 
-            var applied = new AppliedOption(option, "-x");
+            var applied = new ParsedOption(option, "-x");
 
             applied.TryTakeToken(new Token("argument1", TokenType.Argument));
 
@@ -69,18 +69,18 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Applied_option_can_have_nested_option_with_args()
+        public void Parsed_option_can_have_nested_option_with_args()
         {
             var option = Command("outer", "",
                                  Option("inner", "",
                                         ExactlyOneArgument()));
 
-            var applied = new AppliedOption(option, "outer");
+            var applied = new ParsedOption(option, "outer");
 
             applied.TryTakeToken(new Token("inner", TokenType.Option));
             applied.TryTakeToken(new Token("argument1", TokenType.Argument));
 
-            applied.AppliedOptions
+            applied.ParsedOptions
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner" &&
@@ -88,25 +88,25 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Applied_option_can_have_multiple_nested_options_with_args()
+        public void Parsed_option_can_have_multiple_nested_options_with_args()
         {
             var option = Command("outer", "",
                                  Option("inner1", "", ExactlyOneArgument()),
                                  Option("inner2", "", ExactlyOneArgument()));
 
-            var applied = new AppliedOption(option, "outer");
+            var applied = new ParsedOption(option, "outer");
 
             applied.TryTakeToken(new Token("inner1", TokenType.Option));
             applied.TryTakeToken(new Token("argument1", TokenType.Argument));
             applied.TryTakeToken(new Token("inner2", TokenType.Option));
             applied.TryTakeToken(new Token("argument2", TokenType.Argument));
 
-            applied.AppliedOptions
+            applied.ParsedOptions
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner1" &&
                                       o.Arguments.Single() == "argument1");
-            applied.AppliedOptions
+            applied.ParsedOptions
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner2" &&
@@ -121,7 +121,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                 AnyOneOf("one", "two", "default")
                                     .With(defaultValue: () => "default"));
 
-            var applied = new AppliedOption(option, "-x");
+            var applied = new ParsedOption(option, "-x");
 
             applied.Arguments.Should().BeEquivalentTo("default");
         }
@@ -134,7 +134,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                 AnyOneOf("one", "two", "default")
                                     .With(defaultValue: () => "default"));
 
-            var applied = new AppliedOption(option, "-x");
+            var applied = new ParsedOption(option, "-x");
 
             applied.TryTakeToken(new Token("two", TokenType.Argument));
 
@@ -188,7 +188,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -h");
 
-            result.AppliedOptions
+            result.ParsedOptions
                   .Single()
                   .HasOption("help")
                   .Should()
@@ -202,7 +202,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   Command("two", "",
                                           Command("three", "")));
 
-            var applied = new AppliedOption(command);
+            var applied = new ParsedOption(command);
 
             applied.TryTakeToken(new Token("two", TokenType.Command))
                    .Name
@@ -219,7 +219,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("command", "", Option("-o|--one", "", NoArguments()));
 
-            var applied = new AppliedOption(command);
+            var applied = new ParsedOption(command);
 
             applied.TryTakeToken(new Token("--one", TokenType.Option))
                    .Name
@@ -232,7 +232,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("command", "", Option("-o|--one", "", NoArguments()));
 
-            var applied = new AppliedOption(command);
+            var applied = new ParsedOption(command);
 
             applied.TryTakeToken(new Token("-o", TokenType.Option))
                    .Name
@@ -245,7 +245,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("command", "", Option("-o|--one", "", NoArguments()));
 
-            var applied = new AppliedOption(command);
+            var applied = new ParsedOption(command);
 
             applied.TryTakeToken(new Token("--o", TokenType.Option))
                    .Should()
@@ -263,7 +263,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   Command("two", "",
                                           Command("three", "")));
 
-            var applied = new AppliedOption(command);
+            var applied = new ParsedOption(command);
 
             applied.TryTakeToken(new Token("three", TokenType.Command))
                    .Should()
@@ -277,7 +277,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   Command("inner-one", ""),
                                   Command("inner-two", ""));
 
-            var applied = new AppliedOption(command);
+            var applied = new ParsedOption(command);
 
             applied.TryTakeToken(new Token("inner-one", TokenType.Command))
                    .Name
@@ -294,7 +294,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = Option("--one", "", NoArguments());
 
-            var applied = new AppliedOption(option);
+            var applied = new ParsedOption(option);
 
             applied.TryTakeToken(new Token("arg", TokenType.Argument))
                    .Should()

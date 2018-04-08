@@ -7,15 +7,15 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class AppliedOption
+    public class ParsedOption
     {
         private readonly List<string> arguments = new List<string>();
         private readonly Lazy<string> defaultValue;
         private readonly Func<object> materialize;
-        private readonly AppliedOptionSet appliedOptions = new AppliedOptionSet();
+        private readonly ParsedOptionSet parsedOptions = new ParsedOptionSet();
         private bool considerAcceptingAnotherArgument = true;
 
-        public AppliedOption(Option option, string token = null)
+        public ParsedOption(Option option, string token = null)
         {
             Option = option ?? throw new ArgumentNullException(nameof(option));
 
@@ -35,17 +35,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 foreach (var childOption in option.DefinedOptions)
                 {
                     if (!childOption.IsCommand &&
-                        !AppliedOptions.Contains(childOption.Name) && 
+                        !ParsedOptions.Contains(childOption.Name) && 
                         childOption.ArgumentsRule.HasDefaultValue)
                     {
-                        AppliedOptions.Add(
-                            new AppliedOption(childOption, childOption.Name));
+                        ParsedOptions.Add(
+                            new ParsedOption(childOption, childOption.Name));
                     }
                 }
             }
         }
 
-        public AppliedOptionSet AppliedOptions => appliedOptions;
+        public ParsedOptionSet ParsedOptions => parsedOptions;
 
         public IReadOnlyCollection<string> Arguments
         {
@@ -67,7 +67,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Token { get; }
 
-        public AppliedOption TryTakeToken(Token token)
+        public ParsedOption TryTakeToken(Token token)
         {
             var option = TryTakeArgument(token) ??
                          TryTakeOptionOrCommand(token);
@@ -75,7 +75,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return option;
         }
 
-        private AppliedOption TryTakeArgument(Token token)
+        private ParsedOption TryTakeArgument(Token token)
         {
             if (token.Type != TokenType.Argument)
             {
@@ -90,7 +90,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return null;
             }
 
-            foreach (var appliedOption in appliedOptions)
+            foreach (var appliedOption in parsedOptions)
             {
                 var a = appliedOption.TryTakeToken(token);
                 if (a != null)
@@ -111,9 +111,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return null;
         }
 
-        private AppliedOption TryTakeOptionOrCommand(Token token)
+        private ParsedOption TryTakeOptionOrCommand(Token token)
         {
-            var childOption = appliedOptions
+            var childOption = parsedOptions
                 .SingleOrDefault(o =>
                                      o.Option.DefinedOptions
                                       .Any(oo => oo.RawAliases.Contains(token.Value)));
@@ -124,14 +124,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             if (token.Type == TokenType.Command &&
-                appliedOptions.Any(o => o.Option.IsCommand && !o.HasAlias(token.Value)))
+                parsedOptions.Any(o => o.Option.IsCommand && !o.HasAlias(token.Value)))
             {
                 // if a subcommand has already been applied, don't accept this one
                 return null;
             }
 
             var applied =
-                appliedOptions.SingleOrDefault(o => o.Option.HasRawAlias(token.Value));
+                parsedOptions.SingleOrDefault(o => o.Option.HasRawAlias(token.Value));
 
             if (applied != null)
             {
@@ -142,12 +142,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             applied =
                 Option.DefinedOptions
                       .Where(o => o.RawAliases.Contains(token.Value))
-                      .Select(o => new AppliedOption(o, token.Value))
+                      .Select(o => new ParsedOption(o, token.Value))
                       .SingleOrDefault();
 
             if (applied != null)
             {
-                appliedOptions.Add(applied);
+                parsedOptions.Add(applied);
             }
 
             return applied;
@@ -163,7 +163,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                        : new OptionError(error, Token, this);
         }
 
-        public AppliedOption this[string alias] => AppliedOptions[alias];
+        public ParsedOption this[string alias] => ParsedOptions[alias];
 
         public IReadOnlyCollection<string> Aliases => Option.Aliases;
 

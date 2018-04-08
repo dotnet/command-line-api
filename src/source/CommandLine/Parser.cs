@@ -33,8 +33,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawArgs)
                     .Lex(configuration));
-            var rootAppliedOptions = new AppliedOptionSet();
-            var allAppliedOptions = new List<AppliedOption>();
+            var rootParsedOptions = new ParsedOptionSet();
+            var allParsedOptions = new List<ParsedOption>();
             var errors = new List<OptionError>();
             var unmatchedTokens = new List<string>();
 
@@ -55,18 +55,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                     if (definedOption != null)
                     {
-                        var appliedOption = allAppliedOptions
+                        var parsedOption = allParsedOptions
                             .LastOrDefault(o => o.HasAlias(token.Value));
 
-                        if (appliedOption == null)
+                        if (parsedOption == null)
                         {
-                            appliedOption = new AppliedOption(
+                            parsedOption = new ParsedOption(
                                 definedOption,
                                 token.Value);
-                            rootAppliedOptions.Add(appliedOption);
+                            rootParsedOptions.Add(parsedOption);
                         }
 
-                        allAppliedOptions.Add(appliedOption);
+                        allParsedOptions.Add(parsedOption);
 
                         continue;
                     }
@@ -74,19 +74,19 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                 var added = false;
 
-                foreach (var appliedOption in Enumerable.Reverse(allAppliedOptions))
+                foreach (var parsedOption in Enumerable.Reverse(allParsedOptions))
                 {
-                    var option = appliedOption.TryTakeToken(token);
+                    var option = parsedOption.TryTakeToken(token);
 
                     if (option != null)
                     {
-                        allAppliedOptions.Add(option);
+                        allParsedOptions.Add(option);
                         added = true;
                         break;
                     }
 
                     if (token.Type == TokenType.Argument &&
-                        appliedOption.Option.IsCommand)
+                        parsedOption.Option.IsCommand)
                     {
                         break;
                     }
@@ -98,7 +98,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            if (rootAppliedOptions.Command()?.TreatUnmatchedTokensAsErrors == true)
+            if (rootParsedOptions.Command()?.TreatUnmatchedTokensAsErrors == true)
             {
                 errors.AddRange(
                     unmatchedTokens.Select(UnrecognizedArg));
@@ -107,15 +107,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
             if (configuration.RootCommandIsImplicit)
             {
                 rawArgs = rawArgs.Skip(1).ToArray();
-                var appliedOptions = rootAppliedOptions
-                                     .SelectMany(o => o.AppliedOptions)
+                var parsedOptions = rootParsedOptions
+                                     .SelectMany(o => o.ParsedOptions)
                                      .ToArray();
-                rootAppliedOptions = new AppliedOptionSet(appliedOptions);
+                rootParsedOptions = new ParsedOptionSet(parsedOptions);
             }
 
             return CreateParseResult(
                 rawArgs,
-                rootAppliedOptions,
+                rootParsedOptions,
                 isProgressive,
                 configuration,
                 unparsedTokens.Select(t => t.Value).ToArray(),
@@ -125,7 +125,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         protected abstract ParseResult CreateParseResult(
             IReadOnlyCollection<string> rawArgs, 
-            AppliedOptionSet rootAppliedOptions, 
+            ParsedOptionSet rootParsedOptions, 
             bool isProgressive, 
             ParserConfiguration parserConfiguration, 
             string[] unparsedTokens, 

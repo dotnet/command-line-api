@@ -27,13 +27,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return source.UnmatchedTokens.LastOrDefault() ?? "";
         }
 
-        internal static Command Command(this AppliedOptionSet options) =>
+        internal static Command Command(this ParsedOptionSet options) =>
             options.FlattenBreadthFirst()
                    .Select(a => a.Option)
                    .OfType<Command>()
                    .LastOrDefault();
 
-        public static AppliedOption AppliedCommand(this ParseResult result)
+        public static ParsedOption ParsedCommand(this ParseResult result)
         {
             var commandPath = result
                 .Command()
@@ -52,8 +52,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return option;
         }
 
-        internal static AppliedOption CurrentOption(this ParseResult result) =>
-            result.AppliedOptions
+        internal static ParsedOption CurrentOption(this ParseResult result) =>
+            result.ParsedOptions
                   .LastOrDefault()
                   .AllOptions()
                   .LastOrDefault();
@@ -62,7 +62,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var builder = new StringBuilder();
 
-            foreach (var o in result.AppliedOptions)
+            foreach (var o in result.ParsedOptions)
             {
                 builder.Diagram(o);
             }
@@ -81,7 +81,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return builder.ToString();
         }
 
-        public static string Diagram(this AppliedOption option)
+        public static string Diagram(this ParsedOption option)
         {
             var stringbuilder = new StringBuilder();
 
@@ -92,13 +92,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private static void Diagram(
             this StringBuilder builder,
-            AppliedOption option)
+            ParsedOption option)
         {
             builder.Append("[ ");
 
             builder.Append(option.Option);
 
-            foreach (var childOption in option.AppliedOptions)
+            foreach (var childOption in option.ParsedOptions)
             {
                 builder.Append(" ");
                 builder.Diagram(childOption);
@@ -133,7 +133,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.AppliedOptions.Contains(alias);
+            return parseResult.ParsedOptions.Contains(alias);
         }
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult) =>

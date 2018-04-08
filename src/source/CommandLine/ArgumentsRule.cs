@@ -9,23 +9,23 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ArgumentsRule
     {
-        private readonly Func<AppliedOption, string> validate;
-        private readonly Func<AppliedOption, object> materialize;
+        private readonly Func<ParsedOption, string> validate;
+        private readonly Func<ParsedOption, object> materialize;
         private readonly Func<ParseResult, IEnumerable<string>> suggest;
         private readonly Func<string> defaultValue;
 
-        public ArgumentsRule(Func<AppliedOption, string> validate) : this(validate, null)
+        public ArgumentsRule(Func<ParsedOption, string> validate) : this(validate, null)
         {
         }
 
         internal ArgumentsRule(
-            Func<AppliedOption, string> validate,
+            Func<ParsedOption, string> validate,
             IReadOnlyCollection<string> allowedValues = null,
             Func<string> defaultValue = null,
             string description = null,
             string name = null,
             Func<ParseResult, IEnumerable<string>> suggest = null,
-            Func<AppliedOption, object> materialize = null)
+            Func<ParsedOption, object> materialize = null)
         {
             this.validate = validate ?? throw new ArgumentNullException(nameof(validate));
 
@@ -51,7 +51,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this.materialize = materialize;
         }
 
-        public string Validate(AppliedOption option) => validate(option);
+        public string Validate(ParsedOption option) => validate(option);
 
         public IReadOnlyCollection<string> AllowedValues { get; }
 
@@ -61,14 +61,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Name { get; }
 
-        internal Func<AppliedOption, object> Materializer => materialize;
+        internal Func<ParsedOption, object> Materializer => materialize;
 
         internal bool HasDefaultValue => defaultValue != null;
 
         internal IEnumerable<string> Suggest(ParseResult parseResult) =>
             suggest(parseResult);
 
-        internal object Materialize(AppliedOption appliedOption) => 
-            materialize?.Invoke(appliedOption);
+        internal object Materialize(ParsedOption parsedOption) => 
+            materialize?.Invoke(parsedOption);
     }
 }

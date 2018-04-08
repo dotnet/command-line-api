@@ -36,11 +36,11 @@ namespace dotnet
             }
         }
 
-        private static string[] Suggestions(AppliedOption complete)
+        private static string[] Suggestions(ParsedOption complete)
         {
             var input = complete.Arguments.SingleOrDefault() ?? "";
 
-            var positionOption = complete.AppliedOptions.SingleOrDefault(a => a.Name == "position");
+            var positionOption = complete.ParsedOptions.SingleOrDefault(a => a.Name == "position");
             if (positionOption != null)
             {
                 var position = positionOption.Value<int>();

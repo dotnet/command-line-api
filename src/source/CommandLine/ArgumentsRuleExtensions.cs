@@ -10,7 +10,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public static ArgumentsRule And(
             this ArgumentsRule rule,
-            Func<AppliedOption, string> error)
+            Func<ParsedOption, string> error)
         {
             return rule.And(new ArgumentsRule(error));
         }
@@ -42,7 +42,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule MaterializeAs<T>(
             this ArgumentsRule rule,
-            Func<AppliedOption, T> materialize)
+            Func<ParsedOption, T> materialize)
         {
             if (rule == null)
             {
@@ -61,7 +61,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string description = null,
             string name = null,
             Func<string> defaultValue = null,
-            Func<AppliedOption, object> materialize = null)
+            Func<ParsedOption, object> materialize = null)
         {
             if (rule == null)
             {

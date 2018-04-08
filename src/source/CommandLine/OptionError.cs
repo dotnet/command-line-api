@@ -10,7 +10,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public OptionError(
             string message, 
             string token,
-            AppliedOption option = null)
+            ParsedOption option = null)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -28,7 +28,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Message { get; }
 
-        public AppliedOption Option { get; }
+        public ParsedOption Option { get; }
 
         public string Token { get;  }
 

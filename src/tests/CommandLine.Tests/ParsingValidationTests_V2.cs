@@ -83,8 +83,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   Arguments()
                                       .Validate(parseResult =>
                                       {
-                                          if (parseResult.AppliedOptions.Contains("one") &&
-                                              parseResult.AppliedOptions.Contains("two"))
+                                          if (parseResult.ParsedOptions.Contains("one") &&
+                                              parseResult.ParsedOptions.Contains("two"))
                                           {
                                               return "Options '--one' and '--two' cannot be used together.";
                                           }

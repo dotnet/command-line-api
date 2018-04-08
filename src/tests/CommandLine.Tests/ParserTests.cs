@@ -145,7 +145,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Should()
                   .BeTrue();
 
-            result.AppliedOptions
+            result.ParsedOptions
                   .Should()
                   .HaveCount(1);
 
@@ -248,7 +248,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("the-command -xyz");
 
             result["the-command"]
-                .AppliedOptions
+                .ParsedOptions
                 .Select(o => o.Name)
                 .Should()
                 .BeEquivalentTo("x", "y", "z");
@@ -267,7 +267,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("the-command -xyz");
 
             result["the-command"]
-                .AppliedOptions
+                .ParsedOptions
                 .Select(o => o.Name)
                 .Should()
                 .BeEquivalentTo("xyz");
@@ -287,7 +287,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("the-command --xyz");
 
             result["the-command"]
-                .AppliedOptions
+                .ParsedOptions
                 .Select(o => o.Name)
                 .Should()
                 .BeEquivalentTo("xyz");
@@ -307,12 +307,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse("outer inner -abc");
 
-            result.AppliedCommand()
-                  .AppliedOptions
+            result.ParsedCommand()
+                  .ParsedOptions
                   .Should()
                   .BeEmpty();
 
-            result.AppliedCommand()
+            result.ParsedCommand()
                   .Arguments
                   .Should()
                   .BeEquivalentTo("-abc");
@@ -348,14 +348,14 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse("the-command -a cat -v carrot -a dog");
 
-            var appliedCommand = result.AppliedCommand();
+            var parsedCommand = result.ParsedCommand();
 
-            appliedCommand["animals"]
+            parsedCommand["animals"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
-            appliedCommand["vegetables"]
+            parsedCommand["vegetables"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("carrot");
@@ -397,19 +397,19 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse("the-command -a cat some-arg -v carrot");
 
-            var appliedCommand = result.AppliedCommand();
+            var parsedCommand = result.ParsedCommand();
 
-            appliedCommand["animals"]
+            parsedCommand["animals"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("cat");
 
-            appliedCommand["vegetables"]
+            parsedCommand["vegetables"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("carrot");
 
-            appliedCommand
+            parsedCommand
                 .Arguments
                 .Should()
                 .BeEquivalentTo("some-arg");
@@ -428,19 +428,19 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            var applied = result.AppliedOptions.Single();
+            var applied = result.ParsedOptions.Single();
 
             applied
                 .ValidateAll()
                 .Should()
                 .BeEmpty();
 
-            applied.AppliedOptions
+            applied.ParsedOptions
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner1" &&
                                       o.Arguments.Single() == "argument1");
-            applied.AppliedOptions
+            applied.ParsedOptions
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner2" &&
@@ -579,11 +579,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("outer inner -x");
 
             result["outer"]
-                .AppliedOptions
+                .ParsedOptions
                 .Should()
                 .NotContain(o => o.Name == "x");
             result["outer"]["inner"]
-                .AppliedOptions
+                .ParsedOptions
                 .Should()
                 .ContainSingle(o => o.Name == "x");
         }
@@ -599,11 +599,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("outer -x inner");
 
             result["outer"]["inner"]
-                .AppliedOptions
+                .ParsedOptions
                 .Should()
                 .BeEmpty();
             result["outer"]
-                .AppliedOptions
+                .ParsedOptions
                 .Should()
                 .ContainSingle(o => o.Name == "x");
         }
@@ -693,7 +693,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse(command);
 
-            result.AppliedOptions["rm"]
+            result.ParsedOptions["rm"]
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"/temp/the file.txt");
@@ -712,7 +712,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             Console.WriteLine(result);
 
-            result.AppliedOptions["rm"]
+            result.ParsedOptions["rm"]
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"c:\temp\the file.txt\");
@@ -741,11 +741,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("command");
 
-            var appliedCommand = result.AppliedCommand();
+            var parsedCommand = result.ParsedCommand();
 
-            appliedCommand.HasOption("o").Should().BeTrue();
-            appliedCommand.HasOption("option").Should().BeTrue();
-            appliedCommand["o"].Value<string>().Should().Be("the-default");
+            parsedCommand.HasOption("o").Should().BeTrue();
+            parsedCommand.HasOption("option").Should().BeTrue();
+            parsedCommand["o"].Value<string>().Should().Be("the-default");
         }
 
         [Fact]
@@ -776,7 +776,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            result.AppliedCommand()
+            result.ParsedCommand()
                   .Arguments
                   .Should()
                   .BeEquivalentTo("-p:RandomThing=random");
@@ -829,25 +829,25 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                         Option("--inner", "")));
 
             parser.Parse("outer inner")
-                  .AppliedCommand()
+                  .ParsedCommand()
                   .Name
                   .Should()
                   .Be("inner");
 
             parser.Parse("outer --inner")
-                  .AppliedCommand()
+                  .ParsedCommand()
                   .Name
                   .Should()
                   .Be("outer");
 
             parser.Parse("outer --inner inner")
-                  .AppliedCommand()
+                  .ParsedCommand()
                   .Name
                   .Should()
                   .Be("inner");
 
             parser.Parse("outer --inner inner")["outer"]
-                  .AppliedOptions
+                  .ParsedOptions
                   .Should()
                   .Contain(o => o.Name == "inner");
         }
