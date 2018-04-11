@@ -189,24 +189,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_Command_identifies_the_parent_Command()
-        {
-            var option = Option("option", "");
-            var inner = Command("inner", "", option);
-
-            option.Command().Should().Be(inner);
-        }
-
-        [Fact]
-        public void Command_Command_identifies_self()
-        {
-            var inner = Command("inner", "");
-            var outer = Command("outer", "", inner);
-
-            outer["inner"].Command().Should().Be(inner);
-        }
-
-        [Fact]
         public void Subcommands_names_are_available_as_suggestions()
         {
             var command = Command("test", "",
