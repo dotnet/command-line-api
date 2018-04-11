@@ -160,8 +160,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void By_default_the_name_of_the_command_is_the_name_of_the_executable()
         {
             var command = new Command(
-                Option("-x", ""),
-                Option("-y", ""));
+                new[]
+                {
+                    Option("-x", ""),
+                    Option("-y", "")
+                });
 
             command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
         }

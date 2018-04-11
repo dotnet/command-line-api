@@ -14,7 +14,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private readonly HashSet<string> rawAliases;
 
         public Option(
-            string[] aliases,
+            IReadOnlyCollection<string> aliases,
             string description,
             ArgumentsRule arguments = null) :
             this(aliases, description, arguments, null)
@@ -22,10 +22,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         protected internal Option(
-            string[] aliases,
+            IReadOnlyCollection<string> aliases,
             string description,
             ArgumentsRule arguments = null,
-            Option[] options = null)
+            IReadOnlyCollection<Option> options = null)
         {
             if (aliases == null)
             {
@@ -69,7 +69,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (options != null)
             {
-                ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(options));
+                ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(options.ToArray()));
             }
 
             AllowedValues = ArgumentsRule.AllowedValues;
@@ -95,6 +95,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal virtual bool IsCommand => false;
 
+        // FIX: (Option) make this a Command, make it immutable
         public Option Parent { get; protected internal set; }
 
         public bool HasAlias(string alias) => aliases.Contains(alias.RemovePrefix());

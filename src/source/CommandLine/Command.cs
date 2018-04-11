@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,15 +16,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
         public Command(
-            params Option[] options) :
-            base(new[] { executableName.Value }, "", NoArguments(), options)
+            IReadOnlyCollection<Option> options) :
+            this(executableName.Value, "", options, NoArguments())
         {
         }
 
         public Command(
             string name,
             string description,
-            Option[] options = null,
+            IReadOnlyCollection<Option> options = null,
             ArgumentsRule arguments = null,
             bool treatUnmatchedTokensAsErrors = true) :
             base(new[] { name }, description, arguments, options)
@@ -34,8 +35,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public Command(
             string name,
             string description,
-            Command[] subcommands) :
-            base(new[] { name }, description, options: subcommands)
+            IReadOnlyCollection<Command> subcommands) :
+            this(name, description, options: subcommands)
         {
             var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
 
