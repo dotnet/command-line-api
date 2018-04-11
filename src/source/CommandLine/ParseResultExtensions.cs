@@ -57,22 +57,22 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var commandPath = result
                               .Command()
                               .RecurseWhileNotNull(c => c.Parent)
-                .Select(c => c.Name)
-                .Reverse()
-                .ToArray();
+                              .Select(c => c.Name)
+                              .Reverse()
+                              .ToArray();
 
-            var option = result.ParsedOptions[commandPath.First()];
+            var parsed = result.Parsed[commandPath.First()];
 
             foreach (var commandName in commandPath.Skip(1))
             {
-                option = option.ParsedOptions[commandName];
+                parsed = parsed.ParsedOptions[commandName];
             }
 
-            return (ParsedCommand) option;
+            return (ParsedCommand) parsed;
         }
 
         internal static Parsed CurrentOption(this ParseResult result) =>
-            result.ParsedOptions
+            result.Parsed
                   .LastOrDefault()
                   .AllOptions()
                   .LastOrDefault();
@@ -81,7 +81,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var builder = new StringBuilder();
 
-            foreach (var o in result.ParsedOptions)
+            foreach (var o in result.Parsed)
             {
                 builder.Diagram(o);
             }
@@ -164,7 +164,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.ParsedOptions.Contains(alias);
+            return parseResult.Parsed.Contains(alias);
         }
 
         internal static int? ImplicitCursorPosition(this ParseResult parseResult)

@@ -27,7 +27,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             Tokens = tokens ??
                      throw new ArgumentNullException(nameof(tokens));
-            ParsedOptions = parsedOptions ??
+            Parsed = parsedOptions ??
                             throw new ArgumentNullException(nameof(parsedOptions));
             this.configuration = configuration ??
                                  throw new ArgumentNullException(nameof(configuration));
@@ -45,7 +45,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         // FIX: (ParsedOptions) remove / hide? 
-        public ParsedSet ParsedOptions { get; }
+        public ParsedSet Parsed { get; }
 
         public IReadOnlyCollection<OptionError> Errors => errors;
 
@@ -61,11 +61,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
             command ??
             (command = configuration.RootCommandIsImplicit
                            ? configuration.DefinedOptions.OfType<Command>().Single()
-                           : ParsedOptions.Command());
+                           : Parsed.Command());
 
         private void CheckForErrors()
         {
-            foreach (var option in ParsedOptions.FlattenBreadthFirst())
+            foreach (var option in Parsed.FlattenBreadthFirst())
             {
                 var error = option.Validate();
 

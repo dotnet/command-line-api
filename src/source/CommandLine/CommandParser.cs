@@ -23,7 +23,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             return new CommandParseResult(
                 raw.RawTokens,
-                raw.ParsedOptions,
+                raw.Parsed,
                 raw.Configuration,
                 raw.UnparsedTokens,
                 raw.UnmatchedTokens,

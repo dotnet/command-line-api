@@ -147,7 +147,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Should()
                   .BeTrue();
 
-            result.ParsedOptions
+            result.Parsed
                   .Should()
                   .HaveCount(1);
 
@@ -433,7 +433,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            var applied = result.ParsedOptions.Single();
+            var applied = result.Parsed.Single();
 
             applied
                 .ValidateAll()
@@ -705,7 +705,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse(command);
 
-            result.ParsedOptions["rm"]
+            result.Parsed["rm"]
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"/temp/the file.txt");
@@ -724,7 +724,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             Console.WriteLine(result);
 
-            result.ParsedOptions["rm"]
+            result.Parsed["rm"]
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"c:\temp\the file.txt\");

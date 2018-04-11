@@ -18,6 +18,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
         }
 
-        public ParsedOption this[string alias] => (ParsedOption) ParsedOptions[alias];
+        public ParsedOption this[string alias] => (ParsedOption) Parsed[alias];
     }
 }
