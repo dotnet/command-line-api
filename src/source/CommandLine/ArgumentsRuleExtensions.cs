@@ -10,13 +10,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public static ArgumentsRule And(
             this ArgumentsRule rule,
-            Func<ParsedOption, string> error)
-        {
-            return rule.And(new ArgumentsRule(error));
-        }
-
-        public static ArgumentsRule And(
-            this ArgumentsRule rule,
             ArgumentsRule rule2)
         {
             var rules = new[] { rule, rule2 };

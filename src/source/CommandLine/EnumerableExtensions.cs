@@ -9,15 +9,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     internal static class EnumerableExtensions
     {
-        internal static IEnumerable<T> Do<T>(
-            this IEnumerable<T> source,
-            Action<T> action) =>
-            source.Select(x =>
-            {
-                action(x);
-                return x;
-            });
-
         internal static IEnumerable<T> FlattenBreadthFirst<T>(
             this IEnumerable<T> source,
             Func<T, IEnumerable<T>> children)

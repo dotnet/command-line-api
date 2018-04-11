@@ -31,18 +31,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        public static bool HasOption(
-            this ParsedOption option,
-            string alias)
-        {
-            if (option == null)
-            {
-                throw new ArgumentNullException(nameof(option));
-            }
-
-            return option.ParsedOptions.Contains(alias);
-        }
-
         public static T Value<T>(this ParsedOption option)
         {
             if (option != null)
