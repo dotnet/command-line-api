@@ -9,11 +9,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class OptionExtensions
     {
-        public static Command Command(this Option option) =>
-            option.RecurseWhileNotNull(o => o.Parent)
-                  .OfType<Command>()
-                  .FirstOrDefault();
-
         public static bool IsHidden(this Option option) =>
             string.IsNullOrWhiteSpace(option.Description);
 
