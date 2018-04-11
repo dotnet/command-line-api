@@ -99,24 +99,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Options_have_references_to_parent_commands()
-        {
-            var inner = parser.DefinedOptions["outer"]["inner"];
-            var option = inner["option"];
-
-            option.Parent.Should().Be(inner);
-        }
-
-        [Fact]
-        public void Commands_have_references_to_parent_commands()
-        {
-            var outer = parser.DefinedOptions["outer"];
-            var inner = outer["inner"];
-
-            inner.Parent.Should().Be(outer);
-        }
-
-        [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
             var parser = new CommandParser(
