@@ -9,34 +9,6 @@ using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class OptionParseResult : ParseResult
-    {
-        internal OptionParseResult(
-            IReadOnlyCollection<string> tokens,
-            ParsedOptionSet parsedOptions,
-            bool isProgressive,
-            ParserConfiguration configuration,
-            IReadOnlyCollection<string> unparsedTokens = null,
-            IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<OptionError> errors = null) : base(tokens, parsedOptions, isProgressive, configuration, unparsedTokens, unmatchedTokens, errors)
-        {
-        }
-    }
-
-    public class CommandParseResult : ParseResult
-    {
-        internal CommandParseResult(
-            IReadOnlyCollection<string> tokens,
-            ParsedOptionSet parsedOptions,
-            bool isProgressive,
-            ParserConfiguration configuration,
-            IReadOnlyCollection<string> unparsedTokens = null,
-            IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<OptionError> errors = null) : base(tokens, parsedOptions, isProgressive, configuration, unparsedTokens, unmatchedTokens, errors)
-        {
-        }
-    }
-
     [DebuggerDisplay("{" + nameof(ToString) + "()}")]
     public abstract class ParseResult
     {
@@ -46,23 +18,23 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal ParseResult(
             IReadOnlyCollection<string> tokens,
-            ParsedOptionSet parsedOptions,
-            bool isProgressive,
+            ParsedSet parsedOptions,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<OptionError> errors = null)
+            IReadOnlyCollection<OptionError> errors = null,
+            string rawInput = null)
         {
             Tokens = tokens ??
                      throw new ArgumentNullException(nameof(tokens));
             ParsedOptions = parsedOptions ??
-                             throw new ArgumentNullException(nameof(parsedOptions));
+                            throw new ArgumentNullException(nameof(parsedOptions));
             this.configuration = configuration ??
                                  throw new ArgumentNullException(nameof(configuration));
 
-            IsProgressive = isProgressive;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
+            RawInput = rawInput;
 
             if (errors != null)
             {
@@ -72,19 +44,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
             CheckForErrors();
         }
 
-        public ParsedOptionSet ParsedOptions { get; }
+        // FIX: (ParsedOptions) remove / hide? 
+        public ParsedSet ParsedOptions { get; }
 
         public IReadOnlyCollection<OptionError> Errors => errors;
-
-        internal bool IsProgressive { get; }
 
         public IReadOnlyCollection<string> Tokens { get; }
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 
-        public IReadOnlyCollection<string> UnparsedTokens { get; }
+        internal string RawInput { get; }
 
-        public ParsedOption this[string alias] => ParsedOptions[alias];
+        public IReadOnlyCollection<string> UnparsedTokens { get; }
 
         public Command Command() =>
             command ??
@@ -109,10 +80,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
             if (command != null &&
                 command.DefinedOptions.Any(o => o.IsCommand))
             {
+                ParsedCommand parsedCommand = null;
+
+                if (this is CommandParseResult commandParseResult)
+                {
+                    // FIX: (CheckForErrors) this is ugly
+                    parsedCommand = commandParseResult.ParsedCommand();
+                }
+
                 errors.Insert(0, new OptionError(
                                   RequiredCommandWasNotProvided(),
                                   command.Name,
-                                  this.ParsedCommand()));
+                                  parsedCommand));
             }
         }
 

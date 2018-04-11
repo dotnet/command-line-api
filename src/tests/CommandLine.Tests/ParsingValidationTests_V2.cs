@@ -46,9 +46,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("-x something_else");
 
             result.Errors
-                  .Where(e => e.Option != null)
+                  .Where(e => e.Parsed != null)
                   .Should()
-                  .Contain(e => e.Option.Name == option.Name);
+                  .Contain(e => e.Parsed.Name == option.Name);
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new OptionParser(Command("the-command", "", Option("-x", "", Arguments().None())));
+            var parser = new CommandParser(Command("the-command", "", Option("-x", "", Arguments().None())));
 
             var result = parser.Parse("the-command -x some-arg");
 
@@ -152,7 +152,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            result["move"]
+            result
+                .ParsedCommand()
                 .Arguments
                 .Should()
                 .BeEmpty();
@@ -170,7 +171,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            result["move"]
+            result
+                .ParsedCommand()
                 .Arguments
                 .Should()
                 .BeEquivalentTo(Directory.GetCurrentDirectory());

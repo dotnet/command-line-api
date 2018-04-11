@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
@@ -14,7 +15,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Option_suggestions_can_be_based_on_the_proximate_command()
         {
-            var parser = new OptionParser(Command("outer", "",
+            var parser = new CommandParser(Command("outer", "",
                                             Command("one", "Command one"),
                                             Command("two", "Command two"),
                                             Command("three", "Command three")));
@@ -27,7 +28,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Option_suggestions_can_be_based_on_the_proximate_option()
         {
-            var parser = new OptionParser(Command("outer", "",
+            var parser = new CommandParser(Command("outer", "",
                                             Option("--one", "Option one"),
                                             Option("--two", "Option two"),
                                             Option("--three", "Option three")));
@@ -40,7 +41,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Argument_suggestions_can_be_based_on_the_proximate_option()
         {
-            var parser = new OptionParser(
+            var parser = new CommandParser(
                 Command("outer", "",
                         Option("--one", "", AnyOneOf("one-a", "one-b")),
                         Option("--two", "", AnyOneOf("two-a", "two-b"))));
@@ -53,7 +54,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Option_suggestions_can_be_based_on_the_proximate_option_and_partial_input()
         {
-            var parser = new OptionParser(Command("outer", "",
+            var parser = new CommandParser(Command("outer", "",
                                             Command("one", "Command one"),
                                             Command("two", "Command two"),
                                             Command("three", "Command three")));
@@ -133,7 +134,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_we_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
         {
-            var parser = new OptionParser(
+            var parser = new CommandParser(
                 Command("outer", "",
                         NoArguments(),
                         Option("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
@@ -152,7 +153,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
         {
-            var parser = new OptionParser(
+            var parser = new CommandParser(
                 Command("outer", "",
                         NoArguments(),
                         Option("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
@@ -169,7 +170,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_we_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
         {
-            var parser = new OptionParser(
+            var parser = new CommandParser(
                 Command("outer", "",
                         NoArguments(),
                         Command("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
@@ -188,7 +189,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
         {
-            var parser = new OptionParser(
+            var parser = new CommandParser(
                 Command("outer", "",
                         Command("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
                         Command("two", "", arguments: AnyOneOf("two-a", "two-b", "two-c")),
@@ -200,6 +201,49 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result.Suggestions()
                   .Should()
                   .BeEquivalentTo("two-b");
+        }
+
+        [Fact]
+        public void When_position_is_unspecified_then_TextToMatch_matches_partial_argument_at_end_of_command_line()
+        {
+            var command = Command("the-command", "",
+                                  Option("--option1", ""),
+                                  Option("--option2", ""));
+
+            var textToMatch = command.Parse("the-command t")
+                                     .TextToMatch();
+
+            textToMatch.Should().Be("t");
+        }
+
+        [Fact]
+        public void When_position_is_unspecified_and_command_line_ends_with_a_space_then_TextToMatch_returns_empty()
+        {
+            var command = Command("the-command", "",
+                                  Option("--option1", ""),
+                                  Option("--option2", ""));
+
+            var textToMatch = command.Parse("the-command t ")
+                                     .TextToMatch();
+
+            textToMatch.Should().Be("");
+        }
+
+        [Theory]
+        [InlineData("the-command $one --two")]
+        [InlineData("the-command one$ --two")]
+        [InlineData("the-command on$e --two ")]
+        [InlineData(" the-command  $one --two ")]
+        [InlineData(" the-command  one$ --two ")]
+        [InlineData(" the-command  on$e --two ")]
+        public void When_position_is_specified_then_TextToMatch_matches_argument_at_cursor_position(string input)
+        {
+            var command = Command("the-command", "", ZeroOrMoreArguments());
+
+            var textToMatch = command.Parse(input.Replace("$", ""))
+                                     .TextToMatch(input.IndexOf("$", StringComparison.Ordinal));
+
+            textToMatch.Should().Be("one");
         }
     }
 }

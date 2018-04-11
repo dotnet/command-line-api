@@ -9,23 +9,23 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ArgumentsRule
     {
-        private readonly Func<ParsedOption, string> validate;
-        private readonly Func<ParsedOption, object> materialize;
-        private readonly Func<ParseResult, IEnumerable<string>> suggest;
+        private readonly Func<Parsed, string> validate;
+        private readonly Func<Parsed, object> materialize;
+        private readonly Suggest suggest;
         private readonly Func<string> defaultValue;
 
-        public ArgumentsRule(Func<ParsedOption, string> validate) : this(validate, null)
+        public ArgumentsRule(Func<Parsed, string> validate) : this(validate, null)
         {
         }
 
         internal ArgumentsRule(
-            Func<ParsedOption, string> validate,
+            Func<Parsed, string> validate,
             IReadOnlyCollection<string> allowedValues = null,
             Func<string> defaultValue = null,
             string description = null,
             string name = null,
-            Func<ParseResult, IEnumerable<string>> suggest = null,
-            Func<ParsedOption, object> materialize = null)
+            Suggest suggest = null,
+            Func<Parsed, object> materialize = null)
         {
             this.validate = validate ?? throw new ArgumentNullException(nameof(validate));
 
@@ -35,15 +35,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (suggest == null)
             {
-                this.suggest = result =>
-                    AllowedValues.FindSuggestions(result);
+                this.suggest = (result, position) =>
+                    AllowedValues.FindSuggestions(
+                        result,
+                        position ?? result.ImplicitCursorPosition());
             }
             else
             {
-                this.suggest = result =>
+                this.suggest = (result, position) =>
                     suggest(result).ToArray()
                                    .FindSuggestions(
-                                       result.TextToMatch());
+                                       result.TextToMatch(position ?? result.ImplicitCursorPosition()));
             }
 
             AllowedValues = allowedValues ?? Array.Empty<string>();
@@ -51,7 +53,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this.materialize = materialize;
         }
 
-        public string Validate(ParsedOption option) => validate(option);
+        public string Validate(Parsed option) => validate(option);
 
         public IReadOnlyCollection<string> AllowedValues { get; }
 
@@ -61,14 +63,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Name { get; }
 
-        internal Func<ParsedOption, object> Materializer => materialize;
+        internal Func<Parsed, object> Materializer => materialize;
 
         internal bool HasDefaultValue => defaultValue != null;
 
-        internal IEnumerable<string> Suggest(ParseResult parseResult) =>
-            suggest(parseResult);
+        internal IEnumerable<string> Suggest(ParseResult parseResult, int? position = null) =>
+            suggest(parseResult, position);
 
-        internal object Materialize(ParsedOption parsedOption) => 
+        internal object Materialize(Parsed parsedOption) =>
             materialize?.Invoke(parsedOption);
     }
 }

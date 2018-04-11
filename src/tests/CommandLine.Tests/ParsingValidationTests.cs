@@ -42,9 +42,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("-x something_else");
 
             result.Errors
-                  .Where(e => e.Option != null)
+                  .Where(e => e.Parsed != null)
                   .Should()
-                  .Contain(e => e.Option.Name == option.Name);
+                  .Contain(e => e.Parsed.Name == option.Name);
         }
 
         [Fact]
@@ -146,7 +146,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            result["move"]
+            result
+                .ParsedCommand()
                 .Arguments
                 .Should()
                 .BeEmpty();
@@ -165,7 +166,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            result["move"]
+            result
+                .ParsedCommand()
                 .Arguments
                 .Should()
                 .BeEquivalentTo(Directory.GetCurrentDirectory());
@@ -185,7 +187,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message == "Required command was not provided." &&
-                           e.Option.Name == "inner");
+                           e.Parsed.Name == "inner");
         }
     }
 }

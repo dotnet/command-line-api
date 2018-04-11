@@ -19,7 +19,7 @@ namespace dotnet
 
             var result = DotNetParser.Instance.Parse(args);
 
-            var complete = result["dotnet"]["complete"];
+            var complete = result.ParsedCommand();
 
             var suggestions = Suggestions(complete);
 
@@ -36,11 +36,12 @@ namespace dotnet
             }
         }
 
-        private static string[] Suggestions(ParsedOption complete)
+        private static string[] Suggestions(ParsedCommand complete)
         {
             var input = complete.Arguments.SingleOrDefault() ?? "";
 
-            var positionOption = complete.ParsedOptions.SingleOrDefault(a => a.Name == "position");
+            var positionOption = complete["position"];
+
             if (positionOption != null)
             {
                 var position = positionOption.Value<int>();

@@ -10,15 +10,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public static class ParsedOptionExtensions
     {
         public static IEnumerable<OptionError> ValidateAll(
-            this ParsedOption option) =>
+            this Parsed option) =>
             new[] { option.Validate() }
                 .Concat(
                     option.ParsedOptions
                           .SelectMany(ValidateAll))
                 .Where(o => o != null);
 
-        internal static IEnumerable<ParsedOption> FlattenBreadthFirst(
-            this IEnumerable<ParsedOption> options)
+        internal static IEnumerable<Parsed> FlattenBreadthFirst(
+            this IEnumerable<Parsed> options)
         {
             if (options == null)
             {
@@ -31,7 +31,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        public static T Value<T>(this ParsedOption option)
+        public static T Value<T>(this Parsed option)
         {
             if (option != null)
             {

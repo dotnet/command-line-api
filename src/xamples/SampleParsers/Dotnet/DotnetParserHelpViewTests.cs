@@ -10,7 +10,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
     {
         private readonly ITestOutputHelper output;
 
-        private readonly OptionParser dotnet = DotNetParser.Instance;
+        private readonly CommandParser dotnet = DotNetParser.Instance;
 
         public DotnetParserHelpViewTests(ITestOutputHelper output)
         {

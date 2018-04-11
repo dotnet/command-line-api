@@ -4,7 +4,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ParsedCommand : Parsed
     {
-        public ParsedCommand(Command command) : base(command?.Name)
+        public ParsedCommand(Command command) : base(command, command?.Name)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
 
@@ -12,6 +12,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public Command Command { get; }
+
+        public ParsedOption this[string alias] => (ParsedOption) ParsedOptions[alias];
 
         private void AddImplicitOptions(Command option)
         {

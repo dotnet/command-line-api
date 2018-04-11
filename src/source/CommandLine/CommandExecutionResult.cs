@@ -13,11 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public CommandExecutionResult(ParseResult parseResult, object value = null)
         {
-            if (parseResult == null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
-            this.parseResult = parseResult;
+            this.parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
         }
 
         public int Code => parseResult.Errors.Any()

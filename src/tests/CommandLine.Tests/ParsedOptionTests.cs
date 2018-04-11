@@ -188,9 +188,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -h");
 
-            result.ParsedOptions
-                  .Single()
-                  .HasOption("help")
+            result.HasOption("help")
                   .Should()
                   .BeTrue();
         }

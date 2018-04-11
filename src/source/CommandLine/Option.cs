@@ -89,7 +89,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Name { get; }
 
-        public IEnumerable<string> Suggest(ParseResult parseResult) => ArgumentsRule.Suggest(parseResult);
+        public IEnumerable<string> Suggest(
+            ParseResult parseResult,
+            int? position = null) => ArgumentsRule.Suggest(parseResult, position);
 
         internal virtual bool IsCommand => false;
 
@@ -99,7 +101,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public bool HasRawAlias(string alias) => rawAliases.Contains(alias);
 
-        internal string Validate(ParsedOption parsedOption) => ArgumentsRule.Validate(parsedOption);
+        internal string Validate(Parsed parsedOption) => ArgumentsRule.Validate(parsedOption);
 
         public Option this[string alias] => DefinedOptions[alias];
 

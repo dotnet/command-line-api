@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -11,29 +9,37 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public OptionParser(params Option[] options) : base(options)
         {
+            // FIX: (OptionParser) enforce this at the compiler, i.e. remove inheritance of Command : Option
+
+            foreach (var option in options)
+            {
+                if (option is Command)
+                {
+                    throw new ArgumentException($"OptionParser does not accept Command instances but was passed {option}");
+                }
+            }
         }
 
         public OptionParser(ParserConfiguration configuration) : base(configuration)
         {
         }
 
-        protected override ParseResult CreateParseResult(
-            IReadOnlyCollection<string> rawArgs,
-            ParsedOptionSet rootParsedOptions,
-            bool isProgressive,
-            ParserConfiguration parserConfiguration,
-            string[] unparsedTokens,
-            List<string> unmatchedTokens,
-            List<OptionError> errors)
+        public OptionParseResult Parse(string[] args) => Parse(args, null);
+
+        internal OptionParseResult Parse(
+            string[] args,
+            string input)
         {
+            var raw = base.Parse(args, input);
+
             return new OptionParseResult(
-                rawArgs,
-                rootParsedOptions,
-                isProgressive,
-                parserConfiguration,
-                unparsedTokens,
-                unmatchedTokens,
-                errors);
+                raw.RawTokens,
+                raw.ParsedOptions,
+                raw.Configuration,
+                raw.UnparsedTokens,
+                raw.UnmatchedTokens,
+                raw.Errors,
+                raw.RawInput);
         }
     }
 }

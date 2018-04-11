@@ -20,7 +20,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 allowedValues: rules.SelectMany(r => r.AllowedValues)
                                     .Distinct()
                                     .ToArray(),
-                suggest: result => rules.SelectMany(r => r.Suggest(result)),
+                suggest: (result, position) => rules.SelectMany(r => r.Suggest(result, position)),
                 name: rule.Name ?? rule2.Name,
                 description: rule.Description ?? rule2.Description,
                 defaultValue: (rule.HasDefaultValue
@@ -35,7 +35,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule MaterializeAs<T>(
             this ArgumentsRule rule,
-            Func<ParsedOption, T> materialize)
+            Func<Parsed, T> materialize)
         {
             if (rule == null)
             {
@@ -54,7 +54,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string description = null,
             string name = null,
             Func<string> defaultValue = null,
-            Func<ParsedOption, object> materialize = null)
+            Func<Parsed, object> materialize = null)
         {
             if (rule == null)
             {

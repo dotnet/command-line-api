@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Linq;
 using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public delegate string Validate(ParsedOption parsedOption);
-
     public class ArgumentRuleBuilder
     {
         private readonly List<Validate> validators = new List<Validate>();
@@ -24,7 +25,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             validators.Add(validator);
         }
 
-        private string Validate(ParsedOption parsedOption)
+        private string Validate(Parsed parsedOption)
         {
             if (parsedOption == null)
             {
@@ -52,7 +53,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule None(
             this ArgumentRuleBuilder builder,
-            Func<ParsedOption, string> errorMessage = null)
+            Func<Parsed, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {
@@ -76,7 +77,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule ExactlyOne(
             this ArgumentRuleBuilder builder,
-            Func<ParsedOption, string> errorMessage = null)
+            Func<Parsed, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {
@@ -143,7 +144,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule OneOrMore(
             this ArgumentRuleBuilder builder,
-            Func<ParsedOption, string> errorMessage = null)
+            Func<Parsed, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {

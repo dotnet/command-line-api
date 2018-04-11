@@ -41,7 +41,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 .WithSuggestionsFrom(_ => getValues());
 
         public static ArgumentsRule ExactlyOneArgument(
-            Func<ParsedOption, string> errorMessage = null) =>
+            Func<Parsed, string> errorMessage = null) =>
             new ArgumentsRule(o =>
                               {
                                   var argumentCount = o.Arguments.Count;
@@ -113,13 +113,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             params string[] values) =>
             new ArgumentsRule(
                 _ => null,
-                suggest: parseResult => values.FindSuggestions(parseResult.TextToMatch()));
+                suggest: (parseResult, position) => values.FindSuggestions(parseResult.TextToMatch(position)));
 
         public static ArgumentsRule WithSuggestionsFrom(
             Func<string, IEnumerable<string>> suggest) =>
             new ArgumentsRule(
                 _ => null,
-                suggest: parseResult => suggest(parseResult.TextToMatch()));
+                suggest: (parseResult, position) => suggest(parseResult.TextToMatch(position)));
 
         public static ArgumentsRule WithSuggestionsFrom(
             this ArgumentsRule rule,
@@ -146,7 +146,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               materialize: o => o.Arguments.SingleOrDefault());
 
         internal static ArgumentsRule ExactlyOneCommandRequired(
-            Func<ParsedOption, string> errorMessage = null) =>
+            Func<Parsed, string> errorMessage = null) =>
             new ArgumentsRule(o =>
             {
                 var optionCount = o.ParsedOptions.Count;
@@ -181,7 +181,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             });
 
         public static ArgumentsRule NoArguments(
-            Func<ParsedOption, string> errorMessage = null) =>
+            Func<Parsed, string> errorMessage = null) =>
             new ArgumentsRule(o =>
                               {
                                   if (!o.Arguments.Any())
@@ -201,7 +201,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               materialize: _ => true);
 
         public static ArgumentsRule OneOrMoreArguments(
-            Func<ParsedOption, string> errorMessage = null) =>
+            Func<Parsed, string> errorMessage = null) =>
             new ArgumentsRule(o =>
                               {
                                   var optionCount = o.Arguments.Count;

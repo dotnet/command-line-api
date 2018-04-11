@@ -29,8 +29,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal static IEnumerable<string> FindSuggestions(
             this IReadOnlyCollection<string> candidates,
-            ParseResult parseResult) =>
-            candidates.FindSuggestions(parseResult.TextToMatch());
+            ParseResult parseResult, 
+            int? position) =>
+            candidates.FindSuggestions(parseResult.TextToMatch(position));
 
         internal static IEnumerable<string> FindSuggestions(
             this IReadOnlyCollection<string> candidates,

@@ -8,12 +8,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class ParserExtensions
     {
-        public static ParseResult Parse(this CommandParser parser, string s) =>
-            parser.ParseInternal(s.Tokenize().ToArray(),
-                         isProgressive: !s.EndsWith(" "));
+        public static CommandParseResult Parse(
+            this CommandParser parser,
+            string input) =>
+            parser.Parse(input.Tokenize().ToArray(), input);
 
-        public static ParseResult Parse(this OptionParser parser, string s) =>
-            parser.ParseInternal(s.Tokenize().ToArray(),
-                         isProgressive: !s.EndsWith(" "));
+        public static OptionParseResult Parse(
+            this OptionParser parser,
+            string input) =>
+            parser.Parse(input.Tokenize().ToArray(), input);
     }
 }

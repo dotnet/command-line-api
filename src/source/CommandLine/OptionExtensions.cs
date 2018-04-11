@@ -17,8 +17,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static bool IsHidden(this Option option) =>
             string.IsNullOrWhiteSpace(option.Description);
 
-        internal static IEnumerable<ParsedOption> AllOptions(
-            this ParsedOption option)
+        internal static IEnumerable<Parsed> AllOptions(
+            this Parsed option)
         {
             if (option == null)
             {
@@ -33,22 +33,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-
-        public static ParseResult Parse(
+        public static OptionParseResult Parse(
             this Option option,
             string commandLine,
             char[] delimiters = null) =>
-            new OptionParser(new ParserConfiguration(argumentDelimiters: delimiters, definedOptions:new[] {option})).Parse(commandLine);
+            new OptionParser(new ParserConfiguration(argumentDelimiters: delimiters, definedOptions: new[] { option })).Parse(commandLine);
 
-        public static ParseResult Parse(
+        public static CommandParseResult Parse(
             this Command command,
             params string[] args) =>
             new CommandParser(command).Parse(args);
 
-        public static ParseResult Parse(
+        public static CommandParseResult Parse(
             this Command command,
             string commandLine,
             char[] delimiters = null) =>
-            new CommandParser( command).Parse(commandLine);
+            new CommandParser(command).Parse(commandLine);
     }
 }

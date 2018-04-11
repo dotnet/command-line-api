@@ -31,10 +31,14 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                          {
                                              output.WriteLine(p.ToString());
 
+                                             var fileInfos = p.Arguments.Select(f => new FileInfo(f)).ToList();
+
+                                             var destination = new DirectoryInfo(p.ParsedOptions["destination"].Arguments.Single());
+
                                              return new FileMoveOperation
                                              {
-                                                 Files = p.Arguments.Select(f => new FileInfo(f)).ToList(),
-                                                 Destination = new DirectoryInfo(p["destination"].Arguments.Single())
+                                                 Files = fileInfos,
+                                                 Destination = destination
                                              };
                                          }),
                         options: new[]
@@ -48,7 +52,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse($@"move -d ""{folder}"" ""{file1}"" ""{file2}""");
 
-            var fileMoveOperation = result["move"].Value<FileMoveOperation>();
+            var fileMoveOperation = result.ParsedCommand()
+                                          .Value<FileMoveOperation>();
 
             fileMoveOperation.Destination
                              .FullName
@@ -72,7 +77,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -o not-an-int");
 
-            Action getValue = () => result["the-command"]["one"].Value();
+            Action getValue = () => result.ParsedCommand()["o"].Value();
 
             getValue.ShouldThrow<ParseException>()
                     .Which
@@ -89,7 +94,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
-            result["the-command"]["x"]
+            result
+                .ParsedCommand()["x"]
                 .Value()
                 .Should()
                 .Be("the-argument");
@@ -103,7 +109,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
-            result["the-command"]["x"]
+            result
+                .ParsedCommand()["x"]
                 .Value()
                 .Should()
                 .Be("the-argument");
@@ -117,7 +124,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -x");
 
-            result["the-command"]["x"]
+            result
+                .ParsedCommand()["x"]
                 .Value()
                 .Should()
                 .BeNull();
@@ -131,7 +139,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -x");
 
-            var value = result["the-command"]["x"].Value();
+            var value = result.ParsedCommand()["x"].Value();
 
             value.Should().BeAssignableTo<IReadOnlyCollection<string>>();
 
@@ -148,11 +156,15 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var command = Command("the-command", "",
                                   Option("-x", "", Accept.ZeroOrMoreArguments()));
 
-            command.Parse("the-command -x arg1 -x arg2")["the-command"]["x"]
-                   .Value()
-                   .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
+            var result = command.Parse("the-command -x arg1 -x arg2");
 
-            command.Parse("the-command -x arg1")["the-command"]["x"]
+            result
+                .ParsedCommand()["x"]
+                .Value()
+                .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
+
+            command.Parse("the-command -x arg1")
+                   .ParsedCommand()["x"]
                    .Value()
                    .ShouldBeEquivalentTo(new[] { "arg1" });
         }
@@ -166,7 +178,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("something -x");
 
-            result["something"]["x"].Value<bool>().Should().BeTrue();
+            result
+                .ParsedCommand()["x"]
+                .Value<bool>()
+                .Should()
+                .BeTrue();
         }
 
         [Fact]
@@ -176,7 +192,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("something");
 
-            result["something"]["x"].Value<bool>().Should().BeFalse();
+            result.ParsedCommand()["x"].Value<bool>().Should().BeFalse();
         }
 
         [Fact]
@@ -192,9 +208,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("something");
 
-            var parsedCommand = result.ParsedCommand();
-
-            var parsedOption = parsedCommand["x"];
+            var parsedOption = result.ParsedCommand()["x"];
 
             parsedOption.Value<string>().Should().Be("123");
         }
@@ -241,12 +255,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("tally 123");
 
-            result["tally"]
-                .Value()
-                .Should()
-                .BeOfType<int>();
+            result.ParsedCommand()["tally"]
+                  .Value()
+                  .Should()
+                  .BeOfType<int>();
         }
-        
+
         public class FileMoveOperation
         {
             public List<FileInfo> Files { get; set; }

@@ -43,7 +43,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var command = Command("the-command",
                                   "Does the thing.",
                                   Option("-x", "Specifies value x", ExactlyOneArgument()));
-            var parser = new OptionParser(command);
+            var parser = new CommandParser(command);
 
             var result = parser.Parse("the-command -x");
 

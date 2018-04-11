@@ -24,17 +24,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public OptionSet DefinedOptions => configuration.DefinedOptions;
 
-        public ParseResult Parse(string[] args) => ParseInternal(args, false);
-
-        internal virtual ParseResult ParseInternal(
-            IReadOnlyCollection<string> rawArgs,
-            bool isProgressive)
+        internal virtual RawParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
             var unparsedTokens = new Queue<Token>(
-                NormalizeRootCommand(rawArgs)
+                NormalizeRootCommand(rawTokens)
                     .Lex(configuration));
-            var rootParsedOptions = new ParsedOptionSet();
-            var allParsedOptions = new List<ParsedOption>();
+            var rootParsedOptions = new ParsedSet();
+            var allParsedOptions = new List<Parsed>();
             var errors = new List<OptionError>();
             var unmatchedTokens = new List<string>();
 
@@ -60,9 +56,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                         if (parsedOption == null)
                         {
-                            parsedOption = new ParsedOption(
-                                definedOption,
-                                token.Value);
+                            parsedOption = Parsed.Create(definedOption, token.Value);
+
                             rootParsedOptions.Add(parsedOption);
                         }
 
@@ -106,31 +101,22 @@ namespace Microsoft.DotNet.Cli.CommandLine
             
             if (configuration.RootCommandIsImplicit)
             {
-                rawArgs = rawArgs.Skip(1).ToArray();
+                rawTokens = rawTokens.Skip(1).ToArray();
                 var parsedOptions = rootParsedOptions
                                      .SelectMany(o => o.ParsedOptions)
                                      .ToArray();
-                rootParsedOptions = new ParsedOptionSet(parsedOptions);
+                rootParsedOptions = new ParsedSet(parsedOptions);
             }
 
-            return CreateParseResult(
-                rawArgs,
+            return new RawParseResult(
+                rawTokens,
                 rootParsedOptions,
-                isProgressive,
                 configuration,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,
-                errors);
+                errors, 
+                rawInput);
         }
-
-        protected abstract ParseResult CreateParseResult(
-            IReadOnlyCollection<string> rawArgs, 
-            ParsedOptionSet rootParsedOptions, 
-            bool isProgressive, 
-            ParserConfiguration parserConfiguration, 
-            string[] unparsedTokens, 
-            List<string> unmatchedTokens, 
-            List<OptionError> errors);
 
         internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {

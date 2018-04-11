@@ -10,49 +10,68 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class ParseResultExtensions
     {
-        public static string TextToMatch(this ParseResult source)
+        public static string TextToMatch(
+            this ParseResult source,
+            int? position = null)
         {
             var lastToken = source.Tokens.LastOrDefault();
 
-            if (string.IsNullOrWhiteSpace(lastToken))
+            if (!string.IsNullOrWhiteSpace(source.RawInput))
             {
-                return "";
-            }
+                if (position == null)
+                {
+                    // assume the cursor is at the end of the input
+                    if (!source.RawInput.EndsWith(" "))
+                    {
+                        return lastToken;
+                    }
+                    else
+                    {
+                        return "";
+                    }
+                }
+                else
+                {
+                    var before = source.RawInput.Substring(0, position.Value);
 
-            if (source.IsProgressive)
-            {
-                return lastToken;
+                    var after = source.RawInput.Substring(position.Value);
+
+                    var word = before.Split(' ').LastOrDefault() +
+                               after.Split(' ').FirstOrDefault();
+
+                    return word;
+                }
             }
 
             return source.UnmatchedTokens.LastOrDefault() ?? "";
         }
 
-        internal static Command Command(this ParsedOptionSet options) =>
+        internal static Command Command(this ParsedSet options) =>
             options.FlattenBreadthFirst()
                    .Select(a => a.Option)
                    .OfType<Command>()
                    .LastOrDefault();
 
-        public static ParsedOption ParsedCommand(this ParseResult result)
+        public static ParsedCommand ParsedCommand(this CommandParseResult result)
         {
             var commandPath = result
-                .Command()
-                .RecurseWhileNotNull(c => c.Parent as Command)
+                              .Command()
+                              .RecurseWhileNotNull(c => c.Parent as Command)
                 .Select(c => c.Name)
                 .Reverse()
                 .ToArray();
 
-            var option = result[commandPath.First()];
+            var option = result.ParsedOptions[commandPath.First()];
 
             foreach (var commandName in commandPath.Skip(1))
             {
-                option = option[commandName];
+                option = option.ParsedOptions[commandName];
             }
 
-            return option;
+            return (ParsedCommand) option;
         }
 
-        internal static ParsedOption CurrentOption(this ParseResult result) =>
+        internal static Parsed CurrentOption(this ParseResult result) =>
             result.ParsedOptions
                   .LastOrDefault()
                   .AllOptions()
@@ -81,7 +100,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return builder.ToString();
         }
 
-        public static string Diagram(this ParsedOption option)
+        public static string Diagram(this Parsed option)
         {
             var stringbuilder = new StringBuilder();
 
@@ -92,16 +111,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private static void Diagram(
             this StringBuilder builder,
-            ParsedOption option)
+            Parsed option)
         {
             builder.Append("[ ");
 
             builder.Append(option.Option);
 
-            foreach (var childOption in option.ParsedOptions)
+            foreach (var child in option.ParsedOptions)
             {
                 builder.Append(" ");
-                builder.Diagram(childOption);
+                builder.Diagram(child);
             }
 
             foreach (var arg in option.Arguments)
@@ -125,7 +144,19 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public static bool HasOption(
-            this ParseResult parseResult,
+            this CommandParseResult parseResult,
+            string alias)
+        {
+            if (parseResult == null)
+            {
+                throw new ArgumentNullException(nameof(parseResult));
+            }
+
+            return parseResult.ParsedCommand().ParsedOptions.Contains(alias);
+        }
+
+        public static bool HasOption(
+            this OptionParseResult parseResult,
             string alias)
         {
             if (parseResult == null)
@@ -136,10 +167,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return parseResult.ParsedOptions.Contains(alias);
         }
 
-        public static IEnumerable<string> Suggestions(this ParseResult parseResult) =>
+        internal static int? ImplicitCursorPosition(this ParseResult parseResult)
+        {
+            if (parseResult.RawInput != null)
+            {
+                return parseResult.RawInput.Length;
+            }
+
+            return string.Join(" ", parseResult.Tokens).Length;
+        }
+
+        public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
             parseResult?.CurrentOption()
                        ?.Option
-                       ?.Suggest(parseResult) ??
+                       ?.Suggest(parseResult, position ) ??
             Array.Empty<string>();
     }
 }
