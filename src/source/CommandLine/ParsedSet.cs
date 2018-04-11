@@ -13,10 +13,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
         }
 
-        protected override bool HasAlias(Parsed option, string alias) =>
+        protected override bool ContainsItemWithAlias(Parsed option, string alias) =>
             option.Option.HasAlias(alias);
 
-        protected override bool HasRawAlias(Parsed option, string alias) =>
+        protected override bool ContainsItemWithRawAlias(Parsed option, string alias) =>
             option.Option.HasRawAlias(alias);
 
         protected override IReadOnlyCollection<string> RawAliasesFor(Parsed option) =>

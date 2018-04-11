@@ -6,10 +6,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class OptionSet : OptionSet<Option>
     {
-        protected override bool HasAlias(Option option, string alias) =>
+        protected override bool ContainsItemWithAlias(Option option, string alias) =>
             option.HasAlias(alias);
 
-        protected override bool HasRawAlias(Option option, string alias) =>
+        protected override bool ContainsItemWithRawAlias(Option option, string alias) =>
             option.HasRawAlias(alias);
 
         protected override IReadOnlyCollection<string> RawAliasesFor(Option option) =>

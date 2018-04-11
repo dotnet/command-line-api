@@ -30,8 +30,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public T this[string alias] =>
-            options.SingleOrDefault(o => HasRawAlias(o, alias)) ??
-            options.SingleOrDefault(o => HasAlias(o, alias));
+            options.SingleOrDefault(o => ContainsItemWithRawAlias(o, alias)) ??
+            options.SingleOrDefault(o => ContainsItemWithAlias(o, alias));
 
         public int Count => options.Count;
 
@@ -53,16 +53,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        protected abstract bool HasAlias(T option, string alias);
+        protected abstract bool ContainsItemWithAlias(T option, string alias);
 
-        protected abstract bool HasRawAlias(T option, string alias);
+        protected abstract bool ContainsItemWithRawAlias(T option, string alias);
 
         internal void Add(T option)
         {
             var preexistingAlias = RawAliasesFor(option)
                 .FirstOrDefault(alias =>
                                     options.Any(o =>
-                                                    HasRawAlias(o, alias)));
+                                                    ContainsItemWithRawAlias(o, alias)));
 
             if (preexistingAlias != null)
             {
@@ -75,6 +75,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         protected abstract IReadOnlyCollection<string> RawAliasesFor(T option);
 
         public bool Contains(string alias) => 
-            options.Any(option => HasAlias(option, alias));
+            options.Any(option => ContainsItemWithAlias(option, alias));
     }
 }
