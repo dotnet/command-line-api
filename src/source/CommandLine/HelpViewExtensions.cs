@@ -58,7 +58,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 !string.IsNullOrWhiteSpace(argName) &&
                 !string.IsNullOrWhiteSpace(argDescription);
 
-            var parentCommand = command.Parent as Command;
+            var parentCommand = command.Parent;
 
             var parentArgName = parentCommand?.ArgumentsRule?.Name;
             var parentArgDescription = parentCommand?.ArgumentsRule?.Description;
@@ -231,7 +231,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             helpView.Append(Synopsis.Title);
 
             foreach (var subcommand in command
-                .RecurseWhileNotNull(c => c.Parent as Command)
+                .RecurseWhileNotNull(c => c.Parent)
                 .Reverse())
             {
                 helpView.Append($" {subcommand.Name}");

@@ -24,17 +24,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public Command(
             string name,
             string description,
-            IReadOnlyCollection<Option> options = null,
-            ArgumentsRule arguments = null,
-            bool treatUnmatchedTokensAsErrors = true) :
-            base(new[] { name }, description, arguments, options)
-        {
-            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-        }
-
-        public Command(
-            string name,
-            string description,
             IReadOnlyCollection<Command> subcommands) :
             this(name, description, options: subcommands)
         {
@@ -44,6 +33,28 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 ExactlyOneCommandRequired()
                     .WithSuggestionsFrom(commandNames)
                     .And(ArgumentsRule);
+        }
+
+        public Command(
+            string name,
+            string description,
+            IReadOnlyCollection<Option> options = null,
+            ArgumentsRule arguments = null,
+            bool treatUnmatchedTokensAsErrors = true) :
+            base(new[] { name }, description, arguments, options)
+        {
+            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+
+            if (options != null && options.Any())
+            {
+                foreach (var option in options)
+                {
+                    option.Parent = this;
+                    DefinedOptions.Add(option);
+                }
+
+                ArgumentsRule = ArgumentsRule.And(ZeroOrMoreOf(options.ToArray()));
+            }
         }
 
         internal override bool IsCommand => true;

@@ -56,7 +56,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var commandPath = result
                               .Command()
-                              .RecurseWhileNotNull(c => c.Parent as Command)
+                              .RecurseWhileNotNull(c => c.Parent)
                 .Select(c => c.Name)
                 .Reverse()
                 .ToArray();

@@ -56,15 +56,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 .OrderBy(a => a.Length)
                 .Last();
 
-            if (options != null && options.Any())
-            {
-                foreach (var option in options)
-                {
-                    option.Parent = this;
-                    DefinedOptions.Add(option);
-                }
-            }
-
             ArgumentsRule = arguments ?? Accept.NoArguments();
 
             if (options != null)
@@ -95,8 +86,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal virtual bool IsCommand => false;
 
-        // FIX: (Option) make this a Command, make it immutable
-        public Option Parent { get; protected internal set; }
+        // FIX: (Parent) make this immutable
+        public Command Parent { get; protected internal set; }
 
         public bool HasAlias(string alias) => aliases.Contains(alias.RemovePrefix());
 
