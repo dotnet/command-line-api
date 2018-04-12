@@ -77,7 +77,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -o not-an-int");
 
-            Action getValue = () => result.ParsedCommand()["o"].Value();
+            Action getValue = () => result.ParsedCommand().ValueForOption("o");
 
             getValue.ShouldThrow<ParseException>()
                     .Which
@@ -94,9 +94,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
-            result
-                .ParsedCommand()["x"]
-                .Value()
+            result.ParsedCommand()
+                .ValueForOption("x")
                 .Should()
                 .Be("the-argument");
         }
@@ -109,9 +108,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
-            result
-                .ParsedCommand()["x"]
-                .Value()
+            result.ParsedCommand()
+                .ValueForOption("x")
                 .Should()
                 .Be("the-argument");
         }
@@ -124,9 +122,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -x");
 
-            result
-                .ParsedCommand()["x"]
-                .Value()
+            result.ParsedCommand()
+                .ValueForOption("x")
                 .Should()
                 .BeNull();
         }
@@ -139,7 +136,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -x");
 
-            var value = result.ParsedCommand()["x"].Value();
+            var value = result.ParsedCommand().ValueForOption("x");
 
             value.Should().BeAssignableTo<IReadOnlyCollection<string>>();
 
@@ -158,14 +155,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("the-command -x arg1 -x arg2");
 
-            result
-                .ParsedCommand()["x"]
-                .Value()
+            result.ParsedCommand()
+                .ValueForOption("x")
                 .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
 
-            command.Parse("the-command -x arg1")
-                   .ParsedCommand()["x"]
-                   .Value()
+            command.Parse("the-command -x arg1").ParsedCommand()
+                   .ValueForOption("x")
                    .ShouldBeEquivalentTo(new[] { "arg1" });
         }
 
@@ -178,11 +173,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("something -x");
 
-            result
-                .ParsedCommand()["x"]
-                .Value<bool>()
-                .Should()
-                .BeTrue();
+            result.ParsedCommand()
+                  .ValueForOption<bool>("x")
+                  .Should()
+                  .BeTrue();
         }
 
         [Fact]
@@ -192,7 +186,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("something");
 
-            result.ParsedCommand()["x"].Value<bool>().Should().BeFalse();
+            result.ParsedCommand().ValueForOption<bool>("x").Should().BeFalse();
         }
 
         [Fact]
@@ -255,8 +249,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("tally 123");
 
-            result.ParsedCommand()["tally"]
-                  .Value()
+            result.ParsedCommand()
+                  .ValueForOption("tally")
                   .Should()
                   .BeOfType<int>();
         }

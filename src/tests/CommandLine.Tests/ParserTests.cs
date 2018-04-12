@@ -755,7 +755,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             result.HasOption("o").Should().BeTrue();
             result.HasOption("option").Should().BeTrue();
-            result.ParsedCommand()["o"].Value<string>().Should().Be("the-default");
+            result.ParsedCommand().ValueForOption("o").Should().Be("the-default");
         }
 
         [Fact]

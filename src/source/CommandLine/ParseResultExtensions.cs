@@ -16,34 +16,30 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var lastToken = source.Tokens.LastOrDefault();
 
-            if (!string.IsNullOrWhiteSpace(source.RawInput))
+            if (string.IsNullOrWhiteSpace(source.RawInput))
             {
-                if (position == null)
+                return source.UnmatchedTokens.LastOrDefault() ?? "";
+            }
+
+            if (position == null)
+            {
+                // assume the cursor is at the end of the input
+                if (!source.RawInput.EndsWith(" "))
                 {
-                    // assume the cursor is at the end of the input
-                    if (!source.RawInput.EndsWith(" "))
-                    {
-                        return lastToken;
-                    }
-                    else
-                    {
-                        return "";
-                    }
+                    return lastToken;
                 }
                 else
                 {
-                    var before = source.RawInput.Substring(0, position.Value);
-
-                    var after = source.RawInput.Substring(position.Value);
-
-                    var word = before.Split(' ').LastOrDefault() +
-                               after.Split(' ').FirstOrDefault();
-
-                    return word;
+                    return "";
                 }
             }
 
-            return source.UnmatchedTokens.LastOrDefault() ?? "";
+            var textBeforeCursor = source.RawInput.Substring(0, position.Value);
+
+            var textAfterCursor = source.RawInput.Substring(position.Value);
+
+            return textBeforeCursor.Split(' ').LastOrDefault() +
+                   textAfterCursor.Split(' ').FirstOrDefault();
         }
 
         internal static Command Command(this ParsedSet options) =>
