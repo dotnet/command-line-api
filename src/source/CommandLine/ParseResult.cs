@@ -18,7 +18,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal ParseResult(
             IReadOnlyCollection<string> tokens,
-            ParsedSet parsedOptions,
+            ParsedSymbolSet parsedOptions,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
@@ -27,7 +27,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             Tokens = tokens ??
                      throw new ArgumentNullException(nameof(tokens));
-            Parsed = parsedOptions ??
+            ParsedSymbol = parsedOptions ??
                             throw new ArgumentNullException(nameof(parsedOptions));
             this.configuration = configuration ??
                                  throw new ArgumentNullException(nameof(configuration));
@@ -45,7 +45,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         // FIX: (ParsedOptions) remove / hide? 
-        public ParsedSet Parsed { get; }
+        public ParsedSymbolSet ParsedSymbol { get; }
 
         public IReadOnlyCollection<OptionError> Errors => errors;
 
@@ -61,11 +61,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
             command ??
             (command = configuration.RootCommandIsImplicit
                            ? configuration.DefinedOptions.OfType<Command>().Single()
-                           : Parsed.Command());
+                           : ParsedSymbol.Command());
 
         private void CheckForErrors()
         {
-            foreach (var option in Parsed.FlattenBreadthFirst())
+            foreach (var option in ParsedSymbol.FlattenBreadthFirst())
             {
                 var error = option.Validate();
 

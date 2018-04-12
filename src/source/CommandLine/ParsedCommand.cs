@@ -2,7 +2,7 @@
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class ParsedCommand : Parsed
+    public class ParsedCommand : ParsedSymbol
     {
         public ParsedCommand(Command command) : base(command, command?.Name)
         {

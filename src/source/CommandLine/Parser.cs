@@ -29,8 +29,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawTokens)
                     .Lex(configuration));
-            var rootParsedOptions = new ParsedSet();
-            var allParsedOptions = new List<Parsed>();
+            var rootParsedOptions = new ParsedSymbolSet();
+            var allParsedOptions = new List<ParsedSymbol>();
             var errors = new List<OptionError>();
             var unmatchedTokens = new List<string>();
 
@@ -56,7 +56,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                         if (parsedOption == null)
                         {
-                            parsedOption = Parsed.Create(definedOption, token.Value);
+                            parsedOption = ParsedSymbol.Create(definedOption, token.Value);
 
                             rootParsedOptions.Add(parsedOption);
                         }
@@ -105,7 +105,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 var parsedOptions = rootParsedOptions
                                      .SelectMany(o => o.ParsedOptions)
                                      .ToArray();
-                rootParsedOptions = new ParsedSet(parsedOptions);
+                rootParsedOptions = new ParsedSymbolSet(parsedOptions);
             }
 
             return new RawParseResult(

@@ -10,7 +10,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public OptionError(
             string message, 
             string token,
-            Parsed parsed = null)
+            ParsedSymbol parsedSymbol = null)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -22,13 +22,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             Message = message;
-            Parsed = parsed;
+            ParsedSymbol = parsedSymbol;
         }
 
         public string Message { get; }
 
-        // FIX: (Parsed) rename
-        public Parsed Parsed { get; }
+        public ParsedSymbol ParsedSymbol { get; }
 
         public override string ToString() => Message;
     }

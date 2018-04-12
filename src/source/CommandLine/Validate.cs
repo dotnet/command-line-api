@@ -3,5 +3,5 @@
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public delegate string Validate(Parsed parsedOption);
+    public delegate string Validate(ParsedSymbol parsedOption);
 }

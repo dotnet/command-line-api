@@ -9,7 +9,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         internal OptionParseResult(
             IReadOnlyCollection<string> tokens,
-            ParsedSet parsedOptions,
+            ParsedSymbolSet parsedOptions,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
@@ -18,6 +18,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
         }
 
-        public ParsedOption this[string alias] => (ParsedOption) Parsed[alias];
+        public ParsedOption this[string alias] => (ParsedOption) ParsedSymbol[alias];
     }
 }

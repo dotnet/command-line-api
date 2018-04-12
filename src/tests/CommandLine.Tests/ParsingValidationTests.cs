@@ -42,9 +42,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("-x something_else");
 
             result.Errors
-                  .Where(e => e.Parsed != null)
+                  .Where(e => e.ParsedSymbol != null)
                   .Should()
-                  .Contain(e => e.Parsed.Name == option.Name);
+                  .Contain(e => e.ParsedSymbol.Name == option.Name);
         }
 
         [Fact]
@@ -187,7 +187,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message == "Required command was not provided." &&
-                           e.Parsed.Name == "inner");
+                           e.ParsedSymbol.Name == "inner");
         }
     }
 }

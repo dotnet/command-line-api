@@ -35,7 +35,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule MaterializeAs<T>(
             this ArgumentsRule rule,
-            Func<Parsed, T> materialize)
+            Func<ParsedSymbol, T> materialize)
         {
             if (rule == null)
             {
@@ -54,7 +54,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string description = null,
             string name = null,
             Func<string> defaultValue = null,
-            Func<Parsed, object> materialize = null)
+            Func<ParsedSymbol, object> materialize = null)
         {
             if (rule == null)
             {

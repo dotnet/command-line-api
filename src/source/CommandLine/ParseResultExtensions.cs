@@ -42,7 +42,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
 
-        internal static Command Command(this ParsedSet options) =>
+        internal static Command Command(this ParsedSymbolSet options) =>
             options.FlattenBreadthFirst()
                    .Select(a => a.Option)
                    .OfType<Command>()
@@ -57,18 +57,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               .Reverse()
                               .ToArray();
 
-            var parsed = result.Parsed[commandPath.First()];
+            var symbol = result.ParsedSymbol[commandPath.First()];
 
             foreach (var commandName in commandPath.Skip(1))
             {
-                parsed = parsed.ParsedOptions[commandName];
+                symbol = symbol.ParsedOptions[commandName];
             }
 
-            return (ParsedCommand) parsed;
+            return (ParsedCommand) symbol;
         }
 
-        internal static Parsed CurrentOption(this ParseResult result) =>
-            result.Parsed
+        internal static ParsedSymbol CurrentOption(this ParseResult result) =>
+            result.ParsedSymbol
                   .LastOrDefault()
                   .AllOptions()
                   .LastOrDefault();
@@ -77,7 +77,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var builder = new StringBuilder();
 
-            foreach (var o in result.Parsed)
+            foreach (var o in result.ParsedSymbol)
             {
                 builder.Diagram(o);
             }
@@ -96,7 +96,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return builder.ToString();
         }
 
-        public static string Diagram(this Parsed option)
+        public static string Diagram(this ParsedSymbol option)
         {
             var stringbuilder = new StringBuilder();
 
@@ -107,7 +107,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private static void Diagram(
             this StringBuilder builder,
-            Parsed option)
+            ParsedSymbol option)
         {
             builder.Append("[ ");
 
@@ -160,7 +160,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.Parsed.Contains(alias);
+            return parseResult.ParsedSymbol.Contains(alias);
         }
 
         internal static int? ImplicitCursorPosition(this ParseResult parseResult)

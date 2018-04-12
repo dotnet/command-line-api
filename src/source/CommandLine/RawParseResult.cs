@@ -6,7 +6,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public RawParseResult(
             IReadOnlyCollection<string> rawTokens,
-            ParsedSet parsed,
+            ParsedSymbolSet parsedSymbol,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
@@ -16,7 +16,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Errors = errors;
             RawInput = rawInput;
             RawTokens = rawTokens;
-            Parsed = parsed;
+            ParsedSymbol = parsedSymbol;
             Configuration = configuration;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
@@ -25,7 +25,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public IReadOnlyCollection<OptionError> Errors { get; }
         internal string RawInput { get; }
         public IReadOnlyCollection<string> RawTokens { get; }
-        public ParsedSet Parsed { get; }
+        public ParsedSymbolSet ParsedSymbol { get; }
         public ParserConfiguration Configuration { get; }
         public IReadOnlyCollection<string> UnparsedTokens { get; }
         public IReadOnlyCollection<string> UnmatchedTokens { get; }

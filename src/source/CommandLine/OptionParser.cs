@@ -34,7 +34,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             return new OptionParseResult(
                 raw.RawTokens,
-                raw.Parsed,
+                raw.ParsedSymbol,
                 raw.Configuration,
                 raw.UnparsedTokens,
                 raw.UnmatchedTokens,

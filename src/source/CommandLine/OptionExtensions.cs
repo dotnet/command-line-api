@@ -12,8 +12,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static bool IsHidden(this Option option) =>
             string.IsNullOrWhiteSpace(option.Description);
 
-        internal static IEnumerable<Parsed> AllOptions(
-            this Parsed option)
+        internal static IEnumerable<ParsedSymbol> AllOptions(
+            this ParsedSymbol option)
         {
             if (option == null)
             {

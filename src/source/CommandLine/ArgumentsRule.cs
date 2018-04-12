@@ -9,23 +9,23 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ArgumentsRule
     {
-        private readonly Func<Parsed, string> validate;
-        private readonly Func<Parsed, object> materialize;
+        private readonly Func<ParsedSymbol, string> validate;
+        private readonly Func<ParsedSymbol, object> materialize;
         private readonly Suggest suggest;
         private readonly Func<string> defaultValue;
 
-        public ArgumentsRule(Func<Parsed, string> validate) : this(validate, null)
+        public ArgumentsRule(Func<ParsedSymbol, string> validate) : this(validate, null)
         {
         }
 
         internal ArgumentsRule(
-            Func<Parsed, string> validate,
+            Func<ParsedSymbol, string> validate,
             IReadOnlyCollection<string> allowedValues = null,
             Func<string> defaultValue = null,
             string description = null,
             string name = null,
             Suggest suggest = null,
-            Func<Parsed, object> materialize = null)
+            Func<ParsedSymbol, object> materialize = null)
         {
             this.validate = validate ?? throw new ArgumentNullException(nameof(validate));
 
@@ -53,7 +53,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this.materialize = materialize;
         }
 
-        public string Validate(Parsed option) => validate(option);
+        public string Validate(ParsedSymbol option) => validate(option);
 
         public IReadOnlyCollection<string> AllowedValues { get; }
 
@@ -63,14 +63,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Name { get; }
 
-        internal Func<Parsed, object> Materializer => materialize;
+        internal Func<ParsedSymbol, object> Materializer => materialize;
 
         internal bool HasDefaultValue => defaultValue != null;
 
         internal IEnumerable<string> Suggest(ParseResult parseResult, int? position = null) =>
             suggest(parseResult, position);
 
-        internal object Materialize(Parsed parsedOption) =>
+        internal object Materialize(ParsedSymbol parsedOption) =>
             materialize?.Invoke(parsedOption);
     }
 }

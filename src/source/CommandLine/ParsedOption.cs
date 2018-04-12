@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class ParsedOption : Parsed
+    public class ParsedOption : ParsedSymbol
     {
         public ParsedOption(Option option, string token = null) :
             base(option, token ?? option?.ToString())

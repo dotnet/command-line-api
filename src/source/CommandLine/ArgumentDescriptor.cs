@@ -25,7 +25,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             validators.Add(validator);
         }
 
-        private string Validate(Parsed parsedOption)
+        private string Validate(ParsedSymbol parsedOption)
         {
             if (parsedOption == null)
             {
@@ -53,7 +53,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule None(
             this ArgumentRuleBuilder builder,
-            Func<Parsed, string> errorMessage = null)
+            Func<ParsedSymbol, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {
@@ -77,7 +77,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule ExactlyOne(
             this ArgumentRuleBuilder builder,
-            Func<Parsed, string> errorMessage = null)
+            Func<ParsedSymbol, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {
@@ -144,7 +144,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentsRule OneOrMore(
             this ArgumentRuleBuilder builder,
-            Func<Parsed, string> errorMessage = null)
+            Func<ParsedSymbol, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {

@@ -9,7 +9,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         internal CommandParseResult(
             IReadOnlyCollection<string> tokens,
-            ParsedSet parsedOptions,
+            ParsedSymbolSet parsedOptions,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,

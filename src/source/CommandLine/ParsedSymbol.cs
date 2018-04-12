@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public abstract class Parsed
+    public abstract class ParsedSymbol
     {
         private readonly Lazy<string> defaultValue;
         private readonly Func<object> materialize;
@@ -12,7 +12,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private bool considerAcceptingAnotherArgument = true;
 
-        protected internal Parsed(Option option, string token)
+        protected internal ParsedSymbol(Option option, string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -42,7 +42,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        public ParsedSet ParsedOptions { get; } = new ParsedSet();
+        public ParsedSymbolSet ParsedOptions { get; } = new ParsedSymbolSet();
 
         public string Name => Option.Name;
 
@@ -64,7 +64,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal void OptionWasRespecified() => considerAcceptingAnotherArgument = true;
 
-        public Parsed TryTakeToken(Token token)
+        public ParsedSymbol TryTakeToken(Token token)
         {
             var option = TryTakeArgument(token) ??
                          TryTakeOptionOrCommand(token);
@@ -72,7 +72,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return option;
         }
 
-        private Parsed TryTakeArgument(Token token)
+        private ParsedSymbol TryTakeArgument(Token token)
         {
             if (token.Type != TokenType.Argument)
             {
@@ -108,7 +108,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return null;
         }
 
-        protected Parsed TryTakeOptionOrCommand(Token token)
+        protected ParsedSymbol TryTakeOptionOrCommand(Token token)
         {
             var childOption = ParsedOptions
                 .SingleOrDefault(o =>
@@ -152,7 +152,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public override string ToString() => this.Diagram();
 
-        internal static Parsed Create(Option option, string token)
+        internal static ParsedSymbol Create(Option option, string token)
         {
             switch (option)
             {
