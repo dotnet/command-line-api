@@ -14,37 +14,37 @@ namespace Microsoft.DotNet.Cli.CommandLine
             set => current = value ?? new DefaultValidationMessages();
         }
 
-        internal static string NoArgumentsAllowed(string option) =>
+        public static string NoArgumentsAllowed(string option) =>
             current.NoArgumentsAllowed(option).NotWhitespace() ??
             @default.NoArgumentsAllowed(option);
 
-        internal static string CommandAcceptsOnlyOneArgument(
+        public static string CommandAcceptsOnlyOneArgument(
             string command,
             int argumentCount) =>
             current.CommandAcceptsOnlyOneArgument(command, argumentCount).NotWhitespace() ??
             @default.CommandAcceptsOnlyOneArgument(command, argumentCount);
 
-        internal static string CommandAcceptsOnlyOneSubcommand(
+        public static string CommandAcceptsOnlyOneSubcommand(
             string command,
             string subcommandsSpecified) =>
             current.CommandAcceptsOnlyOneSubcommand(command, subcommandsSpecified).NotWhitespace() ??
             @default.CommandAcceptsOnlyOneSubcommand(command, subcommandsSpecified);
 
-        internal static string FileDoesNotExist(string filePath) =>
+        public static string FileDoesNotExist(string filePath) =>
             current.FileDoesNotExist(filePath).NotWhitespace() ??
             @default.FileDoesNotExist(filePath);
 
-        internal static string OptionAcceptsOnlyOneArgument(
+        public static string OptionAcceptsOnlyOneArgument(
             string option,
             int argumentCount) =>
             current.OptionAcceptsOnlyOneArgument(option, argumentCount).NotWhitespace() ??
             @default.OptionAcceptsOnlyOneArgument(option, argumentCount);
 
-        internal static string RequiredArgumentMissingForCommand(string command) =>
+        public static string RequiredArgumentMissingForCommand(string command) =>
             current.RequiredArgumentMissingForCommand(command).NotWhitespace() ??
             @default.RequiredArgumentMissingForCommand(command);
 
-        internal static string RequiredArgumentMissingForOption(string option) =>
+        public static string RequiredArgumentMissingForOption(string option) =>
             current.RequiredArgumentMissingForOption(option).NotWhitespace() ??
             @default.RequiredArgumentMissingForOption(option);
 
@@ -52,7 +52,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             current.RequiredCommandWasNotProvided().NotWhitespace() ??
             @default.RequiredCommandWasNotProvided();
 
-        internal static string UnrecognizedArgument(
+        public static string UnrecognizedArgument(
             string unrecognizedArg,
             string[] allowedValues) =>
             current.UnrecognizedArgument(unrecognizedArg, allowedValues).NotWhitespace() ??
@@ -62,7 +62,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             current.UnrecognizedCommandOrArgument(arg).NotWhitespace() ??
             @default.UnrecognizedCommandOrArgument(arg);
 
-        internal static string UnrecognizedOption(
+        public static string UnrecognizedOption(
             string unrecognizedOption,
             string[] allowedValues) =>
             current.UnrecognizedOption(unrecognizedOption, allowedValues).NotWhitespace() ??

@@ -33,7 +33,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             int? position) =>
             candidates.FindSuggestions(parseResult.TextToMatch(position));
 
-        internal static IEnumerable<string> FindSuggestions(
+        public static IEnumerable<string> FindSuggestions(
             this IReadOnlyCollection<string> candidates,
             string textToMatch) =>
             candidates

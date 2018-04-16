@@ -57,7 +57,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        internal override bool IsCommand => true;
+        public override bool IsCommand => true;
 
         public bool TreatUnmatchedTokensAsErrors { get; } = true;
     }

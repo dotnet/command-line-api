@@ -18,7 +18,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
         }
 
-        internal ArgumentsRule(
+        public ArgumentsRule(
             Func<ParsedSymbol, string> validate,
             IReadOnlyCollection<string> allowedValues = null,
             Func<string> defaultValue = null,
@@ -57,20 +57,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IReadOnlyCollection<string> AllowedValues { get; }
 
-        internal Func<string> GetDefaultValue => () => defaultValue?.Invoke();
+        public Func<string> GetDefaultValue => () => defaultValue?.Invoke();
 
         public string Description { get; }
 
         public string Name { get; }
 
-        internal Func<ParsedSymbol, object> Materializer => materialize;
+        public Func<ParsedSymbol, object> Materializer => materialize;
 
-        internal bool HasDefaultValue => defaultValue != null;
+        public bool HasDefaultValue => defaultValue != null;
 
-        internal IEnumerable<string> Suggest(ParseResult parseResult, int? position = null) =>
+        public IEnumerable<string> Suggest(ParseResult parseResult, int? position = null) =>
             suggest(parseResult, position);
 
-        internal object Materialize(ParsedSymbol parsedOption) =>
+        public object Materialize(ParsedSymbol parsedOption) =>
             materialize?.Invoke(parsedOption);
     }
 }
