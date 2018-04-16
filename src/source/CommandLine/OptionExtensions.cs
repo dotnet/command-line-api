@@ -9,20 +9,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class OptionExtensions
     {
-        public static bool IsHidden(this Option option) =>
+        public static bool IsHidden(this Symbol option) =>
             string.IsNullOrWhiteSpace(option.Description);
 
         internal static IEnumerable<ParsedSymbol> AllOptions(
-            this ParsedSymbol option)
+            this ParsedSymbol symbol)
         {
-            if (option == null)
+            if (symbol == null)
             {
-                throw new ArgumentNullException(nameof(option));
+                throw new ArgumentNullException(nameof(symbol));
             }
 
-            yield return option;
+            yield return symbol;
 
-            foreach (var item in option.ParsedOptions.FlattenBreadthFirst(o => o.ParsedOptions))
+            foreach (var item in symbol.ParsedOptions.FlattenBreadthFirst(o => o.ParsedOptions))
             {
                 yield return item;
             }

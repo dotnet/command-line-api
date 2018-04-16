@@ -225,7 +225,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               },
                               materialize: o => o.Arguments);
 
-        internal static ArgumentsRule ZeroOrMoreOf(params Option[] options)
+        internal static ArgumentsRule ZeroOrMoreOf(params Symbol[] options)
         {
             var values = options
                 .SelectMany(o => o.RawAliases)
