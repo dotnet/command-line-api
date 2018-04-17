@@ -4,7 +4,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ParsedSymbolSet : SymbolSet<ParsedSymbol>
     {
-        // FIX: (ParsedSet) collapse the different OptionSet classes
         public ParsedSymbolSet()
         {
         }
