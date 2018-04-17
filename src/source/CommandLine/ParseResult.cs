@@ -78,7 +78,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var command = Command();
 
             if (command != null &&
-                command.DefinedSymbols.Any(o => o.IsCommand))
+                command.DefinedSymbols.OfType<Command>().Any())
             {
                 ParsedCommand parsedCommand = null;
 

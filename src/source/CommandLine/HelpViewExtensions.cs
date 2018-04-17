@@ -111,7 +111,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var options = command
                 .DefinedSymbols
-                .Where(o => !o.IsCommand)
+                .Where(o => !(o is Command))
                 .Where(o => !o.IsHidden())
                 .ToArray();
 
@@ -174,18 +174,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var leftColumnText = "  " +
                                  string.Join(", ",
                                              symbol.RawAliases
-                                                   .OrderBy(a => a.Length)
-                                                   .Select(a =>
-                                                   {
-                                                       if (symbol.IsCommand)
-                                                       {
-                                                           return a.TrimStart(new[] { '-' });
-                                                       }
-                                                       else
-                                                       {
-                                                           return a;
-                                                       }
-                                                   }));
+                                                   .OrderBy(a => a.Length));
 
             var argumentName = symbol.ArgumentsRule.Name;
 
@@ -245,7 +234,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             if (command.DefinedSymbols
-                       .Any(o => !o.IsCommand &&
+                       .Any(o => !(o is Command) &&
                                  !o.IsHidden()))
             {
                 helpView.Append(Synopsis.Options);

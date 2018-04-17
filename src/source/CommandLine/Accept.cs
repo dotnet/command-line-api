@@ -50,7 +50,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                   {
                                       if (errorMessage == null)
                                       {
-                                          return o.Symbol.IsCommand
+                                          return o.Symbol is Command
                                                      ? RequiredArgumentMissingForCommand(o.Symbol.ToString())
                                                      : RequiredArgumentMissingForOption(o.Symbol.ToString());
                                       }
@@ -64,7 +64,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                   {
                                       if (errorMessage == null)
                                       {
-                                          return o.Symbol.IsCommand
+                                          return o.Symbol is Command
                                                      ? CommandAcceptsOnlyOneArgument(o.Symbol.ToString(), argumentCount)
                                                      : OptionAcceptsOnlyOneArgument(o.Symbol.ToString(), argumentCount);
                                       }
@@ -136,7 +136,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               {
                                   if (o.Arguments.Count > 1)
                                   {
-                                      return o.Symbol.IsCommand
+                                      return o.Symbol is Command
                                                  ? CommandAcceptsOnlyOneArgument(o.Symbol.ToString(), o.Arguments.Count)
                                                  : OptionAcceptsOnlyOneArgument(o.Symbol.ToString(), o.Arguments.Count);
                                   }
@@ -211,7 +211,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                       if (errorMessage == null)
                                       {
                                           return
-                                              o.Symbol.IsCommand
+                                              o.Symbol is Command
                                                   ? RequiredArgumentMissingForCommand(o.Symbol.ToString())
                                                   : RequiredArgumentMissingForOption(o.Symbol.ToString());
                                       }

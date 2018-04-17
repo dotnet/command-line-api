@@ -76,9 +76,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             ParseResult parseResult,
             int? position = null) => ArgumentsRule.Suggest(parseResult, position);
 
-        // FIX: (Option) remove and make the types more obvious
-        public virtual bool IsCommand => false;
-
         // FIX: (Parent) make this immutable
         public Command Parent { get; protected internal set; }
 

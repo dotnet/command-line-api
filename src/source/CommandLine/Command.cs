@@ -57,8 +57,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        public override bool IsCommand => true;
-
         public bool TreatUnmatchedTokensAsErrors { get; } = true;
 
         public override string ToString() => Name;

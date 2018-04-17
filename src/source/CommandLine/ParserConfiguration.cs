@@ -21,7 +21,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentException("You must specify at least one option.");
             }
 
-            if (definedSymbols.All(o => !o.IsCommand))
+            if (!definedSymbols.OfType<Command>().Any())
             {
                 RootCommand = Create.RootCommand(definedSymbols.ToArray());
                 DefinedSymbols.Add(RootCommand);

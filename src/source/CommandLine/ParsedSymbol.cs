@@ -80,7 +80,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             if (!considerAcceptingAnotherArgument &&
-                !Symbol.IsCommand)
+                !(Symbol is Command))
             {
                 // Options must be respecified in order to accept additional arguments. This is 
                 // not the case for commands.
@@ -121,7 +121,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             if (token.Type == TokenType.Command &&
-                Children.Any(o => o.Symbol.IsCommand && !o.HasAlias(token.Value)))
+                Children.Any(o => o.Symbol is Command && !o.HasAlias(token.Value)))
             {
                 // if a subcommand has already been applied, don't accept this one
                 return null;

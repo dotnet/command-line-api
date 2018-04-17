@@ -187,7 +187,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                              a =>
                                                  new Token(
                                                      a,
-                                                     s.IsCommand
+                                                     s is Command
                                                          ? TokenType.Command
                                                          : TokenType.Option)))));
     }

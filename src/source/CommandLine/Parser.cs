@@ -81,7 +81,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }
 
                     if (token.Type == TokenType.Argument &&
-                        parsedOption.Symbol.IsCommand)
+                        parsedOption.Symbol is Command)
                     {
                         break;
                     }
@@ -133,7 +133,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             var commandName = DefinedSymbols
-                              .SingleOrDefault(o => o.IsCommand)
+                              .OfType<Command>()
+                              .SingleOrDefault()
                               ?.Name;
 
             if (commandName == null ||
