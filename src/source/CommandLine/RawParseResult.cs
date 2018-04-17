@@ -10,7 +10,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
-            IReadOnlyCollection<OptionError> errors,
+            IReadOnlyCollection<ParseError> errors,
             string rawInput = null)
         {
             Errors = errors;
@@ -22,7 +22,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             UnmatchedTokens = unmatchedTokens;
         }
 
-        public IReadOnlyCollection<OptionError> Errors { get; }
+        public IReadOnlyCollection<ParseError> Errors { get; }
         internal string RawInput { get; }
         public IReadOnlyCollection<string> RawTokens { get; }
         public ParsedSymbolSet ParsedSymbol { get; }

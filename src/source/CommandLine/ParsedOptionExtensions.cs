@@ -9,7 +9,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class ParsedOptionExtensions
     {
-        public static IEnumerable<OptionError> ValidateAll(
+        public static IEnumerable<ParseError> ValidateAll(
             this ParsedSymbol option) =>
             new[] { option.Validate() }
                 .Concat(

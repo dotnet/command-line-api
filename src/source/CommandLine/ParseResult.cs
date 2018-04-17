@@ -13,7 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public abstract class ParseResult
     {
         private readonly ParserConfiguration configuration;
-        private readonly List<OptionError> errors = new List<OptionError>();
+        private readonly List<ParseError> errors = new List<ParseError>();
         private Command command;
 
         internal ParseResult(
@@ -22,7 +22,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<OptionError> errors = null,
+            IReadOnlyCollection<ParseError> errors = null,
             string rawInput = null)
         {
             Tokens = tokens ??
@@ -46,7 +46,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public ParsedSymbolSet ParsedSymbol { get; }
 
-        public IReadOnlyCollection<OptionError> Errors => errors;
+        public IReadOnlyCollection<ParseError> Errors => errors;
 
         public IReadOnlyCollection<string> Tokens { get; }
 
@@ -87,7 +87,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     parsedCommand = commandParseResult.ParsedCommand();
                 }
 
-                errors.Insert(0, new OptionError(
+                errors.Insert(0, new ParseError(
                                   RequiredCommandWasNotProvided(),
                                   command.Name,
                                   parsedCommand));

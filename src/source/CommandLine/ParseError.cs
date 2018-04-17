@@ -5,9 +5,9 @@ using System;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class OptionError
+    public class ParseError
     {
-        public OptionError(
+        public ParseError(
             string message, 
             string token,
             ParsedSymbol parsedSymbol = null)

@@ -31,7 +31,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     .Lex(configuration));
             var rootParsedOptions = new ParsedSymbolSet();
             var allParsedOptions = new List<ParsedSymbol>();
-            var errors = new List<OptionError>();
+            var errors = new List<ParseError>();
             var unmatchedTokens = new List<string>();
 
             while (unparsedTokens.Any())
@@ -158,7 +158,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return args;
         }
 
-        private static OptionError UnrecognizedArg(string arg) =>
-            new OptionError(ValidationMessages.UnrecognizedCommandOrArgument(arg), arg);
+        private static ParseError UnrecognizedArg(string arg) =>
+            new ParseError(ValidationMessages.UnrecognizedCommandOrArgument(arg), arg);
     }
 }

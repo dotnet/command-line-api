@@ -58,12 +58,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public bool HasAlias(string alias) => Symbol.HasAlias(alias);
 
-        internal OptionError Validate()
+        internal ParseError Validate()
         {
             var error = Symbol.Validate(this);
             return string.IsNullOrWhiteSpace(error)
                        ? null
-                       : new OptionError(error, Token, this);
+                       : new ParseError(error, Token, this);
         }
 
         internal void OptionWasRespecified() => considerAcceptingAnotherArgument = true;
@@ -112,7 +112,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return null;
         }
 
-        protected ParsedSymbol TryTakeOptionOrCommand(Token token)
+        private ParsedSymbol TryTakeOptionOrCommand(Token token)
         {
             // FIX: (TryTakeOptionOrCommand) this method can move to ParsedCommand
             var child = Children

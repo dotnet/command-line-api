@@ -13,7 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<OptionError> errors = null,
+            IReadOnlyCollection<ParseError> errors = null,
             string rawInput = null) : base(tokens, parsedOptions, configuration, unparsedTokens, unmatchedTokens, errors, rawInput)
         {
         }
