@@ -1,0 +1,19 @@
+{
+  "sign": [
+    {
+        "certificate": "Microsoft402",
+        "strongName": "MsSharedLib72",
+        "values": [
+      ]
+    },
+    {
+      "certificate": null,
+      "strongName": null,
+      "values": [
+        "packages/*.nupkg"
+      ]
+    }
+  ],
+  "exclude": [
+  ]
+}

@@ -1,0 +1,48 @@
+###############################################################################
+# Set default behavior to:
+#   automatically normalize line endings on check-in
+###############################################################################
+*           text=auto
+
+###############################################################################
+# Set file behavior to:
+#   treat as text
+###############################################################################
+*.cmd       text
+*.config    text
+*.cs        text
+*.csproj    text
+*.groovy    text
+*.json      text
+*.md        text
+*.proj      text
+*.projitems text
+*.props     text
+*.ps1       text
+*.resx      text
+*.shproj    text
+*.sln       text
+*.targets   text
+*.txt       text
+*.xlf       text
+*.xml       text
+
+###############################################################################
+# Set file behavior to:
+#   treat as text
+#   normalize to Windows-style line endings on check-in
+###############################################################################
+*.sln        text       eol=crlf
+
+###############################################################################
+# Set file behavior to:
+#   treat as text
+#   normalize to Unix-style line endings on check-in
+###############################################################################
+*.sh        text        eol=lf
+
+###############################################################################
+# Set file behavior to:
+#   treat as binary
+###############################################################################
+*.snk       binary
