@@ -9,7 +9,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly ParserConfiguration configuration;
 
-        protected Parser(params Symbol[] options) : this(new ParserConfiguration(options))
+        protected Parser(IReadOnlyCollection<Symbol> options) : this(new ParserConfiguration(options))
         {
         }
 
