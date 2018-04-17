@@ -9,15 +9,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public OptionParser(params Option[] options) : base(options)
         {
-            // FIX: (OptionParser) enforce this at the compiler, i.e. remove inheritance of Command : Option
-
-            foreach (var option in options)
-            {
-                if (option is Command)
-                {
-                    throw new ArgumentException($"OptionParser does not accept Command instances but was passed {option}");
-                }
-            }
         }
 
         public OptionParser(ParserConfiguration configuration) : base(configuration)
