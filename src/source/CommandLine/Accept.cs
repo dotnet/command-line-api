@@ -50,9 +50,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                   {
                                       if (errorMessage == null)
                                       {
-                                          return o.Option.IsCommand
-                                                     ? RequiredArgumentMissingForCommand(o.Option.ToString())
-                                                     : RequiredArgumentMissingForOption(o.Option.ToString());
+                                          return o.Symbol.IsCommand
+                                                     ? RequiredArgumentMissingForCommand(o.Symbol.ToString())
+                                                     : RequiredArgumentMissingForOption(o.Symbol.ToString());
                                       }
                                       else
                                       {
@@ -64,9 +64,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                   {
                                       if (errorMessage == null)
                                       {
-                                          return o.Option.IsCommand
-                                                     ? CommandAcceptsOnlyOneArgument(o.Option.ToString(), argumentCount)
-                                                     : OptionAcceptsOnlyOneArgument(o.Option.ToString(), argumentCount);
+                                          return o.Symbol.IsCommand
+                                                     ? CommandAcceptsOnlyOneArgument(o.Symbol.ToString(), argumentCount)
+                                                     : OptionAcceptsOnlyOneArgument(o.Symbol.ToString(), argumentCount);
                                       }
                                       else
                                       {
@@ -136,9 +136,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               {
                                   if (o.Arguments.Count > 1)
                                   {
-                                      return o.Option.IsCommand
-                                                 ? CommandAcceptsOnlyOneArgument(o.Option.ToString(), o.Arguments.Count)
-                                                 : OptionAcceptsOnlyOneArgument(o.Option.ToString(), o.Arguments.Count);
+                                      return o.Symbol.IsCommand
+                                                 ? CommandAcceptsOnlyOneArgument(o.Symbol.ToString(), o.Arguments.Count)
+                                                 : OptionAcceptsOnlyOneArgument(o.Symbol.ToString(), o.Arguments.Count);
                                   }
 
                                   return null;
@@ -149,13 +149,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Func<ParsedSymbol, string> errorMessage = null) =>
             new ArgumentsRule(o =>
             {
-                var optionCount = o.ParsedOptions.Count;
+                var optionCount = o.Children.Count;
 
                 if (optionCount == 0)
                 {
                     if (errorMessage == null)
                     {
-                        return RequiredArgumentMissingForCommand(o.Option.ToString());
+                        return RequiredArgumentMissingForCommand(o.Symbol.ToString());
                     }
                     else
                     {
@@ -168,8 +168,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     if (errorMessage == null)
                     {
                         return CommandAcceptsOnlyOneSubcommand(
-                            o.Option.ToString(),
-                            string.Join(", ", o.ParsedOptions.Select(a => a.Option)));
+                            o.Symbol.ToString(),
+                            string.Join(", ", o.Children.Select(a => a.Symbol)));
                     }
                     else
                     {
@@ -191,7 +191,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                                   if (errorMessage == null)
                                   {
-                                      return NoArgumentsAllowed(o.Option.ToString());
+                                      return NoArgumentsAllowed(o.Symbol.ToString());
                                   }
                                   else
                                   {
@@ -211,9 +211,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                       if (errorMessage == null)
                                       {
                                           return
-                                              o.Option.IsCommand
-                                                  ? RequiredArgumentMissingForCommand(o.Option.ToString())
-                                                  : RequiredArgumentMissingForOption(o.Option.ToString());
+                                              o.Symbol.IsCommand
+                                                  ? RequiredArgumentMissingForCommand(o.Symbol.ToString())
+                                                  : RequiredArgumentMissingForOption(o.Symbol.ToString());
                                       }
                                       else
                                       {
@@ -241,8 +241,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     o =>
                     {
                         var unrecognized = values
-                            .FirstOrDefault(v => !o.Option
-                                                   .DefinedOptions
+                            .FirstOrDefault(v => !o.Symbol
+                                                   .DefinedSymbols
                                                    .Any(oo => oo.HasAlias(v)));
 
                         if (unrecognized != null)

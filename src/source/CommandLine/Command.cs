@@ -10,14 +10,14 @@ using static Microsoft.DotNet.Cli.CommandLine.Accept;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class Command : Option
+    public class Command : Symbol
     {
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
         public Command(
-            IReadOnlyCollection<Option> options) :
-            this(executableName.Value, "", options, NoArguments())
+            IReadOnlyCollection<Symbol> symbols) :
+            this(executableName.Value, "", symbols, NoArguments())
         {
         }
 
@@ -25,7 +25,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string name,
             string description,
             IReadOnlyCollection<Command> subcommands) :
-            this(name, description, options: subcommands)
+            this(name, description, symbols: subcommands)
         {
             var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
 
@@ -38,22 +38,22 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public Command(
             string name,
             string description,
-            IReadOnlyCollection<Option> options = null,
+            IReadOnlyCollection<Symbol> symbols = null,
             ArgumentsRule arguments = null,
             bool treatUnmatchedTokensAsErrors = true) :
-            base(new[] { name }, description, arguments, options)
+            base(new[] { name }, description, arguments, symbols)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
 
-            if (options != null && options.Any())
+            if (symbols != null && symbols.Any())
             {
-                foreach (var option in options)
+                foreach (var option in symbols)
                 {
                     option.Parent = this;
-                    DefinedOptions.Add(option);
+                    DefinedSymbols.Add(option);
                 }
 
-                ArgumentsRule = ArgumentsRule.And(ZeroOrMoreOf(options.ToArray()));
+                ArgumentsRule = ArgumentsRule.And(ZeroOrMoreOf(symbols.ToArray()));
             }
         }
 

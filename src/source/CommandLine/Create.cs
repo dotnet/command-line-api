@@ -26,21 +26,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static Command Command(
             string name,
             string help,
-            params Option[] options) =>
+            params Symbol[] options) =>
             new Command(name, help, options);
 
         public static Command Command(
             string name,
             string help,
             bool treatUnmatchedTokensAsErrors,
-            params Option[] options) =>
+            params Symbol[] options) =>
             new Command(name, help, options, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
 
         public static Command Command(
             string name,
             string help,
             ArgumentsRule arguments,
-            params Option[] options) =>
+            params Symbol[] options) =>
             new Command(name, help, options, arguments);
 
         public static Command Command(
@@ -48,7 +48,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string help,
             ArgumentsRule arguments,
             bool treatUnmatchedTokensAsErrors,
-            params Option[] options) =>
+            params Symbol[] options) =>
             new Command(name, help, options, arguments, treatUnmatchedTokensAsErrors);
 
         public static Command Command(
@@ -57,7 +57,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             params Command[] commands) =>
             new Command(name, help, commands);
 
-        public static Command RootCommand(params Option[] options) =>
-            new Command(options);
+        public static Command RootCommand(params Symbol[] symbols) =>
+            new Command(symbols);
     }
 }

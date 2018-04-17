@@ -56,12 +56,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this IEnumerable<string> args,
             ParserConfiguration configuration)
         {
-            Option currentCommand = null;
+            Symbol currentCommand = null;
             bool foundEndOfArguments = false;
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
-            var knownTokens = new HashSet<Token>(configuration.DefinedOptions.SelectMany(ValidTokens));
+            var knownTokens = new HashSet<Token>(configuration.DefinedSymbols.SelectMany(ValidTokens));
 
             foreach (var arg in args)
             {
@@ -120,8 +120,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     else
                     {
                         // when a subcommand is encountered, re-scope which tokens are valid
-                        currentCommand = (currentCommand?.DefinedOptions ??
-                                          configuration.DefinedOptions)[arg];
+                        currentCommand = (currentCommand?.DefinedSymbols ??
+                                          configuration.DefinedSymbols)[arg];
                         knownTokens = currentCommand.ValidTokens();
                         yield return Command(arg);
                     }
@@ -174,20 +174,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
         internal static string NotWhitespace(this string value) =>
             string.IsNullOrWhiteSpace(value) ? null : value;
 
-        private static HashSet<Token> ValidTokens(this Option option) =>
+        private static HashSet<Token> ValidTokens(this Symbol symbol) =>
             new HashSet<Token>(
-                option.RawAliases
+                symbol.RawAliases
                       .Select(Command)
                       .Concat(
-                          option.DefinedOptions
+                          symbol.DefinedSymbols
                                 .SelectMany(
-                                    o =>
-                                        o.RawAliases
+                                    s =>
+                                        s.RawAliases
                                          .Select(
                                              a =>
                                                  new Token(
                                                      a,
-                                                     o.IsCommand
+                                                     s.IsCommand
                                                          ? TokenType.Command
                                                          : TokenType.Option)))));
     }

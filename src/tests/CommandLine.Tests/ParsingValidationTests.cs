@@ -62,7 +62,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact(Skip = "https://github.com/dotnet/CliCommandLineParser/issues/93")]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new OptionParser(Command("the-command", "", Option("-x", "", NoArguments())));
+            var parser = new CommandParser(Command("the-command", "", Option("-x", "", NoArguments())));
 
             var result = parser.Parse("the-command -x some-arg");
 
@@ -77,8 +77,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var validator = new ArgumentsRule(p =>
             {
-                if (p.ParsedOptions.Contains("one") &&
-                    p.ParsedOptions.Contains("two"))
+                if (p.Children.Contains("one") &&
+                    p.Children.Contains("two"))
                 {
                     return "Options '--one' and '--two' cannot be used together.";
                 }

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class OptionSet : OptionSet<Option>
+    public class OptionSet : SymbolSet<Option>
     {
         protected override bool ContainsItemWithAlias(Option option, string alias) =>
             option.HasAlias(alias);

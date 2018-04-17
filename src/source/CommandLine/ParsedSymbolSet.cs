@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class ParsedSymbolSet : OptionSet<ParsedSymbol>
+    public class ParsedSymbolSet : SymbolSet<ParsedSymbol>
     {
         // FIX: (ParsedSet) collapse the different OptionSet classes
         public ParsedSymbolSet()
@@ -14,12 +14,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         protected override bool ContainsItemWithAlias(ParsedSymbol option, string alias) =>
-            option.Option.HasAlias(alias);
+            option.Symbol.HasAlias(alias);
 
         protected override bool ContainsItemWithRawAlias(ParsedSymbol option, string alias) =>
-            option.Option.HasRawAlias(alias);
+            option.Symbol.HasRawAlias(alias);
 
         protected override IReadOnlyCollection<string> RawAliasesFor(ParsedSymbol option) =>
-            option.Option.RawAliases;
+            option.Symbol.RawAliases;
     }
 }

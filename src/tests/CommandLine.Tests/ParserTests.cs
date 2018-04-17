@@ -251,7 +251,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             result
                 .ParsedCommand()
-                .ParsedOptions
+                .Children
                 .Select(o => o.Name)
                 .Should()
                 .BeEquivalentTo("x", "y", "z");
@@ -265,13 +265,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                       Option("-y", "", NoArguments()),
                                       Option("-z", "", NoArguments()),
                                       Option("-xyz", "", NoArguments()));
-            var parseConfig = new ParserConfiguration(new Option[] { command }, allowUnbundling: false);
+            var parseConfig = new ParserConfiguration(new[] { command }, allowUnbundling: false);
             var parser = new CommandParser(parseConfig);
             var result = parser.Parse("the-command -xyz");
 
             result
                 .ParsedCommand()
-                .ParsedOptions
+                .Children
                 .Select(o => o.Name)
                 .Should()
                 .BeEquivalentTo("xyz");
@@ -292,7 +292,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             result
                 .ParsedCommand()
-                .ParsedOptions
+                .Children
                 .Select(o => o.Name)
                 .Should()
                 .BeEquivalentTo("xyz");
@@ -313,7 +313,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("outer inner -abc");
 
             result.ParsedCommand()
-                  .ParsedOptions
+                  .Children
                   .Should()
                   .BeEmpty();
 
@@ -440,12 +440,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .Should()
                 .BeEmpty();
 
-            applied.ParsedOptions
+            applied.Children
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner1" &&
                                       o.Arguments.Single() == "argument1");
-            applied.ParsedOptions
+            applied.Children
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner2" &&
@@ -594,7 +594,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             //                .NotContain(o => o.Name == "x");
             result
                 .ParsedCommand()
-                .ParsedOptions
+                .Children
                 .Should()
                 .ContainSingle(o => o.Name == "x");
         }
@@ -611,7 +611,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse("outer -x inner");
 
             result.ParsedCommand()
-                  .ParsedOptions
+                  .Children
                   .Should()
                   .BeEmpty();
             // FIX: (When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_in_between_then_it_attaches_to_the_outer_command)             result["outer"]
@@ -802,7 +802,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var parser = new OptionParser(
                 new ParserConfiguration(
-                    definedOptions: new[] { command }));
+                    definedSymbols: new[] { command }));
 
             var result = parser.Parse("the-command arg1 arg2");
 

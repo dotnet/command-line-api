@@ -44,7 +44,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal static Command Command(this ParsedSymbolSet options) =>
             options.FlattenBreadthFirst()
-                   .Select(a => a.Option)
+                   .Select(a => a.Symbol)
                    .OfType<Command>()
                    .LastOrDefault();
 
@@ -61,7 +61,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             foreach (var commandName in commandPath.Skip(1))
             {
-                symbol = symbol.ParsedOptions[commandName];
+                symbol = symbol.Children[commandName];
             }
 
             return (ParsedCommand) symbol;
@@ -111,9 +111,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             builder.Append("[ ");
 
-            builder.Append(option.Option);
+            builder.Append(option.Symbol);
 
-            foreach (var child in option.ParsedOptions)
+            foreach (var child in option.Children)
             {
                 builder.Append(" ");
                 builder.Diagram(child);
@@ -148,7 +148,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.ParsedCommand().ParsedOptions.Contains(alias);
+            return parseResult.ParsedCommand().Children.Contains(alias);
         }
 
         public static bool HasOption(
@@ -175,7 +175,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
             parseResult?.CurrentOption()
-                       ?.Option
+                       ?.Symbol
                        ?.Suggest(parseResult, position ) ??
             Array.Empty<string>();
     }

@@ -13,7 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ParsedSymbol option) =>
             new[] { option.Validate() }
                 .Concat(
-                    option.ParsedOptions
+                    option.Children
                           .SelectMany(ValidateAll))
                 .Where(o => o != null);
 
@@ -25,7 +25,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(options));
             }
 
-            foreach (var item in options.FlattenBreadthFirst(o => o.ParsedOptions))
+            foreach (var item in options.FlattenBreadthFirst(o => o.Children))
             {
                 yield return item;
             }

@@ -60,7 +60,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public Command Command() =>
             command ??
             (command = configuration.RootCommandIsImplicit
-                           ? configuration.DefinedOptions.OfType<Command>().Single()
+                           ? configuration.DefinedSymbols.OfType<Command>().Single()
                            : ParsedSymbol.Command());
 
         private void CheckForErrors()
@@ -78,7 +78,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var command = Command();
 
             if (command != null &&
-                command.DefinedOptions.Any(o => o.IsCommand))
+                command.DefinedSymbols.Any(o => o.IsCommand))
             {
                 ParsedCommand parsedCommand = null;
 

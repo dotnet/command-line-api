@@ -110,7 +110,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             StringBuilder helpView)
         {
             var options = command
-                .DefinedOptions
+                .DefinedSymbols
                 .Where(o => !o.IsCommand)
                 .Where(o => !o.IsHidden())
                 .ToArray();
@@ -131,7 +131,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             StringBuilder helpView)
         {
             var subcommands = command
-                .DefinedOptions
+                .DefinedSymbols
                 .Where(o => !o.IsHidden())
                 .OfType<Command>()
                 .ToArray();
@@ -148,10 +148,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         private static void WriteOptionsList(
-            Option[] options,
+            Symbol[] symbols,
             StringBuilder helpView)
         {
-            var leftColumnTextFor = options
+            var leftColumnTextFor = symbols
                 .ToDictionary(o => o, LeftColumnText);
 
             var leftColumnWidth = leftColumnTextFor
@@ -160,24 +160,24 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                       .OrderBy(length => length)
                                       .Last() + columnGutterWidth;
 
-            foreach (var option in options)
+            foreach (var symbol in symbols)
             {
-                WriteColumnizedSummary(leftColumnTextFor[option],
-                                       option.Description,
+                WriteColumnizedSummary(leftColumnTextFor[symbol],
+                                       symbol.Description,
                                        leftColumnWidth,
                                        helpView);
             }
         }
 
-        private static string LeftColumnText(Option option)
+        private static string LeftColumnText(Symbol symbol)
         {
             var leftColumnText = "  " +
                                  string.Join(", ",
-                                             option.RawAliases
+                                             symbol.RawAliases
                                                    .OrderBy(a => a.Length)
                                                    .Select(a =>
                                                    {
-                                                       if (option.IsCommand)
+                                                       if (symbol.IsCommand)
                                                        {
                                                            return a.TrimStart(new[] { '-' });
                                                        }
@@ -187,7 +187,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                                        }
                                                    }));
 
-            var argumentName = option.ArgumentsRule.Name;
+            var argumentName = symbol.ArgumentsRule.Name;
 
             if (!string.IsNullOrWhiteSpace(argumentName))
             {
@@ -244,7 +244,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            if (command.DefinedOptions
+            if (command.DefinedSymbols
                        .Any(o => !o.IsCommand &&
                                  !o.IsHidden()))
             {
@@ -257,7 +257,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 helpView.Append($" <{argumentsName}>");
             }
 
-            if (command.DefinedOptions.OfType<Command>().Any())
+            if (command.DefinedSymbols.OfType<Command>().Any())
             {
                 helpView.Append(Synopsis.Command);
             }

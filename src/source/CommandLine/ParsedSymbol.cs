@@ -12,20 +12,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private bool considerAcceptingAnotherArgument = true;
 
-        protected internal ParsedSymbol(Option option, string token)
+        protected internal ParsedSymbol(Symbol symbol, string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
             }
 
-            Option = option ?? throw new ArgumentNullException(nameof(option));
+            Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
             Token = token;
 
-            defaultValue = new Lazy<string>(Option.ArgumentsRule.GetDefaultValue);
+            defaultValue = new Lazy<string>(Symbol.ArgumentsRule.GetDefaultValue);
 
-            materialize = () => Option.ArgumentsRule.Materialize(this);
+            materialize = () => Symbol.ArgumentsRule.Materialize(this);
         }
         
         public IReadOnlyCollection<string> Arguments
@@ -42,21 +42,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        public ParsedSymbolSet ParsedOptions { get; } = new ParsedSymbolSet();
+        public ParsedSymbolSet Children { get; } = new ParsedSymbolSet();
 
-        public string Name => Option.Name;
+        public string Name => Symbol.Name;
 
-        public Option Option { get; }
+        public Symbol Symbol { get; }
 
         public string Token { get; }
 
-        public IReadOnlyCollection<string> Aliases => Option.Aliases;
+        public IReadOnlyCollection<string> Aliases => Symbol.Aliases;
 
-        public bool HasAlias(string alias) => Option.HasAlias(alias);
+        public bool HasAlias(string alias) => Symbol.HasAlias(alias);
 
         internal OptionError Validate()
         {
-            var error = Option.Validate(this);
+            var error = Symbol.Validate(this);
             return string.IsNullOrWhiteSpace(error)
                        ? null
                        : new OptionError(error, Token, this);
@@ -80,16 +80,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             if (!considerAcceptingAnotherArgument &&
-                !Option.IsCommand)
+                !Symbol.IsCommand)
             {
                 // Options must be respecified in order to accept additional arguments. This is 
                 // not the case for commands.
                 return null;
             }
 
-            foreach (var option in ParsedOptions)
+            foreach (var child in Children)
             {
-                var a = option.TryTakeToken(token);
+                var a = child.TryTakeToken(token);
                 if (a != null)
                 {
                     return a;
@@ -110,25 +110,25 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         protected ParsedSymbol TryTakeOptionOrCommand(Token token)
         {
-            var childOption = ParsedOptions
+            var child = Children
                 .SingleOrDefault(o =>
-                                     o.Option.DefinedOptions
+                                     o.Symbol.DefinedSymbols
                                       .Any(oo => oo.RawAliases.Contains(token.Value)));
 
-            if (childOption != null)
+            if (child != null)
             {
-                return childOption.TryTakeToken(token);
+                return child.TryTakeToken(token);
             }
 
             if (token.Type == TokenType.Command &&
-                ParsedOptions.Any(o => o.Option.IsCommand && !o.HasAlias(token.Value)))
+                Children.Any(o => o.Symbol.IsCommand && !o.HasAlias(token.Value)))
             {
                 // if a subcommand has already been applied, don't accept this one
                 return null;
             }
 
             var applied =
-                ParsedOptions.SingleOrDefault(o => o.Option.HasRawAlias(token.Value));
+                Children.SingleOrDefault(o => o.Symbol.HasRawAlias(token.Value));
 
             if (applied != null)
             {
@@ -137,14 +137,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             applied =
-                Option.DefinedOptions
+                Symbol.DefinedSymbols
                       .Where(o => o.RawAliases.Contains(token.Value))
                       .Select(o => Create(o, token.Value))
                       .SingleOrDefault();
 
             if (applied != null)
             {
-                ParsedOptions.Add(applied);
+                Children.Add(applied);
             }
 
             return applied;
@@ -152,15 +152,18 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public override string ToString() => this.Diagram();
 
-        internal static ParsedSymbol Create(Option option, string token)
+        internal static ParsedSymbol Create(Symbol symbol, string token)
         {
-            switch (option)
+            switch (symbol)
             {
                 case Command command:
                     return new ParsedCommand(command);
 
-                default:
+                case Option option:
                     return new ParsedOption(option, token);
+
+                default: 
+                    throw new ArgumentException($"Unrecognized symbol type: {symbol.GetType()}");
             }
         }
 
@@ -177,7 +180,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                                ? string.Join(", ", Arguments)
                                                : " (none)";
                 throw new ParseException(
-                    $"An exception occurred while getting the value for option '{Option.Name}' based on argument(s): {argumentsDescription}.",
+                    $"An exception occurred while getting the value for option '{Symbol.Name}' based on argument(s): {argumentsDescription}.",
                     exception);
             }
         }

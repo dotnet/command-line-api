@@ -7,41 +7,41 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public class ParserConfiguration
     {
         public ParserConfiguration(
-            IReadOnlyCollection<Option> definedOptions,
+            IReadOnlyCollection<Symbol> definedSymbols,
             IReadOnlyCollection<char> argumentDelimiters = null,
             bool allowUnbundling = true)
         {
-            if (definedOptions == null)
+            if (definedSymbols == null)
             {
-                throw new ArgumentNullException(nameof(definedOptions));
+                throw new ArgumentNullException(nameof(definedSymbols));
             }
 
-            if (!definedOptions.Any())
+            if (!definedSymbols.Any())
             {
                 throw new ArgumentException("You must specify at least one option.");
             }
 
-            if (definedOptions.All(o => !o.IsCommand))
+            if (definedSymbols.All(o => !o.IsCommand))
             {
-                RootCommand = Create.RootCommand(definedOptions.ToArray());
-                DefinedOptions.Add(RootCommand);
+                RootCommand = Create.RootCommand(definedSymbols.ToArray());
+                DefinedSymbols.Add(RootCommand);
             }
             else
             {
-                DefinedOptions.AddRange(definedOptions);
+                DefinedSymbols.AddRange(definedSymbols);
             }
 
             ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
             AllowUnbundling = allowUnbundling;
         }
 
-        public OptionSet DefinedOptions { get; } = new OptionSet();
+        public SymbolSet DefinedSymbols { get; } = new SymbolSet();
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
         public bool AllowUnbundling { get; }
 
-        internal Option RootCommand { get; }
+        internal Command RootCommand { get; }
 
         internal bool RootCommandIsImplicit => RootCommand != null;
     }

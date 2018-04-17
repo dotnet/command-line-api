@@ -13,7 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             IReadOnlyCollection<string> aliases,
             string description,
             ArgumentsRule arguments = null,
-            IReadOnlyCollection<Symbol> options = null) : base(aliases, description, arguments, options)
+            IReadOnlyCollection<Symbol> symbols = null) : base(aliases, description, arguments, symbols)
         {
         }
     }

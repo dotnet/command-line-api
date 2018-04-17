@@ -22,7 +22,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             yield return symbol;
 
-            foreach (var item in symbol.ParsedOptions.FlattenBreadthFirst(o => o.ParsedOptions))
+            foreach (var item in symbol.Children.FlattenBreadthFirst(o => o.Children))
             {
                 yield return item;
             }
@@ -32,7 +32,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this Option option,
             string commandLine,
             char[] delimiters = null) =>
-            new OptionParser(new ParserConfiguration(argumentDelimiters: delimiters, definedOptions: new[] { option })).Parse(commandLine);
+            new OptionParser(new ParserConfiguration(argumentDelimiters: delimiters, definedSymbols: new[] { option })).Parse(commandLine);
 
         public static CommandParseResult Parse(
             this Command command,

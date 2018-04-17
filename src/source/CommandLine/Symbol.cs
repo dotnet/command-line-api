@@ -17,7 +17,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             IReadOnlyCollection<string> aliases,
             string description,
             ArgumentsRule arguments = null,
-            IReadOnlyCollection<Symbol> options = null)
+            IReadOnlyCollection<Symbol> symbols = null)
         {
             if (aliases == null)
             {
@@ -50,9 +50,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             ArgumentsRule = arguments ?? Accept.NoArguments();
 
-            if (options != null)
+            if (symbols != null)
             {
-                ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(options.ToArray()));
+                ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(symbols.ToArray()));
             }
 
             AllowedValues = ArgumentsRule.AllowedValues;
@@ -64,7 +64,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         protected internal virtual IReadOnlyCollection<string> AllowedValues { get; }
 
-        public OptionSet DefinedOptions { get; } = new OptionSet();
+        public SymbolSet DefinedSymbols { get; } = new SymbolSet();
 
         public string Description { get; }
 
@@ -88,7 +88,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal string Validate(ParsedSymbol parsedOption) => ArgumentsRule.Validate(parsedOption);
 
-        public Option this[string alias] => DefinedOptions[alias];
+        public Symbol this[string alias] => DefinedSymbols[alias];
 
         public override string ToString() => RawAliases.Single(a => a.RemovePrefix() == Name);
     }

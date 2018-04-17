@@ -47,7 +47,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .ParsedSymbol
                 .ElementAt(0);
             var inner = outer
-                .ParsedOptions
+                .Children
                 .ElementAt(0);
 
             inner
@@ -65,10 +65,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .ParsedSymbol
                 .ElementAt(0);
             var inner = outer
-                .ParsedOptions
+                .Children
                 .ElementAt(0);
             var option = inner
-                .ParsedOptions
+                .Children
                 .ElementAt(0);
 
             option
@@ -86,10 +86,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .ParsedSymbol
                 .ElementAt(0);
             var inner = outer
-                .ParsedOptions
+                .Children
                 .ElementAt(0);
             var option = inner
-                .ParsedOptions
+                .Children
                 .ElementAt(0);
 
             option

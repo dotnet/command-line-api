@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -13,17 +14,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public Command Command { get; }
 
-        public ParsedOption this[string alias] => (ParsedOption) ParsedOptions[alias];
+        public ParsedOption this[string alias] => (ParsedOption) Children[alias];
 
         private void AddImplicitOptions(Command option)
         {
-            foreach (var childOption in option.DefinedOptions)
+            foreach (var childOption in option.DefinedSymbols.OfType<Option>())
             {
-                if (!childOption.IsCommand &&
-                    !ParsedOptions.Contains(childOption.Name) &&
+                if (!Children.Contains(childOption.Name) &&
                     childOption.ArgumentsRule.HasDefaultValue)
                 {
-                    ParsedOptions.Add(
+                    Children.Add(
                         new ParsedOption(childOption, childOption.Name));
                 }
             }

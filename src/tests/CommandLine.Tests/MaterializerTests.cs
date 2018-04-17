@@ -33,7 +33,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
                                              var fileInfos = p.Arguments.Select(f => new FileInfo(f)).ToList();
 
-                                             var destination = new DirectoryInfo(p.ParsedOptions["destination"].Arguments.Single());
+                                             var destination = new DirectoryInfo(p.Children["destination"].Arguments.Single());
 
                                              return new FileMoveOperation
                                              {

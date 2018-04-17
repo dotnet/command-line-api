@@ -75,12 +75,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                  Option("inner", "",
                                         ExactlyOneArgument()));
 
-            var applied = new ParsedOption(option, "outer");
+            var applied = new ParsedCommand(option);
 
             applied.TryTakeToken(new Token("inner", TokenType.Option));
             applied.TryTakeToken(new Token("argument1", TokenType.Argument));
 
-            applied.ParsedOptions
+            applied.Children
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner" &&
@@ -94,19 +94,19 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                  Option("inner1", "", ExactlyOneArgument()),
                                  Option("inner2", "", ExactlyOneArgument()));
 
-            var applied = new ParsedOption(option, "outer");
+            var applied = new ParsedCommand(option);
 
             applied.TryTakeToken(new Token("inner1", TokenType.Option));
             applied.TryTakeToken(new Token("argument1", TokenType.Argument));
             applied.TryTakeToken(new Token("inner2", TokenType.Option));
             applied.TryTakeToken(new Token("argument2", TokenType.Argument));
 
-            applied.ParsedOptions
+            applied.Children
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner1" &&
                                       o.Arguments.Single() == "argument1");
-            applied.ParsedOptions
+            applied.Children
                    .Should()
                    .ContainSingle(o =>
                                       o.Name == "inner2" &&
@@ -200,7 +200,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   Command("two", "",
                                           Command("three", "")));
 
-            var applied = new ParsedOption(command);
+            var applied = new ParsedCommand(command);
 
             applied.TryTakeToken(new Token("two", TokenType.Command))
                    .Name
@@ -217,7 +217,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("command", "", Option("-o|--one", "", NoArguments()));
 
-            var applied = new ParsedOption(command);
+            var applied = new ParsedCommand(command);
 
             applied.TryTakeToken(new Token("--one", TokenType.Option))
                    .Name
@@ -230,7 +230,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("command", "", Option("-o|--one", "", NoArguments()));
 
-            var applied = new ParsedOption(command);
+            var applied = new ParsedCommand(command);
 
             applied.TryTakeToken(new Token("-o", TokenType.Option))
                    .Name
@@ -243,7 +243,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("command", "", Option("-o|--one", "", NoArguments()));
 
-            var applied = new ParsedOption(command);
+            var applied = new ParsedCommand(command);
 
             applied.TryTakeToken(new Token("--o", TokenType.Option))
                    .Should()
@@ -261,7 +261,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   Command("two", "",
                                           Command("three", "")));
 
-            var applied = new ParsedOption(command);
+            var applied = new ParsedCommand(command);
 
             applied.TryTakeToken(new Token("three", TokenType.Command))
                    .Should()
@@ -275,7 +275,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   Command("inner-one", ""),
                                   Command("inner-two", ""));
 
-            var applied = new ParsedOption(command);
+            var applied = new ParsedCommand(command);
 
             applied.TryTakeToken(new Token("inner-one", TokenType.Command))
                    .Name

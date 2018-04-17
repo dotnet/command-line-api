@@ -9,11 +9,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly ParserConfiguration configuration;
 
-        protected Parser(params Option[] options) : this(new ParserConfiguration(options))
+        protected Parser(params Symbol[] options) : this(new ParserConfiguration(options))
         {
         }
 
-        protected Parser(char[] delimiters, params Option[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
+        protected Parser(char[] delimiters, params Symbol[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
         {
         }
 
@@ -22,7 +22,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public OptionSet DefinedOptions => configuration.DefinedOptions;
+        public SymbolSet DefinedSymbols => configuration.DefinedSymbols;
 
         internal virtual RawParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
@@ -47,7 +47,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 if (token.Type != TokenType.Argument)
                 {
                     var definedOption =
-                        DefinedOptions.SingleOrDefault(o => o.HasAlias(token.Value));
+                        DefinedSymbols.SingleOrDefault(o => o.HasAlias(token.Value));
 
                     if (definedOption != null)
                     {
@@ -81,7 +81,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }
 
                     if (token.Type == TokenType.Argument &&
-                        parsedOption.Option.IsCommand)
+                        parsedOption.Symbol.IsCommand)
                     {
                         break;
                     }
@@ -103,7 +103,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 rawTokens = rawTokens.Skip(1).ToArray();
                 var parsedOptions = rootParsedOptions
-                                     .SelectMany(o => o.ParsedOptions)
+                                     .SelectMany(o => o.Children)
                                      .ToArray();
                 rootParsedOptions = new ParsedSymbolSet(parsedOptions);
             }
@@ -127,12 +127,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var firstArg = args.FirstOrDefault();
 
-            if (DefinedOptions.Count != 1)
+            if (DefinedSymbols.Count != 1)
             {
                 return args;
             }
 
-            var commandName = DefinedOptions
+            var commandName = DefinedSymbols
                               .SingleOrDefault(o => o.IsCommand)
                               ?.Name;
 
