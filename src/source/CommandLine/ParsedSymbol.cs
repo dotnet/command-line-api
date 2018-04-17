@@ -12,7 +12,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private bool considerAcceptingAnotherArgument = true;
 
-        protected internal ParsedSymbol(Symbol symbol, string token)
+        protected internal ParsedSymbol(Symbol symbol, string token, ParsedCommand parent = null)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -22,6 +22,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
             Token = token;
+
+            Parent = parent;
 
             defaultValue = new Lazy<string>(Symbol.ArgumentsRule.GetDefaultValue);
 
@@ -45,6 +47,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public ParsedSymbolSet Children { get; } = new ParsedSymbolSet();
 
         public string Name => Symbol.Name;
+
+        public ParsedCommand Parent { get; }
 
         public Symbol Symbol { get; }
 
@@ -110,6 +114,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         protected ParsedSymbol TryTakeOptionOrCommand(Token token)
         {
+            // FIX: (TryTakeOptionOrCommand) this method can move to ParsedCommand
             var child = Children
                 .SingleOrDefault(o =>
                                      o.Symbol.DefinedSymbols
@@ -139,7 +144,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             applied =
                 Symbol.DefinedSymbols
                       .Where(o => o.RawAliases.Contains(token.Value))
-                      .Select(o => Create(o, token.Value))
+                      .Select(o => Create(o, token.Value, (ParsedCommand) this))
                       .SingleOrDefault();
 
             if (applied != null)
@@ -152,15 +157,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public override string ToString() => this.Diagram();
 
-        internal static ParsedSymbol Create(Symbol symbol, string token)
+        internal static ParsedSymbol Create(Symbol symbol, string token, ParsedCommand parent = null)
         {
             switch (symbol)
             {
                 case Command command:
-                    return new ParsedCommand(command);
+                    return new ParsedCommand(command, parent);
 
                 case Option option:
-                    return new ParsedOption(option, token);
+                    return new ParsedOption(option, token, parent);
 
                 default: 
                     throw new ArgumentException($"Unrecognized symbol type: {symbol.GetType()}");

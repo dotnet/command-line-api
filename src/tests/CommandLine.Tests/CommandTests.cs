@@ -25,12 +25,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                        arguments: ExactlyOneArgument()))));
         }
 
-        [Fact(Skip = "Redesign access to parent commands from parse result")]
+        [Fact]
         public void Outer_command_is_identified_correctly()
         {
             var result = parser.Parse("outer inner --option argument1");
 
-            var outer = result.ParsedCommand()["outer"];
+            var outer = result.ParsedCommand().Parent;
 
             outer
                 .Name
@@ -109,10 +109,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
-                // FIX: (Commands_at_multiple_levels_can_have_their_own_arguments)   result["outer"]
-//                .Arguments
-//                .Should()
-//                .BeEquivalentTo("arg1");
+            result.ParsedCommand()
+                  .Parent
+                  .Arguments
+                  .Should()
+                  .BeEquivalentTo("arg1");
 
             result.ParsedCommand()
                   .Arguments

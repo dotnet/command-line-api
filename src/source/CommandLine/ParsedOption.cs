@@ -8,8 +8,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ParsedOption : ParsedSymbol
     {
-        public ParsedOption(Option symbol, string token = null) :
-            base(symbol, token ?? symbol?.ToString())
+        public ParsedOption(Option symbol, string token = null, ParsedCommand parent = null) :
+            base(symbol, token ?? symbol?.ToString(), parent)
         {
         }
     }

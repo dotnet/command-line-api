@@ -479,13 +479,16 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             // all should be equivalent
             result1.ShouldBeEquivalentTo(
                 result2,
-                x => x.Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+                x => x.IgnoringCyclicReferences() 
+                      .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
             result1.ShouldBeEquivalentTo(
                 result3,
-                x => x.Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+                x => x.IgnoringCyclicReferences() 
+                      .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
             result1.ShouldBeEquivalentTo(
                 result4,
-                x => x.Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+                x => x.IgnoringCyclicReferences() 
+                      .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
         }
 
         [Fact]
@@ -524,7 +527,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("outer arg1 inner arg2");
 
-            // FIX: (When_nested_commands_all_acccept_arguments_then_the_nearest_captures_the_arguments)      result["outer"].Arguments.Should().BeEquivalentTo("arg1");
+            result.ParsedCommand().Parent.Arguments.Should().BeEquivalentTo("arg1");
 
             result.ParsedCommand().Arguments.Should().BeEquivalentTo("arg2");
         }
@@ -588,10 +591,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse("outer inner -x");
 
-            // FIX: (When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_inner_command)    result["outer"]
-            //                .ParsedOptions
-            //                .Should()
-            //                .NotContain(o => o.Name == "x");
+            result
+                .ParsedCommand()
+                .Parent
+                .Children
+                .Should()
+                .NotContain(o => o.Name == "x");
             result
                 .ParsedCommand()
                 .Children
@@ -610,14 +615,17 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse("outer -x inner");
 
-            result.ParsedCommand()
-                  .Children
-                  .Should()
-                  .BeEmpty();
-            // FIX: (When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_in_between_then_it_attaches_to_the_outer_command)             result["outer"]
-//                .ParsedOptions
-//                .Should()
-//                .ContainSingle(o => o.Name == "x");
+            result
+                .ParsedCommand()
+                .Children
+                .Should()
+                .BeEmpty();
+            result
+                .ParsedCommand()
+                .Parent
+                .Children
+                .Should()
+                .ContainSingle(o => o.Name == "x");
         }
 
         [Fact]
@@ -630,11 +638,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = command.Parse("outer inner arg1 arg2");
 
-//    // FIX: (Arguments_only_apply_to_the_nearest_command)         result["outer"]
-//                .Arguments
-//                .Should()
-//                .BeEmpty();
-
+            result.ParsedCommand()
+                  .Parent
+                  .Arguments
+                  .Should()
+                  .BeEmpty();
             result.ParsedCommand()
                   .Arguments
                   .Should()
@@ -730,7 +738,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .OnlyContain(a => a == @"c:\temp\the file.txt\");
         }
 
-        [Fact(Skip = "Redesign access to parent commands from parse result")]
+        [Fact]
         public void When_a_default_argument_value_is_not_provided_then_the_default_value_can_be_accessed_from_the_parse_result()
         {
             var option = Command("command", "",
@@ -742,7 +750,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            result.ParsedCommand()["command"].Arguments.Should().BeEquivalentTo("default");
+            result.ParsedCommand().Parent.Arguments.Should().BeEquivalentTo("default");
         }
 
         [Fact]
@@ -856,11 +864,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Should()
                   .Be("inner");
 
-            // FIX: (Option_and_Command_can_have_the_same_alias) figure out how to access parent command
-//            parser.Parse("outer --inner inner")["outer"]
-//                  .ParsedOptions
-//                  .Should()
-//                  .Contain(o => o.Name == "inner");
+            parser.Parse("outer --inner inner")
+                  .ParsedCommand()
+                  .Parent
+                  .Children
+                  .Should()
+                  .Contain(o => o.Name == "inner");
         }
 
         [Fact]

@@ -44,7 +44,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             CheckForErrors();
         }
 
-        // FIX: (ParsedOptions) remove / hide? 
         public ParsedSymbolSet ParsedSymbol { get; }
 
         public IReadOnlyCollection<OptionError> Errors => errors;
