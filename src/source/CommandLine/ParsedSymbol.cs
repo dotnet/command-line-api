@@ -68,15 +68,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal void OptionWasRespecified() => considerAcceptingAnotherArgument = true;
 
-        public ParsedSymbol TryTakeToken(Token token)
-        {
-            var option = TryTakeArgument(token) ??
-                         TryTakeOptionOrCommand(token);
-            considerAcceptingAnotherArgument = false;
-            return option;
-        }
+        public abstract ParsedSymbol TryTakeToken(Token token);
 
-        private ParsedSymbol TryTakeArgument(Token token)
+        protected ParsedSymbol TryTakeArgument(Token token)
         {
             if (token.Type != TokenType.Argument)
             {
@@ -112,48 +106,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return null;
         }
 
-        private ParsedSymbol TryTakeOptionOrCommand(Token token)
-        {
-            // FIX: (TryTakeOptionOrCommand) this method can move to ParsedCommand
-            var child = Children
-                .SingleOrDefault(o =>
-                                     o.Symbol.DefinedSymbols
-                                      .Any(oo => oo.RawAliases.Contains(token.Value)));
-
-            if (child != null)
-            {
-                return child.TryTakeToken(token);
-            }
-
-            if (token.Type == TokenType.Command &&
-                Children.Any(o => o.Symbol is Command && !o.HasAlias(token.Value)))
-            {
-                // if a subcommand has already been applied, don't accept this one
-                return null;
-            }
-
-            var applied =
-                Children.SingleOrDefault(o => o.Symbol.HasRawAlias(token.Value));
-
-            if (applied != null)
-            {
-                applied.OptionWasRespecified();
-                return applied;
-            }
-
-            applied =
-                Symbol.DefinedSymbols
-                      .Where(o => o.RawAliases.Contains(token.Value))
-                      .Select(o => Create(o, token.Value, (ParsedCommand) this))
-                      .SingleOrDefault();
-
-            if (applied != null)
-            {
-                Children.Add(applied);
-            }
-
-            return applied;
-        }
 
         public override string ToString() => this.Diagram();
 

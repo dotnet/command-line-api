@@ -12,5 +12,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             base(symbol, token ?? symbol?.ToString(), parent)
         {
         }
+
+        public override ParsedSymbol TryTakeToken(Token token) => 
+            TryTakeArgument(token);
     }
 }
