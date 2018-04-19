@@ -10,52 +10,52 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         public static Option Option(
             string aliases,
-            string help,
+            string description,
             ArgumentsRule arguments = null) =>
             new Option(
                 aliases.Split(
                     new[] { '|', ' ' }, StringSplitOptions.RemoveEmptyEntries),
-                help,
+                description,
                 arguments: arguments);
 
         public static Command Command(
             string name,
-            string help) =>
-            new Command(name, help);
+            string description) =>
+            new Command(name, description);
 
         public static Command Command(
             string name,
-            string help,
+            string description,
             params Symbol[] options) =>
-            new Command(name, help, options);
+            new Command(name, description, options);
 
         public static Command Command(
             string name,
-            string help,
+            string description,
             bool treatUnmatchedTokensAsErrors,
             params Symbol[] options) =>
-            new Command(name, help, options, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
+            new Command(name, description, options, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
 
         public static Command Command(
             string name,
-            string help,
+            string description,
             ArgumentsRule arguments,
             params Symbol[] options) =>
-            new Command(name, help, options, arguments);
+            new Command(name, description, options, arguments);
 
         public static Command Command(
             string name,
-            string help,
+            string description,
             ArgumentsRule arguments,
             bool treatUnmatchedTokensAsErrors,
             params Symbol[] options) =>
-            new Command(name, help, options, arguments, treatUnmatchedTokensAsErrors);
+            new Command(name, description, options, arguments, treatUnmatchedTokensAsErrors);
 
         public static Command Command(
             string name,
-            string help,
+            string description,
             params Command[] commands) =>
-            new Command(name, help, commands);
+            new Command(name, description, commands);
 
         public static Command RootCommand(params Symbol[] symbols) =>
             new Command(symbols);
