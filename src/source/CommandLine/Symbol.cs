@@ -54,15 +54,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(symbols.ToArray()));
             }
-
-            AllowedValues = ArgumentsRule.AllowedValues;
         }
 
         public IReadOnlyCollection<string> Aliases => aliases;
 
         public IReadOnlyCollection<string> RawAliases => rawAliases;
-
-        protected internal virtual IReadOnlyCollection<string> AllowedValues { get; }
+        
 
         public SymbolSet DefinedSymbols { get; } = new SymbolSet();
 
@@ -74,7 +71,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IEnumerable<string> Suggest(
             ParseResult parseResult,
-            int? position = null) => ArgumentsRule.Suggest(parseResult, position);
+            int? position = null) => ArgumentsRule.Parser.Suggest(parseResult, position);
 
         // FIX: (Parent) make this immutable
         public Command Parent { get; protected internal set; }
@@ -83,7 +80,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public bool HasRawAlias(string alias) => rawAliases.Contains(alias);
 
-        internal string Validate(ParsedSymbol parsedOption) => ArgumentsRule.Validate(parsedOption);
+        internal Result Validate(ParsedSymbol parsedOption) => ArgumentsRule.Parser.Parse(parsedOption);
 
         public Symbol this[string alias] => DefinedSymbols[alias];
 

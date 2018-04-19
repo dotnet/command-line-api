@@ -7,7 +7,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public abstract class ParsedSymbol
     {
         private readonly Lazy<string> defaultValue;
-        private readonly Func<object> materialize;
         protected internal readonly List<string> arguments = new List<string>();
 
         private bool considerAcceptingAnotherArgument = true;
@@ -26,8 +25,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Parent = parent;
 
             defaultValue = new Lazy<string>(Symbol.ArgumentsRule.GetDefaultValue);
-
-            materialize = () => Symbol.ArgumentsRule.Materialize(this);
         }
         
         public IReadOnlyCollection<string> Arguments
@@ -60,10 +57,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal ParseError Validate()
         {
-            var error = Symbol.Validate(this);
-            return string.IsNullOrWhiteSpace(error)
-                       ? null
-                       : new ParseError(error, Token, this);
+            if (Symbol.Validate(this) is FailedResult failed)
+            {
+                return new ParseError(failed.Error, Token, this);
+            }
+
+            return null;
         }
 
         internal void OptionWasRespecified() => considerAcceptingAnotherArgument = true;
@@ -125,21 +124,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         
-        public object Value()
-        {
-            try
-            {
-                return materialize();
-            }
-            catch (Exception exception)
-            {
-                var argumentsDescription = Arguments.Any()
-                                               ? string.Join(", ", Arguments)
-                                               : " (none)";
-                throw new ParseException(
-                    $"An exception occurred while getting the value for option '{Symbol.Name}' based on argument(s): {argumentsDescription}.",
-                    exception);
-            }
-        }
+        public Result Result() => Symbol.ArgumentsRule.Parser.Parse(this);
     }
 }

@@ -15,12 +15,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public ArgumentParser ArgumentParser { get; set; }
 
+        public ArgumentsRuleHelp Help { get; set; }
+
+        public Func<string> DefaultValue { get; set; }
+
         public void AddValidator(Validate validator)
         {
             if (validator == null)
             {
                 throw new ArgumentNullException(nameof(validator));
             }
+
 
             validators.Add(validator);
         }
@@ -38,7 +43,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal ArgumentsRule Build()
         {
-            return new ArgumentsRule(Validate);
+            return new ArgumentsRule(ArgumentParser, DefaultValue, Help);
         }
     }
 
@@ -250,6 +255,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         #endregion
 
+        public static ArgumentRuleBuilder WithHelp(this ArgumentRuleBuilder builder,
+            string name = null, string description = null)
+        {
+            builder.Help = new ArgumentsRuleHelp(name, description);
+            return builder;
+        }
+
+        public static ArgumentRuleBuilder WithDefaultValue(this ArgumentRuleBuilder builder,
+            Func<string> defaultValue)
+        {
+            builder.DefaultValue = defaultValue;
+            return builder;
+        }
+
         public static ArgumentRuleBuilder Validate(
             this ArgumentRuleBuilder builder,
             Validate validate)
@@ -260,52 +279,111 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
     }
 
-    public delegate ArgumentParser<T>.Result ParseArgument<T>(string value);
+    public delegate Result TypeConverter(ParsedSymbol symbol);
 
-    public class ArgumentParser
+    public abstract class ArgumentParser
     {
+        public virtual IEnumerable<string> Suggest(
+            ParseResult parseResult,
+            int? position = null)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        //public abstract Result Parse(string value);
+        public abstract Result Parse(ParsedSymbol value);
     }
+
+    public delegate Result ParseArgument<T>(string value);
+
+    public delegate Result Validate<in T>(T value, ParsedSymbol symbol);
+
+    public delegate Result TypeConversion(ParsedSymbol symbol);
 
     public class ArgumentParser<T> : ArgumentParser
     {
-        private readonly ParseArgument<T> parse;
+        private readonly List<Validate<T>> validations = new List<Validate<T>>();
+        private readonly TypeConversion typeConversion;
 
-        public ArgumentParser(ParseArgument<T> parse)
+        public ArgumentParser(TypeConversion typeConversion)
         {
-            this.parse = parse ??
-                         throw new ArgumentNullException(nameof(parse));
+            this.typeConversion = typeConversion ??
+                         throw new ArgumentNullException(nameof(typeConversion));
         }
 
-        public Result TryParse(string value) => parse(value);
-
-        public static Result Failure { get; } = new Result(false);
-
-        public static Result Success(T value) => new Result(true, value);
-
-        public struct Result
+        public void AddValidator(Validate<T> validator)
         {
-            private readonly T value;
+            validations.Add(validator);
+        }
 
-            public Result(bool successful, T value = default(T))
+        private Result Parse(T value, ParsedSymbol symbol)
+        {
+            Result result = null;
+            foreach (Validate<T> validator in validations)
             {
-                Successful = successful;
-                this.value = value;
-            }
-
-            public bool Successful { get; }
-
-            public T Value
-            {
-                get
+                result = validator(value, symbol);
+                if (result is SuccessfulResult<T> successResult)
                 {
-                    if (!Successful)
-                    {
-                        throw new InvalidOperationException($"Value \"{value}\" could not be parsed as a {typeof(T)}");
-                    }
-
-                    return value;
+                    value = successResult.Value;
+                }
+                else
+                {
+                    return result;
                 }
             }
+            return result ?? Result.Success(value);
         }
+
+        //string -> parsed symbol -> custom type conversion -> type checking -> custom validation
+
+        //public override Result Parse(string value)
+        //{
+        //    
+        //    return parse(value);
+        //}
+
+        public override Result Parse(ParsedSymbol symbol)
+        {
+            Result typeResult = typeConversion(symbol);
+            if (typeResult is SuccessfulResult<T> successfulResult)
+            {
+                return Parse(successfulResult.Value, symbol);
+            }
+            return typeResult;
+        }
+    }
+
+    public class SuccessfulResult<T> : Result
+    {
+        public SuccessfulResult(T value = default(T))
+        {
+            Value = value;
+        }
+
+        public T Value { get; }
+
+        public override bool Successful { get; } = true;
+    }
+
+    public class FailedResult : Result
+    {
+        public string Error { get; }
+
+        public FailedResult(string error)
+        {
+            Error = error;
+        }
+
+        public override bool Successful { get; } = false;
+    }
+
+    public abstract class Result
+    {
+        public abstract bool Successful { get; }
+
+        public static FailedResult Failure(string error) => new FailedResult(error);
+
+        public static SuccessfulResult<T> Success<T>(T value) => new SuccessfulResult<T>(value);
     }
 }

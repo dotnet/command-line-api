@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
@@ -148,18 +147,19 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var option =
                 Option("-x",
                        "",
-                       ExactlyOneArgument()
-                           .With(defaultValue: () => (++i).ToString()));
+                        Define.Arguments()
+                            .WithDefaultValue(() => (++i).ToString())
+                            .ExactlyOne());
 
             var result1 = option.Parse("-x");
             var result2 = option.Parse("-x");
 
             result1["x"]
-                .Value()
+                .Result()
                 .Should()
                 .Be("1");
             result2["x"]
-                .Value()
+                .Result()
                 .Should()
                 .Be("2");
         }

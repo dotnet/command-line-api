@@ -21,8 +21,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                     .Distinct()
                                     .ToArray(),
                 suggest: (result, position) => rules.SelectMany(r => r.Suggest(result, position)),
-                name: rule.Name ?? rule2.Name,
-                description: rule.Description ?? rule2.Description,
+                help: new ArgumentsRuleHelp(name: rule.Help.Name ?? rule2.Help.Name, 
+                                            description: rule.Help.Description ?? rule2.Help.Description),
                 defaultValue: (rule.HasDefaultValue
                                    ? rule.GetDefaultValue
                                    : null)
@@ -68,10 +68,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               (rule.HasDefaultValue
                                    ? rule.GetDefaultValue
                                    : null),
-                name: name ?? rule.Name,
-                description: description ?? rule.Description,
+                help:new ArgumentsRuleHelp(
+                    name: name ?? rule.Help.Name,
+                    description: description ?? rule.Help.Description
+                ),
                 suggest: rule.Suggest,
-                materialize: materialize ?? rule.Materialize);
+                materialize: materialize ?? rule.Materializer);
         }
     }
 }

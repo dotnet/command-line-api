@@ -1,13 +1,12 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
-using Newtonsoft.Json.Linq;
 using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
@@ -44,8 +43,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
 
         private static Command Complete() =>
             Command("complete", "",
-                    ExactlyOneArgument()
-                        .With(name: "path"),
+                Define.Arguments().WithHelp(name: "path")
+                    .ExactlyOne(),
                     Option("--position", "",
                            ExactlyOneArgument()
                                .With(name: "command")));
@@ -53,9 +52,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Add() =>
             Command("add",
                     ".NET Add Command",
-                    ExactlyOneArgument()
-                        .With(name: "PROJECT",
-                              description: "The project file to operate on. If a file is not specified, the command will search the current directory for one."),
+                Define.Arguments().WithHelp(name: "PROJECT",
+                    description: "The project file to operate on. If a file is not specified, the command will search the current directory for one.")
+                    .ExactlyOne(),
                     Package(),
                     Reference(),
                     HelpOption());
@@ -63,10 +62,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Build() =>
             Command("build",
                     ".NET Builder",
-                    ZeroOrOneArgument()
-                        .With(name: "PROJECT",
-                              description:
-                              "The MSBuild project file to build. If a project file is not specified, MSBuild searches the current working directory for a file that has a file extension that ends in `proj` and uses that file."),
+                Define.Arguments().WithHelp(name: "PROJECT",
+                    description:
+                    "The MSBuild project file to build. If a project file is not specified, MSBuild searches the current working directory for a file that has a file extension that ends in `proj` and uses that file.")
+                    .ZeroOrOne(),
                     HelpOption(),
                     Option("-o|--output",
                            "Output directory in which to place built artifacts.",

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public static class ParsedOptionExtensions
+    public static class ParsedSymbolExtensions
     {
         public static IEnumerable<ParseError> ValidateAll(
             this ParsedSymbol option) =>
@@ -31,16 +31,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        public static T Value<T>(this ParsedSymbol option)
+        public static T GetValueOrDefault<T>(this ParsedSymbol option)
         {
-            if (option != null)
+            if (option?.Result() is SuccessfulResult<T> successfulResult)
             {
-                return (T) option.Value();
+                return successfulResult.Value;
             }
-            else
-            {
-                return default(T);
-            }
+            return default(T);
         }
     }
 }

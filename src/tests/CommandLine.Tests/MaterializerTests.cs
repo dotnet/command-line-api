@@ -53,7 +53,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = parser.Parse($@"move -d ""{folder}"" ""{file1}"" ""{file2}""");
 
             var fileMoveOperation = result.ParsedCommand()
-                                          .Value<FileMoveOperation>();
+                                          .GetValueOrDefault<FileMoveOperation>();
 
             fileMoveOperation.Destination
                              .FullName
@@ -196,15 +196,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 "something", "",
                 Option("-x",
                        "",
-                       Accept
-                           .ExactlyOneArgument()
-                           .With(defaultValue: () => "123")));
+                    Define.Arguments().WithDefaultValue(() => "123").ExactlyOne()));
 
             var result = command.Parse("something");
 
             var parsedOption = result.ParsedCommand()["x"];
 
-            parsedOption.Value<string>().Should().Be("123");
+            parsedOption.GetValueOrDefault<string>().Should().Be("123");
         }
 
         [Fact(Skip = "not implemented yet")]
@@ -216,10 +214,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                         {
                                             if (int.TryParse(s, out var i))
                                             {
-                                                return ArgumentParser<int>.Success(i);
+                                                return Result.Success(i);
                                             }
 
-                                            return ArgumentParser<int>.Failure;
+                                            return Result.Failure("Could not parse int");
                                         })
                                         .ExactlyOne());
 
@@ -240,10 +238,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                         {
                                             if (int.TryParse(s, out var i))
                                             {
-                                                return ArgumentParser<int>.Success(i);
+                                                return Result.Success(i);
                                             }
 
-                                            return ArgumentParser<int>.Failure;
+                                            return Result.Failure("Could not parse int");
                                         })
                                         .ExactlyOne());
 

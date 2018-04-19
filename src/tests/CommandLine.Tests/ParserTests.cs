@@ -742,7 +742,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_a_default_argument_value_is_not_provided_then_the_default_value_can_be_accessed_from_the_parse_result()
         {
             var option = Command("command", "",
-                                 ExactlyOneArgument().With(defaultValue: () => "default"),
+                    Define.Arguments().WithDefaultValue(() => "default")
+                        .ExactlyOne(),
                                  Command("subcommand", "",
                                          ExactlyOneArgument()));
 
@@ -757,7 +758,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
         {
             var command = Command("command", "",
-                                  Option("-o|--option", "", ExactlyOneArgument().With(defaultValue: () => "the-default")));
+                                  Option("-o|--option", "", 
+                                      Define.Arguments().WithDefaultValue(() => "the-default")
+                                          .ExactlyOne()));
 
             var result = command.Parse("command");
 
@@ -770,13 +773,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_from_the_parse_result_as_though_it_had_been_applied()
         {
             var option = Option("-o|--option", "",
-                                ExactlyOneArgument().With(defaultValue: () => "the-default"));
+                Define.Arguments().WithDefaultValue(() => "the-default").ExactlyOne());
 
             var result = option.Parse("");
 
             result.HasOption("o").Should().BeTrue();
             result.HasOption("option").Should().BeTrue();
-            result["o"].Value<string>().Should().Be("the-default");
+            result["o"].GetValueOrDefault<string>().Should().Be("the-default");
         }
 
         [Fact]
