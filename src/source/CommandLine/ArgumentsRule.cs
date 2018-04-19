@@ -9,17 +9,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ArgumentsRule
     {
-        private readonly Func<ParsedSymbol, string> validate;
+        private readonly Validate validate;
         private readonly Func<ParsedSymbol, object> materialize;
         private readonly Suggest suggest;
         private readonly Func<string> defaultValue;
 
-        public ArgumentsRule(Func<ParsedSymbol, string> validate) : this(validate, null)
+        public ArgumentsRule(Validate validate) : this(validate, null)
         {
         }
 
         public ArgumentsRule(
-            Func<ParsedSymbol, string> validate,
+            Validate validate,
             IReadOnlyCollection<string> allowedValues = null,
             Func<string> defaultValue = null,
             string description = null,
