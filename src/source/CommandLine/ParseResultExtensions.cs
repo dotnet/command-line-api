@@ -57,7 +57,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               .Reverse()
                               .ToArray();
 
-            var symbol = result.ParsedSymbol[commandPath.First()];
+            var symbol = result.ParsedSymbols[commandPath.First()];
 
             foreach (var commandName in commandPath.Skip(1))
             {
@@ -68,7 +68,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         internal static ParsedSymbol CurrentOption(this ParseResult result) =>
-            result.ParsedSymbol
+            result.ParsedSymbols
                   .LastOrDefault()
                   .AllOptions()
                   .LastOrDefault();
@@ -77,7 +77,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var builder = new StringBuilder();
 
-            foreach (var o in result.ParsedSymbol)
+            foreach (var o in result.ParsedSymbols)
             {
                 builder.Diagram(o);
             }
@@ -160,7 +160,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.ParsedSymbol.Contains(alias);
+            return parseResult.ParsedSymbols.Contains(alias);
         }
 
         internal static int? ImplicitCursorPosition(this ParseResult parseResult)

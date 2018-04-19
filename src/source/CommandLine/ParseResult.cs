@@ -27,7 +27,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             Tokens = tokens ??
                      throw new ArgumentNullException(nameof(tokens));
-            ParsedSymbol = parsedOptions ??
+            ParsedSymbols = parsedOptions ??
                             throw new ArgumentNullException(nameof(parsedOptions));
             this.configuration = configuration ??
                                  throw new ArgumentNullException(nameof(configuration));
@@ -44,7 +44,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             CheckForErrors();
         }
 
-        public ParsedSymbolSet ParsedSymbol { get; }
+        public ParsedSymbolSet ParsedSymbols { get; }
 
         public IReadOnlyCollection<ParseError> Errors => errors;
 
@@ -60,11 +60,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
             command ??
             (command = configuration.RootCommandIsImplicit
                            ? configuration.DefinedSymbols.OfType<Command>().Single()
-                           : ParsedSymbol.Command());
+                           : ParsedSymbols.Command());
 
         private void CheckForErrors()
         {
-            foreach (var option in ParsedSymbol.FlattenBreadthFirst())
+            foreach (var option in ParsedSymbols.FlattenBreadthFirst())
             {
                 var error = option.Validate();
 

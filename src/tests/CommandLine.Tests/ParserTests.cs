@@ -147,7 +147,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Should()
                   .BeTrue();
 
-            result.ParsedSymbol
+            result.ParsedSymbols
                   .Should()
                   .HaveCount(1);
 
@@ -433,7 +433,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            var applied = result.ParsedSymbol.Single();
+            var applied = result.ParsedSymbols.Single();
 
             applied
                 .ValidateAll()
@@ -713,7 +713,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse(command);
 
-            result.ParsedSymbol["rm"]
+            result.ParsedSymbols["rm"]
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"/temp/the file.txt");
@@ -732,7 +732,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             Console.WriteLine(result);
 
-            result.ParsedSymbol["rm"]
+            result.ParsedSymbols["rm"]
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"c:\temp\the file.txt\");
