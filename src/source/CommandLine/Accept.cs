@@ -225,13 +225,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
                               },
                               materialize: o => o.Arguments);
 
-        internal static ArgumentsRule ZeroOrMoreOf(params Symbol[] options)
+        internal static ArgumentsRule ZeroOrMoreOf(params Symbol[] symbols)
         {
-            var values = options
+            var values = symbols
                 .SelectMany(o => o.RawAliases)
                 .ToArray();
 
-            var completionValues = options
+            var completionValues = symbols
                 .Where(o => !o.IsHidden())
                 .SelectMany(o => o.RawAliases)
                 .ToArray();
