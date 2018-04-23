@@ -117,8 +117,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = Option("-x",
                                 "",
-                                AnyOneOf("one", "two", "default")
-                                    .With(defaultValue: () => "default"));
+                Define.Arguments().FromAmong("one", "two", "default")
+                    .WithDefaultValue(() => "default")
+                    .ExactlyOne());
 
             var applied = new ParsedOption(option, "-x");
 
@@ -130,8 +131,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = Option("-x",
                                 "",
-                                AnyOneOf("one", "two", "default")
-                                    .With(defaultValue: () => "default"));
+                Define.Arguments().FromAmong("one", "two", "default")
+                    .WithDefaultValue(defaultValue: () => "default")
+                    .ExactlyOne());
 
             var applied = new ParsedOption(option, "-x");
 

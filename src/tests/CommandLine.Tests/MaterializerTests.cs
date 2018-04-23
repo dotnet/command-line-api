@@ -26,21 +26,22 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("move", "",
-                        arguments: Accept.OneOrMoreArguments()
-                                         .MaterializeAs(p =>
-                                         {
-                                             output.WriteLine(p.ToString());
+                    Define.Arguments()
+                        .OfType<FileMoveOperation>(parsedSymbol =>
+                        {
+                            output.WriteLine(parsedSymbol.Token);
 
-                                             var fileInfos = p.Arguments.Select(f => new FileInfo(f)).ToList();
+                            var fileInfos = parsedSymbol.Arguments.Select(f => new FileInfo(f)).ToList();
 
-                                             var destination = new DirectoryInfo(p.Children["destination"].Arguments.Single());
+                            var destination = new DirectoryInfo(parsedSymbol.Children["destination"].Arguments.Single());
 
-                                             return new FileMoveOperation
-                                             {
-                                                 Files = fileInfos,
-                                                 Destination = destination
-                                             };
-                                         }),
+                            return Result.Success(new FileMoveOperation
+                            {
+                                Files = fileInfos,
+                                Destination = destination
+                            });
+                        })
+                        .OneOrMore(),
                         options: new[]
                         {
                             Option("-d|--destination", "", Accept.ExactlyOneArgument())
@@ -72,8 +73,14 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Option("-o|--one", "",
-                                         Accept.ExactlyOneArgument()
-                                               .MaterializeAs(o => int.Parse(o.Arguments.Single()))));
+                                  Define.Arguments().OfType<int>(parsedSymbol =>
+                                  {
+                                      if (int.TryParse(parsedSymbol.Token, out int intValue))
+                                      {
+                                          return Result.Success(intValue);
+                                      }
+                                      return Result.Failure($"'{parsedSymbol.Token}' is not an integer");
+                                  }).ExactlyOne()));
 
             var result = command.Parse("the-command -o not-an-int");
 
@@ -210,9 +217,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("tally", "",
                                   Define.Arguments()
-                                        .OfType<int>(s =>
+                                        .OfType<int>(parsedSymbol =>
                                         {
-                                            if (int.TryParse(s, out var i))
+                                            
+                                            if (int.TryParse(parsedSymbol.Token, out var i))
                                             {
                                                 return Result.Success(i);
                                             }
@@ -234,9 +242,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("tally", "",
                                   Define.Arguments()
-                                        .OfType<int>(s =>
+                                        .OfType<int>(parsedSymbol =>
                                         {
-                                            if (int.TryParse(s, out var i))
+                                            if (int.TryParse(parsedSymbol.Token, out var i))
                                             {
                                                 return Result.Success(i);
                                             }

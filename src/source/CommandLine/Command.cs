@@ -29,10 +29,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
 
-            ArgumentsRule =
-                ExactlyOneCommandRequired()
-                    .WithSuggestionsFrom(commandNames)
-                    .And(ArgumentsRule);
+            var builder = new ArgumentRuleBuilder();
+            ArgumentsRule = builder
+                .WithSuggestions(commandNames)
+                .ExactlyOneChild();
         }
 
         public Command(
@@ -45,13 +45,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
 
-            if (symbols != null && symbols.Any())
+            if (symbols?.Any() == true)
             {
                 foreach (var option in symbols)
                 {
                     option.Parent = this;
                     DefinedSymbols.Add(option);
                 }
+
+                var builder = new ArgumentRuleBuilder();
 
                 ArgumentsRule = ArgumentsRule.And(ZeroOrMoreOf(symbols.ToArray()));
             }

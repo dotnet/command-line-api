@@ -173,6 +173,51 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return builder.Build();
         }
 
+        public static ArgumentsRule ExactlyOneChild(
+            this ArgumentRuleBuilder builder,
+            Func<ParsedSymbol, string> errorMessage = null)
+        {
+            builder.AddValidator(o =>
+            {
+                var optionCount = o.Children.Count;
+
+                if (optionCount == 0)
+                {
+                    if (errorMessage == null)
+                    {
+                        return RequiredArgumentMissingForCommand(o.Symbol.ToString());
+                    }
+                    else
+                    {
+                        return errorMessage(o);
+                    }
+                }
+
+                if (optionCount > 1)
+                {
+                    if (errorMessage == null)
+                    {
+                        return CommandAcceptsOnlyOneSubcommand(
+                            o.Symbol.ToString(),
+                            string.Join(", ", o.Children.Select(a => a.Symbol)));
+                    }
+                    else
+                    {
+                        return errorMessage(o);
+                    }
+                }
+
+                return null;
+            });
+            return builder.Build();
+        }
+
+        public static ArgumentsRule And(this ArgumentRuleBuilder builder,
+            ArgumentsRule rule)
+        {
+            builder.None()
+        }
+
         #endregion
 
         #region set inclusion
@@ -246,7 +291,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentRuleBuilder OfType<T>(
             this ArgumentRuleBuilder builder,
-            ParseArgument<T> parse)
+            TypeConversion parse)
         {
             builder.ArgumentParser = new ArgumentParser<T>(parse);
 
@@ -277,25 +322,45 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             return builder;
         }
+
+        public static ArgumentRuleBuilder WithSuggestions(this ArgumentRuleBuilder builder,
+            params string[] suggestions)
+        {
+            builder.ArgumentParser.AddSuggetions((_, __) => suggestions);
+            return builder;
+        }
     }
 
     public delegate Result TypeConverter(ParsedSymbol symbol);
 
+    public delegate IEnumerable<string> SuggestionSource(ParseResult parseResult, int? position);
+
     public abstract class ArgumentParser
     {
+        private readonly List<SuggestionSource> suggestionSources = new List<SuggestionSource>();
+
+        public void AddSuggetions(SuggestionSource suggestionSource)
+        {
+            suggestionSources.Add(suggestionSource);
+        }
+
         public virtual IEnumerable<string> Suggest(
             ParseResult parseResult,
             int? position = null)
         {
-            throw new NotImplementedException();
+            foreach (SuggestionSource suggestionSource in suggestionSources)
+            {
+                foreach (string suggestion in suggestionSource(parseResult, position))
+                {
+                    yield return suggestion;
+                }
+            }
         }
 
 
         //public abstract Result Parse(string value);
         public abstract Result Parse(ParsedSymbol value);
     }
-
-    public delegate Result ParseArgument<T>(string value);
 
     public delegate Result Validate<in T>(T value, ParsedSymbol symbol);
 
