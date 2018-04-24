@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class CommandParser : Parser
@@ -13,10 +15,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
         }
 
-        public CommandParseResult Parse(string[] args) => Parse(args, null);
+        public CommandParseResult Parse(IReadOnlyCollection<string> args) => Parse(args, null);
 
         internal CommandParseResult Parse(
-            string[] args, 
+            IReadOnlyCollection<string> args, 
             string input)
         {
             var raw = base.Parse(args, input);

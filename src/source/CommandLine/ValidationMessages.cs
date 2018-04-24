@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class ValidationMessages
@@ -54,7 +56,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static string UnrecognizedArgument(
             string unrecognizedArg,
-            string[] allowedValues) =>
+            IReadOnlyCollection<string> allowedValues) =>
             current.UnrecognizedArgument(unrecognizedArg, allowedValues).NotWhitespace() ??
             @default.UnrecognizedArgument(unrecognizedArg, allowedValues);
 
@@ -64,7 +66,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static string UnrecognizedOption(
             string unrecognizedOption,
-            string[] allowedValues) =>
+            IReadOnlyCollection<string> allowedValues) =>
             current.UnrecognizedOption(unrecognizedOption, allowedValues).NotWhitespace() ??
             @default.UnrecognizedOption(unrecognizedOption, allowedValues);
     }

@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     public interface IValidationMessages
@@ -13,8 +15,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         string RequiredArgumentMissingForCommand(string command);
         string RequiredArgumentMissingForOption(string option);
         string RequiredCommandWasNotProvided();
-        string UnrecognizedArgument(string unrecognizedArg, string[] allowedValues);
+        string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues);
         string UnrecognizedCommandOrArgument(string arg);
-        string UnrecognizedOption(string unrecognizedOption, string[] allowedValues);
+        string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues);
     }
 }

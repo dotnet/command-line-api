@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
@@ -31,13 +32,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public string RequiredCommandWasNotProvided() =>
             "Required command was not provided.";
 
-        public string UnrecognizedArgument(string unrecognizedArg, string[] allowedValues) =>
+        public string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) =>
             $"Argument '{unrecognizedArg}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
 
         public string UnrecognizedCommandOrArgument(string arg) =>
             $"Unrecognized command or argument '{arg}'";
 
-        public string UnrecognizedOption(string unrecognizedOption, string[] allowedValues) =>
+        public string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) =>
             $"Option '{unrecognizedOption}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
     }
 }

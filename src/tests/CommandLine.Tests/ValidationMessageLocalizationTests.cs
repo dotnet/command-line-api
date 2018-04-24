@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
@@ -82,11 +83,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             public string RequiredCommandWasNotProvided() => message;
 
-            public string UnrecognizedArgument(string unrecognizedArg, string[] allowedValues) => message;
+            public string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) => message;
 
             public string UnrecognizedCommandOrArgument(string arg) => message;
 
-            public string UnrecognizedOption(string unrecognizedOption, string[] allowedValues) => message;
+            public string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) => message;
         }
     }
 }
