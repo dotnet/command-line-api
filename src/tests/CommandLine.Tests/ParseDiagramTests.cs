@@ -17,7 +17,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                "Does the thing.",
                                new ArgumentRuleBuilder().ZeroOrMore(),
                                Create.Option("-x", "Specifies value x", new ArgumentRuleBuilder().ExactlyOne()),
-                               Create.Option("-y", "Specifies value y", new ArgumentRuleBuilder().None())));
+                               Create.Option("-y", "Specifies value y", ArgumentsRule.None)));
 
             var result = parser.Parse("the-command -x one -y two three");
 

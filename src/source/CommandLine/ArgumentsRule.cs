@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -25,6 +26,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public class ArgumentsRule
     {
         private readonly Func<string> defaultValue;
+
+        public static ArgumentsRule None => new ArgumentsRule(new ArgumentParser<string>(o =>
+        {
+            if (!o.Arguments.Any())
+            {
+                return null;
+            }
+
+            return Result.Failure(ValidationMessages.Current.NoArgumentsAllowed(o.Symbol.ToString()));
+        }));
 
         public ArgumentsRule(
             ArgumentParser parser,

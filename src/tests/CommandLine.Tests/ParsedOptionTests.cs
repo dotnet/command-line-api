@@ -223,7 +223,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void TakeToken_is_accepts_long_form_option()
         {
             var builder = new ArgumentRuleBuilder();
-            var command = Command("command", "", Option("-o|--one", "", builder.None()));
+            var command = Command("command", "", Option("-o|--one", "", ArgumentsRule.None));
 
             var applied = new ParsedCommand(command);
 
@@ -237,7 +237,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void TakeToken_is_accepts_short_form_option()
         {
             var builder = new ArgumentRuleBuilder();
-            var command = Command("command", "", Option("-o|--one", "", builder.None()));
+            var command = Command("command", "", Option("-o|--one", "", ArgumentsRule.None));
 
             var applied = new ParsedCommand(command);
 
@@ -251,7 +251,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void TryTakeToken_does_not_accept_incorrectly_prefixed_options()
         {
             var builder = new ArgumentRuleBuilder();
-            var command = Command("command", "", Option("-o|--one", "", builder.None()));
+            var command = Command("command", "", Option("-o|--one", "", ArgumentsRule.None));
 
             var applied = new ParsedCommand(command);
 
@@ -301,7 +301,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void TryTakeToken_will_not_accept_an_argument_if_it_is_invalid()
         {
             var builder = new ArgumentRuleBuilder();
-            var option = Option("--one", "", builder.None());
+            var option = Option("--one", "", ArgumentsRule.None);
 
             var applied = new ParsedOption(option);
 

@@ -36,7 +36,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             ValidationMessages.Current = new FakeValidationMessages(null);
 
             var builder = new ArgumentRuleBuilder();
-            var result = Command("the-command", "", builder.None()).Parse("the-command an-argument");
+            var result = Command("the-command", "", ArgumentsRule.None).Parse("the-command an-argument");
 
             result.Errors
                   .Select(e => e.Message)
@@ -51,7 +51,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var builder = new ArgumentRuleBuilder();
             var result = Command("outer", "",
-                                 Command("inner", "", builder.None())).Parse("outer");
+                                 Command("inner", "", ArgumentsRule.None)).Parse("outer");
 
             result.Errors
                   .Select(e => e.Message)

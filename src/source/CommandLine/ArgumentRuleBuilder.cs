@@ -9,20 +9,9 @@ using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class ArgumentRuleBuilder
+    public class ArgumentRuleBuilder  
     {
         private readonly List<Validate> validators = new List<Validate>();
-        private ArgumentParser _ArgumentParser;
-
-        public ArgumentParser ArgumentParser
-        {
-            get => _ArgumentParser ?? ArgumentParser.None;
-            set => _ArgumentParser = value;
-        }
-
-        public ArgumentsRuleHelp Help { get; set; }
-
-        public Func<string> DefaultValue { get; set; }
 
         public void AddValidator(Validate validator)
         {
@@ -35,10 +24,46 @@ namespace Microsoft.DotNet.Cli.CommandLine
             validators.Add(validator);
         }
 
+        public ArgumentsRuleHelp Help { get; set; }
+
+        public Func<string> DefaultValue { get; set; }
+
+        public TypeConversion TypeConversion { get; set; }
+
+        protected virtual ArgumentParser GetArgumentParser()
+            => new ArgumentParser<string>(TypeConversion ?? (symbol => Result.Success(symbol.Token)));
+
         public ArgumentsRule Build()
         {
-            return new ArgumentsRule(ArgumentParser, DefaultValue, Help);
+            return new ArgumentsRule(GetArgumentParser(), DefaultValue, Help);
         }
+    }
+
+    public class ArgumentRuleBuilder<T> : ArgumentRuleBuilder
+    {
+        public ArgumentRuleBuilder()
+            : this(FigureMeOut())
+        { }
+
+        private static TypeConversion FigureMeOut()
+        {
+            //TODO: Jump table
+            if (typeof(T) == typeof(string))
+            {
+                return symbol => Result.Success(symbol.Token);
+            }
+            throw new NotImplementedException();
+        }
+
+        public ArgumentRuleBuilder(TypeConversion typeConversion)
+        {
+            ArgumentParser = new ArgumentParser<T>(typeConversion);
+        }
+
+        protected override ArgumentParser GetArgumentParser()
+            => ArgumentParser;
+
+        public ArgumentParser<T> ArgumentParser { get; set; }
     }
 
     public static class Define
@@ -50,11 +75,39 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         #region arity
 
-        public static ArgumentsRule None(
-            this ArgumentRuleBuilder builder,
+        public static ArgumentsRule ExactlyOne<T>(
+            this ArgumentRuleBuilder<T> builder,
             Func<ParsedSymbol, string> errorMessage = null)
         {
-            builder.ArgumentParser = ArgumentParser.None;
+            builder.ArgumentParser.AddValidator((value, parsedSymbol) =>
+            {
+                var argumentCount = parsedSymbol.Arguments.Count;
+
+                if (argumentCount == 0)
+                {
+                    if (errorMessage == null)
+                    {
+                        return Result.Failure(parsedSymbol.Symbol is Command
+                            ? RequiredArgumentMissingForCommand(parsedSymbol.Symbol.ToString())
+                            : RequiredArgumentMissingForOption(parsedSymbol.Symbol.ToString()));
+                    }
+                    return Result.Failure(errorMessage(parsedSymbol));
+                }
+
+                if (argumentCount > 1)
+                {
+                    if (errorMessage == null)
+                    {
+                        return Result.Failure(parsedSymbol.Symbol is Command
+                            ? CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount)
+                            : OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount));
+                    }
+
+                    return Result.Failure(errorMessage(parsedSymbol));
+                }
+
+                return Result.Success(value);
+            });
 
             return builder.Build();
         }
@@ -227,7 +280,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             TypeConversion parse)
         {
-            builder.ArgumentParser = new ArgumentParser<T>(parse);
+            //builder.ArgumentParser = new ArgumentParser<T>(parse);
 
             return builder;
         }
@@ -260,7 +313,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static ArgumentRuleBuilder WithSuggestions(this ArgumentRuleBuilder builder,
             params string[] suggestions)
         {
-            builder.ArgumentParser.AddSuggetions((_, __) => suggestions);
+            //builder.ArgumentParser.AddSuggetions((_, __) => suggestions);
             return builder;
         }
     }
@@ -271,16 +324,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
     public abstract class ArgumentParser
     {
-        internal static ArgumentParser None => new ArgumentParser<string>(o =>
-        {
-            if (!o.Arguments.Any())
-            {
-                return null;
-            }
-
-            return Result.Failure(Current.NoArgumentsAllowed(o.Symbol.ToString()));
-        });
-
         private readonly List<SuggestionSource> suggestionSources = new List<SuggestionSource>();
 
         public void AddSuggetions(SuggestionSource suggestionSource)
@@ -315,6 +358,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private readonly List<Validate<T>> validations = new List<Validate<T>>();
         private readonly TypeConversion typeConversion;
 
+        public ArgumentParser()
+        {
+
+        }
+
         public ArgumentParser(TypeConversion typeConversion)
         {
             this.typeConversion = typeConversion ??
@@ -326,7 +374,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             validations.Add(validator);
         }
 
-        private Result Parse(T value, ParsedSymbol symbol)
+        private Result Validate(T value, ParsedSymbol symbol)
         {
             Result result = null;
             foreach (Validate<T> validator in validations)
@@ -344,20 +392,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return result ?? Result.Success(value);
         }
 
-        //string -> parsed symbol -> custom type conversion -> type checking -> custom validation
-
-        //public override Result Parse(string value)
-        //{
-        //    
-        //    return parse(value);
-        //}
+        //string -> parsed symbol -> type conversion -> (type checking) -> validation
 
         public override Result Parse(ParsedSymbol symbol)
         {
             Result typeResult = typeConversion(symbol);
             if (typeResult is SuccessfulResult<T> successfulResult)
             {
-                return Parse(successfulResult.Value, symbol);
+                return Validate(successfulResult.Value, symbol);
             }
             return typeResult;
         }

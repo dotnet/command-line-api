@@ -16,7 +16,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             parser.AddValidator((value, parsedSymbol) => Result.Failure("first error"));
             parser.AddValidator((value, parsedSymbol) => Result.Failure("second error"));
 
-            var builder = new ArgumentRuleBuilder { ArgumentParser = parser };
+            var builder = new ArgumentRuleBuilder<string> { ArgumentParser = parser };
 
             var parsedOption = new ParsedOption(Create.Option("-x", "", builder.Build()));
 
@@ -38,7 +38,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 return Result.Failure("second error");
             });
 
-            var builder = new ArgumentRuleBuilder { ArgumentParser = parser };
+            var builder = new ArgumentRuleBuilder<string> { ArgumentParser = parser };
 
             var parsedOption = new ParsedOption(Create.Option("-x", "", builder.Build()));
 

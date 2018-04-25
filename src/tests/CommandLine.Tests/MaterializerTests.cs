@@ -176,7 +176,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void By_default_an_option_without_arguments_materializes_as_true_when_it_is_applied()
         {
             var command = Command("something", "",
-                                      new ArgumentRuleBuilder().None(),
+                                      ArgumentsRule.None,
                                   Option("-x", ""));
 
             var result = command.Parse("something -x");

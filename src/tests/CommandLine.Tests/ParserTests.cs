@@ -1,12 +1,12 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.IO;
 using FluentAssertions;
-using System.Linq;
 using FluentAssertions.Common;
 using FluentAssertions.Equivalency;
+using System;
+using System.IO;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
@@ -100,9 +100,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parse_result_contains_arguments_to_options()
         {
-            var result = new OptionParser(
-                    Option("-o|--one", "", new ArgumentRuleBuilder().ExactlyOne()),
-                    Option("-t|--two", "", new ArgumentRuleBuilder().ExactlyOne()))
+            OptionParseResult result = new OptionParser(
+                    Create.Option("-o|--one", "", new ArgumentRuleBuilder<string>().ExactlyOne()),
+                    Create.Option("-t|--two", "", new ArgumentRuleBuilder<string>().ExactlyOne()))
                 .Parse("-o args_for_one -t args_for_two");
 
             result["one"].Arguments.Single().Should().Be("args_for_one");
@@ -173,10 +173,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new OptionParser(
                 Option("--bread", "",
-
-                       new ArgumentRuleBuilder().FromAmong(new[] {"wheat", "sourdough", "rye"}).ExactlyOne()),
+                       new ArgumentRuleBuilder().FromAmong("wheat", "sourdough", "rye").ExactlyOne()),
                 Option("--cheese", "",
-                       new ArgumentRuleBuilder().FromAmong(new[] {"provolone", "cheddar", "cream cheese"}).ExactlyOne()));
+                       new ArgumentRuleBuilder().FromAmong("provolone", "cheddar", "cream cheese").ExactlyOne()));
 
             var result = parser.Parse("--bread ");
 
@@ -244,9 +243,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("the-command", "",
-                        Option("-x", "", new ArgumentRuleBuilder().None()),
-                        Option("-y", "", new ArgumentRuleBuilder().None()),
-                        Option("-z", "", new ArgumentRuleBuilder().None())));
+                        Option("-x", "", ArgumentsRule.None),
+                        Option("-y", "", ArgumentsRule.None),
+                        Option("-z", "", ArgumentsRule.None)));
 
             var result = parser.Parse("the-command -xyz");
 
@@ -262,10 +261,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Options_short_forms_do_not_get_unbundled_if_unbundling_is_turned_off()
         {
             Command command = Command("the-command", "",
-                                      Option("-x", "", new ArgumentRuleBuilder().None()),
-                                      Option("-y", "", new ArgumentRuleBuilder().None()),
-                                      Option("-z", "", new ArgumentRuleBuilder().None()),
-                                      Option("-xyz", "", new ArgumentRuleBuilder().None()));
+                                      Option("-x", "", ArgumentsRule.None),
+                                      Option("-y", "", ArgumentsRule.None),
+                                      Option("-z", "", ArgumentsRule.None),
+                                      Option("-xyz", "", ArgumentsRule.None));
             var parseConfig = new ParserConfiguration(new[] { command }, allowUnbundling: false);
             var parser = new CommandParser(parseConfig);
             var result = parser.Parse("the-command -xyz");
@@ -284,10 +283,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var parser = new CommandParser(
                 Command(
                     "the-command", "",
-                    Option("--xyz", "", new ArgumentRuleBuilder().None()),
-                    Option("-x", "", new ArgumentRuleBuilder().None()),
-                    Option("-y", "", new ArgumentRuleBuilder().None()),
-                    Option("-z", "", new ArgumentRuleBuilder().None())));
+                    Option("--xyz", "", ArgumentsRule.None),
+                    Option("-x", "", ArgumentsRule.None),
+                    Option("-y", "", ArgumentsRule.None),
+                    Option("-z", "", ArgumentsRule.None)));
 
             var result = parser.Parse("the-command --xyz");
 
@@ -347,10 +346,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Command_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
+            var builder = new ArgumentRuleBuilder();
+            ArgumentsRule rule = builder.FromAmong("dog", "cat", "sheep").ZeroOrMore();
+            
             var parser = new CommandParser(
-                Command("the-command", "",
-                        Option("-a|--animals", "", new ArgumentRuleBuilder().ZeroOrMore()),
-                        Option("-v|--vegetables", "", new ArgumentRuleBuilder().ZeroOrMore())));
+                Create.Command("the-command", "",
+                        Create.Option("-a|--animals", "", rule),
+                        Create.Option("-v|--vegetables", "", new ArgumentRuleBuilder().ZeroOrMore())));
 
             var result = parser.Parse("the-command -a cat -v carrot -a dog");
 
@@ -558,7 +560,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var parser = new CommandParser(
                 Command("the-command", "",
                         new ArgumentRuleBuilder().ZeroOrMore(),
-                        Option("-x", "", new ArgumentRuleBuilder().None())));
+                        Option("-x", "", ArgumentsRule.None)));
 
             var result = parser.Parse("the-command -x two");
 
@@ -572,7 +574,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("the-command", "",
-                        new ArgumentRuleBuilder().None(),
+                        ArgumentsRule.None,
                         Option("-x", "", new ArgumentRuleBuilder().ExactlyOne())));
 
             var result = parser.Parse("the-command -x two");
@@ -585,7 +587,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_inner_command()
         {
             var parser = new CommandParser(
-                Command("outer", "", new ArgumentRuleBuilder().None(),
+                Command("outer", "", ArgumentsRule.None,
                         Command("inner", "",
                                 Option("-x", "")),
                         Option("-x", "")));
@@ -787,12 +789,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Unmatched_options_are_not_split_into_smaller_tokens()
         {
             var command = Command("outer", "",
-                                  new ArgumentRuleBuilder().None(),
+                                  ArgumentsRule.None,
                                   Option("-p", ""),
                                   Command("inner",
                                           "",
                                           new ArgumentRuleBuilder().OneOrMore(),
-                                          Option("-o", "", new ArgumentRuleBuilder().None())));
+                                          Option("-o", "", ArgumentsRule.None)));
 
             var result = command.Parse("outer inner -p:RandomThing=random");
 

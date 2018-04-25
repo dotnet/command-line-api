@@ -47,7 +47,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                    .OrderBy(a => a.Length)
                    .Last();
 
-            ArgumentsRule = arguments ?? new ArgumentRuleBuilder().None();
+            ArgumentsRule = arguments ?? ArgumentsRule.None;
 
             //if (symbols != null)
             //{

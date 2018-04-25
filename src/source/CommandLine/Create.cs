@@ -20,7 +20,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static Command Command(
             string name,
             string description) =>
-            new Command(name, description, new ArgumentRuleBuilder().None());
+            new Command(name, description, ArgumentsRule.None);
 
         public static Command Command(
             string name,

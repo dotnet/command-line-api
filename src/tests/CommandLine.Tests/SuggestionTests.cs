@@ -132,7 +132,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                    Define.Arguments().None(),
+                    ArgumentsRule.None,
                         Option("one", "", 
                             Define.Arguments().FromAmong("one-a", "one-b", "one-c")
                                 .ExactlyOne()),
@@ -157,7 +157,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                    new ArgumentRuleBuilder().None(),
+                    ArgumentsRule.None,
                         Option("one", "", 
                             Define.Arguments().FromAmong("one-a", "one-b", "one-c")
                                 .ExactlyOne()),
@@ -180,7 +180,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                    new ArgumentRuleBuilder().None(),
+                    ArgumentsRule.None,
                         Command("one", "", 
                             Define.Arguments().FromAmong("one-a", "one-b", "one-c")
                                 .ExactlyOne()),

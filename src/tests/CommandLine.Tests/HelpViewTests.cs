@@ -163,7 +163,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var builder = new ArgumentRuleBuilder();
             var command = Command("the-command",
                                   "command help",
-                                  builder.None(),
+                                  ArgumentsRule.None,
                                   Option("-v|--verbosity", "Sets the verbosity"));
 
             var helpView = command.HelpView();
