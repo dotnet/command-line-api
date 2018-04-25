@@ -20,7 +20,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static Command Command(
             string name,
             string description) =>
-            new Command(name, description);
+            new Command(name, description, new ArgumentRuleBuilder().None());
 
         public static Command Command(
             string name,
@@ -32,15 +32,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
             string name,
             string description,
             bool treatUnmatchedTokensAsErrors,
-            params Symbol[] options) =>
-            new Command(name, description, options, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
+            params Symbol[] symbols) =>
+            new Command(name, description, symbols, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
 
         public static Command Command(
             string name,
             string description,
             ArgumentsRule arguments,
-            params Symbol[] options) =>
-            new Command(name, description, options, arguments);
+            params Symbol[] symbols) =>
+            new Command(name, description, symbols, arguments);
 
         public static Command Command(
             string name,

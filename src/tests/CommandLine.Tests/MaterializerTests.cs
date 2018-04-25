@@ -9,6 +9,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
+using static Microsoft.DotNet.Cli.CommandLine.Define;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
@@ -26,7 +27,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("move", "",
-                    Define.Arguments()
+                    Arguments()
                         .OfType<FileMoveOperation>(parsedSymbol =>
                         {
                             output.WriteLine(parsedSymbol.Token);
@@ -42,9 +43,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                             });
                         })
                         .OneOrMore(),
-                        options: new[]
+                        symbols: new[]
                         {
-                            Option("-d|--destination", "", Accept.ExactlyOneArgument())
+                            Option("-d|--destination", "",     new ArgumentRuleBuilder().ExactlyOne())
                         }));
 
             var folder = new DirectoryInfo(Path.Combine("temp"));
@@ -73,7 +74,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Option("-o|--one", "",
-                                  Define.Arguments().OfType<int>(parsedSymbol =>
+                                  Arguments().OfType<int>(parsedSymbol =>
                                   {
                                       if (int.TryParse(parsedSymbol.Token, out int intValue))
                                       {
@@ -97,7 +98,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void By_default_an_option_with_zero_or_one_argument_materializes_as_the_argument_string_value_by_default()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", Accept.ZeroOrOneArgument()));
+                                  Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()));
 
             var result = command.Parse("the-command -x the-argument");
 
@@ -111,7 +112,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void By_default_an_option_with_exactly_one_argument_materializes_as_the_argument_string_value_by_default()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", Accept.ExactlyOneArgument()));
+                                  Option("-x", "", new ArgumentRuleBuilder().ExactlyOne()));
 
             var result = command.Parse("the-command -x the-argument");
 
@@ -125,7 +126,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_Value_returns_null()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", Accept.ExactlyOneArgument()));
+                                  Option("-x", "", new ArgumentRuleBuilder().ExactlyOne()));
 
             var result = command.Parse("the-command -x");
 
@@ -139,7 +140,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_one_or_more_arguments_are_expected_and_none_are_provided_then_Value_returns_empty()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", Accept.OneOrMoreArguments()));
+                                  Option("-x", "", new ArgumentRuleBuilder().OneOrMore()));
 
             var result = command.Parse("the-command -x");
 
@@ -147,7 +148,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             value.Should().BeAssignableTo<IReadOnlyCollection<string>>();
 
-            var values = (IReadOnlyCollection<string>) value;
+            var values = (IReadOnlyCollection<string>)value;
 
             values
                 .Should()
@@ -158,7 +159,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void By_default_an_option_with_multiple_arguments_materializes_as_a_sequence_of_strings_by_default()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", Accept.ZeroOrMoreArguments()));
+                                  Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()));
 
             var result = command.Parse("the-command -x arg1 -x arg2");
 
@@ -175,7 +176,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void By_default_an_option_without_arguments_materializes_as_true_when_it_is_applied()
         {
             var command = Command("something", "",
-                                  Accept.NoArguments(),
+                                      new ArgumentRuleBuilder().None(),
                                   Option("-x", ""));
 
             var result = command.Parse("something -x");
@@ -203,7 +204,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 "something", "",
                 Option("-x",
                        "",
-                    Define.Arguments().WithDefaultValue(() => "123").ExactlyOne()));
+                    Arguments().WithDefaultValue(() => "123").ExactlyOne()));
 
             var result = command.Parse("something");
 
@@ -216,10 +217,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_OfType_is_used_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
         {
             var command = Command("tally", "",
-                                  Define.Arguments()
+                                  Arguments()
                                         .OfType<int>(parsedSymbol =>
                                         {
-                                            
+
                                             if (int.TryParse(parsedSymbol.Token, out var i))
                                             {
                                                 return Result.Success(i);
@@ -241,7 +242,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void OfType_can_be_used_to_parse_an_argument_as_int()
         {
             var command = Command("tally", "",
-                                  Define.Arguments()
+                                  Arguments()
                                         .OfType<int>(parsedSymbol =>
                                         {
                                             if (int.TryParse(parsedSymbol.Token, out var i))

@@ -126,11 +126,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Func<string, IEnumerable<string>> suggest) =>
             rule.And(WithSuggestionsFrom(suggest));
 
-        public static ArgumentsRule WithSuggestionsFrom(
-            this ArgumentsRule rule,
-            params string[] values) =>
-            rule.And(WithSuggestionsFrom(values));
-
         public static ArgumentsRule ZeroOrOneArgument() =>
             new ArgumentsRule(o =>
                               {

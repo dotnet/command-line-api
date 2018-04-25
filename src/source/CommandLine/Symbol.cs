@@ -16,8 +16,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         protected internal Symbol(
             IReadOnlyCollection<string> aliases,
             string description,
-            ArgumentsRule arguments = null,
-            IReadOnlyCollection<Symbol> symbols = null)
+            ArgumentsRule arguments = null)
         {
             if (aliases == null)
             {
@@ -48,12 +47,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
                    .OrderBy(a => a.Length)
                    .Last();
 
-            ArgumentsRule = arguments ?? Accept.NoArguments();
+            ArgumentsRule = arguments ?? new ArgumentRuleBuilder().None();
 
-            if (symbols != null)
-            {
-                ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(symbols.ToArray()));
-            }
+            //if (symbols != null)
+            //{
+            //    ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(symbols.ToArray()));
+            //}
         }
 
         public IReadOnlyCollection<string> Aliases => aliases;

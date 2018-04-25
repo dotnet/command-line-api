@@ -164,7 +164,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("move", "",
                                   arguments: Arguments().ExistingFilesOnly().ExactlyOne(),
-                                  options: Option("--to", "",
+                                  symbols: Option("--to", "",
                                                   Arguments().ExactlyOne()));
 
             var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");

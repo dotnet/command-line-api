@@ -1,13 +1,11 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.IO;
 using FluentAssertions;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit;
-using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
@@ -18,11 +16,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
         public CommandTests()
         {
+            var builder = new ArgumentRuleBuilder();
             parser = new CommandParser(
                 Command("outer", "",
                         Command("inner", "",
                                 Option("--option", "",
-                                       arguments: ExactlyOneArgument()))));
+                                       arguments: builder.ExactlyOne()))));
         }
 
         [Fact]
@@ -102,10 +101,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
             var parser = new CommandParser(
-                Command("outer", "",
-                        ExactlyOneArgument(),
+                Command("outer", "", new ArgumentRuleBuilder().ExactlyOne(),
                         Command("inner", "",
-                                ZeroOrMoreArguments())));
+                            new ArgumentRuleBuilder().ZeroOrOne())));
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
@@ -125,10 +123,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void ParseResult_Command_identifies_innermost_command()
         {
             var command = Command("outer", "",
-                                  Command("sibling", "", ZeroOrMoreArguments()),
+                                  Command("sibling", "", new ArgumentRuleBuilder().ZeroOrMore()),
                                   Command("inner", "",
                                           Command("inner-er", "",
-                                                  Option("-x", "", ZeroOrMoreArguments()))));
+                                                  Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()))));
 
             var result = command.Parse("outer inner inner-er -x arg");
 
@@ -172,11 +170,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("outer", "",
                                   Command("sibling", "",
-                                          ExactlyOneArgument()),
+                                      new ArgumentRuleBuilder().ExactlyOne()),
                                   Command("inner", "",
                                           Command("inner-er", "",
                                                   Option("-x", "",
-                                                         ExactlyOneArgument()))));
+                                                      new ArgumentRuleBuilder().ExactlyOne()))));
 
             var result = command.Parse("outer inner inner-er -x arg");
 
@@ -193,9 +191,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Subcommands_names_are_available_as_suggestions()
         {
             var command = Command("test", "",
-                ExactlyOneArgument(),
-                new Command("foo", "Command one"),
-                new Command("bar", "Command two"));
+                new ArgumentRuleBuilder().ExactlyOne(),
+                Command("foo", "Command one"),
+                Command("bar", "Command two"));
 
             command.Parse("test ")
                    .Suggestions()

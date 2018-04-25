@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using static Microsoft.DotNet.Cli.CommandLine.Accept;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -17,46 +16,48 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public Command(
             IReadOnlyCollection<Symbol> symbols) :
-            this(executableName.Value, "", symbols, NoArguments())
+            this(executableName.Value, "", symbols)
         {
         }
 
         public Command(
             string name,
             string description,
-            IReadOnlyCollection<Command> subcommands) :
-            this(name, description, symbols: subcommands)
-        {
-            var commandNames = subcommands.SelectMany(o => o.Aliases).ToArray();
-
-            var builder = new ArgumentRuleBuilder();
-            ArgumentsRule = builder
-                .WithSuggestions(commandNames)
-                .ExactlyOneChild();
-        }
-
-        public Command(
-            string name,
-            string description,
-            IReadOnlyCollection<Symbol> symbols = null,
-            ArgumentsRule arguments = null,
+            ArgumentsRule arguments,
             bool treatUnmatchedTokensAsErrors = true) :
-            base(new[] { name }, description, arguments, symbols)
+            base(new[] { name }, description, arguments)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
 
-            if (symbols?.Any() == true)
+        }
+
+        public Command(
+            string name,
+            string description,
+            IReadOnlyCollection<Symbol> symbols,
+            ArgumentsRule arguments = null,
+            bool treatUnmatchedTokensAsErrors = true) :
+            base(new[] { name }, description)
+        {
+            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+
+            var commandNames = symbols.SelectMany(o => o.Aliases).ToArray();
+
+            var builder = new ArgumentRuleBuilder();
+            //TODO: This need refinement to handle cases of options and sub commands
+            ArgumentsRule = builder
+                .WithSuggestions(commandNames)
+                .ZeroOrMore();
+
+
+            foreach (var option in symbols)
             {
-                foreach (var option in symbols)
-                {
-                    option.Parent = this;
-                    DefinedSymbols.Add(option);
-                }
-
-                var builder = new ArgumentRuleBuilder();
-
-                ArgumentsRule = ArgumentsRule.And(ZeroOrMoreOf(symbols.ToArray()));
+                option.Parent = this;
+                DefinedSymbols.Add(option);
             }
+
+
+            //ArgumentsRule = ArgumentsRule.And(ZeroOrMoreOf(symbols.ToArray()));
         }
 
         public bool TreatUnmatchedTokensAsErrors { get; } = true;

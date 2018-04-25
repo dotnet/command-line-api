@@ -41,7 +41,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                              .FirstOrDefault(e => e != null);
         }
 
-        internal ArgumentsRule Build()
+        public ArgumentsRule Build()
         {
             return new ArgumentsRule(ArgumentParser, DefaultValue, Help);
         }
@@ -84,21 +84,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             Func<ParsedSymbol, string> errorMessage = null)
         {
-            builder.AddValidator(o =>
+            builder.AddValidator(parsedSymbol =>
             {
-                var argumentCount = o.Arguments.Count;
+                var argumentCount = parsedSymbol.Arguments.Count;
 
                 if (argumentCount == 0)
                 {
                     if (errorMessage == null)
                     {
-                        return o.Symbol is Command
-                                   ? RequiredArgumentMissingForCommand(o.Symbol.ToString())
-                                   : RequiredArgumentMissingForOption(o.Symbol.ToString());
+                        return parsedSymbol.Symbol is Command
+                                   ? RequiredArgumentMissingForCommand(parsedSymbol.Symbol.ToString())
+                                   : RequiredArgumentMissingForOption(parsedSymbol.Symbol.ToString());
                     }
                     else
                     {
-                        return errorMessage(o);
+                        return errorMessage(parsedSymbol);
                     }
                 }
 
@@ -106,13 +106,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     if (errorMessage == null)
                     {
-                        return o.Symbol is Command
-                                   ? CommandAcceptsOnlyOneArgument(o.Symbol.ToString(), argumentCount)
-                                   : OptionAcceptsOnlyOneArgument(o.Symbol.ToString(), argumentCount);
+                        return parsedSymbol.Symbol is Command
+                                   ? CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount)
+                                   : OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount);
                     }
                     else
                     {
-                        return errorMessage(o);
+                        return errorMessage(parsedSymbol);
                     }
                 }
 
@@ -171,51 +171,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                         : RequiredArgumentMissingForOption(o.Symbol.ToString());
             });
             return builder.Build();
-        }
-
-        public static ArgumentsRule ExactlyOneChild(
-            this ArgumentRuleBuilder builder,
-            Func<ParsedSymbol, string> errorMessage = null)
-        {
-            builder.AddValidator(o =>
-            {
-                var optionCount = o.Children.Count;
-
-                if (optionCount == 0)
-                {
-                    if (errorMessage == null)
-                    {
-                        return RequiredArgumentMissingForCommand(o.Symbol.ToString());
-                    }
-                    else
-                    {
-                        return errorMessage(o);
-                    }
-                }
-
-                if (optionCount > 1)
-                {
-                    if (errorMessage == null)
-                    {
-                        return CommandAcceptsOnlyOneSubcommand(
-                            o.Symbol.ToString(),
-                            string.Join(", ", o.Children.Select(a => a.Symbol)));
-                    }
-                    else
-                    {
-                        return errorMessage(o);
-                    }
-                }
-
-                return null;
-            });
-            return builder.Build();
-        }
-
-        public static ArgumentsRule And(this ArgumentRuleBuilder builder,
-            ArgumentsRule rule)
-        {
-            builder.None()
         }
 
         #endregion

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
-using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
@@ -158,7 +157,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                        NoArguments(),
+                    new ArgumentRuleBuilder().None(),
                         Option("one", "", 
                             Define.Arguments().FromAmong("one-a", "one-b", "one-c")
                                 .ExactlyOne()),
@@ -181,7 +180,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                        NoArguments(),
+                    new ArgumentRuleBuilder().None(),
                         Command("one", "", 
                             Define.Arguments().FromAmong("one-a", "one-b", "one-c")
                                 .ExactlyOne()),

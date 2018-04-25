@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using Xunit;
+using static Microsoft.DotNet.Cli.CommandLine.Define;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
@@ -14,9 +15,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var parser = new CommandParser(
                 Create.Command("the-command",
                                "Does the thing.",
-                               Accept.ZeroOrMoreArguments(),
-                               Create.Option("-x", "Specifies value x", Accept.ExactlyOneArgument()),
-                               Create.Option("-y", "Specifies value y", Accept.NoArguments())));
+                               new ArgumentRuleBuilder().ZeroOrMore(),
+                               Create.Option("-x", "Specifies value x", new ArgumentRuleBuilder().ExactlyOne()),
+                               Create.Option("-y", "Specifies value y", new ArgumentRuleBuilder().None())));
 
             var result = parser.Parse("the-command -x one -y two three");
 
@@ -31,7 +32,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var parser = new CommandParser(
                 Create.Command("command", "",
                                Create.Option("-x", "",
-                                             arguments: Accept.AnyOneOf("arg1", "arg2", "arg3"))));
+                                             arguments: new ArgumentRuleBuilder().FromAmong(new[] {"arg1", "arg2", "arg3"}).ExactlyOne())));
 
             var result = parser.Parse("command -x ar");
 

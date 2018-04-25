@@ -4,7 +4,6 @@ using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
@@ -21,9 +20,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
+            var builder = new ArgumentRuleBuilder();
             var parser = new OptionParser(
                 Option("-x", "",
-                       AnyOneOf("this", "that", "the-other-thing")));
+                    builder.FromAmong("this", "that", "the-other-thing").ExactlyOne()));
 
             var result = parser.Parse("-x none-of-those");
 
@@ -35,7 +35,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var option = Option("-x", "", AnyOneOf("this", "that"));
+            var builder = new ArgumentRuleBuilder();
+            var option = Option("-x", "", 
+                builder.FromAmong("this", "that").ExactlyOne());
 
             var parser = new OptionParser(option);
 
@@ -50,7 +52,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var parser = new OptionParser(Option("-x", "", ExactlyOneArgument()));
+            var builder = new ArgumentRuleBuilder();
+            var parser = new OptionParser(Option("-x", "", builder.ExactlyOne()));
 
             var result = parser.Parse("-x");
 
@@ -62,7 +65,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new CommandParser(Command("the-command", "", Option("-x", "", NoArguments())));
+            var builder = new ArgumentRuleBuilder();
+            var parser = new CommandParser(Command("the-command", "", Option("-x", "", builder.None())));
 
             var result = parser.Parse("the-command -x some-arg");
 
@@ -75,18 +79,20 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
         {
-            var validator = new ArgumentsRule(p =>
+            var builder = new ArgumentRuleBuilder();
+            var parser = new ArgumentParser<string>(symbol => Result.Success(symbol.Token));
+            parser.AddValidator((value, parsedSymbol) =>
             {
-                if (p.Children.Contains("one") &&
-                    p.Children.Contains("two"))
+                if (parsedSymbol.Children.Contains("one") &&
+                    parsedSymbol.Children.Contains("two"))
                 {
-                    return "Options '--one' and '--two' cannot be used together.";
+                    return Result.Failure("Options '--one' and '--two' cannot be used together.");
                 }
-                return null;
+                return Result.Success(value);
             });
-
+            
             var command = Command("the-command", "",
-                                  validator,
+                                  builder.ExactlyOne(),
                                   Option("--one", ""),
                                   Option("--two", ""));
 
@@ -102,9 +108,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
         {
+            var builder = new ArgumentRuleBuilder();
             var command = Command("the-command", "",
-                                  ZeroOrMoreArguments()
-                                      .LegalFilePathsOnly());
+                                  builder.LegalFilePathsOnly().ZeroOrMore());
 
             var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
 
@@ -121,9 +127,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_accepts_arguments_containing_valid_path_characters()
         {
+            var builder = new ArgumentRuleBuilder();
             var command = Command("the-command", "",
-                                  ZeroOrMoreArguments()
-                                      .LegalFilePathsOnly());
+                builder.LegalFilePathsOnly().ZeroOrMore());
 
             var validPathName = Directory.GetCurrentDirectory();
             var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
@@ -137,10 +143,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void An_argument_can_be_invalid_based_on_file_existence()
         {
             var command = Command("move", "",
-                                  ExactlyOneArgument()
-                                      .ExistingFilesOnly(),
+                new ArgumentRuleBuilder().ExistingFilesOnly().ExactlyOne(),
                                   Option("--to", "",
-                                         ExactlyOneArgument()));
+                                      new ArgumentRuleBuilder().ExactlyOne()));
 
             var result = command.Parse($@"move ""{Guid.NewGuid()}.txt"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
@@ -157,10 +162,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void An_argument_can_be_invalid_based_on_directory_existence()
         {
             var command = Command("move", "",
-                                  ExactlyOneArgument()
-                                      .ExistingFilesOnly(),
+                new ArgumentRuleBuilder().ExistingFilesOnly().ExactlyOne(),
                                   Option("--to", "",
-                                         ExactlyOneArgument()));
+                                      new ArgumentRuleBuilder().ExactlyOne()));
 
             var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
@@ -178,7 +182,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("outer", "",
                                   Command("inner", "",
-                                          OneOrMoreArguments(),
+                                      new ArgumentRuleBuilder().OneOrMore(),
                                           Command("three", "")));
 
             var result = command.Parse("outer inner arg");

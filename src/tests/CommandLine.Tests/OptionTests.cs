@@ -4,6 +4,7 @@
 using System;
 using FluentAssertions;
 using Xunit;
+using static Microsoft.DotNet.Cli.CommandLine.Define;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
@@ -46,7 +47,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "",
-                Accept.NoArguments());
+                    new ArgumentRuleBuilder().None());
 
             option.HasAlias("-o").Should().BeTrue();
         }
@@ -56,7 +57,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "",
-                Accept.NoArguments());
+                    new ArgumentRuleBuilder().None());
 
             option.HasAlias("o").Should().BeTrue();
         }
@@ -66,7 +67,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "",
-                Accept.NoArguments());
+                    new ArgumentRuleBuilder().None());
 
             option.HasAlias("--option").Should().BeTrue();
         }
@@ -76,7 +77,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "",
-                Accept.NoArguments());
+                new ArgumentRuleBuilder().None());
 
             option.HasAlias("option").Should().BeTrue();
         }
@@ -86,7 +87,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = new Option(
                 new[] { "o" }, "",
-                Accept.NoArguments());
+                new ArgumentRuleBuilder().None());
 
             option.HasAlias("o").Should().BeTrue();
             option.HasAlias("-o").Should().BeTrue();
@@ -95,7 +96,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void An_option_must_have_at_least_one_alias()
         {
-            Action create = () => new Option(Array.Empty<string>(), "", Accept.NoArguments());
+            Action create = () => new Option(Array.Empty<string>(), "",     new ArgumentRuleBuilder().None());
 
             create.ShouldThrow<ArgumentException>()
                   .Which
@@ -107,7 +108,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new Option(new[] { "" }, "", Accept.NoArguments());
+            Action create = () => new Option(new[] { "" }, "",     new ArgumentRuleBuilder().None());
 
             create.ShouldThrow<ArgumentException>()
                   .Which
@@ -119,7 +120,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new Option(new[] { "  \t" }, "", Accept.NoArguments());
+            Action create = () => new Option(new[] { "  \t" }, "",     new ArgumentRuleBuilder().None());
 
             create.ShouldThrow<ArgumentException>()
                   .Which
