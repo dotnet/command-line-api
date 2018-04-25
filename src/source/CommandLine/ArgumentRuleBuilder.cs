@@ -12,8 +12,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public class ArgumentRuleBuilder
     {
         private readonly List<Validate> validators = new List<Validate>();
+        private ArgumentParser _ArgumentParser;
 
-        public ArgumentParser ArgumentParser { get; set; }
+        public ArgumentParser ArgumentParser
+        {
+            get => _ArgumentParser ?? ArgumentParser.None;
+            set => _ArgumentParser = value;
+        }
 
         public ArgumentsRuleHelp Help { get; set; }
 
@@ -28,17 +33,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
 
             validators.Add(validator);
-        }
-
-        private string Validate(ParsedSymbol parsedOption)
-        {
-            if (parsedOption == null)
-            {
-                throw new ArgumentNullException(nameof(parsedOption));
-            }
-
-            return validators.Select(v => v(parsedOption))
-                             .FirstOrDefault(e => e != null);
         }
 
         public ArgumentsRule Build()
@@ -60,22 +54,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             Func<ParsedSymbol, string> errorMessage = null)
         {
-            builder.AddValidator(o =>
-            {
-                if (!o.Arguments.Any())
-                {
-                    return null;
-                }
-
-                if (errorMessage == null)
-                {
-                    return NoArgumentsAllowed(o.Symbol.ToString());
-                }
-                else
-                {
-                    return errorMessage(o);
-                }
-            });
+            builder.ArgumentParser = ArgumentParser.None;
 
             return builder.Build();
         }
@@ -292,6 +271,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
     public abstract class ArgumentParser
     {
+        internal static ArgumentParser None => new ArgumentParser<string>(o =>
+        {
+            if (!o.Arguments.Any())
+            {
+                return null;
+            }
+
+            return Result.Failure(Current.NoArgumentsAllowed(o.Symbol.ToString()));
+        });
+
         private readonly List<SuggestionSource> suggestionSources = new List<SuggestionSource>();
 
         public void AddSuggetions(SuggestionSource suggestionSource)
