@@ -21,7 +21,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             //     Create.Option("-h|--help|-?", null, Accept.NoArguments())
             // );
 
-            var command = Option("-h|--help|-?", "this is the help text", Accept.NoArguments());
+            var command = Option("-h|--help|-?", "this is the help text", ArgumentsRule.None);
 
             var parseResult = command.Parse("-?");
 
@@ -43,7 +43,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             //  $ diff -i:arcu
 
             var command = Command("diff", "",
-                                  Option("-i", "", Accept.ExactlyOneArgument()));
+                                  Option("-i", "", new ArgumentRuleBuilder().ExactlyOne()));
 
             output.WriteLine(command.Parse("diff -iarcu").Diagram());
             output.WriteLine(command.Parse("diff -i arcu").Diagram());

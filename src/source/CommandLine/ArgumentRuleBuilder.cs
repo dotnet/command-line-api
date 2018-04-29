@@ -9,11 +9,9 @@ using static Microsoft.DotNet.Cli.CommandLine.ValidationMessages;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class ArgumentRuleBuilder
+    public class ArgumentRuleBuilder  
     {
         private readonly List<Validate> validators = new List<Validate>();
-
-        public ArgumentParser ArgumentParser { get; set; }
 
         public void AddValidator(Validate validator)
         {
@@ -22,24 +20,50 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(validator));
             }
 
+
             validators.Add(validator);
         }
 
-        private string Validate(ParsedSymbol parsedOption)
+        public ArgumentsRuleHelp Help { get; set; }
+
+        public Func<string> DefaultValue { get; set; }
+
+        public TypeConversion TypeConversion { get; set; }
+
+        protected virtual ArgumentParser GetArgumentParser()
+            => new ArgumentParser<string>(TypeConversion ?? (symbol => Result.Success(symbol.Token)));
+
+        public ArgumentsRule Build()
         {
-            if (parsedOption == null)
+            return new ArgumentsRule(GetArgumentParser(), DefaultValue, Help);
+        }
+    }
+
+    public class ArgumentRuleBuilder<T> : ArgumentRuleBuilder
+    {
+        public ArgumentRuleBuilder()
+            : this(FigureMeOut())
+        { }
+
+        private static TypeConversion FigureMeOut()
+        {
+            //TODO: Jump table
+            if (typeof(T) == typeof(string))
             {
-                throw new ArgumentNullException(nameof(parsedOption));
+                return symbol => Result.Success(symbol.Token);
             }
-
-            return validators.Select(v => v(parsedOption))
-                             .FirstOrDefault(e => e != null);
+            throw new NotImplementedException();
         }
 
-        internal ArgumentsRule Build()
+        public ArgumentRuleBuilder(TypeConversion typeConversion)
         {
-            return new ArgumentsRule(Validate);
+            ArgumentParser = new ArgumentParser<T>(typeConversion);
         }
+
+        protected override ArgumentParser GetArgumentParser()
+            => ArgumentParser;
+
+        public ArgumentParser<T> ArgumentParser { get; set; }
     }
 
     public static class Define
@@ -51,25 +75,38 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         #region arity
 
-        public static ArgumentsRule None(
-            this ArgumentRuleBuilder builder,
+        public static ArgumentsRule ExactlyOne<T>(
+            this ArgumentRuleBuilder<T> builder,
             Func<ParsedSymbol, string> errorMessage = null)
         {
-            builder.AddValidator(o =>
+            builder.ArgumentParser.AddValidator((value, parsedSymbol) =>
             {
-                if (!o.Arguments.Any())
+                var argumentCount = parsedSymbol.Arguments.Count;
+
+                if (argumentCount == 0)
                 {
-                    return null;
+                    if (errorMessage == null)
+                    {
+                        return Result.Failure(parsedSymbol.Symbol is Command
+                            ? RequiredArgumentMissingForCommand(parsedSymbol.Symbol.ToString())
+                            : RequiredArgumentMissingForOption(parsedSymbol.Symbol.ToString()));
+                    }
+                    return Result.Failure(errorMessage(parsedSymbol));
                 }
 
-                if (errorMessage == null)
+                if (argumentCount > 1)
                 {
-                    return NoArgumentsAllowed(o.Symbol.ToString());
+                    if (errorMessage == null)
+                    {
+                        return Result.Failure(parsedSymbol.Symbol is Command
+                            ? CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount)
+                            : OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount));
+                    }
+
+                    return Result.Failure(errorMessage(parsedSymbol));
                 }
-                else
-                {
-                    return errorMessage(o);
-                }
+
+                return Result.Success(value);
             });
 
             return builder.Build();
@@ -79,21 +116,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             Func<ParsedSymbol, string> errorMessage = null)
         {
-            builder.AddValidator(o =>
+            builder.AddValidator(parsedSymbol =>
             {
-                var argumentCount = o.Arguments.Count;
+                var argumentCount = parsedSymbol.Arguments.Count;
 
                 if (argumentCount == 0)
                 {
                     if (errorMessage == null)
                     {
-                        return o.Symbol is Command
-                                   ? RequiredArgumentMissingForCommand(o.Symbol.ToString())
-                                   : RequiredArgumentMissingForOption(o.Symbol.ToString());
+                        return parsedSymbol.Symbol is Command
+                                   ? RequiredArgumentMissingForCommand(parsedSymbol.Symbol.ToString())
+                                   : RequiredArgumentMissingForOption(parsedSymbol.Symbol.ToString());
                     }
                     else
                     {
-                        return errorMessage(o);
+                        return errorMessage(parsedSymbol);
                     }
                 }
 
@@ -101,13 +138,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     if (errorMessage == null)
                     {
-                        return o.Symbol is Command
-                                   ? CommandAcceptsOnlyOneArgument(o.Symbol.ToString(), argumentCount)
-                                   : OptionAcceptsOnlyOneArgument(o.Symbol.ToString(), argumentCount);
+                        return parsedSymbol.Symbol is Command
+                                   ? CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount)
+                                   : OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount);
                     }
                     else
                     {
-                        return errorMessage(o);
+                        return errorMessage(parsedSymbol);
                     }
                 }
 
@@ -241,14 +278,28 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentRuleBuilder OfType<T>(
             this ArgumentRuleBuilder builder,
-            ParseArgument<T> parse)
+            TypeConversion parse)
         {
-            builder.ArgumentParser = new ArgumentParser<T>(parse);
+            //builder.ArgumentParser = new ArgumentParser<T>(parse);
 
             return builder;
         }
 
         #endregion
+
+        public static ArgumentRuleBuilder WithHelp(this ArgumentRuleBuilder builder,
+            string name = null, string description = null)
+        {
+            builder.Help = new ArgumentsRuleHelp(name, description);
+            return builder;
+        }
+
+        public static ArgumentRuleBuilder WithDefaultValue(this ArgumentRuleBuilder builder,
+            Func<string> defaultValue)
+        {
+            builder.DefaultValue = defaultValue;
+            return builder;
+        }
 
         public static ArgumentRuleBuilder Validate(
             this ArgumentRuleBuilder builder,
@@ -258,54 +309,132 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             return builder;
         }
-    }
 
-    public delegate ArgumentParser<T>.Result ParseArgument<T>(string value);
-
-    public class ArgumentParser
-    {
-    }
-
-    public class ArgumentParser<T> : ArgumentParser
-    {
-        private readonly ParseArgument<T> parse;
-
-        public ArgumentParser(ParseArgument<T> parse)
+        public static ArgumentRuleBuilder WithSuggestions(this ArgumentRuleBuilder builder,
+            params string[] suggestions)
         {
-            this.parse = parse ??
-                         throw new ArgumentNullException(nameof(parse));
+            //builder.ArgumentParser.AddSuggetions((_, __) => suggestions);
+            return builder;
+        }
+    }
+
+    public delegate Result TypeConverter(ParsedSymbol symbol);
+
+    public delegate IEnumerable<string> SuggestionSource(ParseResult parseResult, int? position);
+
+    public abstract class ArgumentParser
+    {
+        private readonly List<SuggestionSource> suggestionSources = new List<SuggestionSource>();
+
+        public void AddSuggetions(SuggestionSource suggestionSource)
+        {
+            suggestionSources.Add(suggestionSource);
         }
 
-        public Result TryParse(string value) => parse(value);
-
-        public static Result Failure { get; } = new Result(false);
-
-        public static Result Success(T value) => new Result(true, value);
-
-        public struct Result
+        public virtual IEnumerable<string> Suggest(
+            ParseResult parseResult,
+            int? position = null)
         {
-            private readonly T value;
-
-            public Result(bool successful, T value = default(T))
+            foreach (SuggestionSource suggestionSource in suggestionSources)
             {
-                Successful = successful;
-                this.value = value;
-            }
-
-            public bool Successful { get; }
-
-            public T Value
-            {
-                get
+                foreach (string suggestion in suggestionSource(parseResult, position))
                 {
-                    if (!Successful)
-                    {
-                        throw new InvalidOperationException($"Value \"{value}\" could not be parsed as a {typeof(T)}");
-                    }
-
-                    return value;
+                    yield return suggestion;
                 }
             }
         }
+
+
+        //public abstract Result Parse(string value);
+        public abstract Result Parse(ParsedSymbol value);
+    }
+
+    public delegate Result Validate<in T>(T value, ParsedSymbol symbol);
+
+    public delegate Result TypeConversion(ParsedSymbol symbol);
+
+    public class ArgumentParser<T> : ArgumentParser
+    {
+        private readonly List<Validate<T>> validations = new List<Validate<T>>();
+        private readonly TypeConversion typeConversion;
+
+        public ArgumentParser()
+        {
+
+        }
+
+        public ArgumentParser(TypeConversion typeConversion)
+        {
+            this.typeConversion = typeConversion ??
+                         throw new ArgumentNullException(nameof(typeConversion));
+        }
+
+        public void AddValidator(Validate<T> validator)
+        {
+            validations.Add(validator);
+        }
+
+        private Result Validate(T value, ParsedSymbol symbol)
+        {
+            Result result = null;
+            foreach (Validate<T> validator in validations)
+            {
+                result = validator(value, symbol);
+                if (result is SuccessfulResult<T> successResult)
+                {
+                    value = successResult.Value;
+                }
+                else
+                {
+                    return result;
+                }
+            }
+            return result ?? Result.Success(value);
+        }
+
+        //string -> parsed symbol -> type conversion -> (type checking) -> validation
+
+        public override Result Parse(ParsedSymbol symbol)
+        {
+            Result typeResult = typeConversion(symbol);
+            if (typeResult is SuccessfulResult<T> successfulResult)
+            {
+                return Validate(successfulResult.Value, symbol);
+            }
+            return typeResult;
+        }
+    }
+
+    public class SuccessfulResult<T> : Result
+    {
+        public SuccessfulResult(T value = default(T))
+        {
+            Value = value;
+        }
+
+        public T Value { get; }
+
+        public override bool Successful { get; } = true;
+    }
+
+    public class FailedResult : Result
+    {
+        public string Error { get; }
+
+        public FailedResult(string error)
+        {
+            Error = error;
+        }
+
+        public override bool Successful { get; } = false;
+    }
+
+    public abstract class Result
+    {
+        public abstract bool Successful { get; }
+
+        public static FailedResult Failure(string error) => new FailedResult(error);
+
+        public static SuccessfulResult<T> Success<T>(T value) => new SuccessfulResult<T>(value);
     }
 }

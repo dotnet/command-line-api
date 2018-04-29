@@ -13,7 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return parsedCommand.Children[alias].Value();
+            return parsedCommand.Children[alias].Result();
         }
 
         public static T ValueForOption<T>(
@@ -25,7 +25,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return parsedCommand.Children[alias].Value<T>();
+            return parsedCommand.Children[alias].GetValueOrDefault<T>();
         }
     }
 }

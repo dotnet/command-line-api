@@ -51,8 +51,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Command command,
             StringBuilder helpView)
         {
-            var argName = command.ArgumentsRule.Name;
-            var argDescription = command.ArgumentsRule.Description;
+            var argName = command.ArgumentsRule.Help.Name;
+            var argDescription = command.ArgumentsRule.Help.Description;
 
             var shouldWriteCommandArguments =
                 !string.IsNullOrWhiteSpace(argName) &&
@@ -60,8 +60,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var parentCommand = command.Parent;
 
-            var parentArgName = parentCommand?.ArgumentsRule?.Name;
-            var parentArgDescription = parentCommand?.ArgumentsRule?.Description;
+            var parentArgName = (parentCommand?.ArgumentsRule).Help?.Name;
+            var parentArgDescription = (parentCommand?.ArgumentsRule).Help?.Description;
 
             var shouldWriteParentCommandArguments =
                 !string.IsNullOrWhiteSpace(parentArgName) &&
@@ -176,7 +176,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                              symbol.RawAliases
                                                    .OrderBy(a => a.Length));
 
-            var argumentName = symbol.ArgumentsRule.Name;
+            var argumentName = symbol.ArgumentsRule.Help.Name;
 
             if (!string.IsNullOrWhiteSpace(argumentName))
             {
@@ -225,7 +225,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 helpView.Append($" {subcommand.Name}");
 
-                var argsName = subcommand.ArgumentsRule.Name;
+                var argsName = subcommand.ArgumentsRule.Help.Name;
                 if (subcommand != command &&
                     !string.IsNullOrWhiteSpace(argsName))
                 {
@@ -240,7 +240,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 helpView.Append(Synopsis.Options);
             }
 
-            var argumentsName = command.ArgumentsRule.Name;
+            var argumentsName = command.ArgumentsRule.Help.Name;
             if (!string.IsNullOrWhiteSpace(argumentsName))
             {
                 helpView.Append($" <{argumentsName}>");

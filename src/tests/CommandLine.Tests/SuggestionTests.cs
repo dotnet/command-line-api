@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
-using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
@@ -43,8 +42,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                        Option("--one", "", AnyOneOf("one-a", "one-b")),
-                        Option("--two", "", AnyOneOf("two-a", "two-b"))));
+                        Option("--one", "", 
+                            Define.Arguments().FromAmong("one-a", "one-b").ExactlyOne()),
+                        Option("--two", "", 
+                            Define.Arguments().FromAmong("two-a", "two-b").ExactlyOne())));
 
             var result = parser.Parse("outer --two ");
 
@@ -69,11 +70,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Option("-t", "",
-                                         ExactlyOneArgument()
-                                             .WithSuggestionsFrom(
-                                                 "vegetable",
-                                                 "mineral",
-                                                 "animal")));
+                                      Define.Arguments()
+                                          .WithSuggestions("vegetable",
+                                              "mineral",
+                                              "animal")
+                                          .ExactlyOne()));
 
             command.Parse("the-command -t m")
                    .Suggestions()
@@ -89,12 +90,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Command("one", "",
-                                          WithSuggestionsFrom(s => new[]
-                                          {
-                                              "vegetable",
-                                              "mineral",
-                                              "animal"
-                                          })));
+                                      Define.Arguments().WithSuggestions("vegetable",
+                                          "mineral",
+                                          "animal").ExactlyOne()));
 
             command.Parse("the-command one m")
                    .Suggestions()
@@ -108,12 +106,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Command("one", "",
-                                          AnyOneOf(() => new[]
-                                          {
-                                              "vegetable",
-                                              "mineral",
-                                              "animal"
-                                          })));
+                                      Define.Arguments().FromAmong("vegetable",
+                                          "mineral",
+                                          "animal")
+                                          .ExactlyOne()));
 
             command.Parse("the-command one m")
                    .Suggestions()
@@ -136,14 +132,20 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                        NoArguments(),
-                        Option("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
-                        Option("two", "", arguments: AnyOneOf("two-a", "two-b", "two-c")),
-                        Option("three", "", arguments: AnyOneOf("three-a", "three-b", "three-c"))));
+                    ArgumentsRule.None,
+                        Option("one", "", 
+                            Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                                .ExactlyOne()),
+                        Option("two", "", 
+                            Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                                .ExactlyOne()),
+                        Option("three", "", 
+                            Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                                .ExactlyOne())));
 
             var result = parser.Parse(new[] { "outer", "two", "b" });
 
-            System.Console.WriteLine(result.Diagram());
+            Console.WriteLine(result.Diagram());
 
             result.Suggestions()
                   .Should()
@@ -155,10 +157,16 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                        NoArguments(),
-                        Option("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
-                        Option("two", "", arguments: AnyOneOf("two-a", "two-b", "two-c")),
-                        Option("three", "", arguments: AnyOneOf("three-a", "three-b", "three-c"))));
+                    ArgumentsRule.None,
+                        Option("one", "", 
+                            Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                                .ExactlyOne()),
+                        Option("two", "", 
+                            Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                                .ExactlyOne()),
+                        Option("three", "", 
+                            Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                                .ExactlyOne())));
 
             var result = parser.Parse("outer two b");
 
@@ -172,14 +180,21 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                        NoArguments(),
-                        Command("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
-                        Command("two", "", arguments: AnyOneOf("two-a", "two-b", "two-c")),
-                        Command("three", "", arguments: AnyOneOf("three-a", "three-b", "three-c"))));
+                    ArgumentsRule.None,
+                        Command("one", "", 
+                            Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                                .ExactlyOne()),
+                        Command("two", "", 
+                            Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                                .ExactlyOne()),
+                        Command("three", "", 
+                            Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                                .ExactlyOne()))
+                );
 
             var result = parser.Parse(new[] { "outer", "two", "b" });
 
-            System.Console.WriteLine(result.Diagram());
+            Console.WriteLine(result.Diagram());
 
             result.Suggestions()
                   .Should()
@@ -191,9 +206,15 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Command("outer", "",
-                        Command("one", "", arguments: AnyOneOf("one-a", "one-b", "one-c")),
-                        Command("two", "", arguments: AnyOneOf("two-a", "two-b", "two-c")),
-                        Command("three", "", arguments: AnyOneOf("three-a", "three-b", "three-c")))
+                    Command("one", "", 
+                        Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                            .ExactlyOne()),
+                    Command("two", "", 
+                        Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                            .ExactlyOne()),
+                    Command("three", "", 
+                        Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                            .ExactlyOne()))
             );
 
             var result = parser.Parse("outer two b");
@@ -238,7 +259,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [InlineData(" the-command  on$e --two ")]
         public void When_position_is_specified_then_TextToMatch_matches_argument_at_cursor_position(string input)
         {
-            var command = Command("the-command", "", ZeroOrMoreArguments());
+            var command = Command("the-command", "", Define.Arguments().ZeroOrMore());
 
             var textToMatch = command.Parse(input.Replace("$", ""))
                                      .TextToMatch(input.IndexOf("$", StringComparison.Ordinal));

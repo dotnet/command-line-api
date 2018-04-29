@@ -1,11 +1,9 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
@@ -15,7 +13,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parsed_option_with_exactly_one_argument_accepts_single_argument()
         {
-            var option = Option("-x", "", ExactlyOneArgument());
+            var builder = new ArgumentRuleBuilder();
+            var option = Option("-x", "", builder.ExactlyOne());
 
             var applied = new ParsedOption(option, "-x");
 
@@ -31,7 +30,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parsed_option_with_exactly_one_argument_does_not_accept_two_arguments()
         {
-            var option = Option("-x", "", ExactlyOneArgument());
+            var builder = new ArgumentRuleBuilder();
+            var option = Option("-x", "", builder.ExactlyOne());
 
             var applied = new ParsedOption(option, "-x");
 
@@ -45,7 +45,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parsed_option_with_specific_arguments_does_not_accept_argument_that_does_not_match()
         {
-            var option = Option("-x", "", AnyOneOf("one", "two", "three"));
+            var builder = new ArgumentRuleBuilder();
+            var option = Option("-x", "", builder.FromAmong("one", "two", "three").ExactlyOne());
 
             var applied = new ParsedOption(option, "-x");
 
@@ -57,7 +58,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parsed_option_with_no_arguments_does_not_accept_arguments()
         {
-            var option = Option("-x", "", NoArguments());
+            var builder = new ArgumentRuleBuilder();
+            var option = Option("-x", "", builder.Build());
 
             var applied = new ParsedOption(option, "-x");
 
@@ -71,9 +73,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parsed_option_can_have_nested_option_with_args()
         {
+            var builder = new ArgumentRuleBuilder();
             var option = Command("outer", "",
                                  Option("inner", "",
-                                        ExactlyOneArgument()));
+                                        builder.ExactlyOne()));
 
             var applied = new ParsedCommand(option);
 
@@ -90,9 +93,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parsed_option_can_have_multiple_nested_options_with_args()
         {
+
             var option = Command("outer", "",
-                                 Option("inner1", "", ExactlyOneArgument()),
-                                 Option("inner2", "", ExactlyOneArgument()));
+                                 Option("inner1", "", new ArgumentRuleBuilder().ExactlyOne()),
+                                 Option("inner2", "", new ArgumentRuleBuilder().ExactlyOne()));
 
             var applied = new ParsedCommand(option);
 
@@ -118,8 +122,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = Option("-x",
                                 "",
-                                AnyOneOf("one", "two", "default")
-                                    .With(defaultValue: () => "default"));
+                Define.Arguments().FromAmong("one", "two", "default")
+                    .WithDefaultValue(() => "default")
+                    .ExactlyOne());
 
             var applied = new ParsedOption(option, "-x");
 
@@ -131,8 +136,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = Option("-x",
                                 "",
-                                AnyOneOf("one", "two", "default")
-                                    .With(defaultValue: () => "default"));
+                Define.Arguments().FromAmong("one", "two", "default")
+                    .WithDefaultValue(defaultValue: () => "default")
+                    .ExactlyOne());
 
             var applied = new ParsedOption(option, "-x");
 
@@ -148,18 +154,19 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var option =
                 Option("-x",
                        "",
-                       ExactlyOneArgument()
-                           .With(defaultValue: () => (++i).ToString()));
+                        Define.Arguments()
+                            .WithDefaultValue(() => (++i).ToString())
+                            .ExactlyOne());
 
             var result1 = option.Parse("-x");
             var result2 = option.Parse("-x");
 
             result1["x"]
-                .Value()
+                .Result()
                 .Should()
                 .Be("1");
             result2["x"]
-                .Value()
+                .Result()
                 .Should()
                 .Be("2");
         }
@@ -167,10 +174,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void ExactlyOneArgument_error_message_can_be_customized()
         {
+            var builder = new ArgumentRuleBuilder();
             var option =
                 Command("the-command", "",
-                        ExactlyOneArgument(
-                            o => $"Expected 1 arg for option `{o.Name}`, found none"));
+                    builder.ExactlyOne(o => $"Expected 1 arg for option `{o.Name}`, found none"));
 
             var result = option.Parse("the-command");
 
@@ -215,7 +222,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void TakeToken_is_accepts_long_form_option()
         {
-            var command = Command("command", "", Option("-o|--one", "", NoArguments()));
+            var builder = new ArgumentRuleBuilder();
+            var command = Command("command", "", Option("-o|--one", "", ArgumentsRule.None));
 
             var applied = new ParsedCommand(command);
 
@@ -228,7 +236,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void TakeToken_is_accepts_short_form_option()
         {
-            var command = Command("command", "", Option("-o|--one", "", NoArguments()));
+            var builder = new ArgumentRuleBuilder();
+            var command = Command("command", "", Option("-o|--one", "", ArgumentsRule.None));
 
             var applied = new ParsedCommand(command);
 
@@ -241,7 +250,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void TryTakeToken_does_not_accept_incorrectly_prefixed_options()
         {
-            var command = Command("command", "", Option("-o|--one", "", NoArguments()));
+            var builder = new ArgumentRuleBuilder();
+            var command = Command("command", "", Option("-o|--one", "", ArgumentsRule.None));
 
             var applied = new ParsedCommand(command);
 
@@ -290,7 +300,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void TryTakeToken_will_not_accept_an_argument_if_it_is_invalid()
         {
-            var option = Option("--one", "", NoArguments());
+            var builder = new ArgumentRuleBuilder();
+            var option = Option("--one", "", ArgumentsRule.None);
 
             var applied = new ParsedOption(option);
 

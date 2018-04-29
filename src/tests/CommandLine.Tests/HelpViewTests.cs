@@ -7,7 +7,6 @@ using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Environment;
-using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
@@ -24,9 +23,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Help_can_be_displayed_for_a_specific_invalid_command()
         {
+            var builder = new ArgumentRuleBuilder();
             var command = Command("the-command",
                                   "Does the thing.",
-                                  ExactlyOneArgument());
+                                   builder.ExactlyOne());
             var parser = new CommandParser(command);
 
             var result = parser.Parse("the-command");
@@ -40,9 +40,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Help_can_be_displayed_for_a_specific_invalid_option()
         {
+            var builder = new ArgumentRuleBuilder();
             var command = Command("the-command",
                                   "Does the thing.",
-                                  Option("-x", "Specifies value x", ExactlyOneArgument()));
+                                  Option("-x", "Specifies value x", builder.ExactlyOne()));
             var parser = new CommandParser(command);
 
             var result = parser.Parse("the-command -x");
@@ -125,7 +126,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_a_command_accepts_arguments_then_the_synopsis_shows_them()
         {
             var command = Command("the-command", "command help",
-                                  ZeroOrMoreArguments().With(name: "the-args"),
+                Define.Arguments()
+                      .WithHelp(name: "the-args")
+                      .ZeroOrMore(),
                                   Option("-v|--verbosity", "Sets the verbosity"));
 
             var helpView = command.HelpView();
@@ -139,9 +142,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_a_command_and_subcommand_both_accept_arguments_then_the_synopsis_for_the_inner_command_shows_them()
         {
             var command = Command("outer-command", "command help",
-                                  ZeroOrMoreArguments().With(name: "outer-args"),
+                                   Define.Arguments()
+                                       .WithHelp(name: "outer-args")
+                                       .ZeroOrMore(),
                                   Command("inner-command", "command help",
-                                          ZeroOrOneArgument().With(name: "inner-args"),
+                                      Define.Arguments().WithHelp(name: "inner-args")
+                                          .ZeroOrOne(),
                                           Option("-v|--verbosity", "Sets the verbosity")));
 
             var helpView = ((Command) command["inner-command"]).HelpView();
@@ -154,9 +160,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_a_command_does_not_accept_arguments_then_the_synopsis_does_not_show_them()
         {
+            var builder = new ArgumentRuleBuilder();
             var command = Command("the-command",
                                   "command help",
-                                  NoArguments(),
+                                  ArgumentsRule.None,
                                   Option("-v|--verbosity", "Sets the verbosity"));
 
             var helpView = command.HelpView();
@@ -169,10 +176,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Help_view_wraps_with_aligned_column_when_help_text_contains_newline()
         {
+            var builder = new ArgumentRuleBuilder();
             var command = Command("the-command",
                                   "command help",
                                   Option("-v|--verbosity",
-                                         $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud", ExactlyOneArgument()));
+                                         $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud", 
+                                      builder.ExactlyOne()));
 
             var helpView = command.HelpView();
 
@@ -189,7 +198,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   "command help",
                                   Option("-v|--verbosity",
                                          "Sets the verbosity.",
-                                         ExactlyOneArgument().With(name: "LEVEL")));
+                                      Define.Arguments().WithHelp(name: "LEVEL")
+                                          .ExactlyOne()));
 
             command.HelpView()
                    .Should()
@@ -200,10 +210,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void If_arguments_have_descriptions_then_there_is_an_arguments_section()
         {
             var command = Command("the-command", "The help text for the command",
-                                  ZeroOrOneArgument()
-                                      .With(name: "the-arg",
-                                            description: "This is the argument for the command."),
-                                  Option("-o|--one", "The first option"));
+                Define.Arguments().WithHelp(name: "the-arg",
+                        description: "This is the argument for the command.")
+                    .ZeroOrOne(),
+                Option("-o|--one", "The first option"));
 
             var helpView = command.HelpView();
 
@@ -217,13 +227,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Column_for_argument_descriptions_are_vertically_aligned()
         {
             var command = Command("outer", "Help text for the outer command",
-                                  ExactlyOneArgument()
-                                      .With(name: "outer-command-arg",
-                                            description: "The argument for the inner command"),
+                Define.Arguments().WithHelp(name: "outer-command-arg",
+                                description: "The argument for the inner command")
+                                .ExactlyOne(),
                                   Command("inner", "Help text for the inner command",
-                                          ExactlyOneArgument()
-                                              .With(name: "the-inner-command-arg",
-                                                    description: "The argument for the inner command")));
+                                      Define.Arguments().WithHelp(name: "the-inner-command-arg",
+                                          description: "The argument for the inner command")
+                                          .ExactlyOne()));
 
             var helpView = ((Command) command["inner"]).HelpView();
 
@@ -263,7 +273,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("some-command", "Does something",
                                   treatUnmatchedTokensAsErrors: false,
-                                  options: Option("-x", "Indicates whether x"));
+                                  symbols: Option("-x", "Indicates whether x"));
 
             var helpView = command.HelpView();
 

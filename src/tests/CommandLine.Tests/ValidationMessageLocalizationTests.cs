@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
@@ -23,7 +22,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             ValidationMessages.Current = new FakeValidationMessages("the-message");
 
-            var result = Command("the-command", "", ExactlyOneArgument()).Parse("the-command");
+            var builder = new ArgumentRuleBuilder();
+            var result = Command("the-command", "", builder.ExactlyOne()).Parse("the-command");
 
             result.Errors
                   .Select(e => e.Message)
@@ -36,7 +36,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             ValidationMessages.Current = new FakeValidationMessages(null);
 
-            var result = Command("the-command", "", NoArguments()).Parse("the-command an-argument");
+            var builder = new ArgumentRuleBuilder();
+            var result = Command("the-command", "", ArgumentsRule.None).Parse("the-command an-argument");
 
             result.Errors
                   .Select(e => e.Message)
@@ -49,8 +50,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             ValidationMessages.Current = new FakeValidationMessages("  ");
 
+            var builder = new ArgumentRuleBuilder();
             var result = Command("outer", "",
-                                 Command("inner", "", NoArguments())).Parse("outer");
+                                 Command("inner", "", ArgumentsRule.None)).Parse("outer");
 
             result.Errors
                   .Select(e => e.Message)

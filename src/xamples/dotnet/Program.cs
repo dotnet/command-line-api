@@ -44,7 +44,7 @@ namespace dotnet
 
             if (positionOption != null)
             {
-                var position = positionOption.Value<int>();
+                var position = positionOption.GetValueOrDefault<int>();
 
                 if (position > input.Length)
                 {

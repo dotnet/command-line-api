@@ -2,75 +2,76 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class ArgumentsRule
+    public class ArgumentsRuleHelp
     {
-        private readonly Validate validate;
-        private readonly Func<ParsedSymbol, object> materialize;
-        private readonly Suggest suggest;
-        private readonly Func<string> defaultValue;
-
-        public ArgumentsRule(Validate validate) : this(validate, null)
+        public ArgumentsRuleHelp()
         {
         }
 
-        public ArgumentsRule(
-            Validate validate,
-            IReadOnlyCollection<string> allowedValues = null,
-            Func<string> defaultValue = null,
-            string description = null,
-            string name = null,
-            Suggest suggest = null,
-            Func<ParsedSymbol, object> materialize = null)
+        public ArgumentsRuleHelp(string name, string description)
         {
-            this.validate = validate ?? throw new ArgumentNullException(nameof(validate));
-
-            this.defaultValue = defaultValue;
             Description = description;
             Name = name;
-
-            if (suggest == null)
-            {
-                this.suggest = (result, position) =>
-                    AllowedValues.FindSuggestions(
-                        result,
-                        position ?? result.ImplicitCursorPosition());
-            }
-            else
-            {
-                this.suggest = (result, position) =>
-                    suggest(result).ToArray()
-                                   .FindSuggestions(
-                                       result.TextToMatch(position ?? result.ImplicitCursorPosition()));
-            }
-
-            AllowedValues = allowedValues ?? Array.Empty<string>();
-
-            this.materialize = materialize;
         }
 
-        public string Validate(ParsedSymbol option) => validate(option);
+        public string Description { get; }
+        public string Name { get; }
+    }
 
-        public IReadOnlyCollection<string> AllowedValues { get; }
+
+    public class ArgumentsRule
+    {
+        private readonly Func<string> defaultValue;
+
+        public static ArgumentsRule None => new ArgumentsRule(new ArgumentParser<string>(o =>
+        {
+            if (!o.Arguments.Any())
+            {
+                return null;
+            }
+
+            return Result.Failure(ValidationMessages.Current.NoArgumentsAllowed(o.Symbol.ToString()));
+        }));
+
+        public ArgumentsRule(
+            ArgumentParser parser,
+            Func<string> defaultValue = null,
+            ArgumentsRuleHelp help = null)
+        {
+            Parser = parser ?? throw new ArgumentNullException(nameof(parser));
+            this.defaultValue = defaultValue;
+
+            Help = help ?? new ArgumentsRuleHelp();
+
+            //if (suggest == null)
+            //{
+            //    this.suggest = (result, position) =>
+            //        AllowedValues.FindSuggestions(
+            //            result,
+            //            position ?? result.ImplicitCursorPosition());
+            //}
+            //else
+            //{
+            //    this.suggest = (result, position) =>
+            //        suggest(result).ToArray()
+            //            .FindSuggestions(
+            //                result.TextToMatch(position ?? result.ImplicitCursorPosition()));
+            //}
+        }
+        
 
         public Func<string> GetDefaultValue => () => defaultValue?.Invoke();
 
-        public string Description { get; }
-
-        public string Name { get; }
-
-        public Func<ParsedSymbol, object> Materializer => materialize;
-
+        
         public bool HasDefaultValue => defaultValue != null;
 
-        public IEnumerable<string> Suggest(ParseResult parseResult, int? position = null) =>
-            suggest(parseResult, position);
+        public ArgumentsRuleHelp Help { get; }
 
-        public object Materialize(ParsedSymbol parsedOption) =>
-            materialize?.Invoke(parsedOption);
+        public ArgumentParser Parser { get; }
+
     }
 }

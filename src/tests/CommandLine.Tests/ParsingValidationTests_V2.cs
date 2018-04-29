@@ -66,7 +66,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new CommandParser(Command("the-command", "", Option("-x", "", Arguments().None())));
+            var parser = new CommandParser(Command("the-command", "", Option("-x", "", ArgumentsRule.None)));
 
             var result = parser.Parse("the-command -x some-arg");
 
@@ -164,7 +164,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("move", "",
                                   arguments: Arguments().ExistingFilesOnly().ExactlyOne(),
-                                  options: Option("--to", "",
+                                  symbols: Option("--to", "",
                                                   Arguments().ExactlyOne()));
 
             var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
