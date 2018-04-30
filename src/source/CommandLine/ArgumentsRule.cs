@@ -22,20 +22,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public string Name { get; }
     }
 
-
     public class ArgumentsRule
     {
         private readonly Func<string> defaultValue;
 
-        public static ArgumentsRule None => new ArgumentsRule(new ArgumentParser<string>(o =>
-        {
-            if (!o.Arguments.Any())
+        public static ArgumentsRule None { get; } =
+            new ArgumentsRule(new ArgumentParser<string>(o =>
             {
-                return null;
-            }
+                if (!o.Arguments.Any())
+                {
+                    return null;
+                }
 
-            return Result.Failure(ValidationMessages.Current.NoArgumentsAllowed(o.Symbol.ToString()));
-        }));
+                return ArgumentParseResult.Failure(ValidationMessages.Current.NoArgumentsAllowed(o.Symbol.ToString()));
+            }));
 
         public ArgumentsRule(
             ArgumentParser parser,
@@ -62,10 +62,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             //                result.TextToMatch(position ?? result.ImplicitCursorPosition()));
             //}
         }
-        
 
         public Func<string> GetDefaultValue => () => defaultValue?.Invoke();
-
         
         public bool HasDefaultValue => defaultValue != null;
 

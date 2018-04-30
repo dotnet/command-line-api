@@ -37,6 +37,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 return successfulResult.Value;
             }
+
             return default(T);
         }
     }

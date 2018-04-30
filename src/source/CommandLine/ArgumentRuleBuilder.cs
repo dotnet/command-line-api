@@ -20,7 +20,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(validator));
             }
 
-
             validators.Add(validator);
         }
 
@@ -313,7 +312,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static ArgumentRuleBuilder WithSuggestions(this ArgumentRuleBuilder builder,
             params string[] suggestions)
         {
-            //builder.ArgumentParser.AddSuggetions((_, __) => suggestions);
             return builder;
         }
     }
@@ -345,7 +343,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
 
-        //public abstract Result Parse(string value);
         public abstract Result Parse(ParsedSymbol value);
     }
 

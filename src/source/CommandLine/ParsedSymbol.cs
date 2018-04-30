@@ -105,7 +105,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return null;
         }
 
-
         public override string ToString() => this.Diagram();
 
         internal static ParsedSymbol Create(Symbol symbol, string token, ParsedCommand parent = null)
