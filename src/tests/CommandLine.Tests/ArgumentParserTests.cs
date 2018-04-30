@@ -28,23 +28,26 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var parser = new ArgumentParser<string>(parsedSymbol => ArgumentParseResult.Success(""));
 
+            var firstRuleWasCalled = false;
             var secondRuleWasCalled = false;
 
-            parser.AddValidator((value, parsedSymbol) => Result.Failure("first error"));
+            parser.AddValidator((value, parsedSymbol) =>
+            {
+                firstRuleWasCalled = true;
+                return ArgumentParseResult.Failure("first error");
+            });
             parser.AddValidator((value, parsedSymbol) =>
             {
                 secondRuleWasCalled = true;
-                return Result.Failure("second error");
+                return ArgumentParseResult.Failure("second error");
             });
 
             var builder = new ArgumentRuleBuilder<string> { ArgumentParser = parser };
 
-            var parsedOption = new ParsedOption(Create.Option("-x", "", builder.Build()));
+            Create.Option("-x", "", builder.Build()).Parse("-x");
 
-            parsedOption.Result();
-
+            firstRuleWasCalled.Should().BeTrue();
             secondRuleWasCalled.Should().BeFalse();
         }
-
     }
 }
