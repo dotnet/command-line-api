@@ -58,8 +58,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Parsed_option_with_no_arguments_does_not_accept_arguments()
         {
-            var builder = new ArgumentRuleBuilder();
-            var option = Option("-x", "", builder.Build());
+            var option = Option("-x", "", ArgumentsRule.None);
 
             var applied = new ParsedOption(option, "-x");
 

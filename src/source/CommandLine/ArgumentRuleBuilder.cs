@@ -314,6 +314,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             return builder;
         }
+
+        public static ArgumentRuleBuilder WithSuggestions(this ArgumentRuleBuilder builder,
+            Func<string, IEnumerable<string>> suggest)
+        {
+            return builder;
+        }
     }
 
     public delegate ArgumentParseResult TypeConverter(ParsedSymbol symbol);

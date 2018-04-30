@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
-using static Microsoft.DotNet.Cli.CommandLine.Accept;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
@@ -20,7 +19,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command DotnetCommand() =>
             Command("dotnet",
                     ".NET Command Line Tools (2.0.0-alpha-alpha-004866)",
-                    NoArguments(),
+                    Define.Arguments().ZeroOrMore(),
                     New(),
                     Restore(),
                     Build(),
@@ -73,10 +72,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                             .ExactlyOne()),
                     Option("-f|--framework",
                            "Target framework to build for. The target framework has to be specified in the project file.",
-                           AnyOneOf(FrameworksFromProjectFile())),
+                           Define.Arguments().FromAmong(FrameworksFromProjectFile()).ExactlyOne()),
                     Option("-r|--runtime",
                            "Target runtime to build for. The default is to build a portable application.",
-                           AnyOneOf(RunTimesFromProjectFile())),
+                           Define.Arguments().FromAmong(RunTimesFromProjectFile()).ExactlyOne()),
                     Option("-c|--configuration",
                            "Configuration to use for building the project. Default for most projects is  \"Debug\".",
                         Define.Arguments().WithHelp(name: "CONFIGURATION")
@@ -139,21 +138,24 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command New() =>
             Command("new",
                     "Initialize .NET projects.",
-                    WithSuggestionsFrom("console",
-                                        "classlib",
-                                        "mstest",
-                                        "xunit",
-                                        "web",
-                                        "mvc",
-                                        "webapi",
-                                        "sln"),
+                    Define.Arguments()
+                          .WithSuggestions("console",
+                                           "classlib",
+                                           "mstest",
+                                           "xunit",
+                                           "web",
+                                           "mvc",
+                                           "webapi",
+                                           "sln")
+                          .ExactlyOne(),
                     Option("-l|--list",
                            "List templates containing the specified name."),
                     Option("-lang|--language",
                            "Specifies the language of the template to create",
-                        Define.Arguments().WithDefaultValue(defaultValue: () => "C#")
-                            .FromAmong("C#", "F#")
-                            .ExactlyOne()),
+                           Define.Arguments()
+                                 .WithDefaultValue(() => "C#")
+                                 .FromAmong("C#", "F#")
+                                 .ExactlyOne()),
                     Option("-n|--name",
                            "The name for the output being created. If no name is specified, the name of the current directory is used."),
                     Option("-o|--output",
@@ -257,32 +259,32 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Package() =>
             Command("package",
                     ".NET Add Package reference Command",
-                Define.Arguments().WithHelp(name: "PACKAGE_NAME",
-                    description: "Package references to add")
-                    .ExactlyOne()
-                    .WithSuggestionsFrom(QueryNuGet),
+                    Define.Arguments().WithHelp(name: "PACKAGE_NAME",
+                                                description: "Package references to add")
+                          .WithSuggestions(QueryNuGet)
+                          .ExactlyOne(),
                     HelpOption(),
                     Option("-v|--version",
                            "Version for the package to be added.",
-                        Define.Arguments().WithHelp(name: "VERSION")
-                            .ExactlyOne()),
+                           Define.Arguments().WithHelp(name: "VERSION")
+                                 .ExactlyOne()),
                     Option("-f|--framework",
                            "Add reference only when targetting a specific framework",
-                        Define.Arguments().WithHelp(name: "FRAMEWORK")
-                            .ExactlyOne()),
+                           Define.Arguments().WithHelp(name: "FRAMEWORK")
+                                 .ExactlyOne()),
                     Option("-n|--no-restore ",
                            "Add reference without performing restore preview and compatibility check."),
                     Option("-s|--source",
                            "Use specific NuGet package sources to use during the restore."),
                     Option("--package-directory",
                            "Restore the packages to this Directory .",
-                        Define.Arguments().WithHelp(name: "PACKAGE_DIRECTORY")
-                            .ExactlyOne()));
+                           Define.Arguments().WithHelp(name: "PACKAGE_DIRECTORY")
+                                 .ExactlyOne()));
 
         private static Command Publish() =>
             Command("publish",
                     ".NET Publisher",
-                    ExactlyOneArgument(),
+                    Define.Arguments().ExactlyOne(),
                     HelpOption(),
                     Option("-f|--framework",
                            "Target framework to publish for. The target framework has to be specified in the project file.",
@@ -322,7 +324,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Reference() =>
             Command("reference",
                     "Command to add project to project reference",
-                    OneOrMoreArguments(),
+                    Define.Arguments().OneOrMore(),
                     HelpOption(),
                     Option("-f|--framework",
                            "Add reference only when targetting a specific framework",
@@ -360,23 +362,30 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                            "Set this flag to ignore project to project references and only restore the root project"),
                     VerbosityOption());
 
-        private static Command Run() =>
-            Command("run",
-                    ".NET Run Command",
-                    treatUnmatchedTokensAsErrors: false,
-                    options:
-                    new[]
-                    {
-                        HelpOption(),
-                        Option("-c|--configuration",
-                               @"Configuration to use for building the project. Default for most projects is ""Debug""."),
-                        Option("-f|--framework",
-                               "Build and run the app using the specified framework. The framework has to be specified in the project file.",
-                               AnyOneOf(FrameworksFromProjectFile())),
-                        Option("-p|--project",
-                               "The path to the project file to run (defaults to the current directory if there is only one project).",
-                               ZeroOrOneArgument())
-                    });
+        private static Command Run()
+        {
+            var option = Option("-p|--project",
+                                "The path to the project file to run (defaults to the current directory if there is only one project).",
+                                Define.Arguments().ZeroOrOne());
+            var option1 = Option("-f|--framework",
+                                 "Build and run the app using the specified framework. The framework has to be specified in the project file.",
+                                 Define.Arguments().FromAmong(FrameworksFromProjectFile()).ExactlyOne());
+
+            var option2 = Option("-c|--configuration",
+                                 @"Configuration to use for building the project. Default for most projects is ""Debug"".");
+
+            return Command("run",
+                           ".NET Run Command",
+                           treatUnmatchedTokensAsErrors: false,
+                           arguments: ArgumentsRule.None,
+                           options: new[]
+                           {
+                               HelpOption(),
+                               option2,
+                               option1,
+                               option
+                           });
+        }
 
         private static Command Sln() =>
             Command("sln",
@@ -454,15 +463,17 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Option HelpOption() =>
             Option("-h|--help",
                    "Show help information",
-                   NoArguments());
+                   ArgumentsRule.None);
 
         private static Option VerbosityOption() =>
             Option("-v|--verbosity",
                    "Set the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]",
-                   AnyOneOf("q[uiet]",
-                            "m[inimal]",
-                            "n[ormal]",
-                            "d[etailed]"));
+                   Define.Arguments()
+                         .FromAmong("q[uiet]",
+                                    "m[inimal]",
+                                    "n[ormal]",
+                                    "d[etailed]")
+                         .ExactlyOne());
 
         private static string[] FrameworksFromProjectFile() =>
             new string[] { };
