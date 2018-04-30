@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static System.Environment;
@@ -148,7 +149,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         private static void WriteOptionsList(
-            Symbol[] symbols,
+            IReadOnlyCollection<Symbol> symbols,
             StringBuilder helpView)
         {
             var leftColumnTextFor = symbols
