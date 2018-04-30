@@ -79,7 +79,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public bool HasRawAlias(string alias) => rawAliases.Contains(alias);
 
-        internal Result Validate(ParsedSymbol parsedOption) => ArgumentsRule.Parser.Parse(parsedOption);
+        internal ArgumentParseResult Validate(ParsedSymbol parsedOption) => ArgumentsRule.Parser.Parse(parsedOption);
 
         public Symbol this[string alias] => DefinedSymbols[alias];
 

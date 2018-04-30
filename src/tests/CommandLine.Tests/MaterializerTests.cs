@@ -36,7 +36,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
                             var destination = new DirectoryInfo(parsedSymbol.Children["destination"].Arguments.Single());
 
-                            return Result.Success(new FileMoveOperation
+                            return ArgumentParseResult.Success(new FileMoveOperation
                             {
                                 Files = fileInfos,
                                 Destination = destination
@@ -78,9 +78,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                   {
                                       if (int.TryParse(parsedSymbol.Token, out int intValue))
                                       {
-                                          return Result.Success(intValue);
+                                          return ArgumentParseResult.Success(intValue);
                                       }
-                                      return Result.Failure($"'{parsedSymbol.Token}' is not an integer");
+                                      return ArgumentParseResult.Failure($"'{parsedSymbol.Token}' is not an integer");
                                   }).ExactlyOne()));
 
             var result = command.Parse("the-command -o not-an-int");
@@ -223,10 +223,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
                                             if (int.TryParse(parsedSymbol.Token, out var i))
                                             {
-                                                return Result.Success(i);
+                                                return ArgumentParseResult.Success(i);
                                             }
 
-                                            return Result.Failure("Could not parse int");
+                                            return ArgumentParseResult.Failure("Could not parse int");
                                         })
                                         .ExactlyOne());
 
@@ -247,10 +247,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                         {
                                             if (int.TryParse(parsedSymbol.Token, out var i))
                                             {
-                                                return Result.Success(i);
+                                                return ArgumentParseResult.Success(i);
                                             }
 
-                                            return Result.Failure("Could not parse int");
+                                            return ArgumentParseResult.Failure("Could not parse int");
                                         })
                                         .ExactlyOne());
 

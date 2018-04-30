@@ -57,7 +57,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal ParseError Validate()
         {
-            if (Symbol.Validate(this) is FailedResult failed)
+            if (Symbol.Validate(this) is FailedArgumentParseResult failed)
             {
                 return new ParseError(failed.Error, Token, this);
             }
@@ -121,8 +121,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     throw new ArgumentException($"Unrecognized symbol type: {symbol.GetType()}");
             }
         }
-
         
-        public Result Result() => Symbol.ArgumentsRule.Parser.Parse(this);
+        public ArgumentParseResult Result() => Symbol.ArgumentsRule.Parser.Parse(this);
     }
 }

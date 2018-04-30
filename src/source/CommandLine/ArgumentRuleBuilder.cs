@@ -30,7 +30,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public TypeConversion TypeConversion { get; set; }
 
         protected virtual ArgumentParser GetArgumentParser()
-            => new ArgumentParser<string>(TypeConversion ?? (symbol => Result.Success(symbol.Token)));
+            => new ArgumentParser<string>(TypeConversion ?? (symbol => ArgumentParseResult.Success(symbol.Token)));
 
         public ArgumentsRule Build()
         {
@@ -49,7 +49,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             //TODO: Jump table
             if (typeof(T) == typeof(string))
             {
-                return symbol => Result.Success(symbol.Token);
+                return symbol => ArgumentParseResult.Success(symbol.Token);
             }
             throw new NotImplementedException();
         }
@@ -86,26 +86,26 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     if (errorMessage == null)
                     {
-                        return Result.Failure(parsedSymbol.Symbol is Command
+                        return ArgumentParseResult.Failure(parsedSymbol.Symbol is Command
                             ? RequiredArgumentMissingForCommand(parsedSymbol.Symbol.ToString())
                             : RequiredArgumentMissingForOption(parsedSymbol.Symbol.ToString()));
                     }
-                    return Result.Failure(errorMessage(parsedSymbol));
+                    return ArgumentParseResult.Failure(errorMessage(parsedSymbol));
                 }
 
                 if (argumentCount > 1)
                 {
                     if (errorMessage == null)
                     {
-                        return Result.Failure(parsedSymbol.Symbol is Command
+                        return ArgumentParseResult.Failure(parsedSymbol.Symbol is Command
                             ? CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount)
                             : OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount));
                     }
 
-                    return Result.Failure(errorMessage(parsedSymbol));
+                    return ArgumentParseResult.Failure(errorMessage(parsedSymbol));
                 }
 
-                return Result.Success(value);
+                return ArgumentParseResult.Success(value);
             });
 
             return builder.Build();
@@ -316,7 +316,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
     }
 
-    public delegate Result TypeConverter(ParsedSymbol symbol);
+    public delegate ArgumentParseResult TypeConverter(ParsedSymbol symbol);
 
     public delegate IEnumerable<string> SuggestionSource(ParseResult parseResult, int? position);
 
@@ -342,13 +342,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-
-        public abstract Result Parse(ParsedSymbol value);
+        public abstract ArgumentParseResult Parse(ParsedSymbol value);
     }
 
-    public delegate Result Validate<in T>(T value, ParsedSymbol symbol);
+    public delegate ArgumentParseResult Validate<in T>(T value, ParsedSymbol symbol);
 
-    public delegate Result TypeConversion(ParsedSymbol symbol);
+    public delegate ArgumentParseResult TypeConversion(ParsedSymbol symbol);
 
     public class ArgumentParser<T> : ArgumentParser
     {
@@ -371,13 +370,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             validations.Add(validator);
         }
 
-        private Result Validate(T value, ParsedSymbol symbol)
+        private ArgumentParseResult Validate(T value, ParsedSymbol symbol)
         {
-            Result result = null;
+            ArgumentParseResult result = null;
             foreach (Validate<T> validator in validations)
             {
                 result = validator(value, symbol);
-                if (result is SuccessfulResult<T> successResult)
+                if (result is SuccessfulArgumentParseResult<T> successResult)
                 {
                     value = successResult.Value;
                 }
@@ -386,15 +385,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     return result;
                 }
             }
-            return result ?? Result.Success(value);
+            return result ?? ArgumentParseResult.Success(value);
         }
 
         //string -> parsed symbol -> type conversion -> (type checking) -> validation
 
-        public override Result Parse(ParsedSymbol symbol)
+        public override ArgumentParseResult Parse(ParsedSymbol symbol)
         {
-            Result typeResult = typeConversion(symbol);
-            if (typeResult is SuccessfulResult<T> successfulResult)
+            ArgumentParseResult typeResult = typeConversion(symbol);
+            if (typeResult is SuccessfulArgumentParseResult<T> successfulResult)
             {
                 return Validate(successfulResult.Value, symbol);
             }
@@ -402,9 +401,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
     }
 
-    public class SuccessfulResult<T> : Result
+    public class SuccessfulArgumentParseResult<T> : ArgumentParseResult
     {
-        public SuccessfulResult(T value = default(T))
+        public SuccessfulArgumentParseResult(T value = default(T))
         {
             Value = value;
         }
@@ -414,11 +413,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public override bool Successful { get; } = true;
     }
 
-    public class FailedResult : Result
+    public class FailedArgumentParseResult : ArgumentParseResult
     {
         public string Error { get; }
 
-        public FailedResult(string error)
+        public FailedArgumentParseResult(string error)
         {
             Error = error;
         }
@@ -426,12 +425,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public override bool Successful { get; } = false;
     }
 
-    public abstract class Result
+    public abstract class ArgumentParseResult
     {
         public abstract bool Successful { get; }
 
-        public static FailedResult Failure(string error) => new FailedResult(error);
+        public static FailedArgumentParseResult Failure(string error) => new FailedArgumentParseResult(error);
 
-        public static SuccessfulResult<T> Success<T>(T value) => new SuccessfulResult<T>(value);
+        public static SuccessfulArgumentParseResult<T> Success<T>(T value) => new SuccessfulArgumentParseResult<T>(value);
     }
 }

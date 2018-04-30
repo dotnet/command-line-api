@@ -11,23 +11,22 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void The_failure_message_returned_is_the_first_to_fail()
         {
-            var parser = new ArgumentParser<string>(parsedSymbol => Result.Success(""));
+            var parser = new ArgumentParser<string>(parsedSymbol => ArgumentParseResult.Success(""));
 
-            parser.AddValidator((value, parsedSymbol) => Result.Failure("first error"));
-            parser.AddValidator((value, parsedSymbol) => Result.Failure("second error"));
+            parser.AddValidator((value, parsedSymbol) => ArgumentParseResult.Failure("first error"));
+            parser.AddValidator((value, parsedSymbol) => ArgumentParseResult.Failure("second error"));
 
             var builder = new ArgumentRuleBuilder<string> { ArgumentParser = parser };
 
-            var parsedOption = new ParsedOption(Create.Option("-x", "", builder.Build()));
+            var result = Create.Option("-x", "", builder.Build()).Parse("-x")["x"].Result();
 
-            Result result = parsedOption.Result();
-            result.Should().BeOfType<FailedResult>().Which.Error.Should().Be("first error");
+            result.Should().BeOfType<FailedArgumentParseResult>().Which.Error.Should().Be("first error");
         }
 
         [Fact]
         public void Later_rules_are_not_evaluated()
         {
-            var parser = new ArgumentParser<string>(parsedSymbol => Result.Success(""));
+            var parser = new ArgumentParser<string>(parsedSymbol => ArgumentParseResult.Success(""));
 
             var secondRuleWasCalled = false;
 

@@ -80,15 +80,15 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
         {
             var builder = new ArgumentRuleBuilder();
-            var parser = new ArgumentParser<string>(symbol => Result.Success(symbol.Token));
+            var parser = new ArgumentParser<string>(symbol => ArgumentParseResult.Success(symbol.Token));
             parser.AddValidator((value, parsedSymbol) =>
             {
                 if (parsedSymbol.Children.Contains("one") &&
                     parsedSymbol.Children.Contains("two"))
                 {
-                    return Result.Failure("Options '--one' and '--two' cannot be used together.");
+                    return ArgumentParseResult.Failure("Options '--one' and '--two' cannot be used together.");
                 }
-                return Result.Success(value);
+                return ArgumentParseResult.Success(value);
             });
             
             var command = Command("the-command", "",

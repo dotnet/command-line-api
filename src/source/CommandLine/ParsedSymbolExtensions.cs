@@ -33,7 +33,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static T GetValueOrDefault<T>(this ParsedSymbol option)
         {
-            if (option?.Result() is SuccessfulResult<T> successfulResult)
+            if (option?.Result() is SuccessfulArgumentParseResult<T> successfulResult)
             {
                 return successfulResult.Value;
             }
