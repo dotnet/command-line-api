@@ -13,7 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
         }
 
-        protected Parser(char[] delimiters, params Symbol[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
+        protected Parser(IReadOnlyCollection<char> delimiters, params Symbol[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
         {
         }
 

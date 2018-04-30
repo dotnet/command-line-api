@@ -31,7 +31,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static OptionParseResult Parse(
             this Option option,
             string commandLine,
-            char[] delimiters = null) =>
+            IReadOnlyCollection<char> delimiters = null) =>
             new OptionParser(new ParserConfiguration(argumentDelimiters: delimiters, definedSymbols: new[] { option })).Parse(commandLine);
 
         public static CommandParseResult Parse(
@@ -42,7 +42,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static CommandParseResult Parse(
             this Command command,
             string commandLine,
-            char[] delimiters = null) =>
+            IReadOnlyCollection<char> delimiters = null) =>
             new CommandParser(command).Parse(commandLine);
     }
 }
