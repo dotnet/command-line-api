@@ -13,7 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return parsedCommand.Children[alias].Result();
+            return parsedCommand.Children[alias].GetValueOrDefault<object>();
         }
 
         public static T ValueForOption<T>(

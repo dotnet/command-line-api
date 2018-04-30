@@ -31,6 +31,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
+        public static object GetValueOrDefault(this ParsedSymbol parsedSymbol) => parsedSymbol.GetValueOrDefault<object>();
+
         public static T GetValueOrDefault<T>(this ParsedSymbol option)
         {
             if (option?.Result() is SuccessfulArgumentParseResult<T> successfulResult)

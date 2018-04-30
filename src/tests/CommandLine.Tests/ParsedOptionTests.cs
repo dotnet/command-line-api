@@ -162,11 +162,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result2 = option.Parse("-x");
 
             result1["x"]
-                .Result()
+                .GetValueOrDefault()
                 .Should()
                 .Be("1");
             result2["x"]
-                .Result()
+                .GetValueOrDefault()
                 .Should()
                 .Be("2");
         }

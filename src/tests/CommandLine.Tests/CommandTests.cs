@@ -180,11 +180,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var parsedOption = result.ParsedCommand()["x"];
 
-            parsedOption.Result().Should().Be("arg");
+            parsedOption.GetValueOrDefault().Should().Be("arg");
 
             result = command.Parse("outer sibling arg");
 
-            result.ParsedCommand().Result().Should().Be("arg");
+            result.ParsedCommand().GetValueOrDefault().Should().Be("arg");
         }
 
         [Fact]
