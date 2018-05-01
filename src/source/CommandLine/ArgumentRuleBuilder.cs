@@ -9,8 +9,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public class ArgumentRuleBuilder
     {
         private readonly List<Validate<string>> validators = new List<Validate<string>>();
+        internal Func<string> DefaultValue { get; set; }
 
         public void AddValidator(Validate<string> validator)
+        internal ArgumentsRuleHelp Help { get; set; }
         {
             if (validator == null)
             {
@@ -20,11 +22,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
             validators.Add(validator);
         }
 
-        public ArgumentsRuleHelp Help { get; internal set; }
 
 
         public Convert Convert { get; }
-        public Func<string> DefaultValue { get; internal set; }
 
         protected virtual ArgumentParser BuildArgumentParser()
         {
