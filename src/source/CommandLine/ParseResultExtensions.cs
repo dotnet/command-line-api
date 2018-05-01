@@ -129,16 +129,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             builder.Append(" ]");
         }
 
-        public static CommandExecutionResult Execute(this ParseResult parseResult)
-        {
-            if (parseResult == null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
-
-            return new CommandExecutionResult(parseResult);
-        }
-
         public static bool HasOption(
             this CommandParseResult parseResult,
             string alias)

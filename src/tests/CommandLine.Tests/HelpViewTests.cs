@@ -21,40 +21,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Help_can_be_displayed_for_a_specific_invalid_command()
-        {
-            var builder = new ArgumentRuleBuilder();
-            var command = Command("the-command",
-                                  "Does the thing.",
-                                   builder.ExactlyOne());
-            var parser = new CommandParser(command);
-
-            CommandParseResult result = parser.Parse("the-command");
-
-            result.Execute()
-                  .ToString()
-                  .Should()
-                  .Be($"Required argument missing for command: the-command{NewLine}{command.HelpView()}");
-        }
-
-        [Fact]
-        public void Help_can_be_displayed_for_a_specific_invalid_option()
-        {
-            var builder = new ArgumentRuleBuilder();
-            var command = Command("the-command",
-                                  "Does the thing.",
-                                  Option("-x", "Specifies value x", builder.ExactlyOne()));
-            var parser = new CommandParser(command);
-
-            var result = parser.Parse("the-command -x");
-
-            result.Execute()
-                  .ToString()
-                  .Should()
-                  .Be($"Required argument missing for option: -x{NewLine}{command.HelpView()}");
-        }
-
-        [Fact]
         public void Command_help_view_includes_names_of_parent_commands()
         {
             var command = Command("outer", "the outer command",
