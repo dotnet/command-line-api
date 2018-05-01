@@ -58,7 +58,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             ArgumentsRule.Parser.AddSuggetions(GetSuggestionsFromDefinedSymbols);
 
-
             //ArgumentsRule = ArgumentsRule.And(ZeroOrMoreOf(symbols.ToArray()));
         }
 
@@ -70,7 +69,5 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public bool TreatUnmatchedTokensAsErrors { get; } = true;
 
         public override string ToString() => Name;
-
-
     }
 }

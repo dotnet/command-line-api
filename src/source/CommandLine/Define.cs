@@ -17,44 +17,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         #region arity
 
-        public static ArgumentsRule ExactlyOne<T>(
-            this ArgumentRuleBuilder<T> builder,
-            Func<ParsedSymbol, string> errorMessage = null)
-        {
-            builder.ArgumentParser.AddValidator((value, parsedSymbol) =>
-            {
-                var argumentCount = parsedSymbol.Arguments.Count;
-
-                if (argumentCount == 0)
-                {
-                    if (errorMessage == null)
-                    {
-                        return ArgumentParseResult.Failure(parsedSymbol.Symbol is Command
-                                                               ? ValidationMessages.RequiredArgumentMissingForCommand(parsedSymbol.Symbol.ToString())
-                                                               : ValidationMessages.RequiredArgumentMissingForOption(parsedSymbol.Symbol.ToString()));
-                    }
-
-                    return ArgumentParseResult.Failure(errorMessage(parsedSymbol));
-                }
-
-                if (argumentCount > 1)
-                {
-                    if (errorMessage == null)
-                    {
-                        return ArgumentParseResult.Failure(parsedSymbol.Symbol is Command
-                                                               ? ValidationMessages.CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount)
-                                                               : ValidationMessages.OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount));
-                    }
-
-                    return ArgumentParseResult.Failure(errorMessage(parsedSymbol));
-                }
-
-                return ArgumentParseResult.Success(value);
-            });
-
-            return builder.Build();
-        }
-
         public static ArgumentsRule ExactlyOne(
             this ArgumentRuleBuilder builder,
             Func<ParsedSymbol, string> errorMessage = null)

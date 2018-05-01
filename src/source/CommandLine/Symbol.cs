@@ -59,7 +59,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IReadOnlyCollection<string> RawAliases => rawAliases;
         
-
         public SymbolSet DefinedSymbols { get; } = new SymbolSet();
 
         public string Description { get; }

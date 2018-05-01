@@ -65,7 +65,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var builder = new ArgumentRuleBuilder();
             var parser = new CommandParser(Command("the-command", "", Option("-x", "", ArgumentsRule.None)));
 
             var result = parser.Parse("the-command -x some-arg");

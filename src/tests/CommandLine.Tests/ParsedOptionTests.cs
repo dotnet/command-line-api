@@ -120,7 +120,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var option = Option("-x",
                                 "",
-                                Define.Arguments().FromAmong("one", "two", "default")
+                                Define.Arguments()
+                                      .FromAmong("one", "two", "default")
                                       .WithDefaultValue(() => "default")
                                       .ExactlyOne());
 
@@ -170,7 +171,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void ExactlyOneArgument_error_message_can_be_customized()
+        public void ExactlyOne_error_message_can_be_customized()
         {
             var builder = new ArgumentRuleBuilder();
             var option =

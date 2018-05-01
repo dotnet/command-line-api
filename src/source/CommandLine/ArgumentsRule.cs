@@ -6,22 +6,6 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class ArgumentsRuleHelp
-    {
-        public ArgumentsRuleHelp()
-        {
-        }
-
-        public ArgumentsRuleHelp(string name, string description)
-        {
-            Description = description;
-            Name = name;
-        }
-
-        public string Description { get; }
-        public string Name { get; }
-    }
-
     public class ArgumentsRule
     {
         private readonly Func<string> defaultValue;
@@ -43,6 +27,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             ArgumentsRuleHelp help = null)
         {
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
+
             this.defaultValue = defaultValue;
 
             Help = help ?? new ArgumentsRuleHelp();
@@ -70,6 +55,5 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public ArgumentsRuleHelp Help { get; }
 
         public ArgumentParser Parser { get; }
-
     }
 }

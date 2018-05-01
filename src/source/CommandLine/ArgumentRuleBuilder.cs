@@ -20,11 +20,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
             validators.Add(validator);
         }
 
-        public ArgumentsRuleHelp Help { get; set; }
+        public ArgumentsRuleHelp Help { get; internal set; }
 
-        public Func<string> DefaultValue { get; set; }
 
         public Convert Convert { get; }
+        public Func<string> DefaultValue { get; internal set; }
 
         protected virtual ArgumentParser BuildArgumentParser()
         {
