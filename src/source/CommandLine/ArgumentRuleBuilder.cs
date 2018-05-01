@@ -40,5 +40,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             return new ArgumentsRule(BuildArgumentParser(), DefaultValue, Help);
         }
+
+        public static ArgumentRuleBuilder From(ArgumentsRule arguments)
+        {
+            return new ArgumentRuleBuilder
+            {
+                Help = new ArgumentsRuleHelp(
+                    arguments?.Help?.Name,
+                    arguments?.Help?.Description)
+            };
+        }
     }
 }

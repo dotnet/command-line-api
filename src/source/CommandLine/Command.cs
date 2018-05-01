@@ -42,8 +42,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
 
             var commandNames = symbols.SelectMany(o => o.Aliases).ToArray();
+            var builder = ArgumentRuleBuilder.From(arguments);
 
-            var builder = new ArgumentRuleBuilder();
             //TODO: This need refinement to handle cases of options and sub commands
             ArgumentsRule = builder
                 .WithSuggestions(commandNames)

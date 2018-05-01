@@ -28,10 +28,11 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                           Command("inner-er", "the inner-er command",
                                                   Option("some-option", "some option"))));
 
-            ((Command) command["inner"]["inner-er"])
-                .HelpView()
-                .Should()
-                .StartWith("Usage: outer inner inner-er [options]");
+           command.Subcommand("inner")
+                  .Subcommand("inner-er")
+                  .HelpView()
+                  .Should()
+                  .StartWith("Usage: outer inner inner-er [options]");
         }
 
         [Fact]
@@ -43,7 +44,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                           Command("inner-er", "inner-er description",
                                                   Option("some-option", "some-option description"))));
 
-            ((Command) command["inner"])
+            command
+                .Subcommand("inner")
                 .HelpView()
                 .Should()
                 .NotContain("sibling");
@@ -116,7 +118,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                           .ZeroOrOne(),
                                           Option("-v|--verbosity", "Sets the verbosity")));
 
-            var helpView = ((Command) command["inner-command"]).HelpView();
+            var helpView = command.Subcommand("inner-command").HelpView();
+
+            output.WriteLine(helpView);
 
             helpView
                 .Should()
@@ -201,7 +205,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                           description: "The argument for the inner command")
                                           .ExactlyOne()));
 
-            var helpView = ((Command) command["inner"]).HelpView();
+            var helpView =  command.Subcommand("inner").HelpView();
 
             output.WriteLine(helpView);
 
