@@ -8,9 +8,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ArgumentRuleBuilder
     {
-        private readonly List<Validate> validators = new List<Validate>();
+        private readonly List<Validate<string>> validators = new List<Validate<string>>();
 
-        public void AddValidator(Validate validator)
+        public void AddValidator(Validate<string> validator)
         {
             if (validator == null)
             {
@@ -27,7 +27,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public Convert Convert { get; }
 
         protected virtual ArgumentParser BuildArgumentParser()
-            => new ArgumentParser<string>(Convert ?? (symbol => ArgumentParseResult.Success(symbol.Token)));
+        {
+            var parser = new ArgumentParser<string>(Convert ?? (symbol => ArgumentParseResult.Success(symbol.Token)));
+            foreach (Validate<string> validator in validators)
+            {
+                parser.AddValidator(validator);
+            }
+            return parser;
+        }
 
         public ArgumentsRule Build()
         {
