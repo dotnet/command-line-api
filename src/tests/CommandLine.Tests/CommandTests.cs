@@ -103,7 +103,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var parser = new CommandParser(
                 Command("outer", "", new ArgumentRuleBuilder().ExactlyOne(),
                         Command("inner", "",
-                            new ArgumentRuleBuilder().ZeroOrOne())));
+                            new ArgumentRuleBuilder().ZeroOrMore())));
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
