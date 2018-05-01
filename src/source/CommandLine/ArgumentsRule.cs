@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
@@ -10,27 +11,22 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly Func<string> defaultValue;
 
-        public static ArgumentsRule None =>
-            new ArgumentsRule(new ArgumentParser<string>(o =>
-            {
-                if (!o.Arguments.Any())
-                {
-                    return null;
-                }
-
-                return ArgumentParseResult.Failure(ValidationMessages.Current.NoArgumentsAllowed(o.Symbol.ToString()));
-            }));
-
         public ArgumentsRule(
-            ArgumentParser parser,
+            ArgumentParser parser = null,
             Func<string> defaultValue = null,
-            ArgumentsRuleHelp help = null)
+            ArgumentsRuleHelp help = null,
+            IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
         {
-            Parser = parser ?? throw new ArgumentNullException(nameof(parser));
+            Parser = parser;
 
             this.defaultValue = defaultValue;
 
             Help = help ?? new ArgumentsRuleHelp();
+
+            if (symbolValidators != null)
+            {
+                SymbolValidators.AddRange(symbolValidators);
+            }
 
             //if (suggest == null)
             //{
@@ -49,11 +45,25 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public Func<string> GetDefaultValue => () => defaultValue?.Invoke();
-        
+
         public bool HasDefaultValue => defaultValue != null;
 
         public ArgumentsRuleHelp Help { get; }
 
         public ArgumentParser Parser { get; }
+
+        internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
+
+        public static ArgumentsRule None { get; } = new ArgumentsRule(symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
+
+        private static string AcceptNoArguments(ParsedSymbol o)
+        {
+            if (!o.Arguments.Any())
+            {
+                return null;
+            }
+
+            return ValidationMessages.Current.NoArgumentsAllowed(o.Symbol.ToString());
+        }
     }
 }

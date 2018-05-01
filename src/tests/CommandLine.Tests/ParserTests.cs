@@ -101,8 +101,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Parse_result_contains_arguments_to_options()
         {
             OptionParseResult result = new OptionParser(
-                    Create.Option("-o|--one", "", new ArgumentRuleBuilder<string>().ExactlyOne()),
-                    Create.Option("-t|--two", "", new ArgumentRuleBuilder<string>().ExactlyOne()))
+                    Create.Option("-o|--one", "", new ArgumentRuleBuilder().ExactlyOne()),
+                    Create.Option("-t|--two", "", new ArgumentRuleBuilder().ExactlyOne()))
                 .Parse("-o args_for_one -t args_for_two");
 
             result["one"].Arguments.Single().Should().Be("args_for_one");
@@ -350,9 +350,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             ArgumentsRule rule = builder.FromAmong("dog", "cat", "sheep").ZeroOrMore();
             
             var parser = new CommandParser(
-                Create.Command("the-command", "",
-                        Create.Option("-a|--animals", "", rule),
-                        Create.Option("-v|--vegetables", "", new ArgumentRuleBuilder().ZeroOrMore())));
+                Command("the-command", "",
+                        Option("-a|--animals", "", rule),
+                        Option("-v|--vegetables", "", new ArgumentRuleBuilder().ZeroOrMore())));
 
             var result = parser.Parse("the-command -a cat -v carrot -a dog");
 
@@ -437,11 +437,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             output.WriteLine(result.Diagram());
 
             var applied = result.ParsedSymbols.Single();
-
-            applied
-                .ValidateAll()
-                .Should()
-                .BeEmpty();
 
             applied.Children
                    .Should()

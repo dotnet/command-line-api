@@ -60,9 +60,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal ParseError Validate()
         {
-            if (Symbol.Validate(this) is FailedArgumentParseResult failed)
+            foreach (var symbolValidator in Symbol.ArgumentsRule.SymbolValidators)
             {
-                return new ParseError(failed.Error, Token, this);
+                var error = symbolValidator(this);
+
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    return new ParseError(error, Token, this);
+                }
             }
 
             return null;

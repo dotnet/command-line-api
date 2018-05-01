@@ -31,35 +31,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .Contain("the-message");
         }
 
-        [Fact]
-        public void When_an_IValidationMessages_implementation_returns_null_then_the_default_message_is_used()
-        {
-            ValidationMessages.Current = new FakeValidationMessages(null);
-
-            var builder = new ArgumentRuleBuilder();
-            var result = Command("the-command", "", ArgumentsRule.None).Parse("the-command an-argument");
-
-            result.Errors
-                  .Select(e => e.Message)
-                  .Should()
-                  .Contain("Unrecognized command or argument 'an-argument'");
-        }
-
-        [Fact]
-        public void When_an_IValidationMessages_implementation_returns_whitespace_then_the_default_message_is_used()
-        {
-            ValidationMessages.Current = new FakeValidationMessages("  ");
-
-            var builder = new ArgumentRuleBuilder();
-            var result = Command("outer", "",
-                                 Command("inner", "", ArgumentsRule.None)).Parse("outer");
-
-            result.Errors
-                  .Select(e => e.Message)
-                  .Should()
-                  .Contain("Required argument missing for command: outer");
-        }
-
         public class FakeValidationMessages : IValidationMessages
         {
             private readonly string message;

@@ -8,47 +8,70 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ArgumentRuleBuilder
     {
-        private readonly List<Validate<string>> validators = new List<Validate<string>>();
         internal Func<string> DefaultValue { get; set; }
 
-        public void AddValidator(Validate<string> validator)
         internal ArgumentsRuleHelp Help { get; set; }
+
+        internal List<ValidateSymbol> SymbolValidators { get;} = new List<ValidateSymbol>();
+
+        public void AddValidator(ValidateSymbol validator)
         {
             if (validator == null)
             {
                 throw new ArgumentNullException(nameof(validator));
             }
 
-            validators.Add(validator);
+            SymbolValidators.Add(validator);
         }
-
-
-
-        public Convert Convert { get; }
 
         protected virtual ArgumentParser BuildArgumentParser()
         {
-            var parser = new ArgumentParser<string>(Convert ?? (symbol => ArgumentParseResult.Success(symbol.Token)));
-            foreach (Validate<string> validator in validators)
+            return new ArgumentParser<ParsedSymbol>(symbol =>
             {
-                parser.AddValidator(validator);
-            }
-            return parser;
+                // TODO: (BuildArgumentParser) this is likely redundant
+                foreach (var validator in SymbolValidators)
+                {
+                    var validationMessage = validator(symbol);
+
+                    if (!string.IsNullOrWhiteSpace(validationMessage))
+                    {
+                        return ArgumentParseResult.Failure(validationMessage);
+                    }
+                }
+
+                return ArgumentParseResult.Success(symbol);
+            });
         }
 
         public ArgumentsRule Build()
         {
-            return new ArgumentsRule(BuildArgumentParser(), DefaultValue, Help);
+            return new ArgumentsRule(
+                BuildArgumentParser(), 
+                DefaultValue, 
+                Help, 
+                SymbolValidators);
         }
 
         public static ArgumentRuleBuilder From(ArgumentsRule arguments)
         {
-            return new ArgumentRuleBuilder
+            if (arguments == null)
+            {
+                throw new ArgumentNullException(nameof(arguments));
+            }
+
+            var builder = new ArgumentRuleBuilder
             {
                 Help = new ArgumentsRuleHelp(
                     arguments?.Help?.Name,
                     arguments?.Help?.Description)
             };
+
+            foreach (var symbolValidator in arguments.SymbolValidators)
+            {
+                builder.SymbolValidators.Add(symbolValidator);
+            }
+
+            return builder;
         }
     }
 }

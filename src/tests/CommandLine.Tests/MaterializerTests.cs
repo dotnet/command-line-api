@@ -103,9 +103,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = command.Parse("the-command -x the-argument");
 
             result.ParsedCommand()
-                .ValueForOption("x")
-                .Should()
-                .Be("the-argument");
+                  .ValueForOption("x")
+                  .Should()
+                  .Be("the-argument");
         }
 
         [Fact]
@@ -117,9 +117,9 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = command.Parse("the-command -x the-argument");
 
             result.ParsedCommand()
-                .ValueForOption("x")
-                .Should()
-                .Be("the-argument");
+                  .ValueForOption("x")
+                  .Should()
+                  .Be("the-argument");
         }
 
         [Fact]

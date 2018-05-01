@@ -3,5 +3,5 @@
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public delegate ArgumentParseResult Validate<in T>(T value, ParsedSymbol symbol);
+    public delegate ArgumentParseResult ValidateArgument<in T>(T value, ParsedSymbol symbol);
 }

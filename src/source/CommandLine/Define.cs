@@ -21,21 +21,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             Func<ParsedSymbol, string> errorMessage = null)
         {
-            builder.AddValidator((value, parsedSymbol) =>
+            builder.AddValidator(parsedSymbol =>
             {
                 var argumentCount = parsedSymbol.Arguments.Count;
-                
+
                 if (argumentCount == 0)
                 {
                     if (errorMessage == null)
                     {
-                        return ArgumentParseResult.Failure(parsedSymbol.Symbol is Command
+                        return parsedSymbol.Symbol is Command
                                    ? ValidationMessages.RequiredArgumentMissingForCommand(parsedSymbol.Symbol.ToString())
-                                   : ValidationMessages.RequiredArgumentMissingForOption(parsedSymbol.Symbol.ToString()));
+                                   : ValidationMessages.RequiredArgumentMissingForOption(parsedSymbol.Symbol.ToString());
                     }
                     else
                     {
-                        return ArgumentParseResult.Failure(errorMessage(parsedSymbol));
+                        return errorMessage(parsedSymbol);
                     }
                 }
 
@@ -43,17 +43,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     if (errorMessage == null)
                     {
-                        return ArgumentParseResult.Failure(parsedSymbol.Symbol is Command
+                        return parsedSymbol.Symbol is Command
                                    ? ValidationMessages.CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount)
-                                   : ValidationMessages.OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount));
+                                   : ValidationMessages.OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount);
                     }
                     else
                     {
-                        return ArgumentParseResult.Failure(errorMessage(parsedSymbol));
+                        return errorMessage(parsedSymbol);
                     }
                 }
 
-                return ArgumentParseResult.Success(value);
+                return null;
             });
 
             return builder.Build();
@@ -65,21 +65,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             return builder.Build();
         }
-        
+
         public static ArgumentsRule ZeroOrOne(
             this ArgumentRuleBuilder builder,
             Func<ParsedOption, string> errorMessage = null)
         {
-            builder.AddValidator((value, parsedSymbol) =>
+            builder.AddValidator(parsedSymbol =>
             {
                 if (parsedSymbol.Arguments.Count > 1)
                 {
-                    return ArgumentParseResult.Failure(parsedSymbol.Symbol is Command
+                    return parsedSymbol.Symbol is Command
                                ? ValidationMessages.CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), parsedSymbol.Arguments.Count)
-                               : ValidationMessages.OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), parsedSymbol.Arguments.Count));
+                               : ValidationMessages.OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), parsedSymbol.Arguments.Count);
                 }
 
-                return ArgumentParseResult.Success(value);
+                return null;
             });
             return builder.Build();
         }
@@ -88,23 +88,23 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             Func<ParsedSymbol, string> errorMessage = null)
         {
-            builder.AddValidator((value, o) =>
+            builder.AddValidator(o =>
             {
                 var optionCount = o.Arguments.Count;
 
                 if (optionCount != 0)
                 {
-                    return ArgumentParseResult.Success(value);
+                    return null;
                 }
 
                 if (errorMessage != null)
                 {
-                    return ArgumentParseResult.Failure(errorMessage(o));
+                    return errorMessage(o);
                 }
 
-                return ArgumentParseResult.Failure(o.Symbol is Command
-                        ? ValidationMessages.RequiredArgumentMissingForCommand(o.Symbol.ToString())
-                        : ValidationMessages.RequiredArgumentMissingForOption(o.Symbol.ToString()));
+                return o.Symbol is Command
+                           ? ValidationMessages.RequiredArgumentMissingForCommand(o.Symbol.ToString())
+                           : ValidationMessages.RequiredArgumentMissingForOption(o.Symbol.ToString());
             });
             return builder.Build();
         }
@@ -117,21 +117,23 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             params string[] values)
         {
-            builder.AddValidator((value, parsedSymbol) =>
+            builder.AddValidator(parsedSymbol =>
             {
                 if (parsedSymbol.Arguments.Count == 0)
                 {
-                    return ArgumentParseResult.Success(value);
+                    return null;
                 }
 
-                var arg = parsedSymbol.Arguments.Single();
-
-                //TODO: Is case-insensitive really what we want here?
-                if (values.Contains(arg, StringComparer.OrdinalIgnoreCase))
+                foreach (var arg in parsedSymbol.Arguments)
                 {
-                    return ArgumentParseResult.Success(value);
+                    // TODO: Is case-insensitive really what we want here?
+                    if (!values.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return ValidationMessages.UnrecognizedArgument(arg, values);
+                    }
                 }
-                return ArgumentParseResult.Failure(ValidationMessages.UnrecognizedArgument(arg, values));
+
+                return null;
             });
 
             return builder;
@@ -144,13 +146,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static ArgumentRuleBuilder ExistingFilesOnly(
             this ArgumentRuleBuilder builder)
         {
-            builder.AddValidator((value, parsedSymbol) =>
+            builder.AddValidator(parsedSymbol =>
             {
                 return parsedSymbol.Arguments
-                    .Where(filePath => !File.Exists(filePath) &&
-                                       !Directory.Exists(filePath))
-                    .Select(x => ArgumentParseResult.Failure(ValidationMessages.FileDoesNotExist(x)))
-                    .FirstOrDefault() ?? (ArgumentParseResult)ArgumentParseResult.Success(value);
+                                   .Where(filePath => !File.Exists(filePath) &&
+                                                      !Directory.Exists(filePath))
+                                   .Select(ValidationMessages.FileDoesNotExist)
+                                   .FirstOrDefault();
             });
             return builder;
         }
@@ -158,7 +160,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static ArgumentRuleBuilder LegalFilePathsOnly(
             this ArgumentRuleBuilder builder)
         {
-            builder.AddValidator((value, parsedSymbol) =>
+            builder.AddValidator(parsedSymbol =>
             {
                 foreach (var arg in parsedSymbol.Arguments)
                 {
@@ -168,15 +170,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }
                     catch (NotSupportedException ex)
                     {
-                        return ArgumentParseResult.Failure(ex.Message);
+                        return ex.Message;
                     }
                     catch (ArgumentException ex)
                     {
-                        return ArgumentParseResult.Failure(ex.Message);
+                        return ex.Message;
                     }
                 }
 
-                return ArgumentParseResult.Success(value);
+                return null;
             });
 
             return builder;
@@ -188,7 +190,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static ArgumentRuleBuilder OfType<T>(
             this ArgumentRuleBuilder builder,
-            Convert parse)
+            ConvertArgument parse)
         {
             //builder.ArgumentParser = new ArgumentParser<T>(parse);
 

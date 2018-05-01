@@ -12,7 +12,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
         }
 
-        private static Convert FigureMeOut()
+        private static ConvertArgument FigureMeOut()
         {
             //TODO: Jump table
             if (typeof(T) == typeof(string))
@@ -23,9 +23,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
             throw new NotImplementedException();
         }
 
-        public ArgumentRuleBuilder(Convert convert)
+        public ArgumentRuleBuilder(ConvertArgument convertArgument)
         {
-            ArgumentParser = new ArgumentParser<T>(convert);
+            ArgumentParser = new ArgumentParser<T>(convertArgument);
         }
 
         protected override ArgumentParser BuildArgumentParser()

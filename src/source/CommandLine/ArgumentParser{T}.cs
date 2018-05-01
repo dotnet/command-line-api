@@ -8,33 +8,53 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ArgumentParser<T> : ArgumentParser
     {
-        private readonly List<Validate<T>> validations = new List<Validate<T>>();
-        private readonly Convert convert;
+        private readonly List<ValidateArgument<T>> argumentValidators = new List<ValidateArgument<T>>();
 
-        public ArgumentParser()
+        private readonly ConvertArgument convertArgument;
+
+        public ArgumentParser(ConvertArgument convertArgument)
         {
-
+            this.convertArgument = convertArgument ?? 
+                                   throw new ArgumentNullException(nameof(convertArgument));
         }
 
-        public ArgumentParser(Convert convert)
+        public void AddValidator(ValidateArgument<T> validator)
         {
-            this.convert = convert ??
-                           throw new ArgumentNullException(nameof(convert));
+            if (validator == null)
+            {
+                throw new ArgumentNullException(nameof(validator));
+            }
+
+            argumentValidators.Add(validator);
         }
 
-        public void AddValidator(Validate<T> validator)
+        //string -> parsed symbol -> type conversion -> (type checking) -> validation
+
+        public override ArgumentParseResult Parse(ParsedSymbol symbol)
         {
-            validations.Add(validator);
+            var convertResult = convertArgument(symbol);
+
+            if (convertResult is SuccessfulArgumentParseResult<T> successfulResult)
+            {
+                return ValidateConvertedArgument(successfulResult.Value, symbol);
+            }
+
+            return convertResult;
         }
 
-        private ArgumentParseResult Validate(T value, ParsedSymbol symbol)
+        private ArgumentParseResult ValidateConvertedArgument(
+            T value, 
+            ParsedSymbol symbol)
         {
             ArgumentParseResult result = null;
-            foreach (Validate<T> validator in validations)
+
+            foreach (var validator in argumentValidators)
             {
                 result = validator(value, symbol);
+
                 if (result is SuccessfulArgumentParseResult<T> successResult)
                 {
+                    // TODO: (ValidateArgument) can this not overwrite the previous value if there's more than one validator?
                     value = successResult.Value;
                 }
                 else
@@ -42,19 +62,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     return result;
                 }
             }
+
             return result ?? ArgumentParseResult.Success(value);
-        }
-
-        //string -> parsed symbol -> type conversion -> (type checking) -> validation
-
-        public override ArgumentParseResult Parse(ParsedSymbol symbol)
-        {
-            ArgumentParseResult typeResult = convert(symbol);
-            if (typeResult is SuccessfulArgumentParseResult<T> successfulResult)
-            {
-                return Validate(successfulResult.Value, symbol);
-            }
-            return typeResult;
         }
     }
 }

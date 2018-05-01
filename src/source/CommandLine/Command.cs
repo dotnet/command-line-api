@@ -41,14 +41,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
 
-            var commandNames = symbols.SelectMany(o => o.Aliases).ToArray();
-            var builder = ArgumentRuleBuilder.From(arguments);
+            var symbolNames = symbols.SelectMany(o => o.Aliases).ToArray();
+
+            var builder = arguments == null
+                              ? new ArgumentRuleBuilder() .FromAmong(symbolNames)
+                              : ArgumentRuleBuilder.From(arguments);
 
             //TODO: This need refinement to handle cases of options and sub commands
             ArgumentsRule = builder
-                .WithSuggestions(commandNames)
-                .ZeroOrMore();
-
+                            .WithSuggestions(symbolNames)
+                            .ZeroOrMore();
 
             foreach (var option in symbols)
             {

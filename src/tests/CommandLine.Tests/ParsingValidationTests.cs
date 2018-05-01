@@ -69,6 +69,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse("the-command -x some-arg");
 
+            output.WriteLine(result.ToString());
+
             result.Errors
                   .Select(e => e.Message)
                   .Should()

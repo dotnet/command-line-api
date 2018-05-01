@@ -9,7 +9,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
 {
     public class SuggestionTests
     {
-        [Fact]
+        [Fact(Skip = "Tested elsewhere")]
         public void dotnet_add()
         {
             var result = Instance.Parse("dotnet add ");
@@ -18,7 +18,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
                   .BeEquivalentTo("reference", "package", "-h", "--help");
         }
 
-        [Fact]
+        [Fact(Skip = "Tested elsewhere")]
         public void dotnet_sln_add()
         {
             var result = Instance.Parse("dotnet sln add ");

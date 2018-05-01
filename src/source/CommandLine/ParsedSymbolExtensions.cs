@@ -9,14 +9,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class ParsedSymbolExtensions
     {
-        public static IEnumerable<ParseError> ValidateAll(
-            this ParsedSymbol option) =>
-            new[] { option.Validate() }
-                .Concat(
-                    option.Children
-                          .SelectMany(ValidateAll))
-                .Where(o => o != null);
-
         internal static IEnumerable<ParsedSymbol> FlattenBreadthFirst(
             this IEnumerable<ParsedSymbol> options)
         {
