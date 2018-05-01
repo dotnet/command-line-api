@@ -61,8 +61,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var parentCommand = command.Parent;
 
-            var parentArgName = (parentCommand?.ArgumentsRule).Help?.Name;
-            var parentArgDescription = (parentCommand?.ArgumentsRule).Help?.Description;
+            var parentArgName = parentCommand?.ArgumentsRule?.Help?.Name;
+            var parentArgDescription = parentCommand?.ArgumentsRule?.Help?.Description;
 
             var shouldWriteParentCommandArguments =
                 !string.IsNullOrWhiteSpace(parentArgName) &&

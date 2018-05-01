@@ -26,7 +26,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly Func<string> defaultValue;
 
-        public static ArgumentsRule None { get; } =
+        public static ArgumentsRule None =>
             new ArgumentsRule(new ArgumentParser<string>(o =>
             {
                 if (!o.Arguments.Any())

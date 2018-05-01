@@ -29,7 +29,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                    builder.ExactlyOne());
             var parser = new CommandParser(command);
 
-            var result = parser.Parse("the-command");
+            CommandParseResult result = parser.Parse("the-command");
 
             result.Execute()
                   .ToString()
