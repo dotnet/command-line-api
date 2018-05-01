@@ -740,7 +740,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void When_a_default_argument_value_is_not_provided_then_the_default_value_can_be_accessed_from_the_parse_result()
         {
             var option = Command("command", "",
-                    Arguments().WithDefaultValue(() => "default")
+                    Arguments()
+                        .WithDefaultValue(() => "default")
                         .ExactlyOne(),
                                  Command("subcommand", "",
                                          new ArgumentRuleBuilder().ExactlyOne()));
@@ -757,7 +758,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("command", "",
                                   Option("-o|--option", "", 
-                                      Arguments().WithDefaultValue(() => "the-default")
+                                      Arguments()
+                                          .WithDefaultValue(() => "the-default")
                                           .ExactlyOne()));
 
             var result = command.Parse("command");

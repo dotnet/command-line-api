@@ -28,7 +28,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             base(new[] { name }, description, arguments)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-
         }
 
         public Command(
@@ -44,7 +43,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var symbolNames = symbols.SelectMany(o => o.Aliases).ToArray();
 
             var builder = arguments == null
-                              ? new ArgumentRuleBuilder() .FromAmong(symbolNames)
+                              ? new ArgumentRuleBuilder().FromAmong(symbolNames)
                               : ArgumentRuleBuilder.From(arguments);
 
             //TODO: This need refinement to handle cases of options and sub commands
