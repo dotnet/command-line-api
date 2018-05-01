@@ -56,12 +56,21 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 DefinedSymbols.Add(option);
             }
 
+            ArgumentsRule.Parser.AddSuggetions(GetSuggestionsFromDefinedSymbols);
+
 
             //ArgumentsRule = ArgumentsRule.And(ZeroOrMoreOf(symbols.ToArray()));
+        }
+
+        private IEnumerable<string> GetSuggestionsFromDefinedSymbols(ParseResult parseresult, int? position)
+        {
+            return DefinedSymbols.Select(x => x.Name);
         }
 
         public bool TreatUnmatchedTokensAsErrors { get; } = true;
 
         public override string ToString() => Name;
+
+
     }
 }
