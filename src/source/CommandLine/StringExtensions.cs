@@ -14,7 +14,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private static readonly char[] optionPrefixCharacters = { '-' };
 
         private static readonly Regex tokenizer = new Regex(
-            @"(""(?<q>[^""]*)"")|(?<q>\S+)",
+            @"(""(?<token>[^""]*)"")|(?<token>\S+)",
             RegexOptions.Compiled | RegexOptions.ExplicitCapture
         );
 
@@ -164,7 +164,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             foreach (Match match in matches)
             {
-                foreach (var capture in match.Groups["q"].Captures)
+                foreach (var capture in match.Groups["token"].Captures)
                 {
                     yield return capture.ToString();
                 }
