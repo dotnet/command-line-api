@@ -13,7 +13,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     public abstract class SymbolSet<T> : IReadOnlyCollection<T>
         where T : class
     {
-        private readonly HashSet<T> options = new HashSet<T>();
+        private readonly HashSet<T> symbols = new HashSet<T>();
 
         protected SymbolSet()
         {
@@ -33,10 +33,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public T this[string alias] =>
-            options.SingleOrDefault(o => ContainsItemWithRawAlias(o, alias)) ??
-            options.SingleOrDefault(o => ContainsItemWithAlias(o, alias));
+            symbols.SingleOrDefault(o => ContainsItemWithRawAlias(o, alias)) ??
+            symbols.SingleOrDefault(o => ContainsItemWithAlias(o, alias));
 
-        public int Count => options.Count;
+        public int Count => symbols.Count;
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -45,7 +45,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public IEnumerator<T> GetEnumerator()
         {
-            return options.GetEnumerator();
+            return symbols.GetEnumerator();
         }
 
         internal void AddRange(IEnumerable<T> options)
@@ -64,7 +64,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             var preexistingAlias = RawAliasesFor(option)
                 .FirstOrDefault(alias =>
-                                    options.Any(o =>
+                                    symbols.Any(o =>
                                                     ContainsItemWithRawAlias(o, alias)));
 
             if (preexistingAlias != null)
@@ -72,12 +72,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentException($"Alias '{preexistingAlias}' is already in use.");
             }
 
-            options.Add(option);
+            symbols.Add(option);
         }
 
         protected abstract IReadOnlyCollection<string> RawAliasesFor(T option);
 
         public bool Contains(string alias) => 
-            options.Any(option => ContainsItemWithAlias(option, alias));
+            symbols.Any(option => ContainsItemWithAlias(option, alias));
     }
 }
