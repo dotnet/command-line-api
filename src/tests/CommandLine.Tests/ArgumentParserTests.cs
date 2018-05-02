@@ -17,10 +17,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             parser.AddValidator((value, parsedSymbol) => ArgumentParseResult.Failure("second error"));
 
             var builder = new ArgumentRuleBuilder<string> { ArgumentParser = parser };
+             
+            var result = Create.Option("-x", "", builder.Build()).Parse("-x")["x"].Result;
 
-            var result = Create.Option("-x", "", builder.Build()).Parse("-x")["x"].Result();
-
-            result.Should().BeOfType<FailedArgumentParseResult>().Which.Error.Should().Be("first error");
+            result.Should().BeOfType<FailedArgumentParseResult>().Which.ErrorMessage.Should().Be("first error");
         }
 
         [Fact]

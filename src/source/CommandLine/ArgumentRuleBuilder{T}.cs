@@ -14,7 +14,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         private static ConvertArgument FigureMeOut()
         {
-            //TODO: Jump table
+            //TODO: Jump table: call into ArgumentConverter.Parse
             if (typeof(T) == typeof(string))
             {
                 return symbol => ArgumentParseResult.Success(symbol.Token);

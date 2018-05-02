@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -26,27 +27,26 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         protected virtual ArgumentParser BuildArgumentParser()
         {
-            return new ArgumentParser<ParsedSymbol>(symbol =>
+            return new ArgumentParser<string>(symbol =>
             {
-                // TODO: (BuildArgumentParser) this is likely redundant
-                foreach (var validator in SymbolValidators)
+                if (symbol.Arguments.Count == 0)
                 {
-                    var validationMessage = validator(symbol);
-
-                    if (!string.IsNullOrWhiteSpace(validationMessage))
-                    {
-                        return ArgumentParseResult.Failure(validationMessage);
-                    }
+                    return ArgumentParseResult.Success((string)null);
                 }
 
-                return ArgumentParseResult.Success(symbol);
+                if (symbol.Arguments.Count == 1)
+                {
+                    return ArgumentParseResult.Success(symbol.Arguments.Single());
+                }
+
+                return ArgumentParseResult.Success(symbol.Arguments);
             });
         }
 
         public ArgumentsRule Build()
         {
             return new ArgumentsRule(
-                BuildArgumentParser(), 
+                BuildArgumentParser(),
                 DefaultValue, 
                 Help, 
                 SymbolValidators);
@@ -61,6 +61,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var builder = new ArgumentRuleBuilder
             {
+                DefaultValue = arguments.GetDefaultValue,
                 Help = new ArgumentsRuleHelp(
                     arguments?.Help?.Name,
                     arguments?.Help?.Description)

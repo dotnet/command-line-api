@@ -5,7 +5,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public abstract class ArgumentParseResult
     {
-        public abstract bool Successful { get; }
+        public abstract bool IsSuccessful { get; }
 
         public static FailedArgumentParseResult Failure(string error) => new FailedArgumentParseResult(error);
 

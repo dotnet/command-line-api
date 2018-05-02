@@ -25,11 +25,24 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public static object GetValueOrDefault(this ParsedSymbol parsedSymbol) => parsedSymbol.GetValueOrDefault<object>();
 
-        public static T GetValueOrDefault<T>(this ParsedSymbol option)
+        public static T GetValueOrDefault<T>(this ParsedSymbol symbol)
         {
-            if (option?.Result() is SuccessfulArgumentParseResult<T> successfulResult)
+            if (symbol == null)
             {
-                return successfulResult.Value;
+                return default(T);
+            }
+
+            if (symbol.Result != null &&
+                symbol.Result.IsSuccessful)
+            {
+                return ((dynamic) symbol.Result).Value;
+            }
+
+            var parseResult = ArgumentConverter.Parse<T>(symbol.Symbol.ArgumentsRule.GetDefaultValue());
+
+            if (parseResult is SuccessfulArgumentParseResult<T> successful)
+            {
+                return successful.Value;
             }
 
             return default(T);

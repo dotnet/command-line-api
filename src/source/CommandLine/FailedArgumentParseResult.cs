@@ -1,17 +1,24 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class FailedArgumentParseResult : ArgumentParseResult
     {
-        public string Error { get; }
-
-        public FailedArgumentParseResult(string error)
+        public FailedArgumentParseResult(string errorMessage)
         {
-            Error = error;
+            if (string.IsNullOrWhiteSpace(errorMessage))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(errorMessage));
+            }
+
+            ErrorMessage = errorMessage;
         }
 
-        public override bool Successful { get; } = false;
+        public string ErrorMessage { get; }
+
+        public override bool IsSuccessful { get; } = false;
     }
 }

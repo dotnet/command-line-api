@@ -1,21 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
+using static Microsoft.DotNet.Cli.CommandLine.ArgumentParseResult;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
     internal static class ArgumentConverter
     {
-        public static bool TryParseAs<T>(string arg, out T o)
+        private static readonly Dictionary<Type, ConvertString> converters;
+
+        static ArgumentConverter()
         {
-            if (typeof(T) == typeof(int) &&
-                int.TryParse(arg, out var i))
+            converters = new Dictionary<Type, ConvertString>
             {
-                o = (dynamic) i;
-                return true;
+                [typeof(string)] = Success,
+
+                [typeof(int)] = s => int.TryParse(s, out var i)
+                                         ? (ArgumentParseResult) Success(i)
+                                         : Failure(s)
+            };
+        }
+
+        public static ArgumentParseResult Parse<T>(string arg)
+        {
+            if (converters.TryGetValue(typeof(T), out var convert))
+            {
+                return convert(arg);
             }
-
-            o = default(T);
-
-            return false;
+            else
+            {
+                return Failure($"Cannot parse argument '{arg}' as {typeof(T)}");
+            }
         }
     }
+
+    internal delegate ArgumentParseResult ConvertString(string argument);
 }

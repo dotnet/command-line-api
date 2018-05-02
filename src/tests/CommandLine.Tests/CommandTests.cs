@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit;
+using Xunit.Abstractions;
 using static Microsoft.DotNet.Cli.CommandLine.Create;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
@@ -13,10 +14,14 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
     public class CommandTests
     {
         private readonly CommandParser parser;
+        private readonly ITestOutputHelper output;
 
-        public CommandTests()
+        public CommandTests(ITestOutputHelper output)
         {
+            this.output = output;
+
             var builder = new ArgumentRuleBuilder();
+
             parser = new CommandParser(
                 Command("outer", "",
                         Command("inner", "",
@@ -177,6 +182,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                                       new ArgumentRuleBuilder().ExactlyOne()))));
 
             var result = command.Parse("outer inner inner-er -x arg");
+
+            output.WriteLine(result.ToString());
 
             var parsedOption = result.ParsedCommand()["x"];
 

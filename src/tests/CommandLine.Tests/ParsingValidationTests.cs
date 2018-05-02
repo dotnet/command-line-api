@@ -81,17 +81,17 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
         {
             var builder = new ArgumentRuleBuilder();
-            var parser = new ArgumentParser<string>(symbol => ArgumentParseResult.Success(symbol.Token));
-            parser.AddValidator((value, parsedSymbol) =>
+            builder.AddValidator(symbol =>
             {
-                if (parsedSymbol.Children.Contains("one") &&
-                    parsedSymbol.Children.Contains("two"))
+                if (symbol.Children.Contains("one") &&
+                    symbol.Children.Contains("two"))
                 {
-                    return ArgumentParseResult.Failure("Options '--one' and '--two' cannot be used together.");
+                    return "Options '--one' and '--two' cannot be used together.";
                 }
-                return ArgumentParseResult.Success(value);
+
+                return null;
             });
-            
+
             var command = Command("the-command", "",
                                   builder.ExactlyOne(),
                                   Option("--one", ""),

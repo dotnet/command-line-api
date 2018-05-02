@@ -12,6 +12,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public T Value { get; }
 
-        public override bool Successful { get; } = true;
+        public override bool IsSuccessful { get; } = true;
     }
 }

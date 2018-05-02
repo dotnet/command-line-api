@@ -11,6 +11,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly Lazy<string> defaultValue;
         protected internal readonly List<string> arguments = new List<string>();
+        private ArgumentParseResult result;
 
         private bool considerAcceptingAnotherArgument = true;
 
@@ -70,6 +71,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
+            var argumentParser = Symbol.ArgumentsRule.Parser;
+
+            if (argumentParser == null)
+            {
+                return null;
+            }
+
+            result = argumentParser.Parse(this);
+
+            if (result is FailedArgumentParseResult failed)
+            {
+                return new ParseError(failed.ErrorMessage, Token, this);
+            }
+
             return null;
         }
 
@@ -125,11 +140,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 case Option option:
                     return new ParsedOption(option, token, parent);
 
-                default: 
+                default:
                     throw new ArgumentException($"Unrecognized symbol type: {symbol.GetType()}");
             }
         }
-        
-        public ArgumentParseResult Result() => Symbol.ArgumentsRule.Parser.Parse(this);
+
+        public ArgumentParseResult Result => result;
     }
 }

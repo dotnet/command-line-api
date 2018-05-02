@@ -98,7 +98,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void By_default_an_option_with_zero_or_one_argument_materializes_as_the_argument_string_value_by_default()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()));
+                                  Option("-x", "",
+                                         new ArgumentRuleBuilder().ZeroOrOne()));
 
             var result = command.Parse("the-command -x the-argument");
 
@@ -164,8 +165,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = command.Parse("the-command -x arg1 -x arg2");
 
             result.ParsedCommand()
-                .ValueForOption("x")
-                .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
+                  .ValueForOption("x")
+                  .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
 
             command.Parse("the-command -x arg1").ParsedCommand()
                    .ValueForOption("x")
