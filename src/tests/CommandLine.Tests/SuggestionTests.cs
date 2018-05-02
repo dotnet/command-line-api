@@ -24,8 +24,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result.Suggestions().Should().BeEquivalentTo("one", "two", "three");
         }
 
-        [Fact(Skip = "Needs discussion")]
-        public void Option_suggestions_are_not_provided_without_matching_prefix()
+        [Theory(Skip = "Needs discussion, Issue #19")]
+        [InlineData("outer ")]
+        [InlineData("outer -")]
+        public void Option_suggestions_are_not_provided_without_matching_prefix(string input)
         {
             var parser = new CommandParser(
                 Create.Command("outer", "", 
@@ -33,8 +35,8 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                     Create.Option("--two", "Option two"), 
                     Create.Option("--three", "Option three")));
 
-            CommandParseResult result = parser.Parse("outer -");
-            result.Suggestions().Should().BeEquivalentTo();
+            CommandParseResult result = parser.Parse(input);
+            result.Suggestions().Should().BeEmpty();
         }
 
         [Fact]

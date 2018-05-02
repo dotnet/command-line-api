@@ -48,11 +48,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                    .Last();
 
             ArgumentsRule = arguments ?? ArgumentsRule.None;
-
-            //if (symbols != null)
-            //{
-            //    ArgumentsRule = ArgumentsRule.And(Accept.ZeroOrMoreOf(symbols.ToArray()));
-            //}
         }
 
         public IReadOnlyCollection<string> Aliases => aliases;
@@ -80,6 +75,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public Symbol this[string alias] => DefinedSymbols[alias];
 
-        public override string ToString() => RawAliases.Single(a => a.RemovePrefix() == Name);
+        public override string ToString() => RawAliases.First(alias => alias.RemovePrefix() == Name);
+
+        internal void AddAlias(string alias) => rawAliases.Add(alias);
     }
 }
