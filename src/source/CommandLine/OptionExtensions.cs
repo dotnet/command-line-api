@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -12,7 +11,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static bool IsHidden(this Symbol option) =>
             string.IsNullOrWhiteSpace(option.Description);
 
-        internal static IEnumerable<ParsedSymbol> AllOptions(
+        internal static IEnumerable<ParsedSymbol> AllSymbols(
             this ParsedSymbol symbol)
         {
             if (symbol == null)

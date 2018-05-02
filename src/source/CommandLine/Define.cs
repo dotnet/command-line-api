@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -10,6 +9,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class Define
     {
+        //TODO: Discusss API
         public static ArgumentRuleBuilder Arguments()
         {
             return new ArgumentRuleBuilder();
@@ -136,6 +136,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return null;
             });
 
+            builder.Suggestions.AddRange(values);
+
             return builder;
         }
 
@@ -218,17 +220,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return builder;
         }
 
-        public static ArgumentRuleBuilder WithSuggestions(
+        public static ArgumentRuleBuilder AddSuggestions(
             this ArgumentRuleBuilder builder,
             params string[] suggestions)
         {
-            return builder;
-        }
+            builder.Suggestions.AddRange(suggestions);
 
-        public static ArgumentRuleBuilder WithSuggestions(
-            this ArgumentRuleBuilder builder,
-            Func<string, IEnumerable<string>> suggest)
-        {
             return builder;
         }
     }

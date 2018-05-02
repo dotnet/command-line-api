@@ -63,7 +63,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 parsedSymbol.OptionWasRespecified();
                 return parsedSymbol;
             }
-
+            
             parsedSymbol =
                 Symbol.DefinedSymbols
                       .Where(o => o.RawAliases.Contains(token.Value))

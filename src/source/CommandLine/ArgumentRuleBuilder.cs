@@ -15,6 +15,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal List<ValidateSymbol> SymbolValidators { get;} = new List<ValidateSymbol>();
 
+        internal List<string> Suggestions { get; } = new List<string>();
+
         public void AddValidator(ValidateSymbol validator)
         {
             if (validator == null)
@@ -27,7 +29,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         protected virtual ArgumentParser BuildArgumentParser()
         {
-            return new ArgumentParser<string>(symbol =>
+            var parser = new ArgumentParser<string>(symbol =>
             {
                 if (symbol.Arguments.Count == 0)
                 {
@@ -41,6 +43,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                 return ArgumentParseResult.Success(symbol.Arguments);
             });
+
+            string[] suggestions = Suggestions.ToArray();
+            parser.AddSuggetionSource(
+                (parseResult, position) => suggestions.FindSuggestions(parseResult, position)
+            );
+            
+            return parser;
         }
 
         public ArgumentsRule Build()
@@ -63,8 +72,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 DefaultValue = arguments.GetDefaultValue,
                 Help = new ArgumentsRuleHelp(
-                    arguments?.Help?.Name,
-                    arguments?.Help?.Description)
+                    arguments.Help?.Name,
+                    arguments.Help?.Description)
             };
 
             foreach (var symbolValidator in arguments.SymbolValidators)
