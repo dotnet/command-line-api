@@ -6,9 +6,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ParserConfiguration
     {
-        public static IReadOnlyCollection<string> DefaultPrefixes { get; } =
-            new[] {"-", "--", "/"};
-
         public ParserConfiguration(
             IReadOnlyCollection<Symbol> definedSymbols,
             IReadOnlyCollection<char> argumentDelimiters = null,
@@ -37,17 +34,19 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
             AllowUnbundling = allowUnbundling;
-            Prefixes = prefixes ?? DefaultPrefixes;
 
-            foreach (Symbol symbol in definedSymbols)
+            if (prefixes?.Count > 0)
             {
-                foreach (string alias in symbol.RawAliases.ToList())
+                foreach (Symbol symbol in definedSymbols)
                 {
-                    if (!Prefixes.All(prefix => alias.StartsWith(prefix)))
+                    foreach (string alias in symbol.RawAliases.ToList())
                     {
-                        foreach (var prefix in Prefixes)
+                        if (!prefixes.All(prefix => alias.StartsWith(prefix)))
                         {
-                            symbol.AddAlias(prefix + alias);
+                            foreach (var prefix in prefixes)
+                            {
+                                symbol.AddAlias(prefix + alias);
+                            }
                         }
                     }
                 }
@@ -57,8 +56,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public SymbolSet DefinedSymbols { get; } = new SymbolSet();
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
-
-        public IReadOnlyCollection<string> Prefixes { get; }
 
         public bool AllowUnbundling { get; }
 

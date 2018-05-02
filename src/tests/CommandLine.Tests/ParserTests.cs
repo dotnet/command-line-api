@@ -799,35 +799,62 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Option_and_Command_can_have_the_same_alias()
         {
-            var parser = new CommandParser(
-                Create.Command("outer", "", new ArgumentRuleBuilder().ZeroOrMore(),
-                    Create.Command("inner", "", new ArgumentRuleBuilder().ZeroOrMore()),
-                    Create.Option("--inner", "")));
+            var innerCommand = Create.Command("inner", "",
+                                            new ArgumentRuleBuilder().ZeroOrMore());
+
+            var option = Create.Option("--inner", "");
+
+            var outerCommand = Create.Command("outer", "",
+                                               new ArgumentRuleBuilder().ZeroOrMore(),
+                                               innerCommand,
+                                              option);
+
+            var parser = new CommandParser(outerCommand);
 
             parser.Parse("outer inner")
                   .ParsedCommand()
-                  .Name
+                  .Symbol
                   .Should()
-                  .Be("inner");
+                  .Be(innerCommand);
 
             parser.Parse("outer --inner")
                   .ParsedCommand()
-                  .Name
+                  .Symbol
                   .Should()
-                  .Be("outer");
+                  .Be(outerCommand);
 
             parser.Parse("outer --inner inner")
                   .ParsedCommand()
-                  .Name
+                  .Symbol
                   .Should()
-                  .Be("inner");
+                  .Be(innerCommand);
 
             parser.Parse("outer --inner inner")
                   .ParsedCommand()
                   .Parent
                   .Children
                   .Should()
-                  .Contain(o => o.Name == "inner");
+                  .Contain(c => c.Symbol == option);
+        }
+
+        [Fact]
+        public void Options_can_have_the_same_alias_differentiated_only_by_prefix()
+        {
+            var option1 = new Option(new[] { "-a" }, "");
+            var option2 = new Option(new[] { "--a" }, "");
+
+            var parser = new OptionParser(option1, option2);
+
+            parser.Parse("-a")
+                  .ParsedSymbols
+                  .Select(s => s.Symbol)
+                  .Should()
+                  .BeEquivalentTo(option1);
+            parser.Parse("--a")
+                  .ParsedSymbols
+                  .Select(s => s.Symbol)
+                  .Should()
+                  .BeEquivalentTo(option2);
         }
 
         [Fact]
@@ -851,7 +878,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Option_aliases_can_be_specified_and_are_prefixed_with_defaults(string input)
         {
             var option = new Option(new[] { "output", "o" }, "");
-            var parser = new OptionParser(option);
+            var configuration = new ParserConfiguration(
+                new[] { option },
+                prefixes: new[] { "-", "--", "/" });
+            var parser = new OptionParser(configuration);
 
             OptionParseResult parseResult = parser.Parse(input);
             parseResult.ParsedSymbols["output"].Should().NotBeNull();
@@ -868,7 +898,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         public void Option_aliases_can_be_specified_for_particular_prefixes(string input)
         {
             var option = new Option(new[] { "--output", "-o", "/o", "out" }, "");
-            var parser = new OptionParser(option);
+            var configuration = new ParserConfiguration(
+                new[] { option },
+                prefixes: new[] { "-", "--", "/" });
+            var parser = new OptionParser(configuration);
 
             OptionParseResult parseResult = parser.Parse(input);
             parseResult.ParsedSymbols["output"].Should().NotBeNull();
