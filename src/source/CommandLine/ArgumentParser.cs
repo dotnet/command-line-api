@@ -9,7 +9,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
     {
         private readonly List<Suggest> suggestionSources = new List<Suggest>();
 
-        public void AddSuggetions(Suggest suggest)
+        public void AddSuggetionSource(Suggest suggest)
         {
             suggestionSources.Add(suggest);
         }

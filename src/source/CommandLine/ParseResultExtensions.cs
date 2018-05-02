@@ -67,10 +67,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return (ParsedCommand) symbol;
         }
 
-        internal static ParsedSymbol CurrentOption(this ParseResult result) =>
+        internal static ParsedSymbol CurrentParsedSymbol(this ParseResult result) =>
             result.ParsedSymbols
                   .LastOrDefault()
-                  .AllOptions()
+                  .AllSymbols()
                   .LastOrDefault();
 
         public static string Diagram(this ParseResult result)
@@ -164,7 +164,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
-            parseResult?.CurrentOption()
+            parseResult?.CurrentParsedSymbol()
                        ?.Symbol
                        ?.Suggest(parseResult, position ) ??
             Array.Empty<string>();

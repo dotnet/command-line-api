@@ -39,32 +39,31 @@ namespace Microsoft.DotNet.Cli.CommandLine
             base(new[] { name }, description)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-
-            var symbolNames = symbols.SelectMany(o => o.Aliases).ToArray();
-
-            var builder = arguments == null
-                              ? new ArgumentRuleBuilder().FromAmong(symbolNames)
-                              : ArgumentRuleBuilder.From(arguments);
-
-            //TODO: This need refinement to handle cases of options and sub commands
-            ArgumentsRule = builder
-                            .WithSuggestions(symbolNames)
-                            .ZeroOrMore();
-
-            foreach (var option in symbols)
+            
+            if (arguments == null)
             {
-                option.Parent = this;
-                DefinedSymbols.Add(option);
+                //TODO: handle suggestions from hidden symbols
+                string[] symbolAliases = symbols
+                    .SelectMany(o => o.RawAliases).ToArray();
+
+                var builder = new ArgumentRuleBuilder().FromAmong(symbolAliases);
+
+                //TODO: This need refinement to handle cases of options and sub commands
+                ArgumentsRule = builder
+                    .AddSuggestions(symbolAliases)
+                    .ZeroOrMore();
+            }
+            else
+            {
+                ArgumentsRule = arguments;
             }
 
-            ArgumentsRule.Parser.AddSuggetions(GetSuggestionsFromDefinedSymbols);
-
-            //ArgumentsRule = ArgumentsRule.And(ZeroOrMoreOf(symbols.ToArray()));
-        }
-
-        private IEnumerable<string> GetSuggestionsFromDefinedSymbols(ParseResult parseresult, int? position)
-        {
-            return DefinedSymbols.Select(x => x.Name);
+            
+            foreach (Symbol symbol in symbols)
+            {
+                symbol.Parent = this;
+                DefinedSymbols.Add(symbol);
+            }
         }
 
         public bool TreatUnmatchedTokensAsErrors { get; } = true;
