@@ -13,11 +13,11 @@ using static Microsoft.DotNet.Cli.CommandLine.Define;
 
 namespace Microsoft.DotNet.Cli.CommandLine.Tests
 {
-    public class MaterializerTests
+    public class TypeConversionTests
     {
         private readonly ITestOutputHelper output;
 
-        public MaterializerTests(ITestOutputHelper output)
+        public TypeConversionTests(ITestOutputHelper output)
         {
             this.output = output;
         }
@@ -77,7 +77,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_an_option_with_zero_or_one_argument_materializes_as_the_argument_string_value_by_default()
+        public void By_default_an_option_with_zero_or_one_argument_parses_as_the_argument_string_value_by_default()
         {
             var command = Command("the-command", "",
                                   Option("-x", "",
@@ -92,7 +92,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_an_option_with_exactly_one_argument_materializes_as_the_argument_string_value_by_default()
+        public void By_default_an_option_with_exactly_one_argument_parses_as_the_argument_string_value_by_default()
         {
             var command = Command("the-command", "",
                                   Option("-x", "", new ArgumentRuleBuilder().ExactlyOne()));
@@ -152,7 +152,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_multiple_arguments_materializes_as_a_sequence_of_strings()
+        public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_multiple_arguments_parses_as_a_sequence_of_strings()
         {
             var command = Command("the-command", "",
                                   Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()));
@@ -163,7 +163,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_one_argument_materializes_as_a_sequence_of_strings()
+        public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_one_argument_parses_as_a_sequence_of_strings()
         {
             var command = Command("the-command", "",
                                   Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()));
@@ -175,7 +175,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_an_option_without_arguments_materializes_as_true_when_it_is_applied()
+        public void By_default_an_option_without_arguments_parses_as_true_when_it_is_applied()
         {
             var command = Command("something", "", ArgumentsRule.None,
                                   Option("-x", ""));
@@ -189,7 +189,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_an_option_without_arguments_materializes_as_false_when_it_is_not_applied()
+        public void By_default_an_option_without_arguments_parses_as_false_when_it_is_not_applied()
         {
             var command = Command("something", "", Option("-x", ""));
 
@@ -199,7 +199,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_with_a_default_value_materializes_as_the_default_value_when_it_the_option_has_not_been_applied()
+        public void An_option_with_a_default_value_parses_as_the_default_value_when_it_the_option_has_not_been_applied()
         {
             var command = Command(
                 "something", "",
