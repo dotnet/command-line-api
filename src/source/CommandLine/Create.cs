@@ -38,7 +38,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public static Command Command(
             string name,
             string description,
-            ArgumentsRule arguments,
+            ArgumentsRule arguments = null,
             params Symbol[] symbols) =>
             new Command(name, description, symbols, arguments);
 
