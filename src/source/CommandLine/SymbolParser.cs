@@ -5,19 +5,19 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public abstract class Parser
+    public abstract class SymbolParser
     {
         private readonly ParserConfiguration configuration;
 
-        protected Parser(IReadOnlyCollection<Symbol> options) : this(new ParserConfiguration(options))
+        protected SymbolParser(IReadOnlyCollection<Symbol> options) : this(new ParserConfiguration(options))
         {
         }
 
-        protected Parser(IReadOnlyCollection<char> delimiters, params Symbol[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
+        protected SymbolParser(IReadOnlyCollection<char> delimiters, params Symbol[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
         {
         }
 
-        protected Parser(ParserConfiguration configuration)
+        protected SymbolParser(ParserConfiguration configuration)
         {
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }

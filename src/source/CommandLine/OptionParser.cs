@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class OptionParser : Parser
+    public class OptionParser : SymbolParser
     {
         public OptionParser(params Option[] options) : base(options)
         {

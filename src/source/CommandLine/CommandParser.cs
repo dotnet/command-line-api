@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public class CommandParser : Parser
+    public class CommandParser : SymbolParser
     {
         public CommandParser(params Command[] commands) : base(commands)
         {
