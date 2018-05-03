@@ -26,21 +26,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                 value ?? "",
                                 CompareOptions.OrdinalIgnoreCase) >= 0;
 
-        internal static IEnumerable<string> FindSuggestions(
-            this IReadOnlyCollection<string> candidates,
-            ParseResult parseResult, 
-            int? position) =>
-            candidates.FindSuggestions(parseResult.TextToMatch(position));
-
-        public static IEnumerable<string> FindSuggestions(
-            this IReadOnlyCollection<string> candidates,
-            string textToMatch) =>
-            candidates
-                .OrderBy(c => c)
-                .Where(c => c.ContainsCaseInsensitive(textToMatch))
-                .Distinct()
-                .OrderBy(c => c);
-
         internal static string RemoveEnd(
             this string source,
             int length) =>

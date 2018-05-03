@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
-    public abstract class Symbol
+    public abstract class Symbol : ISuggestionSource
     {
         private readonly HashSet<string> aliases = new HashSet<string>();
 
@@ -62,9 +62,22 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Name { get; }
 
-        public IEnumerable<string> Suggest(
+        public virtual IEnumerable<string> Suggest(
             ParseResult parseResult,
-            int? position = null) => ArgumentsRule.Parser.Suggest(parseResult, position);
+            int? position = null)
+        {
+            var symbolAliases = DefinedSymbols
+                                .Where(s => !s.IsHidden())
+                                .SelectMany(s => s.RawAliases);
+
+            var argumentSuggestions = ArgumentsRule.SuggestionSource
+                                                   .Suggest(parseResult, position);
+
+            return symbolAliases.Concat(argumentSuggestions)
+                                .Distinct()
+                                .OrderBy(s => s)
+                                .Containing(parseResult.TextToMatch());
+        }
 
         // FIX: (Parent) make this immutable
         public Command Parent { get; protected internal set; }
@@ -72,8 +85,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public bool HasAlias(string alias) => aliases.Contains(alias.RemovePrefix());
 
         public bool HasRawAlias(string alias) => rawAliases.Contains(alias);
-
-        public Symbol this[string alias] => DefinedSymbols[alias];
 
         public override string ToString() => RawAliases.First(alias => alias.RemovePrefix() == Name);
 

@@ -158,26 +158,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void Parser_options_can_supply_context_sensitive_matches()
-        {
-            var parser = new OptionParser(Create.Option("--bread", "",
-                       new ArgumentRuleBuilder().FromAmong("wheat", "sourdough", "rye").ExactlyOne()), Create.Option("--cheese", "",
-                       new ArgumentRuleBuilder().FromAmong("provolone", "cheddar", "cream cheese").ExactlyOne()));
-
-            var result = parser.Parse("--bread ");
-
-            result.Suggestions()
-                  .Should()
-                  .BeEquivalentTo("rye", "sourdough", "wheat");
-
-            result = parser.Parse("--bread wheat --cheese ");
-
-            result.Suggestions()
-                  .Should()
-                  .BeEquivalentTo("cheddar", "cream cheese", "provolone");
-        }
-
-        [Fact]
         public void Short_form_options_can_be_specified_using_equals_delimiter()
         {
             var parser = new OptionParser(Create.Option("-x", "", new ArgumentRuleBuilder().ExactlyOne()));

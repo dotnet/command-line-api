@@ -79,18 +79,6 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void An_command_can_be_hidden_from_completions_by_leaving_its_help_empty()
-        {
-            var command = Command("the-command", "Does things.",
-                                  Option("-x", ""),
-                                  Option("-n", "Not hidden"));
-
-            var suggestions = command.Parse("the-command ").Suggestions();
-
-            suggestions.Should().NotContain("-x");
-        }
-
-        [Fact]
         public void When_a_command_accepts_arguments_then_the_synopsis_shows_them()
         {
             var command = Command("the-command", "command help",

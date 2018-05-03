@@ -494,16 +494,20 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
             "ubuntu.16.04-x64",
         };
 
-        private static IEnumerable<string> QueryNuGet(string match)
+        private static IEnumerable<string> QueryNuGet(
+            ParseResult parseResult,
+            int? position = null)
         {
             var httpClient = new HttpClient();
 
             string result;
 
+            string textToMatch = parseResult.TextToMatch();
+
             try
             {
                 var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                var response = httpClient.GetAsync($"https://api-v2v3search-0.nuget.org/query?q={match}&skip=0&take=100&prerelease=true", cancellation.Token)
+                var response = httpClient.GetAsync($"https://api-v2v3search-0.nuget.org/query?q={textToMatch}&skip=0&take=100&prerelease=true", cancellation.Token)
                                          .Result;
 
                 result = response.Content.ReadAsStringAsync().Result;

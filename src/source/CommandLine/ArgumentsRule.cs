@@ -15,13 +15,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
             ArgumentParser parser,
             Func<string> defaultValue = null,
             ArgumentsRuleHelp help = null,
-            IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
+            IReadOnlyCollection<ValidateSymbol> symbolValidators = null,
+            ISuggestionSource suggestionSource = null)
         {
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
 
             this.defaultValue = defaultValue;
 
             Help = help ?? new ArgumentsRuleHelp();
+
+            SuggestionSource = suggestionSource ?? NullSuggestionSource.Instance;
 
             if (symbolValidators != null)
             {
@@ -50,9 +53,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }
 
                     return ArgumentParseResult.Success(true);
-                }
-                ),
+                }),
             symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
+
+        public ISuggestionSource SuggestionSource { get; }
 
         private static string AcceptNoArguments(ParsedSymbol o)
         {

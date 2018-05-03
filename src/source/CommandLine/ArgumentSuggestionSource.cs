@@ -1,0 +1,56 @@
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Microsoft.DotNet.Cli.CommandLine
+{
+    internal class ArgumentSuggestionSource : ISuggestionSource
+    {
+        private readonly List<string> suggestions = new List<string>();
+        private readonly List<Suggest> suggestionSources = new List<Suggest>();
+
+        public IEnumerable<string> Suggest(
+            ParseResult parseResult,
+            int? position = null)
+        {
+            if (parseResult == null)
+            {
+                throw new ArgumentNullException(nameof(parseResult));
+            }
+
+            var fixedSuggestions = suggestions;
+
+            var dynamicSuggestions = suggestionSources
+                .SelectMany(source => source(parseResult, position));
+
+            return fixedSuggestions
+                   .Concat(dynamicSuggestions)
+                   .Distinct()
+                   .OrderBy(c => c)
+                   .Containing(parseResult.TextToMatch());
+        }
+
+        public void AddSuggestions(IReadOnlyCollection<string> suggestions)
+        {
+            if (suggestions == null)
+            {
+                throw new ArgumentNullException(nameof(suggestions));
+            }
+
+            this.suggestions.AddRange(suggestions);
+        }
+
+        public void AddSuggestionSource(Suggest suggest)
+        {
+            if (suggest == null)
+            {
+                throw new ArgumentNullException(nameof(suggest));
+            }
+
+            suggestionSources.Add(suggest);
+        }
+    }
+}

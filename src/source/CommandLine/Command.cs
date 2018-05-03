@@ -44,11 +44,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                                      .SelectMany(o => o.RawAliases)
                                      .ToArray();
 
-            var suggestableSymbolAliases = symbols
-                                           .Where(s => !s.IsHidden())
-                                           .SelectMany(o => o.RawAliases)
-                                           .ToArray();
-
             ArgumentRuleBuilder builder;
             if (arguments == null)
             {
@@ -60,7 +55,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             builder.ValidTokens.UnionWith(validSymbolAliases);
-            builder.Suggestions.AddRange(suggestableSymbolAliases);
 
             if (arguments == null)
             {
@@ -68,19 +62,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
             else
             {
-                // FIX: (Command) 
-                switch (arguments.Parser.ArgumentArity)
-                {
-                    case ArgumentArity.One:
-                        ArgumentsRule = arguments;
-                        break;
-                    case ArgumentArity.Many:
-                        ArgumentsRule = arguments;
-                        break;
-                    case ArgumentArity.Zero:
-                        ArgumentsRule = arguments;
-                        break;
-                }
+                ArgumentsRule = arguments;
             }
 
             foreach (Symbol symbol in symbols)

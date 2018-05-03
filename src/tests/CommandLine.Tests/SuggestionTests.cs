@@ -11,17 +11,112 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
     public class SuggestionTests
     {
         [Fact]
-        public void Option_suggestions_can_be_based_on_the_proximate_command()
+        public void Option_Suggest_returns_argument_suggestions_if_configured()
         {
-            var parser = new CommandParser(
-                Create.Command("outer", "", 
-                    Create.Command("one", "Command one"), 
-                    Create.Command("two", "Command two"), 
-                    Create.Command("three", "Command three")));
+            var option = Create.Option("--hello", "",
+                                       Define.Arguments()
+                                             .AddSuggestions("one", "two", "three")
+                                             .ExactlyOne());
 
-            CommandParseResult result = parser.Parse("outer ");
+            var suggestions = option.Suggest(option.Parse("--hello"));
 
-            result.Suggestions().Should().BeEquivalentTo("one", "two", "three");
+            suggestions.Should().BeEquivalentTo("one", "two", "three");
+        }
+
+        [Fact]
+        public void Command_Suggest_returns_available_option_aliases()
+        {
+            var command = Create.Command("command", "a command",
+                                         Create.Option("--one", "option one"),
+                                         Create.Option("--two", "option two"),
+                                         Create.Option("--three", "option three"));
+
+            var suggestions = command.Suggest(command.Parse("command "));
+
+            suggestions.Should().BeEquivalentTo("--one", "--two", "--three");
+        }
+
+        [Fact]
+        public void Command_Suggest_returns_available_subcommands()
+        {
+            var command = Create.Command("command", "a command",
+                                         Create.Command("one", "subcommand one"),
+                                         Create.Command("two", "subcommand two"),
+                                         Create.Command("three", "subcommand three"));
+
+            var suggestions = command.Suggest(command.Parse("command "));
+
+            suggestions.Should().BeEquivalentTo("one", "two", "three");
+        }
+
+        [Fact]
+        public void Command_Suggest_returns_available_subcommands_and_option_aliases()
+        {
+            var command = Create.Command("command", "a command",
+                                         Create.Command("subcommand", "subcommand"),
+                                         Create.Option("--option", "option"));
+
+            var suggestions = command.Suggest(command.Parse("command "));
+
+            suggestions.Should().BeEquivalentTo("subcommand", "--option");
+        }
+
+        [Fact]
+        public void Command_Suggest_returns_available_subcommands_and_option_aliases_and_configured_arguments()
+        {
+            var command = Create.Command("command", "a command",
+                                         Define.Arguments()
+                                               .AddSuggestions("command-argument")
+                                               .OneOrMore(),
+                                         Create.Command("subcommand", "subcommand"),
+                                         Create.Option("--option", "option"));
+
+            var suggestions = command.Suggest(command.Parse("command "));
+
+            suggestions.Should()
+                       .BeEquivalentTo("subcommand", "--option", "command-argument");
+        }
+
+        [Fact]
+        public void An_command_can_be_hidden_from_completions_by_leaving_its_help_empty()
+        {
+            var command = Create.Command(
+                "the-command", "Does things.",
+                Create.Option("--hide-me", ""),
+                Create.Option("-n", "Not hidden"));
+
+            var suggestions = command.Parse("the-command ").Suggestions();
+
+            suggestions.Should().NotContain("--hide-me");
+        }
+
+        [Fact]
+        public void Parser_options_can_supply_context_sensitive_matches()
+        {
+            var parser = new OptionParser(
+                Create.Option("--bread", "",
+                              new ArgumentRuleBuilder()
+                                  .FromAmong("wheat", "sourdough", "rye")
+                                  .ExactlyOne()),
+                Create.Option("--cheese", "",
+                              new ArgumentRuleBuilder()
+                                  .FromAmong(
+                                      "provolone",
+                                      "cheddar",
+                                      "cream cheese")
+                                  .ExactlyOne()));
+
+            var result = parser.Parse("--bread ");
+
+            result.Suggestions()
+                  .Should()
+                  .BeEquivalentTo("rye", "sourdough", "wheat");
+
+            result = parser.Parse("--bread wheat --cheese ");
+
+            result.Suggestions()
+                  .Should()
+                  .BeEquivalentTo("cheddar", "cream cheese", "provolone");
         }
 
         [Fact]
@@ -131,47 +226,23 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void Suggestions_can_be_provided_using_a_delegate()
         {
-            Command command = Create.Command("the-command", "",
-                                  Create.Command("one", "",
-                                      Define.Arguments()
-                                          .AddSuggestions("vegetable","mineral","animal")
-                                          .ExactlyOne()
-                                      ));
-            command.Parse("the-command one m")
-                   .Suggestions()
-                   .Should()
-                   .BeEquivalentTo("animal",
-                                   "mineral");
-
-            throw new NotImplementedException();
-        }
-
-        [Fact]
-        public void Validations_and_suggestions_can_be_provided_using_a_delegate()
-        {
-            Command command = Create.Command("the-command", "",
+            Command command = Create.Command(
+                "the-command", "",
                 Create.Command("one", "",
-                    Define.Arguments().FromAmong("vegetable",
-                            "mineral",
-                            "animal")
-                        .ExactlyOne()));
+                               Define.Arguments()
+                                     .AddSuggestionSource((parseResult, pos) => new[]
+                                     {
+                                         "vegetable",
+                                         "mineral",
+                                         "animal"
+                                     })
+                                     .ExactlyOne()));
 
             command.Parse("the-command one m")
                    .Suggestions()
                    .Should()
                    .BeEquivalentTo("animal",
                                    "mineral");
-
-            command
-                .Parse("the-command one fungus")
-                .Errors
-                .Select(e => e.Message)
-                .Should()
-                .BeEquivalentTo(
-                    "Unrecognized command or argument 'fungus'",
-                    "Required argument missing for command: one");
-
-            throw new NotImplementedException();
         }
 
         [Fact]

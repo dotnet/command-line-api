@@ -128,7 +128,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             builder.ValidTokens.UnionWith(values);
 
-            builder.Suggestions.AddRange(values);
+            builder.SuggestionSource.AddSuggestions(values);
 
             return builder;
         }
@@ -243,7 +243,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             params string[] suggestions)
         {
-            builder.Suggestions.AddRange(suggestions);
+            builder.SuggestionSource.AddSuggestions(suggestions);
 
             return builder;
         }
@@ -257,21 +257,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 throw new ArgumentNullException(nameof(suggest));
             }
 
-            builder.SuggestionSources.Add(suggest);
-
-            return builder;
-        }
-
-        public static ArgumentRuleBuilder AddSuggestionSource(
-            this ArgumentRuleBuilder builder,
-            Func<string, IEnumerable<string>> suggestions)
-        {
-            if (suggestions == null)
-            {
-                throw new ArgumentNullException(nameof(suggestions));
-            }
-
-            // FIX: (AddSuggestions) 
+            builder.SuggestionSource.AddSuggestionSource(suggest);
 
             return builder;
         }

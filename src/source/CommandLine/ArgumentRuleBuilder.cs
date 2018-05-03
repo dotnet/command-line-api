@@ -9,6 +9,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ArgumentRuleBuilder
     {
+        private ArgumentSuggestionSource suggestionSource;
+
         internal ArgumentArity ArgumentArity { get; set; }
 
         internal ConvertArgument ConvertArguments { get; set; }
@@ -21,9 +23,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
-        internal List<string> Suggestions { get; } = new List<string>();
-
-        internal List<Suggest> SuggestionSources { get; } = new List<Suggest>();
+        internal ArgumentSuggestionSource SuggestionSource =>
+            suggestionSource ??
+            (suggestionSource = new ArgumentSuggestionSource());
 
         internal HashSet<string> ValidTokens { get; } = new HashSet<string>();
 
@@ -43,17 +45,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 ArgumentArity,
                 ConvertArguments);
 
-            foreach (var suggestionSource in SuggestionSources)
-            {
-                parser.AddSuggestionSource(suggestionSource);
-            }
-
-            parser.AddSuggestionSource(
-                (parseResult, position) =>
-                {
-                    return Suggestions.FindSuggestions(parseResult, position);
-                });
-
             return parser;
         }
 
@@ -65,8 +56,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 Parser ?? (Parser = BuildArgumentParser()),
                 DefaultValue,
                 Help,
-                SymbolValidators);
+                SymbolValidators,
+                suggestionSource);
         }
+
 
         private void AddTokenValidator()
         {
@@ -84,7 +77,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                 foreach (var arg in parsedSymbol.Arguments)
                 {
-                    // TODO: Is case-insensitive really what we want here?
                     if (!ValidTokens.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
                     {
                         return ValidationMessages.UnrecognizedArgument(arg, ValidTokens);
@@ -95,12 +87,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
             });
         }
 
-        public static ArgumentRuleBuilder From(ArgumentsRule arguments)
+        internal static ArgumentRuleBuilder From(ArgumentsRule arguments)
         {
+            // TODO: (From) get rid of this method
+
             if (arguments == null)
             {
                 throw new ArgumentNullException(nameof(arguments));
             }
+
+            var suggestionSource = new ArgumentSuggestionSource();
+            suggestionSource.AddSuggestionSource(arguments.SuggestionSource.Suggest);
 
             var builder = new ArgumentRuleBuilder
             {
@@ -110,10 +107,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     arguments.Help?.Name,
                     arguments.Help?.Description),
                 Parser = arguments.Parser,
+                suggestionSource = suggestionSource,
                 SymbolValidators = new List<ValidateSymbol>(arguments.SymbolValidators)
             };
-
-            builder.AddSuggestionSource(arguments.Parser.Suggest);
 
             return builder;
         }
