@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -9,7 +11,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public static class Define
     {
-        //TODO: Discusss API
         public static ArgumentRuleBuilder Arguments()
         {
             return new ArgumentRuleBuilder();
@@ -43,9 +44,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 {
                     if (errorMessage == null)
                     {
-                        return parsedSymbol.Symbol is Command
-                                   ? ValidationMessages.CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount)
-                                   : ValidationMessages.OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), argumentCount);
+                        return ValidationMessages.SymbolAcceptsOnlyOneArgument(parsedSymbol);
                     }
                     else
                     {
@@ -56,6 +55,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return null;
             });
 
+            builder.ArgumentArity = ArgumentArity.One;
+
             return builder.Build();
         }
 
@@ -63,6 +64,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             Func<ParsedOption, string> errorMessage = null)
         {
+            builder.ArgumentArity = ArgumentArity.Many;
+
             return builder.Build();
         }
 
@@ -81,6 +84,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
                 return null;
             });
+
+            builder.ArgumentArity = ArgumentArity.One;
+
             return builder.Build();
         }
 
@@ -106,6 +112,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                            ? ValidationMessages.RequiredArgumentMissingForCommand(o.Symbol.ToString())
                            : ValidationMessages.RequiredArgumentMissingForOption(o.Symbol.ToString());
             });
+
+            builder.ArgumentArity = ArgumentArity.Many;
+
             return builder.Build();
         }
 
@@ -117,24 +126,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             this ArgumentRuleBuilder builder,
             params string[] values)
         {
-            builder.AddValidator(parsedSymbol =>
-            {
-                if (parsedSymbol.Arguments.Count == 0)
-                {
-                    return null;
-                }
-
-                foreach (var arg in parsedSymbol.Arguments)
-                {
-                    // TODO: Is case-insensitive really what we want here?
-                    if (!values.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        return ValidationMessages.UnrecognizedArgument(arg, values);
-                    }
-                }
-
-                return null;
-            });
+            builder.ValidTokens.UnionWith(values);
 
             builder.Suggestions.AddRange(values);
 
@@ -188,15 +180,42 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         #endregion
 
-        #region type
+        #region type / return value
 
-        public static ArgumentRuleBuilder OfType<T>(
+        public static ArgumentsRule ParseAs<T>(
             this ArgumentRuleBuilder builder,
-            ConvertArgument parse)
+            ConvertArgument convert,
+            ArgumentArity? arity = null)
         {
-            //builder.ArgumentParser = new ArgumentParser<T>(parse);
+            if (arity == null)
+            {
+                if (typeof(IEnumerable).IsAssignableFrom(typeof(T)) && 
+                    typeof(T) != typeof(string))
+                {
+                    arity = ArgumentArity.Many;
+                }
+                else
+                {
+                    arity = ArgumentArity.One;
 
-            return builder;
+                    var originalConvert = convert;
+                    convert = symbol =>
+                    {
+                        if (symbol.Arguments.Count != 1)
+                        {
+                           return ArgumentParseResult.Failure(ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol));
+                        }
+
+                        return originalConvert(symbol);
+                    };
+                }
+            }
+
+            builder.ArgumentArity = arity.Value;
+
+            builder.ConvertArguments = convert;
+
+            return builder.Build();
         }
 
         #endregion
@@ -225,6 +244,34 @@ namespace Microsoft.DotNet.Cli.CommandLine
             params string[] suggestions)
         {
             builder.Suggestions.AddRange(suggestions);
+
+            return builder;
+        }
+
+        public static ArgumentRuleBuilder AddSuggestionSource(
+            this ArgumentRuleBuilder builder,
+            Suggest suggest)
+        {
+            if (suggest == null)
+            {
+                throw new ArgumentNullException(nameof(suggest));
+            }
+
+            builder.SuggestionSources.Add(suggest);
+
+            return builder;
+        }
+
+        public static ArgumentRuleBuilder AddSuggestionSource(
+            this ArgumentRuleBuilder builder,
+            Func<string, IEnumerable<string>> suggestions)
+        {
+            if (suggestions == null)
+            {
+                throw new ArgumentNullException(nameof(suggestions));
+            }
+
+            // FIX: (AddSuggestions) 
 
             return builder;
         }

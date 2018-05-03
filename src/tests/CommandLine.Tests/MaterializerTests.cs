@@ -23,30 +23,17 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void A_materializer_can_be_specified_using_options_and_arguments_to_create_an_object()
+        public void ParseAs_can_specify_custom_types()
         {
             var parser = new CommandParser(
                 Command("move", "",
-                    Arguments()
-                        .OfType<FileMoveOperation>(parsedSymbol =>
-                        {
-                            output.WriteLine(parsedSymbol.Token);
-
-                            var fileInfos = parsedSymbol.Arguments.Select(f => new FileInfo(f)).ToList();
-
-                            var destination = new DirectoryInfo(parsedSymbol.Children["destination"].Arguments.Single());
-
-                            return ArgumentParseResult.Success(new FileMoveOperation
-                            {
-                                Files = fileInfos,
-                                Destination = destination
-                            });
-                        })
-                        .OneOrMore(),
-                        symbols: new[]
-                        {
-                            Option("-d|--destination", "",     new ArgumentRuleBuilder().ExactlyOne())
-                        }));
+                        Arguments()
+                            .ParseAs<FileInfo[]>(parsed =>
+                                                     ArgumentParseResult.Success(parsed.Arguments.Select(f => new FileInfo(f)).ToArray())
+                            ),
+                        Option("-d|--destination", "",
+                               Arguments()
+                                   .ParseAs<FileInfo>(parsed => ArgumentParseResult.Success(new FileInfo(parsed.Arguments.Single()))))));
 
             var folder = new DirectoryInfo(Path.Combine("temp"));
             var file1 = new FileInfo(Path.Combine(folder.FullName, "the file.txt"));
@@ -54,44 +41,39 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             var result = parser.Parse($@"move -d ""{folder}"" ""{file1}"" ""{file2}""");
 
-            var fileMoveOperation = result.ParsedCommand()
-                                          .GetValueOrDefault<FileMoveOperation>();
+            var destination = result.ParsedCommand().ValueForOption<FileInfo>("d");
+            var files = result.ParsedCommand().GetValueOrDefault<FileInfo[]>();
 
-            fileMoveOperation.Destination
-                             .FullName
-                             .Should()
-                             .Be(folder.FullName);
-
-            fileMoveOperation.Files
-                             .Select(f => f.FullName)
-                             .Should()
-                             .BeEquivalentTo(file2.FullName,
-                                             file1.FullName);
+            destination
+                .FullName
+                .Should()
+                .Be(folder.FullName);
+            files
+                .Select(f => f.FullName)
+                .Should()
+                .BeEquivalentTo(file2.FullName,
+                                file1.FullName);
         }
 
         [Fact]
-        public void When_a_materializer_throws_then_an_informative_exception_message_is_given()
+        public void When_argument_cannot_be_parsed_as_the_specified_type_then_ValueForOption_returns_null()
         {
             var command = Command("the-command", "",
                                   Option("-o|--one", "",
-                                  Arguments().OfType<int>(parsedSymbol =>
-                                  {
-                                      if (int.TryParse(parsedSymbol.Token, out int intValue))
-                                      {
-                                          return ArgumentParseResult.Success(intValue);
-                                      }
-                                      return ArgumentParseResult.Failure($"'{parsedSymbol.Token}' is not an integer");
-                                  }).ExactlyOne()));
+                                         Arguments()
+                                             .ParseAs<int>(parsedSymbol =>
+                                             {
+                                                 if (int.TryParse(parsedSymbol.Arguments.Single(), out int intValue))
+                                                 {
+                                                     return ArgumentParseResult.Success(intValue);
+                                                 }
+
+                                                 return ArgumentParseResult.Failure($"'{parsedSymbol.Token}' is not an integer");
+                                             })));
 
             var result = command.Parse("the-command -o not-an-int");
 
-            Action getValue = () => result.ParsedCommand().ValueForOption("o");
-
-            getValue.ShouldThrow<ParseException>()
-                    .Which
-                    .Message
-                    .Should()
-                    .Be("An exception occurred while getting the value for option 'one' based on argument(s): not-an-int.");
+             result.ParsedCommand().ValueForOption("o").Should().BeNull();
         }
 
         [Fact]
@@ -132,16 +114,17 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             var result = command.Parse("the-command -x");
 
             result.ParsedCommand()
-                .ValueForOption("x")
-                .Should()
-                .BeNull();
+                  .ValueForOption("x")
+                  .Should()
+                  .BeNull();
         }
 
         [Fact]
-        public void When_one_or_more_arguments_are_expected_and_none_are_provided_then_Value_returns_empty()
+        public void When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_Value_returns_an_empty_sequence_of_strings()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", new ArgumentRuleBuilder().OneOrMore()));
+                                  Option("-x", "",
+                                         new ArgumentRuleBuilder().ZeroOrMore()));
 
             var result = command.Parse("the-command -x");
 
@@ -149,7 +132,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             value.Should().BeAssignableTo<IReadOnlyCollection<string>>();
 
-            var values = (IReadOnlyCollection<string>)value;
+            var values = (IReadOnlyCollection<string>) value;
 
             values
                 .Should()
@@ -157,18 +140,36 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_an_option_with_multiple_arguments_materializes_as_a_sequence_of_strings_by_default()
+        public void When_one_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_Value_returns_null()
+        {
+            var command = Command("the-command", "",
+                                  Option("-x", "",
+                                         new ArgumentRuleBuilder().OneOrMore()));
+
+            var result = command.Parse("the-command -x");
+
+            result.ParsedCommand().ValueForOption("x").Should().BeNull();
+        }
+
+        [Fact]
+        public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_multiple_arguments_materializes_as_a_sequence_of_strings()
         {
             var command = Command("the-command", "",
                                   Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()));
 
-            var result = command.Parse("the-command -x arg1 -x arg2");
+            command.Parse("the-command -x arg1 -x arg2").ParsedCommand()
+                   .ValueForOption("x")
+                   .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
+        }
 
-            result.ParsedCommand()
-                  .ValueForOption("x")
-                  .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
+        [Fact]
+        public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_one_argument_materializes_as_a_sequence_of_strings()
+        {
+            var command = Command("the-command", "",
+                                  Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()));
 
-            command.Parse("the-command -x arg1").ParsedCommand()
+            command.Parse("the-command -x arg1")
+                   .ParsedCommand()
                    .ValueForOption("x")
                    .ShouldBeEquivalentTo(new[] { "arg1" });
         }
@@ -176,8 +177,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         [Fact]
         public void By_default_an_option_without_arguments_materializes_as_true_when_it_is_applied()
         {
-            var command = Command("something", "",
-                                      ArgumentsRule.None,
+            var command = Command("something", "", ArgumentsRule.None,
                                   Option("-x", ""));
 
             var result = command.Parse("something -x");
@@ -219,7 +219,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("tally", "",
                                   Arguments()
-                                        .OfType<int>(parsedSymbol =>
+                                        .ParseAs<int>(parsedSymbol =>
                                         {
 
                                             if (int.TryParse(parsedSymbol.Token, out var i))
@@ -228,8 +228,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                             }
 
                                             return ArgumentParseResult.Failure("Could not parse int");
-                                        })
-                                        .ExactlyOne());
+                                        }));
 
             var result = command.Parse("tally one");
 
@@ -244,7 +243,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         {
             var command = Command("tally", "",
                                   Arguments()
-                                        .OfType<int>(parsedSymbol =>
+                                        .ParseAs<int>(parsedSymbol =>
                                         {
                                             if (int.TryParse(parsedSymbol.Token, out var i))
                                             {
@@ -252,8 +251,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                             }
 
                                             return ArgumentParseResult.Failure("Could not parse int");
-                                        })
-                                        .ExactlyOne());
+                                        }));
 
             var result = command.Parse("tally 123");
 
@@ -263,10 +261,5 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                   .BeOfType<int>();
         }
 
-        public class FileMoveOperation
-        {
-            public List<FileInfo> Files { get; set; }
-            public DirectoryInfo Destination { get; set; }
-        }
     }
 }

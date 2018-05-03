@@ -9,13 +9,23 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     public class ArgumentRuleBuilder
     {
+        internal ArgumentArity ArgumentArity { get; set; }
+
+        internal ConvertArgument ConvertArguments { get; set; }
+
         internal Func<string> DefaultValue { get; set; }
 
         internal ArgumentsRuleHelp Help { get; set; }
 
-        internal List<ValidateSymbol> SymbolValidators { get;} = new List<ValidateSymbol>();
+        internal ArgumentParser Parser { get; private set; }
+
+        internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
         internal List<string> Suggestions { get; } = new List<string>();
+
+        internal List<Suggest> SuggestionSources { get; } = new List<Suggest>();
+
+        internal HashSet<string> ValidTokens { get; } = new HashSet<string>();
 
         public void AddValidator(ValidateSymbol validator)
         {
@@ -29,36 +39,60 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         protected virtual ArgumentParser BuildArgumentParser()
         {
-            var parser = new ArgumentParser<string>(symbol =>
+            var parser = new ArgumentParser(
+                ArgumentArity,
+                ConvertArguments);
+
+            foreach (var suggestionSource in SuggestionSources)
             {
-                if (symbol.Arguments.Count == 0)
+                parser.AddSuggestionSource(suggestionSource);
+            }
+
+            parser.AddSuggestionSource(
+                (parseResult, position) =>
                 {
-                    return ArgumentParseResult.Success((string)null);
-                }
+                    return Suggestions.FindSuggestions(parseResult, position);
+                });
 
-                if (symbol.Arguments.Count == 1)
-                {
-                    return ArgumentParseResult.Success(symbol.Arguments.Single());
-                }
-
-                return ArgumentParseResult.Success(symbol.Arguments);
-            });
-
-            string[] suggestions = Suggestions.ToArray();
-            parser.AddSuggetionSource(
-                (parseResult, position) => suggestions.FindSuggestions(parseResult, position)
-            );
-            
             return parser;
         }
 
         public ArgumentsRule Build()
         {
+            AddTokenValidator();
+
             return new ArgumentsRule(
-                BuildArgumentParser(),
-                DefaultValue, 
-                Help, 
+                Parser ?? (Parser = BuildArgumentParser()),
+                DefaultValue,
+                Help,
                 SymbolValidators);
+        }
+
+        private void AddTokenValidator()
+        {
+            if (ValidTokens.Count == 0)
+            {
+                return;
+            }
+
+            AddValidator(parsedSymbol =>
+            {
+                if (parsedSymbol.Arguments.Count == 0)
+                {
+                    return null;
+                }
+
+                foreach (var arg in parsedSymbol.Arguments)
+                {
+                    // TODO: Is case-insensitive really what we want here?
+                    if (!ValidTokens.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return ValidationMessages.UnrecognizedArgument(arg, ValidTokens);
+                    }
+                }
+
+                return null;
+            });
         }
 
         public static ArgumentRuleBuilder From(ArgumentsRule arguments)
@@ -70,16 +104,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             var builder = new ArgumentRuleBuilder
             {
+                ConvertArguments = arguments.Parser.ConvertArguments,
                 DefaultValue = arguments.GetDefaultValue,
                 Help = new ArgumentsRuleHelp(
                     arguments.Help?.Name,
-                    arguments.Help?.Description)
+                    arguments.Help?.Description),
+                Parser = arguments.Parser,
+                SymbolValidators = new List<ValidateSymbol>(arguments.SymbolValidators)
             };
 
-            foreach (var symbolValidator in arguments.SymbolValidators)
-            {
-                builder.SymbolValidators.Add(symbolValidator);
-            }
+            builder.AddSuggestionSource(arguments.Parser.Suggest);
 
             return builder;
         }

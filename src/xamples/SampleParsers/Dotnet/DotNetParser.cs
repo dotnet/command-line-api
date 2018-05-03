@@ -139,7 +139,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
             Command("new",
                     "Initialize .NET projects.",
                     Define.Arguments()
-                          .WithSuggestions("console",
+                          .AddSuggestions("console",
                                            "classlib",
                                            "mstest",
                                            "xunit",
@@ -259,9 +259,10 @@ namespace Microsoft.DotNet.Cli.CommandLine.SampleParsers.Dotnet
         private static Command Package() =>
             Command("package",
                     ".NET Add Package reference Command",
-                    Define.Arguments().WithHelp(name: "PACKAGE_NAME",
+                    Define.Arguments()
+                          .WithHelp(name: "PACKAGE_NAME",
                                                 description: "Package references to add")
-                          .WithSuggestions(QueryNuGet)
+                          .AddSuggestionSource(QueryNuGet)
                           .ExactlyOne(),
                     HelpOption(),
                     Option("-v|--version",

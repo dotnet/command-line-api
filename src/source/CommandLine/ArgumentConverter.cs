@@ -6,32 +6,52 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     internal static class ArgumentConverter
     {
-        private static readonly Dictionary<Type, ConvertString> converters;
+        private static readonly Dictionary<Type, ConvertString> stringConverters;
 
         static ArgumentConverter()
         {
-            converters = new Dictionary<Type, ConvertString>
+            stringConverters = new Dictionary<Type, ConvertString>
             {
+                [typeof(bool)] = arg =>
+                {
+                    if (string.IsNullOrWhiteSpace(arg))
+                    {
+                        return Success(true);
+                    }
+
+                    if (bool.TryParse(arg, out var value))
+                    {
+                        return Success(value);
+                    }
+
+                    return Failure<bool>(arg);
+                },
+
                 [typeof(string)] = Success,
 
-                [typeof(int)] = s => int.TryParse(s, out var i)
-                                         ? (ArgumentParseResult) Success(i)
-                                         : Failure(s)
+                [typeof(object)] = Success,
+
+                [typeof(int)] = arg => int.TryParse(arg, out var i)
+                                           ? (ArgumentParseResult) Success(i)
+                                           : Failure<int>(arg)
             };
         }
 
-        public static ArgumentParseResult Parse<T>(string arg)
+        public static ArgumentParseResult Parse<T>(string value)
         {
-            if (converters.TryGetValue(typeof(T), out var convert))
+            if (stringConverters.TryGetValue(typeof(T), out var convert))
             {
-                return convert(arg);
+                return convert(value);
             }
             else
             {
-                return Failure($"Cannot parse argument '{arg}' as {typeof(T)}");
+                return Failure<T>(value);
             }
         }
-    }
 
-    internal delegate ArgumentParseResult ConvertString(string argument);
+        private static FailedArgumentParseResult Failure<T>(string value)
+        {
+            return new FailedArgumentTypeConversionResult<T>(value);
+        }
+    }
 }

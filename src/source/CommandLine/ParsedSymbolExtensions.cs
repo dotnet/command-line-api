@@ -23,7 +23,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        public static object GetValueOrDefault(this ParsedSymbol parsedSymbol) => parsedSymbol.GetValueOrDefault<object>();
+        public static object GetValueOrDefault(this ParsedSymbol parsedSymbol)
+        {
+            return parsedSymbol.GetValueOrDefault<object>();
+        }
 
         public static T GetValueOrDefault<T>(this ParsedSymbol symbol)
         {
@@ -32,17 +35,36 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return default(T);
             }
 
-            if (symbol.Result != null &&
-                symbol.Result.IsSuccessful)
+            ArgumentParseResult result = symbol.Result;
+
+            object value;
+
+            if (result != null)
             {
-                return ((dynamic) symbol.Result).Value;
+                if (result.IsSuccessful)
+                {
+                    value = ((dynamic) symbol.Result).Value;
+
+                    if (value is T)
+                    {
+                        return (dynamic) value;
+                    }
+                }
+                else
+                {
+                    value = symbol.Symbol.ArgumentsRule.GetDefaultValue();
+                }
+            }
+            else
+            {
+                value = symbol.Symbol.ArgumentsRule.GetDefaultValue();
             }
 
-            var parseResult = ArgumentConverter.Parse<T>(symbol.Symbol.ArgumentsRule.GetDefaultValue());
+            result = ArgumentConverter.Parse<T>(value?.ToString());
 
-            if (parseResult is SuccessfulArgumentParseResult<T> successful)
+            if (result.IsSuccessful)
             {
-                return successful.Value;
+                return ((dynamic) result).Value;
             }
 
             return default(T);

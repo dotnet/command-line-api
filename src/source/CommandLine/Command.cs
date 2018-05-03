@@ -39,26 +39,50 @@ namespace Microsoft.DotNet.Cli.CommandLine
             base(new[] { name }, description)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-            
+
+            var validSymbolAliases = symbols
+                                     .SelectMany(o => o.RawAliases)
+                                     .ToArray();
+
+            var suggestableSymbolAliases = symbols
+                                           .Where(s => !s.IsHidden())
+                                           .SelectMany(o => o.RawAliases)
+                                           .ToArray();
+
+            ArgumentRuleBuilder builder;
             if (arguments == null)
             {
-                //TODO: handle suggestions from hidden symbols
-                string[] symbolAliases = symbols
-                    .SelectMany(o => o.RawAliases).ToArray();
-
-                var builder = new ArgumentRuleBuilder().FromAmong(symbolAliases);
-
-                //TODO: This need refinement to handle cases of options and sub commands
-                ArgumentsRule = builder
-                    .AddSuggestions(symbolAliases)
-                    .ZeroOrMore();
+                builder = new ArgumentRuleBuilder();
             }
             else
             {
-                ArgumentsRule = arguments;
+                builder = ArgumentRuleBuilder.From(arguments);
             }
 
-            
+            builder.ValidTokens.UnionWith(validSymbolAliases);
+            builder.Suggestions.AddRange(suggestableSymbolAliases);
+
+            if (arguments == null)
+            {
+                ArgumentsRule = builder.ZeroOrMore();
+            }
+            else
+            {
+                // FIX: (Command) 
+                switch (arguments.Parser.ArgumentArity)
+                {
+                    case ArgumentArity.One:
+                        ArgumentsRule = arguments;
+                        break;
+                    case ArgumentArity.Many:
+                        ArgumentsRule = arguments;
+                        break;
+                    case ArgumentArity.Zero:
+                        ArgumentsRule = arguments;
+                        break;
+                }
+            }
+
             foreach (Symbol symbol in symbols)
             {
                 symbol.Parent = this;
@@ -66,7 +90,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        public bool TreatUnmatchedTokensAsErrors { get; } = true;
+        public bool TreatUnmatchedTokensAsErrors { get; }
 
         public override string ToString() => Name;
     }

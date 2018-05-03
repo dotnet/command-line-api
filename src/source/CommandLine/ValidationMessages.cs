@@ -54,6 +54,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             current.RequiredCommandWasNotProvided().NotWhitespace() ??
             @default.RequiredCommandWasNotProvided();
 
+        internal static string SymbolAcceptsOnlyOneArgument(ParsedSymbol parsedSymbol) => parsedSymbol.Symbol is Command
+                   ? CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), parsedSymbol.Arguments.Count)
+                   : OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), parsedSymbol.Arguments.Count);
+
         public static string UnrecognizedArgument(
             string unrecognizedArg,
             IReadOnlyCollection<string> allowedValues) =>

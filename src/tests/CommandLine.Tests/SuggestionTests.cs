@@ -24,6 +24,34 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
             result.Suggestions().Should().BeEquivalentTo("one", "two", "three");
         }
 
+        [Fact]
+        public void Subcommand_names_are_available_as_suggestions()
+        {
+            var command = Create.Command("test", "",
+                                         new ArgumentRuleBuilder().ExactlyOne(),
+                                         Create.Command("one", "Command one"),
+                                         Create.Command("two", "Command two"));
+
+            command.Parse("test ")
+                   .Suggestions()
+                   .Should()
+                   .BeEquivalentTo("one", "two");
+        }
+
+        [Fact]
+        public void Both_subcommands_and_options_are_available_as_suggestions()
+        {
+            var command = Create.Command("test", "",
+                                         new ArgumentRuleBuilder().ExactlyOne(),
+                                         Create.Command("one", "Command one"),
+                                         Create.Option("--one", "Option one"));
+
+            command.Parse("test ")
+                   .Suggestions()
+                   .Should()
+                   .BeEquivalentTo("one", "--one");
+        }
+
         [Theory(Skip = "Needs discussion, Issue #19")]
         [InlineData("outer ")]
         [InlineData("outer -")]
@@ -108,13 +136,14 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                                       Define.Arguments()
                                           .AddSuggestions("vegetable","mineral","animal")
                                           .ExactlyOne()
-                                      )
-                                );
+                                      ));
             command.Parse("the-command one m")
                    .Suggestions()
                    .Should()
                    .BeEquivalentTo("animal",
                                    "mineral");
+
+            throw new NotImplementedException();
         }
 
         [Fact]
@@ -141,10 +170,12 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
                 .BeEquivalentTo(
                     "Unrecognized command or argument 'fungus'",
                     "Required argument missing for command: one");
+
+            throw new NotImplementedException();
         }
 
         [Fact]
-        public void When_we_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
+        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
         {
             var parser = new CommandParser(Create.Command("outer", "",
                     ArgumentsRule.None, Create.Option("one", "", 
@@ -157,15 +188,13 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             CommandParseResult result = parser.Parse(new[] { "outer", "two", "b" });
 
-            Console.WriteLine(result.Diagram());
-
             result.Suggestions()
                   .Should()
                   .BeEquivalentTo("two-b");
         }
 
         [Fact]
-        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
+        public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
         {
             var parser = new CommandParser(
                 Create.Command("outer", "", ArgumentsRule.None, 
@@ -187,7 +216,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void When_we_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
+        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
         {
             CommandParser parser = new CommandParser(
                 Create.Command("outer", "", ArgumentsRule.None, 
@@ -212,7 +241,7 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
         }
 
         [Fact]
-        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
+        public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
         {
             CommandParser parser = new CommandParser(
                 Create.Command("outer", "", 

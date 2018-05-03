@@ -12,12 +12,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private readonly Func<string> defaultValue;
 
         public ArgumentsRule(
-            ArgumentParser parser = null,
+            ArgumentParser parser,
             Func<string> defaultValue = null,
             ArgumentsRuleHelp help = null,
             IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
         {
-            Parser = parser;
+            Parser = parser ?? throw new ArgumentNullException(nameof(parser));
 
             this.defaultValue = defaultValue;
 
@@ -27,22 +27,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 SymbolValidators.AddRange(symbolValidators);
             }
-
-            //if (suggest == null)
-            //{
-            //    this.suggest = (result, position) =>
-            //        AllowedValues.FindSuggestions(
-            //            result,
-            //            position ?? result.ImplicitCursorPosition());
-            //}
-            //else
-            //{
-            //    this.suggest = (result, position) =>
-            //        suggest(result).ToArray()
-            //            .FindSuggestions(
-            //                result.TextToMatch(position ?? result.ImplicitCursorPosition()));
-            //}
         }
+
+        internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
 
         public Func<string> GetDefaultValue => () => defaultValue?.Invoke();
 
@@ -52,9 +39,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public ArgumentParser Parser { get; }
 
-        internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
+        public static ArgumentsRule None { get; } = new ArgumentsRule(
+            new ArgumentParser(
+                ArgumentArity.Zero,
+                symbol =>
+                {
+                    if (symbol.Arguments.Any())
+                    {
+                        return ArgumentParseResult.Failure(ValidationMessages.NoArgumentsAllowed(symbol.Symbol.ToString()));
+                    }
 
-        public static ArgumentsRule None { get; } = new ArgumentsRule(symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
+                    return ArgumentParseResult.Success(true);
+                }
+                ),
+            symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
 
         private static string AcceptNoArguments(ParsedSymbol o)
         {

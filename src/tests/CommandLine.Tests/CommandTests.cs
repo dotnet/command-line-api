@@ -193,19 +193,5 @@ namespace Microsoft.DotNet.Cli.CommandLine.Tests
 
             result.ParsedCommand().GetValueOrDefault().Should().Be("arg");
         }
-
-        [Fact]
-        public void Subcommands_names_are_available_as_suggestions()
-        {
-            var command = Command("test", "",
-                new ArgumentRuleBuilder().ExactlyOne(),
-                Command("foo", "Command one"),
-                Command("bar", "Command two"));
-
-            command.Parse("test ")
-                   .Suggestions()
-                   .Should()
-                   .BeEquivalentTo("foo", "bar");
-        }
     }
 }
