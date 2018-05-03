@@ -17,8 +17,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet", "src\xamples\dotne
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandLine.SampleParsers", "src\xamples\SampleParsers\CommandLine.SampleParsers.csproj", "{CD03109D-3909-4B66-9E59-1125F8197193}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.CommandLine.Fluent", "Microsoft.CommandLine.Fluent\Microsoft.CommandLine.Fluent.csproj", "{9125F5AF-1EA3-43A4-B603-C8F5A18F3DC0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{CD03109D-3909-4B66-9E59-1125F8197193}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD03109D-3909-4B66-9E59-1125F8197193}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD03109D-3909-4B66-9E59-1125F8197193}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9125F5AF-1EA3-43A4-B603-C8F5A18F3DC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9125F5AF-1EA3-43A4-B603-C8F5A18F3DC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9125F5AF-1EA3-43A4-B603-C8F5A18F3DC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9125F5AF-1EA3-43A4-B603-C8F5A18F3DC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,7 +48,6 @@ Global
 		{2614A1E7-E8CC-4A22-96A9-ACED9A18E2C3} = {68E3F6FF-C6EF-4B0D-A9F5-2BE6930C55C0}
 		{C93310CF-0A00-4A62-BDA2-596FAAE2B1DB} = {C375C10F-04DD-4F64-A8BE-11BDBD0B0546}
 		{CD03109D-3909-4B66-9E59-1125F8197193} = {C375C10F-04DD-4F64-A8BE-11BDBD0B0546}
-		{9125F5AF-1EA3-43A4-B603-C8F5A18F3DC0} = {865D4F45-B1AF-4C87-AE1A-AA5ADF6D386D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E30B46C8-E7A1-4648-B6E5-416E8DD93857}
