@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
@@ -304,5 +305,44 @@ namespace System.CommandLine.Tests
                         .Should()
                         .BeNull();
         }
+
+        [Fact]
+        public void Result_returns_single_string_default_value_when_no_argument_is_provided()
+        {
+            var option = Option("-x", "",
+                                Define.Arguments()
+                                      .WithDefaultValue(() => "default")
+                                      .ExactlyOne());
+
+            var parsed = new ParsedOption(option);
+
+            parsed.Result
+                  .Should()
+                  .BeOfType<SuccessfulArgumentParseResult<string>>()
+                  .Which
+                  .Value
+                  .Should()
+                  .Be("default");
+        }
+
+        [Fact]
+        public void Result_returns_IEnumerable_containing_string_default_value_when_no_argument_is_provided()
+        {
+            var option = Option("-x", "",
+                                Define.Arguments()
+                                      .WithDefaultValue(() => "default")
+                                      .OneOrMore());
+
+            var parsed = new ParsedOption(option);
+
+            parsed.Result
+                  .Should()
+                  .BeOfType<SuccessfulArgumentParseResult<IReadOnlyCollection<string>>>()
+                  .Which
+                  .Value
+                  .Should()
+                  .BeEquivalentTo("default");
+        }
+
     }
 }

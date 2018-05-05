@@ -145,6 +145,16 @@ namespace System.CommandLine
             }
         }
 
-        public ArgumentParseResult Result => result;
+        public ArgumentParseResult Result
+        {
+            get
+            {
+                if (result == null)
+                {
+                    Validate();
+                }
+                return result;
+            }
+        }
     }
 }
