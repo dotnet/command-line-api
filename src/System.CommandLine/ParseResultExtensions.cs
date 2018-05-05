@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.DotNet.Cli.CommandLine
+namespace System.CommandLine
 {
     public static class ParseResultExtensions
     {

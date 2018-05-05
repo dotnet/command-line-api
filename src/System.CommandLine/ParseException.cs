@@ -1,6 +1,6 @@
 using System;
 
-namespace Microsoft.DotNet.Cli.CommandLine
+namespace System.CommandLine
 {
     public class ParseException : Exception
     {

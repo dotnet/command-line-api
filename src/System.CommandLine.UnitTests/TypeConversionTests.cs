@@ -8,10 +8,10 @@ using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static Microsoft.DotNet.Cli.CommandLine.Create;
-using static Microsoft.DotNet.Cli.CommandLine.Define;
+using static System.CommandLine.Create;
+using static System.CommandLine.Define;
 
-namespace Microsoft.DotNet.Cli.CommandLine.Tests
+namespace System.CommandLine.Tests
 {
     public class TypeConversionTests
     {

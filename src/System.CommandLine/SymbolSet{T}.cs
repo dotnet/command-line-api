@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Microsoft.DotNet.Cli.CommandLine
+namespace System.CommandLine
 {
     [DebuggerStepThrough]
     public abstract class SymbolSet<T> : IReadOnlyCollection<T>

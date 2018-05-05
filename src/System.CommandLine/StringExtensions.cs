@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Microsoft.DotNet.Cli.CommandLine
+namespace System.CommandLine
 {
     public static class StringExtensions
     {

@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using static Microsoft.DotNet.Cli.CommandLine.ArgumentParseResult;
+using static System.CommandLine.ArgumentParseResult;
 
-namespace Microsoft.DotNet.Cli.CommandLine
+namespace System.CommandLine
 {
     internal static class ArgumentConverter
     {

@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Microsoft.DotNet.Cli.CommandLine
+namespace System.CommandLine
 {
     public class Command : Symbol
     {

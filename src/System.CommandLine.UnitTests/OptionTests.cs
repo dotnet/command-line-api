@@ -4,9 +4,9 @@
 using System;
 using FluentAssertions;
 using Xunit;
-using static Microsoft.DotNet.Cli.CommandLine.Define;
+using static System.CommandLine.Define;
 
-namespace Microsoft.DotNet.Cli.CommandLine.Tests
+namespace System.CommandLine.Tests
 {
     public class OptionTests
     {

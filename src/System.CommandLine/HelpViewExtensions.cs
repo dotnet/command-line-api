@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static System.Environment;
-using static Microsoft.DotNet.Cli.CommandLine.DefaultHelpViewText;
+using static System.CommandLine.DefaultHelpViewText;
 
-namespace Microsoft.DotNet.Cli.CommandLine
+namespace System.CommandLine
 {
     public static class HelpViewExtensions
     {
@@ -72,7 +72,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 shouldWriteParentCommandArguments)
             {
                 helpView.AppendLine();
-                helpView.AppendLine(ArgumentsSection.Title);
+                helpView.AppendLine(DefaultHelpViewText.ArgumentsSection.Title);
             }
             else
             {
@@ -122,7 +122,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             helpView.AppendLine();
-            helpView.AppendLine(OptionsSection.Title);
+            helpView.AppendLine(DefaultHelpViewText.OptionsSection.Title);
 
             WriteOptionsList(options, helpView);
         }
@@ -143,7 +143,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             helpView.AppendLine();
-            helpView.AppendLine(CommandsSection.Title);
+            helpView.AppendLine(DefaultHelpViewText.CommandsSection.Title);
 
             WriteOptionsList(subcommands, helpView);
         }
@@ -218,7 +218,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Command command,
             StringBuilder helpView)
         {
-            helpView.Append(Synopsis.Title);
+            helpView.Append(DefaultHelpViewText.Synopsis.Title);
 
             foreach (var subcommand in command
                 .RecurseWhileNotNull(c => c.Parent)
@@ -238,7 +238,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                        .Any(o => !(o is Command) &&
                                  !o.IsHidden()))
             {
-                helpView.Append(Synopsis.Options);
+                helpView.Append(DefaultHelpViewText.Synopsis.Options);
             }
 
             var argumentsName = command.ArgumentsRule.Help.Name;
@@ -249,12 +249,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (command.DefinedSymbols.OfType<Command>().Any())
             {
-                helpView.Append(Synopsis.Command);
+                helpView.Append(DefaultHelpViewText.Synopsis.Command);
             }
 
             if (!command.TreatUnmatchedTokensAsErrors)
             {
-                helpView.Append(Synopsis.AdditionalArguments);
+                helpView.Append(DefaultHelpViewText.Synopsis.AdditionalArguments);
             }
 
             helpView.AppendLine();

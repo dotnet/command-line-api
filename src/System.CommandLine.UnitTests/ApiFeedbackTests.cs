@@ -1,9 +1,9 @@
 using System;
 using Xunit;
 using Xunit.Abstractions;
-using static Microsoft.DotNet.Cli.CommandLine.Create;
+using static System.CommandLine.Create;
 
-namespace Microsoft.DotNet.Cli.CommandLine.Tests
+namespace System.CommandLine.Tests
 {
     public class ApiFeedbackTests
     {

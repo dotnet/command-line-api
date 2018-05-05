@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Microsoft.DotNet.Cli.CommandLine
+namespace System.CommandLine
 {
     public static class ParsedCommandExtensions
     {

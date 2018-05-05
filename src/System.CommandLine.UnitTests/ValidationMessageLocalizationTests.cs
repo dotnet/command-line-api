@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using static Microsoft.DotNet.Cli.CommandLine.Create;
+using static System.CommandLine.Create;
 
-namespace Microsoft.DotNet.Cli.CommandLine.Tests
+namespace System.CommandLine.Tests
 {
     public class ValidationMessageLocalizationTests : IDisposable
     {

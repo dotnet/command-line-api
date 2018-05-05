@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace Microsoft.DotNet.Cli.CommandLine.Tests
+namespace System.CommandLine.Tests
 {
     public class SuggestionTests
     {
