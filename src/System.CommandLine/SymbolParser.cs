@@ -24,7 +24,7 @@ namespace System.CommandLine
 
         public SymbolSet DefinedSymbols => configuration.DefinedSymbols;
 
-        internal virtual RawParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
+        internal virtual RawParseResult ParseRaw(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawTokens)
