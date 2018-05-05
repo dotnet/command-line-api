@@ -8,8 +8,8 @@ namespace System.CommandLine
 {
     public static class OptionExtensions
     {
-        public static bool IsHidden(this Symbol option) =>
-            string.IsNullOrWhiteSpace(option.Description);
+        public static bool IsHidden(this Symbol symbol) =>
+            string.IsNullOrWhiteSpace(symbol.Description);
 
         internal static IEnumerable<ParsedSymbol> AllSymbols(
             this ParsedSymbol symbol)

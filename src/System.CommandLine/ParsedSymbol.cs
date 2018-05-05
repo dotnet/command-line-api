@@ -98,7 +98,7 @@ namespace System.CommandLine
             {
                 return null;
             }
-
+            
             if (!considerAcceptingAnotherArgument &&
                 !(Symbol is Command))
             {

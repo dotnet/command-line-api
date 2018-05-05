@@ -23,9 +23,9 @@ namespace System.CommandLine
             TryTakeArgument(token) ??
             TryTakeOptionOrCommand(token);
 
-        private void AddImplicitOptions(Command option)
+        private void AddImplicitOptions(Command command)
         {
-            foreach (var childOption in option.DefinedSymbols.OfType<Option>())
+            foreach (var childOption in command.DefinedSymbols.OfType<Option>())
             {
                 if (!Children.Contains(childOption.Name) &&
                     childOption.ArgumentsRule.HasDefaultValue)
@@ -49,7 +49,8 @@ namespace System.CommandLine
             }
 
             if (token.Type == TokenType.Command &&
-                Children.Any(o => o.Symbol is Command && !o.HasAlias(token.Value)))
+                Children.Any(o => o.Symbol is Command &&
+                                  !o.HasAlias(token.Value)))
             {
                 // if a subcommand has already been applied, don't accept this one
                 return null;
@@ -63,7 +64,7 @@ namespace System.CommandLine
                 parsedSymbol.OptionWasRespecified();
                 return parsedSymbol;
             }
-            
+
             parsedSymbol =
                 Symbol.DefinedSymbols
                       .Where(o => o.RawAliases.Contains(token.Value))
