@@ -1,18 +1,19 @@
 {
-    "sign": [
-        {
-            "certificate": "Microsoft402",
-            "strongName": null,
-            "values": [
-                "bin/Microsoft.DotNet.Cli.CommandLine/*/Microsoft.DotNet.Cli.CommandLine.dll"
-            ]
-        },
-        {
-            "certificate": null,
-            "strongName": null,
-            "values": [
-                "packages/*.nupkg"
-            ]
-        }
-    ]
+  "sign": [
+    {
+        "certificate": "Microsoft402",
+        "strongName": "MsSharedLib72",
+        "values": [
+      ]
+    },
+    {
+      "certificate": null,
+      "strongName": null,
+      "values": [
+        "packages/*.nupkg"
+      ]
+    }
+  ],
+  "exclude": [
+  ]
 }

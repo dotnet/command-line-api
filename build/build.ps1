@@ -3,8 +3,6 @@ Param(
   [switch] $build,
   [switch] $ci,
   [string] $configuration = "Debug",
-  [switch] $deploy,
-  [switch] $fullMSBuild,
   [switch] $help,
   [switch] $log,
   [switch] $pack,
@@ -20,31 +18,30 @@ Param(
 
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = "Stop"
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 function Print-Usage() {
-    Write-Host "Common settings:"
-    Write-Host "  -configuration <value>  Build configuration Debug, Release"
-    Write-Host "  -verbosity <value>      Msbuild verbosity (q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic])"
-    Write-Host "  -help                   Print help and exit"
-    Write-Host ""
-    Write-Host "Actions:"
-    Write-Host "  -restore                Restore dependencies"
-    Write-Host "  -build                  Build solution"
-    Write-Host "  -rebuild                Rebuild solution"
-    Write-Host "  -deploy                 Deploy built VSIXes"
-    Write-Host "  -test                   Run all unit tests in the solution"
-    Write-Host "  -sign                   Sign build outputs"
-    Write-Host "  -pack                   Package build outputs into NuGet packages and Willow components"
-    Write-Host ""
-    Write-Host "Advanced settings:"
-    Write-Host "  -solution <value>       Path to solution to build"
-    Write-Host "  -ci                     Set when running on CI server"
-    Write-Host "  -log                    Enable logging (by default on CI)"
-    Write-Host "  -prepareMachine         Prepare machine for CI run"
-    Write-Host "  -fullMSBuild            Test against the desktop version of MSBuild"
-    Write-Host ""
-    Write-Host "Command line arguments not listed above are passed through to MSBuild."
-    Write-Host "The above arguments can be shortened as much as to be unambiguous (e.g. -co for configuration, -t for test, etc.)."
+  Write-Host "Common settings:"
+  Write-Host "  -configuration <value>  Build configuration Debug, Release"
+  Write-Host "  -verbosity <value>      Msbuild verbosity (q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic])"
+  Write-Host "  -help                   Print help and exit"
+  Write-Host ""
+  Write-Host "Actions:"
+  Write-Host "  -restore                Restore dependencies"
+  Write-Host "  -build                  Build solution"
+  Write-Host "  -rebuild                Rebuild solution"
+  Write-Host "  -test                   Run all unit tests in the solution"
+  Write-Host "  -sign                   Sign build outputs"
+  Write-Host "  -pack                   Package build outputs into NuGet packages and Willow components"
+  Write-Host ""
+  Write-Host "Advanced settings:"
+  Write-Host "  -solution <value>       Path to solution to build"
+  Write-Host "  -ci                     Set when running on CI server"
+  Write-Host "  -log                    Enable logging (by default on CI)"
+  Write-Host "  -prepareMachine         Prepare machine for CI run"
+  Write-Host ""
+  Write-Host "Command line arguments not listed above are passed through to MSBuild."
+  Write-Host "The above arguments can be shortened as much as to be unambiguous (e.g. -co for configuration, -t for test, etc.)."
 }
 
 function Create-Directory([string[]] $Path) {
@@ -70,7 +67,7 @@ function InstallDotNetCli {
   $DotNetInstallVerbosity = ""
 
   if (!$env:DOTNET_INSTALL_DIR) {
-    $env:DOTNET_INSTALL_DIR = Join-Path $RepoRoot "artifacts\.dotnet\$DotNetCliVersion"
+    $env:DOTNET_INSTALL_DIR = Join-Path $ArtifactsDir ".dotnet\$DotNetCliVersion"
   }
 
   $DotNetRoot = $env:DOTNET_INSTALL_DIR
@@ -90,7 +87,7 @@ function InstallDotNetCli {
 
   if (!(Test-Path $SdkInstallDir)) {
     # Use Invoke-Expression so that $DotNetInstallVerbosity is not positionally bound when empty
-    Invoke-Expression -Command "$DotNetInstallScript -Version $DotNetCliVersion $DotNetInstallVerbosity"
+    Invoke-Expression -Command "& `"$DotNetInstallScript`" -Version $DotNetCliVersion $DotNetInstallVerbosity"
 
     if($LASTEXITCODE -ne 0) {
       throw "Failed to install stage0"
@@ -98,15 +95,28 @@ function InstallDotNetCli {
   }
 
   # Install 1.0 shared framework
-  $NetCoreApp10Version = "1.0.5"
+  $NetCoreApp10Version = "1.0.10"
   $NetCoreApp10Dir = Join-Path $DotNetRoot "shared\Microsoft.NETCore.App\$NetCoreApp10Version"
 
   if (!(Test-Path $NetCoreApp10Dir)) {
     # Use Invoke-Expression so that $DotNetInstallVerbosity is not positionally bound when empty
-    Invoke-Expression -Command "$DotNetInstallScript -Channel `"Preview`" -Version $NetCoreApp10Version -SharedRuntime $DotNetInstallVerbosity"
+    Invoke-Expression -Command "$DotNetInstallScript -Version $NetCoreApp10Version -SharedRuntime $DotNetInstallVerbosity"
 
     if($LASTEXITCODE -ne 0) {
       throw "Failed to install 1.0 shared framework"
+    }
+  }
+
+  # Install 1.1 shared framework
+  $NetCoreApp11Version = "1.1.7"
+  $NetCoreApp11Dir = Join-Path $DotNetRoot "shared\Microsoft.NETCore.App\$NetCoreApp11Version"
+
+  if (!(Test-Path $NetCoreApp11Dir)) {
+    # Use Invoke-Expression so that $DotNetInstallVerbosity is not positionally bound when empty
+    Invoke-Expression -Command "$DotNetInstallScript -Version $NetCoreApp11Version -SharedRuntime $DotNetInstallVerbosity"
+
+    if($LASTEXITCODE -ne 0) {
+      throw "Failed to install 1.1 shared framework"
     }
   }
 
@@ -118,16 +128,6 @@ function InstallDotNetCli {
 
   # Don't resolve runtime, shared framework, or SDK from other locations
   $env:DOTNET_MULTILEVEL_LOOKUP=0
-}
-
-function InstallNuGet {
-  $NugetInstallDir = Join-Path $RepoRoot "artifacts\.nuget"
-  $NugetExe = Join-Path $NugetInstallDir "nuget.exe"
-
-  if (!(Test-Path -Path $NugetExe)) {
-    Create-Directory $NugetInstallDir
-    Invoke-WebRequest "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" -UseBasicParsing -OutFile $NugetExe
-  }
 }
 
 function InstallRepoToolset {
@@ -154,28 +154,8 @@ function InstallRepoToolset {
   return $RepoToolsetBuildProj
 }
 
-function LocateVisualStudio {
-  $VSWhereVersion = GetVersionsPropsVersion -Name "VSWhereVersion"
-  $VSWhereDir = Join-Path $ArtifactsDir ".tools\vswhere\$VSWhereVersion"
-  $VSWhereExe = Join-Path $vsWhereDir "vswhere.exe"
-
-  if (!(Test-Path $VSWhereExe)) {
-    Create-Directory $VSWhereDir
-    Invoke-WebRequest "http://github.com/Microsoft/vswhere/releases/download/$VSWhereVersion/vswhere.exe" -UseBasicParsing -OutFile $VSWhereExe
-  }
-
-  $VSInstallDir = & $VSWhereExe -latest -property installationPath -requires Microsoft.Component.MSBuild -requires Microsoft.VisualStudio.Component.VSSDK -requires Microsoft.Net.Component.4.6.TargetingPack -requires Microsoft.VisualStudio.Component.Roslyn.Compiler -requires Microsoft.VisualStudio.Component.VSSDK
-
-  if (!(Test-Path $VSInstallDir)) {
-    throw "Failed to locate Visual Studio (exit code '$LASTEXITCODE')."
-  }
-
-  return $VSInstallDir
-}
-
 function Build {
   InstallDotNetCli
-  InstallNuget
   $RepoToolsetBuildProj = InstallRepoToolset
 
   if ($prepareMachine) {
@@ -187,14 +167,6 @@ function Build {
     }
   }
 
-  if ($fullMSBuild) {
-    if (!($env:VSInstallDir)) {
-      $env:VSInstallDir = LocateVisualStudio
-    }
-
-    $env:DOTNET_SDK_TEST_MSBUILD_PATH = Join-Path $env:VSInstallDir "MSBuild\15.0\Bin\msbuild.exe"
-  }
-
   if ($ci -or $log) {
     Create-Directory $LogDir
     $logCmd = "/bl:" + (Join-Path $LogDir "Build.binlog")
@@ -203,10 +175,10 @@ function Build {
   }
 
   if ($solution -eq "") {
-    $solution = Join-Path $RepoRoot "CommandLine.sln"
+    $solution = Join-Path $RepoRoot "System.CommandLine.sln"
   }
 
-  dotnet msbuild $RepoToolsetBuildProj /m /nologo /clp:Summary /warnaserror /v:$verbosity $logCmd /p:Configuration=$configuration /p:SolutionPath=$solution /p:Restore=$restore /p:Build=$build /p:Rebuild=$rebuild /p:Deploy=$deploy /p:Test=$test /p:Sign=$sign /p:Pack=$pack /p:CIBuild=$ci $properties
+  dotnet msbuild $RepoToolsetBuildProj /m /nologo /clp:Summary /warnaserror /v:$verbosity $logCmd /p:Configuration=$configuration /p:SolutionPath=$solution /p:Restore=$restore /p:Build=$build /p:Rebuild=$rebuild /p:Test=$test /p:Sign=$sign /p:Pack=$pack /p:CIBuild=$ci $properties
 
   if($LASTEXITCODE -ne 0) {
     throw "Failed to build $RepoToolsetBuildProj"
@@ -224,8 +196,13 @@ if ($help -or (($properties -ne $null) -and ($properties.Contains("/help") -or $
   exit 0
 }
 
-$RepoRoot = Join-Path $PSScriptRoot "..\"
-$ArtifactsDir = Join-Path $RepoRoot "artifacts"
+$RepoRoot = Join-Path $PSScriptRoot ".."
+$RepoRoot = [System.IO.Path]::GetFullPath($RepoRoot);
+
+$ArtifactsDir = $env:DOTNET_SDK_ARTIFACTS_DIR
+if (!($ArtifactsDir)) {
+  $ArtifactsDir = Join-Path $RepoRoot "artifacts"
+}
 $ArtifactsConfigurationDir = Join-Path $ArtifactsDir $configuration
 $LogDir = Join-Path $ArtifactsConfigurationDir "log"
 $VersionsProps = Join-Path $PSScriptRoot "Versions.props"
@@ -246,7 +223,7 @@ try {
   $NuGetPackageRoot = $env:NUGET_PACKAGES
 
   Build
-  exit $lastExitCode
+  exit $LASTEXITCODE
 }
 catch {
   Write-Host $_

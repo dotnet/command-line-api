@@ -1,57 +1,57 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-// Import the utility functionality.
+// Groovy Script: http://www.groovy-lang.org/syntax.html
+// Jenkins DSL: https://github.com/jenkinsci/job-dsl-plugin/wiki
 
 import jobs.generation.ArchivalSettings;
 import jobs.generation.Utilities;
+import jobs.generation.InternalUtilities;
 
-def project = GithubProject
-def branch = GithubBranchName
-
-def static getBuildJobName(def configuration, def os, def architecture) {
-    return configuration.toLowerCase() + '_' + os.toLowerCase() + '_' + architecture.toLowerCase()
+static getJobName(def os, def config) {
+  return "${os}_${config}"
 }
 
-['OSX10.12', 'Ubuntu16.04', 'Windows_NT'].each { os ->
-    ['x64'].each { architecture ->
-        ['Debug', 'Release'].each { config ->
-            [true, false].each { isPR ->
-                // Calculate job name
-                def jobName = getBuildJobName(config, os, architecture)
-                def buildCommand = '';
+['Windows_NT', 'Ubuntu16.04'].each { os ->
+  ['Debug', 'Release'].each { config ->
+    [true, false].each { isPR ->
+      def project = GithubProject
+      def branch = GithubBranchName
+      def jobName = getJobName(config, os)
+      def buildCommand = '';
+      def machineAffinity = ''
 
-                def osBase = os
-                def machineAffinity = 'latest-or-auto'
+      if (os == 'Windows_NT') {
+        buildCommand = ".\\build\\cibuild.cmd -configuration $config"
+        machineAffinity = 'win2016-base'
+      } else {
+        buildCommand = "./build/cibuild.sh --configuration $config"
+        machineAffinity = 'latest-or-auto'
+      }
 
-                def newJob = job(Utilities.getFullJobName(project, jobName, isPR)) {
-                    // Set the label.
-                    steps {
-                        if (osBase == 'Windows_NT') {
-                            // Batch
-                            batchFile(".\\build\\cibuild.cmd -configuration $config")
-                        }
-                        else {
-                            // Shell
-                            shell("./build/cibuild.sh --configuration $config")
-                        }
-                    }
-                }
-
-                Utilities.setMachineAffinity(newJob, osBase, machineAffinity)
-                Utilities.standardJobSetup(newJob, project, isPR, "*/${branch}")
-
-                if (isPR) {
-                    Utilities.addGithubPRTriggerForBranch(newJob, branch, "$os $architecture $config")
-                }
-
-                def archiveSettings = new ArchivalSettings()
-                archiveSettings.addFiles("artifacts/$config/log/*")
-                archiveSettings.addFiles("artifacts/$config/TestResults/*")
-                archiveSettings.setFailIfNothingArchived()
-                archiveSettings.setArchiveOnFailure()
-                Utilities.addArchival(newJob, archiveSettings)
-            }
+      def newJob = job(Utilities.getFullJobName(project, jobName, isPR)) {
+        steps {
+          if (os == 'Windows_NT') {
+            batchFile(buildCommand)
+          }
+          else {
+            shell(buildCommand)
+          }
         }
+      }
+
+      InternalUtilities.standardJobSetup(newJob, project, isPR, "*/${branch}")
+      Utilities.setMachineAffinity(newJob, os, machineAffinity)
+
+      if (isPR) {
+        Utilities.addGithubPRTriggerForBranch(newJob, branch, "$os $config")
+      }
+
+      Utilities.addXUnitDotNETResults(newJob, "artifacts/$config/TestResults/*.xml", false)
+
+      def archiveSettings = new ArchivalSettings()
+      archiveSettings.addFiles("artifacts/$config/log/*")
+      archiveSettings.addFiles("artifacts/$config/TestResults/*")
+      archiveSettings.setFailIfNothingArchived()
+      archiveSettings.setArchiveOnFailure()
+      Utilities.addArchival(newJob, archiveSettings)
     }
+  }
 }

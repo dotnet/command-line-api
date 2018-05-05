@@ -13,10 +13,10 @@ sign=false
 solution=""
 test=false
 verbosity="minimal"
-properties=""
+properties=()
 
-while [[ $# > 0 ]]; do
-  lowerI="$(echo $1 | awk '{print tolower($0)}')"
+while [[ $# -gt 0 ]]; do
+  lowerI="$(echo "$1" | awk '{print tolower($0)}')"
   case $lowerI in
     --build)
       build=true
@@ -31,27 +31,8 @@ while [[ $# > 0 ]]; do
       shift 2
       ;;
     --help)
-      echo "Common settings:"
-      echo "  --configuration <value>  Build configuration Debug, Release"
-      echo "  --verbosity <value>    Msbuild verbosity (q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic])"
-      echo "  --help           Print help and exit"
-      echo ""
-      echo "Actions:"
-      echo "  --restore        Restore dependencies"
-      echo "  --build          Build solution"
-      echo "  --rebuild        Rebuild solution"
-      echo "  --test           Run all unit tests in the solution"
-      echo "  --sign           Sign build outputs"
-      echo "  --pack           Package build outputs into NuGet packages and Willow components"
-      echo ""
-      echo "Advanced settings:"
-      echo "  --solution <value>     Path to solution to build"
-      echo "  --ci           Set when running on CI server"
-      echo "  --log          Enable logging (by default on CI)"
-      echo "  --prepareMachine     Prepare machine for CI run"
-      echo ""
-      echo "Command line arguments not listed above are passed through to MSBuild."
-      exit 0
+      help=true
+      shift 1
       ;;
     --log)
       log=true
@@ -90,11 +71,39 @@ while [[ $# > 0 ]]; do
       shift 2
       ;;
     *)
-      properties="$properties $1"
+      properties+=("$1")
       shift 1
       ;;
   esac
 done
+
+function PrintUsage {
+  echo "Common settings:"
+  echo "  --configuration <value>  Build configuration Debug, Release"
+  echo "  --verbosity <value>      Msbuild verbosity (q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic])"
+  echo "  --help                   Print help and exit"
+  echo ""
+  echo "Actions:"
+  echo "  --restore                Restore dependencies"
+  echo "  --build                  Build solution"
+  echo "  --rebuild                Rebuild solution"
+  echo "  --test                   Run all unit tests in the solution"
+  echo "  --perf                   Run all performance tests in the solution"
+  echo "  --sign                   Sign build outputs"
+  echo "  --pack                   Package build outputs into NuGet packages and Willow components"
+  echo ""
+  echo "Advanced settings:"
+  echo "  --dogfood                Setup a dogfood environment using the local build"
+  echo "                           For this to have an effect, you will need to source the build script."
+  echo "                           If this option is specified, any actions (such as --build or --restore)"
+  echo "                           will be ignored."
+  echo "  --solution <value>       Path to solution to build"
+  echo "  --ci                     Set when running on CI server"
+  echo "  --log                    Enable logging (by default on CI)"
+  echo "  --prepareMachine         Prepare machine for CI run"
+  echo ""
+  echo "Command line arguments not listed above are passed through to MSBuild."
+}
 
 function CreateDirectory {
   if [ ! -d "$1" ]
@@ -113,7 +122,7 @@ function InstallDotNetCli {
 
   if [ -z "$DOTNET_INSTALL_DIR" ]
   then
-    export DOTNET_INSTALL_DIR="$RepoRoot/artifacts/.dotnet/$DotNetCliVersion"
+    export DOTNET_INSTALL_DIR="$ArtifactsDir/.dotnet/$DotNetCliVersion"
   fi
 
   DotNetRoot=$DOTNET_INSTALL_DIR
@@ -125,7 +134,7 @@ function InstallDotNetCli {
     curl "https://dot.net/v1/dotnet-install.sh" -sSL -o "$DotNetInstallScript"
   fi
 
-  if [[ "$(echo $verbosity | awk '{print tolower($0)}')" == "diagnostic" ]]
+  if [[ "$(echo "$verbosity" | awk '{print tolower($0)}')" == "diagnostic" ]]
   then
     DotNetInstallVerbosity="--verbose"
   fi
@@ -135,7 +144,7 @@ function InstallDotNetCli {
 
   if [ ! -d "$SdkInstallDir" ]
   then
-    bash "$DotNetInstallScript" --version $DotNetCliVersion $DotNetInstallVerbosity
+    bash "$DotNetInstallScript" --version "$DotNetCliVersion" $DotNetInstallVerbosity
     LASTEXITCODE=$?
 
     if [ $LASTEXITCODE != 0 ]
@@ -146,17 +155,33 @@ function InstallDotNetCli {
   fi
 
   # Install 1.0 shared framework
-  NetCoreApp10Version="1.0.5"
+  NetCoreApp10Version="1.0.10"
   NetCoreApp10Dir="$DotNetRoot/shared/Microsoft.NETCore.App/$NetCoreApp10Version"
 
   if [ ! -d "$NetCoreApp10Dir" ]
   then
-    bash "$DotNetInstallScript" --channel "Preview" --version $NetCoreApp10Version --shared-runtime $DotNetInstallVerbosity
+    bash "$DotNetInstallScript" --version $NetCoreApp10Version --shared-runtime $DotNetInstallVerbosity
     LASTEXITCODE=$?
 
     if [ $LASTEXITCODE != 0 ]
     then
       echo "Failed to install 1.0 shared framework"
+      return $LASTEXITCODE
+    fi
+  fi
+
+  # Install 1.1 shared framework
+  NetCoreApp11Version="1.1.7"
+  NetCoreApp11Dir="$DotNetRoot/shared/Microsoft.NETCore.App/$NetCoreApp11Version"
+
+  if [ ! -d "$NetCoreApp11Dir" ]
+  then
+    bash "$DotNetInstallScript" --version $NetCoreApp11Version --shared-runtime $DotNetInstallVerbosity
+    LASTEXITCODE=$?
+
+    if [ $LASTEXITCODE != 0 ]
+    then
+      echo "Failed to install 1.1 shared framework"
       return $LASTEXITCODE
     fi
   fi
@@ -178,7 +203,7 @@ function InstallRepoToolset {
 
   if $ci || $log
   then
-    CreateDirectory $LogDir
+    CreateDirectory "$LogDir"
     logCmd="/bl:$LogDir/Build.binlog"
   else
     logCmd=""
@@ -187,7 +212,7 @@ function InstallRepoToolset {
   if [ ! -d "$RepoToolsetBuildProj" ]
   then
     ToolsetProj="$ScriptRoot/Toolset.proj"
-    dotnet msbuild $ToolsetProj /t:restore /m /nologo /clp:Summary /warnaserror /v:$verbosity $logCmd
+    dotnet msbuild "$ToolsetProj" /t:restore /m /nologo /clp:Summary /warnaserror "/v:$verbosity" $logCmd
     LASTEXITCODE=$?
 
     if [ $LASTEXITCODE != 0 ]
@@ -199,16 +224,12 @@ function InstallRepoToolset {
 }
 
 function Build {
-  InstallDotNetCli
-
-  if [ $? != 0 ]
+  if ! InstallDotNetCli
   then
     return $?
   fi
 
-  InstallRepoToolset
-
-  if [ $? != 0 ]
+  if ! InstallRepoToolset
   then
     return $?
   fi
@@ -228,18 +249,19 @@ function Build {
 
   if $ci || $log
   then
-    CreateDirectory $LogDir
+    CreateDirectory "$LogDir"
     logCmd="/bl:$LogDir/Build.binlog"
   else
     logCmd=""
   fi
 
-  if [ -z $solution ]
+  if [ -z "$solution" ]
   then
-    solution="$RepoRoot/CommandLine.sln"
+    solution="$RepoRoot/System.CommandLine.sln"
   fi
 
-  dotnet msbuild $RepoToolsetBuildProj /m /nologo /clp:Summary /warnaserror /v:$verbosity $logCmd /p:Configuration=$configuration /p:SolutionPath=$solution /p:Restore=$restore /p:Build=$build /p:Rebuild=$rebuild /p:Deploy=$deploy /p:Test=$test /p:Sign=$sign /p:Pack=$pack /p:CIBuild=$ci $properties
+  # We don't currently pass down /p:Sign=$sign because SignTool only runs on the desktop framework
+  dotnet msbuild $RepoToolsetBuildProj /m /nologo /clp:Summary /warnaserror "/v:$verbosity" $logCmd "/p:Configuration=$configuration" "/p:SolutionPath=$solution" /p:Restore=$restore /p:Build=$build /p:Rebuild=$rebuild /p:Test=$test /p:Pack=$pack /p:CIBuild=$ci "${properties[@]}"
   LASTEXITCODE=$?
 
   if [ $LASTEXITCODE != 0 ]
@@ -263,16 +285,28 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 ScriptRoot="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-RepoRoot="$ScriptRoot/../"
-ArtifactsDir="$RepoRoot/artifacts"
+if $help
+then
+  PrintUsage
+  exit 0
+fi
+
+RepoRoot="$ScriptRoot/.."
+if [ -z $DOTNET_SDK_ARTIFACTS_DIR ]
+then
+  ArtifactsDir="$RepoRoot/artifacts"
+else
+  ArtifactsDir="$DOTNET_SDK_ARTIFACTS_DIR"
+fi
+
 ArtifactsConfigurationDir="$ArtifactsDir/$configuration"
 LogDir="$ArtifactsConfigurationDir/log"
 VersionsProps="$ScriptRoot/Versions.props"
 
 # HOME may not be defined in some scenarios, but it is required by NuGet
-if [ -z $HOME ]
+if [ -z "$HOME" ]
 then
-  export HOME="$RepoRoot/artifacts/.home/"
+  export HOME="$ArtifactsDir/.home/"
   CreateDirectory "$HOME"
 fi
 
@@ -285,7 +319,7 @@ then
   export TMP="$TempDir"
 fi
 
-if [ -z $NUGET_PACKAGES ]
+if [ -z "$NUGET_PACKAGES" ]
 then
   export NUGET_PACKAGES="$HOME/.nuget/packages"
 fi
@@ -299,5 +333,3 @@ if $ci && $prepareMachine
 then
   StopProcesses
 fi
-
-exit $LASTEXITCODE

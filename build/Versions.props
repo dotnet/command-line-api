@@ -8,7 +8,7 @@
 
   <!-- Repo Version Information -->
   <PropertyGroup>
-    <VersionBase>0.3.0</VersionBase>
+    <VersionBase>0.1.0</VersionBase>
     <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
   </PropertyGroup>
 
@@ -19,17 +19,19 @@
 
   <!-- Toolset Dependencies -->
   <PropertyGroup>
-    <DotNetCliVersion>1.1.4</DotNetCliVersion>
-    <DotNetCliProjectJsonVersion>1.0.0-preview2-1-003177</DotNetCliProjectJsonVersion>
-    <RoslynToolsRepoToolsetVersion>1.0.0-beta-62522-01</RoslynToolsRepoToolsetVersion>
-    <VSWhereVersion>2.2.7</VSWhereVersion>
+    <DotNetCliVersion>2.0.3</DotNetCliVersion>
+    <RoslynToolsRepoToolsetVersion>1.0.0-beta-62503-02</RoslynToolsRepoToolsetVersion>
+    <VSWhereVersion>2.1.4</VSWhereVersion>
+  </PropertyGroup>
+
+  <!-- Production Dependencies -->
+  <PropertyGroup>
+    <!-- No production dependencies at this time -->
   </PropertyGroup>
 
   <!-- Test Dependencies -->
   <PropertyGroup>
-    <FluentAssertionsVersion>4.18.0</FluentAssertionsVersion>
-    <NewtonsoftJsonVersion>9.0.1</NewtonsoftJsonVersion>
-    <SystemNetHttpVersion>4.3.1</SystemNetHttpVersion>
+    <!-- No test dependencies at this time -->
   </PropertyGroup>
 
 </Project>
