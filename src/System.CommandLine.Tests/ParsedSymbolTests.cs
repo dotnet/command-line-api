@@ -8,7 +8,7 @@ using static System.CommandLine.Create;
 
 namespace System.CommandLine.Tests
 {
-    public class ParsedOptionTests
+    public class ParsedSymbolTests
     {
         [Fact]
         public void ParsedOption_with_exactly_one_argument_accepts_single_argument()
