@@ -56,13 +56,28 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_argument_cannot_be_parsed_as_the_specified_type_then_ValueForOption_returns_null()
+        public void ParseAs_defaults_arity_to_One()
+        {
+            var rule = Arguments().ParseAs<int>(s => ArgumentParseResult.Success(1));
+
+            rule.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
+        }
+
+        [Fact]
+        public void ParseAs_infers_arity_of_IEnumerable_types_as_Many()
+        {
+            var rule = Arguments().ParseAs<int[]>(s => ArgumentParseResult.Success(1));
+
+            rule.Parser.ArgumentArity.Should().Be(ArgumentArity.Many);
+        }
+
+        [Fact]
+        public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
         {
             var command = Command("the-command", "",
                                   Option("-o|--one", "",
                                          Arguments()
-                                             .ParseAs<int>(parsedSymbol =>
-                                             {
+                                             .ParseAs<int>(parsedSymbol => {
                                                  if (int.TryParse(parsedSymbol.Arguments.Single(), out int intValue))
                                                  {
                                                      return ArgumentParseResult.Success(intValue);
@@ -73,7 +88,14 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -o not-an-int");
 
-             result.ParsedCommand().ValueForOption("o").Should().BeNull();
+            Action getValue = () =>
+                result.ParsedCommand().ValueForOption("o");
+
+            getValue.ShouldThrow<InvalidOperationException>()
+                    .Which
+                    .Message
+                    .Should()
+                    .Be("No valid argument was provided for option '-o' and it does not have a default value.");
         }
 
         [Fact]
@@ -106,21 +128,24 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_exactly_one_argument_is_expected_and_none_are_provided_then_Value_returns_null()
+        public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
             var command = Command("the-command", "",
                                   Option("-x", "", new ArgumentRuleBuilder().ExactlyOne()));
 
             var result = command.Parse("the-command -x");
 
-            result.ParsedCommand()
-                  .ValueForOption("x")
-                  .Should()
-                  .BeNull();
+            Action getValue = () => result.ParsedCommand().ValueForOption("x");
+
+            getValue.ShouldThrow<InvalidOperationException>()
+                    .Which
+                    .Message
+                    .Should()
+                    .Be("No valid argument was provided for option '-x' and it does not have a default value.");
         }
 
         [Fact]
-        public void When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_Value_returns_an_empty_sequence_of_strings()
+        public void When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_returns_an_empty_sequence_of_strings()
         {
             var command = Command("the-command", "",
                                   Option("-x", "",
@@ -128,19 +153,17 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -x");
 
-            var value = result.ParsedCommand().ValueForOption("x");
-
-            value.Should().BeAssignableTo<IReadOnlyCollection<string>>();
-
-            var values = (IReadOnlyCollection<string>) value;
-
-            values
-                .Should()
-                .BeEmpty();
+            result.ParsedCommand()
+                  .ValueForOption("x")
+                  .Should()
+                  .BeAssignableTo<IReadOnlyCollection<string>>()
+                  .Which
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
-        public void When_one_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_Value_returns_null()
+        public void When_one_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_throws()
         {
             var command = Command("the-command", "",
                                   Option("-x", "",
@@ -148,7 +171,13 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -x");
 
-            result.ParsedCommand().ValueForOption("x").Should().BeNull();
+            Action getValue = () => result.ParsedCommand().ValueForOption("x");
+
+            getValue.ShouldThrow<InvalidOperationException>()
+                    .Which
+                    .Message
+                    .Should()
+                    .Be("No valid argument was provided for option '-x' and it does not have a default value.");
         }
 
         [Fact]
@@ -214,52 +243,26 @@ namespace System.CommandLine.Tests
             parsedOption.GetValueOrDefault<string>().Should().Be("123");
         }
 
-        [Fact(Skip = "not implemented yet")]
+        [Fact]
         public void When_OfType_is_used_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
         {
             var command = Command("tally", "",
                                   Arguments()
-                                        .ParseAs<int>(parsedSymbol =>
-                                        {
+                                      .ParseAs<int>(parsedSymbol => {
+                                          if (int.TryParse(parsedSymbol.Token, out var i))
+                                          {
+                                              return ArgumentParseResult.Success(i);
+                                          }
 
-                                            if (int.TryParse(parsedSymbol.Token, out var i))
-                                            {
-                                                return ArgumentParseResult.Success(i);
-                                            }
-
-                                            return ArgumentParseResult.Failure("Could not parse int");
-                                        }));
+                                          return ArgumentParseResult.Failure("Could not parse int");
+                                      }));
 
             var result = command.Parse("tally one");
 
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain("oops wrong type");
+                  .Contain("Could not parse int");
         }
-
-        [Fact(Skip = "not implemented yet")]
-        public void OfType_can_be_used_to_parse_an_argument_as_int()
-        {
-            var command = Command("tally", "",
-                                  Arguments()
-                                        .ParseAs<int>(parsedSymbol =>
-                                        {
-                                            if (int.TryParse(parsedSymbol.Token, out var i))
-                                            {
-                                                return ArgumentParseResult.Success(i);
-                                            }
-
-                                            return ArgumentParseResult.Failure("Could not parse int");
-                                        }));
-
-            var result = command.Parse("tally 123");
-
-            result.ParsedCommand()
-                  .ValueForOption("tally")
-                  .Should()
-                  .BeOfType<int>();
-        }
-
     }
 }

@@ -59,7 +59,7 @@ namespace System.CommandLine
 
         public bool HasAlias(string alias) => Symbol.HasAlias(alias);
 
-        internal ParseError Validate()
+        protected internal virtual ParseError Validate()
         {
             foreach (var symbolValidator in Symbol.ArgumentsRule.SymbolValidators)
             {
@@ -71,24 +71,20 @@ namespace System.CommandLine
                 }
             }
 
-            var argumentParser = Symbol.ArgumentsRule.Parser;
-
-            if (argumentParser == null)
-            {
-                return null;
-            }
-
-            result = argumentParser.Parse(this);
+            result = Symbol.ArgumentsRule.Parser.Parse(this);
 
             if (result is FailedArgumentParseResult failed)
             {
-                return new ParseError(failed.ErrorMessage, Token, this);
+                return new ParseError(failed.ErrorMessage, Token, this, false);
             }
 
             return null;
         }
 
-        internal void OptionWasRespecified() => considerAcceptingAnotherArgument = true;
+        internal void OptionWasRespecified()
+        {
+            considerAcceptingAnotherArgument = true;
+        }
 
         public abstract ParsedSymbol TryTakeToken(Token token);
 
@@ -118,9 +114,15 @@ namespace System.CommandLine
 
             arguments.Add(token.Value);
 
-            if (Validate() == null)
+            var parseError = Validate();
+            if (parseError == null)
             {
                 considerAcceptingAnotherArgument = false;
+                return this;
+            }
+
+            if (!parseError.CanTokenBeRetried)
+            {
                 return this;
             }
 

@@ -37,37 +37,34 @@ namespace System.CommandLine
 
             ArgumentParseResult result = symbol.Result;
 
-            object value;
+            object value = null;
 
             if (result != null)
             {
                 if (result.IsSuccessful)
                 {
-                    value = ((dynamic) symbol.Result).Value;
+                    value = ((dynamic)symbol.Result).Value;
 
                     if (value is T)
                     {
-                        return (dynamic) value;
+                        return (dynamic)value;
                     }
                 }
                 else
                 {
-                    value = symbol.Symbol.ArgumentsRule.GetDefaultValue();
+                    ThrowNoArgumentsException(symbol);
                 }
             }
             else
             {
-                value = symbol.Symbol.ArgumentsRule.GetDefaultValue();
-            }
-
-            result = ArgumentConverter.Parse<T>(value?.ToString());
-
-            if (result.IsSuccessful)
-            {
-                return ((dynamic) result).Value;
+                ThrowNoArgumentsException(symbol);
             }
 
             return default(T);
         }
+
+        private static void ThrowNoArgumentsException(ParsedSymbol symbol) =>
+            // TODO: (GetValueOrDefault) localize
+            throw new InvalidOperationException($"No valid argument was provided for option '{symbol.Token}' and it does not have a default value.");
     }
 }

@@ -194,5 +194,19 @@ namespace System.CommandLine.Tests
                       e => e.Message == "Required command was not provided." &&
                            e.ParsedSymbol.Name == "inner");
         }
+
+        [Fact]
+        public void When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
+        {
+            var parser = new OptionParser(
+                Option("-x", "", Define.Arguments().ExactlyOne()));
+
+            var result = parser.Parse("-x 1 -x 2");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("Option '-x' cannot be specified more than once.");
+        }
     }
 }
