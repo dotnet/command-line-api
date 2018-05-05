@@ -78,5 +78,20 @@ namespace System.CommandLine
 
             return parsedSymbol;
         }
+
+        public object ValueForOption(
+            string alias) =>
+            ValueForOption<object>(alias);
+
+        public T ValueForOption<T>(
+            string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
+            }
+
+            return Children[alias].GetValueOrDefault<T>();
+        }
     }
 }

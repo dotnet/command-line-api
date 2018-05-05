@@ -95,5 +95,21 @@ namespace System.CommandLine
         }
 
         public override string ToString() => this.Diagram();
+
+        
+        public object ValueForOption(
+            string alias) =>
+            ValueForOption<object>(alias);
+
+        public T ValueForOption<T>(
+            string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
+            }
+
+            return ParsedSymbols[alias].GetValueOrDefault<T>();
+        }
     }
 }
