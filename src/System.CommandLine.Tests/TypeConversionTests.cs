@@ -95,7 +95,7 @@ namespace System.CommandLine.Tests
                     .Which
                     .Message
                     .Should()
-                    .Be("No valid argument was provided for option '-o' and it does not have a default value.");
+                    .Be("'-o' is not an integer");
         }
 
         [Fact]
@@ -141,7 +141,7 @@ namespace System.CommandLine.Tests
                     .Which
                     .Message
                     .Should()
-                    .Be("No valid argument was provided for option '-x' and it does not have a default value.");
+                    .Be(ValidationMessages.RequiredArgumentMissingForOption("-x"));
         }
 
         [Fact]
@@ -177,7 +177,7 @@ namespace System.CommandLine.Tests
                     .Which
                     .Message
                     .Should()
-                    .Be("No valid argument was provided for option '-x' and it does not have a default value.");
+                    .Be(ValidationMessages.RequiredArgumentMissingForOption("-x"));
         }
 
         [Fact]
@@ -263,6 +263,68 @@ namespace System.CommandLine.Tests
                   .Select(e => e.Message)
                   .Should()
                   .Contain("Could not parse int");
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_int_without_the_parser_specifying_it()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            var value = option.Parse("-x 123").ValueForOption<int>("x");
+
+            value.Should().Be(123);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_it()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrMore());
+
+            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<int[]>("x");
+
+            value.Should().BeEquivalentTo(1, 2, 3);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_it()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrMore());
+
+            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<List<int>>("x");
+
+            value.Should().BeEquivalentTo(1, 2, 3);
+        }
+
+        [Fact]
+        public void When_getting_values_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            var result = option.Parse("-x not-an-int");
+
+            Action getValue = () => result.ValueForOption<int>("x");
+
+            getValue.ShouldThrow<InvalidOperationException>()
+                    .Which
+                    .Message
+                    .Should()
+                    .Be("Cannot parse argument 'not-an-int' as System.Int32.");
+        }
+
+        [Fact]
+        public void When_getting_an_array_of_values_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            var result = option.Parse("-x not-an-int -x 2");
+
+            Action getValue = () => result.ValueForOption<int[]>("x");
+
+            getValue.ShouldThrow<InvalidOperationException>()
+                    .Which
+                    .Message
+                    .Should()
+                    .Be("Cannot parse argument 'not-an-int' as System.Int32[].");
         }
     }
 }

@@ -37,34 +37,84 @@ namespace System.CommandLine
 
             ArgumentParseResult result = symbol.Result;
 
-            object value = null;
-
-            if (result != null)
+            if (result != null &&
+                result.IsSuccessful)
             {
-                if (result.IsSuccessful)
-                {
-                    value = ((dynamic)symbol.Result).Value;
+                object value = ((dynamic)symbol.Result).Value;
 
-                    if (value is T)
-                    {
-                        return (dynamic)value;
-                    }
-                }
-                else
+                switch (value)
                 {
-                    ThrowNoArgumentsException(symbol);
+                    // the parser configuration specifies a type conversion 
+                    case T alreadyConverted:
+                        return alreadyConverted;
+
+                    // try to parse the single string argument to the requested type
+                    case string argument:
+                        result = ArgumentConverter.Parse<T>(argument);
+
+                        if (result.IsSuccessful)
+                        {
+                            value = ((dynamic)result).Value;
+                        }
+
+                        break;
+
+                    // try to parse the multiple string arguments to the request type
+                    case IReadOnlyCollection<string> arguments:
+                        var itemType = typeof(T)
+                                       .GetInterfaces()
+                                       .SingleOrDefault(i =>
+                                                            i.IsGenericType &&
+                                                            i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                                       ?.GenericTypeArguments
+                                       ?.Single();
+
+                        var convertedArgs = arguments
+                                            .Select(arg => ArgumentConverter.Parse(itemType, arg))
+                                            .ToArray();
+
+                        if (convertedArgs.Length == arguments.Count)
+                        {
+                            dynamic list = Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+
+                            foreach (var parseResult in convertedArgs)
+                            {
+                                if (parseResult.IsSuccessful)
+                                {
+                                    list.Add(((dynamic)parseResult).Value);
+                                }
+                                else
+                                {
+                                    result = parseResult;
+                                    break;
+                                }
+                            }
+
+                            if (typeof(T).IsArray)
+                            {
+                                return Enumerable.ToArray(list);
+                            }
+                            else
+                            {
+                                return Enumerable.ToList(list);
+                            }
+                        }
+
+                        break;
+                }
+
+                if (value is T t)
+                {
+                    return t;
                 }
             }
-            else
+
+            if (result is FailedArgumentParseResult failed)
             {
-                ThrowNoArgumentsException(symbol);
+                throw new InvalidOperationException(failed.ErrorMessage);
             }
 
-            return default(T);
+            throw new InvalidOperationException(ValidationMessages.RequiredArgumentMissingForOption(symbol.Token));
         }
-
-        private static void ThrowNoArgumentsException(ParsedSymbol symbol) =>
-            // TODO: (GetValueOrDefault) localize
-            throw new InvalidOperationException($"No valid argument was provided for option '{symbol.Token}' and it does not have a default value.");
     }
 }
