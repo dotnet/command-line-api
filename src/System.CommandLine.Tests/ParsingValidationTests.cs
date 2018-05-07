@@ -188,6 +188,8 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("outer inner arg");
 
+            output.WriteLine(result.Diagram());
+            output.WriteLine(string.Join('\n', result.Errors));
             result.Errors
                   .Should()
                   .ContainSingle(
