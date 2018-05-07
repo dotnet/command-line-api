@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the MIT license. See License.txt in the project root for full license information. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- <OutDirName>Samples\$(MSBuildProjectName)</OutDirName> -->
+    <PublishOutputToSymStore>false</PublishOutputToSymStore>
+  </PropertyGroup>
+
+  <!-- <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" /> -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\source\CommandLine\Microsoft.DotNet.Cli.CommandLine.csproj" />
+    <ProjectReference Include="..\SampleParsers\CommandLine.SampleParsers.csproj" />
+  </ItemGroup>
+
+  <!-- <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" /> -->
+
+</Project>
+
+
+

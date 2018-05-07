@@ -41,7 +41,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E5B1EC71-0FC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine", "src\System.CommandLine\System.CommandLine.csproj", "{0BE8E56E-7580-4526-BE24-D304E1779724}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.UnitTests", "src\System.CommandLine.UnitTests\System.CommandLine.UnitTests.csproj", "{F843CCCA-4CC9-422C-A881-3AE6A998B53F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.Tests", "src\System.CommandLine.Tests\System.CommandLine.Tests.csproj", "{F843CCCA-4CC9-422C-A881-3AE6A998B53F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

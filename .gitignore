@@ -23,3 +23,32 @@ TestResult.xml
 # Visual Studio
 ###############################################################################
 .vs/
+
+###############################################################################
+# Misc.
+###############################################################################
+*.DotSettings
+*.lnk
+*.log
+*.ncrunchproject
+*.ncrunchsolution
+*.nupkg
+*.psess
+*.ReSharper
+*.suo
+*.Tests/lib/
+*.user
+*.userprefs
+*.vsp
+*.xml
+.dotnet
+.nuget
+.idea
+.vs
+.vscode
+_NCrunch_*/
+_ReSharper.*/
+buildlog.txt
+nCrunchTemp*
+packages/
+TestResults/
