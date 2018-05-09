@@ -96,7 +96,7 @@ namespace System.CommandLine
             if (rootParsedOptions.Command()?.TreatUnmatchedTokensAsErrors == true)
             {
                 errors.AddRange(
-                    unmatchedTokens.Select(UnrecognizedArg));
+                    unmatchedTokens.Select(token => UnrecognizedArg(token)));
             }
             
             if (configuration.RootCommandIsImplicit)
@@ -159,6 +159,6 @@ namespace System.CommandLine
         }
 
         private static ParseError UnrecognizedArg(string arg) =>
-            new ParseError(ValidationMessages.UnrecognizedCommandOrArgument(arg), arg);
+            new ParseError(ValidationMessages.UnrecognizedCommandOrArgument(arg));
     }
 }

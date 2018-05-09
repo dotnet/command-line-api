@@ -89,7 +89,6 @@ namespace System.CommandLine
 
                 errors.Insert(0, new ParseError(
                                   RequiredCommandWasNotProvided(),
-                                  command.Name,
                                   parsedCommand));
             }
         }

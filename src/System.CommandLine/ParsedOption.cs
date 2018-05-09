@@ -21,7 +21,6 @@ namespace System.CommandLine
                 // TODO: (Validate) localize
                 return new ParseError(
                     $"Option '{Symbol}' cannot be specified more than once.",
-                    Token,
                     this,
                     false);
             }
