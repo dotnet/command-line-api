@@ -63,11 +63,11 @@ namespace System.CommandLine
         {
             foreach (var symbolValidator in Symbol.ArgumentsRule.SymbolValidators)
             {
-                var error = symbolValidator(this);
+                var errorMessage = symbolValidator(this);
 
-                if (!string.IsNullOrWhiteSpace(error))
+                if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
-                    return new ParseError(error, Token, this);
+                    return new ParseError(errorMessage, this);
                 }
             }
 
@@ -75,7 +75,7 @@ namespace System.CommandLine
 
             if (result is FailedArgumentParseResult failed)
             {
-                return new ParseError(failed.ErrorMessage, Token, this, false);
+                return new ParseError(failed.ErrorMessage, this, false);
             }
 
             return null;

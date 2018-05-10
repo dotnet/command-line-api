@@ -7,7 +7,6 @@ namespace System.CommandLine
     {
         public ParseError(
             string message, 
-            string token,
             ParsedSymbol parsedSymbol = null,
             bool canTokenBeRetried = true)
         {
@@ -15,11 +14,7 @@ namespace System.CommandLine
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(message));
             }
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
-            }
-
+          
             Message = message;
             ParsedSymbol = parsedSymbol;
             CanTokenBeRetried = canTokenBeRetried;
