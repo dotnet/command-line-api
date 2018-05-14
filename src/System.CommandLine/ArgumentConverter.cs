@@ -1,5 +1,9 @@
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using static System.CommandLine.ArgumentParseResult;
 
@@ -42,22 +46,34 @@ namespace System.CommandLine
             {
                 return convert(value);
             }
-            else
+
+            var singleStringConstructor = type.GetConstructors()
+                                              .Where(c => {
+                                                  var parameters = c.GetParameters();
+                                                  return c.IsPublic &&
+                                                         parameters.Length == 1 &&
+                                                         parameters[0].ParameterType == typeof(string);
+                                              })
+                                              .SingleOrDefault();
+
+            if (singleStringConstructor != null)
             {
-                return Failure(type, value);
+                convert = argument => {
+                    var instance = singleStringConstructor.Invoke(new object[] { argument });
+                    return Success(instance);
+                };
+
+                stringConverters.Add(type, convert);
+
+                return convert(value);
             }
+
+            return Failure(type, value);
         }
 
         public static ArgumentParseResult Parse<T>(string value)
         {
-            if (stringConverters.TryGetValue(typeof(T), out var convert))
-            {
-                return convert(value);
-            }
-            else
-            {
-                return Failure(typeof(T), value);
-            }
+            return Parse(typeof(T), value);
         }
 
         public static ArgumentParseResult ParseMany<T>(IReadOnlyCollection<string> arguments)
@@ -67,8 +83,8 @@ namespace System.CommandLine
                            .SingleOrDefault(i =>
                                                 i.IsGenericType &&
                                                 i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                           ?.GenericTypeArguments
-                           ?.Single();
+                           .GenericTypeArguments
+                           .Single();
 
             var allParseResults = arguments
                                   .Select(arg => Parse(itemType, arg))

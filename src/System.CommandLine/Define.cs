@@ -182,6 +182,22 @@ namespace System.CommandLine
         #region type / return value
 
         public static ArgumentsRule ParseArgumentsAs<T>(
+            this ArgumentRuleBuilder builder) =>
+            ParseArgumentsAs<T>(
+                builder,
+                symbol => {
+                    switch (typeof(T).DefaultArity())
+                    {
+                        case ArgumentArity.One:
+                            return ArgumentConverter.Parse<T>(symbol.Arguments.Single());
+                        case ArgumentArity.Many:
+                            return ArgumentConverter.ParseMany<T>(symbol.Arguments);
+                    }
+
+                    return ArgumentParseResult.Failure("this still needs to be implemented");
+                });
+
+        public static ArgumentsRule ParseArgumentsAs<T>(
             this ArgumentRuleBuilder builder,
             ConvertArgument convert,
             ArgumentArity? arity = null) =>

@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseArgumentsAs_can_specify_custom_types()
+        public void ParseArgumentsAs_can_specify_custom_types_and_conversion_logic()
         {
             var parser = new CommandParser(
                 Command("move", "",
@@ -56,9 +56,52 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseArgumentsAs_defaults_arity_to_One()
+        public void ParseArgumentsAs_with_arity_of_One_can_be_called_without_custom_conversion_logic_if_the_type_has_a_constructor_thats_takes_a_single_string()
+        {
+            var option = Option("--file", "", Arguments().ParseArgumentsAs<FileInfo>());
+
+            var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
+            var result = option.Parse($"--file {file.FullName}");
+
+            result.ValueForOption("--file")
+                  .Should()
+                  .BeOfType<FileInfo>()
+                  .Which
+                  .Name
+                  .Should()
+                  .Be("the-file.txt");
+        }
+
+        [Fact]
+        public void ParseArgumentsAs_with_arity_of_Many_can_be_called_without_custom_conversion_logic_if_the_item_type_has_a_constructor_thats_takes_a_single_string()
+        {
+            var option = Option("--file", "", Arguments().ParseArgumentsAs<FileInfo[]>());
+
+            var file1 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file1.txt"));
+            var file2 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file2.txt"));
+            var result = option.Parse($"--file {file1.FullName} --file {file2.FullName}");
+
+            result.ValueForOption("--file")
+                  .Should()
+                  .BeOfType<FileInfo[]>()
+                  .Which
+                  .Select(fi => fi.Name)
+                  .Should()
+                  .BeEquivalentTo("file1.txt", "file2.txt");
+        }
+
+        [Fact]
+        public void ParseArgumentsAs_defaults_arity_to_One_for_non_IEnumerable_types()
         {
             var rule = Arguments().ParseArgumentsAs<int>(s => ArgumentParseResult.Success(1));
+
+            rule.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
+        }
+
+        [Fact]
+        public void ParseArgumentsAs_defaults_arity_to_One_for_string()
+        {
+            var rule = Arguments().ParseArgumentsAs<string>(s => ArgumentParseResult.Success(1));
 
             rule.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
         }
