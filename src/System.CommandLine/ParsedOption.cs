@@ -15,7 +15,7 @@ namespace System.CommandLine
 
         protected internal override ParseError Validate()
         {
-            if (arguments.Count > 1 &&
+            if (Arguments.Count > 1 &&
                 Symbol.ArgumentsRule.Parser.ArgumentArity != ArgumentArity.Many)
             {
                 // TODO: (Validate) localize
