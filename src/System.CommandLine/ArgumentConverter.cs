@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static System.CommandLine.ArgumentParseResult;
 
 namespace System.CommandLine
@@ -56,6 +57,55 @@ namespace System.CommandLine
             else
             {
                 return Failure(typeof(T), value);
+            }
+        }
+
+        public static ArgumentParseResult ParseMany<T>(IReadOnlyCollection<string> arguments)
+        {
+            var itemType = typeof(T)
+                           .GetInterfaces()
+                           .SingleOrDefault(i =>
+                                                i.IsGenericType &&
+                                                i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                           ?.GenericTypeArguments
+                           ?.Single();
+
+            var allParseResults = arguments
+                                  .Select(arg => Parse(itemType, arg))
+                                  .ToArray();
+
+            var successfulParseResults = allParseResults
+                                         .Where(parseResult => parseResult.IsSuccessful)
+                                         .ToArray();
+
+            if (successfulParseResults.Length == arguments.Count)
+            {
+                dynamic list = Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+
+                foreach (var parseResult in successfulParseResults)
+                {
+                    if (parseResult.IsSuccessful)
+                    {
+                        list.Add(((dynamic)parseResult).Value);
+                    }
+                }
+
+                T value;
+
+                if (typeof(T).IsArray)
+                {
+                    value = Enumerable.ToArray(list);
+                }
+                else
+                {
+                    value = Enumerable.ToList(list);
+                }
+
+                return Success(value);
+            }
+            else
+            {
+                return allParseResults.OfType<FailedArgumentParseResult>().First();
             }
         }
 

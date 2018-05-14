@@ -197,28 +197,19 @@ namespace System.CommandLine
             ConvertArgument convert,
             ArgumentArity? arity)
         {
-            if (arity == null)
+            arity = arity ?? type.DefaultArity();
+
+            if (arity.Value == ArgumentArity.One)
             {
-                if (typeof(IEnumerable).IsAssignableFrom(type) &&
-                    type != typeof(string))
-                {
-                    arity = ArgumentArity.Many;
-                }
-                else
-                {
-                    arity = ArgumentArity.One;
-
-                    var originalConvert = convert;
-                    convert = symbol =>
+                var originalConvert = convert;
+                convert = symbol => {
+                    if (symbol.Arguments.Count != 1)
                     {
-                        if (symbol.Arguments.Count != 1)
-                        {
-                           return ArgumentParseResult.Failure(ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol));
-                        }
+                        return ArgumentParseResult.Failure(ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol));
+                    }
 
-                        return originalConvert(symbol);
-                    };
-                }
+                    return originalConvert(symbol);
+                };
             }
 
             builder.ArgumentArity = arity.Value;
@@ -227,6 +218,12 @@ namespace System.CommandLine
 
             return builder.Build();
         }
+
+        public static ArgumentArity DefaultArity(this Type type) =>
+            typeof(IEnumerable).IsAssignableFrom(type) &&
+            type != typeof(string)
+                ? ArgumentArity.Many
+                : ArgumentArity.One;
 
         #endregion
 
