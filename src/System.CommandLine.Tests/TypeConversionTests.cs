@@ -23,17 +23,17 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseAs_can_specify_custom_types()
+        public void ParseArgumentsAs_can_specify_custom_types()
         {
             var parser = new CommandParser(
                 Command("move", "",
                         Arguments()
-                            .ParseAs<FileInfo[]>(parsed =>
+                            .ParseArgumentsAs<FileInfo[]>(parsed =>
                                                      ArgumentParseResult.Success(parsed.Arguments.Select(f => new FileInfo(f)).ToArray())
                             ),
                         Option("-d|--destination", "",
                                Arguments()
-                                   .ParseAs<FileInfo>(parsed => ArgumentParseResult.Success(new FileInfo(parsed.Arguments.Single()))))));
+                                   .ParseArgumentsAs<FileInfo>(parsed => ArgumentParseResult.Success(new FileInfo(parsed.Arguments.Single()))))));
 
             var folder = new DirectoryInfo(Path.Combine("temp"));
             var file1 = new FileInfo(Path.Combine(folder.FullName, "the file.txt"));
@@ -56,17 +56,17 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseAs_defaults_arity_to_One()
+        public void ParseArgumentsAs_defaults_arity_to_One()
         {
-            var rule = Arguments().ParseAs<int>(s => ArgumentParseResult.Success(1));
+            var rule = Arguments().ParseArgumentsAs<int>(s => ArgumentParseResult.Success(1));
 
             rule.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
         }
 
         [Fact]
-        public void ParseAs_infers_arity_of_IEnumerable_types_as_Many()
+        public void ParseArgumentsAs_infers_arity_of_IEnumerable_types_as_Many()
         {
-            var rule = Arguments().ParseAs<int[]>(s => ArgumentParseResult.Success(1));
+            var rule = Arguments().ParseArgumentsAs<int[]>(s => ArgumentParseResult.Success(1));
 
             rule.Parser.ArgumentArity.Should().Be(ArgumentArity.Many);
         }
@@ -77,7 +77,7 @@ namespace System.CommandLine.Tests
             var command = Command("the-command", "",
                                   Option("-o|--one", "",
                                          Arguments()
-                                             .ParseAs<int>(parsedSymbol => {
+                                             .ParseArgumentsAs<int>(parsedSymbol => {
                                                  if (int.TryParse(parsedSymbol.Arguments.Single(), out int intValue))
                                                  {
                                                      return ArgumentParseResult.Success(intValue);
@@ -248,7 +248,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("tally", "",
                                   Arguments()
-                                      .ParseAs<int>(parsedSymbol => {
+                                      .ParseArgumentsAs<int>(parsedSymbol => {
                                           if (int.TryParse(parsedSymbol.Token, out var i))
                                           {
                                               return ArgumentParseResult.Success(i);

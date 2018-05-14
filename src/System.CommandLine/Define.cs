@@ -181,15 +181,26 @@ namespace System.CommandLine
 
         #region type / return value
 
-        public static ArgumentsRule ParseAs<T>(
+        public static ArgumentsRule ParseArgumentsAs<T>(
             this ArgumentRuleBuilder builder,
             ConvertArgument convert,
-            ArgumentArity? arity = null)
+            ArgumentArity? arity = null) =>
+            ParseArgumentsAs(
+                builder,
+                typeof(T),
+                convert,
+                arity);
+
+        private static ArgumentsRule ParseArgumentsAs(
+            this ArgumentRuleBuilder builder,
+            Type type,
+            ConvertArgument convert,
+            ArgumentArity? arity)
         {
             if (arity == null)
             {
-                if (typeof(IEnumerable).IsAssignableFrom(typeof(T)) && 
-                    typeof(T) != typeof(string))
+                if (typeof(IEnumerable).IsAssignableFrom(type) &&
+                    type != typeof(string))
                 {
                     arity = ArgumentArity.Many;
                 }
