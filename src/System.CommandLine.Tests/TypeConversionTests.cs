@@ -15,44 +15,30 @@ namespace System.CommandLine.Tests
 {
     public class TypeConversionTests
     {
-        private readonly ITestOutputHelper output;
-
-        public TypeConversionTests(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
-
         [Fact]
         public void ParseArgumentsAs_can_specify_custom_types_and_conversion_logic()
         {
             var parser = new CommandParser(
-                Command("move", "",
+                Command("custom", "",
                         Arguments()
-                            .ParseArgumentsAs<FileInfo[]>(parsed =>
-                                                     ArgumentParseResult.Success(parsed.Arguments.Select(f => new FileInfo(f)).ToArray())
-                            ),
-                        Option("-d|--destination", "",
-                               Arguments()
-                                   .ParseArgumentsAs<FileInfo>(parsed => ArgumentParseResult.Success(new FileInfo(parsed.Arguments.Single()))))));
+                            .ParseArgumentsAs<MyCustomType>(parsed => {
+                                var custom = new MyCustomType();
+                                foreach (var argument in parsed.Arguments)
+                                {
+                                    custom.Add(argument);
+                                }
 
-            var folder = new DirectoryInfo(Path.Combine("temp"));
-            var file1 = new FileInfo(Path.Combine(folder.FullName, "the file.txt"));
-            var file2 = new FileInfo(Path.Combine(folder.FullName, "the other file.txt"));
+                                return ArgumentParseResult.Success(custom);
+                            }, ArgumentArity.Many)));
 
-            var result = parser.Parse($@"move -d ""{folder}"" ""{file1}"" ""{file2}""");
+            var result = parser.Parse("custom one two three");
 
-            var destination = result.ParsedCommand().ValueForOption<FileInfo>("d");
-            var files = result.ParsedCommand().GetValueOrDefault<FileInfo[]>();
+            var customType = result.ParsedCommand().GetValueOrDefault<MyCustomType>();
 
-            destination
-                .FullName
+            customType
+                .Values
                 .Should()
-                .Be(folder.FullName);
-            files
-                .Select(f => f.FullName)
-                .Should()
-                .BeEquivalentTo(file2.FullName,
-                                file1.FullName);
+                .BeEquivalentTo("one", "two", "three");
         }
 
         [Fact]
@@ -368,6 +354,15 @@ namespace System.CommandLine.Tests
                     .Message
                     .Should()
                     .Be("Cannot parse argument 'not-an-int' as System.Int32[].");
+        }
+
+        public class MyCustomType
+        {
+            private readonly List<string> values = new List<string>();
+
+            public void Add(string value) => values.Add(value);
+
+            public string[] Values => values.ToArray();
         }
     }
 }
