@@ -33,10 +33,6 @@ namespace System.CommandLine
                 [typeof(string)] = Success,
 
                 [typeof(object)] = Success,
-
-                [typeof(int)] = arg => int.TryParse(arg, out var i)
-                                           ? (ArgumentParseResult)Success(i)
-                                           : Failure(typeof(int), arg)
             };
         }
 
@@ -45,6 +41,21 @@ namespace System.CommandLine
             if (stringConverters.TryGetValue(type, out var convert))
             {
                 return convert(value);
+            }
+
+            if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter)
+            {
+                if (typeConverter.CanConvertFrom(typeof(string)))
+                {
+                    try
+                    {
+                        return Success(typeConverter.ConvertFromInvariantString(value));
+                    }
+                    catch (Exception)
+                    {
+                        return Failure(type, value);
+                    }
+                }
             }
 
             var singleStringConstructor = type.GetConstructors()

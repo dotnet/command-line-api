@@ -7,7 +7,6 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using static System.CommandLine.Create;
 using static System.CommandLine.Define;
 
@@ -295,7 +294,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_int_without_the_parser_specifying_it()
+        public void Values_can_be_correctly_converted_to_int_without_the_parser_specifying_a_custom_converter()
         {
             var option = Option("-x", "", Arguments().ZeroOrOne());
 
@@ -305,7 +304,54 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_it()
+        public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            var value = option.Parse("-x 123.456").ValueForOption<decimal>("x");
+
+            value.Should().Be(123.456m);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            var value = option.Parse("-x 123.456").ValueForOption<double>("x");
+
+            value.Should().Be(123.456d);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            var value = option.Parse("-x 123.456").ValueForOption<float>("x");
+
+            value.Should().Be(123.456f);
+        }
+
+        [Fact]
+        public void Options_with_no_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_it()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            option.Parse("-x").ValueForOption<bool>("x").Should().BeTrue();
+        }
+
+        [Fact]
+        public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            option.Parse("-x false").ValueForOption<bool>("x").Should().BeFalse();
+            option.Parse("-x true").ValueForOption<bool>("x").Should().BeTrue();
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
         {
             var option = Option("-x", "", Arguments().ZeroOrMore());
 
@@ -315,13 +361,36 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_it()
+        public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_a_custom_converter()
         {
             var option = Option("-x", "", Arguments().ZeroOrMore());
 
             var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<List<int>>("x");
 
             value.Should().BeEquivalentTo(1, 2, 3);
+        }
+
+        [Fact]
+        public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ParseArgumentsAs<DayOfWeek>());
+
+            var value = option.Parse("-x Monday").ValueForOption<DayOfWeek>("x");
+
+            value.Should().Be(DayOfWeek.Monday);
+        }
+
+        [Fact]
+        public void Enum_values_that_cannot_be_parsed_result_in_an_informative_error()
+        {
+            var option = Option("-x", "", Arguments().ParseArgumentsAs<DayOfWeek>());
+
+            var value = option.Parse("-x Notaday");
+
+            value.Errors
+                 .Select(e => e.Message)
+                 .Should()
+                 .Contain("Cannot parse argument 'Notaday' as System.DayOfWeek.");
         }
 
         [Fact]

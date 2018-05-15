@@ -59,6 +59,14 @@ namespace System.CommandLine
                         result = ArgumentConverter.ParseMany<T>(arguments);
 
                         break;
+
+                    case null:
+                        if (typeof(T) == typeof(bool))
+                        {
+                            result = ArgumentConverter.Parse<bool>(null);
+                        }
+
+                        break;
                 }
 
                 if (result.IsSuccessful)
