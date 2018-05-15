@@ -114,7 +114,7 @@ namespace System.CommandLine
                 }
                 else
                 {
-                    value = Enumerable.ToList(list);
+                    value = list;
                 }
 
                 return Success(value);
