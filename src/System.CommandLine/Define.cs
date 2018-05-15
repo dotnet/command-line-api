@@ -181,33 +181,51 @@ namespace System.CommandLine
 
         #region type / return value
 
-        public static ArgumentsRule ParseAs<T>(
+        public static ArgumentsRule ParseArgumentsAs<T>(
+            this ArgumentRuleBuilder builder) =>
+            ParseArgumentsAs<T>(
+                builder,
+                symbol => {
+                    switch (typeof(T).DefaultArity())
+                    {
+                        case ArgumentArity.One:
+                            return ArgumentConverter.Parse<T>(symbol.Arguments.Single());
+                        case ArgumentArity.Many:
+                            return ArgumentConverter.ParseMany<T>(symbol.Arguments);
+                    }
+
+                    return ArgumentParseResult.Failure("this still needs to be implemented");
+                });
+
+        public static ArgumentsRule ParseArgumentsAs<T>(
             this ArgumentRuleBuilder builder,
             ConvertArgument convert,
-            ArgumentArity? arity = null)
+            ArgumentArity? arity = null) =>
+            ParseArgumentsAs(
+                builder,
+                typeof(T),
+                convert,
+                arity);
+
+        private static ArgumentsRule ParseArgumentsAs(
+            this ArgumentRuleBuilder builder,
+            Type type,
+            ConvertArgument convert,
+            ArgumentArity? arity)
         {
-            if (arity == null)
+            arity = arity ?? type.DefaultArity();
+
+            if (arity.Value == ArgumentArity.One)
             {
-                if (typeof(IEnumerable).IsAssignableFrom(typeof(T)) && 
-                    typeof(T) != typeof(string))
-                {
-                    arity = ArgumentArity.Many;
-                }
-                else
-                {
-                    arity = ArgumentArity.One;
-
-                    var originalConvert = convert;
-                    convert = symbol =>
+                var originalConvert = convert;
+                convert = symbol => {
+                    if (symbol.Arguments.Count != 1)
                     {
-                        if (symbol.Arguments.Count != 1)
-                        {
-                           return ArgumentParseResult.Failure(ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol));
-                        }
+                        return ArgumentParseResult.Failure(ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol));
+                    }
 
-                        return originalConvert(symbol);
-                    };
-                }
+                    return originalConvert(symbol);
+                };
             }
 
             builder.ArgumentArity = arity.Value;
@@ -216,6 +234,12 @@ namespace System.CommandLine
 
             return builder.Build();
         }
+
+        public static ArgumentArity DefaultArity(this Type type) =>
+            typeof(IEnumerable).IsAssignableFrom(type) &&
+            type != typeof(string)
+                ? ArgumentArity.Many
+                : ArgumentArity.One;
 
         #endregion
 

@@ -52,55 +52,26 @@ namespace System.CommandLine
                     case string argument:
                         result = ArgumentConverter.Parse<T>(argument);
 
-                        if (result.IsSuccessful)
-                        {
-                            value = ((dynamic)result).Value;
-                        }
-
                         break;
 
                     // try to parse the multiple string arguments to the request type
                     case IReadOnlyCollection<string> arguments:
-                        var itemType = typeof(T)
-                                       .GetInterfaces()
-                                       .SingleOrDefault(i =>
-                                                            i.IsGenericType &&
-                                                            i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                                       ?.GenericTypeArguments
-                                       ?.Single();
+                        result = ArgumentConverter.ParseMany<T>(arguments);
 
-                        var convertedArgs = arguments
-                                            .Select(arg => ArgumentConverter.Parse(itemType, arg))
-                                            .ToArray();
+                        break;
 
-                        if (convertedArgs.Length == arguments.Count)
+                    case null:
+                        if (typeof(T) == typeof(bool))
                         {
-                            dynamic list = Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
-
-                            foreach (var parseResult in convertedArgs)
-                            {
-                                if (parseResult.IsSuccessful)
-                                {
-                                    list.Add(((dynamic)parseResult).Value);
-                                }
-                                else
-                                {
-                                    result = parseResult;
-                                    break;
-                                }
-                            }
-
-                            if (typeof(T).IsArray)
-                            {
-                                return Enumerable.ToArray(list);
-                            }
-                            else
-                            {
-                                return Enumerable.ToList(list);
-                            }
+                            result = ArgumentConverter.Parse<bool>(null);
                         }
 
                         break;
+                }
+
+                if (result.IsSuccessful)
+                {
+                    value = ((dynamic)result).Value;
                 }
 
                 if (value is T t)

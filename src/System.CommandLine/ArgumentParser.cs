@@ -33,7 +33,7 @@ namespace System.CommandLine
                 case Zero:
                     return ArgumentParseResult.Success((string) null);
                 case One:
-                    return ArgumentParseResult.Success(symbol.Arguments.Single());
+                    return ArgumentParseResult.Success(symbol.Arguments.SingleOrDefault());
                 case Many:
                 default:
                     return ArgumentParseResult.Success(symbol.Arguments);

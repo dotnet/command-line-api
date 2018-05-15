@@ -1,5 +1,10 @@
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using static System.CommandLine.ArgumentParseResult;
 
 namespace System.CommandLine
@@ -28,10 +33,6 @@ namespace System.CommandLine
                 [typeof(string)] = Success,
 
                 [typeof(object)] = Success,
-
-                [typeof(int)] = arg => int.TryParse(arg, out var i)
-                                           ? (ArgumentParseResult)Success(i)
-                                           : Failure(typeof(int), arg)
             };
         }
 
@@ -41,21 +42,97 @@ namespace System.CommandLine
             {
                 return convert(value);
             }
-            else
+
+            if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter)
             {
-                return Failure(type, value);
+                if (typeConverter.CanConvertFrom(typeof(string)))
+                {
+                    try
+                    {
+                        return Success(typeConverter.ConvertFromInvariantString(value));
+                    }
+                    catch (Exception)
+                    {
+                        return Failure(type, value);
+                    }
+                }
             }
+
+            var singleStringConstructor = type.GetConstructors()
+                                              .Where(c => {
+                                                  var parameters = c.GetParameters();
+                                                  return c.IsPublic &&
+                                                         parameters.Length == 1 &&
+                                                         parameters[0].ParameterType == typeof(string);
+                                              })
+                                              .SingleOrDefault();
+
+            if (singleStringConstructor != null)
+            {
+                convert = argument => {
+                    var instance = singleStringConstructor.Invoke(new object[] { argument });
+                    return Success(instance);
+                };
+
+                stringConverters.Add(type, convert);
+
+                return convert(value);
+            }
+
+            return Failure(type, value);
         }
 
         public static ArgumentParseResult Parse<T>(string value)
         {
-            if (stringConverters.TryGetValue(typeof(T), out var convert))
+            return Parse(typeof(T), value);
+        }
+
+        public static ArgumentParseResult ParseMany<T>(IReadOnlyCollection<string> arguments)
+        {
+            var itemType = typeof(T)
+                           .GetInterfaces()
+                           .SingleOrDefault(i =>
+                                                i.IsGenericType &&
+                                                i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                           .GenericTypeArguments
+                           .Single();
+
+            var allParseResults = arguments
+                                  .Select(arg => Parse(itemType, arg))
+                                  .ToArray();
+
+            var successfulParseResults = allParseResults
+                                         .Where(parseResult => parseResult.IsSuccessful)
+                                         .ToArray();
+
+            if (successfulParseResults.Length == arguments.Count)
             {
-                return convert(value);
+                dynamic list = Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+
+                foreach (var parseResult in successfulParseResults)
+                {
+                    if (parseResult.IsSuccessful)
+                    {
+                        list.Add(((dynamic)parseResult).Value);
+                    }
+                }
+
+                T value;
+
+                if (typeof(T).IsArray)
+                {
+                    value = Enumerable.ToArray(list);
+                }
+                else
+                {
+                    value = list;
+                }
+
+                return Success(value);
             }
             else
             {
-                return Failure(typeof(T), value);
+                return allParseResults.OfType<FailedArgumentParseResult>().First();
             }
         }
 

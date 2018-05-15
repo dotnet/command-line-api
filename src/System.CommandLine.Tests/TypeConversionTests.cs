@@ -7,7 +7,6 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using static System.CommandLine.Create;
 using static System.CommandLine.Define;
 
@@ -15,58 +14,87 @@ namespace System.CommandLine.Tests
 {
     public class TypeConversionTests
     {
-        private readonly ITestOutputHelper output;
-
-        public TypeConversionTests(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
-
         [Fact]
-        public void ParseAs_can_specify_custom_types()
+        public void ParseArgumentsAs_can_specify_custom_types_and_conversion_logic()
         {
             var parser = new CommandParser(
-                Command("move", "",
+                Command("custom", "",
                         Arguments()
-                            .ParseAs<FileInfo[]>(parsed =>
-                                                     ArgumentParseResult.Success(parsed.Arguments.Select(f => new FileInfo(f)).ToArray())
-                            ),
-                        Option("-d|--destination", "",
-                               Arguments()
-                                   .ParseAs<FileInfo>(parsed => ArgumentParseResult.Success(new FileInfo(parsed.Arguments.Single()))))));
+                            .ParseArgumentsAs<MyCustomType>(parsed => {
+                                var custom = new MyCustomType();
+                                foreach (var argument in parsed.Arguments)
+                                {
+                                    custom.Add(argument);
+                                }
 
-            var folder = new DirectoryInfo(Path.Combine("temp"));
-            var file1 = new FileInfo(Path.Combine(folder.FullName, "the file.txt"));
-            var file2 = new FileInfo(Path.Combine(folder.FullName, "the other file.txt"));
+                                return ArgumentParseResult.Success(custom);
+                            }, ArgumentArity.Many)));
 
-            var result = parser.Parse($@"move -d ""{folder}"" ""{file1}"" ""{file2}""");
+            var result = parser.Parse("custom one two three");
 
-            var destination = result.ParsedCommand().ValueForOption<FileInfo>("d");
-            var files = result.ParsedCommand().GetValueOrDefault<FileInfo[]>();
+            var customType = result.ParsedCommand().GetValueOrDefault<MyCustomType>();
 
-            destination
-                .FullName
+            customType
+                .Values
                 .Should()
-                .Be(folder.FullName);
-            files
-                .Select(f => f.FullName)
-                .Should()
-                .BeEquivalentTo(file2.FullName,
-                                file1.FullName);
+                .BeEquivalentTo("one", "two", "three");
         }
 
         [Fact]
-        public void ParseAs_defaults_arity_to_One()
+        public void ParseArgumentsAs_with_arity_of_One_can_be_called_without_custom_conversion_logic_if_the_type_has_a_constructor_thats_takes_a_single_string()
         {
-            var rule = Arguments().ParseAs<int>(s => ArgumentParseResult.Success(1));
+            var option = Option("--file", "", Arguments().ParseArgumentsAs<FileInfo>());
+
+            var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
+            var result = option.Parse($"--file {file.FullName}");
+
+            result.ValueForOption("--file")
+                  .Should()
+                  .BeOfType<FileInfo>()
+                  .Which
+                  .Name
+                  .Should()
+                  .Be("the-file.txt");
+        }
+
+        [Fact]
+        public void ParseArgumentsAs_with_arity_of_Many_can_be_called_without_custom_conversion_logic_if_the_item_type_has_a_constructor_thats_takes_a_single_string()
+        {
+            var option = Option("--file", "", Arguments().ParseArgumentsAs<FileInfo[]>());
+
+            var file1 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file1.txt"));
+            var file2 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file2.txt"));
+            var result = option.Parse($"--file {file1.FullName} --file {file2.FullName}");
+
+            result.ValueForOption("--file")
+                  .Should()
+                  .BeOfType<FileInfo[]>()
+                  .Which
+                  .Select(fi => fi.Name)
+                  .Should()
+                  .BeEquivalentTo("file1.txt", "file2.txt");
+        }
+
+        [Fact]
+        public void ParseArgumentsAs_defaults_arity_to_One_for_non_IEnumerable_types()
+        {
+            var rule = Arguments().ParseArgumentsAs<int>(s => ArgumentParseResult.Success(1));
 
             rule.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
         }
 
         [Fact]
-        public void ParseAs_infers_arity_of_IEnumerable_types_as_Many()
+        public void ParseArgumentsAs_defaults_arity_to_One_for_string()
         {
-            var rule = Arguments().ParseAs<int[]>(s => ArgumentParseResult.Success(1));
+            var rule = Arguments().ParseArgumentsAs<string>(s => ArgumentParseResult.Success(1));
+
+            rule.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
+        }
+
+        [Fact]
+        public void ParseArgumentsAs_infers_arity_of_IEnumerable_types_as_Many()
+        {
+            var rule = Arguments().ParseArgumentsAs<int[]>(s => ArgumentParseResult.Success(1));
 
             rule.Parser.ArgumentArity.Should().Be(ArgumentArity.Many);
         }
@@ -77,7 +105,7 @@ namespace System.CommandLine.Tests
             var command = Command("the-command", "",
                                   Option("-o|--one", "",
                                          Arguments()
-                                             .ParseAs<int>(parsedSymbol => {
+                                             .ParseArgumentsAs<int>(parsedSymbol => {
                                                  if (int.TryParse(parsedSymbol.Arguments.Single(), out int intValue))
                                                  {
                                                      return ArgumentParseResult.Success(intValue);
@@ -248,7 +276,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("tally", "",
                                   Arguments()
-                                      .ParseAs<int>(parsedSymbol => {
+                                      .ParseArgumentsAs<int>(parsedSymbol => {
                                           if (int.TryParse(parsedSymbol.Token, out var i))
                                           {
                                               return ArgumentParseResult.Success(i);
@@ -266,7 +294,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_int_without_the_parser_specifying_it()
+        public void Values_can_be_correctly_converted_to_int_without_the_parser_specifying_a_custom_converter()
         {
             var option = Option("-x", "", Arguments().ZeroOrOne());
 
@@ -276,7 +304,54 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_it()
+        public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            var value = option.Parse("-x 123.456").ValueForOption<decimal>("x");
+
+            value.Should().Be(123.456m);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            var value = option.Parse("-x 123.456").ValueForOption<double>("x");
+
+            value.Should().Be(123.456d);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            var value = option.Parse("-x 123.456").ValueForOption<float>("x");
+
+            value.Should().Be(123.456f);
+        }
+
+        [Fact]
+        public void Options_with_no_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_it()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            option.Parse("-x").ValueForOption<bool>("x").Should().BeTrue();
+        }
+
+        [Fact]
+        public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ZeroOrOne());
+
+            option.Parse("-x false").ValueForOption<bool>("x").Should().BeFalse();
+            option.Parse("-x true").ValueForOption<bool>("x").Should().BeTrue();
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
         {
             var option = Option("-x", "", Arguments().ZeroOrMore());
 
@@ -286,13 +361,36 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_it()
+        public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_a_custom_converter()
         {
             var option = Option("-x", "", Arguments().ZeroOrMore());
 
             var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<List<int>>("x");
 
             value.Should().BeEquivalentTo(1, 2, 3);
+        }
+
+        [Fact]
+        public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = Option("-x", "", Arguments().ParseArgumentsAs<DayOfWeek>());
+
+            var value = option.Parse("-x Monday").ValueForOption<DayOfWeek>("x");
+
+            value.Should().Be(DayOfWeek.Monday);
+        }
+
+        [Fact]
+        public void Enum_values_that_cannot_be_parsed_result_in_an_informative_error()
+        {
+            var option = Option("-x", "", Arguments().ParseArgumentsAs<DayOfWeek>());
+
+            var value = option.Parse("-x Notaday");
+
+            value.Errors
+                 .Select(e => e.Message)
+                 .Should()
+                 .Contain("Cannot parse argument 'Notaday' as System.DayOfWeek.");
         }
 
         [Fact]
@@ -325,6 +423,15 @@ namespace System.CommandLine.Tests
                     .Message
                     .Should()
                     .Be("Cannot parse argument 'not-an-int' as System.Int32[].");
+        }
+
+        public class MyCustomType
+        {
+            private readonly List<string> values = new List<string>();
+
+            public void Add(string value) => values.Add(value);
+
+            public string[] Values => values.ToArray();
         }
     }
 }

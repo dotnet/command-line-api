@@ -10,7 +10,7 @@ namespace System.CommandLine
     public abstract class ParsedSymbol
     {
         private readonly Lazy<string> defaultValue;
-        protected internal readonly List<string> arguments = new List<string>();
+        private readonly List<string> arguments = new List<string>();
         private ArgumentParseResult result;
 
         private bool considerAcceptingAnotherArgument = true;
