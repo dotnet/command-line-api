@@ -33,8 +33,8 @@ namespace System.CommandLine
         }
 
         public T this[string alias] =>
-            symbols.SingleOrDefault(o => ContainsItemWithRawAlias(o, alias)) ??
-            symbols.SingleOrDefault(o => ContainsItemWithAlias(o, alias));
+            symbols.SingleOrDefault(o => ContainsSymbolWithRawAlias(o, alias)) ??
+            symbols.SingleOrDefault(o => ContainsSymbolWithAlias(o, alias));
 
         public int Count => symbols.Count;
 
@@ -56,16 +56,16 @@ namespace System.CommandLine
             }
         }
 
-        protected abstract bool ContainsItemWithAlias(T option, string alias);
+        protected abstract bool ContainsSymbolWithAlias(T option, string alias);
 
-        protected abstract bool ContainsItemWithRawAlias(T option, string alias);
+        protected abstract bool ContainsSymbolWithRawAlias(T option, string alias);
 
         internal void Add(T option)
         {
             var preexistingAlias = RawAliasesFor(option)
                 .FirstOrDefault(alias =>
                                     symbols.Any(o =>
-                                                    ContainsItemWithRawAlias(o, alias)));
+                                                    ContainsSymbolWithRawAlias(o, alias)));
 
             if (preexistingAlias != null)
             {
@@ -78,6 +78,6 @@ namespace System.CommandLine
         protected abstract IReadOnlyCollection<string> RawAliasesFor(T option);
 
         public bool Contains(string alias) => 
-            symbols.Any(option => ContainsItemWithAlias(option, alias));
+            symbols.Any(option => ContainsSymbolWithAlias(option, alias));
     }
 }

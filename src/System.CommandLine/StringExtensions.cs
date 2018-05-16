@@ -26,13 +26,6 @@ namespace System.CommandLine
                                 value ?? "",
                                 CompareOptions.OrdinalIgnoreCase) >= 0;
 
-        internal static string RemoveEnd(
-            this string source,
-            int length) =>
-            source.Remove(
-                source.Length - length,
-                length);
-
         internal static string RemovePrefix(this string option) =>
             option.TrimStart(optionPrefixCharacters);
 

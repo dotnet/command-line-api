@@ -26,12 +26,6 @@ namespace System.CommandLine
             current.CommandAcceptsOnlyOneArgument(command, argumentCount).NotWhitespace() ??
             @default.CommandAcceptsOnlyOneArgument(command, argumentCount);
 
-        public static string CommandAcceptsOnlyOneSubcommand(
-            string command,
-            string subcommandsSpecified) =>
-            current.CommandAcceptsOnlyOneSubcommand(command, subcommandsSpecified).NotWhitespace() ??
-            @default.CommandAcceptsOnlyOneSubcommand(command, subcommandsSpecified);
-
         public static string FileDoesNotExist(string filePath) =>
             current.FileDoesNotExist(filePath).NotWhitespace() ??
             @default.FileDoesNotExist(filePath);

@@ -11,9 +11,6 @@ namespace System.CommandLine
         public string CommandAcceptsOnlyOneArgument(string command, int argumentCount) =>
             $"Command '{command}' only accepts a single argument but {argumentCount} were provided.";
 
-        public string CommandAcceptsOnlyOneSubcommand(string command, string subcommandsSpecified) =>
-            $"Command '{command}' only accepts a single subcommand but multiple were provided: {subcommandsSpecified}";
-
         public string FileDoesNotExist(string filePath) =>
             $"File does not exist: {filePath}";
 

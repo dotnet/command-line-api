@@ -13,10 +13,6 @@ namespace System.CommandLine
         {
         }
 
-        protected SymbolParser(IReadOnlyCollection<char> delimiters, params Symbol[] options) : this(new ParserConfiguration(options, argumentDelimiters: delimiters))
-        {
-        }
-
         protected SymbolParser(ParserConfiguration configuration)
         {
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));

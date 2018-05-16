@@ -21,7 +21,7 @@ namespace System.CommandLine
             IReadOnlyCollection<string> args, 
             string input)
         {
-            var raw = base.ParseRaw(args, input);
+            var raw = ParseRaw(args, input);
 
             return new CommandParseResult(
                 raw.RawTokens,
