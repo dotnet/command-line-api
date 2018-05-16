@@ -11,8 +11,8 @@ namespace System.CommandLine
         public static bool IsHidden(this SymbolDefinition symbolDefinition) =>
             string.IsNullOrWhiteSpace(symbolDefinition.Description);
 
-        internal static IEnumerable<ParsedSymbol> AllSymbols(
-            this ParsedSymbol symbol)
+        internal static IEnumerable<Symbol> AllSymbols(
+            this Symbol symbol)
         {
             if (symbol == null)
             {

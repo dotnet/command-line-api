@@ -7,10 +7,10 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public static class ParsedSymbolExtensions
+    public static class SymbolExtensions
     {
-        internal static IEnumerable<ParsedSymbol> FlattenBreadthFirst(
-            this IEnumerable<ParsedSymbol> options)
+        internal static IEnumerable<Symbol> FlattenBreadthFirst(
+            this IEnumerable<Symbol> options)
         {
             if (options == null)
             {
@@ -23,12 +23,12 @@ namespace System.CommandLine
             }
         }
 
-        public static object GetValueOrDefault(this ParsedSymbol parsedSymbol)
+        public static object GetValueOrDefault(this Symbol symbol)
         {
-            return parsedSymbol.GetValueOrDefault<object>();
+            return symbol.GetValueOrDefault<object>();
         }
 
-        public static T GetValueOrDefault<T>(this ParsedSymbol symbol)
+        public static T GetValueOrDefault<T>(this Symbol symbol)
         {
             if (symbol == null)
             {
@@ -44,7 +44,7 @@ namespace System.CommandLine
 
                 switch (value)
                 {
-                    // the parser configuration specifies a type conversion 
+                    // the parser configuration specifies a type conversion
                     case T alreadyConverted:
                         return alreadyConverted;
 

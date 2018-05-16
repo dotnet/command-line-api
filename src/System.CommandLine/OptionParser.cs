@@ -25,7 +25,7 @@ namespace System.CommandLine
 
             return new OptionParseResult(
                 raw.RawTokens,
-                raw.ParsedSymbol,
+                raw.Symbol,
                 raw.Configuration,
                 raw.UnparsedTokens,
                 raw.UnmatchedTokens,

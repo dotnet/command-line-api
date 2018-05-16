@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public abstract class ParsedSymbol
+    public abstract class Symbol
     {
         private readonly Lazy<string> defaultValue;
         private readonly List<string> arguments = new List<string>();
@@ -15,7 +15,7 @@ namespace System.CommandLine
 
         private bool considerAcceptingAnotherArgument = true;
 
-        protected internal ParsedSymbol(SymbolDefinition symbolDefinition, string token, ParsedCommand parent = null)
+        protected internal Symbol(SymbolDefinition symbolDefinition, string token, Command parent = null)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -45,11 +45,11 @@ namespace System.CommandLine
             }
         }
 
-        public ParsedSymbolSet Children { get; } = new ParsedSymbolSet();
+        public SymbolSet Children { get; } = new SymbolSet();
 
         public string Name => SymbolDefinition.Name;
 
-        public ParsedCommand Parent { get; }
+        public Command Parent { get; }
 
         public SymbolDefinition SymbolDefinition { get; }
 
@@ -86,9 +86,9 @@ namespace System.CommandLine
             considerAcceptingAnotherArgument = true;
         }
 
-        public abstract ParsedSymbol TryTakeToken(Token token);
+        public abstract Symbol TryTakeToken(Token token);
 
-        protected ParsedSymbol TryTakeArgument(Token token)
+        protected Symbol TryTakeArgument(Token token)
         {
             if (token.Type != TokenType.Argument)
             {
@@ -132,15 +132,15 @@ namespace System.CommandLine
 
         public override string ToString() => this.Diagram();
 
-        internal static ParsedSymbol Create(SymbolDefinition symbolDefinition, string token, ParsedCommand parent = null)
+        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null)
         {
             switch (symbolDefinition)
             {
                 case CommandDefinition command:
-                    return new ParsedCommand(command, parent);
+                    return new Command(command, parent);
 
                 case OptionDefinition option:
-                    return new ParsedOption(option, token, parent);
+                    return new Option(option, token, parent);
 
                 default:
                     throw new ArgumentException($"Unrecognized symbolDefinition type: {symbolDefinition.GetType()}");

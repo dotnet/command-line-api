@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class ParsedCommand : ParsedSymbol
+    public class Command : Symbol
     {
-        public ParsedCommand(CommandDefinition commandDefinition, ParsedCommand parent = null) : base(commandDefinition, commandDefinition?.Name, parent)
+        public Command(CommandDefinition commandDefinition, Command parent = null) : base(commandDefinition, commandDefinition?.Name, parent)
         {
             CommandDefinition = commandDefinition ?? throw new ArgumentNullException(nameof(commandDefinition));
 
@@ -17,9 +17,9 @@ namespace System.CommandLine
 
         public CommandDefinition CommandDefinition { get; }
 
-        public ParsedOption this[string alias] => (ParsedOption) Children[alias];
+        public Option this[string alias] => (Option) Children[alias];
 
-        public override ParsedSymbol TryTakeToken(Token token) =>
+        public override Symbol TryTakeToken(Token token) =>
             TryTakeArgument(token) ??
             TryTakeOptionOrCommand(token);
 
@@ -31,12 +31,12 @@ namespace System.CommandLine
                     childOption.ArgumentDefinition.HasDefaultValue)
                 {
                     Children.Add(
-                        new ParsedOption(childOption, childOption.Name));
+                        new Option(childOption, childOption.Name));
                 }
             }
         }
 
-        private ParsedSymbol TryTakeOptionOrCommand(Token token)
+        private Symbol TryTakeOptionOrCommand(Token token)
         {
             var child = Children
                 .SingleOrDefault(o =>

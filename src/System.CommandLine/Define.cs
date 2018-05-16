@@ -19,7 +19,7 @@ namespace System.CommandLine
 
         public static ArgumentDefinition ExactlyOne(
             this ArgumentDefinitionBuilder builder,
-            Func<ParsedSymbol, string> errorMessage = null)
+            Func<Symbol, string> errorMessage = null)
         {
             builder.AddValidator(parsedSymbol =>
             {
@@ -61,7 +61,7 @@ namespace System.CommandLine
 
         public static ArgumentDefinition ZeroOrMore(
             this ArgumentDefinitionBuilder builder,
-            Func<ParsedOption, string> errorMessage = null)
+            Func<Option, string> errorMessage = null)
         {
             builder.ArgumentArity = ArgumentArity.Many;
 
@@ -70,7 +70,7 @@ namespace System.CommandLine
 
         public static ArgumentDefinition ZeroOrOne(
             this ArgumentDefinitionBuilder builder,
-            Func<ParsedOption, string> errorMessage = null)
+            Func<Option, string> errorMessage = null)
         {
             builder.AddValidator(parsedSymbol =>
             {
@@ -91,7 +91,7 @@ namespace System.CommandLine
 
         public static ArgumentDefinition OneOrMore(
             this ArgumentDefinitionBuilder builder,
-            Func<ParsedSymbol, string> errorMessage = null)
+            Func<Symbol, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {

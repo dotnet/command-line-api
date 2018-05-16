@@ -7,7 +7,7 @@ namespace System.CommandLine
     {
         public ParseError(
             string message, 
-            ParsedSymbol parsedSymbol = null,
+            Symbol symbol = null,
             bool canTokenBeRetried = true)
         {
             if (string.IsNullOrWhiteSpace(message))
@@ -16,13 +16,13 @@ namespace System.CommandLine
             }
           
             Message = message;
-            ParsedSymbol = parsedSymbol;
+            Symbol = symbol;
             CanTokenBeRetried = canTokenBeRetried;
         }
 
         public string Message { get; }
 
-        public ParsedSymbol ParsedSymbol { get; }
+        public Symbol Symbol { get; }
 
         internal bool CanTokenBeRetried { get; }
 

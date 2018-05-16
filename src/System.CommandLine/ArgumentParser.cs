@@ -21,7 +21,7 @@ namespace System.CommandLine
 
         internal ConvertArgument ConvertArguments { get; }
 
-        public ArgumentParseResult Parse(ParsedSymbol symbol)
+        public ArgumentParseResult Parse(Symbol symbol)
         {
             if (ConvertArguments != null)
             {

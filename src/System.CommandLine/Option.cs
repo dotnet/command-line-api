@@ -3,14 +3,14 @@
 
 namespace System.CommandLine
 {
-    public class ParsedOption : ParsedSymbol
+    public class Option : Symbol
     {
-        public ParsedOption(OptionDefinition optionDefinition, string token = null, ParsedCommand parent = null) :
+        public Option(OptionDefinition optionDefinition, string token = null, Command parent = null) :
             base(optionDefinition, token ?? optionDefinition?.ToString(), parent)
         {
         }
 
-        public override ParsedSymbol TryTakeToken(Token token) =>
+        public override Symbol TryTakeToken(Token token) =>
             TryTakeArgument(token);
 
         protected internal override ParseError Validate()

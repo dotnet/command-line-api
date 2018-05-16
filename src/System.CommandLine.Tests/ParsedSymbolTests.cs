@@ -17,7 +17,7 @@ namespace System.CommandLine.Tests
             var builder = new ArgumentDefinitionBuilder();
             var option = Option("-x", "", builder.ExactlyOne());
 
-            var applied = new ParsedOption(option, "-x");
+            var applied = new Option(option, "-x");
 
             applied.TryTakeToken(new Token("some argument", TokenType.Argument))
                    .Should()
@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
             var builder = new ArgumentDefinitionBuilder();
             var option = Option("-x", "", builder.ExactlyOne());
 
-            var applied = new ParsedOption(option, "-x");
+            var applied = new Option(option, "-x");
 
             applied.TryTakeToken(new Token("argument1", TokenType.Argument));
 
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests
             var builder = new ArgumentDefinitionBuilder();
             var option = Option("-x", "", builder.FromAmong("one", "two", "three").ExactlyOne());
 
-            var parsedOption = new ParsedOption(option, "-x");
+            var parsedOption = new Option(option, "-x");
 
             parsedOption.TryTakeToken(new Token("t", TokenType.Argument));
 
@@ -61,7 +61,7 @@ namespace System.CommandLine.Tests
         {
             var option = Option("-x", "", ArgumentDefinition.None);
 
-            var parsedOption = new ParsedOption(option, "-x");
+            var parsedOption = new Option(option, "-x");
 
             parsedOption.TryTakeToken(new Token("argument1", TokenType.Argument));
 
@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests
                                  Option("inner", "",
                                         builder.ExactlyOne()));
 
-            var parsedCommand = new ParsedCommand(option);
+            var parsedCommand = new Command(option);
 
             parsedCommand.TryTakeToken(new Token("inner", TokenType.Option));
             parsedCommand.TryTakeToken(new Token("argument1", TokenType.Argument));
@@ -97,7 +97,7 @@ namespace System.CommandLine.Tests
                                  Option("inner1", "", new ArgumentDefinitionBuilder().ExactlyOne()),
                                  Option("inner2", "", new ArgumentDefinitionBuilder().ExactlyOne()));
 
-            var parsedCommand = new ParsedCommand(option);
+            var parsedCommand = new Command(option);
 
             parsedCommand.TryTakeToken(new Token("inner1", TokenType.Option));
             parsedCommand.TryTakeToken(new Token("argument1", TokenType.Argument));
@@ -126,7 +126,7 @@ namespace System.CommandLine.Tests
                                       .WithDefaultValue(() => "default")
                                       .ExactlyOne());
 
-            var parsedOption = new ParsedOption(option, "-x");
+            var parsedOption = new Option(option, "-x");
 
             parsedOption.Arguments.Should().BeEquivalentTo("default");
         }
@@ -140,7 +140,7 @@ namespace System.CommandLine.Tests
                                       .WithDefaultValue(defaultValue: () => "default")
                                       .ExactlyOne());
 
-            var parsedOption = new ParsedOption(option, "-x");
+            var parsedOption = new Option(option, "-x");
 
             parsedOption.TryTakeToken(new Token("two", TokenType.Argument));
 
@@ -207,7 +207,7 @@ namespace System.CommandLine.Tests
                                   Command("two", "",
                                           Command("three", "")));
 
-            var parsedCommand = new ParsedCommand(command);
+            var parsedCommand = new Command(command);
 
             parsedCommand.TryTakeToken(new Token("two", TokenType.Command))
                          .Name
@@ -224,7 +224,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
 
-            var parsedCommand = new ParsedCommand(command);
+            var parsedCommand = new Command(command);
 
             parsedCommand.TryTakeToken(new Token("--one", TokenType.Option))
                          .Name
@@ -237,7 +237,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
 
-            var parsedCommand = new ParsedCommand(command);
+            var parsedCommand = new Command(command);
 
             parsedCommand.TryTakeToken(new Token("-o", TokenType.Option))
                          .Name
@@ -250,7 +250,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
 
-            var parsedCommand = new ParsedCommand(command);
+            var parsedCommand = new Command(command);
 
             parsedCommand.TryTakeToken(new Token("--o", TokenType.Option))
                          .Should()
@@ -268,7 +268,7 @@ namespace System.CommandLine.Tests
                                   Command("two", "",
                                           Command("three", "")));
 
-            var parsedCommand = new ParsedCommand(command);
+            var parsedCommand = new Command(command);
 
             parsedCommand.TryTakeToken(new Token("three", TokenType.Command))
                          .Should()
@@ -282,7 +282,7 @@ namespace System.CommandLine.Tests
                                   Command("inner-one", ""),
                                   Command("inner-two", ""));
 
-            var parsedCommand = new ParsedCommand(command);
+            var parsedCommand = new Command(command);
 
             parsedCommand.TryTakeToken(new Token("inner-one", TokenType.Command))
                          .Name
@@ -299,7 +299,7 @@ namespace System.CommandLine.Tests
         {
             var option = Option("--one", "", ArgumentDefinition.None);
 
-            var parsedOption = new ParsedOption(option);
+            var parsedOption = new Option(option);
 
             parsedOption.TryTakeToken(new Token("arg", TokenType.Argument))
                         .Should()
@@ -314,7 +314,7 @@ namespace System.CommandLine.Tests
                                       .WithDefaultValue(() => "default")
                                       .ExactlyOne());
 
-            var parsed = new ParsedOption(option);
+            var parsed = new Option(option);
 
             parsed.Result
                   .Should()
@@ -333,7 +333,7 @@ namespace System.CommandLine.Tests
                                       .WithDefaultValue(() => "default")
                                       .OneOrMore());
 
-            var parsed = new ParsedOption(option);
+            var parsed = new Option(option);
 
             parsed.Result
                   .Should()

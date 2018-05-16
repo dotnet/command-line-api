@@ -58,7 +58,7 @@ namespace System.CommandLine
 
         public ISuggestionSource SuggestionSource { get; }
 
-        private static string AcceptNoArguments(ParsedSymbol o)
+        private static string AcceptNoArguments(Symbol o)
         {
             if (!o.Arguments.Any())
             {

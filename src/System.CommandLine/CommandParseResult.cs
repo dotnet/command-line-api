@@ -9,12 +9,12 @@ namespace System.CommandLine
     {
         internal CommandParseResult(
             IReadOnlyCollection<string> tokens,
-            ParsedSymbolSet parsedOptions,
+            SymbolSet options,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
             IReadOnlyCollection<ParseError> errors = null,
-            string rawInput = null) : base(tokens, parsedOptions, configuration, unparsedTokens, unmatchedTokens, errors, rawInput)
+            string rawInput = null) : base(tokens, options, configuration, unparsedTokens, unmatchedTokens, errors, rawInput)
         {
         }
     }

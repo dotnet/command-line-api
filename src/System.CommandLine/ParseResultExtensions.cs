@@ -42,13 +42,13 @@ namespace System.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
 
-        internal static CommandDefinition Command(this ParsedSymbolSet options) =>
+        internal static CommandDefinition Command(this SymbolSet options) =>
             options.FlattenBreadthFirst()
                    .Select(a => a.SymbolDefinition)
                    .OfType<CommandDefinition>()
                    .LastOrDefault();
 
-        public static ParsedCommand ParsedCommand(this CommandParseResult result)
+        public static Command ParsedCommand(this CommandParseResult result)
         {
             var commandPath = result
                               .Command()
@@ -57,18 +57,18 @@ namespace System.CommandLine
                               .Reverse()
                               .ToArray();
 
-            var symbol = result.ParsedSymbols[commandPath.First()];
+            var symbol = result.Symbols[commandPath.First()];
 
             foreach (var commandName in commandPath.Skip(1))
             {
                 symbol = symbol.Children[commandName];
             }
 
-            return (ParsedCommand) symbol;
+            return (Command) symbol;
         }
 
-        internal static ParsedSymbol CurrentParsedSymbol(this ParseResult result) =>
-            result.ParsedSymbols
+        internal static Symbol CurrentParsedSymbol(this ParseResult result) =>
+            result.Symbols
                   .LastOrDefault()
                   .AllSymbols()
                   .LastOrDefault();
@@ -77,7 +77,7 @@ namespace System.CommandLine
         {
             var builder = new StringBuilder();
 
-            foreach (var o in result.ParsedSymbols)
+            foreach (var o in result.Symbols)
             {
                 builder.Diagram(o);
             }
@@ -96,7 +96,7 @@ namespace System.CommandLine
             return builder.ToString();
         }
 
-        public static string Diagram(this ParsedSymbol option)
+        public static string Diagram(this Symbol option)
         {
             var stringbuilder = new StringBuilder();
 
@@ -107,7 +107,7 @@ namespace System.CommandLine
 
         private static void Diagram(
             this StringBuilder builder,
-            ParsedSymbol option)
+            Symbol option)
         {
             builder.Append("[ ");
 
@@ -150,7 +150,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.ParsedSymbols.Contains(alias);
+            return parseResult.Symbols.Contains(alias);
         }
 
         internal static int? ImplicitCursorPosition(this ParseResult parseResult)

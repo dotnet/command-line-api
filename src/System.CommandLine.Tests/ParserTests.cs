@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeTrue();
 
-            result.ParsedSymbols
+            result.Symbols
                   .Should()
                   .HaveCount(1);
 
@@ -399,7 +399,7 @@ namespace System.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            var applied = result.ParsedSymbols.Single();
+            var applied = result.Symbols.Single();
 
             applied.Children
                    .Should()
@@ -613,7 +613,7 @@ namespace System.CommandLine.Tests
                                        "7",
                                        "the-command");
 
-            ParsedCommand complete = result.ParsedCommand();
+            Command complete = result.ParsedCommand();
 
             output.WriteLine(result.Diagram());
 
@@ -658,7 +658,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse(command);
 
-            result.ParsedSymbols["rm"]
+            result.Symbols["rm"]
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"/temp/the file.txt");
@@ -676,7 +676,7 @@ namespace System.CommandLine.Tests
 
             Console.WriteLine(result);
 
-            result.ParsedSymbols["rm"]
+            result.Symbols["rm"]
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"c:\temp\the file.txt\");
@@ -826,12 +826,12 @@ namespace System.CommandLine.Tests
             var parser = new OptionParser(option1, option2);
 
             parser.Parse("-a")
-                  .ParsedSymbols
+                  .Symbols
                   .Select(s => s.SymbolDefinition)
                   .Should()
                   .BeEquivalentTo(option1);
             parser.Parse("--a")
-                  .ParsedSymbols
+                  .Symbols
                   .Select(s => s.SymbolDefinition)
                   .Should()
                   .BeEquivalentTo(option2);
@@ -864,8 +864,8 @@ namespace System.CommandLine.Tests
             var parser = new OptionParser(configuration);
 
             OptionParseResult parseResult = parser.Parse(input);
-            parseResult.ParsedSymbols["output"].Should().NotBeNull();
-            parseResult.ParsedSymbols["o"].Should().NotBeNull();
+            parseResult.Symbols["output"].Should().NotBeNull();
+            parseResult.Symbols["o"].Should().NotBeNull();
         }
 
         [Theory]
@@ -884,9 +884,9 @@ namespace System.CommandLine.Tests
             var parser = new OptionParser(configuration);
 
             OptionParseResult parseResult = parser.Parse(input);
-            parseResult.ParsedSymbols["output"].Should().NotBeNull();
-            parseResult.ParsedSymbols["o"].Should().NotBeNull();
-            parseResult.ParsedSymbols["out"].Should().NotBeNull();
+            parseResult.Symbols["output"].Should().NotBeNull();
+            parseResult.Symbols["o"].Should().NotBeNull();
+            parseResult.Symbols["out"].Should().NotBeNull();
         }
     }
 }

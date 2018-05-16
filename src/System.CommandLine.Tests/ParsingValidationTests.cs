@@ -44,9 +44,9 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x something_else");
 
             result.Errors
-                  .Where(e => e.ParsedSymbol != null)
+                  .Where(e => e.Symbol != null)
                   .Should()
-                  .Contain(e => e.ParsedSymbol.Name == option.Name);
+                  .Contain(e => e.Symbol.Name == option.Name);
         }
 
         [Fact]
@@ -194,7 +194,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message == "Required command was not provided." &&
-                           e.ParsedSymbol.Name == "inner");
+                           e.Symbol.Name == "inner");
         }
 
         [Fact]

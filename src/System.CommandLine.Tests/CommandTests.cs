@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("outer inner --option argument1");
 
             var outer = result
-                .ParsedSymbols
+                .Symbols
                 .ElementAt(0);
             var inner = outer
                 .Children
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("outer inner --option argument1");
 
             var outer = result
-                .ParsedSymbols
+                .Symbols
                 .ElementAt(0);
             var inner = outer
                 .Children
@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("outer inner --option argument1");
 
             var outer = result
-                .ParsedSymbols
+                .Symbols
                 .ElementAt(0);
             var inner = outer
                 .Children

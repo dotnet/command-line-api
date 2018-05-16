@@ -19,14 +19,14 @@ namespace System.CommandLine
         {
         }
 
-        protected SymbolSet(IReadOnlyCollection<T> options)
+        protected SymbolSet(IReadOnlyCollection<T> symbols)
         {
-            if (options == null)
+            if (symbols == null)
             {
-                throw new ArgumentNullException(nameof(options));
+                throw new ArgumentNullException(nameof(symbols));
             }
 
-            foreach (var option in options)
+            foreach (var option in symbols)
             {
                 Add(option);
             }
