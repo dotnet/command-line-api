@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     public class OptionParser : SymbolParser
     {
-        public OptionParser(params Option[] options) : base(options)
+        public OptionParser(params OptionDefinition[] symbolDefinitions) : base(symbolDefinitions)
         {
         }
 
@@ -25,7 +25,7 @@ namespace System.CommandLine
 
             return new OptionParseResult(
                 raw.RawTokens,
-                raw.ParsedSymbol,
+                raw.Symbol,
                 raw.Configuration,
                 raw.UnparsedTokens,
                 raw.UnmatchedTokens,

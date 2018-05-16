@@ -17,11 +17,11 @@ namespace System.CommandLine.Tests
         [Fact(Skip = "sketch")]
         public void Parser_help_for_root_command()
         {
-            // var command = Create.RootCommand(
+            // var commandDefinition = Create.RootCommandDefinition(
             //     Create.Option("-h|--help|-?", null, Accept.NoArguments())
             // );
 
-            var command = Option("-h|--help|-?", "this is the help text", ArgumentsRule.None);
+            var command = Option("-h|--help|-?", "this is the help text", ArgumentDefinition.None);
 
             var parseResult = command.Parse("-?");
 
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests
             //  $ diff -i:arcu
 
             var command = Command("diff", "",
-                                  Option("-i", "", new ArgumentRuleBuilder().ExactlyOne()));
+                                  Option("-i", "", new ArgumentDefinitionBuilder().ExactlyOne()));
 
             output.WriteLine(command.Parse("diff -iarcu").Diagram());
             output.WriteLine(command.Parse("diff -i arcu").Diagram());

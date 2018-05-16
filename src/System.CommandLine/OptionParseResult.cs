@@ -9,15 +9,15 @@ namespace System.CommandLine
     {
         internal OptionParseResult(
             IReadOnlyCollection<string> tokens,
-            ParsedSymbolSet parsedOptions,
+            SymbolSet symbols,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
             IReadOnlyCollection<ParseError> errors = null,
-            string rawInput = null) : base(tokens, parsedOptions, configuration, unparsedTokens, unmatchedTokens, errors, rawInput)
+            string rawInput = null) : base(tokens, symbols, configuration, unparsedTokens, unmatchedTokens, errors, rawInput)
         {
         }
 
-        public ParsedOption this[string alias] => (ParsedOption) ParsedSymbols[alias];
+        public Option this[string alias] => (Option) Symbols[alias];
     }
 }

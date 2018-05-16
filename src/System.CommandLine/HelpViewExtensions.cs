@@ -14,33 +14,33 @@ namespace System.CommandLine
     {
         private static int columnGutterWidth = 3;
 
-        public static string HelpView(this Command command)
+        public static string HelpView(this CommandDefinition commandDefinition)
         {
-            if (command == null)
+            if (commandDefinition == null)
             {
-                throw new ArgumentNullException(nameof(command));
+                throw new ArgumentNullException(nameof(commandDefinition));
             }
 
             var helpView = new StringBuilder();
 
-            WriteSynopsis(command, helpView);
+            WriteSynopsis(commandDefinition, helpView);
 
-            WriteArgumentsSection(command, helpView);
+            WriteArgumentsSection(commandDefinition, helpView);
 
-            WriteOptionsSection(command, helpView);
+            WriteOptionsSection(commandDefinition, helpView);
 
-            WriteSubcommandsSection(command, helpView);
+            WriteSubcommandsSection(commandDefinition, helpView);
 
-            WriteAdditionalArgumentsSection(command, helpView);
+            WriteAdditionalArgumentsSection(commandDefinition, helpView);
 
             return helpView.ToString();
         }
 
         private static void WriteAdditionalArgumentsSection(
-            Command command,
+            CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
-            if (command.TreatUnmatchedTokensAsErrors)
+            if (commandDefinition.TreatUnmatchedTokensAsErrors)
             {
                 return;
             }
@@ -49,20 +49,20 @@ namespace System.CommandLine
         }
 
         private static void WriteArgumentsSection(
-            Command command,
+            CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
-            var argName = command.ArgumentsRule.Help.Name;
-            var argDescription = command.ArgumentsRule.Help.Description;
+            var argName = commandDefinition.ArgumentDefinition.Help.Name;
+            var argDescription = commandDefinition.ArgumentDefinition.Help.Description;
 
             var shouldWriteCommandArguments =
                 !string.IsNullOrWhiteSpace(argName) &&
                 !string.IsNullOrWhiteSpace(argDescription);
 
-            var parentCommand = command.Parent;
+            var parentCommand = commandDefinition.Parent;
 
-            var parentArgName = parentCommand?.ArgumentsRule?.Help?.Name;
-            var parentArgDescription = parentCommand?.ArgumentsRule?.Help?.Description;
+            var parentArgName = parentCommand?.ArgumentDefinition?.Help?.Name;
+            var parentArgDescription = parentCommand?.ArgumentDefinition?.Help?.Description;
 
             var shouldWriteParentCommandArguments =
                 !string.IsNullOrWhiteSpace(parentArgName) &&
@@ -107,12 +107,12 @@ namespace System.CommandLine
         }
 
         private static void WriteOptionsSection(
-            Command command,
+            CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
-            var options = command
-                .DefinedSymbols
-                .Where(o => !(o is Command))
+            var options = commandDefinition
+                .SymbolDefinitions
+                .Where(o => !(o is CommandDefinition))
                 .Where(o => !o.IsHidden())
                 .ToArray();
 
@@ -128,13 +128,13 @@ namespace System.CommandLine
         }
 
         private static void WriteSubcommandsSection(
-            Command command,
+            CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
-            var subcommands = command
-                .DefinedSymbols
+            var subcommands = commandDefinition
+                .SymbolDefinitions
                 .Where(o => !o.IsHidden())
-                .OfType<Command>()
+                .OfType<CommandDefinition>()
                 .ToArray();
 
             if (!subcommands.Any())
@@ -149,7 +149,7 @@ namespace System.CommandLine
         }
 
         private static void WriteOptionsList(
-            IReadOnlyCollection<Symbol> symbols,
+            IReadOnlyCollection<SymbolDefinition> symbols,
             StringBuilder helpView)
         {
             var leftColumnTextFor = symbols
@@ -170,14 +170,14 @@ namespace System.CommandLine
             }
         }
 
-        private static string LeftColumnText(Symbol symbol)
+        private static string LeftColumnText(SymbolDefinition symbolDefinition)
         {
             var leftColumnText = "  " +
                                  string.Join(", ",
-                                             symbol.RawAliases
+                                             symbolDefinition.RawAliases
                                                    .OrderBy(a => a.Length));
 
-            var argumentName = symbol.ArgumentsRule.Help.Name;
+            var argumentName = symbolDefinition.ArgumentDefinition.Help.Name;
 
             if (!string.IsNullOrWhiteSpace(argumentName))
             {
@@ -215,44 +215,44 @@ namespace System.CommandLine
         }
 
         private static void WriteSynopsis(
-            Command command,
+            CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
             helpView.Append(DefaultHelpViewText.Synopsis.Title);
 
-            foreach (var subcommand in command
+            foreach (var subcommand in commandDefinition
                 .RecurseWhileNotNull(c => c.Parent)
                 .Reverse())
             {
                 helpView.Append($" {subcommand.Name}");
 
-                var argsName = subcommand.ArgumentsRule.Help.Name;
-                if (subcommand != command &&
+                var argsName = subcommand.ArgumentDefinition.Help.Name;
+                if (subcommand != commandDefinition &&
                     !string.IsNullOrWhiteSpace(argsName))
                 {
                     helpView.Append($" <{argsName}>");
                 }
             }
 
-            if (command.DefinedSymbols
-                       .Any(o => !(o is Command) &&
+            if (commandDefinition.SymbolDefinitions
+                       .Any(o => !(o is CommandDefinition) &&
                                  !o.IsHidden()))
             {
                 helpView.Append(DefaultHelpViewText.Synopsis.Options);
             }
 
-            var argumentsName = command.ArgumentsRule.Help.Name;
+            var argumentsName = commandDefinition.ArgumentDefinition.Help.Name;
             if (!string.IsNullOrWhiteSpace(argumentsName))
             {
                 helpView.Append($" <{argumentsName}>");
             }
 
-            if (command.DefinedSymbols.OfType<Command>().Any())
+            if (commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
                 helpView.Append(DefaultHelpViewText.Synopsis.Command);
             }
 
-            if (!command.TreatUnmatchedTokensAsErrors)
+            if (!commandDefinition.TreatUnmatchedTokensAsErrors)
             {
                 helpView.Append(DefaultHelpViewText.Synopsis.AdditionalArguments);
             }

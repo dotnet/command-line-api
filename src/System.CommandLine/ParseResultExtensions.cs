@@ -42,13 +42,13 @@ namespace System.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
 
-        internal static Command Command(this ParsedSymbolSet options) =>
-            options.FlattenBreadthFirst()
-                   .Select(a => a.Symbol)
-                   .OfType<Command>()
+        internal static CommandDefinition CommandDefinition(this SymbolSet symbols) =>
+            symbols.FlattenBreadthFirst()
+                   .Select(a => a.SymbolDefinition)
+                   .OfType<CommandDefinition>()
                    .LastOrDefault();
 
-        public static ParsedCommand ParsedCommand(this CommandParseResult result)
+        public static Command Command(this CommandParseResult result)
         {
             var commandPath = result
                               .Command()
@@ -57,18 +57,18 @@ namespace System.CommandLine
                               .Reverse()
                               .ToArray();
 
-            var symbol = result.ParsedSymbols[commandPath.First()];
+            var symbol = result.Symbols[commandPath.First()];
 
             foreach (var commandName in commandPath.Skip(1))
             {
                 symbol = symbol.Children[commandName];
             }
 
-            return (ParsedCommand) symbol;
+            return (Command) symbol;
         }
 
-        internal static ParsedSymbol CurrentParsedSymbol(this ParseResult result) =>
-            result.ParsedSymbols
+        internal static Symbol CurrentSymbol(this ParseResult result) =>
+            result.Symbols
                   .LastOrDefault()
                   .AllSymbols()
                   .LastOrDefault();
@@ -77,7 +77,7 @@ namespace System.CommandLine
         {
             var builder = new StringBuilder();
 
-            foreach (var o in result.ParsedSymbols)
+            foreach (var o in result.Symbols)
             {
                 builder.Diagram(o);
             }
@@ -96,30 +96,30 @@ namespace System.CommandLine
             return builder.ToString();
         }
 
-        public static string Diagram(this ParsedSymbol option)
+        public static string Diagram(this Symbol symbol)
         {
             var stringbuilder = new StringBuilder();
 
-            stringbuilder.Diagram(option);
+            stringbuilder.Diagram(symbol);
 
             return stringbuilder.ToString();
         }
 
         private static void Diagram(
             this StringBuilder builder,
-            ParsedSymbol option)
+            Symbol symbol)
         {
             builder.Append("[ ");
 
-            builder.Append(option.Symbol);
+            builder.Append(symbol.SymbolDefinition);
 
-            foreach (var child in option.Children)
+            foreach (var child in symbol.Children)
             {
                 builder.Append(" ");
                 builder.Diagram(child);
             }
 
-            foreach (var arg in option.Arguments)
+            foreach (var arg in symbol.Arguments)
             {
                 builder.Append(" <");
                 builder.Append(arg);
@@ -138,7 +138,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.ParsedCommand().Children.Contains(alias);
+            return Command(parseResult).Children.Contains(alias);
         }
 
         public static bool HasOption(
@@ -150,7 +150,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.ParsedSymbols.Contains(alias);
+            return parseResult.Symbols.Contains(alias);
         }
 
         internal static int? ImplicitCursorPosition(this ParseResult parseResult)
@@ -164,8 +164,8 @@ namespace System.CommandLine
         }
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
-            parseResult?.CurrentParsedSymbol()
-                       ?.Symbol
+            parseResult?.CurrentSymbol()
+                       ?.SymbolDefinition
                        ?.Suggest(parseResult, position ) ??
             Array.Empty<string>();
     }

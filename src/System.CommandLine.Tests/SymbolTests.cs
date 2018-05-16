@@ -9,15 +9,15 @@ using static System.CommandLine.Create;
 
 namespace System.CommandLine.Tests
 {
-    public class ParsedSymbolTests
+    public class SymbolTests
     {
         [Fact]
         public void ParsedOption_with_exactly_one_argument_accepts_single_argument()
         {
-            var builder = new ArgumentRuleBuilder();
-            var option = Option("-x", "", builder.ExactlyOne());
+            var builder = new ArgumentDefinitionBuilder();
+            var optionDefinition = Option("-x", "", builder.ExactlyOne());
 
-            var applied = new ParsedOption(option, "-x");
+            var applied = new Option(optionDefinition, "-x");
 
             applied.TryTakeToken(new Token("some argument", TokenType.Argument))
                    .Should()
@@ -31,10 +31,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParsedOption_with_exactly_one_argument_does_not_accept_two_arguments()
         {
-            var builder = new ArgumentRuleBuilder();
-            var option = Option("-x", "", builder.ExactlyOne());
+            var builder = new ArgumentDefinitionBuilder();
+            var definition = Option("-x", "", builder.ExactlyOne());
 
-            var applied = new ParsedOption(option, "-x");
+            var applied = new Option(definition, "-x");
 
             applied.TryTakeToken(new Token("argument1", TokenType.Argument));
 
@@ -46,26 +46,26 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParsedOption_with_specific_arguments_does_not_accept_argument_that_does_not_match()
         {
-            var builder = new ArgumentRuleBuilder();
-            var option = Option("-x", "", builder.FromAmong("one", "two", "three").ExactlyOne());
+            var builder = new ArgumentDefinitionBuilder();
+            var definition = Option("-x", "", builder.FromAmong("one", "two", "three").ExactlyOne());
 
-            var parsedOption = new ParsedOption(option, "-x");
+            var option = new Option(definition, "-x");
 
-            parsedOption.TryTakeToken(new Token("t", TokenType.Argument));
+            option.TryTakeToken(new Token("t", TokenType.Argument));
 
-            parsedOption.Arguments.Should().BeEmpty();
+            option.Arguments.Should().BeEmpty();
         }
 
         [Fact]
         public void ParsedOption_with_no_arguments_does_not_accept_arguments()
         {
-            var option = Option("-x", "", ArgumentsRule.None);
+            var definition = Option("-x", "", ArgumentDefinition.None);
 
-            var parsedOption = new ParsedOption(option, "-x");
+            var option = new Option(definition, "-x");
 
-            parsedOption.TryTakeToken(new Token("argument1", TokenType.Argument));
+            option.TryTakeToken(new Token("argument1", TokenType.Argument));
 
-            parsedOption.Arguments
+            option.Arguments
                         .Should()
                         .HaveCount(0);
         }
@@ -73,17 +73,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParsedCommand_can_have_nested_option_with_args()
         {
-            var builder = new ArgumentRuleBuilder();
-            var option = Command("outer", "",
+            var builder = new ArgumentDefinitionBuilder();
+            var definition = Command("outer", "",
                                  Option("inner", "",
                                         builder.ExactlyOne()));
 
-            var parsedCommand = new ParsedCommand(option);
+            var command = new Command(definition);
 
-            parsedCommand.TryTakeToken(new Token("inner", TokenType.Option));
-            parsedCommand.TryTakeToken(new Token("argument1", TokenType.Argument));
+            command.TryTakeToken(new Token("inner", TokenType.Option));
+            command.TryTakeToken(new Token("argument1", TokenType.Argument));
 
-            parsedCommand.Children
+            command.Children
                          .Should()
                          .ContainSingle(o =>
                                             o.Name == "inner" &&
@@ -91,25 +91,25 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParsedCommand_can_have_multiple_nested_options_with_args()
+        public void Command_can_have_multiple_nested_options_with_args()
         {
-            var option = Command("outer", "",
-                                 Option("inner1", "", new ArgumentRuleBuilder().ExactlyOne()),
-                                 Option("inner2", "", new ArgumentRuleBuilder().ExactlyOne()));
+            var definition = Command("outer", "",
+                                 Option("inner1", "", new ArgumentDefinitionBuilder().ExactlyOne()),
+                                 Option("inner2", "", new ArgumentDefinitionBuilder().ExactlyOne()));
 
-            var parsedCommand = new ParsedCommand(option);
+            var command = new Command(definition);
 
-            parsedCommand.TryTakeToken(new Token("inner1", TokenType.Option));
-            parsedCommand.TryTakeToken(new Token("argument1", TokenType.Argument));
-            parsedCommand.TryTakeToken(new Token("inner2", TokenType.Option));
-            parsedCommand.TryTakeToken(new Token("argument2", TokenType.Argument));
+            command.TryTakeToken(new Token("inner1", TokenType.Option));
+            command.TryTakeToken(new Token("argument1", TokenType.Argument));
+            command.TryTakeToken(new Token("inner2", TokenType.Option));
+            command.TryTakeToken(new Token("argument2", TokenType.Argument));
 
-            parsedCommand.Children
+            command.Children
                          .Should()
                          .ContainSingle(o =>
                                             o.Name == "inner1" &&
                                             o.Arguments.Single() == "argument1");
-            parsedCommand.Children
+            command.Children
                          .Should()
                          .ContainSingle(o =>
                                             o.Name == "inner2" &&
@@ -119,47 +119,47 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_argument_value_is_valid_without_having_the_argument_supplied()
         {
-            var option = Option("-x",
+            var definition = Option("-x",
                                 "",
                                 Define.Arguments()
                                       .FromAmong("one", "two", "default")
                                       .WithDefaultValue(() => "default")
                                       .ExactlyOne());
 
-            var parsedOption = new ParsedOption(option, "-x");
+            var option = new Option(definition, "-x");
 
-            parsedOption.Arguments.Should().BeEquivalentTo("default");
+            option.Arguments.Should().BeEquivalentTo("default");
         }
 
         [Fact]
         public void An_option_with_a_default_argument_value_will_accept_a_different_value()
         {
-            var option = Option("-x",
+            var definition = Option("-x",
                                 "",
                                 Define.Arguments().FromAmong("one", "two", "default")
                                       .WithDefaultValue(defaultValue: () => "default")
                                       .ExactlyOne());
 
-            var parsedOption = new ParsedOption(option, "-x");
+            var option = new Option(definition, "-x");
 
-            parsedOption.TryTakeToken(new Token("two", TokenType.Argument));
+            option.TryTakeToken(new Token("two", TokenType.Argument));
 
-            parsedOption.Arguments.Should().BeEquivalentTo("two");
+            option.Arguments.Should().BeEquivalentTo("two");
         }
 
         [Fact]
         public void Default_values_are_reevaluated_and_not_cached_between_parses()
         {
             var i = 0;
-            var option =
+            var definition =
                 Option("-x",
                        "",
                        Define.Arguments()
                              .WithDefaultValue(() => (++i).ToString())
                              .ExactlyOne());
 
-            var result1 = option.Parse("-x");
-            var result2 = option.Parse("-x");
+            var result1 = definition.Parse("-x");
+            var result2 = definition.Parse("-x");
 
             result1["x"]
                 .GetValueOrDefault()
@@ -174,12 +174,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ExactlyOne_error_message_can_be_customized()
         {
-            var builder = new ArgumentRuleBuilder();
-            var option =
+            var builder = new ArgumentDefinitionBuilder();
+            var definition =
                 Command("the-command", "",
                         builder.ExactlyOne(o => $"Expected 1 arg for option `{o.Name}`, found none"));
 
-            var result = option.Parse("the-command");
+            var result = definition.Parse("the-command");
 
             result.Errors
                   .Select(e => e.Message)
@@ -190,10 +190,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_option()
         {
-            var command = Command("the-command", "",
+            var definition = Command("the-command", "",
                                   Option("-h|--help", ""));
 
-            var result = command.Parse("the-command -h");
+            var result = definition.Parse("the-command -h");
 
             result.HasOption("help")
                   .Should()
@@ -201,45 +201,45 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParsedCommand_TryTakeToken_will_accept_the_next_command_in_the_tree()
+        public void Command_TryTakeToken_will_accept_the_next_command_in_the_tree()
         {
-            var command = Command("one", "",
+            var definition = Command("one", "",
                                   Command("two", "",
                                           Command("three", "")));
 
-            var parsedCommand = new ParsedCommand(command);
+            var command = new Command(definition);
 
-            parsedCommand.TryTakeToken(new Token("two", TokenType.Command))
+            command.TryTakeToken(new Token("two", TokenType.Command))
                          .Name
                          .Should()
                          .Be("two");
-            parsedCommand.TryTakeToken(new Token("three", TokenType.Command))
+            command.TryTakeToken(new Token("three", TokenType.Command))
                          .Name
                          .Should()
                          .Be("three");
         }
 
         [Fact]
-        public void ParsedCommand_TryTakeToken_is_accepts_long_form_option()
+        public void Command_TryTakeToken_is_accepts_long_form_option()
         {
-            var command = Command("command", "", Option("-o|--one", "", ArgumentsRule.None));
+            var definition = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
 
-            var parsedCommand = new ParsedCommand(command);
+            var command = new Command(definition);
 
-            parsedCommand.TryTakeToken(new Token("--one", TokenType.Option))
+            command.TryTakeToken(new Token("--one", TokenType.Option))
                          .Name
                          .Should()
                          .Be("one");
         }
 
         [Fact]
-        public void ParsedCommand_TryTakeToken_is_accepts_short_form_option()
+        public void Command_TryTakeToken_is_accepts_short_form_option()
         {
-            var command = Command("command", "", Option("-o|--one", "", ArgumentsRule.None));
+            var definition = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
 
-            var parsedCommand = new ParsedCommand(command);
+            var command = new Command(definition);
 
-            parsedCommand.TryTakeToken(new Token("-o", TokenType.Option))
+            command.TryTakeToken(new Token("-o", TokenType.Option))
                          .Name
                          .Should()
                          .Be("one");
@@ -248,15 +248,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void TryTakeToken_does_not_accept_incorrectly_prefixed_options()
         {
-            var command = Command("command", "", Option("-o|--one", "", ArgumentsRule.None));
+            var definition = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
 
-            var parsedCommand = new ParsedCommand(command);
+            var command = new Command(definition);
 
-            parsedCommand.TryTakeToken(new Token("--o", TokenType.Option))
+            command.TryTakeToken(new Token("--o", TokenType.Option))
                          .Should()
                          .BeNull();
 
-            parsedCommand.TryTakeToken(new Token("-one", TokenType.Option))
+            command.TryTakeToken(new Token("-one", TokenType.Option))
                          .Should()
                          .BeNull();
         }
@@ -264,13 +264,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void TakeToken_will_not_skip_a_level()
         {
-            var command = Command("one", "",
+            var definition = Command("one", "",
                                   Command("two", "",
                                           Command("three", "")));
 
-            var parsedCommand = new ParsedCommand(command);
+            var command = new Command(definition);
 
-            parsedCommand.TryTakeToken(new Token("three", TokenType.Command))
+            command.TryTakeToken(new Token("three", TokenType.Command))
                          .Should()
                          .BeNull();
         }
@@ -278,18 +278,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public void TakeToken_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
-            var command = Command("outer", "",
+            var definition = Command("outer", "",
                                   Command("inner-one", ""),
                                   Command("inner-two", ""));
 
-            var parsedCommand = new ParsedCommand(command);
+            var command = new Command(definition);
 
-            parsedCommand.TryTakeToken(new Token("inner-one", TokenType.Command))
+            command.TryTakeToken(new Token("inner-one", TokenType.Command))
                          .Name
                          .Should()
                          .Be("inner-one");
 
-            parsedCommand.TryTakeToken(new Token("inner-two", TokenType.Command))
+            command.TryTakeToken(new Token("inner-two", TokenType.Command))
                          .Should()
                          .BeNull();
         }
@@ -297,11 +297,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void TryTakeToken_will_not_accept_an_argument_if_it_is_invalid()
         {
-            var option = Option("--one", "", ArgumentsRule.None);
+            var definition = Option("--one", "", ArgumentDefinition.None);
 
-            var parsedOption = new ParsedOption(option);
+            var option = new Option(definition);
 
-            parsedOption.TryTakeToken(new Token("arg", TokenType.Argument))
+            option.TryTakeToken(new Token("arg", TokenType.Argument))
                         .Should()
                         .BeNull();
         }
@@ -309,14 +309,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Result_returns_single_string_default_value_when_no_argument_is_provided()
         {
-            var option = Option("-x", "",
+            var definition = Option("-x", "",
                                 Define.Arguments()
                                       .WithDefaultValue(() => "default")
                                       .ExactlyOne());
 
-            var parsed = new ParsedOption(option);
+            var option = new Option(definition);
 
-            parsed.Result
+            option.Result
                   .Should()
                   .BeOfType<SuccessfulArgumentParseResult<string>>()
                   .Which
@@ -328,14 +328,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Result_returns_IEnumerable_containing_string_default_value_when_no_argument_is_provided()
         {
-            var option = Option("-x", "",
+            var definition = Option("-x", "",
                                 Define.Arguments()
                                       .WithDefaultValue(() => "default")
                                       .OneOrMore());
 
-            var parsed = new ParsedOption(option);
+            var option = new Option(definition);
 
-            parsed.Result
+            option.Result
                   .Should()
                   .BeOfType<SuccessfulArgumentParseResult<IReadOnlyCollection<string>>>()
                   .Which

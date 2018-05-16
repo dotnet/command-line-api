@@ -14,11 +14,11 @@ namespace System.CommandLine
     {
         private readonly ParserConfiguration configuration;
         private readonly List<ParseError> errors = new List<ParseError>();
-        private Command command;
+        private CommandDefinition _commandDefinition;
 
         internal ParseResult(
             IReadOnlyCollection<string> tokens,
-            ParsedSymbolSet parsedOptions,
+            SymbolSet symbols,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
@@ -27,8 +27,8 @@ namespace System.CommandLine
         {
             Tokens = tokens ??
                      throw new ArgumentNullException(nameof(tokens));
-            ParsedSymbols = parsedOptions ??
-                            throw new ArgumentNullException(nameof(parsedOptions));
+            Symbols = symbols ??
+                            throw new ArgumentNullException(nameof(symbols));
             this.configuration = configuration ??
                                  throw new ArgumentNullException(nameof(configuration));
 
@@ -44,7 +44,7 @@ namespace System.CommandLine
             CheckForErrors();
         }
 
-        public ParsedSymbolSet ParsedSymbols { get; }
+        public SymbolSet Symbols { get; }
 
         public IReadOnlyCollection<ParseError> Errors => errors;
 
@@ -56,15 +56,15 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public Command Command() =>
-            command ??
-            (command = configuration.RootCommandIsImplicit
-                           ? configuration.DefinedSymbols.OfType<Command>().Single()
-                           : ParsedSymbols.Command());
+        public CommandDefinition Command() =>
+            _commandDefinition ??
+            (_commandDefinition = configuration.RootCommandIsImplicit
+                           ? configuration.SymbolDefinitions.OfType<CommandDefinition>().Single()
+                           : Symbols.CommandDefinition());
 
         private void CheckForErrors()
         {
-            foreach (var option in ParsedSymbols.FlattenBreadthFirst())
+            foreach (var option in Symbols.FlattenBreadthFirst())
             {
                 var error = option.Validate();
 
@@ -74,22 +74,22 @@ namespace System.CommandLine
                 }
             }
 
-            var command = Command();
+            var commandDefinition = Command();
 
-            if (command != null &&
-                command.DefinedSymbols.OfType<Command>().Any())
+            if (commandDefinition != null &&
+                commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
-                ParsedCommand parsedCommand = null;
+                Command command = null;
 
                 if (this is CommandParseResult commandParseResult)
                 {
                     // FIX: (CheckForErrors) this is ugly
-                    parsedCommand = commandParseResult.ParsedCommand();
+                    command = ParseResultExtensions.Command(commandParseResult);
                 }
 
                 errors.Insert(0, new ParseError(
                                   RequiredCommandWasNotProvided(),
-                                  parsedCommand));
+                                  command));
             }
         }
 
@@ -107,7 +107,7 @@ namespace System.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return ParsedSymbols[alias].GetValueOrDefault<T>();
+            return Symbols[alias].GetValueOrDefault<T>();
         }
     }
 }

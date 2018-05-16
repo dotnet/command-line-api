@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class ArgumentRuleBuilder
+    public class ArgumentDefinitionBuilder
     {
         private ArgumentSuggestionSource suggestionSource;
 
@@ -48,11 +48,11 @@ namespace System.CommandLine
             return parser;
         }
 
-        public ArgumentsRule Build()
+        public ArgumentDefinition Build()
         {
             AddTokenValidator();
 
-            return new ArgumentsRule(
+            return new ArgumentDefinition(
                 Parser ?? (Parser = BuildArgumentParser()),
                 DefaultValue,
                 Help,
@@ -68,14 +68,14 @@ namespace System.CommandLine
                 return;
             }
 
-            AddValidator(parsedSymbol =>
+            AddValidator(symbol =>
             {
-                if (parsedSymbol.Arguments.Count == 0)
+                if (symbol.Arguments.Count == 0)
                 {
                     return null;
                 }
 
-                foreach (var arg in parsedSymbol.Arguments)
+                foreach (var arg in symbol.Arguments)
                 {
                     if (!ValidTokens.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -87,28 +87,28 @@ namespace System.CommandLine
             });
         }
 
-        internal static ArgumentRuleBuilder From(ArgumentsRule arguments)
+        internal static ArgumentDefinitionBuilder From(ArgumentDefinition argumentDefinition)
         {
             // TODO: (From) get rid of this method
 
-            if (arguments == null)
+            if (argumentDefinition == null)
             {
-                throw new ArgumentNullException(nameof(arguments));
+                throw new ArgumentNullException(nameof(argumentDefinition));
             }
 
             var suggestionSource = new ArgumentSuggestionSource();
-            suggestionSource.AddSuggestionSource(arguments.SuggestionSource.Suggest);
+            suggestionSource.AddSuggestionSource(argumentDefinition.SuggestionSource.Suggest);
 
-            var builder = new ArgumentRuleBuilder
+            var builder = new ArgumentDefinitionBuilder
             {
-                ConvertArguments = arguments.Parser.ConvertArguments,
-                DefaultValue = arguments.GetDefaultValue,
+                ConvertArguments = argumentDefinition.Parser.ConvertArguments,
+                DefaultValue = argumentDefinition.GetDefaultValue,
                 Help = new ArgumentsRuleHelp(
-                    arguments.Help?.Name,
-                    arguments.Help?.Description),
-                Parser = arguments.Parser,
+                    argumentDefinition.Help?.Name,
+                    argumentDefinition.Help?.Description),
+                Parser = argumentDefinition.Parser,
                 suggestionSource = suggestionSource,
-                SymbolValidators = new List<ValidateSymbol>(arguments.SymbolValidators)
+                SymbolValidators = new List<ValidateSymbol>(argumentDefinition.SymbolValidators)
             };
 
             return builder;

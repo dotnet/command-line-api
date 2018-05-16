@@ -7,56 +7,56 @@ namespace System.CommandLine
 {
     public static class Create
     {
-        public static Option Option(
+        public static OptionDefinition Option(
             string aliases,
             string description,
-            ArgumentsRule arguments = null) =>
-            new Option(
+            ArgumentDefinition argumentDefinition = null) =>
+            new OptionDefinition(
                 aliases.Split(
                     new[] { '|', ' ' }, StringSplitOptions.RemoveEmptyEntries),
                 description,
-                arguments: arguments);
+                argumentDefinition: argumentDefinition);
 
-        public static Command Command(
+        public static CommandDefinition Command(
             string name,
             string description) =>
-            new Command(name, description, ArgumentsRule.None);
+            new CommandDefinition(name, description, ArgumentDefinition.None);
 
-        public static Command Command(
+        public static CommandDefinition Command(
             string name,
             string description,
-            params Symbol[] options) =>
-            new Command(name, description, options);
+            params SymbolDefinition[] symbolDefinitions) =>
+            new CommandDefinition(name, description, symbolDefinitions);
 
-        public static Command Command(
+        public static CommandDefinition Command(
             string name,
             string description,
             bool treatUnmatchedTokensAsErrors,
-            params Symbol[] symbols) =>
-            new Command(name, description, symbols, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
+            params SymbolDefinition[] symbolDefinitions) =>
+            new CommandDefinition(name, description, symbolDefinitions, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
 
-        public static Command Command(
+        public static CommandDefinition Command(
             string name,
             string description,
-            ArgumentsRule arguments = null,
-            params Symbol[] symbols) =>
-            new Command(name, description, symbols, arguments);
+            ArgumentDefinition arguments = null,
+            params SymbolDefinition[] symbolDefinitions) =>
+            new CommandDefinition(name, description, symbolDefinitions, arguments);
 
-        public static Command Command(
+        public static CommandDefinition Command(
             string name,
             string description,
-            ArgumentsRule arguments,
+            ArgumentDefinition arguments,
             bool treatUnmatchedTokensAsErrors,
-            params Symbol[] options) =>
-            new Command(name, description, options, arguments, treatUnmatchedTokensAsErrors);
+            params SymbolDefinition[] symbolDefinitions) =>
+            new CommandDefinition(name, description, symbolDefinitions, arguments, treatUnmatchedTokensAsErrors);
 
-        public static Command Command(
+        public static CommandDefinition Command(
             string name,
             string description,
-            params Command[] commands) =>
-            new Command(name, description, commands);
+            params CommandDefinition[] commandDefinitions) =>
+            new CommandDefinition(name, description, commandDefinitions);
 
-        public static Command RootCommand(params Symbol[] symbols) =>
-            new Command(symbols);
+        public static CommandDefinition RootCommand(params SymbolDefinition[] symbolsDefinition) =>
+            new CommandDefinition(symbolsDefinition);
     }
 }

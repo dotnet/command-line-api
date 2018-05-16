@@ -20,13 +20,13 @@ namespace System.CommandLine.Tests
         {
             this.output = output;
 
-            var builder = new ArgumentRuleBuilder();
+            var builder = new ArgumentDefinitionBuilder();
 
             parser = new CommandParser(
                 Command("outer", "",
                         Command("inner", "",
                                 Option("--option", "",
-                                       arguments: builder.ExactlyOne()))));
+                                       argumentDefinition: builder.ExactlyOne()))));
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
         {
             var result = parser.Parse("outer inner --option argument1");
 
-            var outer = result.ParsedCommand().Parent;
+            var outer = ParseResultExtensions.Command(result).Parent;
 
             outer
                 .Name
@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("outer inner --option argument1");
 
             var outer = result
-                .ParsedSymbols
+                .Symbols
                 .ElementAt(0);
             var inner = outer
                 .Children
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("outer inner --option argument1");
 
             var outer = result
-                .ParsedSymbols
+                .Symbols
                 .ElementAt(0);
             var inner = outer
                 .Children
@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("outer inner --option argument1");
 
             var outer = result
-                .ParsedSymbols
+                .Symbols
                 .ElementAt(0);
             var inner = outer
                 .Children
@@ -106,19 +106,19 @@ namespace System.CommandLine.Tests
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
             var parser = new CommandParser(
-                Command("outer", "", new ArgumentRuleBuilder().ExactlyOne(),
+                Command("outer", "", new ArgumentDefinitionBuilder().ExactlyOne(),
                         Command("inner", "",
-                            new ArgumentRuleBuilder().ZeroOrMore())));
+                            new ArgumentDefinitionBuilder().ZeroOrMore())));
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
-            result.ParsedCommand()
+            ParseResultExtensions.Command(result)
                   .Parent
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg1");
 
-            result.ParsedCommand()
+            ParseResultExtensions.Command(result)
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
@@ -128,10 +128,10 @@ namespace System.CommandLine.Tests
         public void ParseResult_Command_identifies_innermost_command()
         {
             var command = Command("outer", "",
-                                  Command("sibling", "", new ArgumentRuleBuilder().ZeroOrMore()),
+                                  Command("sibling", "", new ArgumentDefinitionBuilder().ZeroOrMore()),
                                   Command("inner", "",
                                           Command("inner-er", "",
-                                                  Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()))));
+                                                  Option("-x", "", new ArgumentDefinitionBuilder().ZeroOrMore()))));
 
             var result = command.Parse("outer inner inner-er -x arg");
 
@@ -145,7 +145,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_the_name_of_the_command_is_the_name_of_the_executable()
         {
-            var command = new Command(
+            var command = new CommandDefinition(
                 new[]
                 {
                     Option("-x", ""),
@@ -175,23 +175,23 @@ namespace System.CommandLine.Tests
         {
             var command = Command("outer", "",
                                   Command("sibling", "",
-                                      new ArgumentRuleBuilder().ExactlyOne()),
+                                      new ArgumentDefinitionBuilder().ExactlyOne()),
                                   Command("inner", "",
                                           Command("inner-er", "",
                                                   Option("-x", "",
-                                                      new ArgumentRuleBuilder().ExactlyOne()))));
+                                                      new ArgumentDefinitionBuilder().ExactlyOne()))));
 
             var result = command.Parse("outer inner inner-er -x arg");
 
             output.WriteLine(result.ToString());
 
-            var parsedOption = result.ParsedCommand()["x"];
+            var parsedOption = ParseResultExtensions.Command(result)["x"];
 
             parsedOption.GetValueOrDefault().Should().Be("arg");
 
             result = command.Parse("outer sibling arg");
 
-            result.ParsedCommand().GetValueOrDefault().Should().Be("arg");
+            ParseResultExtensions.Command(result).GetValueOrDefault().Should().Be("arg");
         }
     }
 }

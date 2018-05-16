@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var builder = new ArgumentRuleBuilder();
+            var builder = new ArgumentDefinitionBuilder();
             var parser = new OptionParser(
                 Option("-x", "",
                     builder.FromAmong("this", "that", "the-other-thing").ExactlyOne()));
@@ -35,8 +35,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var builder = new ArgumentRuleBuilder();
-            var option = Option("-x", "", 
+            var builder = new ArgumentDefinitionBuilder();
+            var option = Option("-x", "",
                 builder.FromAmong("this", "that").ExactlyOne());
 
             var parser = new OptionParser(option);
@@ -44,15 +44,15 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x something_else");
 
             result.Errors
-                  .Where(e => e.ParsedSymbol != null)
+                  .Where(e => e.Symbol != null)
                   .Should()
-                  .Contain(e => e.ParsedSymbol.Name == option.Name);
+                  .Contain(e => e.Symbol.Name == option.Name);
         }
 
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var builder = new ArgumentRuleBuilder();
+            var builder = new ArgumentDefinitionBuilder();
             var parser = new OptionParser(Option("-x", "", builder.ExactlyOne()));
 
             var result = parser.Parse("-x");
@@ -65,7 +65,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new CommandParser(Command("the-command", "", Option("-x", "", ArgumentsRule.None)));
+            var parser = new CommandParser(Command("the-command", "", Option("-x", "", ArgumentDefinition.None)));
 
             var result = parser.Parse("the-command -x some-arg");
 
@@ -80,7 +80,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
         {
-            var builder = new ArgumentRuleBuilder();
+            var builder = new ArgumentDefinitionBuilder();
             builder.AddValidator(symbol =>
             {
                 if (symbol.Children.Contains("one") &&
@@ -109,7 +109,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
         {
-            var builder = new ArgumentRuleBuilder();
+            var builder = new ArgumentDefinitionBuilder();
             var command = Command("the-command", "",
                                   builder.LegalFilePathsOnly().ZeroOrMore());
 
@@ -128,7 +128,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_accepts_arguments_containing_valid_path_characters()
         {
-            var builder = new ArgumentRuleBuilder();
+            var builder = new ArgumentDefinitionBuilder();
             var command = Command("the-command", "",
                 builder.LegalFilePathsOnly().ZeroOrMore());
 
@@ -144,16 +144,15 @@ namespace System.CommandLine.Tests
         public void An_argument_can_be_invalid_based_on_file_existence()
         {
             var command = Command("move", "",
-                new ArgumentRuleBuilder().ExistingFilesOnly().ExactlyOne(),
+                new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne(),
                                   Option("--to", "",
-                                      new ArgumentRuleBuilder().ExactlyOne()));
+                                      new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = command.Parse($@"move ""{Guid.NewGuid()}.txt"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
             output.WriteLine(result.Diagram());
 
-            result
-                .ParsedCommand()
+            ParseResultExtensions.Command(result)
                 .Arguments
                 .Should()
                 .BeEmpty();
@@ -163,16 +162,15 @@ namespace System.CommandLine.Tests
         public void An_argument_can_be_invalid_based_on_directory_existence()
         {
             var command = Command("move", "",
-                new ArgumentRuleBuilder().ExistingFilesOnly().ExactlyOne(),
+                new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne(),
                                   Option("--to", "",
-                                      new ArgumentRuleBuilder().ExactlyOne()));
+                                      new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
             output.WriteLine(result.Diagram());
 
-            result
-                .ParsedCommand()
+            ParseResultExtensions.Command(result)
                 .Arguments
                 .Should()
                 .BeEquivalentTo(Directory.GetCurrentDirectory());
@@ -183,7 +181,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("outer", "",
                                   Command("inner", "",
-                                      new ArgumentRuleBuilder().OneOrMore(),
+                                      new ArgumentDefinitionBuilder().OneOrMore(),
                                           Command("three", "")));
 
             var result = command.Parse("outer inner arg");
@@ -194,7 +192,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message == "Required command was not provided." &&
-                           e.ParsedSymbol.Name == "inner");
+                           e.Symbol.Name == "inner");
         }
 
         [Fact]

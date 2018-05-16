@@ -3,5 +3,5 @@
 
 namespace System.CommandLine
 {
-    public delegate string ValidateSymbol(ParsedSymbol parsedSymbol);
+    public delegate string ValidateSymbol(Symbol symbol);
 }

@@ -6,13 +6,13 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public static class OptionExtensions
+    public static class OptionDefinitionExtensions
     {
-        public static bool IsHidden(this Symbol symbol) =>
-            string.IsNullOrWhiteSpace(symbol.Description);
+        public static bool IsHidden(this SymbolDefinition symbolDefinition) =>
+            string.IsNullOrWhiteSpace(symbolDefinition.Description);
 
-        internal static IEnumerable<ParsedSymbol> AllSymbols(
-            this ParsedSymbol symbol)
+        internal static IEnumerable<Symbol> AllSymbols(
+            this Symbol symbol)
         {
             if (symbol == null)
             {
@@ -28,20 +28,20 @@ namespace System.CommandLine
         }
 
         public static OptionParseResult Parse(
-            this Option option,
+            this OptionDefinition optionDefinition,
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
-            new OptionParser(new ParserConfiguration(argumentDelimiters: delimiters, definedSymbols: new[] { option })).Parse(commandLine);
+            new OptionParser(new ParserConfiguration(argumentDelimiters: delimiters, symbolDefinitions: new[] { optionDefinition })).Parse(commandLine);
 
         public static CommandParseResult Parse(
-            this Command command,
+            this CommandDefinition commandDefinition,
             params string[] args) =>
-            new CommandParser(command).Parse(args);
+            new CommandParser(commandDefinition).Parse(args);
 
         public static CommandParseResult Parse(
-            this Command command,
+            this CommandDefinition commandDefinition,
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
-            new CommandParser(command).Parse(commandLine);
+            new CommandParser(commandDefinition).Parse(commandLine);
     }
 }

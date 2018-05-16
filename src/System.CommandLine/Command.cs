@@ -2,78 +2,96 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace System.CommandLine
 {
     public class Command : Symbol
     {
-        private static readonly Lazy<string> executableName =
-            new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-
-        public Command(
-            IReadOnlyCollection<Symbol> symbols) :
-            this(executableName.Value, "", symbols)
+        public Command(CommandDefinition commandDefinition, Command parent = null) : base(commandDefinition, commandDefinition?.Name, parent)
         {
+            Definition = commandDefinition ?? throw new ArgumentNullException(nameof(commandDefinition));
+
+            AddImplicitOptions(commandDefinition);
         }
 
-        public Command(
-            string name,
-            string description,
-            ArgumentsRule arguments,
-            bool treatUnmatchedTokensAsErrors = true) :
-            base(new[] { name }, description, arguments)
+        public CommandDefinition Definition { get; }
+
+        public Option this[string alias] => (Option) Children[alias];
+
+        public override Symbol TryTakeToken(Token token) =>
+            TryTakeArgument(token) ??
+            TryTakeOptionOrCommand(token);
+
+        private void AddImplicitOptions(CommandDefinition commandDefinition)
         {
-            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-        }
-
-        public Command(
-            string name,
-            string description,
-            IReadOnlyCollection<Symbol> symbols,
-            ArgumentsRule arguments = null,
-            bool treatUnmatchedTokensAsErrors = true) :
-            base(new[] { name }, description)
-        {
-            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-
-            var validSymbolAliases = symbols
-                                     .SelectMany(o => o.RawAliases)
-                                     .ToArray();
-
-            ArgumentRuleBuilder builder;
-            if (arguments == null)
+            foreach (var childOption in commandDefinition.SymbolDefinitions.OfType<OptionDefinition>())
             {
-                builder = new ArgumentRuleBuilder();
-            }
-            else
-            {
-                builder = ArgumentRuleBuilder.From(arguments);
-            }
-
-            builder.ValidTokens.UnionWith(validSymbolAliases);
-
-            if (arguments == null)
-            {
-                ArgumentsRule = builder.ZeroOrMore();
-            }
-            else
-            {
-                ArgumentsRule = arguments;
-            }
-
-            foreach (Symbol symbol in symbols)
-            {
-                symbol.Parent = this;
-                DefinedSymbols.Add(symbol);
+                if (!Children.Contains(childOption.Name) &&
+                    childOption.ArgumentDefinition.HasDefaultValue)
+                {
+                    Children.Add(
+                        new Option(childOption, childOption.Name));
+                }
             }
         }
 
-        public bool TreatUnmatchedTokensAsErrors { get; }
+        private Symbol TryTakeOptionOrCommand(Token token)
+        {
+            var child = Children
+                .SingleOrDefault(o =>
+                                     o.SymbolDefinition.SymbolDefinitions
+                                      .Any(oo => oo.RawAliases.Contains(token.Value)));
 
-        public override string ToString() => Name;
+            if (child != null)
+            {
+                return child.TryTakeToken(token);
+            }
+
+            if (token.Type == TokenType.Command &&
+                Children.Any(o => o.SymbolDefinition is CommandDefinition &&
+                                  !o.HasAlias(token.Value)))
+            {
+                // if a subcommand has already been applied, don't accept this one
+                return null;
+            }
+
+            var symbol =
+                Children.SingleOrDefault(o => o.SymbolDefinition.HasRawAlias(token.Value));
+
+            if (symbol != null)
+            {
+                symbol.OptionWasRespecified();
+                return symbol;
+            }
+
+            symbol =
+                Definition.SymbolDefinitions
+                      .Where(o => o.RawAliases.Contains(token.Value))
+                      .Select(o => Create(o, token.Value, this))
+                      .SingleOrDefault();
+
+            if (symbol != null)
+            {
+                Children.Add(symbol);
+            }
+
+            return symbol;
+        }
+
+        public object ValueForOption(
+            string alias) =>
+            ValueForOption<object>(alias);
+
+        public T ValueForOption<T>(
+            string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
+            }
+
+            return Children[alias].GetValueOrDefault<T>();
+        }
     }
 }

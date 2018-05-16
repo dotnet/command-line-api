@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class ArgumentsRule
+    public class ArgumentDefinition
     {
         private readonly Func<string> defaultValue;
 
-        public ArgumentsRule(
+        public ArgumentDefinition(
             ArgumentParser parser,
             Func<string> defaultValue = null,
             ArgumentsRuleHelp help = null,
@@ -42,14 +42,14 @@ namespace System.CommandLine
 
         public ArgumentParser Parser { get; }
 
-        public static ArgumentsRule None { get; } = new ArgumentsRule(
+        public static ArgumentDefinition None { get; } = new ArgumentDefinition(
             new ArgumentParser(
                 ArgumentArity.Zero,
                 symbol =>
                 {
                     if (symbol.Arguments.Any())
                     {
-                        return ArgumentParseResult.Failure(ValidationMessages.NoArgumentsAllowed(symbol.Symbol.ToString()));
+                        return ArgumentParseResult.Failure(ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString()));
                     }
 
                     return ArgumentParseResult.Success(true);
@@ -58,14 +58,14 @@ namespace System.CommandLine
 
         public ISuggestionSource SuggestionSource { get; }
 
-        private static string AcceptNoArguments(ParsedSymbol o)
+        private static string AcceptNoArguments(Symbol o)
         {
             if (!o.Arguments.Any())
             {
                 return null;
             }
 
-            return ValidationMessages.Current.NoArgumentsAllowed(o.Symbol.ToString());
+            return ValidationMessages.Current.NoArgumentsAllowed(o.SymbolDefinition.ToString());
         }
     }
 }

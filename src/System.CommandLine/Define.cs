@@ -10,32 +10,32 @@ namespace System.CommandLine
 {
     public static class Define
     {
-        public static ArgumentRuleBuilder Arguments()
+        public static ArgumentDefinitionBuilder Arguments()
         {
-            return new ArgumentRuleBuilder();
+            return new ArgumentDefinitionBuilder();
         }
 
         #region arity
 
-        public static ArgumentsRule ExactlyOne(
-            this ArgumentRuleBuilder builder,
-            Func<ParsedSymbol, string> errorMessage = null)
+        public static ArgumentDefinition ExactlyOne(
+            this ArgumentDefinitionBuilder builder,
+            Func<Symbol, string> errorMessage = null)
         {
-            builder.AddValidator(parsedSymbol =>
+            builder.AddValidator(symbol =>
             {
-                var argumentCount = parsedSymbol.Arguments.Count;
+                var argumentCount = symbol.Arguments.Count;
 
                 if (argumentCount == 0)
                 {
                     if (errorMessage == null)
                     {
-                        return parsedSymbol.Symbol is Command
-                                   ? ValidationMessages.RequiredArgumentMissingForCommand(parsedSymbol.Symbol.ToString())
-                                   : ValidationMessages.RequiredArgumentMissingForOption(parsedSymbol.Symbol.ToString());
+                        return symbol is Command command
+                                   ? ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
+                                   : ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.ToString());
                     }
                     else
                     {
-                        return errorMessage(parsedSymbol);
+                        return errorMessage(symbol);
                     }
                 }
 
@@ -43,11 +43,11 @@ namespace System.CommandLine
                 {
                     if (errorMessage == null)
                     {
-                        return ValidationMessages.SymbolAcceptsOnlyOneArgument(parsedSymbol);
+                        return ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol);
                     }
                     else
                     {
-                        return errorMessage(parsedSymbol);
+                        return errorMessage(symbol);
                     }
                 }
 
@@ -59,26 +59,26 @@ namespace System.CommandLine
             return builder.Build();
         }
 
-        public static ArgumentsRule ZeroOrMore(
-            this ArgumentRuleBuilder builder,
-            Func<ParsedOption, string> errorMessage = null)
+        public static ArgumentDefinition ZeroOrMore(
+            this ArgumentDefinitionBuilder builder,
+            Func<Option, string> errorMessage = null)
         {
             builder.ArgumentArity = ArgumentArity.Many;
 
             return builder.Build();
         }
 
-        public static ArgumentsRule ZeroOrOne(
-            this ArgumentRuleBuilder builder,
-            Func<ParsedOption, string> errorMessage = null)
+        public static ArgumentDefinition ZeroOrOne(
+            this ArgumentDefinitionBuilder builder,
+            Func<Option, string> errorMessage = null)
         {
-            builder.AddValidator(parsedSymbol =>
+            builder.AddValidator(symbol =>
             {
-                if (parsedSymbol.Arguments.Count > 1)
+                if (symbol.Arguments.Count > 1)
                 {
-                    return parsedSymbol.Symbol is Command
-                               ? ValidationMessages.CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), parsedSymbol.Arguments.Count)
-                               : ValidationMessages.OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), parsedSymbol.Arguments.Count);
+                    return symbol is Command command
+                               ? ValidationMessages.CommandAcceptsOnlyOneArgument(command.Definition.ToString(), command.Arguments.Count)
+                               : ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count);
                 }
 
                 return null;
@@ -89,9 +89,9 @@ namespace System.CommandLine
             return builder.Build();
         }
 
-        public static ArgumentsRule OneOrMore(
-            this ArgumentRuleBuilder builder,
-            Func<ParsedSymbol, string> errorMessage = null)
+        public static ArgumentDefinition OneOrMore(
+            this ArgumentDefinitionBuilder builder,
+            Func<Symbol, string> errorMessage = null)
         {
             builder.AddValidator(o =>
             {
@@ -107,9 +107,9 @@ namespace System.CommandLine
                     return errorMessage(o);
                 }
 
-                return o.Symbol is Command
-                           ? ValidationMessages.RequiredArgumentMissingForCommand(o.Symbol.ToString())
-                           : ValidationMessages.RequiredArgumentMissingForOption(o.Symbol.ToString());
+                return o.SymbolDefinition is CommandDefinition
+                           ? ValidationMessages.RequiredArgumentMissingForCommand(o.SymbolDefinition.ToString())
+                           : ValidationMessages.RequiredArgumentMissingForOption(o.SymbolDefinition.ToString());
             });
 
             builder.ArgumentArity = ArgumentArity.Many;
@@ -121,8 +121,8 @@ namespace System.CommandLine
 
         #region set inclusion
 
-        public static ArgumentRuleBuilder FromAmong(
-            this ArgumentRuleBuilder builder,
+        public static ArgumentDefinitionBuilder FromAmong(
+            this ArgumentDefinitionBuilder builder,
             params string[] values)
         {
             builder.ValidTokens.UnionWith(values);
@@ -136,12 +136,12 @@ namespace System.CommandLine
 
         #region files
 
-        public static ArgumentRuleBuilder ExistingFilesOnly(
-            this ArgumentRuleBuilder builder)
+        public static ArgumentDefinitionBuilder ExistingFilesOnly(
+            this ArgumentDefinitionBuilder builder)
         {
-            builder.AddValidator(parsedSymbol =>
+            builder.AddValidator(symbol =>
             {
-                return parsedSymbol.Arguments
+                return symbol.Arguments
                                    .Where(filePath => !File.Exists(filePath) &&
                                                       !Directory.Exists(filePath))
                                    .Select(ValidationMessages.FileDoesNotExist)
@@ -150,12 +150,12 @@ namespace System.CommandLine
             return builder;
         }
 
-        public static ArgumentRuleBuilder LegalFilePathsOnly(
-            this ArgumentRuleBuilder builder)
+        public static ArgumentDefinitionBuilder LegalFilePathsOnly(
+            this ArgumentDefinitionBuilder builder)
         {
-            builder.AddValidator(parsedSymbol =>
+            builder.AddValidator(symbol =>
             {
-                foreach (var arg in parsedSymbol.Arguments)
+                foreach (var arg in symbol.Arguments)
                 {
                     try
                     {
@@ -181,8 +181,8 @@ namespace System.CommandLine
 
         #region type / return value
 
-        public static ArgumentsRule ParseArgumentsAs<T>(
-            this ArgumentRuleBuilder builder) =>
+        public static ArgumentDefinition ParseArgumentsAs<T>(
+            this ArgumentDefinitionBuilder builder) =>
             ParseArgumentsAs<T>(
                 builder,
                 symbol => {
@@ -197,8 +197,8 @@ namespace System.CommandLine
                     return ArgumentParseResult.Failure("this still needs to be implemented");
                 });
 
-        public static ArgumentsRule ParseArgumentsAs<T>(
-            this ArgumentRuleBuilder builder,
+        public static ArgumentDefinition ParseArgumentsAs<T>(
+            this ArgumentDefinitionBuilder builder,
             ConvertArgument convert,
             ArgumentArity? arity = null) =>
             ParseArgumentsAs(
@@ -207,8 +207,8 @@ namespace System.CommandLine
                 convert,
                 arity);
 
-        private static ArgumentsRule ParseArgumentsAs(
-            this ArgumentRuleBuilder builder,
+        private static ArgumentDefinition ParseArgumentsAs(
+            this ArgumentDefinitionBuilder builder,
             Type type,
             ConvertArgument convert,
             ArgumentArity? arity)
@@ -243,8 +243,8 @@ namespace System.CommandLine
 
         #endregion
 
-        public static ArgumentRuleBuilder WithHelp(
-            this ArgumentRuleBuilder builder,
+        public static ArgumentDefinitionBuilder WithHelp(
+            this ArgumentDefinitionBuilder builder,
             string name = null,
             string description = null)
         {
@@ -253,8 +253,8 @@ namespace System.CommandLine
             return builder;
         }
 
-        public static ArgumentRuleBuilder WithDefaultValue(
-            this ArgumentRuleBuilder builder,
+        public static ArgumentDefinitionBuilder WithDefaultValue(
+            this ArgumentDefinitionBuilder builder,
             Func<string> defaultValue)
         {
             builder.DefaultValue = defaultValue;
@@ -262,8 +262,8 @@ namespace System.CommandLine
             return builder;
         }
 
-        public static ArgumentRuleBuilder AddSuggestions(
-            this ArgumentRuleBuilder builder,
+        public static ArgumentDefinitionBuilder AddSuggestions(
+            this ArgumentDefinitionBuilder builder,
             params string[] suggestions)
         {
             builder.SuggestionSource.AddSuggestions(suggestions);
@@ -271,8 +271,8 @@ namespace System.CommandLine
             return builder;
         }
 
-        public static ArgumentRuleBuilder AddSuggestionSource(
-            this ArgumentRuleBuilder builder,
+        public static ArgumentDefinitionBuilder AddSuggestionSource(
+            this ArgumentDefinitionBuilder builder,
             Suggest suggest)
         {
             if (suggest == null)
