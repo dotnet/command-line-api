@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     public class CommandParser : SymbolParser
     {
-        public CommandParser(params Command[] commands) : base(commands)
+        public CommandParser(params CommandDefinition[] commandDefinitions) : base(commandDefinitions)
         {
         }
 

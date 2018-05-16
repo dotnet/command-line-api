@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     public class OptionParser : SymbolParser
     {
-        public OptionParser(params Option[] options) : base(options)
+        public OptionParser(params OptionDefinition[] optionDefinitions) : base(optionDefinitions)
         {
         }
 

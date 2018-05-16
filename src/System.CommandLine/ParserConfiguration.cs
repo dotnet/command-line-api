@@ -7,29 +7,29 @@ namespace System.CommandLine
     public class ParserConfiguration
     {
         public ParserConfiguration(
-            IReadOnlyCollection<Symbol> definedSymbols,
+            IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
             bool allowUnbundling = true)
         {
-            if (definedSymbols == null)
+            if (symbolDefinitions == null)
             {
-                throw new ArgumentNullException(nameof(definedSymbols));
+                throw new ArgumentNullException(nameof(symbolDefinitions));
             }
 
-            if (!definedSymbols.Any())
+            if (!symbolDefinitions.Any())
             {
                 throw new ArgumentException("You must specify at least one option.");
             }
 
-            if (!definedSymbols.OfType<Command>().Any())
+            if (!symbolDefinitions.OfType<CommandDefinition>().Any())
             {
-                RootCommand = Create.RootCommand(definedSymbols.ToArray());
-                DefinedSymbols.Add(RootCommand);
+                RootCommandDefinition = Create.RootCommand(symbolDefinitions.ToArray());
+                SymbolDefinitions.Add(RootCommandDefinition);
             }
             else
             {
-                DefinedSymbols.AddRange(definedSymbols);
+                SymbolDefinitions.AddRange(symbolDefinitions);
             }
 
             ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
@@ -37,7 +37,7 @@ namespace System.CommandLine
 
             if (prefixes?.Count > 0)
             {
-                foreach (Symbol symbol in definedSymbols)
+                foreach (SymbolDefinition symbol in symbolDefinitions)
                 {
                     foreach (string alias in symbol.RawAliases.ToList())
                     {
@@ -53,14 +53,14 @@ namespace System.CommandLine
             }
         }
 
-        public SymbolSet DefinedSymbols { get; } = new SymbolSet();
+        public SymbolDefinitionSet SymbolDefinitions { get; } = new SymbolDefinitionSet();
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
         public bool AllowUnbundling { get; }
 
-        internal Command RootCommand { get; }
+        internal CommandDefinition RootCommandDefinition { get; }
 
-        internal bool RootCommandIsImplicit => RootCommand != null;
+        internal bool RootCommandIsImplicit => RootCommandDefinition != null;
     }
 }

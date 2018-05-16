@@ -9,7 +9,7 @@ namespace System.CommandLine
     {
         private readonly ParserConfiguration configuration;
 
-        protected SymbolParser(IReadOnlyCollection<Symbol> options) : this(new ParserConfiguration(options))
+        protected SymbolParser(IReadOnlyCollection<SymbolDefinition> optionDefinitions) : this(new ParserConfiguration(optionDefinitions))
         {
         }
 
@@ -18,7 +18,7 @@ namespace System.CommandLine
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public SymbolSet DefinedSymbols => configuration.DefinedSymbols;
+        public SymbolDefinitionSet SymbolDefinitions => configuration.SymbolDefinitions;
 
         internal virtual RawParseResult ParseRaw(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
@@ -43,7 +43,7 @@ namespace System.CommandLine
                 if (token.Type != TokenType.Argument)
                 {
                     var definedOption =
-                        DefinedSymbols.SingleOrDefault(o => o.HasAlias(token.Value));
+                        SymbolDefinitions.SingleOrDefault(o => o.HasAlias(token.Value));
 
                     if (definedOption != null)
                     {
@@ -77,7 +77,7 @@ namespace System.CommandLine
                     }
 
                     if (token.Type == TokenType.Argument &&
-                        parsedOption.Symbol is Command)
+                        parsedOption.SymbolDefinition is CommandDefinition)
                     {
                         break;
                     }
@@ -94,7 +94,7 @@ namespace System.CommandLine
                 errors.AddRange(
                     unmatchedTokens.Select(token => UnrecognizedArg(token)));
             }
-            
+
             if (configuration.RootCommandIsImplicit)
             {
                 rawTokens = rawTokens.Skip(1).ToArray();
@@ -110,7 +110,7 @@ namespace System.CommandLine
                 configuration,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,
-                errors, 
+                errors,
                 rawInput);
         }
 
@@ -118,18 +118,18 @@ namespace System.CommandLine
         {
             if (configuration.RootCommandIsImplicit)
             {
-                args = new[] { configuration.RootCommand.Name }.Concat(args).ToArray();
+                args = new[] { configuration.RootCommandDefinition.Name }.Concat(args).ToArray();
             }
 
             var firstArg = args.FirstOrDefault();
 
-            if (DefinedSymbols.Count != 1)
+            if (SymbolDefinitions.Count != 1)
             {
                 return args;
             }
 
-            var commandName = DefinedSymbols
-                              .OfType<Command>()
+            var commandName = SymbolDefinitions
+                              .OfType<CommandDefinition>()
                               .SingleOrDefault()
                               ?.Name;
 

@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public class Option : Symbol
+    public class OptionDefinition : SymbolDefinition
     {
-        public Option(
+        public OptionDefinition(
             IReadOnlyCollection<string> aliases,
             string description,
-            ArgumentsRule arguments = null) 
-            : base(aliases, description, arguments)
+            ArgumentDefinition argumentDefinition = null)
+            : base(aliases, description, argumentDefinition)
         { }
     }
 }

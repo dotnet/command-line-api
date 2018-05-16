@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
         {
             ValidationMessages.Current = new FakeValidationMessages("the-message");
 
-            var builder = new ArgumentRuleBuilder();
+            var builder = new ArgumentDefinitionBuilder();
             var result = Command("the-command", "", builder.ExactlyOne()).Parse("the-command");
 
             result.Errors

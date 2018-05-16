@@ -15,22 +15,22 @@ namespace System.CommandLine
 
         private bool considerAcceptingAnotherArgument = true;
 
-        protected internal ParsedSymbol(Symbol symbol, string token, ParsedCommand parent = null)
+        protected internal ParsedSymbol(SymbolDefinition symbolDefinition, string token, ParsedCommand parent = null)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
             }
 
-            Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
+            SymbolDefinition = symbolDefinition ?? throw new ArgumentNullException(nameof(symbolDefinition));
 
             Token = token;
 
             Parent = parent;
 
-            defaultValue = new Lazy<string>(Symbol.ArgumentsRule.GetDefaultValue);
+            defaultValue = new Lazy<string>(SymbolDefinition.ArgumentDefinition.GetDefaultValue);
         }
-        
+
         public IReadOnlyCollection<string> Arguments
         {
             get
@@ -47,21 +47,21 @@ namespace System.CommandLine
 
         public ParsedSymbolSet Children { get; } = new ParsedSymbolSet();
 
-        public string Name => Symbol.Name;
+        public string Name => SymbolDefinition.Name;
 
         public ParsedCommand Parent { get; }
 
-        public Symbol Symbol { get; }
+        public SymbolDefinition SymbolDefinition { get; }
 
         public string Token { get; }
 
-        public IReadOnlyCollection<string> Aliases => Symbol.Aliases;
+        public IReadOnlyCollection<string> Aliases => SymbolDefinition.Aliases;
 
-        public bool HasAlias(string alias) => Symbol.HasAlias(alias);
+        public bool HasAlias(string alias) => SymbolDefinition.HasAlias(alias);
 
         protected internal virtual ParseError Validate()
         {
-            foreach (var symbolValidator in Symbol.ArgumentsRule.SymbolValidators)
+            foreach (var symbolValidator in SymbolDefinition.ArgumentDefinition.SymbolValidators)
             {
                 var errorMessage = symbolValidator(this);
 
@@ -71,7 +71,7 @@ namespace System.CommandLine
                 }
             }
 
-            result = Symbol.ArgumentsRule.Parser.Parse(this);
+            result = SymbolDefinition.ArgumentDefinition.Parser.Parse(this);
 
             if (result is FailedArgumentParseResult failed)
             {
@@ -94,12 +94,12 @@ namespace System.CommandLine
             {
                 return null;
             }
-            
+
             if (!considerAcceptingAnotherArgument &&
-                !(Symbol is Command))
+                !(SymbolDefinition is CommandDefinition))
             {
-                // Options must be respecified in order to accept additional arguments. This is 
-                // not the case for commands.
+                // Options must be respecified in order to accept additional arguments. This is
+                // not the case for commandDefinitions.
                 return null;
             }
 
@@ -132,18 +132,18 @@ namespace System.CommandLine
 
         public override string ToString() => this.Diagram();
 
-        internal static ParsedSymbol Create(Symbol symbol, string token, ParsedCommand parent = null)
+        internal static ParsedSymbol Create(SymbolDefinition symbolDefinition, string token, ParsedCommand parent = null)
         {
-            switch (symbol)
+            switch (symbolDefinition)
             {
-                case Command command:
+                case CommandDefinition command:
                     return new ParsedCommand(command, parent);
 
-                case Option option:
+                case OptionDefinition option:
                     return new ParsedOption(option, token, parent);
 
                 default:
-                    throw new ArgumentException($"Unrecognized symbol type: {symbol.GetType()}");
+                    throw new ArgumentException($"Unrecognized symbolDefinition type: {symbolDefinition.GetType()}");
             }
         }
 

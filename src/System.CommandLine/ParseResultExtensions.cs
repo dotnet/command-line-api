@@ -42,10 +42,10 @@ namespace System.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
 
-        internal static Command Command(this ParsedSymbolSet options) =>
+        internal static CommandDefinition Command(this ParsedSymbolSet options) =>
             options.FlattenBreadthFirst()
-                   .Select(a => a.Symbol)
-                   .OfType<Command>()
+                   .Select(a => a.SymbolDefinition)
+                   .OfType<CommandDefinition>()
                    .LastOrDefault();
 
         public static ParsedCommand ParsedCommand(this CommandParseResult result)
@@ -111,7 +111,7 @@ namespace System.CommandLine
         {
             builder.Append("[ ");
 
-            builder.Append(option.Symbol);
+            builder.Append(option.SymbolDefinition);
 
             foreach (var child in option.Children)
             {
@@ -165,7 +165,7 @@ namespace System.CommandLine
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
             parseResult?.CurrentParsedSymbol()
-                       ?.Symbol
+                       ?.SymbolDefinition
                        ?.Suggest(parseResult, position ) ??
             Array.Empty<string>();
     }

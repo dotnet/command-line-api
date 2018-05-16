@@ -56,9 +56,9 @@ namespace System.CommandLine
             }
         }
 
-        protected abstract bool ContainsSymbolWithAlias(T option, string alias);
+        protected abstract bool ContainsSymbolWithAlias(T symbol, string alias);
 
-        protected abstract bool ContainsSymbolWithRawAlias(T option, string alias);
+        protected abstract bool ContainsSymbolWithRawAlias(T symbol, string alias);
 
         internal void Add(T option)
         {
@@ -75,9 +75,9 @@ namespace System.CommandLine
             symbols.Add(option);
         }
 
-        protected abstract IReadOnlyCollection<string> RawAliasesFor(T option);
+        protected abstract IReadOnlyCollection<string> RawAliasesFor(T symbol);
 
-        public bool Contains(string alias) => 
+        public bool Contains(string alias) =>
             symbols.Any(option => ContainsSymbolWithAlias(option, alias));
     }
 }

@@ -48,9 +48,9 @@ namespace System.CommandLine
             current.RequiredCommandWasNotProvided().NotWhitespace() ??
             @default.RequiredCommandWasNotProvided();
 
-        internal static string SymbolAcceptsOnlyOneArgument(ParsedSymbol parsedSymbol) => parsedSymbol.Symbol is Command
-                   ? CommandAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), parsedSymbol.Arguments.Count)
-                   : OptionAcceptsOnlyOneArgument(parsedSymbol.Symbol.ToString(), parsedSymbol.Arguments.Count);
+        internal static string SymbolAcceptsOnlyOneArgument(ParsedSymbol parsedSymbol) => parsedSymbol.SymbolDefinition is CommandDefinition
+                   ? CommandAcceptsOnlyOneArgument(parsedSymbol.SymbolDefinition.ToString(), parsedSymbol.Arguments.Count)
+                   : OptionAcceptsOnlyOneArgument(parsedSymbol.SymbolDefinition.ToString(), parsedSymbol.Arguments.Count);
 
         public static string UnrecognizedArgument(
             string unrecognizedArg,

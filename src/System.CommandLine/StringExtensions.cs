@@ -33,12 +33,12 @@ namespace System.CommandLine
             this IEnumerable<string> args,
             ParserConfiguration configuration)
         {
-            Symbol currentCommand = null;
+            SymbolDefinition currentCommand = null;
             bool foundEndOfArguments = false;
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
-            var knownTokens = new HashSet<Token>(configuration.DefinedSymbols.SelectMany(ValidTokens));
+            var knownTokens = new HashSet<Token>(configuration.SymbolDefinitions.SelectMany(ValidTokens));
 
             foreach (var arg in args)
             {
@@ -83,7 +83,7 @@ namespace System.CommandLine
                     }
                 }
                 else if (knownTokens.All(t => t.Value != arg) ||
-                         // if token matches the current command name, consider it an argument
+                         // if token matches the current commandDefinition name, consider it an argument
                          currentCommand?.Name == arg)
                 {
                     yield return Argument(arg);
@@ -97,8 +97,8 @@ namespace System.CommandLine
                     else
                     {
                         // when a subcommand is encountered, re-scope which tokens are valid
-                        currentCommand = (currentCommand?.DefinedSymbols ??
-                                          configuration.DefinedSymbols)[arg];
+                        currentCommand = (currentCommand?.SymbolDefinitions ??
+                                          configuration.SymbolDefinitions)[arg];
                         knownTokens = currentCommand.ValidTokens();
                         yield return Command(arg);
                     }
@@ -151,12 +151,12 @@ namespace System.CommandLine
         internal static string NotWhitespace(this string value) =>
             string.IsNullOrWhiteSpace(value) ? null : value;
 
-        private static HashSet<Token> ValidTokens(this Symbol symbol) =>
+        private static HashSet<Token> ValidTokens(this SymbolDefinition symbolDefinition) =>
             new HashSet<Token>(
-                symbol.RawAliases
+                symbolDefinition.RawAliases
                       .Select(Command)
                       .Concat(
-                          symbol.DefinedSymbols
+                          symbolDefinition.SymbolDefinitions
                                 .SelectMany(
                                     s =>
                                         s.RawAliases
@@ -164,7 +164,7 @@ namespace System.CommandLine
                                              a =>
                                                  new Token(
                                                      a,
-                                                     s is Command
+                                                     s is CommandDefinition
                                                          ? TokenType.Command
                                                          : TokenType.Option)))));
     }

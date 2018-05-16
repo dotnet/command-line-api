@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Option("-x", "",
-                                         new ArgumentRuleBuilder().ZeroOrOne()));
+                                         new ArgumentDefinitionBuilder().ZeroOrOne()));
 
             var result = command.Parse("the-command -x the-argument");
 
@@ -145,7 +145,7 @@ namespace System.CommandLine.Tests
         public void By_default_an_option_with_exactly_one_argument_parses_as_the_argument_string_value_by_default()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", new ArgumentRuleBuilder().ExactlyOne()));
+                                  Option("-x", "", new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = command.Parse("the-command -x the-argument");
 
@@ -159,7 +159,7 @@ namespace System.CommandLine.Tests
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", new ArgumentRuleBuilder().ExactlyOne()));
+                                  Option("-x", "", new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = command.Parse("the-command -x");
 
@@ -177,7 +177,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Option("-x", "",
-                                         new ArgumentRuleBuilder().ZeroOrMore()));
+                                         new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             var result = command.Parse("the-command -x");
 
@@ -195,7 +195,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("the-command", "",
                                   Option("-x", "",
-                                         new ArgumentRuleBuilder().OneOrMore()));
+                                         new ArgumentDefinitionBuilder().OneOrMore()));
 
             var result = command.Parse("the-command -x");
 
@@ -212,7 +212,7 @@ namespace System.CommandLine.Tests
         public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_multiple_arguments_parses_as_a_sequence_of_strings()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()));
+                                  Option("-x", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             command.Parse("the-command -x arg1 -x arg2").ParsedCommand()
                    .ValueForOption("x")
@@ -223,7 +223,7 @@ namespace System.CommandLine.Tests
         public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_one_argument_parses_as_a_sequence_of_strings()
         {
             var command = Command("the-command", "",
-                                  Option("-x", "", new ArgumentRuleBuilder().ZeroOrMore()));
+                                  Option("-x", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             command.Parse("the-command -x arg1")
                    .ParsedCommand()
@@ -234,7 +234,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_an_option_without_arguments_parses_as_true_when_it_is_applied()
         {
-            var command = Command("something", "", ArgumentsRule.None,
+            var command = Command("something", "", ArgumentDefinition.None,
                                   Option("-x", ""));
 
             var result = command.Parse("something -x");

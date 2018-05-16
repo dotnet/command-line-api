@@ -15,9 +15,9 @@ namespace System.CommandLine.Tests
             var parser = new CommandParser(
                 Command("the-command",
                         "Does the thing.",
-                        new ArgumentRuleBuilder().ZeroOrMore(),
-                        Option("-x", "Specifies value x", new ArgumentRuleBuilder().ExactlyOne()),
-                        Option("-y", "Specifies value y", ArgumentsRule.None)));
+                        new ArgumentDefinitionBuilder().ZeroOrMore(),
+                        Option("-x", "Specifies value x", new ArgumentDefinitionBuilder().ExactlyOne()),
+                        Option("-y", "Specifies value y", ArgumentDefinition.None)));
 
             var result = parser.Parse("the-command -x one -y two three");
 
@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests
             var parser = new CommandParser(
                 Command("command", "",
                         Option("-x", "",
-                               arguments: new ArgumentRuleBuilder()
+                               argumentDefinition: new ArgumentDefinitionBuilder()
                                           .FromAmong("arg1", "arg2", "arg3")
                                           .ExactlyOne())));
 

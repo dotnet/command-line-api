@@ -118,10 +118,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_command_does_not_accept_arguments_then_the_synopsis_does_not_show_them()
         {
-            var builder = new ArgumentRuleBuilder();
+            var builder = new ArgumentDefinitionBuilder();
             var command = Command("the-command",
                                   "command help",
-                                  ArgumentsRule.None,
+                                  ArgumentDefinition.None,
                                   Option("-v|--verbosity", "Sets the verbosity"));
 
             var helpView = command.HelpView();
@@ -134,11 +134,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_view_wraps_with_aligned_column_when_help_text_contains_newline()
         {
-            var builder = new ArgumentRuleBuilder();
+            var builder = new ArgumentDefinitionBuilder();
             var command = Command("the-command",
                                   "command help",
                                   Option("-v|--verbosity",
-                                         $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud", 
+                                         $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud",
                                       builder.ExactlyOne()));
 
             var helpView = command.HelpView();
@@ -231,7 +231,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("some-command", "Does something",
                                   treatUnmatchedTokensAsErrors: false,
-                                  symbols: Option("-x", "Indicates whether x"));
+                                  symbolsDefinition: Option("-x", "Indicates whether x"));
 
             var helpView = command.HelpView();
 
@@ -242,12 +242,12 @@ namespace System.CommandLine.Tests
 
         [Fact]
         public void Retain_single_dash_on_multi_char_option()
-        { 
+        {
             var command = Command("command", "Help Test",
-                Option("-multi|--alt-option", "Help for option")); 
-            var helpView = command.HelpView(); 
-            helpView.Should().Contain("-multi"); 
-            helpView.Should().NotContain("--multi"); 
+                Option("-multi|--alt-option", "Help for option"));
+            var helpView = command.HelpView();
+            helpView.Should().Contain("-multi");
+            helpView.Should().NotContain("--multi");
         }
 
         [Fact]

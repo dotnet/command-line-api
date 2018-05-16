@@ -7,16 +7,16 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public abstract class Symbol : ISuggestionSource
+    public abstract class SymbolDefinition : ISuggestionSource
     {
         private readonly HashSet<string> aliases = new HashSet<string>();
 
         private readonly HashSet<string> rawAliases;
 
-        protected internal Symbol(
+        protected internal SymbolDefinition(
             IReadOnlyCollection<string> aliases,
             string description,
-            ArgumentsRule arguments = null)
+            ArgumentDefinition argumentDefinition = null)
         {
             if (aliases == null)
             {
@@ -47,18 +47,18 @@ namespace System.CommandLine
                    .OrderBy(a => a.Length)
                    .Last();
 
-            ArgumentsRule = arguments ?? ArgumentsRule.None;
+            ArgumentDefinition = argumentDefinition ?? ArgumentDefinition.None;
         }
 
         public IReadOnlyCollection<string> Aliases => aliases;
 
         public IReadOnlyCollection<string> RawAliases => rawAliases;
-        
-        public SymbolSet DefinedSymbols { get; } = new SymbolSet();
+
+        public SymbolDefinitionSet SymbolDefinitions { get; } = new SymbolDefinitionSet();
 
         public string Description { get; }
 
-        protected internal ArgumentsRule ArgumentsRule { get; protected set; }
+        protected internal ArgumentDefinition ArgumentDefinition { get; protected set; }
 
         public string Name { get; }
 
@@ -66,11 +66,11 @@ namespace System.CommandLine
             ParseResult parseResult,
             int? position = null)
         {
-            var symbolAliases = DefinedSymbols
+            var symbolAliases = SymbolDefinitions
                                 .Where(s => !s.IsHidden())
                                 .SelectMany(s => s.RawAliases);
 
-            var argumentSuggestions = ArgumentsRule.SuggestionSource
+            var argumentSuggestions = ArgumentDefinition.SuggestionSource
                                                    .Suggest(parseResult, position);
 
             return symbolAliases.Concat(argumentSuggestions)
@@ -80,7 +80,7 @@ namespace System.CommandLine
         }
 
         // FIX: (Parent) make this immutable
-        public Command Parent { get; protected internal set; }
+        public CommandDefinition Parent { get; protected internal set; }
 
         public bool HasAlias(string alias) => aliases.Contains(alias.RemovePrefix());
 

@@ -9,66 +9,66 @@ using System.Reflection;
 
 namespace System.CommandLine
 {
-    public class Command : Symbol
+    public class CommandDefinition : SymbolDefinition
     {
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
-        public Command(
-            IReadOnlyCollection<Symbol> symbols) :
+        public CommandDefinition(
+            IReadOnlyCollection<SymbolDefinition> symbols) :
             this(executableName.Value, "", symbols)
         {
         }
 
-        public Command(
+        public CommandDefinition(
             string name,
             string description,
-            ArgumentsRule arguments,
+            ArgumentDefinition argumentDefinition,
             bool treatUnmatchedTokensAsErrors = true) :
-            base(new[] { name }, description, arguments)
+            base(new[] { name }, description, argumentDefinition)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
         }
 
-        public Command(
+        public CommandDefinition(
             string name,
             string description,
-            IReadOnlyCollection<Symbol> symbols,
-            ArgumentsRule arguments = null,
+            IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
+            ArgumentDefinition argumentDefinition = null,
             bool treatUnmatchedTokensAsErrors = true) :
             base(new[] { name }, description)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
 
-            var validSymbolAliases = symbols
+            var validSymbolAliases = symbolDefinitions
                                      .SelectMany(o => o.RawAliases)
                                      .ToArray();
 
-            ArgumentRuleBuilder builder;
-            if (arguments == null)
+            ArgumentDefinitionBuilder builder;
+            if (argumentDefinition == null)
             {
-                builder = new ArgumentRuleBuilder();
+                builder = new ArgumentDefinitionBuilder();
             }
             else
             {
-                builder = ArgumentRuleBuilder.From(arguments);
+                builder = ArgumentDefinitionBuilder.From(argumentDefinition);
             }
 
             builder.ValidTokens.UnionWith(validSymbolAliases);
 
-            if (arguments == null)
+            if (argumentDefinition == null)
             {
-                ArgumentsRule = builder.ZeroOrMore();
+                ArgumentDefinition = builder.ZeroOrMore();
             }
             else
             {
-                ArgumentsRule = arguments;
+                ArgumentDefinition = argumentDefinition;
             }
 
-            foreach (Symbol symbol in symbols)
+            foreach (SymbolDefinition symbol in symbolDefinitions)
             {
                 symbol.Parent = this;
-                DefinedSymbols.Add(symbol);
+                SymbolDefinitions.Add(symbol);
             }
         }
 

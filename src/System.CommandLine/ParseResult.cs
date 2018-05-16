@@ -14,7 +14,7 @@ namespace System.CommandLine
     {
         private readonly ParserConfiguration configuration;
         private readonly List<ParseError> errors = new List<ParseError>();
-        private Command command;
+        private CommandDefinition _commandDefinition;
 
         internal ParseResult(
             IReadOnlyCollection<string> tokens,
@@ -56,10 +56,10 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public Command Command() =>
-            command ??
-            (command = configuration.RootCommandIsImplicit
-                           ? configuration.DefinedSymbols.OfType<Command>().Single()
+        public CommandDefinition Command() =>
+            _commandDefinition ??
+            (_commandDefinition = configuration.RootCommandIsImplicit
+                           ? configuration.SymbolDefinitions.OfType<CommandDefinition>().Single()
                            : ParsedSymbols.Command());
 
         private void CheckForErrors()
@@ -77,7 +77,7 @@ namespace System.CommandLine
             var command = Command();
 
             if (command != null &&
-                command.DefinedSymbols.OfType<Command>().Any())
+                command.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
                 ParsedCommand parsedCommand = null;
 

@@ -5,8 +5,8 @@ namespace System.CommandLine
 {
     public class ParsedOption : ParsedSymbol
     {
-        public ParsedOption(Option option, string token = null, ParsedCommand parent = null) :
-            base(option, token ?? option?.ToString(), parent)
+        public ParsedOption(OptionDefinition optionDefinition, string token = null, ParsedCommand parent = null) :
+            base(optionDefinition, token ?? optionDefinition?.ToString(), parent)
         {
         }
 
@@ -16,11 +16,11 @@ namespace System.CommandLine
         protected internal override ParseError Validate()
         {
             if (Arguments.Count > 1 &&
-                Symbol.ArgumentsRule.Parser.ArgumentArity != ArgumentArity.Many)
+                SymbolDefinition.ArgumentDefinition.Parser.ArgumentArity != ArgumentArity.Many)
             {
                 // TODO: (Validate) localize
                 return new ParseError(
-                    $"Option '{Symbol}' cannot be specified more than once.",
+                    $"Option '{SymbolDefinition}' cannot be specified more than once.",
                     this,
                     false);
             }

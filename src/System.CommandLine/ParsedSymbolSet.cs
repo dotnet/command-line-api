@@ -12,13 +12,13 @@ namespace System.CommandLine
         {
         }
 
-        protected override bool ContainsSymbolWithAlias(ParsedSymbol option, string alias) =>
-            option.Symbol.HasAlias(alias);
+        protected override bool ContainsSymbolWithAlias(ParsedSymbol symbol, string alias) =>
+            symbol.SymbolDefinition.HasAlias(alias);
 
-        protected override bool ContainsSymbolWithRawAlias(ParsedSymbol option, string alias) =>
-            option.Symbol.HasRawAlias(alias);
+        protected override bool ContainsSymbolWithRawAlias(ParsedSymbol symbol, string alias) =>
+            symbol.SymbolDefinition.HasRawAlias(alias);
 
-        protected override IReadOnlyCollection<string> RawAliasesFor(ParsedSymbol option) =>
-            option.Symbol.RawAliases;
+        protected override IReadOnlyCollection<string> RawAliasesFor(ParsedSymbol symbol) =>
+            symbol.SymbolDefinition.RawAliases;
     }
 }

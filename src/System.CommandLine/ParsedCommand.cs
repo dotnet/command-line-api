@@ -8,14 +8,14 @@ namespace System.CommandLine
 {
     public class ParsedCommand : ParsedSymbol
     {
-        public ParsedCommand(Command command, ParsedCommand parent = null) : base(command, command?.Name, parent)
+        public ParsedCommand(CommandDefinition commandDefinition, ParsedCommand parent = null) : base(commandDefinition, commandDefinition?.Name, parent)
         {
-            Command = command ?? throw new ArgumentNullException(nameof(command));
+            CommandDefinition = commandDefinition ?? throw new ArgumentNullException(nameof(commandDefinition));
 
-            AddImplicitOptions(command);
+            AddImplicitOptions(commandDefinition);
         }
 
-        public Command Command { get; }
+        public CommandDefinition CommandDefinition { get; }
 
         public ParsedOption this[string alias] => (ParsedOption) Children[alias];
 
@@ -23,12 +23,12 @@ namespace System.CommandLine
             TryTakeArgument(token) ??
             TryTakeOptionOrCommand(token);
 
-        private void AddImplicitOptions(Command command)
+        private void AddImplicitOptions(CommandDefinition commandDefinition)
         {
-            foreach (var childOption in command.DefinedSymbols.OfType<Option>())
+            foreach (var childOption in commandDefinition.SymbolDefinitions.OfType<OptionDefinition>())
             {
                 if (!Children.Contains(childOption.Name) &&
-                    childOption.ArgumentsRule.HasDefaultValue)
+                    childOption.ArgumentDefinition.HasDefaultValue)
                 {
                     Children.Add(
                         new ParsedOption(childOption, childOption.Name));
@@ -40,7 +40,7 @@ namespace System.CommandLine
         {
             var child = Children
                 .SingleOrDefault(o =>
-                                     o.Symbol.DefinedSymbols
+                                     o.SymbolDefinition.SymbolDefinitions
                                       .Any(oo => oo.RawAliases.Contains(token.Value)));
 
             if (child != null)
@@ -49,7 +49,7 @@ namespace System.CommandLine
             }
 
             if (token.Type == TokenType.Command &&
-                Children.Any(o => o.Symbol is Command &&
+                Children.Any(o => o.SymbolDefinition is CommandDefinition &&
                                   !o.HasAlias(token.Value)))
             {
                 // if a subcommand has already been applied, don't accept this one
@@ -57,7 +57,7 @@ namespace System.CommandLine
             }
 
             var parsedSymbol =
-                Children.SingleOrDefault(o => o.Symbol.HasRawAlias(token.Value));
+                Children.SingleOrDefault(o => o.SymbolDefinition.HasRawAlias(token.Value));
 
             if (parsedSymbol != null)
             {
@@ -66,7 +66,7 @@ namespace System.CommandLine
             }
 
             parsedSymbol =
-                Symbol.DefinedSymbols
+                SymbolDefinition.SymbolDefinitions
                       .Where(o => o.RawAliases.Contains(token.Value))
                       .Select(o => Create(o, token.Value, this))
                       .SingleOrDefault();
