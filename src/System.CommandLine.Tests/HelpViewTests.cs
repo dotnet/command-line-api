@@ -231,7 +231,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("some-command", "Does something",
                                   treatUnmatchedTokensAsErrors: false,
-                                  symbolsDefinition: Option("-x", "Indicates whether x"));
+                                  symbolDefinitions: Option("-x", "Indicates whether x"));
 
             var helpView = command.HelpView();
 

@@ -25,30 +25,30 @@ namespace System.CommandLine
         public static CommandDefinition Command(
             string name,
             string description,
-            params SymbolDefinition[] options) =>
-            new CommandDefinition(name, description, options);
+            params SymbolDefinition[] symbolDefinitions) =>
+            new CommandDefinition(name, description, symbolDefinitions);
 
         public static CommandDefinition Command(
             string name,
             string description,
             bool treatUnmatchedTokensAsErrors,
-            params SymbolDefinition[] symbolsDefinition) =>
-            new CommandDefinition(name, description, symbolsDefinition, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
+            params SymbolDefinition[] symbolDefinitions) =>
+            new CommandDefinition(name, description, symbolDefinitions, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
 
         public static CommandDefinition Command(
             string name,
             string description,
             ArgumentDefinition arguments = null,
-            params SymbolDefinition[] symbolsDefinition) =>
-            new CommandDefinition(name, description, symbolsDefinition, arguments);
+            params SymbolDefinition[] symbolDefinitions) =>
+            new CommandDefinition(name, description, symbolDefinitions, arguments);
 
         public static CommandDefinition Command(
             string name,
             string description,
             ArgumentDefinition arguments,
             bool treatUnmatchedTokensAsErrors,
-            params SymbolDefinition[] options) =>
-            new CommandDefinition(name, description, options, arguments, treatUnmatchedTokensAsErrors);
+            params SymbolDefinition[] symbolDefinitions) =>
+            new CommandDefinition(name, description, symbolDefinitions, arguments, treatUnmatchedTokensAsErrors);
 
         public static CommandDefinition Command(
             string name,
