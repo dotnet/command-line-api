@@ -25,8 +25,10 @@ namespace System.CommandLine.Tests
             parser = new CommandParser(
                 Command("outer", "",
                         Command("inner", "",
-                                Option("--option", "",
-                                       argumentDefinition: builder.ExactlyOne()))));
+                                new OptionDefinition(
+                                    "--option",
+                                    "",
+                                    argumentDefinition: builder.ExactlyOne()))));
         }
 
         [Fact]
@@ -131,7 +133,10 @@ namespace System.CommandLine.Tests
                                   Command("sibling", "", new ArgumentDefinitionBuilder().ZeroOrMore()),
                                   Command("inner", "",
                                           Command("inner-er", "",
-                                                  Option("-x", "", new ArgumentDefinitionBuilder().ZeroOrMore()))));
+                                                  new OptionDefinition(
+                                                      "-x",
+                                                      "",
+                                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()))));
 
             var result = command.Parse("outer inner inner-er -x arg");
 
@@ -148,8 +153,14 @@ namespace System.CommandLine.Tests
             var command = new CommandDefinition(
                 new[]
                 {
-                    Option("-x", ""),
-                    Option("-y", "")
+                    new OptionDefinition(
+                        "-x",
+                        "",
+                        argumentDefinition: null),
+                    new OptionDefinition(
+                        "-y",
+                        "",
+                        argumentDefinition: null)
                 });
 
             command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
@@ -159,8 +170,14 @@ namespace System.CommandLine.Tests
         public void ParseResult_Command_identifies_implicit_root_command()
         {
             var parser1 = new OptionParser(
-                Option("-x", ""),
-                Option("-y", ""));
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: null),
+                new OptionDefinition(
+                    "-y",
+                    "",
+                    argumentDefinition: null));
 
             var result = parser1.Parse("-x -y");
 
@@ -178,8 +195,10 @@ namespace System.CommandLine.Tests
                                       new ArgumentDefinitionBuilder().ExactlyOne()),
                                   Command("inner", "",
                                           Command("inner-er", "",
-                                                  Option("-x", "",
-                                                      new ArgumentDefinitionBuilder().ExactlyOne()))));
+                                                  new OptionDefinition(
+                                                      "-x",
+                                                      "",
+                                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()))));
 
             var result = command.Parse("outer inner inner-er -x arg");
 

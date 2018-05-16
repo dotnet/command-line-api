@@ -13,10 +13,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_Suggest_returns_argument_suggestions_if_configured()
         {
-            var option = Create.Option("--hello", "",
-                                       Define.Arguments()
-                                             .AddSuggestions("one", "two", "three")
-                                             .ExactlyOne());
+            var option = new OptionDefinition(
+                "--hello",
+                "",
+                argumentDefinition: Define.Arguments()
+                                          .AddSuggestions("one", "two", "three")
+                                          .ExactlyOne());
 
             var suggestions = option.Suggest(option.Parse("--hello"));
 
@@ -27,9 +29,18 @@ namespace System.CommandLine.Tests
         public void Command_Suggest_returns_available_option_aliases()
         {
             var command = Create.Command("command", "a command",
-                                         Create.Option("--one", "option one"),
-                                         Create.Option("--two", "option two"),
-                                         Create.Option("--three", "option three"));
+                                         new OptionDefinition(
+                                             "--one",
+                                             "option one",
+                                             argumentDefinition: null),
+                                         new OptionDefinition(
+                                             "--two",
+                                             "option two",
+                                             argumentDefinition: null),
+                                         new OptionDefinition(
+                                             "--three",
+                                             "option three",
+                                             argumentDefinition: null));
 
             var suggestions = command.Suggest(command.Parse("command "));
 
@@ -54,7 +65,10 @@ namespace System.CommandLine.Tests
         {
             var command = Create.Command("command", "a command",
                                          Create.Command("subcommand", "subcommand"),
-                                         Create.Option("--option", "option"));
+                                         new OptionDefinition(
+                                             "--option",
+                                             "option",
+                                             argumentDefinition: null));
 
             var suggestions = command.Suggest(command.Parse("command "));
 
@@ -69,7 +83,10 @@ namespace System.CommandLine.Tests
                                                .AddSuggestions("command-argument")
                                                .OneOrMore(),
                                          Create.Command("subcommand", "subcommand"),
-                                         Create.Option("--option", "option"));
+                                         new OptionDefinition(
+                                             "--option",
+                                             "option",
+                                             argumentDefinition: null));
 
             var suggestions = command.Suggest(command.Parse("command "));
 
@@ -82,8 +99,14 @@ namespace System.CommandLine.Tests
         {
             var command = Create.Command(
                 "the-command", "Does things.",
-                Create.Option("--hide-me", ""),
-                Create.Option("-n", "Not hidden"));
+                new OptionDefinition(
+                    "--hide-me",
+                    "",
+                    argumentDefinition: null),
+                new OptionDefinition(
+                    "-n",
+                    "Not hidden",
+                    argumentDefinition: null));
 
             var suggestions = command.Parse("the-command ").Suggestions();
 
@@ -94,17 +117,21 @@ namespace System.CommandLine.Tests
         public void Parser_options_can_supply_context_sensitive_matches()
         {
             var parser = new OptionParser(
-                Create.Option("--bread", "",
-                              new ArgumentDefinitionBuilder()
-                                  .FromAmong("wheat", "sourdough", "rye")
-                                  .ExactlyOne()),
-                Create.Option("--cheese", "",
-                              new ArgumentDefinitionBuilder()
-                                  .FromAmong(
-                                      "provolone",
-                                      "cheddar",
-                                      "cream cheese")
-                                  .ExactlyOne()));
+                new OptionDefinition(
+                    "--bread",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder()
+                                        .FromAmong("wheat", "sourdough", "rye")
+                                        .ExactlyOne()),
+                new OptionDefinition(
+                    "--cheese",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder()
+                                        .FromAmong(
+                                            "provolone",
+                                            "cheddar",
+                                            "cream cheese")
+                                        .ExactlyOne()));
 
             var result = parser.Parse("--bread ");
 
@@ -139,7 +166,10 @@ namespace System.CommandLine.Tests
             var command = Create.Command("test", "",
                                          new ArgumentDefinitionBuilder().ExactlyOne(),
                                          Create.Command("one", "Command one"),
-                                         Create.Option("--one", "Option one"));
+                                         new OptionDefinition(
+                                             "--one",
+                                             "Option one",
+                                             argumentDefinition: null));
 
             command.Parse("test ")
                    .Suggestions()
@@ -154,9 +184,18 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Create.Command("outer", "",
-                    Create.Option("--one", "Option one"),
-                    Create.Option("--two", "Option two"),
-                    Create.Option("--three", "Option three")));
+                    new OptionDefinition(
+                        "--one",
+                        "Option one",
+                        argumentDefinition: null),
+                    new OptionDefinition(
+                        "--two",
+                        "Option two",
+                        argumentDefinition: null),
+                    new OptionDefinition(
+                        "--three",
+                        "Option three",
+                        argumentDefinition: null)));
 
             CommandParseResult result = parser.Parse(input);
             result.Suggestions().Should().BeEmpty();
@@ -167,9 +206,18 @@ namespace System.CommandLine.Tests
         {
             CommandParser parser = new CommandParser(
                 Create.Command("outer", "",
-                    Create.Option("--one", "Option one"),
-                    Create.Option("--two", "Option two"),
-                    Create.Option("--three", "Option three")));
+                    new OptionDefinition(
+                        "--one",
+                        "Option one",
+                        argumentDefinition: null),
+                    new OptionDefinition(
+                        "--two",
+                        "Option two",
+                        argumentDefinition: null),
+                    new OptionDefinition(
+                        "--three",
+                        "Option three",
+                        argumentDefinition: null)));
 
             CommandParseResult result = parser.Parse("outer ");
             result.Suggestions().Should().BeEquivalentTo("--one", "--two", "--three");
@@ -180,10 +228,14 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Create.Command("outer", "",
-                    Create.Option("--one", "",
-                            Define.Arguments().FromAmong("one-a", "one-b").ExactlyOne()),
-                    Create.Option("--two", "",
-                            Define.Arguments().FromAmong("two-a", "two-b").ExactlyOne())));
+                    new OptionDefinition(
+                        "--one",
+                        "",
+                        argumentDefinition: Define.Arguments().FromAmong("one-a", "one-b").ExactlyOne()),
+                    new OptionDefinition(
+                        "--two",
+                        "",
+                        argumentDefinition: Define.Arguments().FromAmong("two-a", "two-b").ExactlyOne())));
 
             CommandParseResult result = parser.Parse("outer --two ");
 
@@ -207,12 +259,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Suggestions_can_be_provided_in_the_absence_of_validation()
         {
-            CommandDefinition commandDefinition = Create.Command("the-command", "", Create.Option("-t", "",
-                                      Define.Arguments()
-                                          .AddSuggestions("vegetable",
-                                              "mineral",
-                                              "animal")
-                                          .ExactlyOne()));
+            CommandDefinition commandDefinition = Create.Command("the-command", "", new OptionDefinition(
+                                                                     "-t",
+                                                                     "",
+                                                                     argumentDefinition: Define.Arguments()
+                                                                                               .AddSuggestions("vegetable",
+                                                                                                               "mineral",
+                                                                                                               "animal")
+                                                                                               .ExactlyOne()));
 
             commandDefinition.Parse("the-command -t m")
                    .Suggestions()
@@ -249,13 +303,19 @@ namespace System.CommandLine.Tests
         public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
         {
             var parser = new CommandParser(Create.Command("outer", "",
-                    ArgumentDefinition.None, Create.Option("one", "",
-                            Define.Arguments().FromAmong("one-a", "one-b", "one-c")
-                                .ExactlyOne()), Create.Option("two", "",
-                            Define.Arguments().FromAmong("two-a", "two-b", "two-c")
-                                .ExactlyOne()), Create.Option("three", "",
-                            Define.Arguments().FromAmong("three-a", "three-b", "three-c")
-                                .ExactlyOne())));
+                    ArgumentDefinition.None, new OptionDefinition(
+                                                              "one",
+                                                              "",
+                                                              argumentDefinition: Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                                                                                        .ExactlyOne()), new OptionDefinition(
+                                                              "two",
+                                                              "",
+                                                              argumentDefinition: Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                                                                                        .ExactlyOne()), new OptionDefinition(
+                                                              "three",
+                                                              "",
+                                                              argumentDefinition: Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                                                                                        .ExactlyOne())));
 
             CommandParseResult result = parser.Parse(new[] { "outer", "two", "b" });
 
@@ -269,15 +329,21 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandParser(
                 Create.Command("outer", "", ArgumentDefinition.None,
-                    Create.Option("one", "",
-                        Define.Arguments().FromAmong("one-a", "one-b", "one-c")
-                                .ExactlyOne()),
-                    Create.Option("two", "",
-                        Define.Arguments().FromAmong("two-a", "two-b", "two-c")
-                                .ExactlyOne()),
-                    Create.Option("three", "",
-                        Define.Arguments().FromAmong("three-a", "three-b", "three-c")
-                                .ExactlyOne())));
+                    new OptionDefinition(
+                        "one",
+                        "",
+                        argumentDefinition: Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                                                  .ExactlyOne()),
+                    new OptionDefinition(
+                        "two",
+                        "",
+                        argumentDefinition: Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                                                  .ExactlyOne()),
+                    new OptionDefinition(
+                        "three",
+                        "",
+                        argumentDefinition: Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                                                  .ExactlyOne())));
 
             CommandParseResult result = parser.Parse("outer two b");
 
@@ -338,8 +404,14 @@ namespace System.CommandLine.Tests
         public void When_position_is_unspecified_then_TextToMatch_matches_partial_argument_at_end_of_command_line()
         {
             CommandDefinition commandDefinition = Create.Command("the-command", "",
-                Create.Option("--option1", ""),
-                Create.Option("--option2", ""));
+                new OptionDefinition(
+                    "--option1",
+                    "",
+                    argumentDefinition: null),
+                new OptionDefinition(
+                    "--option2",
+                    "",
+                    argumentDefinition: null));
 
             string textToMatch = commandDefinition.Parse("the-command t")
                                      .TextToMatch();
@@ -351,8 +423,14 @@ namespace System.CommandLine.Tests
         public void When_position_is_unspecified_and_command_line_ends_with_a_space_then_TextToMatch_returns_empty()
         {
             CommandDefinition commandDefinition = Create.Command("the-command", "",
-                Create.Option("--option1", ""),
-                Create.Option("--option2", ""));
+                new OptionDefinition(
+                    "--option1",
+                    "",
+                    argumentDefinition: null),
+                new OptionDefinition(
+                    "--option2",
+                    "",
+                    argumentDefinition: null));
 
             string textToMatch = commandDefinition.Parse("the-command t ")
                                      .TextToMatch();

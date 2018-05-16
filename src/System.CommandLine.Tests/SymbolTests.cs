@@ -15,7 +15,10 @@ namespace System.CommandLine.Tests
         public void ParsedOption_with_exactly_one_argument_accepts_single_argument()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var optionDefinition = Option("-x", "", builder.ExactlyOne());
+            var optionDefinition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: builder.ExactlyOne());
 
             var applied = new Option(optionDefinition, "-x");
 
@@ -32,7 +35,10 @@ namespace System.CommandLine.Tests
         public void ParsedOption_with_exactly_one_argument_does_not_accept_two_arguments()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var definition = Option("-x", "", builder.ExactlyOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: builder.ExactlyOne());
 
             var applied = new Option(definition, "-x");
 
@@ -47,7 +53,10 @@ namespace System.CommandLine.Tests
         public void ParsedOption_with_specific_arguments_does_not_accept_argument_that_does_not_match()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var definition = Option("-x", "", builder.FromAmong("one", "two", "three").ExactlyOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: builder.FromAmong("one", "two", "three").ExactlyOne());
 
             var option = new Option(definition, "-x");
 
@@ -59,7 +68,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParsedOption_with_no_arguments_does_not_accept_arguments()
         {
-            var definition = Option("-x", "", ArgumentDefinition.None);
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: ArgumentDefinition.None);
 
             var option = new Option(definition, "-x");
 
@@ -75,8 +87,10 @@ namespace System.CommandLine.Tests
         {
             var builder = new ArgumentDefinitionBuilder();
             var definition = Command("outer", "",
-                                 Option("inner", "",
-                                        builder.ExactlyOne()));
+                                 new OptionDefinition(
+                                     "inner",
+                                     "",
+                                     argumentDefinition: builder.ExactlyOne()));
 
             var command = new Command(definition);
 
@@ -94,8 +108,14 @@ namespace System.CommandLine.Tests
         public void Command_can_have_multiple_nested_options_with_args()
         {
             var definition = Command("outer", "",
-                                 Option("inner1", "", new ArgumentDefinitionBuilder().ExactlyOne()),
-                                 Option("inner2", "", new ArgumentDefinitionBuilder().ExactlyOne()));
+                                 new OptionDefinition(
+                                     "inner1",
+                                     "",
+                                     argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()),
+                                 new OptionDefinition(
+                                     "inner2",
+                                     "",
+                                     argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var command = new Command(definition);
 
@@ -119,12 +139,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_argument_value_is_valid_without_having_the_argument_supplied()
         {
-            var definition = Option("-x",
-                                "",
-                                Define.Arguments()
-                                      .FromAmong("one", "two", "default")
-                                      .WithDefaultValue(() => "default")
-                                      .ExactlyOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Define.Arguments()
+                                          .FromAmong("one", "two", "default")
+                                          .WithDefaultValue(() => "default")
+                                          .ExactlyOne());
 
             var option = new Option(definition, "-x");
 
@@ -134,11 +155,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_argument_value_will_accept_a_different_value()
         {
-            var definition = Option("-x",
-                                "",
-                                Define.Arguments().FromAmong("one", "two", "default")
-                                      .WithDefaultValue(defaultValue: () => "default")
-                                      .ExactlyOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Define.Arguments().FromAmong("one", "two", "default")
+                                          .WithDefaultValue(defaultValue: () => "default")
+                                          .ExactlyOne());
 
             var option = new Option(definition, "-x");
 
@@ -152,11 +174,12 @@ namespace System.CommandLine.Tests
         {
             var i = 0;
             var definition =
-                Option("-x",
-                       "",
-                       Define.Arguments()
-                             .WithDefaultValue(() => (++i).ToString())
-                             .ExactlyOne());
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: Define.Arguments()
+                                              .WithDefaultValue(() => (++i).ToString())
+                                              .ExactlyOne());
 
             var result1 = definition.Parse("-x");
             var result2 = definition.Parse("-x");
@@ -191,7 +214,10 @@ namespace System.CommandLine.Tests
         public void HasOption_can_be_used_to_check_the_presence_of_an_option()
         {
             var definition = Command("the-command", "",
-                                  Option("-h|--help", ""));
+                                  new OptionDefinition(
+                                      new[] {"-h", "--help"},
+                                      "",
+                                      argumentDefinition: null));
 
             var result = definition.Parse("the-command -h");
 
@@ -222,7 +248,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_TryTakeToken_is_accepts_long_form_option()
         {
-            var definition = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
+            var definition = Command("command", "", new OptionDefinition(
+                                         new[] {"-o", "--one"},
+                                         "",
+                                         argumentDefinition: ArgumentDefinition.None));
 
             var command = new Command(definition);
 
@@ -235,7 +264,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_TryTakeToken_is_accepts_short_form_option()
         {
-            var definition = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
+            var definition = Command("command", "", new OptionDefinition(
+                                         new[] {"-o", "--one"},
+                                         "",
+                                         argumentDefinition: ArgumentDefinition.None));
 
             var command = new Command(definition);
 
@@ -248,7 +280,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void TryTakeToken_does_not_accept_incorrectly_prefixed_options()
         {
-            var definition = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
+            var definition = Command("command", "", new OptionDefinition(
+                                         new[] {"-o", "--one"},
+                                         "",
+                                         argumentDefinition: ArgumentDefinition.None));
 
             var command = new Command(definition);
 
@@ -297,7 +332,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void TryTakeToken_will_not_accept_an_argument_if_it_is_invalid()
         {
-            var definition = Option("--one", "", ArgumentDefinition.None);
+            var definition = new OptionDefinition(
+                "--one",
+                "",
+                argumentDefinition: ArgumentDefinition.None);
 
             var option = new Option(definition);
 
@@ -309,10 +347,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Result_returns_single_string_default_value_when_no_argument_is_provided()
         {
-            var definition = Option("-x", "",
-                                Define.Arguments()
-                                      .WithDefaultValue(() => "default")
-                                      .ExactlyOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Define.Arguments()
+                                          .WithDefaultValue(() => "default")
+                                          .ExactlyOne());
 
             var option = new Option(definition);
 
@@ -328,10 +368,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Result_returns_IEnumerable_containing_string_default_value_when_no_argument_is_provided()
         {
-            var definition = Option("-x", "",
-                                Define.Arguments()
-                                      .WithDefaultValue(() => "default")
-                                      .OneOrMore());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Define.Arguments()
+                                          .WithDefaultValue(() => "default")
+                                          .OneOrMore());
 
             var option = new Option(definition);
 

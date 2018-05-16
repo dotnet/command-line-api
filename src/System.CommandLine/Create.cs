@@ -7,16 +7,6 @@ namespace System.CommandLine
 {
     public static class Create
     {
-        public static OptionDefinition Option(
-            string aliases,
-            string description,
-            ArgumentDefinition argumentDefinition = null) =>
-            new OptionDefinition(
-                aliases.Split(
-                    new[] { '|', ' ' }, StringSplitOptions.RemoveEmptyEntries),
-                description,
-                argumentDefinition: argumentDefinition);
-
         public static CommandDefinition Command(
             string name,
             string description) =>

@@ -130,18 +130,12 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_specifying_several_aliases_in_a_single_string_then_spaces_is_not_significant()
-        {
-            var option = Create.Option("-x | --exact", "");
-
-            option.Parse("-x").HasOption("x").Should().BeTrue();
-            option.Parse("--exact").HasOption("x").Should().BeTrue();
-        }
-
-        [Fact]
         public void Raw_aliases_are_exposed_by_an_option()
         {
-            var option = Create.Option("-h|--help|/?", "");
+            var option = new OptionDefinition(
+                new[] {"-h", "--help", "/?"},
+                "",
+                argumentDefinition: null);
 
             option.RawAliases
                   .Should()
