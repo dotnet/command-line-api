@@ -23,7 +23,7 @@ namespace System.CommandLine
         }
 
         public IReadOnlyCollection<ParseError> Errors { get; }
-        internal string RawInput { get; }
+        public string RawInput { get; }
         public IReadOnlyCollection<string> RawTokens { get; }
         public ParsedSymbolSet ParsedSymbol { get; }
         public ParserConfiguration Configuration { get; }

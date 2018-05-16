@@ -11,30 +11,7 @@ namespace System.CommandLine
 {
     internal static class ArgumentConverter
     {
-        private static readonly Dictionary<Type, ConvertString> stringConverters;
-
-        static ArgumentConverter()
-        {
-            stringConverters = new Dictionary<Type, ConvertString> {
-                [typeof(bool)] = arg => {
-                    if (string.IsNullOrWhiteSpace(arg))
-                    {
-                        return Success(true);
-                    }
-
-                    if (bool.TryParse(arg, out var value))
-                    {
-                        return Success(value);
-                    }
-
-                    return Failure(typeof(bool), arg);
-                },
-
-                [typeof(string)] = Success,
-
-                [typeof(object)] = Success,
-            };
-        }
+        private static readonly Dictionary<Type, ConvertString> stringConverters = new Dictionary<Type, ConvertString>();
 
         public static ArgumentParseResult Parse(Type type, string value)
         {

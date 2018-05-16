@@ -7,9 +7,9 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public static class Suggestions
+    internal static class Suggestions
     {
-        internal static IEnumerable<string> Containing(
+        public static IEnumerable<string> Containing(
             this IEnumerable<string> candidates,
             string textToMatch) =>
             candidates.Where(c => c.ContainsCaseInsensitive(textToMatch));

@@ -12,10 +12,10 @@ namespace System.CommandLine
         {
         }
 
-        protected override bool ContainsItemWithAlias(ParsedSymbol option, string alias) =>
+        protected override bool ContainsSymbolWithAlias(ParsedSymbol option, string alias) =>
             option.Symbol.HasAlias(alias);
 
-        protected override bool ContainsItemWithRawAlias(ParsedSymbol option, string alias) =>
+        protected override bool ContainsSymbolWithRawAlias(ParsedSymbol option, string alias) =>
             option.Symbol.HasRawAlias(alias);
 
         protected override IReadOnlyCollection<string> RawAliasesFor(ParsedSymbol option) =>

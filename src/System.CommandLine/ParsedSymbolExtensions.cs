@@ -63,7 +63,8 @@ namespace System.CommandLine
                     case null:
                         if (typeof(T) == typeof(bool))
                         {
-                            result = ArgumentConverter.Parse<bool>(null);
+                            // the presence of the parsed symbol is treated as true
+                            return (dynamic)true;
                         }
 
                         break;

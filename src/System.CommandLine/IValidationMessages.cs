@@ -10,7 +10,6 @@ namespace System.CommandLine
         string NoArgumentsAllowed(string option);
         string CommandAcceptsOnlyOneArgument(string command, int argumentCount);
         string FileDoesNotExist(string filePath);
-        string CommandAcceptsOnlyOneSubcommand(string command, string subcommandsSpecified);
         string OptionAcceptsOnlyOneArgument(string option, int argumentCount);
         string RequiredArgumentMissingForCommand(string command);
         string RequiredArgumentMissingForOption(string option);

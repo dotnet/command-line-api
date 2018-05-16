@@ -95,7 +95,6 @@ namespace System.CommandLine
 
         public override string ToString() => this.Diagram();
 
-        
         public object ValueForOption(
             string alias) =>
             ValueForOption<object>(alias);

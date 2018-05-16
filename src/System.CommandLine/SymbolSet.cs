@@ -7,10 +7,10 @@ namespace System.CommandLine
 {
     public class SymbolSet : SymbolSet<Symbol>
     {
-        protected override bool ContainsItemWithAlias(Symbol symbol, string alias) =>
+        protected override bool ContainsSymbolWithAlias(Symbol symbol, string alias) =>
             symbol.HasAlias(alias);
 
-        protected override bool ContainsItemWithRawAlias(Symbol symbol, string alias) =>
+        protected override bool ContainsSymbolWithRawAlias(Symbol symbol, string alias) =>
             symbol.HasRawAlias(alias);
 
         protected override IReadOnlyCollection<string> RawAliasesFor(Symbol symbol) =>
