@@ -42,13 +42,13 @@ namespace System.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
 
-        internal static CommandDefinition Command(this SymbolSet symbols) =>
+        internal static CommandDefinition CommandDefinition(this SymbolSet symbols) =>
             symbols.FlattenBreadthFirst()
                    .Select(a => a.SymbolDefinition)
                    .OfType<CommandDefinition>()
                    .LastOrDefault();
 
-        public static Command ParsedCommand(this CommandParseResult result)
+        public static Command Command(this CommandParseResult result)
         {
             var commandPath = result
                               .Command()
@@ -138,7 +138,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.ParsedCommand().Children.Contains(alias);
+            return Command(parseResult).Children.Contains(alias);
         }
 
         public static bool HasOption(

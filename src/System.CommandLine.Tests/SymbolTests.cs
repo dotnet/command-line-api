@@ -91,7 +91,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParsedCommand_can_have_multiple_nested_options_with_args()
+        public void Command_can_have_multiple_nested_options_with_args()
         {
             var definition = Command("outer", "",
                                  Option("inner1", "", new ArgumentDefinitionBuilder().ExactlyOne()),
@@ -201,7 +201,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParsedCommand_TryTakeToken_will_accept_the_next_command_in_the_tree()
+        public void Command_TryTakeToken_will_accept_the_next_command_in_the_tree()
         {
             var definition = Command("one", "",
                                   Command("two", "",
@@ -220,7 +220,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParsedCommand_TryTakeToken_is_accepts_long_form_option()
+        public void Command_TryTakeToken_is_accepts_long_form_option()
         {
             var definition = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
 
@@ -233,7 +233,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParsedCommand_TryTakeToken_is_accepts_short_form_option()
+        public void Command_TryTakeToken_is_accepts_short_form_option()
         {
             var definition = Command("command", "", Option("-o|--one", "", ArgumentDefinition.None));
 

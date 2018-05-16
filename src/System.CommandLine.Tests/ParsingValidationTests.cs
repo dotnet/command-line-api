@@ -152,8 +152,7 @@ namespace System.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            result
-                .ParsedCommand()
+            ParseResultExtensions.Command(result)
                 .Arguments
                 .Should()
                 .BeEmpty();
@@ -171,8 +170,7 @@ namespace System.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            result
-                .ParsedCommand()
+            ParseResultExtensions.Command(result)
                 .Arguments
                 .Should()
                 .BeEquivalentTo(Directory.GetCurrentDirectory());

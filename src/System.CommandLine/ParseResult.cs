@@ -18,7 +18,7 @@ namespace System.CommandLine
 
         internal ParseResult(
             IReadOnlyCollection<string> tokens,
-            SymbolSet options,
+            SymbolSet symbols,
             ParserConfiguration configuration,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
@@ -27,8 +27,8 @@ namespace System.CommandLine
         {
             Tokens = tokens ??
                      throw new ArgumentNullException(nameof(tokens));
-            Symbols = options ??
-                            throw new ArgumentNullException(nameof(options));
+            Symbols = symbols ??
+                            throw new ArgumentNullException(nameof(symbols));
             this.configuration = configuration ??
                                  throw new ArgumentNullException(nameof(configuration));
 
@@ -60,7 +60,7 @@ namespace System.CommandLine
             _commandDefinition ??
             (_commandDefinition = configuration.RootCommandIsImplicit
                            ? configuration.SymbolDefinitions.OfType<CommandDefinition>().Single()
-                           : Symbols.Command());
+                           : Symbols.CommandDefinition());
 
         private void CheckForErrors()
         {
@@ -84,7 +84,7 @@ namespace System.CommandLine
                 if (this is CommandParseResult commandParseResult)
                 {
                     // FIX: (CheckForErrors) this is ugly
-                    command = commandParseResult.ParsedCommand();
+                    command = ParseResultExtensions.Command(commandParseResult);
                 }
 
                 errors.Insert(0, new ParseError(

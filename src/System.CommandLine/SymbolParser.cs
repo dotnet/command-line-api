@@ -9,7 +9,7 @@ namespace System.CommandLine
     {
         private readonly ParserConfiguration configuration;
 
-        protected SymbolParser(IReadOnlyCollection<SymbolDefinition> optionDefinitions) : this(new ParserConfiguration(optionDefinitions))
+        protected SymbolParser(IReadOnlyCollection<SymbolDefinition> symbolDefinitions) : this(new ParserConfiguration(symbolDefinitions))
         {
         }
 
@@ -25,8 +25,8 @@ namespace System.CommandLine
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawTokens)
                     .Lex(configuration));
-            var rootParsedOptions = new SymbolSet();
-            var allParsedOptions = new List<Symbol>();
+            var rootSymbols = new SymbolSet();
+            var allSymbols = new List<Symbol>();
             var errors = new List<ParseError>();
             var unmatchedTokens = new List<string>();
 
@@ -47,17 +47,17 @@ namespace System.CommandLine
 
                     if (definedOption != null)
                     {
-                        var parsedOption = allParsedOptions
+                        var parsedOption = allSymbols
                             .LastOrDefault(o => o.HasAlias(token.Value));
 
                         if (parsedOption == null)
                         {
                             parsedOption = Symbol.Create(definedOption, token.Value);
 
-                            rootParsedOptions.Add(parsedOption);
+                            rootSymbols.Add(parsedOption);
                         }
 
-                        allParsedOptions.Add(parsedOption);
+                        allSymbols.Add(parsedOption);
 
                         continue;
                     }
@@ -65,13 +65,13 @@ namespace System.CommandLine
 
                 var added = false;
 
-                foreach (var parsedOption in Enumerable.Reverse(allParsedOptions))
+                foreach (var parsedOption in Enumerable.Reverse(allSymbols))
                 {
                     var option = parsedOption.TryTakeToken(token);
 
                     if (option != null)
                     {
-                        allParsedOptions.Add(option);
+                        allSymbols.Add(option);
                         added = true;
                         break;
                     }
@@ -89,7 +89,7 @@ namespace System.CommandLine
                 }
             }
 
-            if (rootParsedOptions.Command()?.TreatUnmatchedTokensAsErrors == true)
+            if (rootSymbols.CommandDefinition()?.TreatUnmatchedTokensAsErrors == true)
             {
                 errors.AddRange(
                     unmatchedTokens.Select(token => UnrecognizedArg(token)));
@@ -98,15 +98,15 @@ namespace System.CommandLine
             if (configuration.RootCommandIsImplicit)
             {
                 rawTokens = rawTokens.Skip(1).ToArray();
-                var parsedOptions = rootParsedOptions
+                var parsedOptions = rootSymbols
                                      .SelectMany(o => o.Children)
                                      .ToArray();
-                rootParsedOptions = new SymbolSet(parsedOptions);
+                rootSymbols = new SymbolSet(parsedOptions);
             }
 
             return new RawParseResult(
                 rawTokens,
-                rootParsedOptions,
+                rootSymbols,
                 configuration,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,

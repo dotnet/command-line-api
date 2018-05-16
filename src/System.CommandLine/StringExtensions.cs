@@ -33,7 +33,7 @@ namespace System.CommandLine
             this IEnumerable<string> args,
             ParserConfiguration configuration)
         {
-            SymbolDefinition currentCommand = null;
+            SymbolDefinition currentSymbol = null;
             bool foundEndOfArguments = false;
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
@@ -84,7 +84,7 @@ namespace System.CommandLine
                 }
                 else if (knownTokens.All(t => t.Value != arg) ||
                          // if token matches the current commandDefinition name, consider it an argument
-                         currentCommand?.Name == arg)
+                         currentSymbol?.Name == arg)
                 {
                     yield return Argument(arg);
                 }
@@ -97,9 +97,9 @@ namespace System.CommandLine
                     else
                     {
                         // when a subcommand is encountered, re-scope which tokens are valid
-                        currentCommand = (currentCommand?.SymbolDefinitions ??
+                        currentSymbol = (currentSymbol?.SymbolDefinitions ??
                                           configuration.SymbolDefinitions)[arg];
-                        knownTokens = currentCommand.ValidTokens();
+                        knownTokens = currentSymbol.ValidTokens();
                         yield return Command(arg);
                     }
                 }
