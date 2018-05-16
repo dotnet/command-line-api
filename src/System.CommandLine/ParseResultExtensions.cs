@@ -67,7 +67,7 @@ namespace System.CommandLine
             return (Command) symbol;
         }
 
-        internal static Symbol CurrentParsedSymbol(this ParseResult result) =>
+        internal static Symbol CurrentSymbol(this ParseResult result) =>
             result.Symbols
                   .LastOrDefault()
                   .AllSymbols()
@@ -164,7 +164,7 @@ namespace System.CommandLine
         }
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
-            parseResult?.CurrentParsedSymbol()
+            parseResult?.CurrentSymbol()
                        ?.SymbolDefinition
                        ?.Suggest(parseResult, position ) ??
             Array.Empty<string>();

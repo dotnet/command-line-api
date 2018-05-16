@@ -793,19 +793,19 @@ namespace System.CommandLine.Tests
 
             parser.Parse("outer inner")
                   .ParsedCommand()
-                  .SymbolDefinition
+                  .Definition
                   .Should()
                   .Be(innerCommand);
 
             parser.Parse("outer --inner")
                   .ParsedCommand()
-                  .SymbolDefinition
+                  .Definition
                   .Should()
                   .Be(outerCommand);
 
             parser.Parse("outer --inner inner")
                   .ParsedCommand()
-                  .SymbolDefinition
+                  .Definition
                   .Should()
                   .Be(innerCommand);
 

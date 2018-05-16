@@ -21,21 +21,21 @@ namespace System.CommandLine
             this ArgumentDefinitionBuilder builder,
             Func<Symbol, string> errorMessage = null)
         {
-            builder.AddValidator(parsedSymbol =>
+            builder.AddValidator(symbol =>
             {
-                var argumentCount = parsedSymbol.Arguments.Count;
+                var argumentCount = symbol.Arguments.Count;
 
                 if (argumentCount == 0)
                 {
                     if (errorMessage == null)
                     {
-                        return parsedSymbol.SymbolDefinition is CommandDefinition
-                                   ? ValidationMessages.RequiredArgumentMissingForCommand(parsedSymbol.SymbolDefinition.ToString())
-                                   : ValidationMessages.RequiredArgumentMissingForOption(parsedSymbol.SymbolDefinition.ToString());
+                        return symbol is Command command
+                                   ? ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
+                                   : ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.ToString());
                     }
                     else
                     {
-                        return errorMessage(parsedSymbol);
+                        return errorMessage(symbol);
                     }
                 }
 
@@ -43,11 +43,11 @@ namespace System.CommandLine
                 {
                     if (errorMessage == null)
                     {
-                        return ValidationMessages.SymbolAcceptsOnlyOneArgument(parsedSymbol);
+                        return ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol);
                     }
                     else
                     {
-                        return errorMessage(parsedSymbol);
+                        return errorMessage(symbol);
                     }
                 }
 
@@ -72,13 +72,13 @@ namespace System.CommandLine
             this ArgumentDefinitionBuilder builder,
             Func<Option, string> errorMessage = null)
         {
-            builder.AddValidator(parsedSymbol =>
+            builder.AddValidator(symbol =>
             {
-                if (parsedSymbol.Arguments.Count > 1)
+                if (symbol.Arguments.Count > 1)
                 {
-                    return parsedSymbol.SymbolDefinition is CommandDefinition
-                               ? ValidationMessages.CommandAcceptsOnlyOneArgument(parsedSymbol.SymbolDefinition.ToString(), parsedSymbol.Arguments.Count)
-                               : ValidationMessages.OptionAcceptsOnlyOneArgument(parsedSymbol.SymbolDefinition.ToString(), parsedSymbol.Arguments.Count);
+                    return symbol is Command command
+                               ? ValidationMessages.CommandAcceptsOnlyOneArgument(command.Definition.ToString(), command.Arguments.Count)
+                               : ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count);
                 }
 
                 return null;
@@ -139,9 +139,9 @@ namespace System.CommandLine
         public static ArgumentDefinitionBuilder ExistingFilesOnly(
             this ArgumentDefinitionBuilder builder)
         {
-            builder.AddValidator(parsedSymbol =>
+            builder.AddValidator(symbol =>
             {
-                return parsedSymbol.Arguments
+                return symbol.Arguments
                                    .Where(filePath => !File.Exists(filePath) &&
                                                       !Directory.Exists(filePath))
                                    .Select(ValidationMessages.FileDoesNotExist)
@@ -153,9 +153,9 @@ namespace System.CommandLine
         public static ArgumentDefinitionBuilder LegalFilePathsOnly(
             this ArgumentDefinitionBuilder builder)
         {
-            builder.AddValidator(parsedSymbol =>
+            builder.AddValidator(symbol =>
             {
-                foreach (var arg in parsedSymbol.Arguments)
+                foreach (var arg in symbol.Arguments)
                 {
                     try
                     {

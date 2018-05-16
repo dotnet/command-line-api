@@ -68,14 +68,14 @@ namespace System.CommandLine
                 return;
             }
 
-            AddValidator(parsedSymbol =>
+            AddValidator(symbol =>
             {
-                if (parsedSymbol.Arguments.Count == 0)
+                if (symbol.Arguments.Count == 0)
                 {
                     return null;
                 }
 
-                foreach (var arg in parsedSymbol.Arguments)
+                foreach (var arg in symbol.Arguments)
                 {
                     if (!ValidTokens.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
                     {

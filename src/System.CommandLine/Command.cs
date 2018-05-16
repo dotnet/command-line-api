@@ -10,12 +10,12 @@ namespace System.CommandLine
     {
         public Command(CommandDefinition commandDefinition, Command parent = null) : base(commandDefinition, commandDefinition?.Name, parent)
         {
-            CommandDefinition = commandDefinition ?? throw new ArgumentNullException(nameof(commandDefinition));
+            Definition = commandDefinition ?? throw new ArgumentNullException(nameof(commandDefinition));
 
             AddImplicitOptions(commandDefinition);
         }
 
-        public CommandDefinition CommandDefinition { get; }
+        public CommandDefinition Definition { get; }
 
         public Option this[string alias] => (Option) Children[alias];
 
@@ -56,27 +56,27 @@ namespace System.CommandLine
                 return null;
             }
 
-            var parsedSymbol =
+            var symbol =
                 Children.SingleOrDefault(o => o.SymbolDefinition.HasRawAlias(token.Value));
 
-            if (parsedSymbol != null)
+            if (symbol != null)
             {
-                parsedSymbol.OptionWasRespecified();
-                return parsedSymbol;
+                symbol.OptionWasRespecified();
+                return symbol;
             }
 
-            parsedSymbol =
-                SymbolDefinition.SymbolDefinitions
+            symbol =
+                Definition.SymbolDefinitions
                       .Where(o => o.RawAliases.Contains(token.Value))
                       .Select(o => Create(o, token.Value, this))
                       .SingleOrDefault();
 
-            if (parsedSymbol != null)
+            if (symbol != null)
             {
-                Children.Add(parsedSymbol);
+                Children.Add(symbol);
             }
 
-            return parsedSymbol;
+            return symbol;
         }
 
         public object ValueForOption(

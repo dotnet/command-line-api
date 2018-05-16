@@ -105,13 +105,13 @@ namespace System.CommandLine.Tests
             var command = Command("the-command", "",
                                   Option("-o|--one", "",
                                          Arguments()
-                                             .ParseArgumentsAs<int>(parsedSymbol => {
-                                                 if (int.TryParse(parsedSymbol.Arguments.Single(), out int intValue))
+                                             .ParseArgumentsAs<int>(symbol => {
+                                                 if (int.TryParse(symbol.Arguments.Single(), out int intValue))
                                                  {
                                                      return ArgumentParseResult.Success(intValue);
                                                  }
 
-                                                 return ArgumentParseResult.Failure($"'{parsedSymbol.Token}' is not an integer");
+                                                 return ArgumentParseResult.Failure($"'{symbol.Token}' is not an integer");
                                              })));
 
             var result = command.Parse("the-command -o not-an-int");
@@ -276,8 +276,8 @@ namespace System.CommandLine.Tests
         {
             var command = Command("tally", "",
                                   Arguments()
-                                      .ParseArgumentsAs<int>(parsedSymbol => {
-                                          if (int.TryParse(parsedSymbol.Token, out var i))
+                                      .ParseArgumentsAs<int>(symbol => {
+                                          if (int.TryParse(symbol.Token, out var i))
                                           {
                                               return ArgumentParseResult.Success(i);
                                           }
