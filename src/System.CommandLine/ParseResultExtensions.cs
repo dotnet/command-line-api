@@ -42,8 +42,8 @@ namespace System.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
 
-        internal static CommandDefinition Command(this SymbolSet options) =>
-            options.FlattenBreadthFirst()
+        internal static CommandDefinition Command(this SymbolSet symbols) =>
+            symbols.FlattenBreadthFirst()
                    .Select(a => a.SymbolDefinition)
                    .OfType<CommandDefinition>()
                    .LastOrDefault();
@@ -96,30 +96,30 @@ namespace System.CommandLine
             return builder.ToString();
         }
 
-        public static string Diagram(this Symbol option)
+        public static string Diagram(this Symbol symbol)
         {
             var stringbuilder = new StringBuilder();
 
-            stringbuilder.Diagram(option);
+            stringbuilder.Diagram(symbol);
 
             return stringbuilder.ToString();
         }
 
         private static void Diagram(
             this StringBuilder builder,
-            Symbol option)
+            Symbol symbol)
         {
             builder.Append("[ ");
 
-            builder.Append(option.SymbolDefinition);
+            builder.Append(symbol.SymbolDefinition);
 
-            foreach (var child in option.Children)
+            foreach (var child in symbol.Children)
             {
                 builder.Append(" ");
                 builder.Diagram(child);
             }
 
-            foreach (var arg in option.Arguments)
+            foreach (var arg in symbol.Arguments)
             {
                 builder.Append(" <");
                 builder.Append(arg);
