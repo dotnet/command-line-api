@@ -26,7 +26,10 @@ namespace System.CommandLine.Tests
             var command = Command("outer", "the outer command",
                                   Command("inner", "the inner command",
                                           Command("inner-er", "the inner-er command",
-                                                  Option("some-option", "some option"))));
+                                                  new OptionDefinition(
+                                                      "some-option",
+                                                      "some option",
+                                                      argumentDefinition: null))));
 
            command.Subcommand("inner")
                   .Subcommand("inner-er")
@@ -42,7 +45,10 @@ namespace System.CommandLine.Tests
                                   Command("sibling", "sibling description"),
                                   Command("inner", "inner description",
                                           Command("inner-er", "inner-er description",
-                                                  Option("some-option", "some-option description"))));
+                                                  new OptionDefinition(
+                                                      "some-option",
+                                                      "some-option description",
+                                                      argumentDefinition: null))));
 
             command
                 .Subcommand("inner")
@@ -70,8 +76,14 @@ namespace System.CommandLine.Tests
         public void An_option_can_be_hidden_from_help_output_by_leaving_its_help_text_empty()
         {
             var command = Command("the-command", "Does things.",
-                                  Option("-x", ""),
-                                  Option("-n", "Not hidden"));
+                                  new OptionDefinition(
+                                      "-x",
+                                      "",
+                                      argumentDefinition: null),
+                                  new OptionDefinition(
+                                      "-n",
+                                      "Not hidden",
+                                      argumentDefinition: null));
 
             var help = command.HelpView();
 
@@ -85,7 +97,10 @@ namespace System.CommandLine.Tests
                 Define.Arguments()
                       .WithHelp(name: "the-args")
                       .ZeroOrMore(),
-                                  Option("-v|--verbosity", "Sets the verbosity"));
+                                  new OptionDefinition(
+                                      new[] {"-v", "--verbosity"},
+                                      "Sets the verbosity",
+                                      argumentDefinition: null));
 
             var helpView = command.HelpView();
 
@@ -104,7 +119,10 @@ namespace System.CommandLine.Tests
                                   Command("inner-command", "command help",
                                       Define.Arguments().WithHelp(name: "inner-args")
                                           .ZeroOrOne(),
-                                          Option("-v|--verbosity", "Sets the verbosity")));
+                                          new OptionDefinition(
+                                              "-v|--verbosity",
+                                              "Sets the verbosity",
+                                              argumentDefinition: null)));
 
             var helpView = command.Subcommand("inner-command").HelpView();
 
@@ -122,7 +140,10 @@ namespace System.CommandLine.Tests
             var command = Command("the-command",
                                   "command help",
                                   ArgumentDefinition.None,
-                                  Option("-v|--verbosity", "Sets the verbosity"));
+                                  new OptionDefinition(
+                                      new[] { "-v", "--verbosity" },
+                                      "Sets the verbosity",
+                                      argumentDefinition: null));
 
             var helpView = command.HelpView();
 
@@ -137,9 +158,10 @@ namespace System.CommandLine.Tests
             var builder = new ArgumentDefinitionBuilder();
             var command = Command("the-command",
                                   "command help",
-                                  Option("-v|--verbosity",
-                                         $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud",
-                                      builder.ExactlyOne()));
+                                  new OptionDefinition(
+                                      new[] { "-v", "--verbosity" },
+                                      $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud",
+                                      argumentDefinition: builder.ExactlyOne()));
 
             var helpView = command.HelpView();
 
@@ -154,10 +176,11 @@ namespace System.CommandLine.Tests
         {
             var command = Command("the-command",
                                   "command help",
-                                  Option("-v|--verbosity",
-                                         "Sets the verbosity.",
-                                      Define.Arguments().WithHelp(name: "LEVEL")
-                                          .ExactlyOne()));
+                                  new OptionDefinition(
+                                      new[] { "-v", "--verbosity" },
+                                      "Sets the verbosity.",
+                                      argumentDefinition: Define.Arguments().WithHelp(name: "LEVEL")
+                                                                .ExactlyOne()));
 
             command.HelpView()
                    .Should()
@@ -171,7 +194,10 @@ namespace System.CommandLine.Tests
                 Define.Arguments().WithHelp(name: "the-arg",
                         description: "This is the argument for the command.")
                     .ZeroOrOne(),
-                Option("-o|--one", "The first option"));
+                new OptionDefinition(
+                    new[] { "-o", "--one" },
+                    "The first option",
+                    argumentDefinition: null));
 
             var helpView = command.HelpView();
 
@@ -211,8 +237,14 @@ namespace System.CommandLine.Tests
         public void Column_for_options_descriptions_are_vertically_aligned()
         {
             var command = Command("the-command", "Help text for the command",
-                                  Option("-a|--aaa", "An option with 8 characters"),
-                                  Option("-b|--bbbbbbbbbb", "An option with 15 characters"));
+                                  new OptionDefinition(
+                                      new[] {"-a", "--aaa"},
+                                      "An option with 8 characters",
+                                      argumentDefinition: null),
+                                  new OptionDefinition(
+                                      new[] {"-b", "--bbbbbbbbbb"},
+                                      "An option with 15 characters",
+                                      argumentDefinition: null));
 
             var helpView = command.HelpView();
 
@@ -231,7 +263,10 @@ namespace System.CommandLine.Tests
         {
             var command = Command("some-command", "Does something",
                                   treatUnmatchedTokensAsErrors: false,
-                                  symbolDefinitions: Option("-x", "Indicates whether x"));
+                                  symbolDefinitions: new OptionDefinition(
+                                      "-x",
+                                      "Indicates whether x",
+                                      argumentDefinition: null));
 
             var helpView = command.HelpView();
 
@@ -244,7 +279,10 @@ namespace System.CommandLine.Tests
         public void Retain_single_dash_on_multi_char_option()
         {
             var command = Command("command", "Help Test",
-                Option("-multi|--alt-option", "Help for option"));
+                new OptionDefinition(
+                    new[] {"-multi", "--alt-option"},
+                    "Help for option",
+                    argumentDefinition: null));
             var helpView = command.HelpView();
             helpView.Should().Contain("-multi");
             helpView.Should().NotContain("--multi");
@@ -254,7 +292,10 @@ namespace System.CommandLine.Tests
         public void Retain_multiple_dashes_on_single_char_option()
         {
             var command = Command("command", "Help Test",
-                Option("--m|--alt-option", "Help for option"));
+                new OptionDefinition(
+                    new[] {"--m", "--alt-option"},
+                    "Help for option",
+                    argumentDefinition: null));
             var helpView = command.HelpView();
             helpView.Should().Contain("--m");
         }

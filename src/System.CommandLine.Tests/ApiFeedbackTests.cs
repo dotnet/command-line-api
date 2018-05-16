@@ -21,7 +21,10 @@ namespace System.CommandLine.Tests
             //     Create.Option("-h|--help|-?", null, Accept.NoArguments())
             // );
 
-            var command = Option("-h|--help|-?", "this is the help text", ArgumentDefinition.None);
+            var command = new OptionDefinition(
+                new [] {"-h", "--help", "-?"},
+                "this is the help text",
+                argumentDefinition: ArgumentDefinition.None);
 
             var parseResult = command.Parse("-?");
 
@@ -43,7 +46,10 @@ namespace System.CommandLine.Tests
             //  $ diff -i:arcu
 
             var command = Command("diff", "",
-                                  Option("-i", "", new ArgumentDefinitionBuilder().ExactlyOne()));
+                                  new OptionDefinition(
+                                      "-i",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
 
             output.WriteLine(command.Parse("diff -iarcu").Diagram());
             output.WriteLine(command.Parse("diff -i arcu").Diagram());

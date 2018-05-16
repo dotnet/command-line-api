@@ -43,7 +43,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseArgumentsAs_with_arity_of_One_can_be_called_without_custom_conversion_logic_if_the_type_has_a_constructor_thats_takes_a_single_string()
         {
-            var definition = Option("--file", "", Arguments().ParseArgumentsAs<FileInfo>());
+            var definition = new OptionDefinition(
+                "--file",
+                "",
+                argumentDefinition: Arguments().ParseArgumentsAs<FileInfo>());
 
             var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
             var result = definition.Parse($"--file {file.FullName}");
@@ -60,7 +63,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseArgumentsAs_with_arity_of_Many_can_be_called_without_custom_conversion_logic_if_the_item_type_has_a_constructor_thats_takes_a_single_string()
         {
-            var definition = Option("--file", "", Arguments().ParseArgumentsAs<FileInfo[]>());
+            var definition = new OptionDefinition(
+                "--file",
+                "",
+                argumentDefinition: Arguments().ParseArgumentsAs<FileInfo[]>());
 
             var file1 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file1.txt"));
             var file2 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file2.txt"));
@@ -103,16 +109,18 @@ namespace System.CommandLine.Tests
         public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
         {
             var definition = Command("the-command", "",
-                                  Option("-o|--one", "",
-                                         Arguments()
-                                             .ParseArgumentsAs<int>(symbol => {
-                                                 if (int.TryParse(symbol.Arguments.Single(), out int intValue))
-                                                 {
-                                                     return ArgumentParseResult.Success(intValue);
-                                                 }
+                                  new OptionDefinition(
+                                      new[] { "-o", "--one" },
+                                      "",
+                                      argumentDefinition: Arguments()
+                                          .ParseArgumentsAs<int>(symbol => {
+                                              if (int.TryParse(symbol.Arguments.Single(), out int intValue))
+                                              {
+                                                  return ArgumentParseResult.Success(intValue);
+                                              }
 
-                                                 return ArgumentParseResult.Failure($"'{symbol.Token}' is not an integer");
-                                             })));
+                                              return ArgumentParseResult.Failure($"'{symbol.Token}' is not an integer");
+                                          })));
 
             var result = definition.Parse("the-command -o not-an-int");
 
@@ -130,8 +138,10 @@ namespace System.CommandLine.Tests
         public void By_default_an_option_with_zero_or_one_argument_parses_as_the_argument_string_value_by_default()
         {
             var definition = Command("the-command", "",
-                                  Option("-x", "",
-                                         new ArgumentDefinitionBuilder().ZeroOrOne()));
+                                  new OptionDefinition(
+                                      "-x",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne()));
 
             var result = definition.Parse("the-command -x the-argument");
 
@@ -145,7 +155,10 @@ namespace System.CommandLine.Tests
         public void By_default_an_option_with_exactly_one_argument_parses_as_the_argument_string_value_by_default()
         {
             var definition = Command("the-command", "",
-                                  Option("-x", "", new ArgumentDefinitionBuilder().ExactlyOne()));
+                                  new OptionDefinition(
+                                      "-x",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = definition.Parse("the-command -x the-argument");
 
@@ -159,7 +172,10 @@ namespace System.CommandLine.Tests
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
             var definition = Command("the-command", "",
-                                  Option("-x", "", new ArgumentDefinitionBuilder().ExactlyOne()));
+                                  new OptionDefinition(
+                                      "-x",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = definition.Parse("the-command -x");
 
@@ -176,8 +192,10 @@ namespace System.CommandLine.Tests
         public void When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_returns_an_empty_sequence_of_strings()
         {
             var definition = Command("the-command", "",
-                                  Option("-x", "",
-                                         new ArgumentDefinitionBuilder().ZeroOrMore()));
+                                  new OptionDefinition(
+                                      "-x",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             var result = definition.Parse("the-command -x");
 
@@ -194,8 +212,10 @@ namespace System.CommandLine.Tests
         public void When_one_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_throws()
         {
             var definition = Command("the-command", "",
-                                  Option("-x", "",
-                                         new ArgumentDefinitionBuilder().OneOrMore()));
+                                  new OptionDefinition(
+                                      "-x",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().OneOrMore()));
 
             var result = definition.Parse("the-command -x");
 
@@ -212,7 +232,10 @@ namespace System.CommandLine.Tests
         public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_multiple_arguments_parses_as_a_sequence_of_strings()
         {
             var definition = Command("the-command", "",
-                                  Option("-x", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
+                                  new OptionDefinition(
+                                      "-x",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             ParseResultExtensions.Command(definition.Parse("the-command -x arg1 -x arg2"))
                    .ValueForOption("x")
@@ -223,7 +246,10 @@ namespace System.CommandLine.Tests
         public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_one_argument_parses_as_a_sequence_of_strings()
         {
             var definition = Command("the-command", "",
-                                  Option("-x", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
+                                  new OptionDefinition(
+                                      "-x",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             ParseResultExtensions.Command(definition.Parse("the-command -x arg1"))
                    .ValueForOption("x")
@@ -234,7 +260,10 @@ namespace System.CommandLine.Tests
         public void By_default_an_option_without_arguments_parses_as_true_when_it_is_applied()
         {
             var definition = Command("something", "", ArgumentDefinition.None,
-                                  Option("-x", ""));
+                                  new OptionDefinition(
+                                      "-x",
+                                      "",
+                                      argumentDefinition: null));
 
             var result = definition.Parse("something -x");
 
@@ -247,7 +276,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_an_option_without_arguments_parses_as_false_when_it_is_not_applied()
         {
-            var definition = Command("something", "", Option("-x", ""));
+            var definition = Command("something", "", new OptionDefinition(
+                                         "-x",
+                                         "",
+                                         argumentDefinition: null));
 
             var result = definition.Parse("something");
 
@@ -259,9 +291,10 @@ namespace System.CommandLine.Tests
         {
             var definition = Command(
                 "something", "",
-                Option("-x",
-                       "",
-                    Arguments().WithDefaultValue(() => "123").ExactlyOne()));
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: Arguments().WithDefaultValue(() => "123").ExactlyOne()));
 
             var result = definition.Parse("something");
 
@@ -295,7 +328,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Values_can_be_correctly_converted_to_int_without_the_parser_specifying_a_custom_converter()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrOne());
 
             var value = definition.Parse("-x 123").ValueForOption<int>("x");
 
@@ -305,7 +341,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrOne());
 
             var value = definition.Parse("-x 123.456").ValueForOption<decimal>("x");
 
@@ -315,7 +354,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrOne());
 
             var value = definition.Parse("-x 123.456").ValueForOption<double>("x");
 
@@ -325,7 +367,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrOne());
 
             var value = definition.Parse("-x 123.456").ValueForOption<float>("x");
 
@@ -335,7 +380,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_with_no_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_it()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrOne());
 
             definition.Parse("-x").ValueForOption<bool>("x").Should().BeTrue();
         }
@@ -343,7 +391,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrOne());
 
             definition.Parse("-x false").ValueForOption<bool>("x").Should().BeFalse();
             definition.Parse("-x true").ValueForOption<bool>("x").Should().BeTrue();
@@ -352,7 +403,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrMore());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrMore());
 
             var value = definition.Parse("-x 1 -x 2 -x 3").ValueForOption<int[]>("x");
 
@@ -362,7 +416,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_a_custom_converter()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrMore());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrMore());
 
             var value = definition.Parse("-x 1 -x 2 -x 3").ValueForOption<List<int>>("x");
 
@@ -372,7 +429,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
         {
-            var definition = Option("-x", "", Arguments().ParseArgumentsAs<DayOfWeek>());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ParseArgumentsAs<DayOfWeek>());
 
             var value = definition.Parse("-x Monday").ValueForOption<DayOfWeek>("x");
 
@@ -382,7 +442,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Enum_values_that_cannot_be_parsed_result_in_an_informative_error()
         {
-            var definition = Option("-x", "", Arguments().ParseArgumentsAs<DayOfWeek>());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ParseArgumentsAs<DayOfWeek>());
 
             var value = definition.Parse("-x Notaday");
 
@@ -395,7 +458,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_getting_values_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrOne());
 
             var result = definition.Parse("-x not-an-int");
 
@@ -411,7 +477,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_getting_an_array_of_values_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
         {
-            var definition = Option("-x", "", Arguments().ZeroOrOne());
+            var definition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: Arguments().ZeroOrOne());
 
             var result = definition.Parse("-x not-an-int -x 2");
 

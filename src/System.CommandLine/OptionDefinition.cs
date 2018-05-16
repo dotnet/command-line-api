@@ -13,5 +13,12 @@ namespace System.CommandLine
             ArgumentDefinition argumentDefinition = null)
             : base(aliases, description, argumentDefinition)
         { }
+
+        public OptionDefinition(
+            string alias,
+            string description,
+            ArgumentDefinition argumentDefinition = null)
+            : base(new [] {alias}, description, argumentDefinition)
+        { }
     }
 }

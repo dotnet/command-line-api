@@ -22,8 +22,10 @@ namespace System.CommandLine.Tests
         {
             var builder = new ArgumentDefinitionBuilder();
             var parser = new OptionParser(
-                Option("-x", "",
-                    builder.FromAmong("this", "that", "the-other-thing").ExactlyOne()));
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: builder.FromAmong("this", "that", "the-other-thing").ExactlyOne()));
 
             var result = parser.Parse("-x none-of-those");
 
@@ -36,8 +38,10 @@ namespace System.CommandLine.Tests
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var option = Option("-x", "",
-                builder.FromAmong("this", "that").ExactlyOne());
+            var option = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: builder.FromAmong("this", "that").ExactlyOne());
 
             var parser = new OptionParser(option);
 
@@ -53,7 +57,10 @@ namespace System.CommandLine.Tests
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var parser = new OptionParser(Option("-x", "", builder.ExactlyOne()));
+            var parser = new OptionParser(new OptionDefinition(
+                                              "-x",
+                                              "",
+                                              argumentDefinition: builder.ExactlyOne()));
 
             var result = parser.Parse("-x");
 
@@ -65,7 +72,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new CommandParser(Command("the-command", "", Option("-x", "", ArgumentDefinition.None)));
+            var parser = new CommandParser(Command("the-command", "", new OptionDefinition(
+                                                       "-x",
+                                                       "",
+                                                       argumentDefinition: ArgumentDefinition.None)));
 
             var result = parser.Parse("the-command -x some-arg");
 
@@ -94,8 +104,14 @@ namespace System.CommandLine.Tests
 
             var command = Command("the-command", "",
                                   builder.ExactlyOne(),
-                                  Option("--one", ""),
-                                  Option("--two", ""));
+                                  new OptionDefinition(
+                                      "--one",
+                                      "",
+                                      argumentDefinition: null),
+                                  new OptionDefinition(
+                                      "--two",
+                                      "",
+                                      argumentDefinition: null));
 
             var result = command.Parse("the-command --one --two");
 
@@ -145,8 +161,10 @@ namespace System.CommandLine.Tests
         {
             var command = Command("move", "",
                 new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne(),
-                                  Option("--to", "",
-                                      new ArgumentDefinitionBuilder().ExactlyOne()));
+                                  new OptionDefinition(
+                                      "--to",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = command.Parse($@"move ""{Guid.NewGuid()}.txt"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
@@ -163,8 +181,10 @@ namespace System.CommandLine.Tests
         {
             var command = Command("move", "",
                 new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne(),
-                                  Option("--to", "",
-                                      new ArgumentDefinitionBuilder().ExactlyOne()));
+                                  new OptionDefinition(
+                                      "--to",
+                                      "",
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
@@ -199,7 +219,10 @@ namespace System.CommandLine.Tests
         public void When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
         {
             var parser = new OptionParser(
-                Option("-x", "", Define.Arguments().ExactlyOne()));
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: Define.Arguments().ExactlyOne()));
 
             var result = parser.Parse("-x 1 -x 2");
 
