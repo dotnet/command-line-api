@@ -66,7 +66,12 @@ namespace System.CommandLine
 
         public static ArgumentParseResult ParseMany<T>(IReadOnlyCollection<string> arguments)
         {
-            var itemType = typeof(T)
+            return ParseMany(typeof(T), arguments);
+        }
+
+        public static ArgumentParseResult ParseMany(Type type, IReadOnlyCollection<string> arguments)
+        {
+            var itemType = type
                            .GetInterfaces()
                            .SingleOrDefault(i =>
                                                 i.IsGenericType &&
@@ -90,13 +95,13 @@ namespace System.CommandLine
                 {
                     if (parseResult.IsSuccessful)
                     {
-                        list.Add(((dynamic)parseResult).Value);
+                        list.Add(((dynamic) parseResult).Value);
                     }
                 }
 
-                T value;
+                object value;
 
-                if (typeof(T).IsArray)
+                if (type.IsArray)
                 {
                     value = Enumerable.ToArray(list);
                 }

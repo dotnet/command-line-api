@@ -183,15 +183,23 @@ namespace System.CommandLine
 
         public static ArgumentDefinition ParseArgumentsAs<T>(
             this ArgumentDefinitionBuilder builder) =>
-            ParseArgumentsAs<T>(
+            ParseArgumentsAs(
                 builder,
+                typeof(T));
+
+        public static ArgumentDefinition ParseArgumentsAs(
+            this ArgumentDefinitionBuilder builder,
+            Type type) =>
+            ParseArgumentsAs(
+                builder,
+                type,
                 symbol => {
-                    switch (typeof(T).DefaultArity())
+                    switch (type.DefaultArity())
                     {
                         case ArgumentArity.One:
-                            return ArgumentConverter.Parse<T>(symbol.Arguments.Single());
+                            return ArgumentConverter.Parse(type, symbol.Arguments.Single());
                         case ArgumentArity.Many:
-                            return ArgumentConverter.ParseMany<T>(symbol.Arguments);
+                            return ArgumentConverter.ParseMany(type, symbol.Arguments);
                     }
 
                     return ArgumentParseResult.Failure("this still needs to be implemented");
@@ -207,11 +215,12 @@ namespace System.CommandLine
                 convert,
                 arity);
 
-        private static ArgumentDefinition ParseArgumentsAs(
+
+        public static ArgumentDefinition ParseArgumentsAs(
             this ArgumentDefinitionBuilder builder,
             Type type,
             ConvertArgument convert,
-            ArgumentArity? arity)
+            ArgumentArity? arity = null)
         {
             arity = arity ?? type.DefaultArity();
 
