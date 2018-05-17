@@ -33,12 +33,14 @@ namespace System.CommandLine
         public CommandDefinition(
             string name,
             string description,
-            IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
+            IReadOnlyCollection<SymbolDefinition> symbolDefinitions = null,
             ArgumentDefinition argumentDefinition = null,
             bool treatUnmatchedTokensAsErrors = true) :
             base(new[] { name }, description)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+
+            symbolDefinitions = symbolDefinitions ?? Array.Empty<SymbolDefinition>();
 
             var validSymbolAliases = symbolDefinitions
                                      .SelectMany(o => o.RawAliases)

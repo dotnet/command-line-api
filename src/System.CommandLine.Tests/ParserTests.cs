@@ -117,16 +117,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_contains_arguments_to_options()
         {
-            ParseResult result = new Parser(
-                    new OptionDefinition(
-                        new[] {"-o", "--one"},
-                        "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()),
-                    new OptionDefinition(
-                        new[] {"-t", "--two"},
-                        "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()))
-                .Parse("-o args_for_one -t args_for_two");
+            var result = new OptionParserBuilder()
+                         .AddOption(
+                             new[] { "-o", "--one" },
+                             arguments: args => args.ExactlyOne())
+                         .AddOption(
+                             new[] { "-t", "--two" },
+                             arguments: args => args.ExactlyOne())
+                         .Build()
+                         .Parse("-o args_for_one -t args_for_two");
 
             result["one"].Arguments.Single().Should().Be("args_for_one");
             result["two"].Arguments.Single().Should().Be("args_for_two");
@@ -249,10 +248,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Long_form_options_can_be_specified_using_colon_delimiter()
         {
-            var parser = new Parser(new OptionDefinition(
-                                              "--hello",
-                                              "",
-                                              argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
+            var parser = new OptionParserBuilder()
+                                  .AddOption(
+                                      "--hello",
+                                      "",
+                                      args => args.ExactlyOne())
+                                  .Build();
 
             var result = parser.Parse("--hello:there");
 
@@ -264,20 +265,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_short_forms_can_be_bundled()
         {
-            var parser = new Parser(
-                Create.Command("the-command", "",
-                    new OptionDefinition(
-                        "-x",
-                        "",
-                        argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition(
-                        "-y",
-                        "",
-                        argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition(
-                        "-z",
-                        "",
-                        argumentDefinition: ArgumentDefinition.None)));
+            var parser = new CommandParserBuilder()
+                                   .AddCommand("the-command", "",
+                                               c => c.AddOption("-x")
+                                                     .AddOption("-y")
+                                                     .AddOption("-z"))
+                                   .Build();
 
             var result = parser.Parse("the-command -xyz");
 
