@@ -40,13 +40,7 @@ namespace System.CommandLine
 
             return textBeforeCursor.Split(' ').LastOrDefault() +
                    textAfterCursor.Split(' ').FirstOrDefault();
-        }
-
-        internal static CommandDefinition CommandDefinition(this SymbolSet symbols) =>
-            symbols.FlattenBreadthFirst()
-                   .Select(a => a.SymbolDefinition)
-                   .OfType<CommandDefinition>()
-                   .LastOrDefault();
+        } 
 
         public static Command SpecifiedCommand(this ParseResult result)
         {
@@ -96,16 +90,7 @@ namespace System.CommandLine
             return builder.ToString();
         }
 
-        public static string Diagram(this Symbol symbol)
-        {
-            var stringbuilder = new StringBuilder();
-
-            stringbuilder.Diagram(symbol);
-
-            return stringbuilder.ToString();
-        }
-
-        private static void Diagram(
+        internal static void Diagram(
             this StringBuilder builder,
             Symbol symbol)
         {

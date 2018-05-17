@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace System.CommandLine
 {
@@ -87,6 +88,31 @@ namespace System.CommandLine
             }
 
             throw new InvalidOperationException(ValidationMessages.RequiredArgumentMissingForOption(symbol.Token));
+        }
+
+        internal static IEnumerable<Symbol> AllSymbols(
+            this Symbol symbol)
+        {
+            if (symbol == null)
+            {
+                throw new ArgumentNullException(nameof(symbol));
+            }
+
+            yield return symbol;
+
+            foreach (var item in symbol.Children.FlattenBreadthFirst(o => o.Children))
+            {
+                yield return item;
+            }
+        }
+
+        public static string Diagram(this Symbol symbol)
+        {
+            var stringbuilder = new StringBuilder();
+
+            stringbuilder.Diagram(symbol);
+
+            return stringbuilder.ToString();
         }
     }
 }
