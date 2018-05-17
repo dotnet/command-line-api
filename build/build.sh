@@ -154,38 +154,6 @@ function InstallDotNetCli {
     fi
   fi
 
-  # Install 1.0 shared framework
-  NetCoreApp10Version="1.0.10"
-  NetCoreApp10Dir="$DotNetRoot/shared/Microsoft.NETCore.App/$NetCoreApp10Version"
-
-  if [ ! -d "$NetCoreApp10Dir" ]
-  then
-    bash "$DotNetInstallScript" --version $NetCoreApp10Version --shared-runtime $DotNetInstallVerbosity
-    LASTEXITCODE=$?
-
-    if [ $LASTEXITCODE != 0 ]
-    then
-      echo "Failed to install 1.0 shared framework"
-      return $LASTEXITCODE
-    fi
-  fi
-
-  # Install 1.1 shared framework
-  NetCoreApp11Version="1.1.7"
-  NetCoreApp11Dir="$DotNetRoot/shared/Microsoft.NETCore.App/$NetCoreApp11Version"
-
-  if [ ! -d "$NetCoreApp11Dir" ]
-  then
-    bash "$DotNetInstallScript" --version $NetCoreApp11Version --shared-runtime $DotNetInstallVerbosity
-    LASTEXITCODE=$?
-
-    if [ $LASTEXITCODE != 0 ]
-    then
-      echo "Failed to install 1.1 shared framework"
-      return $LASTEXITCODE
-    fi
-  fi
-
   # Put the stage 0 on the path
   export PATH="$DotNetRoot:$PATH"
 

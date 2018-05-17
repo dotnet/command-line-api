@@ -21,10 +21,10 @@
     <RepoToolsetDir>$(NuGetPackageRoot)roslyntools.repotoolset\$(RoslynToolsRepoToolsetVersion)\tools\</RepoToolsetDir>
     <RestoreSources>
       https://dotnetfeed.blob.core.windows.net/dotnet-core/packages/index.json;
-      https://dotnet.myget.org/F/nuget-build/api/v3/index.json
+      https://api.nuget.org/v3/index.json
     </RestoreSources>
 
-    <RepositoryUrl>https://github.com/dotnet/sdk</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dotnet/System.CommandLine</RepositoryUrl>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
   </PropertyGroup>
 
