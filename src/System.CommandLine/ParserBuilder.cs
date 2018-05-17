@@ -64,22 +64,13 @@ namespace System.CommandLine
         }
     }
 
-    public class CommandParserBuilder : CommandDefinitionBuilder
+    public class ParserBuilder : CommandDefinitionBuilder
     {
-        public CommandParser Build()
+        public Parser Build()
         {
-            return new CommandParser(
+            return new Parser(
                 new ParserConfiguration(
                     SymbolDefinitions.ToArray()));
-        }
-    }
-
-    public class OptionParserBuilder : CommandDefinitionBuilder
-    {
-        public OptionParser Build()
-        {
-            return new OptionParser(
-                SymbolDefinitions.Cast<OptionDefinition>().ToArray());
         }
     }
 

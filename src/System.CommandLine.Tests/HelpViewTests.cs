@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_help_view_includes_names_of_parent_commands()
         {
-            var command = new CommandParserBuilder()
+            var command = new ParserBuilder()
                 .AddCommand(
                     "outer", "the outer command",
                     outer => outer.AddCommand(

@@ -117,7 +117,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_contains_arguments_to_options()
         {
-            var result = new OptionParserBuilder()
+            var result = new ParserBuilder()
                          .AddOption(
                              new[] { "-o", "--one" },
                              arguments: args => args.ExactlyOne())
@@ -248,12 +248,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Long_form_options_can_be_specified_using_colon_delimiter()
         {
-            var parser = new OptionParserBuilder()
-                                  .AddOption(
-                                      "--hello",
-                                      "",
-                                      args => args.ExactlyOne())
-                                  .Build();
+            var parser = new ParserBuilder()
+                         .AddOption(
+                             "--hello",
+                             "",
+                             args => args.ExactlyOne())
+                         .Build();
 
             var result = parser.Parse("--hello:there");
 
@@ -265,12 +265,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_short_forms_can_be_bundled()
         {
-            var parser = new CommandParserBuilder()
-                                   .AddCommand("the-command", "",
-                                               c => c.AddOption("-x")
-                                                     .AddOption("-y")
-                                                     .AddOption("-z"))
-                                   .Build();
+            var parser = new ParserBuilder()
+                         .AddCommand("the-command", "",
+                                     c => c.AddOption("-x")
+                                           .AddOption("-y")
+                                           .AddOption("-z"))
+                         .Build();
 
             var result = parser.Parse("the-command -xyz");
 
