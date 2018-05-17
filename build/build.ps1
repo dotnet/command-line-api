@@ -94,32 +94,6 @@ function InstallDotNetCli {
     }
   }
 
-  # Install 1.0 shared framework
-  $NetCoreApp10Version = "1.0.10"
-  $NetCoreApp10Dir = Join-Path $DotNetRoot "shared\Microsoft.NETCore.App\$NetCoreApp10Version"
-
-  if (!(Test-Path $NetCoreApp10Dir)) {
-    # Use Invoke-Expression so that $DotNetInstallVerbosity is not positionally bound when empty
-    Invoke-Expression -Command "$DotNetInstallScript -Version $NetCoreApp10Version -SharedRuntime $DotNetInstallVerbosity"
-
-    if($LASTEXITCODE -ne 0) {
-      throw "Failed to install 1.0 shared framework"
-    }
-  }
-
-  # Install 1.1 shared framework
-  $NetCoreApp11Version = "1.1.7"
-  $NetCoreApp11Dir = Join-Path $DotNetRoot "shared\Microsoft.NETCore.App\$NetCoreApp11Version"
-
-  if (!(Test-Path $NetCoreApp11Dir)) {
-    # Use Invoke-Expression so that $DotNetInstallVerbosity is not positionally bound when empty
-    Invoke-Expression -Command "$DotNetInstallScript -Version $NetCoreApp11Version -SharedRuntime $DotNetInstallVerbosity"
-
-    if($LASTEXITCODE -ne 0) {
-      throw "Failed to install 1.1 shared framework"
-    }
-  }
-
   # Put the stage 0 on the path
   $env:PATH = "$DotNetRoot;$env:PATH"
 

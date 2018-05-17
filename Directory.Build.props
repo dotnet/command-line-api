@@ -24,7 +24,7 @@
       https://api.nuget.org/v3/index.json
     </RestoreSources>
 
-    <RepositoryUrl>https://github.com/dotnet/sdk</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dotnet/System.CommandLine</RepositoryUrl>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
   </PropertyGroup>
 
