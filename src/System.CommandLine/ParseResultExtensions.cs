@@ -48,7 +48,7 @@ namespace System.CommandLine
                    .OfType<CommandDefinition>()
                    .LastOrDefault();
 
-        public static Command SpecifiedCommand(this CommandParseResult result)
+        public static Command SpecifiedCommand(this ParseResult result)
         {
             var commandPath = result
                               .SpecifiedCommandDefinition()
@@ -130,7 +130,7 @@ namespace System.CommandLine
         }
 
         public static bool HasOption(
-            this CommandParseResult parseResult,
+            this ParseResult parseResult,
             string alias)
         {
             if (parseResult == null)
@@ -138,19 +138,16 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.SpecifiedCommand().Children.Contains(alias);
-        }
+            var specifiedCommand = parseResult.SpecifiedCommand();
 
-        public static bool HasOption(
-            this OptionParseResult parseResult,
-            string alias)
-        {
-            if (parseResult == null)
+            if (specifiedCommand != null)
             {
-                throw new ArgumentNullException(nameof(parseResult));
+                return specifiedCommand.Children.Contains(alias);
             }
-
-            return parseResult.Symbols.Contains(alias);
+            else
+            {
+                return parseResult.Symbols.Contains(alias);
+            }
         }
 
         internal static int? ImplicitCursorPosition(this ParseResult parseResult)

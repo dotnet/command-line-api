@@ -17,7 +17,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseArgumentsAs_can_specify_custom_types_and_conversion_logic()
         {
-            var parser = new CommandParser(
+            var parser = new Parser(
                 Command("custom", "",
                         Arguments()
                             .ParseArgumentsAs<MyCustomType>(parsed => {

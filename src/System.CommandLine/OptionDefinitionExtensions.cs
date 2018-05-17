@@ -27,21 +27,21 @@ namespace System.CommandLine
             }
         }
 
-        public static OptionParseResult Parse(
+        public static ParseResult Parse(
             this OptionDefinition optionDefinition,
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
-            new OptionParser(new ParserConfiguration(argumentDelimiters: delimiters, symbolDefinitions: new[] { optionDefinition })).Parse(commandLine);
+            new Parser(new ParserConfiguration(argumentDelimiters: delimiters, symbolDefinitions: new[] { optionDefinition })).Parse(commandLine);
 
-        public static CommandParseResult Parse(
+        public static ParseResult Parse(
             this CommandDefinition commandDefinition,
             params string[] args) =>
-            new CommandParser(commandDefinition).Parse(args);
+            new Parser(new[] { commandDefinition }).Parse(args);
 
-        public static CommandParseResult Parse(
+        public static ParseResult Parse(
             this CommandDefinition commandDefinition,
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
-            new CommandParser(commandDefinition).Parse(commandLine);
+            new Parser(new[] { commandDefinition }).Parse(commandLine);
     }
 }

@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var parser = new OptionParser(
+            var parser = new Parser(
                 new OptionDefinition(
                     "-x",
                     "",
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests
                 "",
                 argumentDefinition: builder.FromAmong("this", "that").ExactlyOne());
 
-            var parser = new OptionParser(option);
+            var parser = new Parser(option);
 
             var result = parser.Parse("-x something_else");
 
@@ -57,7 +57,7 @@ namespace System.CommandLine.Tests
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var parser = new OptionParser(new OptionDefinition(
+            var parser = new Parser(new OptionDefinition(
                                               "-x",
                                               "",
                                               argumentDefinition: builder.ExactlyOne()));
@@ -72,7 +72,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new CommandParser(Command("the-command", "", new OptionDefinition(
+            var parser = new Parser(Command("the-command", "", new OptionDefinition(
                                                        "-x",
                                                        "",
                                                        argumentDefinition: ArgumentDefinition.None)));
@@ -218,7 +218,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
         {
-            var parser = new OptionParser(
+            var parser = new Parser(
                 new OptionDefinition(
                     "-x",
                     "",

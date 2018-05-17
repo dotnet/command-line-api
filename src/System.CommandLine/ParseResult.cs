@@ -10,7 +10,7 @@ using static System.CommandLine.ValidationMessages;
 namespace System.CommandLine
 {
     [DebuggerDisplay("{" + nameof(ToString) + "()}")]
-    public abstract class ParseResult
+    public class ParseResult
     {
         private readonly ParserConfiguration configuration;
         private readonly List<ParseError> errors = new List<ParseError>();
@@ -79,17 +79,9 @@ namespace System.CommandLine
             if (commandDefinition != null &&
                 commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
-                Command command = null;
-
-                if (this is CommandParseResult commandParseResult)
-                {
-                    // FIX: (CheckForErrors) this is ugly
-                    command = commandParseResult.SpecifiedCommand();
-                }
-
                 errors.Insert(0, new ParseError(
                                   RequiredCommandWasNotProvided(),
-                                  command));
+                                  this.SpecifiedCommand()));
             }
         }
 
@@ -109,5 +101,7 @@ namespace System.CommandLine
 
             return Symbols[alias].GetValueOrDefault<T>();
         }
+
+        public Option this[string alias] => (Option) Symbols[alias]; 
     }
 }
