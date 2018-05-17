@@ -56,7 +56,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public CommandDefinition Command() =>
+        public CommandDefinition SpecifiedCommandDefinition() =>
             _commandDefinition ??
             (_commandDefinition = configuration.RootCommandIsImplicit
                            ? configuration.SymbolDefinitions.OfType<CommandDefinition>().Single()
@@ -74,7 +74,7 @@ namespace System.CommandLine
                 }
             }
 
-            var commandDefinition = Command();
+            var commandDefinition = SpecifiedCommandDefinition();
 
             if (commandDefinition != null &&
                 commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
@@ -84,7 +84,7 @@ namespace System.CommandLine
                 if (this is CommandParseResult commandParseResult)
                 {
                     // FIX: (CheckForErrors) this is ugly
-                    command = ParseResultExtensions.Command(commandParseResult);
+                    command = commandParseResult.SpecifiedCommand();
                 }
 
                 errors.Insert(0, new ParseError(

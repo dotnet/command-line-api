@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("custom one two three");
 
-            var customType = ParseResultExtensions.Command(result).GetValueOrDefault<MyCustomType>();
+            var customType = result.SpecifiedCommand().GetValueOrDefault<MyCustomType>();
 
             customType
                 .Values
@@ -125,7 +125,7 @@ namespace System.CommandLine.Tests
             var result = definition.Parse("the-command -o not-an-int");
 
             Action getValue = () =>
-                ParseResultExtensions.Command(result).ValueForOption("o");
+                result.SpecifiedCommand().ValueForOption("o");
 
             getValue.ShouldThrow<InvalidOperationException>()
                     .Which
@@ -145,7 +145,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x the-argument");
 
-            ParseResultExtensions.Command(result)
+            result.SpecifiedCommand()
                   .ValueForOption("x")
                   .Should()
                   .Be("the-argument");
@@ -162,7 +162,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x the-argument");
 
-            ParseResultExtensions.Command(result)
+            result.SpecifiedCommand()
                   .ValueForOption("x")
                   .Should()
                   .Be("the-argument");
@@ -179,7 +179,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x");
 
-            Action getValue = () => ParseResultExtensions.Command(result).ValueForOption("x");
+            Action getValue = () => result.SpecifiedCommand().ValueForOption("x");
 
             getValue.ShouldThrow<InvalidOperationException>()
                     .Which
@@ -199,7 +199,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x");
 
-            ParseResultExtensions.Command(result)
+            result.SpecifiedCommand()
                   .ValueForOption("x")
                   .Should()
                   .BeAssignableTo<IReadOnlyCollection<string>>()
@@ -219,7 +219,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x");
 
-            Action getValue = () => ParseResultExtensions.Command(result).ValueForOption("x");
+            Action getValue = () => result.SpecifiedCommand().ValueForOption("x");
 
             getValue.ShouldThrow<InvalidOperationException>()
                     .Which
@@ -237,9 +237,10 @@ namespace System.CommandLine.Tests
                                       "",
                                       argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()));
 
-            ParseResultExtensions.Command(definition.Parse("the-command -x arg1 -x arg2"))
-                   .ValueForOption("x")
-                   .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
+            definition.Parse("the-command -x arg1 -x arg2")
+                      .SpecifiedCommand()
+                      .ValueForOption("x")
+                      .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
         }
 
         [Fact]
@@ -251,9 +252,10 @@ namespace System.CommandLine.Tests
                                       "",
                                       argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()));
 
-            ParseResultExtensions.Command(definition.Parse("the-command -x arg1"))
-                   .ValueForOption("x")
-                   .ShouldBeEquivalentTo(new[] { "arg1" });
+            definition.Parse("the-command -x arg1")
+                      .SpecifiedCommand()
+                      .ValueForOption("x")
+                      .ShouldBeEquivalentTo(new[] { "arg1" });
         }
 
         [Fact]
@@ -267,7 +269,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("something -x");
 
-            ParseResultExtensions.Command(result)
+            result.SpecifiedCommand()
                   .ValueForOption<bool>("x")
                   .Should()
                   .BeTrue();
@@ -283,7 +285,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("something");
 
-            ParseResultExtensions.Command(result).ValueForOption<bool>("x").Should().BeFalse();
+            result.SpecifiedCommand().ValueForOption<bool>("x").Should().BeFalse();
         }
 
         [Fact]
@@ -298,7 +300,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("something");
 
-            var option = ParseResultExtensions.Command(result)["x"];
+            var option = result.SpecifiedCommand()["x"];
 
             option.GetValueOrDefault<string>().Should().Be("123");
         }

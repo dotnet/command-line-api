@@ -170,10 +170,10 @@ namespace System.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            ParseResultExtensions.Command(result)
-                .Arguments
-                .Should()
-                .BeEmpty();
+            result.SpecifiedCommand()
+                  .Arguments
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -190,10 +190,10 @@ namespace System.CommandLine.Tests
 
             output.WriteLine(result.Diagram());
 
-            ParseResultExtensions.Command(result)
-                .Arguments
-                .Should()
-                .BeEquivalentTo(Directory.GetCurrentDirectory());
+            result.SpecifiedCommand()
+                  .Arguments
+                  .Should()
+                  .BeEquivalentTo(Directory.GetCurrentDirectory());
         }
 
         [Fact]
