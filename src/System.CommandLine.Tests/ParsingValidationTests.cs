@@ -201,7 +201,7 @@ namespace System.CommandLine.Tests
         {
             var command = Command("outer", "",
                                   Command("inner", "",
-                                      new ArgumentDefinitionBuilder().OneOrMore(),
+                                          new ArgumentDefinitionBuilder().OneOrMore(),
                                           Command("three", "")));
 
             var result = command.Parse("outer inner arg");
@@ -211,8 +211,8 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message == "Required command was not provided." &&
-                           e.Symbol.Name == "inner");
+                      e => e.Message.Equals("Required command was not provided.") &&
+                           e.Symbol.Name.Equals("inner"));
         }
 
         [Fact]
