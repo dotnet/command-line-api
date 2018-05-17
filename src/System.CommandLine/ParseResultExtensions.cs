@@ -48,10 +48,10 @@ namespace System.CommandLine
                    .OfType<CommandDefinition>()
                    .LastOrDefault();
 
-        public static Command Command(this CommandParseResult result)
+        public static Command SpecifiedCommand(this CommandParseResult result)
         {
             var commandPath = result
-                              .Command()
+                              .SpecifiedCommandDefinition()
                               .RecurseWhileNotNull(c => c.Parent)
                               .Select(c => c.Name)
                               .Reverse()
@@ -138,7 +138,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return Command(parseResult).Children.Contains(alias);
+            return parseResult.SpecifiedCommand().Children.Contains(alias);
         }
 
         public static bool HasOption(

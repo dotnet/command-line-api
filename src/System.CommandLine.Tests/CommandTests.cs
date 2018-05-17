@@ -36,7 +36,7 @@ namespace System.CommandLine.Tests
         {
             var result = parser.Parse("outer inner --option argument1");
 
-            var outer = ParseResultExtensions.Command(result).Parent;
+            var outer = result.SpecifiedCommand().Parent;
 
             outer
                 .Name
@@ -114,13 +114,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
-            ParseResultExtensions.Command(result)
+            result.SpecifiedCommand()
                   .Parent
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg1");
 
-            ParseResultExtensions.Command(result)
+            result.SpecifiedCommand()
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
@@ -140,11 +140,11 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("outer inner inner-er -x arg");
 
-            result.Command().Name.Should().Be("inner-er");
+            result.SpecifiedCommand().Name.Should().Be("inner-er");
 
             result = command.Parse("outer inner");
 
-            result.Command().Name.Should().Be("inner");
+            result.SpecifiedCommand().Name.Should().Be("inner");
         }
 
         [Fact]
@@ -167,9 +167,9 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseResult_Command_identifies_implicit_root_command()
+        public void ParseResult_SpecifiedCommandDefinition_identifies_implicit_root_command()
         {
-            var parser1 = new OptionParser(
+            var parser = new OptionParser(
                 new OptionDefinition(
                     "-x",
                     "",
@@ -179,9 +179,9 @@ namespace System.CommandLine.Tests
                     "",
                     argumentDefinition: null));
 
-            var result = parser1.Parse("-x -y");
+            var result = parser.Parse("-x -y");
 
-            var command = result.Command();
+            var command = result.SpecifiedCommandDefinition();
 
             command.Should().NotBeNull();
             command.Name.Should().Be(RootCommand().Name);
@@ -204,13 +204,13 @@ namespace System.CommandLine.Tests
 
             output.WriteLine(result.ToString());
 
-            var parsedOption = ParseResultExtensions.Command(result)["x"];
+            var parsedOption = result.SpecifiedCommand()["x"];
 
             parsedOption.GetValueOrDefault().Should().Be("arg");
 
             result = command.Parse("outer sibling arg");
 
-            ParseResultExtensions.Command(result).GetValueOrDefault().Should().Be("arg");
+            result.SpecifiedCommand().GetValueOrDefault().Should().Be("arg");
         }
     }
 }
