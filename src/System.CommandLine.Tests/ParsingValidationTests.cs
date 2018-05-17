@@ -212,7 +212,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals("Required command was not provided.") &&
+                      e => e.Message.Equals(ValidationMessages.Current.RequiredCommandWasNotProvided()) &&
                            e.Symbol.Name.Equals("inner"));
         }
 
