@@ -16,6 +16,6 @@
   </PropertyGroup>
 
   <Import Project="..\Directory.Build.props" />
-  <Import Project="$(RepoToolsetDir)Settings.props" />
+  <Import Project="$(RepoToolsetDir)Settings.props" Condition="Exists('$(RepoToolsetDir)Settings.props')" />
 
 </Project>
