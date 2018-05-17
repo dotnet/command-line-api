@@ -23,19 +23,25 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_help_view_includes_names_of_parent_commands()
         {
-            var command = Command("outer", "the outer command",
-                                  Command("inner", "the inner command",
-                                          Command("inner-er", "the inner-er command",
-                                                  new OptionDefinition(
-                                                      "some-option",
-                                                      "some option",
-                                                      argumentDefinition: null))));
+            var command = new CommandParserBuilder()
+                .AddCommand(
+                    "outer", "the outer command",
+                    outer => outer.AddCommand(
+                        "inner", "the inner command",
+                        inner => inner.AddCommand(
+                            "inner-er", "the inner-er command",
+                            innerEr => innerEr.AddOption(
+                                "--some-option",
+                                "some option"))))
+                          .BuildSymbolDefinitions()
+                          .OfType<CommandDefinition>()
+                          .Single();
 
-           command.Subcommand("inner")
-                  .Subcommand("inner-er")
-                  .HelpView()
-                  .Should()
-                  .StartWith("Usage: outer inner inner-er [options]");
+            command.Subcommand("inner")
+                   .Subcommand("inner-er")
+                   .HelpView()
+                   .Should()
+                   .StartWith("Usage: outer inner inner-er [options]");
         }
 
         [Fact]
