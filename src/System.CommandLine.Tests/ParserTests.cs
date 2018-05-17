@@ -137,7 +137,8 @@ namespace System.CommandLine.Tests
         {
             Action create = () => new Parser();
 
-            create.ShouldThrow<ArgumentException>()
+            create.Should()
+                  .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()
@@ -156,7 +157,8 @@ namespace System.CommandLine.Tests
                                      "",
                                      argumentDefinition: null));
 
-            create.ShouldThrow<ArgumentException>()
+            create.Should()
+                  .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()
@@ -563,18 +565,21 @@ namespace System.CommandLine.Tests
                 "move ARG2 ARG1 -X the-arg-for-option-x");
 
             // all should be equivalent
-            result1.ShouldBeEquivalentTo(
-                result2,
-                x => x.IgnoringCyclicReferences()
-                      .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
-            result1.ShouldBeEquivalentTo(
-                result3,
-                x => x.IgnoringCyclicReferences()
-                      .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
-            result1.ShouldBeEquivalentTo(
-                result4,
-                x => x.IgnoringCyclicReferences()
-                      .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+            result1.Should()
+                   .BeEquivalentTo(
+                       result2,
+                       x => x.IgnoringCyclicReferences()
+                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+            result1.Should()
+                   .BeEquivalentTo(
+                       result3,
+                       x => x.IgnoringCyclicReferences()
+                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+            result1.Should()
+                   .BeEquivalentTo(
+                       result4,
+                       x => x.IgnoringCyclicReferences()
+                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
         }
 
         [Fact]
@@ -1015,7 +1020,8 @@ namespace System.CommandLine.Tests
                 .Parse("-x \"\"");
 
             parseResult["x"].Arguments
-                            .ShouldBeEquivalentTo(new[] { "" });
+                            .Should()
+                            .BeEquivalentTo(new[] { "" });
         }
 
         [Theory]

@@ -127,7 +127,8 @@ namespace System.CommandLine.Tests
             Action getValue = () =>
                 result.SpecifiedCommand().ValueForOption("o");
 
-            getValue.ShouldThrow<InvalidOperationException>()
+            getValue.Should()
+                    .Throw<InvalidOperationException>()
                     .Which
                     .Message
                     .Should()
@@ -181,7 +182,8 @@ namespace System.CommandLine.Tests
 
             Action getValue = () => result.SpecifiedCommand().ValueForOption("x");
 
-            getValue.ShouldThrow<InvalidOperationException>()
+            getValue.Should()
+                    .Throw<InvalidOperationException>()
                     .Which
                     .Message
                     .Should()
@@ -221,7 +223,8 @@ namespace System.CommandLine.Tests
 
             Action getValue = () => result.SpecifiedCommand().ValueForOption("x");
 
-            getValue.ShouldThrow<InvalidOperationException>()
+            getValue.Should()
+                    .Throw<InvalidOperationException>()
                     .Which
                     .Message
                     .Should()
@@ -240,7 +243,8 @@ namespace System.CommandLine.Tests
             definition.Parse("the-command -x arg1 -x arg2")
                       .SpecifiedCommand()
                       .ValueForOption("x")
-                      .ShouldBeEquivalentTo(new[] { "arg1", "arg2" });
+                      .Should()
+                      .BeEquivalentTo(new[] { "arg1", "arg2" });
         }
 
         [Fact]
@@ -255,7 +259,8 @@ namespace System.CommandLine.Tests
             definition.Parse("the-command -x arg1")
                       .SpecifiedCommand()
                       .ValueForOption("x")
-                      .ShouldBeEquivalentTo(new[] { "arg1" });
+                      .Should()
+                      .BeEquivalentTo(new[] { "arg1" });
         }
 
         [Fact]
@@ -469,7 +474,8 @@ namespace System.CommandLine.Tests
 
             Action getValue = () => result.ValueForOption<int>("x");
 
-            getValue.ShouldThrow<InvalidOperationException>()
+            getValue.Should()
+                    .Throw<InvalidOperationException>()
                     .Which
                     .Message
                     .Should()
@@ -488,7 +494,8 @@ namespace System.CommandLine.Tests
 
             Action getValue = () => result.ValueForOption<int[]>("x");
 
-            getValue.ShouldThrow<InvalidOperationException>()
+            getValue.Should()
+                    .Throw<InvalidOperationException>()
                     .Which
                     .Message
                     .Should()
