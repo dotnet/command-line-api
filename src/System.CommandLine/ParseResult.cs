@@ -102,6 +102,6 @@ namespace System.CommandLine
             return Symbols[alias].GetValueOrDefault<T>();
         }
 
-        public Option this[string alias] => (Option) Symbols[alias]; 
+        public Symbol this[string alias] => Symbols[alias]; 
     }
 }
