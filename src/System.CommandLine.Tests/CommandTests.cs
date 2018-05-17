@@ -13,7 +13,7 @@ namespace System.CommandLine.Tests
 {
     public class CommandTests
     {
-        private readonly CommandParser parser;
+        private readonly Parser parser;
         private readonly ITestOutputHelper output;
 
         public CommandTests(ITestOutputHelper output)
@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
 
             var builder = new ArgumentDefinitionBuilder();
 
-            parser = new CommandParser(
+            parser = new Parser(
                 Command("outer", "",
                         Command("inner", "",
                                 new OptionDefinition(
@@ -107,7 +107,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
-            var parser = new CommandParser(
+            var parser = new Parser(
                 Command("outer", "", new ArgumentDefinitionBuilder().ExactlyOne(),
                         Command("inner", "",
                             new ArgumentDefinitionBuilder().ZeroOrMore())));
@@ -169,7 +169,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseResult_SpecifiedCommandDefinition_identifies_implicit_root_command()
         {
-            var parser = new OptionParser(
+            var parser = new Parser(
                 new OptionDefinition(
                     "-x",
                     "",

@@ -12,7 +12,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_diagram_helps_explain_parse_operation()
         {
-            var parser = new CommandParser(
+            var parser = new Parser(
                 Command("the-command",
                         "Does the thing.",
                         new ArgumentDefinitionBuilder().ZeroOrMore(),
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_diagram_helps_explain_partial_parse_operation()
         {
-            var parser = new CommandParser(
+            var parser = new Parser(
                 Command("command", "",
                         new OptionDefinition(
                             "-x",

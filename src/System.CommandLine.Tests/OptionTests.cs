@@ -98,7 +98,8 @@ namespace System.CommandLine.Tests
         {
             Action create = () => new OptionDefinition(Array.Empty<string>(), "",     ArgumentDefinition.None);
 
-            create.ShouldThrow<ArgumentException>()
+            create.Should()
+                  .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()
@@ -110,7 +111,8 @@ namespace System.CommandLine.Tests
         {
             Action create = () => new OptionDefinition(new[] { "" }, "",     ArgumentDefinition.None);
 
-            create.ShouldThrow<ArgumentException>()
+            create.Should()
+                  .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()
@@ -122,7 +124,8 @@ namespace System.CommandLine.Tests
         {
             Action create = () => new OptionDefinition(new[] { "  \t" }, "",     ArgumentDefinition.None);
 
-            create.ShouldThrow<ArgumentException>()
+            create.Should()
+                  .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()

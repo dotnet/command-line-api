@@ -1,3 +1,6 @@
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,22 +8,22 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public abstract class SymbolParser
+    public class Parser
     {
         private readonly ParserConfiguration configuration;
 
-        protected SymbolParser(IReadOnlyCollection<SymbolDefinition> symbolDefinitions) : this(new ParserConfiguration(symbolDefinitions))
+        public Parser(params SymbolDefinition[] symbolDefinitions) : this(new ParserConfiguration(symbolDefinitions))
         {
         }
 
-        protected SymbolParser(ParserConfiguration configuration)
+        public Parser(ParserConfiguration configuration)
         {
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public SymbolDefinitionSet SymbolDefinitions => configuration.SymbolDefinitions;
 
-        internal virtual RawParseResult ParseRaw(IReadOnlyCollection<string> rawTokens, string rawInput = null)
+        public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawTokens)
@@ -104,7 +107,7 @@ namespace System.CommandLine
                 rootSymbols = new SymbolSet(parsedOptions);
             }
 
-            return new RawParseResult(
+            return new ParseResult(
                 rawTokens,
                 rootSymbols,
                 configuration,
