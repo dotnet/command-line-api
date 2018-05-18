@@ -46,11 +46,12 @@ namespace System.CommandLine.Tests
             //  $ diff -i=arcu
             //  $ diff -i:arcu
 
-            var command = Command("diff", "",
-                                  new OptionDefinition(
-                                      "-i",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
+            var command = new CommandDefinition("diff", "", new[] {
+                new OptionDefinition(
+                    "-i",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
+            });
 
             output.WriteLine(command.Parse("diff -iarcu").Diagram());
             output.WriteLine(command.Parse("diff -i arcu").Diagram());

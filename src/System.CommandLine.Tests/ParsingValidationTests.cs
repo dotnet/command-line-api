@@ -73,10 +73,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(Command("the-command", "", new OptionDefinition(
-                                                       "-x",
-                                                       "",
-                                                       argumentDefinition: ArgumentDefinition.None)));
+            var parser = new Parser(new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: ArgumentDefinition.None)
+            }));
 
             var result = parser.Parse("the-command -x some-arg");
 
@@ -200,10 +202,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_there_are_subcommands_and_options_then_a_subcommand_must_be_provided()
         {
-            var command = Command("outer", "",
-                                  Command("inner", "",
-                                          new ArgumentDefinitionBuilder().OneOrMore(),
-                                          Command("three", "")));
+            var command = new CommandDefinition("outer", "", new[] {
+                Command("inner", "",
+                        new ArgumentDefinitionBuilder().OneOrMore(),
+                        new CommandDefinition("three", "", ArgumentDefinition.None))
+            });
 
             var result = command.Parse("outer inner arg");
 
