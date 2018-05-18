@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 Command("custom", "",
-                        Arguments()
+                        new ArgumentDefinitionBuilder()
                             .ParseArgumentsAs<MyCustomType>(parsed => {
                                 var custom = new MyCustomType();
                                 foreach (var argument in parsed.Arguments)
@@ -47,7 +47,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "--file",
                 "",
-                argumentDefinition: Arguments().ParseArgumentsAs<FileInfo>());
+                argumentDefinition: new ArgumentDefinitionBuilder().ParseArgumentsAs<FileInfo>());
 
             var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
             var result = definition.Parse($"--file {file.FullName}");
@@ -67,7 +67,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "--file",
                 "",
-                argumentDefinition: Arguments().ParseArgumentsAs<FileInfo[]>());
+                argumentDefinition: new ArgumentDefinitionBuilder().ParseArgumentsAs<FileInfo[]>());
 
             var file1 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file1.txt"));
             var file2 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file2.txt"));
@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseArgumentsAs_defaults_arity_to_One_for_non_IEnumerable_types()
         {
-            var definition = Arguments().ParseArgumentsAs<int>(s => ArgumentParseResult.Success(1));
+            var definition = new ArgumentDefinitionBuilder().ParseArgumentsAs<int>(s => ArgumentParseResult.Success(1));
 
             definition.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
         }
@@ -93,7 +93,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseArgumentsAs_defaults_arity_to_One_for_string()
         {
-            var definition = Arguments().ParseArgumentsAs<string>(s => ArgumentParseResult.Success(1));
+            var definition = new ArgumentDefinitionBuilder().ParseArgumentsAs<string>(s => ArgumentParseResult.Success(1));
 
             definition.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
         }
@@ -101,7 +101,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseArgumentsAs_infers_arity_of_IEnumerable_types_as_Many()
         {
-            var definition = Arguments().ParseArgumentsAs<int[]>(s => ArgumentParseResult.Success(1));
+            var definition = new ArgumentDefinitionBuilder().ParseArgumentsAs<int[]>(s => ArgumentParseResult.Success(1));
 
             definition.Parser.ArgumentArity.Should().Be(ArgumentArity.Many);
         }
@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests
                                   new OptionDefinition(
                                       new[] { "-o", "--one" },
                                       "",
-                                      argumentDefinition: Arguments()
+                                      argumentDefinition: new ArgumentDefinitionBuilder()
                                           .ParseArgumentsAs<int>(symbol => {
                                               if (int.TryParse(symbol.Arguments.Single(), out int intValue))
                                               {
@@ -302,7 +302,7 @@ namespace System.CommandLine.Tests
                 new OptionDefinition(
                     "-x",
                     "",
-                    argumentDefinition: Arguments().WithDefaultValue(() => "123").ExactlyOne()));
+                    argumentDefinition: new ArgumentDefinitionBuilder().WithDefaultValue(() => "123").ExactlyOne()));
 
             var result = definition.Parse("something");
 
@@ -315,7 +315,7 @@ namespace System.CommandLine.Tests
         public void When_OfType_is_used_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
         {
             var definition = Command("tally", "",
-                                  Arguments()
+                                  new ArgumentDefinitionBuilder()
                                       .ParseArgumentsAs<int>(symbol => {
                                           if (int.TryParse(symbol.Token, out var i))
                                           {
@@ -339,7 +339,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne());
 
             var value = definition.Parse("-x 123").ValueForOption<int>("x");
 
@@ -352,7 +352,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne());
 
             var value = definition.Parse("-x 123.456").ValueForOption<decimal>("x");
 
@@ -365,7 +365,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne());
 
             var value = definition.Parse("-x 123.456").ValueForOption<double>("x");
 
@@ -378,7 +378,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne());
 
             var value = definition.Parse("-x 123.456").ValueForOption<float>("x");
 
@@ -391,7 +391,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne());
 
             definition.Parse("-x").ValueForOption<bool>("x").Should().BeTrue();
         }
@@ -402,7 +402,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne());
 
             definition.Parse("-x false").ValueForOption<bool>("x").Should().BeFalse();
             definition.Parse("-x true").ValueForOption<bool>("x").Should().BeTrue();
@@ -414,7 +414,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrMore());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore());
 
             var value = definition.Parse("-x 1 -x 2 -x 3").ValueForOption<int[]>("x");
 
@@ -427,7 +427,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrMore());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore());
 
             var value = definition.Parse("-x 1 -x 2 -x 3").ValueForOption<List<int>>("x");
 
@@ -440,7 +440,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ParseArgumentsAs<DayOfWeek>());
+                argumentDefinition: new ArgumentDefinitionBuilder().ParseArgumentsAs<DayOfWeek>());
 
             var value = definition.Parse("-x Monday").ValueForOption<DayOfWeek>("x");
 
@@ -453,7 +453,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ParseArgumentsAs<DayOfWeek>());
+                argumentDefinition: new ArgumentDefinitionBuilder().ParseArgumentsAs<DayOfWeek>());
 
             var value = definition.Parse("-x Notaday");
 
@@ -469,7 +469,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne());
 
             var result = definition.Parse("-x not-an-int");
 
@@ -489,7 +489,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Arguments().ZeroOrOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne());
 
             var result = definition.Parse("-x not-an-int -x 2");
 

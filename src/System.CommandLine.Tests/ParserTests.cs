@@ -844,7 +844,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_default_argument_value_is_not_provided_then_the_default_value_can_be_accessed_from_the_parse_result()
         {
-            var option = Create.Command("command", "", Define.Arguments()
+            var option = Create.Command("command", "", new ArgumentDefinitionBuilder()
                                      .WithDefaultValue(() => "default")
                                      .ExactlyOne(), Create.Command("subcommand", "",
                                          new ArgumentDefinitionBuilder().ExactlyOne()));
@@ -862,7 +862,7 @@ namespace System.CommandLine.Tests
             var command = Create.Command("command", "", new OptionDefinition(
                                              new[] {"-o", "--option"},
                                              "",
-                                             argumentDefinition: Define.Arguments()
+                                             argumentDefinition: new ArgumentDefinitionBuilder()
                                                                        .WithDefaultValue(() => "the-default")
                                                                        .ExactlyOne()));
 
@@ -879,7 +879,7 @@ namespace System.CommandLine.Tests
             var option = new OptionDefinition(
                 new[] {"-o", "--option"},
                 "",
-                argumentDefinition: Define.Arguments().WithDefaultValue(() => "the-default").ExactlyOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().WithDefaultValue(() => "the-default").ExactlyOne());
 
             ParseResult result = option.Parse("");
 

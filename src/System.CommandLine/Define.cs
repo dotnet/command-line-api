@@ -11,11 +11,6 @@ namespace System.CommandLine
 {
     public static class Define
     {
-        public static ArgumentDefinitionBuilder Arguments()
-        {
-            return new ArgumentDefinitionBuilder();
-        }
-
         #region arity
 
         public static ArgumentDefinition ExactlyOne(
