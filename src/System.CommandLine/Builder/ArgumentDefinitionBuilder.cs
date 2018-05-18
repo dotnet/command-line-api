@@ -5,11 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace System.CommandLine
+namespace System.CommandLine.Builder
 {
     public class ArgumentDefinitionBuilder
     {
         private ArgumentSuggestionSource suggestionSource;
+
+        private readonly SymbolDefinitionBuilder parent;
+
+        public ArgumentDefinitionBuilder(SymbolDefinitionBuilder parent = null)
+        {
+            this.parent = parent;
+        }
 
         internal ArgumentArity ArgumentArity { get; set; }
 
@@ -19,7 +26,7 @@ namespace System.CommandLine
 
         internal ArgumentsRuleHelp Help { get; set; }
 
-        internal ArgumentParser Parser { get; private set; }
+        internal ArgumentParser Parser { get; set; }
 
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
@@ -59,7 +66,6 @@ namespace System.CommandLine
                 SymbolValidators,
                 suggestionSource);
         }
-
 
         private void AddTokenValidator()
         {

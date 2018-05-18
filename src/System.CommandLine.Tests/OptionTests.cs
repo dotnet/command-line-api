@@ -4,7 +4,6 @@
 using System;
 using FluentAssertions;
 using Xunit;
-using static System.CommandLine.Define;
 
 namespace System.CommandLine.Tests
 {

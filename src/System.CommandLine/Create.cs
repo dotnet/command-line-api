@@ -21,13 +21,6 @@ namespace System.CommandLine
         public static CommandDefinition Command(
             string name,
             string description,
-            bool treatUnmatchedTokensAsErrors,
-            params SymbolDefinition[] symbolDefinitions) =>
-            new CommandDefinition(name, description, symbolDefinitions, treatUnmatchedTokensAsErrors: treatUnmatchedTokensAsErrors);
-
-        public static CommandDefinition Command(
-            string name,
-            string description,
             ArgumentDefinition arguments = null,
             params SymbolDefinition[] symbolDefinitions) =>
             new CommandDefinition(name, description, symbolDefinitions, arguments);
@@ -35,18 +28,7 @@ namespace System.CommandLine
         public static CommandDefinition Command(
             string name,
             string description,
-            ArgumentDefinition arguments,
-            bool treatUnmatchedTokensAsErrors,
-            params SymbolDefinition[] symbolDefinitions) =>
-            new CommandDefinition(name, description, symbolDefinitions, arguments, treatUnmatchedTokensAsErrors);
-
-        public static CommandDefinition Command(
-            string name,
-            string description,
             params CommandDefinition[] commandDefinitions) =>
             new CommandDefinition(name, description, commandDefinitions);
-
-        public static CommandDefinition RootCommand(params SymbolDefinition[] symbolsDefinition) =>
-            new CommandDefinition(symbolsDefinition);
     }
 }

@@ -6,15 +6,10 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 
-namespace System.CommandLine
+namespace System.CommandLine.Builder
 {
-    public static class Define
+    public static class ArgumentDefinitionBuilderExtensions
     {
-        public static ArgumentDefinitionBuilder Arguments()
-        {
-            return new ArgumentDefinitionBuilder();
-        }
-
         #region arity
 
         public static ArgumentDefinition ExactlyOne(
@@ -56,6 +51,17 @@ namespace System.CommandLine
 
             builder.ArgumentArity = ArgumentArity.One;
 
+            return builder.Build();
+        }
+
+        public static ArgumentDefinition None(
+            this ArgumentDefinitionBuilder builder,
+            Func<Option, string> errorMessage = null)
+        {
+            // TODO: (None) reconcile with ArgumentDefinition.None
+            builder.ArgumentArity = ArgumentArity.Zero;
+            builder.SymbolValidators.AddRange(ArgumentDefinition.None.SymbolValidators);
+            builder.Parser = ArgumentDefinition.None.Parser;
             return builder.Build();
         }
 

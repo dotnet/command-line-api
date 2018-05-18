@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Builder;
 using FluentAssertions;
 using System.IO;
 using System.Linq;
@@ -167,24 +168,19 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseResult_SpecifiedCommandDefinition_identifies_implicit_root_command()
+        public void When_no_commands_are_added_then_ParseResult_SpecifiedCommandDefinition_identifies_executable()
         {
-            var parser = new Parser(
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    argumentDefinition: null),
-                new OptionDefinition(
-                    "-y",
-                    "",
-                    argumentDefinition: null));
+            var parser = new ParserBuilder()
+                         .AddOption("-x", "")
+                         .AddOption("-y", "")
+                         .Build();
 
             var result = parser.Parse("-x -y");
 
             var command = result.SpecifiedCommandDefinition();
 
             command.Should().NotBeNull();
-            command.Name.Should().Be(RootCommand().Name);
+            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
         }
 
         [Fact]

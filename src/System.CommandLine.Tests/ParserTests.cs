@@ -5,6 +5,7 @@ using FluentAssertions;
 using FluentAssertions.Common;
 using FluentAssertions.Equivalency;
 using System;
+using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -117,16 +118,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_contains_arguments_to_options()
         {
-            ParseResult result = new Parser(
-                    new OptionDefinition(
-                        new[] {"-o", "--one"},
-                        "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()),
-                    new OptionDefinition(
-                        new[] {"-t", "--two"},
-                        "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()))
-                .Parse("-o args_for_one -t args_for_two");
+            var result = new ParserBuilder()
+                         .AddOption(
+                             new[] { "-o", "--one" },
+                             arguments: args => args.ExactlyOne())
+                         .AddOption(
+                             new[] { "-t", "--two" },
+                             arguments: args => args.ExactlyOne())
+                         .Build()
+                         .Parse("-o args_for_one -t args_for_two");
 
             result["one"].Arguments.Single().Should().Be("args_for_one");
             result["two"].Arguments.Single().Should().Be("args_for_two");
@@ -249,10 +249,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Long_form_options_can_be_specified_using_colon_delimiter()
         {
-            var parser = new Parser(new OptionDefinition(
-                                              "--hello",
-                                              "",
-                                              argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
+            var parser = new ParserBuilder()
+                         .AddOption(
+                             "--hello",
+                             "",
+                             args => args.ExactlyOne())
+                         .Build();
 
             var result = parser.Parse("--hello:there");
 
@@ -264,20 +266,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_short_forms_can_be_bundled()
         {
-            var parser = new Parser(
-                Create.Command("the-command", "",
-                    new OptionDefinition(
-                        "-x",
-                        "",
-                        argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition(
-                        "-y",
-                        "",
-                        argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition(
-                        "-z",
-                        "",
-                        argumentDefinition: ArgumentDefinition.None)));
+            var parser = new ParserBuilder()
+                         .AddCommand("the-command", "",
+                                     c => c.AddOption("-x")
+                                           .AddOption("-y")
+                                           .AddOption("-z"))
+                         .Build();
 
             var result = parser.Parse("the-command -xyz");
 
@@ -291,32 +285,19 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_short_forms_do_not_get_unbundled_if_unbundling_is_turned_off()
         {
-            CommandDefinition commandDefinition = Create.Command("the-command", "",
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None),
-                new OptionDefinition(
-                    "-y",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None),
-                new OptionDefinition(
-                    "-z",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None),
-                new OptionDefinition(
-                    "-xyz",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None));
-            var parseConfig = new ParserConfiguration(new[] { commandDefinition }, allowUnbundling: false);
-            var parser = new Parser(parseConfig);
+            var parser = new ParserBuilder()
+                         .EnablePosixBundling(false)
+                         .AddCommand("the-command", "", c =>
+                                         c.AddOption("-x", "")
+                                          .AddOption("-y", "")
+                                          .AddOption("-z", ""))
+                         .Build();
+
             var result = parser.Parse("the-command -xyz");
 
-            result.SpecifiedCommand()
-                  .Children
-                  .Select(o => o.Name)
+            result.UnmatchedTokens
                   .Should()
-                  .BeEquivalentTo("xyz");
+                  .BeEquivalentTo("-xyz");
         }
 
         [Fact]
@@ -585,12 +566,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_outer_command_with_the_same_name_does_not_capture()
         {
-            var command = Create.Command("one", "",
-                Create.Command("two", "",
-                    Create.Command("three", "")),
-                Create.Command("three", ""));
+            var parser = new ParserBuilder()
+                         .AddCommand("one", "",
+                                     one => {
+                                         one.AddCommand("two", "",
+                                                        two => two.AddCommand("three", ""));
+                                         one.AddCommand("three", "");
+                                     })
+                         .Build();
 
-            ParseResult result = command.Parse("one two three");
+            ParseResult result = parser.Parse("one two three");
 
             result.Diagram().Should().Be("[ one [ two [ three ] ] ]");
         }
@@ -598,12 +583,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_inner_command_with_the_same_name_does_not_capture()
         {
-            var command = Create.Command("one", "",
-                Create.Command("two", "",
-                    Create.Command("three", "")),
-                Create.Command("three", ""));
+            var parser = new ParserBuilder()
+                         .AddCommand("one", "",
+                                     one => {
+                                         one.AddCommand("two", "",
+                                                        two => two.AddCommand("three", ""));
+                                         one.AddCommand("three", "");
+                                     })
+                         .Build();
 
-            ParseResult result = command.Parse("one three");
+            ParseResult result = parser.Parse("one three");
 
             result.Diagram().Should().Be("[ one [ three ] ]");
         }
@@ -611,8 +600,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_nested_commands_all_acccept_arguments_then_the_nearest_captures_the_arguments()
         {
-            var command = Create.Command("outer", "", new ArgumentDefinitionBuilder().ZeroOrMore(),
-                Create.Command("inner", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
+            var command = new ParserBuilder()
+                          .AddCommand("outer", "",
+                                      arguments: outerArgs => outerArgs.ZeroOrMore(),
+                                      symbols: outer => outer.AddCommand("inner", "", arguments: innerArgs => innerArgs.ZeroOrMore()))
+                          .BuildCommandDefinition();
 
             ParseResult result = command.Parse("outer arg1 inner arg2");
 
@@ -624,12 +616,23 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Nested_commands_with_colliding_names_cannot_both_be_applied()
         {
-            var command = Create.Command("outer", "", new ArgumentDefinitionBuilder().ExactlyOne(),
-                Create.Command("non-unique", "", new ArgumentDefinitionBuilder().ExactlyOne()),
-                Create.Command("inner", "", new ArgumentDefinitionBuilder().ExactlyOne(),
-                    Create.Command("non-unique", "", new ArgumentDefinitionBuilder().ExactlyOne())));
+            var parser = new ParserBuilder()
+                         .AddCommand(
+                             "outer", "",
+                             arguments: outerArgs => outerArgs.ExactlyOne(),
+                             symbols: outer =>
+                                 outer.AddCommand(
+                                          "non-unique", "",
+                                          arguments: args => args.ExactlyOne())
+                                      .AddCommand(
+                                          "inner", "",
+                                          arguments: args => args.ExactlyOne(),
+                                          symbols: inner => inner.AddCommand(
+                                              "non-unique", "",
+                                              arguments: innerArgs => innerArgs.ExactlyOne())))
+                         .Build();
 
-            ParseResult result = command.Parse("outer arg1 inner arg2 non-unique arg3 ");
+            ParseResult result = parser.Parse("outer arg1 inner arg2 non-unique arg3 ");
 
             output.WriteLine(result.Diagram());
 
@@ -639,11 +642,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_child_option_will_not_accept_arg_then_parent_can()
         {
-            var parser = new Parser(Create.Command("the-command", "", new ArgumentDefinitionBuilder().ZeroOrMore(),
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None)));
+            var parser = new ParserBuilder()
+                         .AddCommand(
+                             "the-command", "",
+                             arguments: commandArgs => commandArgs.ZeroOrMore(),
+                             symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.None()))
+                         .Build();
 
             ParseResult result = parser.Parse("the-command -x two");
 
@@ -655,11 +659,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_parent_option_will_not_accept_arg_then_child_can()
         {
-            var parser = new Parser(Create.Command("the-command", "",
-                        ArgumentDefinition.None, new OptionDefinition(
-                                                              "-x",
-                                                              "",
-                                                              argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())));
+            var parser = new ParserBuilder()
+                         .AddCommand(
+                             "the-command", "",
+                             arguments: commandArgs => commandArgs.None(),
+                             symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.ExactlyOne()))
+                         .Build();
 
             ParseResult result = parser.Parse("the-command -x two");
 
@@ -808,7 +813,7 @@ namespace System.CommandLine.Tests
             var command =
                 @"rm ""/temp/the file.txt""";
 
-            var parser = new Parser(Create.Command("rm", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
+            var parser = new Parser(new CommandDefinition("rm", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             var result = parser.Parse(command);
 
@@ -824,7 +829,7 @@ namespace System.CommandLine.Tests
             var command =
                 @"rm ""c:\temp\the file.txt\""";
 
-            var parser = new Parser(Create.Command("rm", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
+            var parser = new Parser(new CommandDefinition("rm", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             ParseResult result = parser.Parse(command);
 
@@ -839,7 +844,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_default_argument_value_is_not_provided_then_the_default_value_can_be_accessed_from_the_parse_result()
         {
-            var option = Create.Command("command", "", Define.Arguments()
+            var option = Create.Command("command", "", new ArgumentDefinitionBuilder()
                                      .WithDefaultValue(() => "default")
                                      .ExactlyOne(), Create.Command("subcommand", "",
                                          new ArgumentDefinitionBuilder().ExactlyOne()));
@@ -857,7 +862,7 @@ namespace System.CommandLine.Tests
             var command = Create.Command("command", "", new OptionDefinition(
                                              new[] {"-o", "--option"},
                                              "",
-                                             argumentDefinition: Define.Arguments()
+                                             argumentDefinition: new ArgumentDefinitionBuilder()
                                                                        .WithDefaultValue(() => "the-default")
                                                                        .ExactlyOne()));
 
@@ -874,7 +879,7 @@ namespace System.CommandLine.Tests
             var option = new OptionDefinition(
                 new[] {"-o", "--option"},
                 "",
-                argumentDefinition: Define.Arguments().WithDefaultValue(() => "the-default").ExactlyOne());
+                argumentDefinition: new ArgumentDefinitionBuilder().WithDefaultValue(() => "the-default").ExactlyOne());
 
             ParseResult result = option.Parse("");
 
@@ -910,14 +915,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void The_default_behavior_of_unmatched_tokens_resulting_in_errors_can_be_turned_off()
         {
-            var command = Create.Command("the-command",
-                                  "",
-                                  treatUnmatchedTokensAsErrors: false,
-                                  arguments: new ArgumentDefinitionBuilder().ExactlyOne());
-
-            var parser = new Parser(
-                new ParserConfiguration(
-                    symbolDefinitions: new[] { command }));
+            var parser = new ParserBuilder()
+                         .TreatUnmatchedTokensAsErrors(false)
+                         .AddCommand("the-command", "", arguments: args => args.ExactlyOne())
+                         .Build();
 
             ParseResult result = parser.Parse("the-command arg1 arg2");
 

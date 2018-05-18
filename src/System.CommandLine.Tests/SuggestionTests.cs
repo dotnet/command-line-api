@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using System;
+using System.CommandLine.Builder;
 using System.Linq;
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace System.CommandLine.Tests
             var option = new OptionDefinition(
                 "--hello",
                 "",
-                argumentDefinition: Define.Arguments()
+                argumentDefinition: new ArgumentDefinitionBuilder()
                                           .AddSuggestions("one", "two", "three")
                                           .ExactlyOne());
 
@@ -79,7 +80,7 @@ namespace System.CommandLine.Tests
         public void Command_Suggest_returns_available_subcommands_and_option_aliases_and_configured_arguments()
         {
             var command = Create.Command("command", "a command",
-                                         Define.Arguments()
+                                         new ArgumentDefinitionBuilder()
                                                .AddSuggestions("command-argument")
                                                .OneOrMore(),
                                          Create.Command("subcommand", "subcommand"),
@@ -231,11 +232,11 @@ namespace System.CommandLine.Tests
                     new OptionDefinition(
                         "--one",
                         "",
-                        argumentDefinition: Define.Arguments().FromAmong("one-a", "one-b").ExactlyOne()),
+                        argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("one-a", "one-b").ExactlyOne()),
                     new OptionDefinition(
                         "--two",
                         "",
-                        argumentDefinition: Define.Arguments().FromAmong("two-a", "two-b").ExactlyOne())));
+                        argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("two-a", "two-b").ExactlyOne())));
 
             ParseResult result = parser.Parse("outer --two ");
 
@@ -262,7 +263,7 @@ namespace System.CommandLine.Tests
             CommandDefinition commandDefinition = Create.Command("the-command", "", new OptionDefinition(
                                                                      "-t",
                                                                      "",
-                                                                     argumentDefinition: Define.Arguments()
+                                                                     argumentDefinition: new ArgumentDefinitionBuilder()
                                                                                                .AddSuggestions("vegetable",
                                                                                                                "mineral",
                                                                                                                "animal")
@@ -283,7 +284,7 @@ namespace System.CommandLine.Tests
             CommandDefinition commandDefinition = Create.Command(
                 "the-command", "",
                 Create.Command("one", "",
-                               Define.Arguments()
+                               new ArgumentDefinitionBuilder()
                                      .AddSuggestionSource((parseResult, pos) => new[]
                                      {
                                          "vegetable",
@@ -306,15 +307,15 @@ namespace System.CommandLine.Tests
                     ArgumentDefinition.None, new OptionDefinition(
                                                               "one",
                                                               "",
-                                                              argumentDefinition: Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                                                              argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("one-a", "one-b", "one-c")
                                                                                         .ExactlyOne()), new OptionDefinition(
                                                               "two",
                                                               "",
-                                                              argumentDefinition: Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                                                              argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("two-a", "two-b", "two-c")
                                                                                         .ExactlyOne()), new OptionDefinition(
                                                               "three",
                                                               "",
-                                                              argumentDefinition: Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                                                              argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("three-a", "three-b", "three-c")
                                                                                         .ExactlyOne())));
 
             ParseResult result = parser.Parse(new[] { "outer", "two", "b" });
@@ -332,17 +333,17 @@ namespace System.CommandLine.Tests
                     new OptionDefinition(
                         "one",
                         "",
-                        argumentDefinition: Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                        argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("one-a", "one-b", "one-c")
                                                   .ExactlyOne()),
                     new OptionDefinition(
                         "two",
                         "",
-                        argumentDefinition: Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                        argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("two-a", "two-b", "two-c")
                                                   .ExactlyOne()),
                     new OptionDefinition(
                         "three",
                         "",
-                        argumentDefinition: Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                        argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("three-a", "three-b", "three-c")
                                                   .ExactlyOne())));
 
             ParseResult result = parser.Parse("outer two b");
@@ -358,13 +359,13 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 Create.Command("outer", "", ArgumentDefinition.None,
                     Create.Command("one", "",
-                            Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                            new ArgumentDefinitionBuilder().FromAmong("one-a", "one-b", "one-c")
                                 .ExactlyOne()),
                     Create.Command("two", "",
-                            Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                            new ArgumentDefinitionBuilder().FromAmong("two-a", "two-b", "two-c")
                                 .ExactlyOne()),
                     Create.Command("three", "",
-                            Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                            new ArgumentDefinitionBuilder().FromAmong("three-a", "three-b", "three-c")
                                 .ExactlyOne()))
                 );
 
@@ -381,13 +382,13 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 Create.Command("outer", "",
                     Create.Command("one", "",
-                        Define.Arguments().FromAmong("one-a", "one-b", "one-c")
+                        new ArgumentDefinitionBuilder().FromAmong("one-a", "one-b", "one-c")
                             .ExactlyOne()),
                     Create.Command("two", "",
-                        Define.Arguments().FromAmong("two-a", "two-b", "two-c")
+                        new ArgumentDefinitionBuilder().FromAmong("two-a", "two-b", "two-c")
                             .ExactlyOne()),
                     Create.Command("three", "",
-                        Define.Arguments().FromAmong("three-a", "three-b", "three-c")
+                        new ArgumentDefinitionBuilder().FromAmong("three-a", "three-b", "three-c")
                             .ExactlyOne()))
             );
 
@@ -445,7 +446,7 @@ namespace System.CommandLine.Tests
         [InlineData(" the-command  on$e --two ")]
         public void When_position_is_specified_then_TextToMatch_matches_argument_at_cursor_position(string input)
         {
-            CommandDefinition commandDefinition = Create.Command("the-command", "", Define.Arguments().ZeroOrMore());
+            CommandDefinition commandDefinition = Create.Command("the-command", "", new ArgumentDefinitionBuilder().ZeroOrMore());
 
             string textToMatch = commandDefinition.Parse(input.Replace("$", ""))
                                      .TextToMatch(input.IndexOf("$", StringComparison.Ordinal));

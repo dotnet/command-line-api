@@ -1,4 +1,5 @@
 using System;
+using System.CommandLine.Builder;
 using Xunit;
 using Xunit.Abstractions;
 using static System.CommandLine.Create;

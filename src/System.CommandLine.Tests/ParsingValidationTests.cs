@@ -1,4 +1,5 @@
 using System;
+using System.CommandLine.Builder;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -223,7 +224,7 @@ namespace System.CommandLine.Tests
                 new OptionDefinition(
                     "-x",
                     "",
-                    argumentDefinition: Define.Arguments().ExactlyOne()));
+                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = parser.Parse("-x 1 -x 2");
 

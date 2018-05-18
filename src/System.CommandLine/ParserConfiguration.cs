@@ -25,7 +25,7 @@ namespace System.CommandLine
             if (!symbolDefinitions.OfType<CommandDefinition>().Any())
             {
                 var symbolsDefinition = symbolDefinitions.ToArray();
-                RootCommandDefinition = Create.RootCommand(symbolsDefinition);
+                RootCommandDefinition = CommandDefinition.CreateImplicitRootCommand(symbolsDefinition);
                 SymbolDefinitions.Add(RootCommandDefinition);
             }
             else

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
@@ -142,7 +143,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Define.Arguments()
+                argumentDefinition: new ArgumentDefinitionBuilder()
                                           .FromAmong("one", "two", "default")
                                           .WithDefaultValue(() => "default")
                                           .ExactlyOne());
@@ -158,7 +159,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Define.Arguments().FromAmong("one", "two", "default")
+                argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("one", "two", "default")
                                           .WithDefaultValue(defaultValue: () => "default")
                                           .ExactlyOne());
 
@@ -177,7 +178,7 @@ namespace System.CommandLine.Tests
                 new OptionDefinition(
                     "-x",
                     "",
-                    argumentDefinition: Define.Arguments()
+                    argumentDefinition: new ArgumentDefinitionBuilder()
                                               .WithDefaultValue(() => (++i).ToString())
                                               .ExactlyOne());
 
@@ -350,7 +351,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Define.Arguments()
+                argumentDefinition: new ArgumentDefinitionBuilder()
                                           .WithDefaultValue(() => "default")
                                           .ExactlyOne());
 
@@ -371,7 +372,7 @@ namespace System.CommandLine.Tests
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: Define.Arguments()
+                argumentDefinition: new ArgumentDefinitionBuilder()
                                           .WithDefaultValue(() => "default")
                                           .OneOrMore());
 

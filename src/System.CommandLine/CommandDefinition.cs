@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -33,12 +34,14 @@ namespace System.CommandLine
         public CommandDefinition(
             string name,
             string description,
-            IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
+            IReadOnlyCollection<SymbolDefinition> symbolDefinitions = null,
             ArgumentDefinition argumentDefinition = null,
             bool treatUnmatchedTokensAsErrors = true) :
             base(new[] { name }, description)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+
+            symbolDefinitions = symbolDefinitions ?? Array.Empty<SymbolDefinition>();
 
             var validSymbolAliases = symbolDefinitions
                                      .SelectMany(o => o.RawAliases)
@@ -75,5 +78,8 @@ namespace System.CommandLine
         public bool TreatUnmatchedTokensAsErrors { get; }
 
         public override string ToString() => Name;
+
+        internal static CommandDefinition CreateImplicitRootCommand(params SymbolDefinition[] symbolsDefinition) =>
+            new CommandDefinition(symbolsDefinition);
     }
 }
