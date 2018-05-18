@@ -9,11 +9,6 @@ namespace System.CommandLine
     {
         public static CommandDefinition Command(
             string name,
-            string description) =>
-            new CommandDefinition(name, description, ArgumentDefinition.None);
-
-        public static CommandDefinition Command(
-            string name,
             string description,
             params SymbolDefinition[] symbolDefinitions) =>
             new CommandDefinition(name, description, symbolDefinitions);

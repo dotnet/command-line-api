@@ -203,7 +203,7 @@ namespace System.CommandLine.Tests
             var command = Command("outer", "",
                                   Command("inner", "",
                                           new ArgumentDefinitionBuilder().OneOrMore(),
-                                          Command("three", "")));
+                                          new CommandDefinition("three", "", ArgumentDefinition.None)));
 
             var result = command.Parse("outer inner arg");
 

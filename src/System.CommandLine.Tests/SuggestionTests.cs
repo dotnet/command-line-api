@@ -52,9 +52,9 @@ namespace System.CommandLine.Tests
         public void Command_Suggest_returns_available_subcommands()
         {
             var command = Create.Command("command", "a command",
-                                         Create.Command("one", "subcommand one"),
-                                         Create.Command("two", "subcommand two"),
-                                         Create.Command("three", "subcommand three"));
+                                         new CommandDefinition("one", "subcommand one", ArgumentDefinition.None),
+                                         new CommandDefinition("two", "subcommand two", ArgumentDefinition.None),
+                                         new CommandDefinition("three", "subcommand three", ArgumentDefinition.None));
 
             var suggestions = command.Suggest(command.Parse("command "));
 
@@ -65,7 +65,7 @@ namespace System.CommandLine.Tests
         public void Command_Suggest_returns_available_subcommands_and_option_aliases()
         {
             var command = Create.Command("command", "a command",
-                                         Create.Command("subcommand", "subcommand"),
+                                         new CommandDefinition("subcommand", "subcommand", ArgumentDefinition.None),
                                          new OptionDefinition(
                                              "--option",
                                              "option",
@@ -83,7 +83,7 @@ namespace System.CommandLine.Tests
                                          new ArgumentDefinitionBuilder()
                                                .AddSuggestions("command-argument")
                                                .OneOrMore(),
-                                         Create.Command("subcommand", "subcommand"),
+                                         new CommandDefinition("subcommand", "subcommand", ArgumentDefinition.None),
                                          new OptionDefinition(
                                              "--option",
                                              "option",
@@ -152,8 +152,8 @@ namespace System.CommandLine.Tests
         {
             var command = Create.Command("test", "",
                                          new ArgumentDefinitionBuilder().ExactlyOne(),
-                                         Create.Command("one", "Command one"),
-                                         Create.Command("two", "Command two"));
+                                         new CommandDefinition("one", "Command one", ArgumentDefinition.None),
+                                         new CommandDefinition("two", "Command two", ArgumentDefinition.None));
 
             command.Parse("test ")
                    .Suggestions()
@@ -166,7 +166,7 @@ namespace System.CommandLine.Tests
         {
             var command = Create.Command("test", "",
                                          new ArgumentDefinitionBuilder().ExactlyOne(),
-                                         Create.Command("one", "Command one"),
+                                         new CommandDefinition("one", "Command one", ArgumentDefinition.None),
                                          new OptionDefinition(
                                              "--one",
                                              "Option one",
@@ -248,9 +248,9 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 Create.Command("outer", "",
-                    Create.Command("one", "Command one"),
-                    Create.Command("two", "Command two"),
-                    Create.Command("three", "Command three")));
+                    new CommandDefinition("one", "Command one", ArgumentDefinition.None),
+                    new CommandDefinition("two", "Command two", ArgumentDefinition.None),
+                    new CommandDefinition("three", "Command three", ArgumentDefinition.None)));
 
             ParseResult result = parser.Parse("outer o");
 

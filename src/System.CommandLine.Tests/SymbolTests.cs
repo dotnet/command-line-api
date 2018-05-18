@@ -232,7 +232,7 @@ namespace System.CommandLine.Tests
         {
             var definition = Command("one", "",
                                   Command("two", "",
-                                          Command("three", "")));
+                                          new CommandDefinition("three", "", ArgumentDefinition.None)));
 
             var command = new Command(definition);
 
@@ -302,7 +302,7 @@ namespace System.CommandLine.Tests
         {
             var definition = Command("one", "",
                                   Command("two", "",
-                                          Command("three", "")));
+                                          new CommandDefinition("three", "", ArgumentDefinition.None)));
 
             var command = new Command(definition);
 
@@ -315,8 +315,8 @@ namespace System.CommandLine.Tests
         public void TakeToken_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
             var definition = Command("outer", "",
-                                  Command("inner-one", ""),
-                                  Command("inner-two", ""));
+                                  new CommandDefinition("inner-one", "", ArgumentDefinition.None),
+                                  new CommandDefinition("inner-two", "", ArgumentDefinition.None));
 
             var command = new Command(definition);
 
