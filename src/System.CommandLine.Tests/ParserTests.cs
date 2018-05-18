@@ -335,9 +335,7 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new CommandDefinition("outer", "", new SymbolDefinition[] {
                     new OptionDefinition("-a", ""),
-                    Create.Command("inner", "", new ArgumentDefinitionBuilder().ZeroOrMore(),
-                                   new OptionDefinition("-b", ""),
-                                   new OptionDefinition("-c", ""))}));
+                    new CommandDefinition("inner", "", new[] { new OptionDefinition("-b", ""), (SymbolDefinition) new OptionDefinition("-c", "") }, new ArgumentDefinitionBuilder().ZeroOrMore())}));
 
             ParseResult result = parser.Parse("outer inner -abc");
 
@@ -445,15 +443,13 @@ namespace System.CommandLine.Tests
         public void When_a_Command_option_is_not_respecified_then_the_following_token_is_considered_an_argument_to_the_outer_command()
         {
             var parser = new Parser(
-                Create.Command("the-command", "", new ArgumentDefinitionBuilder().ZeroOrMore(),
-                    new OptionDefinition(
-                        new[] {"-a", "--animals"},
-                        "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()),
-                    new OptionDefinition(
-                        new[] {"-v", "--vegetables"},
-                        "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())));
+                new CommandDefinition("the-command", "", new[] { new OptionDefinition(
+                    new[] {"-a", "--animals"},
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()), (SymbolDefinition) new OptionDefinition(
+                    new[] {"-v", "--vegetables"},
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()) }, new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             ParseResult result = parser.Parse("the-command -a cat some-arg -v carrot");
 
@@ -512,11 +508,10 @@ namespace System.CommandLine.Tests
         public void Relative_order_of_arguments_and_options_does_not_matter()
         {
             var parser = new Parser(
-                Create.Command("move", "", new ArgumentDefinitionBuilder().OneOrMore(),
-                    new OptionDefinition(
-                        "-X",
-                        "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())));
+                new CommandDefinition("move", "", new[] { (SymbolDefinition) new OptionDefinition(
+                    "-X",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder().OneOrMore()));
 
             // option before args
             ParseResult result1 = parser.Parse(
@@ -665,17 +660,15 @@ namespace System.CommandLine.Tests
         public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_inner_command()
         {
             var parser = new Parser(
-                Create.Command("outer", "", ArgumentDefinition.None,
-                    new CommandDefinition("inner", "", new[] {
-                        new OptionDefinition(
-                            "-x",
-                            "",
-                            argumentDefinition: null)
-                    }),
+                new CommandDefinition("outer", "", new[] { new CommandDefinition("inner", "", new[] {
                     new OptionDefinition(
                         "-x",
                         "",
-                        argumentDefinition: null)));
+                        argumentDefinition: null)
+                }), (SymbolDefinition) new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: null) }, ArgumentDefinition.None));
 
             ParseResult result = parser.Parse("outer inner -x");
 
@@ -719,8 +712,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Arguments_only_apply_to_the_nearest_command()
         {
-            var command = Create.Command("outer", "", new ArgumentDefinitionBuilder().ExactlyOne(),
-                Create.Command("inner", "", new ArgumentDefinitionBuilder().ExactlyOne()));
+            var command = new CommandDefinition("outer", "", new[] { (SymbolDefinition) new CommandDefinition("inner", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder().ExactlyOne());
 
             ParseResult result = command.Parse("outer inner arg1 arg2");
 
@@ -742,11 +734,10 @@ namespace System.CommandLine.Tests
         public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
             var command = new CommandDefinition("the-command", "", new[] {
-                Create.Command("complete", "", new ArgumentDefinitionBuilder().ExactlyOne(),
-                               new OptionDefinition(
-                                   "--position",
-                                   "",
-                                   argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()))
+                new CommandDefinition("complete", "", new[] { (SymbolDefinition) new OptionDefinition(
+                    "--position",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder().ExactlyOne())
             });
 
             ParseResult result = command.Parse("the-command",
@@ -837,10 +828,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_default_argument_value_is_not_provided_then_the_default_value_can_be_accessed_from_the_parse_result()
         {
-            var option = Create.Command("command", "", new ArgumentDefinitionBuilder()
-                                     .WithDefaultValue(() => "default")
-                                     .ExactlyOne(), Create.Command("subcommand", "",
-                                         new ArgumentDefinitionBuilder().ExactlyOne()));
+            var option = new CommandDefinition("command", "", new[] { (SymbolDefinition) new CommandDefinition("subcommand", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder()
+                                                                                                                                                                                                                               .WithDefaultValue(() => "default")
+                                                                                                                                                                                                                               .ExactlyOne());
 
             ParseResult result = option.Parse("command subcommand subcommand-arg");
 
@@ -886,16 +876,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Unmatched_options_are_not_split_into_smaller_tokens()
         {
-            var command = Create.Command("outer", "", ArgumentDefinition.None,
-                new OptionDefinition(
-                    "-p",
-                    "",
-                    argumentDefinition: null),
-                Create.Command("inner", "", new ArgumentDefinitionBuilder().OneOrMore(),
-                    new OptionDefinition(
-                        "-o",
-                        "",
-                        argumentDefinition: ArgumentDefinition.None)));
+            var command = new CommandDefinition("outer", "", new[] { new OptionDefinition(
+                "-p",
+                "",
+                argumentDefinition: null), (SymbolDefinition) new CommandDefinition("inner", "", new[] { (SymbolDefinition) new OptionDefinition(
+                "-o",
+                "",
+                argumentDefinition: ArgumentDefinition.None) }, new ArgumentDefinitionBuilder().OneOrMore()) }, ArgumentDefinition.None);
 
             ParseResult result = command.Parse("outer inner -p:RandomThing=random");
 
@@ -945,18 +932,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_and_Command_can_have_the_same_alias()
         {
-            var innerCommand = Create.Command("inner", "",
-                                            new ArgumentDefinitionBuilder().ZeroOrMore());
+            var innerCommand = new CommandDefinition("inner", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore());
 
             var option = new OptionDefinition(
                 "--inner",
                 "",
                 argumentDefinition: null);
 
-            var outerCommand = Create.Command("outer", "",
-                                               new ArgumentDefinitionBuilder().ZeroOrMore(),
-                                               innerCommand,
-                                              option);
+            var outerCommand = new CommandDefinition("outer", "", new[] { innerCommand, (SymbolDefinition) option }, new ArgumentDefinitionBuilder().ZeroOrMore());
 
             var parser = new Parser(outerCommand);
 

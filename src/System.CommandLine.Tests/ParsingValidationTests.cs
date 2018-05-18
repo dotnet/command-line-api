@@ -5,7 +5,6 @@ using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static System.CommandLine.Create;
 
 namespace System.CommandLine.Tests
 {
@@ -105,16 +104,13 @@ namespace System.CommandLine.Tests
                 return null;
             });
 
-            var command = Command("the-command", "",
-                                  builder.ExactlyOne(),
-                                  new OptionDefinition(
-                                      "--one",
-                                      "",
-                                      argumentDefinition: null),
-                                  new OptionDefinition(
-                                      "--two",
-                                      "",
-                                      argumentDefinition: null));
+            var command = new CommandDefinition("the-command", "", new[] { new OptionDefinition(
+                "--one",
+                "",
+                argumentDefinition: null), (SymbolDefinition) new OptionDefinition(
+                "--two",
+                "",
+                argumentDefinition: null) }, builder.ExactlyOne());
 
             var result = command.Parse("the-command --one --two");
 
@@ -129,8 +125,7 @@ namespace System.CommandLine.Tests
         public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var command = Command("the-command", "",
-                                  builder.LegalFilePathsOnly().ZeroOrMore());
+            var command = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.LegalFilePathsOnly().ZeroOrMore());
 
             var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
 
@@ -148,8 +143,7 @@ namespace System.CommandLine.Tests
         public void LegalFilePathsOnly_accepts_arguments_containing_valid_path_characters()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var command = Command("the-command", "",
-                builder.LegalFilePathsOnly().ZeroOrMore());
+            var command = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.LegalFilePathsOnly().ZeroOrMore());
 
             var validPathName = Directory.GetCurrentDirectory();
             var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
@@ -162,12 +156,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_file_existence()
         {
-            var command = Command("move", "",
-                new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne(),
-                                  new OptionDefinition(
-                                      "--to",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
+            var command = new CommandDefinition("move", "", new[] { (SymbolDefinition) new OptionDefinition(
+                "--to",
+                "",
+                argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne());
 
             var result = command.Parse($@"move ""{Guid.NewGuid()}.txt"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
@@ -182,12 +174,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_directory_existence()
         {
-            var command = Command("move", "",
-                new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne(),
-                                  new OptionDefinition(
-                                      "--to",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
+            var command = new CommandDefinition("move", "", new[] { (SymbolDefinition) new OptionDefinition(
+                "--to",
+                "",
+                argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne());
 
             var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
@@ -203,9 +193,7 @@ namespace System.CommandLine.Tests
         public void When_there_are_subcommands_and_options_then_a_subcommand_must_be_provided()
         {
             var command = new CommandDefinition("outer", "", new[] {
-                Command("inner", "",
-                        new ArgumentDefinitionBuilder().OneOrMore(),
-                        new CommandDefinition("three", "", ArgumentDefinition.None))
+                new CommandDefinition("inner", "", new[] { (SymbolDefinition) new CommandDefinition("three", "", ArgumentDefinition.None) }, new ArgumentDefinitionBuilder().OneOrMore())
             });
 
             var result = command.Parse("outer inner arg");
