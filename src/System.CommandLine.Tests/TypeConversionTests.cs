@@ -108,19 +108,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
         {
-            var definition = Command("the-command", "",
-                                  new OptionDefinition(
-                                      new[] { "-o", "--one" },
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder()
-                                          .ParseArgumentsAs<int>(symbol => {
-                                              if (int.TryParse(symbol.Arguments.Single(), out int intValue))
-                                              {
-                                                  return ArgumentParseResult.Success(intValue);
-                                              }
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    new[] { "-o", "--one" },
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder()
+                        .ParseArgumentsAs<int>(symbol => {
+                            if (int.TryParse(symbol.Arguments.Single(), out int intValue))
+                            {
+                                return ArgumentParseResult.Success(intValue);
+                            }
 
-                                              return ArgumentParseResult.Failure($"'{symbol.Token}' is not an integer");
-                                          })));
+                            return ArgumentParseResult.Failure($"'{symbol.Token}' is not an integer");
+                        }))
+            });
 
             var result = definition.Parse("the-command -o not-an-int");
 
@@ -138,11 +139,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_an_option_with_zero_or_one_argument_parses_as_the_argument_string_value_by_default()
         {
-            var definition = Command("the-command", "",
-                                  new OptionDefinition(
-                                      "-x",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne()));
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrOne())
+            });
 
             var result = definition.Parse("the-command -x the-argument");
 
@@ -155,11 +157,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_an_option_with_exactly_one_argument_parses_as_the_argument_string_value_by_default()
         {
-            var definition = Command("the-command", "",
-                                  new OptionDefinition(
-                                      "-x",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
+            });
 
             var result = definition.Parse("the-command -x the-argument");
 
@@ -172,11 +175,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
-            var definition = Command("the-command", "",
-                                  new OptionDefinition(
-                                      "-x",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
+            });
 
             var result = definition.Parse("the-command -x");
 
@@ -193,11 +197,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_returns_an_empty_sequence_of_strings()
         {
-            var definition = Command("the-command", "",
-                                  new OptionDefinition(
-                                      "-x",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()));
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
+            });
 
             var result = definition.Parse("the-command -x");
 
@@ -213,11 +218,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_one_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_throws()
         {
-            var definition = Command("the-command", "",
-                                  new OptionDefinition(
-                                      "-x",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().OneOrMore()));
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().OneOrMore())
+            });
 
             var result = definition.Parse("the-command -x");
 
@@ -234,11 +240,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_multiple_arguments_parses_as_a_sequence_of_strings()
         {
-            var definition = Command("the-command", "",
-                                  new OptionDefinition(
-                                      "-x",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()));
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
+            });
 
             definition.Parse("the-command -x arg1 -x arg2")
                       .SpecifiedCommand()
@@ -250,11 +257,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_one_argument_parses_as_a_sequence_of_strings()
         {
-            var definition = Command("the-command", "",
-                                  new OptionDefinition(
-                                      "-x",
-                                      "",
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()));
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
+            });
 
             definition.Parse("the-command -x arg1")
                       .SpecifiedCommand()
@@ -283,10 +291,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_an_option_without_arguments_parses_as_false_when_it_is_not_applied()
         {
-            var definition = Command("something", "", new OptionDefinition(
-                                         "-x",
-                                         "",
-                                         argumentDefinition: null));
+            var definition = new CommandDefinition("something", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: null)
+            });
 
             var result = definition.Parse("something");
 
@@ -296,12 +306,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_value_parses_as_the_default_value_when_it_the_option_has_not_been_applied()
         {
-            var definition = Command(
-                "something", "",
+            var definition = new CommandDefinition("something", "", new[] {
                 new OptionDefinition(
                     "-x",
                     "",
-                    argumentDefinition: new ArgumentDefinitionBuilder().WithDefaultValue(() => "123").ExactlyOne()));
+                    argumentDefinition: new ArgumentDefinitionBuilder().WithDefaultValue(() => "123").ExactlyOne())
+            });
 
             var result = definition.Parse("something");
 

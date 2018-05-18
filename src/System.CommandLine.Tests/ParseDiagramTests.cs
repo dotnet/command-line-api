@@ -37,13 +37,14 @@ namespace System.CommandLine.Tests
         public void Parse_result_diagram_helps_explain_partial_parse_operation()
         {
             var parser = new Parser(
-                Command("command", "",
-                        new OptionDefinition(
-                            "-x",
-                            "",
-                            argumentDefinition: new ArgumentDefinitionBuilder()
-                                                .FromAmong("arg1", "arg2", "arg3")
-                                                .ExactlyOne())));
+                new CommandDefinition("command", "", new[] {
+                    new OptionDefinition(
+                        "-x",
+                        "",
+                        argumentDefinition: new ArgumentDefinitionBuilder()
+                                            .FromAmong("arg1", "arg2", "arg3")
+                                            .ExactlyOne())
+                }));
 
             var result = parser.Parse("command -x ar");
 

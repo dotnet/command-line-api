@@ -10,12 +10,6 @@ namespace System.CommandLine
         public static CommandDefinition Command(
             string name,
             string description,
-            params SymbolDefinition[] symbolDefinitions) =>
-            new CommandDefinition(name, description, symbolDefinitions);
-
-        public static CommandDefinition Command(
-            string name,
-            string description,
             ArgumentDefinition arguments = null,
             params SymbolDefinition[] symbolDefinitions) =>
             new CommandDefinition(name, description, symbolDefinitions, arguments);

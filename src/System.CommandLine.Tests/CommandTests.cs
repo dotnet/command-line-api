@@ -25,11 +25,12 @@ namespace System.CommandLine.Tests
 
             parser = new Parser(
                 Command("outer", "",
-                        Command("inner", "",
-                                new OptionDefinition(
-                                    "--option",
-                                    "",
-                                    argumentDefinition: builder.ExactlyOne()))));
+                        new CommandDefinition("inner", "", new[] {
+                            new OptionDefinition(
+                                "--option",
+                                "",
+                                argumentDefinition: builder.ExactlyOne())
+                        })));
         }
 
         [Fact]
@@ -133,11 +134,12 @@ namespace System.CommandLine.Tests
             var command = Command("outer", "",
                                   Command("sibling", "", new ArgumentDefinitionBuilder().ZeroOrMore()),
                                   Command("inner", "",
-                                          Command("inner-er", "",
-                                                  new OptionDefinition(
-                                                      "-x",
-                                                      "",
-                                                      argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()))));
+                                          new CommandDefinition("inner-er", "", new[] {
+                                              new OptionDefinition(
+                                                  "-x",
+                                                  "",
+                                                  argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
+                                          })));
 
             var result = command.Parse("outer inner inner-er -x arg");
 
@@ -190,11 +192,12 @@ namespace System.CommandLine.Tests
                                   Command("sibling", "",
                                       new ArgumentDefinitionBuilder().ExactlyOne()),
                                   Command("inner", "",
-                                          Command("inner-er", "",
-                                                  new OptionDefinition(
-                                                      "-x",
-                                                      "",
-                                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()))));
+                                          new CommandDefinition("inner-er", "", new[] {
+                                              new OptionDefinition(
+                                                  "-x",
+                                                  "",
+                                                  argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
+                                          })));
 
             var result = command.Parse("outer inner inner-er -x arg");
 

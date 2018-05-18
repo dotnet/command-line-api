@@ -87,11 +87,12 @@ namespace System.CommandLine.Tests
         public void ParsedCommand_can_have_nested_option_with_args()
         {
             var builder = new ArgumentDefinitionBuilder();
-            var definition = Command("outer", "",
-                                 new OptionDefinition(
-                                     "inner",
-                                     "",
-                                     argumentDefinition: builder.ExactlyOne()));
+            var definition = new CommandDefinition("outer", "", new[] {
+                new OptionDefinition(
+                    "inner",
+                    "",
+                    argumentDefinition: builder.ExactlyOne())
+            });
 
             var command = new Command(definition);
 
@@ -108,15 +109,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_can_have_multiple_nested_options_with_args()
         {
-            var definition = Command("outer", "",
-                                 new OptionDefinition(
-                                     "inner1",
-                                     "",
-                                     argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()),
-                                 new OptionDefinition(
-                                     "inner2",
-                                     "",
-                                     argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
+            var definition = new CommandDefinition("outer", "", new[] {
+                new OptionDefinition(
+                    "inner1",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()), new OptionDefinition(
+                    "inner2",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
+            });
 
             var command = new Command(definition);
 
@@ -214,11 +215,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_option()
         {
-            var definition = Command("the-command", "",
-                                  new OptionDefinition(
-                                      new[] {"-h", "--help"},
-                                      "",
-                                      argumentDefinition: null));
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    new[] {"-h", "--help"},
+                    "",
+                    argumentDefinition: null)
+            });
 
             var result = definition.Parse("the-command -h");
 
@@ -249,10 +251,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_TryTakeToken_is_accepts_long_form_option()
         {
-            var definition = Command("command", "", new OptionDefinition(
-                                         new[] {"-o", "--one"},
-                                         "",
-                                         argumentDefinition: ArgumentDefinition.None));
+            var definition = new CommandDefinition("command", "", new[] {
+                new OptionDefinition(
+                    new[] {"-o", "--one"},
+                    "",
+                    argumentDefinition: ArgumentDefinition.None)
+            });
 
             var command = new Command(definition);
 
@@ -265,10 +269,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_TryTakeToken_is_accepts_short_form_option()
         {
-            var definition = Command("command", "", new OptionDefinition(
-                                         new[] {"-o", "--one"},
-                                         "",
-                                         argumentDefinition: ArgumentDefinition.None));
+            var definition = new CommandDefinition("command", "", new[] {
+                new OptionDefinition(
+                    new[] {"-o", "--one"},
+                    "",
+                    argumentDefinition: ArgumentDefinition.None)
+            });
 
             var command = new Command(definition);
 
@@ -281,10 +287,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void TryTakeToken_does_not_accept_incorrectly_prefixed_options()
         {
-            var definition = Command("command", "", new OptionDefinition(
-                                         new[] {"-o", "--one"},
-                                         "",
-                                         argumentDefinition: ArgumentDefinition.None));
+            var definition = new CommandDefinition("command", "", new[] {
+                new OptionDefinition(
+                    new[] {"-o", "--one"},
+                    "",
+                    argumentDefinition: ArgumentDefinition.None)
+            });
 
             var command = new Command(definition);
 
