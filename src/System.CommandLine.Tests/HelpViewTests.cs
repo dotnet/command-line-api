@@ -3,12 +3,11 @@
 
 using System;
 using System.CommandLine.Builder;
-using System.Linq;
 using FluentAssertions;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Environment;
-using static System.CommandLine.Create;
 
 namespace System.CommandLine.Tests
 {
@@ -25,15 +24,15 @@ namespace System.CommandLine.Tests
         public void Command_help_view_includes_names_of_parent_commands()
         {
             var command = new ParserBuilder()
-                .AddCommand(
-                    "outer", "the outer command",
-                    outer => outer.AddCommand(
-                        "inner", "the inner command",
-                        inner => inner.AddCommand(
-                            "inner-er", "the inner-er command",
-                            innerEr => innerEr.AddOption(
-                                "--some-option",
-                                "some option"))))
+                          .AddCommand(
+                              "outer", "the outer command",
+                              outer => outer.AddCommand(
+                                  "inner", "the inner command",
+                                  inner => inner.AddCommand(
+                                      "inner-er", "the inner-er command",
+                                      innerEr => innerEr.AddOption(
+                                          "--some-option",
+                                          "some option"))))
                           .BuildCommandDefinition();
 
             command.Subcommand("inner")
@@ -46,14 +45,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_help_view_does_not_include_names_of_sibling_commands()
         {
-            var command = Command("outer", "outer description",
-                                  Command("sibling", "sibling description"),
-                                  Command("inner", "inner description",
-                                          Command("inner-er", "inner-er description",
-                                                  new OptionDefinition(
-                                                      "some-option",
-                                                      "some-option description",
-                                                      argumentDefinition: null))));
+            var command = new ParserBuilder()
+                          .AddCommand(
+                              "outer", "outer description",
+                              outer => {
+                                  outer.AddCommand(
+                                      "sibling", "sibling description");
+                                  outer.AddCommand(
+                                      "inner", "inner description",
+                                      inner => inner.AddCommand(
+                                          "inner-er", "inner-er description",
+                                          innerEr => innerEr.AddOption(
+                                              "some-option",
+                                              "some-option description")));
+                              })
+                          .BuildCommandDefinition();
 
             command
                 .Subcommand("inner")
@@ -65,14 +71,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_help_view_does_not_include_names_of_child_commands_under_options_section()
         {
-            var command = Command("outer", "description for outer",
-                                  Command("inner", "description for inner"));
+            var command = new ParserBuilder()
+                          .AddCommand("outer", "description for outer",
+                                      outer =>
+                                          outer.AddCommand("inner", "description for inner"))
+                          .BuildCommandDefinition();
 
             var helpView = command.HelpView();
 
             output.WriteLine(helpView);
 
-           helpView
+            helpView
                 .Should()
                 .NotContain("Options:");
         }
@@ -80,15 +89,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_can_be_hidden_from_help_output_by_leaving_its_help_text_empty()
         {
-            var command = Command("the-command", "Does things.",
-                                  new OptionDefinition(
-                                      "-x",
-                                      "",
-                                      argumentDefinition: null),
-                                  new OptionDefinition(
-                                      "-n",
-                                      "Not hidden",
-                                      argumentDefinition: null));
+            var command = new ParserBuilder()
+                          .AddCommand("the-command", "Does things.",
+                                      cmd => cmd.AddOption("-x", "")
+                                                .AddOption("-n", "Not hidden"))
+                          .BuildCommandDefinition();
 
             var help = command.HelpView();
 
@@ -98,14 +103,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_command_accepts_arguments_then_the_synopsis_shows_them()
         {
-            var command = Command("the-command", "command help",
-                Define.Arguments()
-                      .WithHelp(name: "the-args")
-                      .ZeroOrMore(),
-                                  new OptionDefinition(
-                                      new[] {"-v", "--verbosity"},
-                                      "Sets the verbosity",
-                                      argumentDefinition: null));
+            var command = new ParserBuilder()
+                          .AddCommand("the-command", "command help",
+                                      arguments: args => args
+                                                         .WithHelp(name: "the-args")
+                                                         .ZeroOrMore(),
+                                      symbols: cmd => cmd.AddOption(
+                                          new[] { "-v", "--verbosity" },
+                                          "Sets the verbosity"))
+                          .BuildCommandDefinition();
 
             var helpView = command.HelpView();
 
@@ -117,17 +123,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_command_and_subcommand_both_accept_arguments_then_the_synopsis_for_the_inner_command_shows_them()
         {
-            var command = Command("outer-command", "command help",
-                                   Define.Arguments()
-                                       .WithHelp(name: "outer-args")
-                                       .ZeroOrMore(),
-                                  Command("inner-command", "command help",
-                                      Define.Arguments().WithHelp(name: "inner-args")
-                                          .ZeroOrOne(),
-                                          new OptionDefinition(
-                                              "-v|--verbosity",
-                                              "Sets the verbosity",
-                                              argumentDefinition: null)));
+            var command = new ParserBuilder()
+                          .AddCommand(
+                              "outer-command", "command help",
+                              arguments: outerArgs => outerArgs
+                                                      .WithHelp(name: "outer-args")
+                                                      .ZeroOrMore(),
+                              symbols: outer => outer.AddCommand(
+                                  "inner-command", "command help",
+                                  arguments: args => args.WithHelp(name: "inner-args")
+                                                         .ZeroOrOne(),
+                                  symbols: inner => inner.AddOption(
+                                      "-v|--verbosity",
+                                      "Sets the verbosity")))
+                          .BuildCommandDefinition();
 
             var helpView = command.Subcommand("inner-command").HelpView();
 
@@ -141,14 +150,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_command_does_not_accept_arguments_then_the_synopsis_does_not_show_them()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var command = Command("the-command",
-                                  "command help",
-                                  ArgumentDefinition.None,
-                                  new OptionDefinition(
-                                      new[] { "-v", "--verbosity" },
-                                      "Sets the verbosity",
-                                      argumentDefinition: null));
+            var command = new ParserBuilder()
+                          .AddCommand("the-command", "command help",
+                                      cmd => cmd.AddOption(
+                                          new[] { "-v", "--verbosity" },
+                                          "Sets the verbosity"))
+                          .BuildCommandDefinition();
 
             var helpView = command.HelpView();
 
@@ -160,13 +167,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_view_wraps_with_aligned_column_when_help_text_contains_newline()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var command = Command("the-command",
-                                  "command help",
-                                  new OptionDefinition(
-                                      new[] { "-v", "--verbosity" },
-                                      $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud",
-                                      argumentDefinition: builder.ExactlyOne()));
+            var command = new ParserBuilder()
+                          .AddCommand("the-command",
+                                      "command help",
+                                      cmd => cmd.AddOption(
+                                          new[] { "-v", "--verbosity" },
+                                          $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud",
+                                          arguments: args => args.ExactlyOne()))
+                          .BuildCommandDefinition();
 
             var helpView = command.HelpView();
 
@@ -179,13 +187,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_names_are_included_in_help_view()
         {
-            var command = Command("the-command",
-                                  "command help",
-                                  new OptionDefinition(
-                                      new[] { "-v", "--verbosity" },
-                                      "Sets the verbosity.",
-                                      argumentDefinition: Define.Arguments().WithHelp(name: "LEVEL")
-                                                                .ExactlyOne()));
+            var command = new ParserBuilder()
+                          .AddCommand("the-command",
+                                      "command help",
+                                      cmd => cmd.AddOption(
+                                          new[] { "-v", "--verbosity" },
+                                          "Sets the verbosity.",
+                                          arguments: args => args.WithHelp(name: "LEVEL")
+                                                                 .ExactlyOne()))
+                          .BuildCommandDefinition();
 
             command.HelpView()
                    .Should()
@@ -195,14 +205,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void If_arguments_have_descriptions_then_there_is_an_arguments_section()
         {
-            var command = Command("the-command", "The help text for the command",
-                Define.Arguments().WithHelp(name: "the-arg",
-                        description: "This is the argument for the command.")
-                    .ZeroOrOne(),
-                new OptionDefinition(
-                    new[] { "-o", "--one" },
-                    "The first option",
-                    argumentDefinition: null));
+            var command = new ParserBuilder()
+                          .AddCommand("the-command", "The help text for the command",
+                                      arguments: args => args.WithHelp(name: "the-arg",
+                                                                       description: "This is the argument for the command.")
+                                                             .ZeroOrOne(),
+                                      symbols: cmd => cmd.AddOption(
+                                          new[] { "-o", "--one" },
+                                          "The first option"))
+                          .BuildCommandDefinition();
 
             var helpView = command.HelpView();
 
@@ -215,16 +226,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Column_for_argument_descriptions_are_vertically_aligned()
         {
-            var command = Command("outer", "Help text for the outer command",
-                Define.Arguments().WithHelp(name: "outer-command-arg",
-                                description: "The argument for the inner command")
-                                .ExactlyOne(),
-                                  Command("inner", "Help text for the inner command",
-                                      Define.Arguments().WithHelp(name: "the-inner-command-arg",
-                                          description: "The argument for the inner command")
-                                          .ExactlyOne()));
+            var command = new ParserBuilder()
+                          .AddCommand(
+                              "outer", "Help text for the outer command",
+                              arguments: args => args.WithHelp(name: "outer-command-arg",
+                                                               description: "The argument for the inner command")
+                                                     .ExactlyOne(),
+                              symbols: outer => outer.AddCommand(
+                                  "inner", "Help text for the inner command",
+                                  arguments: innerArgs => innerArgs.WithHelp(name: "the-inner-command-arg",
+                                                                             description: "The argument for the inner command")
+                                                                   .ExactlyOne()))
+                          .BuildCommandDefinition();
 
-            var helpView =  command.Subcommand("inner").HelpView();
+            var helpView = command.Subcommand("inner").HelpView();
 
             output.WriteLine(helpView);
 
@@ -241,19 +256,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Column_for_options_descriptions_are_vertically_aligned()
         {
-            var command = Command("the-command", "Help text for the command",
-                                  new OptionDefinition(
-                                      new[] {"-a", "--aaa"},
-                                      "An option with 8 characters",
-                                      argumentDefinition: null),
-                                  new OptionDefinition(
-                                      new[] {"-b", "--bbbbbbbbbb"},
-                                      "An option with 15 characters",
-                                      argumentDefinition: null));
+            var command = new ParserBuilder()
+                          .AddCommand("the-command", "Help text for the command",
+                                      symbols =>
+                                          symbols.AddOption(
+                                                     new[] { "-a", "--aaa" },
+                                                     "An option with 8 characters")
+                                                 .AddOption(
+                                                     new[] { "-b", "--bbbbbbbbbb" },
+                                                     "An option with 15 characters"))
+                          .BuildCommandDefinition();
 
             var helpView = command.HelpView();
 
-            var lines = helpView.Split(new[]{ '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = helpView.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             var optionA = lines.Last(line => line.Contains("-a"));
             var optionB = lines.Last(line => line.Contains("-b"));
@@ -285,11 +301,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Retain_single_dash_on_multi_char_option()
         {
-            var command = Command("command", "Help Test",
-                new OptionDefinition(
-                    new[] {"-multi", "--alt-option"},
-                    "Help for option",
-                    argumentDefinition: null));
+            var command = new ParserBuilder()
+                          .AddCommand("command", "Help Test",
+                                      c => c.AddOption(
+                                          new[] { "-multi", "--alt-option" },
+                                          "Help for option"))
+                          .BuildCommandDefinition();
             var helpView = command.HelpView();
             helpView.Should().Contain("-multi");
             helpView.Should().NotContain("--multi");
@@ -298,11 +315,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Retain_multiple_dashes_on_single_char_option()
         {
-            var command = Command("command", "Help Test",
-                new OptionDefinition(
-                    new[] {"--m", "--alt-option"},
-                    "Help for option",
-                    argumentDefinition: null));
+            var command = new ParserBuilder()
+                          .AddCommand("command", "Help Test",
+                                      c => c.AddOption(
+                                          new[] { "--m", "--alt-option" },
+                                          "Help for option"))
+                          .BuildCommandDefinition();
             var helpView = command.HelpView();
             helpView.Should().Contain("--m");
         }
