@@ -26,7 +26,7 @@ namespace System.CommandLine.Builder
 
         internal ArgumentsRuleHelp Help { get; set; }
 
-        internal ArgumentParser Parser { get; private set; }
+        internal ArgumentParser Parser { get; set; }
 
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 

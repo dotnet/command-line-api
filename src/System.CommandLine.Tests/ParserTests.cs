@@ -566,12 +566,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_outer_command_with_the_same_name_does_not_capture()
         {
-            var command = Create.Command("one", "",
-                Create.Command("two", "",
-                    Create.Command("three", "")),
-                Create.Command("three", ""));
+            var parser = new ParserBuilder()
+                         .AddCommand("one", "",
+                                     one => {
+                                         one.AddCommand("two", "",
+                                                        two => two.AddCommand("three", ""));
+                                         one.AddCommand("three", "");
+                                     })
+                         .Build();
 
-            ParseResult result = command.Parse("one two three");
+            ParseResult result = parser.Parse("one two three");
 
             result.Diagram().Should().Be("[ one [ two [ three ] ] ]");
         }
@@ -579,12 +583,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_inner_command_with_the_same_name_does_not_capture()
         {
-            var command = Create.Command("one", "",
-                Create.Command("two", "",
-                    Create.Command("three", "")),
-                Create.Command("three", ""));
+            var parser = new ParserBuilder()
+                         .AddCommand("one", "",
+                                     one => {
+                                         one.AddCommand("two", "",
+                                                        two => two.AddCommand("three", ""));
+                                         one.AddCommand("three", "");
+                                     })
+                         .Build();
 
-            ParseResult result = command.Parse("one three");
+            ParseResult result = parser.Parse("one three");
 
             result.Diagram().Should().Be("[ one [ three ] ]");
         }
@@ -592,8 +600,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_nested_commands_all_acccept_arguments_then_the_nearest_captures_the_arguments()
         {
-            var command = Create.Command("outer", "", new ArgumentDefinitionBuilder().ZeroOrMore(),
-                Create.Command("inner", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
+            var command = new ParserBuilder()
+                          .AddCommand("outer", "",
+                                      arguments: outerArgs => outerArgs.ZeroOrMore(),
+                                      symbols: outer => outer.AddCommand("inner", "", arguments: innerArgs => innerArgs.ZeroOrMore()))
+                          .BuildCommandDefinition();
 
             ParseResult result = command.Parse("outer arg1 inner arg2");
 
@@ -605,12 +616,23 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Nested_commands_with_colliding_names_cannot_both_be_applied()
         {
-            var command = Create.Command("outer", "", new ArgumentDefinitionBuilder().ExactlyOne(),
-                Create.Command("non-unique", "", new ArgumentDefinitionBuilder().ExactlyOne()),
-                Create.Command("inner", "", new ArgumentDefinitionBuilder().ExactlyOne(),
-                    Create.Command("non-unique", "", new ArgumentDefinitionBuilder().ExactlyOne())));
+            var parser = new ParserBuilder()
+                         .AddCommand(
+                             "outer", "",
+                             arguments: outerArgs => outerArgs.ExactlyOne(),
+                             symbols: outer =>
+                                 outer.AddCommand(
+                                          "non-unique", "",
+                                          arguments: args => args.ExactlyOne())
+                                      .AddCommand(
+                                          "inner", "",
+                                          arguments: args => args.ExactlyOne(),
+                                          symbols: inner => inner.AddCommand(
+                                              "non-unique", "",
+                                              arguments: innerArgs => innerArgs.ExactlyOne())))
+                         .Build();
 
-            ParseResult result = command.Parse("outer arg1 inner arg2 non-unique arg3 ");
+            ParseResult result = parser.Parse("outer arg1 inner arg2 non-unique arg3 ");
 
             output.WriteLine(result.Diagram());
 
@@ -620,11 +642,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_child_option_will_not_accept_arg_then_parent_can()
         {
-            var parser = new Parser(Create.Command("the-command", "", new ArgumentDefinitionBuilder().ZeroOrMore(),
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None)));
+            var parser = new ParserBuilder()
+                         .AddCommand(
+                             "the-command", "",
+                             arguments: commandArgs => commandArgs.ZeroOrMore(),
+                             symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.None()))
+                         .Build();
 
             ParseResult result = parser.Parse("the-command -x two");
 
@@ -636,11 +659,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_parent_option_will_not_accept_arg_then_child_can()
         {
-            var parser = new Parser(Create.Command("the-command", "",
-                        ArgumentDefinition.None, new OptionDefinition(
-                                                              "-x",
-                                                              "",
-                                                              argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())));
+            var parser = new ParserBuilder()
+                         .AddCommand(
+                             "the-command", "",
+                             arguments: commandArgs => commandArgs.None(),
+                             symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.ExactlyOne()))
+                         .Build();
 
             ParseResult result = parser.Parse("the-command -x two");
 
@@ -789,7 +813,7 @@ namespace System.CommandLine.Tests
             var command =
                 @"rm ""/temp/the file.txt""";
 
-            var parser = new Parser(Create.Command("rm", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
+            var parser = new Parser(new CommandDefinition("rm", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             var result = parser.Parse(command);
 
@@ -805,7 +829,7 @@ namespace System.CommandLine.Tests
             var command =
                 @"rm ""c:\temp\the file.txt\""";
 
-            var parser = new Parser(Create.Command("rm", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
+            var parser = new Parser(new CommandDefinition("rm", "", new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             ParseResult result = parser.Parse(command);
 

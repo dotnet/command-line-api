@@ -60,6 +60,17 @@ namespace System.CommandLine
             return builder.Build();
         }
 
+        public static ArgumentDefinition None(
+            this ArgumentDefinitionBuilder builder,
+            Func<Option, string> errorMessage = null)
+        {
+            // TODO: (None) reconcile with ArgumentDefinition.None
+            builder.ArgumentArity = ArgumentArity.Zero;
+            builder.SymbolValidators.AddRange(ArgumentDefinition.None.SymbolValidators);
+            builder.Parser = ArgumentDefinition.None.Parser;
+            return builder.Build();
+        }
+
         public static ArgumentDefinition ZeroOrMore(
             this ArgumentDefinitionBuilder builder,
             Func<Option, string> errorMessage = null)
