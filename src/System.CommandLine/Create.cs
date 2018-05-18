@@ -30,8 +30,5 @@ namespace System.CommandLine
             string description,
             params CommandDefinition[] commandDefinitions) =>
             new CommandDefinition(name, description, commandDefinitions);
-
-        public static CommandDefinition RootCommand(params SymbolDefinition[] symbolsDefinition) =>
-            new CommandDefinition(symbolsDefinition);
     }
 }

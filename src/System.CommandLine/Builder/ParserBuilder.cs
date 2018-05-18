@@ -25,7 +25,7 @@ namespace System.CommandLine.Builder
             }
             else
             {
-                return Create.RootCommand(BuildChildSymbolDefinitions().ToArray());
+                return CommandDefinition.CreateImplicitRootCommand(BuildChildSymbolDefinitions().ToArray());
             }
         }
     }
