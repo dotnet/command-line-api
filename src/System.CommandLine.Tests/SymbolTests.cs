@@ -6,7 +6,6 @@ using System.CommandLine.Builder;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using static System.CommandLine.Create;
 
 namespace System.CommandLine.Tests
 {
@@ -201,8 +200,7 @@ namespace System.CommandLine.Tests
         {
             var builder = new ArgumentDefinitionBuilder();
             var definition =
-                Command("the-command", "",
-                        builder.ExactlyOne(o => $"Expected 1 arg for option `{o.Name}`, found none"));
+                new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.ExactlyOne(o => $"Expected 1 arg for option `{o.Name}`, found none"));
 
             var result = definition.Parse("the-command");
 

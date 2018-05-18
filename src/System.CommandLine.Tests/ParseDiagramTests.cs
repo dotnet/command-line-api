@@ -4,7 +4,6 @@
 using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
-using static System.CommandLine.Create;
 
 namespace System.CommandLine.Tests
 {
@@ -14,17 +13,13 @@ namespace System.CommandLine.Tests
         public void Parse_result_diagram_helps_explain_parse_operation()
         {
             var parser = new Parser(
-                Command("the-command",
-                        "Does the thing.",
-                        new ArgumentDefinitionBuilder().ZeroOrMore(),
-                        new OptionDefinition(
-                            "-x",
-                            "Specifies value x",
-                            argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()),
-                        new OptionDefinition(
-                            "-y",
-                            "Specifies value y",
-                            argumentDefinition: ArgumentDefinition.None)));
+                new CommandDefinition("the-command", "Does the thing.", new[] { new OptionDefinition(
+                    "-x",
+                    "Specifies value x",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()), (SymbolDefinition) new OptionDefinition(
+                    "-y",
+                    "Specifies value y",
+                    argumentDefinition: ArgumentDefinition.None) }, new ArgumentDefinitionBuilder().ZeroOrMore()));
 
             var result = parser.Parse("the-command -x one -y two three");
 

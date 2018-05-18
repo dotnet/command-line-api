@@ -8,7 +8,6 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using static System.CommandLine.Create;
 
 namespace System.CommandLine.Tests
 {
@@ -18,17 +17,16 @@ namespace System.CommandLine.Tests
         public void ParseArgumentsAs_can_specify_custom_types_and_conversion_logic()
         {
             var parser = new Parser(
-                Command("custom", "",
-                        new ArgumentDefinitionBuilder()
-                            .ParseArgumentsAs<MyCustomType>(parsed => {
-                                var custom = new MyCustomType();
-                                foreach (var argument in parsed.Arguments)
-                                {
-                                    custom.Add(argument);
-                                }
+                new CommandDefinition("custom", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder()
+                                          .ParseArgumentsAs<MyCustomType>(parsed => {
+                                              var custom = new MyCustomType();
+                                              foreach (var argument in parsed.Arguments)
+                                              {
+                                                  custom.Add(argument);
+                                              }
 
-                                return ArgumentParseResult.Success(custom);
-                            }, ArgumentArity.Many)));
+                                              return ArgumentParseResult.Success(custom);
+                                          }, ArgumentArity.Many)));
 
             var result = parser.Parse("custom one two three");
 
@@ -274,11 +272,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_an_option_without_arguments_parses_as_true_when_it_is_applied()
         {
-            var definition = Command("something", "", ArgumentDefinition.None,
-                                  new OptionDefinition(
-                                      "-x",
-                                      "",
-                                      argumentDefinition: null));
+            var definition = new CommandDefinition("something", "", new[] { (SymbolDefinition) new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: null) }, ArgumentDefinition.None);
 
             var result = definition.Parse("something -x");
 
@@ -323,16 +320,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_OfType_is_used_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
         {
-            var definition = Command("tally", "",
-                                  new ArgumentDefinitionBuilder()
-                                      .ParseArgumentsAs<int>(symbol => {
-                                          if (int.TryParse(symbol.Token, out var i))
-                                          {
-                                              return ArgumentParseResult.Success(i);
-                                          }
+            var definition = new CommandDefinition("tally", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder()
+                                                       .ParseArgumentsAs<int>(symbol => {
+                                                           if (int.TryParse(symbol.Token, out var i))
+                                                           {
+                                                               return ArgumentParseResult.Success(i);
+                                                           }
 
-                                          return ArgumentParseResult.Failure("Could not parse int");
-                                      }));
+                                                           return ArgumentParseResult.Failure("Could not parse int");
+                                                       }));
 
             var result = definition.Parse("tally one");
 

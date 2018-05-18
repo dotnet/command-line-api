@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
-using static System.CommandLine.Create;
 
 namespace System.CommandLine.Tests
 {
@@ -111,9 +110,7 @@ namespace System.CommandLine.Tests
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
             var parser = new Parser(
-                Command("outer", "", new ArgumentDefinitionBuilder().ExactlyOne(),
-                        Command("inner", "",
-                            new ArgumentDefinitionBuilder().ZeroOrMore())));
+                new CommandDefinition("outer", "", new[] { (SymbolDefinition) new CommandDefinition("inner", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()) }, new ArgumentDefinitionBuilder().ExactlyOne()));
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
@@ -132,7 +129,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseResult_Command_identifies_innermost_command()
         {
-            var command = new CommandDefinition("outer", "", new[] { Command("sibling", "", new ArgumentDefinitionBuilder().ZeroOrMore()), new CommandDefinition("inner", "", new[] {
+            var command = new CommandDefinition("outer", "", new[] { new CommandDefinition("sibling", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()), new CommandDefinition("inner", "", new[] {
                     new CommandDefinition("inner-er", "", new[] {
                         new OptionDefinition(
                             "-x",
@@ -190,8 +187,7 @@ namespace System.CommandLine.Tests
         public void ParsedCommand_identifies_the_ParsedCommand_for_the_innermost_command()
         {
             var command = new CommandDefinition("outer", "", new[] {
-                Command("sibling", "",
-                        new ArgumentDefinitionBuilder().ExactlyOne()), new CommandDefinition("inner", "", new[] {
+                new CommandDefinition("sibling", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()), new CommandDefinition("inner", "", new[] {
                     new CommandDefinition("inner-er", "", new[] {
                         new OptionDefinition(
                             "-x",
