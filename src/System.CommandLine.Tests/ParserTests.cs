@@ -4,7 +4,6 @@
 using FluentAssertions;
 using FluentAssertions.Common;
 using FluentAssertions.Equivalency;
-using System;
 using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
@@ -15,11 +14,11 @@ namespace System.CommandLine.Tests
 {
     public class ParserTests
     {
-        private readonly ITestOutputHelper output;
+        private readonly ITestOutputHelper _output;
 
         public ParserTests(ITestOutputHelper output)
         {
-            this.output = output;
+            _output = output;
         }
 
         [Fact]
@@ -488,7 +487,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("outer --inner1 argument1 --inner2 argument2");
 
-            output.WriteLine(result.Diagram());
+            _output.WriteLine(result.Diagram());
 
             var applied = result.Symbols.Single();
 
@@ -618,7 +617,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("outer arg1 inner arg2 non-unique arg3 ");
 
-            output.WriteLine(result.Diagram());
+            _output.WriteLine(result.Diagram());
 
             result.Diagram().Should().Be("[ outer [ inner [ non-unique <arg3> ] <arg2> ] <arg1> ]");
         }
@@ -748,7 +747,7 @@ namespace System.CommandLine.Tests
 
             Command complete = result.SpecifiedCommand();
 
-            output.WriteLine(result.Diagram());
+            _output.WriteLine(result.Diagram());
 
             complete.Arguments.Should().BeEquivalentTo("the-command");
         }
@@ -834,7 +833,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = option.Parse("command subcommand subcommand-arg");
 
-            output.WriteLine(result.Diagram());
+            _output.WriteLine(result.Diagram());
 
             result.SpecifiedCommand().Parent.Arguments.Should().BeEquivalentTo("default");
         }
@@ -886,7 +885,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("outer inner -p:RandomThing=random");
 
-            output.WriteLine(result.Diagram());
+            _output.WriteLine(result.Diagram());
 
             result.SpecifiedCommand()
                   .Arguments

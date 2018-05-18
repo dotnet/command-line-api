@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +8,7 @@ namespace System.CommandLine
 {
     public class ArgumentDefinition
     {
-        private readonly Func<string> defaultValue;
+        private readonly Func<string> _defaultValue;
 
         public ArgumentDefinition(
             ArgumentParser parser,
@@ -20,7 +19,7 @@ namespace System.CommandLine
         {
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
 
-            this.defaultValue = defaultValue;
+            _defaultValue = defaultValue;
 
             Help = help ?? new ArgumentsRuleHelp();
 
@@ -34,9 +33,9 @@ namespace System.CommandLine
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
 
-        public Func<string> GetDefaultValue => () => defaultValue?.Invoke();
+        public Func<string> GetDefaultValue => () => _defaultValue?.Invoke();
 
-        public bool HasDefaultValue => defaultValue != null;
+        public bool HasDefaultValue => _defaultValue != null;
 
         public ArgumentsRuleHelp Help { get; }
 

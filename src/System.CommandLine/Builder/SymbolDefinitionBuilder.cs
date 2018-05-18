@@ -5,7 +5,7 @@ namespace System.CommandLine.Builder
 {
     public abstract class SymbolDefinitionBuilder
     {
-        private ArgumentDefinitionBuilder argumentDefinitionBuilder;
+        private ArgumentDefinitionBuilder _argumentDefinitionBuilder;
 
         protected SymbolDefinitionBuilder(CommandDefinitionBuilder parent = null)
         {
@@ -20,20 +20,20 @@ namespace System.CommandLine.Builder
         {
             get
             {
-                if (argumentDefinitionBuilder == null)
+                if (_argumentDefinitionBuilder == null)
                 {
-                    argumentDefinitionBuilder = new ArgumentDefinitionBuilder(this);
+                    _argumentDefinitionBuilder = new ArgumentDefinitionBuilder(this);
                 }
 
-                return argumentDefinitionBuilder;
+                return _argumentDefinitionBuilder;
             }
         }
 
         internal ArgumentDefinition BuildArguments()
         {
-            if (argumentDefinitionBuilder != null)
+            if (_argumentDefinitionBuilder != null)
             {
-                return argumentDefinitionBuilder.Build();
+                return _argumentDefinitionBuilder.Build();
             }
             else
             {

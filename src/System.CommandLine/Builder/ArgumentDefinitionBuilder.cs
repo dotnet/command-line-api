@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,13 +8,13 @@ namespace System.CommandLine.Builder
 {
     public class ArgumentDefinitionBuilder
     {
-        private ArgumentSuggestionSource suggestionSource;
+        private ArgumentSuggestionSource _suggestionSource;
 
-        private readonly SymbolDefinitionBuilder parent;
+        private readonly SymbolDefinitionBuilder _parent;
 
         public ArgumentDefinitionBuilder(SymbolDefinitionBuilder parent = null)
         {
-            this.parent = parent;
+            this._parent = parent;
         }
 
         internal ArgumentArity ArgumentArity { get; set; }
@@ -31,8 +30,8 @@ namespace System.CommandLine.Builder
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
         internal ArgumentSuggestionSource SuggestionSource =>
-            suggestionSource ??
-            (suggestionSource = new ArgumentSuggestionSource());
+            _suggestionSource ??
+            (_suggestionSource = new ArgumentSuggestionSource());
 
         internal HashSet<string> ValidTokens { get; } = new HashSet<string>();
 
@@ -64,7 +63,7 @@ namespace System.CommandLine.Builder
                 DefaultValue,
                 Help,
                 SymbolValidators,
-                suggestionSource);
+                _suggestionSource);
         }
 
         private void AddTokenValidator()
@@ -113,7 +112,7 @@ namespace System.CommandLine.Builder
                     argumentDefinition.Help?.Name,
                     argumentDefinition.Help?.Description),
                 Parser = argumentDefinition.Parser,
-                suggestionSource = suggestionSource,
+                _suggestionSource = suggestionSource,
                 SymbolValidators = new List<ValidateSymbol>(argumentDefinition.SymbolValidators)
             };
 

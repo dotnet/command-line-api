@@ -1,5 +1,3 @@
-using System;
-
 namespace System.CommandLine
 {
     public class ParseException : Exception

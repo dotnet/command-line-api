@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +9,7 @@ namespace System.CommandLine
 {
     public class Parser
     {
-        private readonly ParserConfiguration configuration;
+        private readonly ParserConfiguration _configuration;
 
         public Parser(params SymbolDefinition[] symbolDefinitions) : this(new ParserConfiguration(symbolDefinitions))
         {
@@ -18,16 +17,16 @@ namespace System.CommandLine
 
         public Parser(ParserConfiguration configuration)
         {
-            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public SymbolDefinitionSet SymbolDefinitions => configuration.SymbolDefinitions;
+        public SymbolDefinitionSet SymbolDefinitions => _configuration.SymbolDefinitions;
 
         public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawTokens)
-                    .Lex(configuration));
+                    .Lex(_configuration));
             var rootSymbols = new SymbolSet();
             var allSymbols = new List<Symbol>();
             var errors = new List<ParseError>();
@@ -98,7 +97,7 @@ namespace System.CommandLine
                     unmatchedTokens.Select(token => UnrecognizedArg(token)));
             }
 
-            if (configuration.RootCommandIsImplicit)
+            if (_configuration.RootCommandIsImplicit)
             {
                 rawTokens = rawTokens.Skip(1).ToArray();
                 var parsedOptions = rootSymbols
@@ -110,7 +109,7 @@ namespace System.CommandLine
             return new ParseResult(
                 rawTokens,
                 rootSymbols,
-                configuration,
+                _configuration,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,
                 errors,
@@ -119,9 +118,9 @@ namespace System.CommandLine
 
         internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {
-            if (configuration.RootCommandIsImplicit)
+            if (_configuration.RootCommandIsImplicit)
             {
-                args = new[] { configuration.RootCommandDefinition.Name }.Concat(args).ToArray();
+                args = new[] { _configuration.RootCommandDefinition.Name }.Concat(args).ToArray();
             }
 
             var firstArg = args.FirstOrDefault();
