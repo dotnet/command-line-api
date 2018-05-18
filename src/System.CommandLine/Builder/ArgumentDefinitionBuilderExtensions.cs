@@ -3,13 +3,12 @@
 
 using System;
 using System.Collections;
-using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 
-namespace System.CommandLine
+namespace System.CommandLine.Builder
 {
-    public static class Define
+    public static class ArgumentDefinitionBuilderExtensions
     {
         #region arity
 

@@ -9,7 +9,6 @@ using FluentAssertions;
 using System.Linq;
 using Xunit;
 using static System.CommandLine.Create;
-using static System.CommandLine.Define;
 
 namespace System.CommandLine.Tests
 {
