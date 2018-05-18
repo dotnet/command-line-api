@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,9 +8,9 @@ namespace System.CommandLine
 {
     public abstract class Symbol
     {
-        private readonly Lazy<string> defaultValue;
-        private readonly List<string> arguments = new List<string>();
-        private ArgumentParseResult result;
+        private readonly Lazy<string> _defaultValue;
+        private readonly List<string> _arguments = new List<string>();
+        private ArgumentParseResult _result;
 
         private bool considerAcceptingAnotherArgument = true;
 
@@ -28,20 +27,20 @@ namespace System.CommandLine
 
             Parent = parent;
 
-            defaultValue = new Lazy<string>(SymbolDefinition.ArgumentDefinition.GetDefaultValue);
+            _defaultValue = new Lazy<string>(SymbolDefinition.ArgumentDefinition.GetDefaultValue);
         }
 
         public IReadOnlyCollection<string> Arguments
         {
             get
             {
-                if (!arguments.Any() &&
-                    defaultValue.Value != null)
+                if (!_arguments.Any() &&
+                    _defaultValue.Value != null)
                 {
-                    return new[] { defaultValue.Value };
+                    return new[] { _defaultValue.Value };
                 }
 
-                return arguments;
+                return _arguments;
             }
         }
 
@@ -71,9 +70,9 @@ namespace System.CommandLine
                 }
             }
 
-            result = SymbolDefinition.ArgumentDefinition.Parser.Parse(this);
+            _result = SymbolDefinition.ArgumentDefinition.Parser.Parse(this);
 
-            if (result is FailedArgumentParseResult failed)
+            if (_result is FailedArgumentParseResult failed)
             {
                 return new ParseError(failed.ErrorMessage, this, false);
             }
@@ -112,7 +111,7 @@ namespace System.CommandLine
                 }
             }
 
-            arguments.Add(token.Value);
+            _arguments.Add(token.Value);
 
             var parseError = Validate();
             if (parseError == null)
@@ -126,7 +125,7 @@ namespace System.CommandLine
                 return this;
             }
 
-            arguments.RemoveAt(arguments.Count - 1);
+            _arguments.RemoveAt(_arguments.Count - 1);
             return null;
         }
 
@@ -151,11 +150,11 @@ namespace System.CommandLine
         {
             get
             {
-                if (result == null)
+                if (_result == null)
                 {
                     Validate();
                 }
-                return result;
+                return _result;
             }
         }
     }

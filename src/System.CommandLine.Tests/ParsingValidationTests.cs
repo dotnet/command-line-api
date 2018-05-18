@@ -1,4 +1,3 @@
-using System;
 using System.CommandLine.Builder;
 using System.IO;
 using FluentAssertions;
@@ -10,11 +9,11 @@ namespace System.CommandLine.Tests
 {
     public class ParsingValidationTests
     {
-        private readonly ITestOutputHelper output;
+        private readonly ITestOutputHelper _output;
 
         public ParsingValidationTests(ITestOutputHelper output)
         {
-            this.output = output;
+            _output = output;
         }
 
         [Fact]
@@ -81,7 +80,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("the-command -x some-arg");
 
-            output.WriteLine(result.ToString());
+            _output.WriteLine(result.ToString());
 
             result.Errors
                   .Select(e => e.Message)
@@ -130,7 +129,7 @@ namespace System.CommandLine.Tests
             var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
 
             // Convert to ushort so the xUnit XML writer doesn't complain about invalid characters
-            output.WriteLine(string.Join("\n", Path.GetInvalidPathChars().Select((c) => (ushort)(c))));
+            _output.WriteLine(string.Join("\n", Path.GetInvalidPathChars().Select((c) => (ushort)(c))));
 
             var result = command.Parse($"the-command {invalidCharacters}");
 
@@ -163,7 +162,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse($@"move ""{Guid.NewGuid()}.txt"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
-            output.WriteLine(result.Diagram());
+            _output.WriteLine(result.Diagram());
 
             result.SpecifiedCommand()
                   .Arguments
@@ -181,7 +180,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
-            output.WriteLine(result.Diagram());
+            _output.WriteLine(result.Diagram());
 
             result.SpecifiedCommand()
                   .Arguments
@@ -198,8 +197,8 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("outer inner arg");
 
-            output.WriteLine("ParseResult:" + result.Diagram());
-            output.WriteLine("Errors: " + string.Join('\n', result.Errors));
+            _output.WriteLine("ParseResult:" + result.Diagram());
+            _output.WriteLine("Errors: " + string.Join('\n', result.Errors));
 
             result.Errors
                   .Should()

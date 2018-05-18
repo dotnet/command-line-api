@@ -10,9 +10,9 @@ namespace System.CommandLine
 {
     public static class StringExtensions
     {
-        private static readonly char[] optionPrefixCharacters = { '-' };
+        private static readonly char[] _optionPrefixCharacters = { '-' };
 
-        private static readonly Regex tokenizer = new Regex(
+        private static readonly Regex _tokenizer = new Regex(
             @"(""(?<token>[^""]*)"")|(?<token>\S+)",
             RegexOptions.Compiled | RegexOptions.ExplicitCapture
         );
@@ -27,7 +27,7 @@ namespace System.CommandLine
                                 CompareOptions.OrdinalIgnoreCase) >= 0;
 
         internal static string RemovePrefix(this string option) =>
-            option.TrimStart(optionPrefixCharacters);
+            option.TrimStart(_optionPrefixCharacters);
 
         internal static IEnumerable<Token> Lex(
             this IEnumerable<string> args,
@@ -133,11 +133,11 @@ namespace System.CommandLine
 
         private static bool HasPrefix(string arg) =>
             arg != string.Empty &&
-            optionPrefixCharacters.Contains(arg[0]);
+            _optionPrefixCharacters.Contains(arg[0]);
 
         public static IEnumerable<string> Tokenize(this string s)
         {
-            var matches = tokenizer.Matches(s);
+            var matches = _tokenizer.Matches(s);
 
             foreach (Match match in matches)
             {

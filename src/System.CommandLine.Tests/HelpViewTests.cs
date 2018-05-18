@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.CommandLine.Builder;
 using FluentAssertions;
 using System.Linq;
@@ -13,11 +12,11 @@ namespace System.CommandLine.Tests
 {
     public class HelpViewTests
     {
-        private readonly ITestOutputHelper output;
+        private readonly ITestOutputHelper _output;
 
         public HelpViewTests(ITestOutputHelper output)
         {
-            this.output = output;
+            _output = output;
         }
 
         [Fact]
@@ -79,7 +78,7 @@ namespace System.CommandLine.Tests
 
             var helpView = command.HelpView();
 
-            output.WriteLine(helpView);
+            _output.WriteLine(helpView);
 
             helpView
                 .Should()
@@ -140,7 +139,7 @@ namespace System.CommandLine.Tests
 
             var helpView = command.Subcommand("inner-command").HelpView();
 
-            output.WriteLine(helpView);
+            _output.WriteLine(helpView);
 
             helpView
                 .Should()
@@ -217,7 +216,7 @@ namespace System.CommandLine.Tests
 
             var helpView = command.HelpView();
 
-            output.WriteLine(helpView);
+            _output.WriteLine(helpView);
 
             helpView.Should()
                     .Contain($"Arguments:{NewLine}  <the-arg>   This is the argument for the command.");
@@ -241,7 +240,7 @@ namespace System.CommandLine.Tests
 
             var helpView = command.Subcommand("inner").HelpView();
 
-            output.WriteLine(helpView);
+            _output.WriteLine(helpView);
 
             var lines = helpView.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -293,7 +292,7 @@ namespace System.CommandLine.Tests
 
             var helpView = command.HelpView();
 
-            output.WriteLine(helpView);
+            _output.WriteLine(helpView);
 
             helpView.Should().StartWith("Usage: some-command [options] [[--] <additional arguments>...]]");
         }

@@ -13,16 +13,16 @@ namespace System.CommandLine.Tests
 {
     public class CommandTests
     {
-        private readonly Parser parser;
-        private readonly ITestOutputHelper output;
+        private readonly Parser _parser;
+        private readonly ITestOutputHelper _output;
 
         public CommandTests(ITestOutputHelper output)
         {
-            this.output = output;
+            _output = output;
 
             var builder = new ArgumentDefinitionBuilder();
 
-            parser = new Parser(
+            _parser = new Parser(
                 new CommandDefinition("outer", "", new[] {
                     new CommandDefinition("inner", "", new[] {
                         new OptionDefinition(
@@ -36,7 +36,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Outer_command_is_identified_correctly()
         {
-            var result = parser.Parse("outer inner --option argument1");
+            var result = _parser.Parse("outer inner --option argument1");
 
             var outer = result.SpecifiedCommand().Parent;
 
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Inner_command_is_identified_correctly()
         {
-            var result = parser.Parse("outer inner --option argument1");
+            var result = _parser.Parse("outer inner --option argument1");
 
             var outer = result
                 .Symbols
@@ -67,7 +67,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Inner_command_option_is_identified_correctly()
         {
-            var result = parser.Parse("outer inner --option argument1");
+            var result = _parser.Parse("outer inner --option argument1");
 
             var outer = result
                 .Symbols
@@ -88,7 +88,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Inner_command_option_argument_is_identified_correctly()
         {
-            var result = parser.Parse("outer inner --option argument1");
+            var result = _parser.Parse("outer inner --option argument1");
 
             var outer = result
                 .Symbols
@@ -199,7 +199,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("outer inner inner-er -x arg");
 
-            output.WriteLine(result.ToString());
+            _output.WriteLine(result.ToString());
 
             var parsedOption = result.SpecifiedCommand()["x"];
 

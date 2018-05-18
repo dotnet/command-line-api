@@ -1,4 +1,3 @@
-using System;
 using System.CommandLine.Builder;
 using Xunit;
 using Xunit.Abstractions;
@@ -7,11 +6,11 @@ namespace System.CommandLine.Tests
 {
     public class ApiFeedbackTests
     {
-        private readonly ITestOutputHelper output;
+        private readonly ITestOutputHelper _output;
 
         public ApiFeedbackTests(ITestOutputHelper output)
         {
-            this.output = output;
+            _output = output;
         }
 
         [Fact(Skip = "sketch")]
@@ -31,7 +30,7 @@ namespace System.CommandLine.Tests
             if (parseResult.HasOption("?"))
             {
                 var help = parseResult.SpecifiedCommandDefinition().HelpView();
-                output.WriteLine(help);
+                _output.WriteLine(help);
             }
 
             throw new NotImplementedException();
@@ -52,10 +51,10 @@ namespace System.CommandLine.Tests
                     argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
             });
 
-            output.WriteLine(command.Parse("diff -iarcu").Diagram());
-            output.WriteLine(command.Parse("diff -i arcu").Diagram());
-            output.WriteLine(command.Parse("diff -i=arcu").Diagram());
-            output.WriteLine(command.Parse("diff -i:arcu").Diagram());
+            _output.WriteLine(command.Parse("diff -iarcu").Diagram());
+            _output.WriteLine(command.Parse("diff -i arcu").Diagram());
+            _output.WriteLine(command.Parse("diff -i=arcu").Diagram());
+            _output.WriteLine(command.Parse("diff -i:arcu").Diagram());
 
             throw new NotImplementedException();
         }

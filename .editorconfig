@@ -67,7 +67,7 @@ dotnet_naming_rule.const_declarations_should_be_pascal_case.style = pascal_case
 dotnet_naming_rule.const_declarations_should_be_pascal_case.symbols = const_declarations
 
 dotnet_naming_rule.static_readonly_declarations_should_be_pascal_case.severity = suggestion
-dotnet_naming_rule.static_readonly_declarations_should_be_pascal_case.style = pascal_case
+dotnet_naming_rule.static_readonly_declarations_should_be_pascal_case.style = camel_case_prefixed_with_underscore
 dotnet_naming_rule.static_readonly_declarations_should_be_pascal_case.symbols = static_readonly_declarations
 
 dotnet_naming_rule.private_and_internal_fields_should_be_camel_case_prefixed_with_underscore.severity = suggestion
@@ -269,13 +269,8 @@ csharp_space_between_square_brackets = false
 #   suggest inferred tuple names,
 #   suggest simple default expressions,
 #   suggest a preferred modifier order,
+#   don't use expression body constructors
 #   suggest conditional delegate calls,
-#   don't suggest expression-bodied accessors,
-#   don't suggest expression-bodied indexers,
-#   don't suggest expression-bodied constructors,
-#   don't suggest expression-bodied methods,
-#   don't suggest expression-bodied operators,
-#   don't suggest expression-bodied properties,
 #   suggest inlined variable declarations,
 #   suggest local over anonymous functions,
 #   suggest pattern-matching over "as" with "null" check,
@@ -294,12 +289,12 @@ csharp_preferred_modifier_order = public,private,protected,internal,static,exter
 
 csharp_style_conditional_delegate_call = true:suggestion
 
-csharp_style_expression_bodied_accessors = false:suggestion
+csharp_style_expression_bodied_accessors = true:suggestion
 csharp_style_expression_bodied_constructors = false:suggestion
-csharp_style_expression_bodied_indexers = false:suggestion
-csharp_style_expression_bodied_methods = false:suggestion
-csharp_style_expression_bodied_operators = false:suggestion
-csharp_style_expression_bodied_properties = false:suggestion
+csharp_style_expression_bodied_indexers = true:suggestion
+csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_operators = true:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
 
 csharp_style_inlined_variable_declaration = true:suggestion
 

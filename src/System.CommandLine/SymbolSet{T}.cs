@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +12,7 @@ namespace System.CommandLine
     public abstract class SymbolSet<T> : IReadOnlyCollection<T>
         where T : class
     {
-        private readonly HashSet<T> symbols = new HashSet<T>();
+        private readonly HashSet<T> _symbols = new HashSet<T>();
 
         protected SymbolSet()
         {
@@ -33,10 +32,10 @@ namespace System.CommandLine
         }
 
         public T this[string alias] =>
-            symbols.SingleOrDefault(o => ContainsSymbolWithRawAlias(o, alias)) ??
-            symbols.SingleOrDefault(o => ContainsSymbolWithAlias(o, alias));
+            _symbols.SingleOrDefault(o => ContainsSymbolWithRawAlias(o, alias)) ??
+            _symbols.SingleOrDefault(o => ContainsSymbolWithAlias(o, alias));
 
-        public int Count => symbols.Count;
+        public int Count => _symbols.Count;
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -45,7 +44,7 @@ namespace System.CommandLine
 
         public IEnumerator<T> GetEnumerator()
         {
-            return symbols.GetEnumerator();
+            return _symbols.GetEnumerator();
         }
 
         internal void AddRange(IEnumerable<T> options)
@@ -64,7 +63,7 @@ namespace System.CommandLine
         {
             var preexistingAlias = RawAliasesFor(option)
                 .FirstOrDefault(alias =>
-                                    symbols.Any(o =>
+                                    _symbols.Any(o =>
                                                     ContainsSymbolWithRawAlias(o, alias)));
 
             if (preexistingAlias != null)
@@ -72,12 +71,12 @@ namespace System.CommandLine
                 throw new ArgumentException($"Alias '{preexistingAlias}' is already in use.");
             }
 
-            symbols.Add(option);
+            _symbols.Add(option);
         }
 
         protected abstract IReadOnlyCollection<string> RawAliasesFor(T symbol);
 
         public bool Contains(string alias) =>
-            symbols.Any(option => ContainsSymbolWithAlias(option, alias));
+            _symbols.Any(option => ContainsSymbolWithAlias(option, alias));
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -11,11 +10,11 @@ namespace System.CommandLine
 {
     internal static class ArgumentConverter
     {
-        private static readonly Dictionary<Type, ConvertString> stringConverters = new Dictionary<Type, ConvertString>();
+        private static readonly Dictionary<Type, ConvertString> _stringConverters = new Dictionary<Type, ConvertString>();
 
         public static ArgumentParseResult Parse(Type type, string value)
         {
-            if (stringConverters.TryGetValue(type, out var convert))
+            if (_stringConverters.TryGetValue(type, out var convert))
             {
                 return convert(value);
             }
@@ -51,7 +50,7 @@ namespace System.CommandLine
                     return Success(instance);
                 };
 
-                stringConverters.Add(type, convert);
+                _stringConverters.Add(type, convert);
 
                 return convert(value);
             }
@@ -95,20 +94,13 @@ namespace System.CommandLine
                 {
                     if (parseResult.IsSuccessful)
                     {
-                        list.Add(((dynamic) parseResult).Value);
+                        list.Add(((dynamic)parseResult).Value);
                     }
                 }
 
-                object value;
-
-                if (type.IsArray)
-                {
-                    value = Enumerable.ToArray(list);
-                }
-                else
-                {
-                    value = list;
-                }
+                var value = type.IsArray
+                    ? (object)Enumerable.ToArray(list)
+                    : (object)list;
 
                 return Success(value);
             }
