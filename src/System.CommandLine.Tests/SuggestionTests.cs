@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using System;
+using System.CommandLine.Builder;
 using System.Linq;
 using Xunit;
 

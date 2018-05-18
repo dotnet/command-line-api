@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using FluentAssertions;
 using System.Linq;
 using Xunit;

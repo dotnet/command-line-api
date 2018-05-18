@@ -5,6 +5,7 @@ using FluentAssertions;
 using FluentAssertions.Common;
 using FluentAssertions.Equivalency;
 using System;
+using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -284,32 +285,19 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_short_forms_do_not_get_unbundled_if_unbundling_is_turned_off()
         {
-            CommandDefinition commandDefinition = Create.Command("the-command", "",
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None),
-                new OptionDefinition(
-                    "-y",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None),
-                new OptionDefinition(
-                    "-z",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None),
-                new OptionDefinition(
-                    "-xyz",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None));
-            var parseConfig = new ParserConfiguration(new[] { commandDefinition }, allowUnbundling: false);
-            var parser = new Parser(parseConfig);
+            var parser = new ParserBuilder()
+                         .EnablePosixBundling(false)
+                         .AddCommand("the-command", "", c =>
+                                         c.AddOption("-x", "")
+                                          .AddOption("-y", "")
+                                          .AddOption("-z", ""))
+                         .Build();
+
             var result = parser.Parse("the-command -xyz");
 
-            result.SpecifiedCommand()
-                  .Children
-                  .Select(o => o.Name)
+            result.UnmatchedTokens
                   .Should()
-                  .BeEquivalentTo("xyz");
+                  .BeEquivalentTo("-xyz");
         }
 
         [Fact]
@@ -903,14 +891,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void The_default_behavior_of_unmatched_tokens_resulting_in_errors_can_be_turned_off()
         {
-            var command = Create.Command("the-command",
-                                  "",
-                                  treatUnmatchedTokensAsErrors: false,
-                                  arguments: new ArgumentDefinitionBuilder().ExactlyOne());
-
-            var parser = new Parser(
-                new ParserConfiguration(
-                    symbolDefinitions: new[] { command }));
+            var parser = new ParserBuilder()
+                         .TreatUnmatchedTokensAsErrors(false)
+                         .AddCommand("the-command", "", arguments: args => args.ExactlyOne())
+                         .Build();
 
             ParseResult result = parser.Parse("the-command arg1 arg2");
 

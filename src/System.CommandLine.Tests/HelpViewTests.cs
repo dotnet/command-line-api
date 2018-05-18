@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.CommandLine.Builder;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
@@ -33,9 +34,7 @@ namespace System.CommandLine.Tests
                             innerEr => innerEr.AddOption(
                                 "--some-option",
                                 "some option"))))
-                          .BuildSymbolDefinitions()
-                          .OfType<CommandDefinition>()
-                          .Single();
+                          .BuildCommandDefinition();
 
             command.Subcommand("inner")
                    .Subcommand("inner-er")
@@ -267,12 +266,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_unmatched_tokens_are_allowed_then_help_view_indicates_it()
         {
-            var command = Command("some-command", "Does something",
-                                  treatUnmatchedTokensAsErrors: false,
-                                  symbolDefinitions: new OptionDefinition(
-                                      "-x",
-                                      "Indicates whether x",
-                                      argumentDefinition: null));
+            var command =
+                new ParserBuilder()
+                    .TreatUnmatchedTokensAsErrors(false)
+                    .AddCommand("some-command", "Does something",
+                                c => c.AddOption(
+                                    "-x",
+                                    "Indicates whether x"))
+                    .BuildCommandDefinition();
 
             var helpView = command.HelpView();
 
