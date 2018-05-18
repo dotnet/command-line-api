@@ -741,12 +741,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
-            var command = Create.Command("the-command", "",
+            var command = new CommandDefinition("the-command", "", new[] {
                 Create.Command("complete", "", new ArgumentDefinitionBuilder().ExactlyOne(),
-                    new OptionDefinition(
-                        "--position",
-                        "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())));
+                               new OptionDefinition(
+                                   "--position",
+                                   "",
+                                   argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()))
+            });
 
             ParseResult result = command.Parse("the-command",
                                        "complete",
@@ -764,13 +765,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_root_command_can_be_omitted_from_the_parsed_args()
         {
-            var command = Create.Command("outer", "",
+            var command = new CommandDefinition("outer", "", new[] {
                 new CommandDefinition("inner", "", new[] {
                     new OptionDefinition(
                         "-x",
                         "",
                         argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
-                }));
+                })
+            });
 
             var result1 = command.Parse("inner -x hello");
             var result2 = command.Parse("outer inner -x hello");
@@ -781,13 +783,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_root_command_can_match_a_full_path_to_an_executable()
         {
-            var command = Create.Command("outer", "",
+            var command = new CommandDefinition("outer", "", new[] {
                 new CommandDefinition("inner", "", new[] {
                     new OptionDefinition(
                         "-x",
                         "",
                         argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
-                }));
+                })
+            });
 
             ParseResult result1 = command.Parse("inner -x hello");
 

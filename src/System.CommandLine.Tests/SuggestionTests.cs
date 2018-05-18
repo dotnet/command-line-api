@@ -50,10 +50,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_Suggest_returns_available_subcommands()
         {
-            var command = Create.Command("command", "a command",
-                                         new CommandDefinition("one", "subcommand one", ArgumentDefinition.None),
-                                         new CommandDefinition("two", "subcommand two", ArgumentDefinition.None),
-                                         new CommandDefinition("three", "subcommand three", ArgumentDefinition.None));
+            var command = new CommandDefinition("command", "a command", new[] { new CommandDefinition("one", "subcommand one", ArgumentDefinition.None), new CommandDefinition("two", "subcommand two", ArgumentDefinition.None), new CommandDefinition("three", "subcommand three", ArgumentDefinition.None) });
 
             var suggestions = command.Suggest(command.Parse("command "));
 
@@ -245,10 +242,7 @@ namespace System.CommandLine.Tests
         public void Option_suggestions_can_be_based_on_the_proximate_option_and_partial_input()
         {
             var parser = new Parser(
-                Create.Command("outer", "",
-                    new CommandDefinition("one", "Command one", ArgumentDefinition.None),
-                    new CommandDefinition("two", "Command two", ArgumentDefinition.None),
-                    new CommandDefinition("three", "Command three", ArgumentDefinition.None)));
+                new CommandDefinition("outer", "", new[] { new CommandDefinition("one", "Command one", ArgumentDefinition.None), new CommandDefinition("two", "Command two", ArgumentDefinition.None), new CommandDefinition("three", "Command three", ArgumentDefinition.None) }));
 
             ParseResult result = parser.Parse("outer o");
 
@@ -281,17 +275,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Suggestions_can_be_provided_using_a_delegate()
         {
-            CommandDefinition commandDefinition = Create.Command(
-                "the-command", "",
+            CommandDefinition commandDefinition = new CommandDefinition("the-command", "", new[] {
                 Create.Command("one", "",
                                new ArgumentDefinitionBuilder()
-                                     .AddSuggestionSource((parseResult, pos) => new[]
-                                     {
-                                         "vegetable",
-                                         "mineral",
-                                         "animal"
-                                     })
-                                     .ExactlyOne()));
+                                   .AddSuggestionSource((parseResult, pos) => new[]
+                                   {
+                                       "vegetable",
+                                       "mineral",
+                                       "animal"
+                                   })
+                                   .ExactlyOne())
+            });
 
             commandDefinition.Parse("the-command one m")
                    .Suggestions()
@@ -380,16 +374,15 @@ namespace System.CommandLine.Tests
         public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
         {
             var parser = new Parser(
-                Create.Command("outer", "",
+                new CommandDefinition("outer", "", new[] {
                     Create.Command("one", "",
-                        new ArgumentDefinitionBuilder().FromAmong("one-a", "one-b", "one-c")
-                            .ExactlyOne()),
-                    Create.Command("two", "",
-                        new ArgumentDefinitionBuilder().FromAmong("two-a", "two-b", "two-c")
-                            .ExactlyOne()),
-                    Create.Command("three", "",
-                        new ArgumentDefinitionBuilder().FromAmong("three-a", "three-b", "three-c")
-                            .ExactlyOne()))
+                                   new ArgumentDefinitionBuilder().FromAmong("one-a", "one-b", "one-c")
+                                                                  .ExactlyOne()), Create.Command("two", "",
+                                                                                                 new ArgumentDefinitionBuilder().FromAmong("two-a", "two-b", "two-c")
+                                                                                                                                .ExactlyOne()), Create.Command("three", "",
+                                                                                                                                                               new ArgumentDefinitionBuilder().FromAmong("three-a", "three-b", "three-c")
+                                                                                                                                                                                              .ExactlyOne())
+                })
             );
 
             ParseResult result = parser.Parse("outer two b");

@@ -232,9 +232,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_TryTakeToken_will_accept_the_next_command_in_the_tree()
         {
-            var definition = Command("one", "",
-                                  Command("two", "",
-                                          new CommandDefinition("three", "", ArgumentDefinition.None)));
+            var definition = new CommandDefinition("one", "", new[] { new CommandDefinition("two", "", new[] { new CommandDefinition("three", "", ArgumentDefinition.None) }) });
 
             var command = new Command(definition);
 
@@ -308,9 +306,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void TakeToken_will_not_skip_a_level()
         {
-            var definition = Command("one", "",
-                                  Command("two", "",
-                                          new CommandDefinition("three", "", ArgumentDefinition.None)));
+            var definition = new CommandDefinition("one", "", new[] {
+                new CommandDefinition("two", "", new[] {
+                    new CommandDefinition("three", "", ArgumentDefinition.None)
+                })
+            });
 
             var command = new Command(definition);
 
@@ -322,9 +322,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void TakeToken_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
-            var definition = Command("outer", "",
-                                  new CommandDefinition("inner-one", "", ArgumentDefinition.None),
-                                  new CommandDefinition("inner-two", "", ArgumentDefinition.None));
+            var definition = new CommandDefinition("outer", "", new[] { new CommandDefinition("inner-one", "", ArgumentDefinition.None), new CommandDefinition("inner-two", "", ArgumentDefinition.None) });
 
             var command = new Command(definition);
 

@@ -24,13 +24,14 @@ namespace System.CommandLine.Tests
             var builder = new ArgumentDefinitionBuilder();
 
             parser = new Parser(
-                Command("outer", "",
-                        new CommandDefinition("inner", "", new[] {
-                            new OptionDefinition(
-                                "--option",
-                                "",
-                                argumentDefinition: builder.ExactlyOne())
-                        })));
+                new CommandDefinition("outer", "", new[] {
+                    new CommandDefinition("inner", "", new[] {
+                        new OptionDefinition(
+                            "--option",
+                            "",
+                            argumentDefinition: builder.ExactlyOne())
+                    })
+                }));
         }
 
         [Fact]
@@ -131,15 +132,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseResult_Command_identifies_innermost_command()
         {
-            var command = Command("outer", "",
-                                  Command("sibling", "", new ArgumentDefinitionBuilder().ZeroOrMore()),
-                                  Command("inner", "",
-                                          new CommandDefinition("inner-er", "", new[] {
-                                              new OptionDefinition(
-                                                  "-x",
-                                                  "",
-                                                  argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
-                                          })));
+            var command = new CommandDefinition("outer", "", new[] { Command("sibling", "", new ArgumentDefinitionBuilder().ZeroOrMore()), new CommandDefinition("inner", "", new[] {
+                    new CommandDefinition("inner-er", "", new[] {
+                        new OptionDefinition(
+                            "-x",
+                            "",
+                            argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
+                    })
+                })
+            });
 
             var result = command.Parse("outer inner inner-er -x arg");
 
@@ -188,16 +189,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParsedCommand_identifies_the_ParsedCommand_for_the_innermost_command()
         {
-            var command = Command("outer", "",
-                                  Command("sibling", "",
-                                      new ArgumentDefinitionBuilder().ExactlyOne()),
-                                  Command("inner", "",
-                                          new CommandDefinition("inner-er", "", new[] {
-                                              new OptionDefinition(
-                                                  "-x",
-                                                  "",
-                                                  argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
-                                          })));
+            var command = new CommandDefinition("outer", "", new[] {
+                Command("sibling", "",
+                        new ArgumentDefinitionBuilder().ExactlyOne()), new CommandDefinition("inner", "", new[] {
+                    new CommandDefinition("inner-er", "", new[] {
+                        new OptionDefinition(
+                            "-x",
+                            "",
+                            argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
+                    })
+                })
+            });
 
             var result = command.Parse("outer inner inner-er -x arg");
 

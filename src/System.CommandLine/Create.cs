@@ -13,11 +13,5 @@ namespace System.CommandLine
             ArgumentDefinition arguments = null,
             params SymbolDefinition[] symbolDefinitions) =>
             new CommandDefinition(name, description, symbolDefinitions, arguments);
-
-        public static CommandDefinition Command(
-            string name,
-            string description,
-            params CommandDefinition[] commandDefinitions) =>
-            new CommandDefinition(name, description, commandDefinitions);
     }
 }
