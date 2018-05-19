@@ -84,7 +84,7 @@ namespace System.CommandLine.Builder
                 {
                     if (!ValidTokens.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
                     {
-                        return ValidationMessages.UnrecognizedArgument(arg, ValidTokens);
+                        return symbol.ValidationMessages.UnrecognizedArgument(arg, ValidTokens);
                     }
                 }
 

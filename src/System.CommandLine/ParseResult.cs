@@ -2,9 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using static System.CommandLine.ValidationMessages;
 
 namespace System.CommandLine
 {
@@ -77,9 +75,10 @@ namespace System.CommandLine
             if (commandDefinition != null &&
                 commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
+                var symbol = this.Command();
                 errors.Insert(0, new ParseError(
-                                  RequiredCommandWasNotProvided(),
-                                  this.Command()));
+                                  symbol.ValidationMessages.RequiredCommandWasNotProvided(),
+                                  symbol));
             }
         }
 

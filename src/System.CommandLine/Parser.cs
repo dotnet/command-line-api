@@ -54,7 +54,7 @@ namespace System.CommandLine
 
                         if (parsedOption == null)
                         {
-                            parsedOption = Symbol.Create(definedOption, token.Value);
+                            parsedOption = Symbol.Create(definedOption, token.Value, validationMessages: _configuration.ValidationMessages);
 
                             rootSymbols.Add(parsedOption);
                         }
@@ -94,7 +94,7 @@ namespace System.CommandLine
             if (rootSymbols.CommandDefinition()?.TreatUnmatchedTokensAsErrors == true)
             {
                 errors.AddRange(
-                    unmatchedTokens.Select(token => UnrecognizedArg(token)));
+                    unmatchedTokens.Select(token => new ParseError(_configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
             }
 
             if (_configuration.RootCommandIsImplicit)
@@ -155,8 +155,5 @@ namespace System.CommandLine
 
             return args;
         }
-
-        private static ParseError UnrecognizedArg(string arg) =>
-            new ParseError(ValidationMessages.UnrecognizedCommandOrArgument(arg));
     }
 }

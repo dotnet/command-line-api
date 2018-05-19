@@ -14,7 +14,8 @@ namespace System.CommandLine.Builder
             return new Parser(
                 new ParserConfiguration(
                     BuildChildSymbolDefinitions(),
-                    allowUnbundling: EnablePosixBundling));
+                    allowUnbundling: EnablePosixBundling,
+                    validationMessages: new DefaultValidationMessages()));
         }
 
         public override CommandDefinition BuildCommandDefinition()

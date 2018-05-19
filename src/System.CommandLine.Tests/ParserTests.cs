@@ -34,6 +34,24 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void An_option_can_be_checked_by_object_instance()
+        {
+            var option = new OptionDefinition(
+                "--flag",
+                "",
+                argumentDefinition: null);
+            var option2 = new OptionDefinition(
+                "--flag2",
+                "",
+                argumentDefinition: null);
+            var result = new Parser(option, option2)
+                .Parse("--flag");
+
+            result.HasOption(option).Should().BeTrue();
+            result.HasOption(option2).Should().BeFalse();
+        }
+
+        [Fact]
         public void An_option_without_a_long_form_can_be_checked_for_without_using_a_prefix()
         {
             var result = new Parser(new OptionDefinition(

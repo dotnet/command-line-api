@@ -50,7 +50,7 @@ namespace System.CommandLine
                 {
                     if (symbol.Arguments.Any())
                     {
-                        return ArgumentParseResult.Failure(ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString()));
+                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString()));
                     }
 
                     return ArgumentParseResult.Success(true);
@@ -61,14 +61,14 @@ namespace System.CommandLine
 
         public ArgumentArity ArgumentArity => Parser.ArgumentArity;
 
-        private static string AcceptNoArguments(Symbol o)
+        private static string AcceptNoArguments(Symbol symbol)
         {
-            if (!o.Arguments.Any())
+            if (!symbol.Arguments.Any())
             {
                 return null;
             }
 
-            return ValidationMessages.Current.NoArgumentsAllowed(o.SymbolDefinition.ToString());
+            return symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString());
         }
     }
 }

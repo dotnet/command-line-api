@@ -9,20 +9,18 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class ValidationMessageLocalizationTests : IDisposable
+    public class ValidationMessageLocalizationTests
     {
-        public void Dispose()
-        {
-            ValidationMessages.Current = null;
-        }
 
         [Fact]
         public void Default_validation_messages_can_be_replaced_in_order_to_add_localization_support()
         {
-            ValidationMessages.Current = new FakeValidationMessages("the-message");
+            var messages = new FakeValidationMessages("the-message");
 
             var builder = new ArgumentDefinitionBuilder();
-            var result = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.ExactlyOne()).Parse("the-command");
+            var commandDefinition = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.ExactlyOne());
+            var parser = new Parser(new ParserConfiguration(new[] { commandDefinition }, validationMessages: messages));
+            var result = parser.Parse("the-command");
 
             result.Errors
                   .Select(e => e.Message)

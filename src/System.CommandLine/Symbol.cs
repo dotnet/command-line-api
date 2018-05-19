@@ -58,6 +58,8 @@ namespace System.CommandLine
 
         public bool HasAlias(string alias) => SymbolDefinition.HasAlias(alias);
 
+        public IValidationMessages ValidationMessages { get; private set; } = new DefaultValidationMessages();
+
         protected internal virtual ParseError Validate()
         {
             foreach (var symbolValidator in SymbolDefinition.ArgumentDefinition.SymbolValidators)
@@ -129,15 +131,21 @@ namespace System.CommandLine
             return null;
         }
 
-        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null)
+        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null, IValidationMessages validationMessages = null)
         {
             switch (symbolDefinition)
             {
                 case CommandDefinition command:
-                    return new Command(command, parent);
+                    return new Command(command, parent)
+                    {
+                        ValidationMessages = validationMessages
+                    };
 
                 case OptionDefinition option:
-                    return new Option(option, token, parent);
+                    return new Option(option, token, parent)
+                    {
+                        ValidationMessages = validationMessages
+                    };
 
                 default:
                     throw new ArgumentException($"Unrecognized symbolDefinition type: {symbolDefinition.GetType()}");

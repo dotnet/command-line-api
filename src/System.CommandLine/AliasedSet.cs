@@ -9,16 +9,16 @@ using System.Linq;
 namespace System.CommandLine
 {
     [DebuggerStepThrough]
-    public abstract class SymbolSet<T> : IReadOnlyCollection<T>
+    public abstract class AliasedSet<T> : IReadOnlyCollection<T>
         where T : class
     {
-        private readonly HashSet<T> _symbols = new HashSet<T>();
+        private readonly HashSet<T> _items = new HashSet<T>();
 
-        protected SymbolSet()
+        protected AliasedSet()
         {
         }
 
-        protected SymbolSet(IReadOnlyCollection<T> symbols)
+        protected AliasedSet(IReadOnlyCollection<T> symbols)
         {
             if (symbols == null)
             {
@@ -32,10 +32,10 @@ namespace System.CommandLine
         }
 
         public T this[string alias] =>
-            _symbols.SingleOrDefault(o => ContainsSymbolWithRawAlias(o, alias)) ??
-            _symbols.SingleOrDefault(o => ContainsSymbolWithAlias(o, alias));
+            _items.SingleOrDefault(o => ContainsItemWithRawAlias(o, alias)) ??
+            _items.SingleOrDefault(o => ContainsItemWithAlias(o, alias));
 
-        public int Count => _symbols.Count;
+        public int Count => _items.Count;
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -44,7 +44,7 @@ namespace System.CommandLine
 
         public IEnumerator<T> GetEnumerator()
         {
-            return _symbols.GetEnumerator();
+            return _items.GetEnumerator();
         }
 
         internal void AddRange(IEnumerable<T> options)
@@ -55,28 +55,28 @@ namespace System.CommandLine
             }
         }
 
-        protected abstract bool ContainsSymbolWithAlias(T symbol, string alias);
+        protected abstract bool ContainsItemWithAlias(T item, string alias);
 
-        protected abstract bool ContainsSymbolWithRawAlias(T symbol, string alias);
+        protected abstract bool ContainsItemWithRawAlias(T item, string alias);
 
-        internal void Add(T option)
+        internal void Add(T item)
         {
-            var preexistingAlias = RawAliasesFor(option)
+            var preexistingAlias = GetAliases(item)
                 .FirstOrDefault(alias =>
-                                    _symbols.Any(o =>
-                                                    ContainsSymbolWithRawAlias(o, alias)));
+                                    _items.Any(o =>
+                                                    ContainsItemWithRawAlias(o, alias)));
 
             if (preexistingAlias != null)
             {
                 throw new ArgumentException($"Alias '{preexistingAlias}' is already in use.");
             }
 
-            _symbols.Add(option);
+            _items.Add(item);
         }
 
-        protected abstract IReadOnlyCollection<string> RawAliasesFor(T symbol);
+        protected abstract IReadOnlyCollection<string> GetAliases(T item);
 
         public bool Contains(string alias) =>
-            _symbols.Any(option => ContainsSymbolWithAlias(option, alias));
+            _items.Any(option => ContainsItemWithAlias(option, alias));
     }
 }
