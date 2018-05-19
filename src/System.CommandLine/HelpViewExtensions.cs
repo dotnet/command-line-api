@@ -11,7 +11,7 @@ namespace System.CommandLine
 {
     public static class HelpViewExtensions
     {
-        private static int columnGutterWidth = 3;
+        private const int ColumnGutterWidth = 3;
 
         public static string HelpView(this CommandDefinition commandDefinition)
         {
@@ -39,7 +39,7 @@ namespace System.CommandLine
             CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
-            if (commandDefinition.TreatUnmatchedTokensAsErrors)
+            if (commandDefinition?.TreatUnmatchedTokensAsErrors == true)
             {
                 return;
             }
@@ -51,55 +51,39 @@ namespace System.CommandLine
             CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
-            var argName = commandDefinition.ArgumentDefinition.Help.Name;
-            var argDescription = commandDefinition.ArgumentDefinition.Help.Description;
+            var argHelp = commandDefinition?.ArgumentDefinition?.Help;
+            var parentArgHelp = commandDefinition?.Parent?.ArgumentDefinition?.Help;
 
-            var shouldWriteCommandArguments =
-                !string.IsNullOrWhiteSpace(argName) &&
-                !string.IsNullOrWhiteSpace(argDescription);
+            var showArgHelp = argHelp?.IsHidden == false;
+            var showParentArgHelp = parentArgHelp?.IsHidden == false;
 
-            var parentCommand = commandDefinition.Parent;
-
-            var parentArgName = parentCommand?.ArgumentDefinition?.Help?.Name;
-            var parentArgDescription = parentCommand?.ArgumentDefinition?.Help?.Description;
-
-            var shouldWriteParentCommandArguments =
-                !string.IsNullOrWhiteSpace(parentArgName) &&
-                !string.IsNullOrWhiteSpace(parentArgDescription);
-
-            if (shouldWriteCommandArguments ||
-                shouldWriteParentCommandArguments)
-            {
-                helpView.AppendLine();
-                helpView.AppendLine(DefaultHelpViewText.ArgumentsSection.Title);
-            }
-            else
+            if (!showArgHelp && !showParentArgHelp)
             {
                 return;
             }
 
-            var indent = "  ";
-            var argLeftColumnText = $"{indent}<{argName}>";
-            var parentArgLeftColumnText = $"{indent}<{parentArgName}>";
-            var leftColumnWidth =
-                Math.Max(argLeftColumnText.Length,
-                         parentArgLeftColumnText.Length) +
-                columnGutterWidth;
+            helpView?.AppendLine();
+            helpView?.AppendLine(ArgumentsSection.Title);
 
-            if (shouldWriteParentCommandArguments)
+            const string indent = "  ";
+            var argLeftColumnText = showArgHelp ? $"{indent}<{argHelp?.Name}>" : "";
+            var parentArgLeftColumnText = showParentArgHelp ? $"{indent}<{parentArgHelp?.Name}>" : "";
+            var leftColumnWidth = ColumnGutterWidth + Math.Max(argLeftColumnText.Length, parentArgLeftColumnText.Length);
+
+            if (showParentArgHelp)
             {
                 WriteColumnizedSummary(
                     parentArgLeftColumnText,
-                    parentArgDescription,
+                    parentArgHelp.Description,
                     leftColumnWidth,
                     helpView);
             }
 
-            if (shouldWriteCommandArguments)
+            if (showArgHelp)
             {
                 WriteColumnizedSummary(
                     argLeftColumnText,
-                    argDescription,
+                    argHelp.Description,
                     leftColumnWidth,
                     helpView);
             }
@@ -158,7 +142,7 @@ namespace System.CommandLine
                                       .Values
                                       .Select(s => s.Length)
                                       .OrderBy(length => length)
-                                      .Last() + columnGutterWidth;
+                                      .Last() + ColumnGutterWidth;
 
             foreach (var symbol in symbols)
             {
@@ -192,6 +176,16 @@ namespace System.CommandLine
             int width,
             StringBuilder helpView)
         {
+            if (leftColumnText == null)
+            {
+                leftColumnText = "";
+            }
+
+            if (rightColumnText == null)
+            {
+                rightColumnText = "";
+            }
+
             helpView.Append(leftColumnText);
 
             if (leftColumnText.Length <= width - 2)

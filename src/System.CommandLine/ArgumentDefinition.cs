@@ -53,6 +53,7 @@ namespace System.CommandLine
 
                     return ArgumentParseResult.Success(true);
                 }),
+            help: new ArgumentsRuleHelp(null, null, true),
             symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
 
         public ISuggestionSource SuggestionSource { get; }

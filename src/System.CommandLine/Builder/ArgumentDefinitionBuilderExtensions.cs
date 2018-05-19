@@ -260,9 +260,10 @@ namespace System.CommandLine.Builder
         public static ArgumentDefinitionBuilder WithHelp(
             this ArgumentDefinitionBuilder builder,
             string name = null,
-            string description = null)
+            string description = null,
+            bool isHidden = ArgumentsRuleHelp.DefaultIsHidden)
         {
-            builder.Help = new ArgumentsRuleHelp(name, description);
+            builder.Help = new ArgumentsRuleHelp(name, description, isHidden);
 
             return builder;
         }

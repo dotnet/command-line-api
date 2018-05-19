@@ -72,27 +72,38 @@ namespace System.CommandLine.Tests
         {
             var command = new ParserBuilder()
                           .AddCommand("outer", "description for outer",
-                                      outer =>
-                                          outer.AddCommand("inner", "description for inner"))
+                                      outer => outer.AddCommand("inner", "description for inner"))
                           .BuildCommandDefinition();
 
             var helpView = command.HelpView();
 
             _output.WriteLine(helpView);
 
-            helpView
-                .Should()
-                .NotContain("Options:");
+            helpView.Should().NotContain("Options:");
         }
 
         [Fact]
-        public void An_option_can_be_hidden_from_help_output_by_leaving_its_help_text_empty()
+        public void An_option_is_not_hidden_from_help_output_if_its_help_text_is_empty()
         {
             var command = new ParserBuilder()
                           .AddCommand("the-command", "Does things.",
                                       cmd => cmd.AddOption("-x", "")
                                                 .AddOption("-n", "Not hidden"))
                           .BuildCommandDefinition();
+
+            var help = command.HelpView();
+
+            help.Should().Contain("-x");
+        }
+
+        [Fact]
+        public void An_option_is_hidden_from_help_output_if_it_is_flagged_as_hidden()
+        {
+            var command = new ParserBuilder()
+                .AddCommand("the-command", "Does things.",
+                    cmd => cmd.AddOption("-x", "")
+                        .AddOption("-n", "Not hidden"))
+                .BuildCommandDefinition();
 
             var help = command.HelpView();
 
