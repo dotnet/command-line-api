@@ -164,7 +164,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.SpecifiedCommand()
+            result.Command()
                   .Arguments
                   .Should()
                   .BeEmpty();
@@ -182,7 +182,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.SpecifiedCommand()
+            result.Command()
                   .Arguments
                   .Should()
                   .BeEquivalentTo(Directory.GetCurrentDirectory());

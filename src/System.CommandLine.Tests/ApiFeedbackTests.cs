@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
 
             if (parseResult.HasOption("?"))
             {
-                var help = parseResult.SpecifiedCommandDefinition().HelpView();
+                var help = parseResult.CommandDefinition().HelpView();
                 _output.WriteLine(help);
             }
 
