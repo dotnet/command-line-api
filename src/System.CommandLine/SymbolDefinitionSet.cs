@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public class SymbolDefinitionSet : SymbolSet<SymbolDefinition>
+    public class SymbolDefinitionSet : AliasedSet<SymbolDefinition>
     {
-        protected override bool ContainsSymbolWithAlias(SymbolDefinition symbol, string alias) =>
-            symbol.HasAlias(alias);
+        protected override bool ContainsItemWithAlias(SymbolDefinition item, string alias) =>
+            item.HasAlias(alias);
 
-        protected override bool ContainsSymbolWithRawAlias(SymbolDefinition symbol, string alias) =>
-            symbol.HasRawAlias(alias);
+        protected override bool ContainsItemWithRawAlias(SymbolDefinition item, string alias) =>
+            item.HasRawAlias(alias);
 
-        protected override IReadOnlyCollection<string> RawAliasesFor(SymbolDefinition symbol) =>
-            symbol.RawAliases;
+        protected override IReadOnlyCollection<string> GetAliases(SymbolDefinition item) =>
+            item.RawAliases;
     }
 }

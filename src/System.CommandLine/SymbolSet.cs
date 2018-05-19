@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public class SymbolSet : SymbolSet<Symbol>
+    public class SymbolSet : AliasedSet<Symbol>
     {
         public SymbolSet()
         {
@@ -12,13 +12,13 @@ namespace System.CommandLine
         {
         }
 
-        protected override bool ContainsSymbolWithAlias(Symbol symbol, string alias) =>
-            symbol.SymbolDefinition.HasAlias(alias);
+        protected override bool ContainsItemWithAlias(Symbol item, string alias) =>
+            item.SymbolDefinition.HasAlias(alias);
 
-        protected override bool ContainsSymbolWithRawAlias(Symbol symbol, string alias) =>
-            symbol.SymbolDefinition.HasRawAlias(alias);
+        protected override bool ContainsItemWithRawAlias(Symbol item, string alias) =>
+            item.SymbolDefinition.HasRawAlias(alias);
 
-        protected override IReadOnlyCollection<string> RawAliasesFor(Symbol symbol) =>
-            symbol.SymbolDefinition.RawAliases;
+        protected override IReadOnlyCollection<string> GetAliases(Symbol item) =>
+            item.SymbolDefinition.RawAliases;
     }
 }
