@@ -69,5 +69,14 @@ namespace System.CommandLine.Builder
             builder.TreatUnmatchedTokensAsErrors = value;
             return builder;
         }
+        public static TBuilder AddArguments<TBuilder>(
+            this TBuilder builder,
+            Action<ArgumentDefinitionBuilder> action)
+            where TBuilder : CommandDefinitionBuilder
+        {
+            action.Invoke(builder.Arguments);
+            return builder;
+        }
+
     }
 }
