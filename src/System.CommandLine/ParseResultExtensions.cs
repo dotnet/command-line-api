@@ -115,6 +115,25 @@ namespace System.CommandLine
 
         public static bool HasOption(
             this ParseResult parseResult,
+            OptionDefinition optionDefinition)
+        {
+            if (parseResult == null)
+            {
+                throw new ArgumentNullException(nameof(parseResult));
+            }
+
+            var specifiedCommand = parseResult.Command();
+
+            if (specifiedCommand != null)
+            {
+                return specifiedCommand.Children.Any(s => s.SymbolDefinition == optionDefinition);
+            }
+
+            return parseResult.Symbols.Any(s => s.SymbolDefinition == optionDefinition);
+        }
+
+        public static bool HasOption(
+            this ParseResult parseResult,
             string alias)
         {
             if (parseResult == null)
@@ -128,20 +147,8 @@ namespace System.CommandLine
             {
                 return specifiedCommand.Children.Contains(alias);
             }
-            else
-            {
-                return parseResult.Symbols.Contains(alias);
-            }
-        }
 
-        internal static int? ImplicitCursorPosition(this ParseResult parseResult)
-        {
-            if (parseResult.RawInput != null)
-            {
-                return parseResult.RawInput.Length;
-            }
-
-            return string.Join(" ", parseResult.Tokens).Length;
+            return parseResult.Symbols.Contains(alias);
         }
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
@@ -149,7 +156,5 @@ namespace System.CommandLine
                        ?.SymbolDefinition
                        ?.Suggest(parseResult, position) ??
             Array.Empty<string>();
-
-        public static string ErrorText(this ParseResult parseResult) => string.Join(Environment.NewLine, parseResult.Errors);
     }
 }
