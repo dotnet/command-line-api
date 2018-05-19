@@ -24,12 +24,11 @@ namespace System.CommandLine
 
         public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
-            var unparsedTokens = new Queue<Token>(
-                NormalizeRootCommand(rawTokens)
-                    .Lex(_configuration));
+            var lexResult = NormalizeRootCommand(rawTokens).Lex(_configuration);
+            var unparsedTokens = new Queue<Token>(lexResult.Tokens);
             var rootSymbols = new SymbolSet();
             var allSymbols = new List<Symbol>();
-            var errors = new List<ParseError>();
+            var errors = new List<ParseError>(lexResult.Errors);
             var unmatchedTokens = new List<string>();
 
             while (unparsedTokens.Any())

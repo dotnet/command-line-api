@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.IO;
 
 namespace System.CommandLine
 {
@@ -17,5 +18,7 @@ namespace System.CommandLine
         string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues);
         string UnrecognizedCommandOrArgument(string arg);
         string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues);
+        string ResponseFileNotFound(string filePath);
+        string ErrorReadingResponseFile(string filePath, IOException e);
     }
 }
