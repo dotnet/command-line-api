@@ -22,7 +22,8 @@ namespace System.CommandLine.Tests
             ValidationMessages.Current = new FakeValidationMessages("the-message");
 
             var builder = new ArgumentDefinitionBuilder();
-            var result = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.ExactlyOne()).Parse("the-command"
+            var result = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.ExactlyOne()).Parse("the-command");
+
             result.Errors
                   .Select(e => e.Message)
                   .Should()
