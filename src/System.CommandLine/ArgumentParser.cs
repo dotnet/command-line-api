@@ -6,7 +6,7 @@ using static System.CommandLine.ArgumentArity;
 
 namespace System.CommandLine
 {
-    public class ArgumentParser
+    internal class ArgumentParser
     {
         public ArgumentParser(
             ArgumentArity argumentArity,

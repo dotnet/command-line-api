@@ -20,7 +20,7 @@ namespace System.CommandLine
             {
                 // TODO: (Validate) localize
                 return new ParseError(
-                    $"Option '{SymbolDefinition}' cannot be specified more than once.",
+                    $"Option '{SymbolDefinition.Token()}' cannot be specified more than once.",
                     this,
                     false);
             }

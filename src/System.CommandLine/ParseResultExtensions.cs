@@ -39,12 +39,12 @@ namespace System.CommandLine
 
             return textBeforeCursor.Split(' ').LastOrDefault() +
                    textAfterCursor.Split(' ').FirstOrDefault();
-        } 
+        }
 
-        public static Command SpecifiedCommand(this ParseResult result)
+        public static Command Command(this ParseResult result)
         {
             var commandPath = result
-                              .SpecifiedCommandDefinition()
+                              .CommandDefinition()
                               .RecurseWhileNotNull(c => c.Parent)
                               .Select(c => c.Name)
                               .Reverse()
@@ -57,7 +57,7 @@ namespace System.CommandLine
                 symbol = symbol.Children[commandName];
             }
 
-            return (Command) symbol;
+            return (Command)symbol;
         }
 
         internal static Symbol CurrentSymbol(this ParseResult result) =>
@@ -95,7 +95,7 @@ namespace System.CommandLine
         {
             builder.Append("[ ");
 
-            builder.Append(symbol.SymbolDefinition);
+            builder.Append(symbol.SymbolDefinition.Token());
 
             foreach (var child in symbol.Children)
             {
@@ -122,7 +122,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            var specifiedCommand = parseResult.SpecifiedCommand();
+            var specifiedCommand = parseResult.Command();
 
             if (specifiedCommand != null)
             {
@@ -147,7 +147,9 @@ namespace System.CommandLine
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
             parseResult?.CurrentSymbol()
                        ?.SymbolDefinition
-                       ?.Suggest(parseResult, position ) ??
+                       ?.Suggest(parseResult, position) ??
             Array.Empty<string>();
+
+        public static string ErrorText(this ParseResult parseResult) => string.Join(Environment.NewLine, parseResult.Errors);
     }
 }
