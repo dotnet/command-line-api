@@ -109,8 +109,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
-            var parser = new Parser(
-                new CommandDefinition("outer", "", new[] { (SymbolDefinition) new CommandDefinition("inner", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()) }, new ArgumentDefinitionBuilder().ExactlyOne()));
+            var parser = new ParserBuilder()
+                         .AddCommand("outer", "",
+                                     symbols: outer => outer.AddCommand("inner", "",
+                                                                        arguments: innerArgs => innerArgs.ZeroOrMore()),
+                                     arguments: outerArgs => outerArgs.ExactlyOne())
+                         .Build();
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
@@ -129,15 +133,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseResult_Command_identifies_innermost_command()
         {
-            var command = new CommandDefinition("outer", "", new[] { new CommandDefinition("sibling", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()), new CommandDefinition("inner", "", new[] {
-                    new CommandDefinition("inner-er", "", new[] {
-                        new OptionDefinition(
-                            "-x",
-                            "",
-                            argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
-                    })
-                })
-            });
+            var command = new CommandDefinitionBuilder("outer")
+                          .AddCommand("inner", "",
+                                      symbols: sibling => sibling.AddCommand("inner-er", "",
+                                                                             arguments: args => args.ZeroOrMore()))
+                          .AddCommand("sibling", "",
+                                      arguments: args => args.ZeroOrMore())
+                          .BuildCommandDefinition();
 
             var result = command.Parse("outer inner inner-er -x arg");
 
