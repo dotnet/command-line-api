@@ -39,6 +39,8 @@ namespace System.CommandLine
 
         public ArgumentsRuleHelp Help { get; }
 
+        public bool HasHelp => Help != null && Help.IsHidden == false;
+
         internal ArgumentParser Parser { get; }
 
         public static ArgumentDefinition None { get; } = new ArgumentDefinition(
@@ -53,7 +55,6 @@ namespace System.CommandLine
 
                     return ArgumentParseResult.Success(true);
                 }),
-            help: new ArgumentsRuleHelp(null, null, true),
             symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
 
         public ISuggestionSource SuggestionSource { get; }

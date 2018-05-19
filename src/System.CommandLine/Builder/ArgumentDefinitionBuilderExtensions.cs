@@ -24,13 +24,11 @@ namespace System.CommandLine.Builder
                     if (errorMessage == null)
                     {
                         return symbol is Command command
-                                   ? ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
-                                   : ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.Token());
+                            ? ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
+                            : ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.Token());
                     }
-                    else
-                    {
-                        return errorMessage(symbol);
-                    }
+
+                    return errorMessage(symbol);
                 }
 
                 if (argumentCount > 1)
@@ -39,10 +37,8 @@ namespace System.CommandLine.Builder
                     {
                         return ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol);
                     }
-                    else
-                    {
-                        return errorMessage(symbol);
-                    }
+
+                    return errorMessage(symbol);
                 }
 
                 return null;

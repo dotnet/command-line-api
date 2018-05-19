@@ -35,10 +35,8 @@ namespace System.CommandLine.Builder
             {
                 return _argumentDefinitionBuilder.Build();
             }
-            else
-            {
-                return ArgumentDefinition.None;
-            }
+
+            return ArgumentDefinition.None;
         }
     }
 }
