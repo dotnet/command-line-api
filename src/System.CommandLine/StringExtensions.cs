@@ -76,14 +76,14 @@ namespace System.CommandLine
                         }
                         catch (FileNotFoundException)
                         {
-                            errorList.Add(new ParseError(ValidationMessages.Current.ResponseFileNotFound(filePath),
+                            errorList.Add(new ParseError(configuration.ValidationMessages.ResponseFileNotFound(filePath),
                                 null,
                                 false));
                         }
                         catch (IOException e)
                         {
                             errorList.Add(new ParseError(
-                                ValidationMessages.Current.ErrorReadingResponseFile(filePath, e),
+                                configuration.ValidationMessages.ErrorReadingResponseFile(filePath, e),
                                 null,
                                 false));
                         }

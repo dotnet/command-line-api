@@ -17,7 +17,7 @@ namespace System.CommandLine.Builder
                 new ParserConfiguration(
                     BuildChildSymbolDefinitions(),
                     allowUnbundling: EnablePosixBundling,
-                    validationMessages: new DefaultValidationMessages(),
+                    validationMessages: ValidationMessages.Instance,
                     responseFileHandling: ResponseFileHandling));
         }
 

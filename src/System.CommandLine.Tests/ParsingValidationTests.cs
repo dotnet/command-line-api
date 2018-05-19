@@ -205,7 +205,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals(new DefaultValidationMessages().RequiredCommandWasNotProvided()) &&
+                      e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
                            e.Symbol.Name.Equals("inner"));
         }
 

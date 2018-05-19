@@ -188,7 +188,7 @@ namespace System.CommandLine.Tests
                     .Which
                     .Message
                     .Should()
-                    .Be(new DefaultValidationMessages().RequiredArgumentMissingForOption("-x"));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissingForOption("-x"));
         }
 
         [Fact]
@@ -231,7 +231,7 @@ namespace System.CommandLine.Tests
                     .Which
                     .Message
                     .Should()
-                    .Be(new DefaultValidationMessages().RequiredArgumentMissingForOption("-x"));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissingForOption("-x"));
         }
 
         [Fact]

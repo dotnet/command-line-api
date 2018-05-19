@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
                   .Contain("the-message");
         }
 
-        public class FakeValidationMessages : IValidationMessages
+        public class FakeValidationMessages : ValidationMessages
         {
             private readonly string message;
 
@@ -38,29 +38,27 @@ namespace System.CommandLine.Tests
                 this.message = message;
             }
 
-            public string NoArgumentsAllowed(string option) => message;
+            public override string NoArgumentsAllowed(string option) => message;
 
-            public string CommandAcceptsOnlyOneArgument(string command, int argumentCount) => message;
+            public override string CommandAcceptsOnlyOneArgument(string command, int argumentCount) => message;
 
-            public string FileDoesNotExist(string filePath) => message;
+            public override string FileDoesNotExist(string filePath) => message;
 
             public string CommandAcceptsOnlyOneSubcommand(string command, string subcommandsSpecified) => message;
 
-            public string OptionAcceptsOnlyOneArgument(string option, int argumentCount) => message;
+            public override string OptionAcceptsOnlyOneArgument(string option, int argumentCount) => message;
 
-            public string RequiredArgumentMissingForCommand(string command) => message;
+            public override string RequiredArgumentMissingForCommand(string command) => message;
 
-            public string RequiredArgumentMissingForOption(string option) => message;
+            public override string RequiredArgumentMissingForOption(string option) => message;
 
-            public string RequiredCommandWasNotProvided() => message;
+            public override string RequiredCommandWasNotProvided() => message;
 
-            public string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) => message;
+            public override string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) => message;
 
-            public string UnrecognizedCommandOrArgument(string arg) => message;
+            public override string UnrecognizedCommandOrArgument(string arg) => message;
 
-            public string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) => message;
-            public string ResponseFileNotFound(string filePath) => message;
-            public string ErrorReadingResponseFile(string filePath, IOException e) => message;
+            public override string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) => message;
         }
     }
 }

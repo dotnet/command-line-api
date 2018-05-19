@@ -58,7 +58,7 @@ namespace System.CommandLine
 
         public bool HasAlias(string alias) => SymbolDefinition.HasAlias(alias);
 
-        public IValidationMessages ValidationMessages { get; private set; } = new DefaultValidationMessages();
+        public ValidationMessages ValidationMessages { get; private set; } = ValidationMessages.Instance;
 
         protected internal virtual ParseError Validate()
         {
@@ -131,7 +131,7 @@ namespace System.CommandLine
             return null;
         }
 
-        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null, IValidationMessages validationMessages = null)
+        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null, ValidationMessages validationMessages = null)
         {
             switch (symbolDefinition)
             {

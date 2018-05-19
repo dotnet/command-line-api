@@ -10,7 +10,7 @@ namespace System.CommandLine
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
             bool allowUnbundling = true,
-            IValidationMessages validationMessages = null,
+            ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = default(ResponseFileHandling) )
         {
             if (symbolDefinitions == null)
@@ -51,7 +51,7 @@ namespace System.CommandLine
             }
 
             AllowUnbundling = allowUnbundling;
-            ValidationMessages = validationMessages ?? new DefaultValidationMessages();
+            ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
 
             if (prefixes?.Count > 0)
@@ -77,7 +77,7 @@ namespace System.CommandLine
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
         public bool AllowUnbundling { get; }
-        public IValidationMessages ValidationMessages { get; }
+        public ValidationMessages ValidationMessages { get; }
         internal CommandDefinition RootCommandDefinition { get; }
 
         internal bool RootCommandIsImplicit => RootCommandDefinition != null;
