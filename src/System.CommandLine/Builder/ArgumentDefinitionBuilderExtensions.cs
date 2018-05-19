@@ -24,8 +24,8 @@ namespace System.CommandLine.Builder
                     if (errorMessage == null)
                     {
                         return symbol is Command command
-                                   ? ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
-                                   : ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.Token());
+                                   ? command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
+                                   : symbol.ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.Token());
                     }
                     else
                     {
@@ -37,7 +37,9 @@ namespace System.CommandLine.Builder
                 {
                     if (errorMessage == null)
                     {
-                        return ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol);
+                        return symbol is Command command
+                                   ? command.ValidationMessages.CommandAcceptsOnlyOneArgument(command.Definition.ToString(), command.Arguments.Count)
+                                   : symbol.ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.Token(), symbol.Arguments.Count);
                     }
                     else
                     {
@@ -82,8 +84,8 @@ namespace System.CommandLine.Builder
                 if (symbol.Arguments.Count > 1)
                 {
                     return symbol is Command command
-                               ? ValidationMessages.CommandAcceptsOnlyOneArgument(command.Definition.ToString(), command.Arguments.Count)
-                               : ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count);
+                               ? command.ValidationMessages.CommandAcceptsOnlyOneArgument(command.Definition.ToString(), command.Arguments.Count)
+                               : symbol.ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count);
                 }
 
                 return null;
@@ -98,9 +100,9 @@ namespace System.CommandLine.Builder
             this ArgumentDefinitionBuilder builder,
             Func<Symbol, string> errorMessage = null)
         {
-            builder.AddValidator(o =>
+            builder.AddValidator(symbol =>
             {
-                var optionCount = o.Arguments.Count;
+                var optionCount = symbol.Arguments.Count;
 
                 if (optionCount != 0)
                 {
@@ -109,12 +111,12 @@ namespace System.CommandLine.Builder
 
                 if (errorMessage != null)
                 {
-                    return errorMessage(o);
+                    return errorMessage(symbol);
                 }
 
-                return o.SymbolDefinition is CommandDefinition
-                           ? ValidationMessages.RequiredArgumentMissingForCommand(o.SymbolDefinition.ToString())
-                           : ValidationMessages.RequiredArgumentMissingForOption(o.SymbolDefinition.ToString());
+                return symbol is Command command
+                           ? command.ValidationMessages.RequiredArgumentMissingForCommand(command.SymbolDefinition.ToString())
+                           : symbol.ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.ToString());
             });
 
             builder.ArgumentArity = ArgumentArity.Many;
@@ -149,7 +151,7 @@ namespace System.CommandLine.Builder
                 return symbol.Arguments
                                    .Where(filePath => !File.Exists(filePath) &&
                                                       !Directory.Exists(filePath))
-                                   .Select(ValidationMessages.FileDoesNotExist)
+                                   .Select(symbol.ValidationMessages.FileDoesNotExist)
                                    .FirstOrDefault();
             });
             return builder;
@@ -235,7 +237,10 @@ namespace System.CommandLine.Builder
                 convert = symbol => {
                     if (symbol.Arguments.Count != 1)
                     {
-                        return ArgumentParseResult.Failure(ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol));
+                        var message = symbol is Command command
+                           ? command.ValidationMessages.CommandAcceptsOnlyOneArgument(command.SymbolDefinition.ToString(), command.Arguments.Count)
+                           : symbol.ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count);
+                        return ArgumentParseResult.Failure(message);
                     }
 
                     return originalConvert(symbol);

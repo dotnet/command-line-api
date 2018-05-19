@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    internal class DefaultValidationMessages : IValidationMessages
+    public class DefaultValidationMessages : IValidationMessages
     {
         public string CommandAcceptsOnlyOneArgument(string command, int argumentCount) =>
             $"Command '{command}' only accepts a single argument but {argumentCount} were provided.";
