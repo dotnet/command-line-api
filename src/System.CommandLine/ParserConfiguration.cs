@@ -9,7 +9,8 @@ namespace System.CommandLine
             IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
-            bool allowUnbundling = true)
+            bool allowUnbundling = true,
+            IValidationMessages validationMessages = null)
         {
             if (symbolDefinitions == null)
             {
@@ -34,7 +35,7 @@ namespace System.CommandLine
 
             ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
             AllowUnbundling = allowUnbundling;
-
+            ValidationMessages = validationMessages ?? new DefaultValidationMessages();
             if (prefixes?.Count > 0)
             {
                 foreach (SymbolDefinition symbol in symbolDefinitions)
@@ -58,7 +59,7 @@ namespace System.CommandLine
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
         public bool AllowUnbundling { get; }
-
+        public IValidationMessages ValidationMessages { get; }
         internal CommandDefinition RootCommandDefinition { get; }
 
         internal bool RootCommandIsImplicit => RootCommandDefinition != null;

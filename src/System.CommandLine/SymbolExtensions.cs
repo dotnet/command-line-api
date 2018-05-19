@@ -85,7 +85,7 @@ namespace System.CommandLine
                 throw new InvalidOperationException(failed.ErrorMessage);
             }
 
-            throw new InvalidOperationException(ValidationMessages.RequiredArgumentMissingForOption(symbol.Token));
+            throw new InvalidOperationException(symbol.ValidationMessages.RequiredArgumentMissingForOption(symbol.Token));
         }
 
         internal static IEnumerable<Symbol> AllSymbols(
