@@ -8,7 +8,6 @@ using static System.CommandLine.ValidationMessages;
 
 namespace System.CommandLine
 {
-    [DebuggerDisplay("{" + nameof(ToString) + "()}")]
     public class ParseResult
     {
         private readonly ParserConfiguration configuration;
@@ -83,8 +82,6 @@ namespace System.CommandLine
                                   this.Command()));
             }
         }
-
-        public override string ToString() => this.Diagram();
 
         public object ValueForOption(
             string alias) =>
