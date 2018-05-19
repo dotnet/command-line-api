@@ -39,7 +39,7 @@ namespace System.CommandLine
 
             return textBeforeCursor.Split(' ').LastOrDefault() +
                    textAfterCursor.Split(' ').FirstOrDefault();
-        } 
+        }
 
         public static Command Command(this ParseResult result)
         {
@@ -57,7 +57,7 @@ namespace System.CommandLine
                 symbol = symbol.Children[commandName];
             }
 
-            return (Command) symbol;
+            return (Command)symbol;
         }
 
         internal static Symbol CurrentSymbol(this ParseResult result) =>
@@ -147,7 +147,9 @@ namespace System.CommandLine
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
             parseResult?.CurrentSymbol()
                        ?.SymbolDefinition
-                       ?.Suggest(parseResult, position ) ??
+                       ?.Suggest(parseResult, position) ??
             Array.Empty<string>();
+
+        public static string ErrorText(this ParseResult parseResult) => string.Join(Environment.NewLine, parseResult.Errors);
     }
 }
