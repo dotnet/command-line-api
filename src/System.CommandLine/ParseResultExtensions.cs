@@ -41,10 +41,10 @@ namespace System.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         } 
 
-        public static Command SpecifiedCommand(this ParseResult result)
+        public static Command Command(this ParseResult result)
         {
             var commandPath = result
-                              .SpecifiedCommandDefinition()
+                              .CommandDefinition()
                               .RecurseWhileNotNull(c => c.Parent)
                               .Select(c => c.Name)
                               .Reverse()
@@ -122,7 +122,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            var specifiedCommand = parseResult.SpecifiedCommand();
+            var specifiedCommand = parseResult.Command();
 
             if (specifiedCommand != null)
             {
