@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="..\..\src\System.CommandLine.DragonFruit\build\netstandard2.0\System.CommandLine.DragonFruit.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\System.CommandLine.DragonFruit\System.CommandLine.DragonFruit.csproj" />
   </ItemGroup>
-
+  <Import Project="..\..\src\System.CommandLine.DragonFruit\build\netstandard2.0\System.CommandLine.DragonFruit.targets" />
 </Project>
