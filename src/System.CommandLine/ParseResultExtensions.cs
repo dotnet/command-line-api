@@ -95,7 +95,7 @@ namespace System.CommandLine
         {
             builder.Append("[ ");
 
-            builder.Append(symbol.SymbolDefinition);
+            builder.Append(symbol.SymbolDefinition.Token());
 
             foreach (var child in symbol.Children)
             {
