@@ -77,6 +77,5 @@ namespace System.CommandLine.Builder
             action.Invoke(builder.Arguments);
             return builder;
         }
-
     }
 }

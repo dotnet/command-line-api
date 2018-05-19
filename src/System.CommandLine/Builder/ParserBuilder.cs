@@ -20,14 +20,12 @@ namespace System.CommandLine.Builder
 
         public override CommandDefinition BuildCommandDefinition()
         {
-            if (CommandDefinitionBuilders.Count == 1)
+            if (CommandDefinitionBuilders?.Count == 1)
             {
                 return CommandDefinitionBuilders.Single().BuildCommandDefinition();
             }
-            else
-            {
-                return CommandDefinition.CreateImplicitRootCommand(BuildChildSymbolDefinitions().ToArray());
-            }
+
+            return CommandDefinition.CreateImplicitRootCommand(BuildChildSymbolDefinitions().ToArray());
         }
     }
 }

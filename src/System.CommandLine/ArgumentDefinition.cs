@@ -39,6 +39,8 @@ namespace System.CommandLine
 
         public ArgumentsRuleHelp Help { get; }
 
+        public bool HasHelp => Help != null && Help.IsHidden == false;
+
         internal ArgumentParser Parser { get; }
 
         public static ArgumentDefinition None { get; } = new ArgumentDefinition(

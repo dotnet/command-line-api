@@ -59,6 +59,10 @@ namespace System.CommandLine
 
         protected internal ArgumentDefinition ArgumentDefinition { get; protected set; }
 
+        protected internal bool HasArguments => ArgumentDefinition != null && ArgumentDefinition != ArgumentDefinition.None;
+
+        protected internal bool HasHelp => ArgumentDefinition != null && ArgumentDefinition.HasHelp;
+
         public string Name { get; }
 
         public virtual IEnumerable<string> Suggest(

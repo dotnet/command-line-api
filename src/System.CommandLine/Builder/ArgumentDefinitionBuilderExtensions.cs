@@ -24,13 +24,10 @@ namespace System.CommandLine.Builder
                     if (errorMessage == null)
                     {
                         return symbol is Command command
-                                   ? command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
-                                   : symbol.ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.Token());
+                            ? command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
+                            : symbol.ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.Token());
                     }
-                    else
-                    {
-                        return errorMessage(symbol);
-                    }
+                    return errorMessage(symbol);
                 }
 
                 if (argumentCount > 1)
@@ -41,10 +38,8 @@ namespace System.CommandLine.Builder
                                    ? command.ValidationMessages.CommandAcceptsOnlyOneArgument(command.Definition.ToString(), command.Arguments.Count)
                                    : symbol.ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.Token(), symbol.Arguments.Count);
                     }
-                    else
-                    {
-                        return errorMessage(symbol);
-                    }
+
+                    return errorMessage(symbol);
                 }
 
                 return null;
@@ -265,9 +260,10 @@ namespace System.CommandLine.Builder
         public static ArgumentDefinitionBuilder WithHelp(
             this ArgumentDefinitionBuilder builder,
             string name = null,
-            string description = null)
+            string description = null,
+            bool isHidden = ArgumentsRuleHelp.DefaultIsHidden)
         {
-            builder.Help = new ArgumentsRuleHelp(name, description);
+            builder.Help = new ArgumentsRuleHelp(name, description, isHidden);
 
             return builder;
         }
