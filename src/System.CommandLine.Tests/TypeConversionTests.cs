@@ -271,10 +271,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_an_option_without_arguments_parses_as_true_when_it_is_applied()
         {
-            var definition = new CommandDefinition("something", "", new[] { (SymbolDefinition) new OptionDefinition(
-                "-x",
-                "",
-                argumentDefinition: null) }, ArgumentDefinition.None);
+            var definition = new CommandDefinitionBuilder("something")
+                             .AddOption("-x", "")
+                             .BuildCommandDefinition();
 
             var result = definition.Parse("something -x");
 
@@ -290,9 +289,7 @@ namespace System.CommandLine.Tests
             var definition = new CommandDefinition("something", "", new[] {
                 new OptionDefinition(
                     "-x",
-                    "",
-                    argumentDefinition: null)
-            });
+                    "")});
 
             var result = definition.Parse("something");
 
