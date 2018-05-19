@@ -24,11 +24,6 @@ namespace System.CommandLine
 
         public virtual ParseResult Parse(string[] rawTokens, string rawInput = null)
         {
-            return Parse((IReadOnlyCollection <string>) rawTokens, rawInput);
-        }
-
-        public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
-        {
             var unparsedTokens = new Queue<Token>(
                 NormalizeRootCommand(rawTokens)
                     .Lex(_configuration));

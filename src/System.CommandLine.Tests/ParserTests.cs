@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Parse_can_handle_multiple_variants_of_parseTokens_argument()
+        public void Parse_can_parseTokens_as_string_array()
         {
             var result = new Parser(new OptionDefinition(
                     new [] {"--flag", "--otherFlag"},
