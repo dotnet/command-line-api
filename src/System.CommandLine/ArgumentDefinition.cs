@@ -10,7 +10,7 @@ namespace System.CommandLine
     {
         private readonly Func<string> _defaultValue;
 
-        public ArgumentDefinition(
+        internal ArgumentDefinition(
             ArgumentParser parser,
             Func<string> defaultValue = null,
             ArgumentsRuleHelp help = null,
@@ -39,7 +39,7 @@ namespace System.CommandLine
 
         public ArgumentsRuleHelp Help { get; }
 
-        public ArgumentParser Parser { get; }
+        internal ArgumentParser Parser { get; }
 
         public static ArgumentDefinition None { get; } = new ArgumentDefinition(
             new ArgumentParser(
@@ -56,6 +56,8 @@ namespace System.CommandLine
             symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
 
         public ISuggestionSource SuggestionSource { get; }
+
+        public ArgumentArity ArgumentArity => Parser.ArgumentArity;
 
         private static string AcceptNoArguments(Symbol o)
         {

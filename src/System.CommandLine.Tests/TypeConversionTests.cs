@@ -83,7 +83,7 @@ namespace System.CommandLine.Tests
         {
             var definition = new ArgumentDefinitionBuilder().ParseArgumentsAs<int>(s => ArgumentParseResult.Success(1));
 
-            definition.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
+            definition.ArgumentArity.Should().Be(ArgumentArity.One);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace System.CommandLine.Tests
         {
             var definition = new ArgumentDefinitionBuilder().ParseArgumentsAs<string>(s => ArgumentParseResult.Success(1));
 
-            definition.Parser.ArgumentArity.Should().Be(ArgumentArity.One);
+            definition.ArgumentArity.Should().Be(ArgumentArity.One);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace System.CommandLine.Tests
         {
             var definition = new ArgumentDefinitionBuilder().ParseArgumentsAs<int[]>(s => ArgumentParseResult.Success(1));
 
-            definition.Parser.ArgumentArity.Should().Be(ArgumentArity.Many);
+            definition.ArgumentArity.Should().Be(ArgumentArity.Many);
         }
 
         [Fact]
