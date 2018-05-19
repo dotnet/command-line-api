@@ -22,12 +22,24 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Parse_can_handle_multiple_variants_of_parseTokens_argument()
+        {
+            var result = new Parser(new OptionDefinition(
+                    new [] {"--flag", "--otherFlag"},
+                    ""))
+                .Parse(new [] {"--flag", "--otherFlag"});
+
+            result.HasOption("--flag").Should().BeTrue();
+            result.HasOption("--otherFlag").Should().BeTrue();
+        }
+
+        [Fact]
         public void An_option_without_a_long_form_can_be_checked_for_using_a_prefix()
         {
             var result = new Parser(new OptionDefinition(
-                                              "--flag",
-                                              "",
-                                              argumentDefinition: null))
+                    "--flag",
+                    "",
+                    argumentDefinition: null))
                 .Parse("--flag");
 
             result.HasOption("--flag").Should().BeTrue();
