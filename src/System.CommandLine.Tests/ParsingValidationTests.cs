@@ -92,8 +92,7 @@ namespace System.CommandLine.Tests
         public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
         {
             var builder = new ArgumentDefinitionBuilder();
-            builder.AddValidator(symbol =>
-            {
+            builder.AddValidator(symbol => {
                 if (symbol.Children.Contains("one") &&
                     symbol.Children.Contains("two"))
                 {
@@ -222,6 +221,21 @@ namespace System.CommandLine.Tests
                   .Select(e => e.Message)
                   .Should()
                   .Contain("Option '-x' cannot be specified more than once.");
+        }
+
+        [Theory]
+        [InlineData(":")]
+        [InlineData("=")]
+        public void When_an_option_contains_a_delimiter_then_an_informative_error_is_returned(string delimiter)
+        {
+            Action create = () => new Parser(
+               new OptionDefinition(
+                   $"-x{delimiter}",
+                   "",
+               new ArgumentDefinitionBuilder().ExactlyOne()));
+
+            create.Should().Throw<ArgumentException>().Which.Message.Should()
+                    .Be($"Symbol cannot contain delimiter: {delimiter}");
         }
     }
 }
