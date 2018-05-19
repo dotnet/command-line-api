@@ -12,7 +12,8 @@ namespace System.CommandLine
             IReadOnlyCollection<string> prefixes = null,
             bool allowUnbundling = true,
             ValidationMessages validationMessages = null,
-            ResponseFileHandling responseFileHandling = default(ResponseFileHandling))
+            ResponseFileHandling responseFileHandling = default(ResponseFileHandling),
+            IReadOnlyCollection<Invocation> invocationList = null)
         {
             if (symbolDefinitions == null)
             {
@@ -60,6 +61,7 @@ namespace System.CommandLine
             AllowUnbundling = allowUnbundling;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
+            InvocationList = invocationList;
 
             if (prefixes?.Count > 0)
             {
@@ -87,6 +89,9 @@ namespace System.CommandLine
         
         public ValidationMessages ValidationMessages { get; }
         
+
+        public IReadOnlyCollection<Invocation> InvocationList { get; }
+
         internal CommandDefinition RootCommandDefinition { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }

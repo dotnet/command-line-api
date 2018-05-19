@@ -8,8 +8,7 @@ namespace System.CommandLine
 {
     public class ParseResult
     {
-        private readonly ParserConfiguration configuration;
-        private readonly List<ParseError> errors = new List<ParseError>();
+        private readonly List<ParseError> _errors = new List<ParseError>();
         private CommandDefinition _commandDefinition;
 
         internal ParseResult(
@@ -25,8 +24,8 @@ namespace System.CommandLine
                      throw new ArgumentNullException(nameof(tokens));
             Symbols = symbols ??
                       throw new ArgumentNullException(nameof(symbols));
-            this.configuration = configuration ??
-                                 throw new ArgumentNullException(nameof(configuration));
+            Configuration = configuration ??
+                            throw new ArgumentNullException(nameof(configuration));
 
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
@@ -34,15 +33,17 @@ namespace System.CommandLine
 
             if (errors != null)
             {
-                this.errors.AddRange(errors);
+                _errors.AddRange(errors);
             }
 
             CheckForErrors();
         }
 
+        internal ParserConfiguration Configuration { get; }
+
         public SymbolSet Symbols { get; }
 
-        public IReadOnlyCollection<ParseError> Errors => errors;
+        public IReadOnlyCollection<ParseError> Errors => _errors;
 
         public IReadOnlyCollection<string> Tokens { get; }
 
@@ -70,7 +71,7 @@ namespace System.CommandLine
 
                 if (error != null)
                 {
-                    errors.Add(error);
+                    _errors.Add(error);
                 }
             }
 
@@ -80,7 +81,7 @@ namespace System.CommandLine
                 commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
                 var symbol = this.Command();
-                errors.Insert(0, new ParseError(
+                _errors.Insert(0, new ParseError(
                                   symbol.ValidationMessages.RequiredCommandWasNotProvided(),
                                   symbol));
             }
