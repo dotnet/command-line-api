@@ -129,8 +129,6 @@ namespace System.CommandLine
             return null;
         }
 
-        public override string ToString() => this.Diagram();
-
         internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null)
         {
             switch (symbolDefinition)

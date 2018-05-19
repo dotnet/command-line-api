@@ -76,8 +76,6 @@ namespace System.CommandLine
 
         public bool TreatUnmatchedTokensAsErrors { get; }
 
-        public override string ToString() => Name;
-
         internal static CommandDefinition CreateImplicitRootCommand(params SymbolDefinition[] symbolsDefinition) =>
             new CommandDefinition(symbolsDefinition);
     }

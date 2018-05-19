@@ -25,7 +25,7 @@ namespace System.CommandLine.Builder
                     {
                         return symbol is Command command
                                    ? ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
-                                   : ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.ToString());
+                                   : ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.Token());
                     }
                     else
                     {

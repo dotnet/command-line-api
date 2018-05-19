@@ -45,7 +45,7 @@ namespace System.CommandLine.Builder
             SymbolValidators.Add(validator);
         }
 
-        protected virtual ArgumentParser BuildArgumentParser()
+        internal virtual ArgumentParser BuildArgumentParser()
         {
             var parser = new ArgumentParser(
                 ArgumentArity,

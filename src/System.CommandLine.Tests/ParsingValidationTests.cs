@@ -57,9 +57,9 @@ namespace System.CommandLine.Tests
         {
             var builder = new ArgumentDefinitionBuilder();
             var parser = new Parser(new OptionDefinition(
-                                              "-x",
-                                              "",
-                                              argumentDefinition: builder.ExactlyOne()));
+                                        "-x",
+                                        "",
+                                        argumentDefinition: builder.ExactlyOne()));
 
             var result = parser.Parse("-x");
 
@@ -92,8 +92,7 @@ namespace System.CommandLine.Tests
         public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
         {
             var builder = new ArgumentDefinitionBuilder();
-            builder.AddValidator(symbol =>
-            {
+            builder.AddValidator(symbol => {
                 if (symbol.Children.Contains("one") &&
                     symbol.Children.Contains("two"))
                 {
@@ -103,13 +102,16 @@ namespace System.CommandLine.Tests
                 return null;
             });
 
-            var command = new CommandDefinition("the-command", "", new[] { new OptionDefinition(
-                "--one",
-                "",
-                argumentDefinition: null), (SymbolDefinition) new OptionDefinition(
-                "--two",
-                "",
-                argumentDefinition: null) }, builder.ExactlyOne());
+            var command = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "--one",
+                    "",
+                    argumentDefinition: null),
+                (SymbolDefinition)new OptionDefinition(
+                    "--two",
+                    "",
+                    argumentDefinition: null)
+            }, builder.ExactlyOne());
 
             var result = command.Parse("the-command --one --two");
 
@@ -155,16 +157,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_file_existence()
         {
-            var command = new CommandDefinition("move", "", new[] { (SymbolDefinition) new OptionDefinition(
-                "--to",
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne());
+            var commandDefinitionBuilder = new CommandDefinitionBuilder("move")
+                .AddOption("--to", "", toArgs => toArgs.ExactlyOne());
+            commandDefinitionBuilder.Arguments.ExistingFilesOnly().ExactlyOne();
+            var command = commandDefinitionBuilder.BuildCommandDefinition();
 
             var result = command.Parse($@"move ""{Guid.NewGuid()}.txt"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
             _output.WriteLine(result.Diagram());
 
-            result.SpecifiedCommand()
+            result.Command()
                   .Arguments
                   .Should()
                   .BeEmpty();
@@ -173,16 +175,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_directory_existence()
         {
-            var command = new CommandDefinition("move", "", new[] { (SymbolDefinition) new OptionDefinition(
-                "--to",
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne());
+            var parser = new ParserBuilder()
+                         .AddCommand("move", "",
+                                     toArgs => toArgs.AddOption("--to", "", args => args.ExactlyOne()),
+                                     moveArgs => moveArgs.ExistingFilesOnly()
+                                                         .ExactlyOne())
+                         .Build();
 
-            var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+            var result = parser.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
             _output.WriteLine(result.Diagram());
 
-            result.SpecifiedCommand()
+            result.Command()
                   .Arguments
                   .Should()
                   .BeEquivalentTo(Directory.GetCurrentDirectory());
@@ -191,14 +195,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_there_are_subcommands_and_options_then_a_subcommand_must_be_provided()
         {
-            var command = new CommandDefinition("outer", "", new[] {
-                new CommandDefinition("inner", "", new[] { (SymbolDefinition) new CommandDefinition("three", "", ArgumentDefinition.None) }, new ArgumentDefinitionBuilder().OneOrMore())
-            });
+            var command = new CommandDefinitionBuilder("outer")
+                          .AddCommand("inner", "",
+                                      inner => inner.AddCommand("inner-er", ""))
+                          .BuildCommandDefinition();
 
             var result = command.Parse("outer inner arg");
-
-            _output.WriteLine("ParseResult:" + result.Diagram());
-            _output.WriteLine("Errors: " + string.Join('\n', result.Errors));
 
             result.Errors
                   .Should()

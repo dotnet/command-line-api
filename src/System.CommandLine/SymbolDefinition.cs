@@ -84,9 +84,7 @@ namespace System.CommandLine
         public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
 
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
-
-        public override string ToString() => RawAliases.First(alias => alias.RemovePrefix() == Name);
-
+        internal string Token() => _rawAliases.First(alias => alias.RemovePrefix() == Name);
         internal void AddAlias(string alias) => _rawAliases.Add(alias);
     }
 }
