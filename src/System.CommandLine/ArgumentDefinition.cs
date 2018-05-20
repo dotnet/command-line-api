@@ -10,7 +10,7 @@ namespace System.CommandLine
     {
         private readonly Func<string> _defaultValue;
 
-        public ArgumentDefinition(
+        internal ArgumentDefinition(
             ArgumentParser parser,
             Func<string> defaultValue = null,
             ArgumentsRuleHelp help = null,
@@ -39,7 +39,9 @@ namespace System.CommandLine
 
         public ArgumentsRuleHelp Help { get; }
 
-        public ArgumentParser Parser { get; }
+        public bool HasHelp => Help != null && Help.IsHidden == false;
+
+        internal ArgumentParser Parser { get; }
 
         public static ArgumentDefinition None { get; } = new ArgumentDefinition(
             new ArgumentParser(
@@ -48,7 +50,7 @@ namespace System.CommandLine
                 {
                     if (symbol.Arguments.Any())
                     {
-                        return ArgumentParseResult.Failure(ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString()));
+                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString()));
                     }
 
                     return ArgumentParseResult.Success(true);
@@ -57,14 +59,16 @@ namespace System.CommandLine
 
         public ISuggestionSource SuggestionSource { get; }
 
-        private static string AcceptNoArguments(Symbol o)
+        public ArgumentArity ArgumentArity => Parser.ArgumentArity;
+
+        private static string AcceptNoArguments(Symbol symbol)
         {
-            if (!o.Arguments.Any())
+            if (!symbol.Arguments.Any())
             {
                 return null;
             }
 
-            return ValidationMessages.Current.NoArgumentsAllowed(o.SymbolDefinition.ToString());
+            return symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString());
         }
     }
 }

@@ -9,7 +9,9 @@ namespace System.CommandLine
             IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
-            bool allowUnbundling = true)
+            bool allowUnbundling = true,
+            ValidationMessages validationMessages = null,
+            ResponseFileHandling responseFileHandling = default(ResponseFileHandling) )
         {
             if (symbolDefinitions == null)
             {
@@ -19,6 +21,22 @@ namespace System.CommandLine
             if (!symbolDefinitions.Any())
             {
                 throw new ArgumentException("You must specify at least one option.");
+            }
+
+            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
+
+            foreach (var definition in symbolDefinitions)
+            {
+                foreach (var alias in definition.RawAliases)
+                {
+                    foreach (var delimiter in ArgumentDelimiters)
+                    {
+                        if (alias.Contains(delimiter))
+                        {
+                            throw new ArgumentException($"Symbol cannot contain delimiter: {delimiter}");
+                        }
+                    }
+                }
             }
 
             if (!symbolDefinitions.OfType<CommandDefinition>().Any())
@@ -32,8 +50,9 @@ namespace System.CommandLine
                 SymbolDefinitions.AddRange(symbolDefinitions);
             }
 
-            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
             AllowUnbundling = allowUnbundling;
+            ValidationMessages = validationMessages ?? ValidationMessages.Instance;
+            ResponseFileHandling = responseFileHandling;
 
             if (prefixes?.Count > 0)
             {
@@ -58,9 +77,11 @@ namespace System.CommandLine
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
         public bool AllowUnbundling { get; }
-
+        public ValidationMessages ValidationMessages { get; }
         internal CommandDefinition RootCommandDefinition { get; }
 
         internal bool RootCommandIsImplicit => RootCommandDefinition != null;
+
+        internal ResponseFileHandling ResponseFileHandling { get; }
     }
 }

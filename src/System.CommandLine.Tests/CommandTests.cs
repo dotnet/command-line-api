@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests
         {
             var result = _parser.Parse("outer inner --option argument1");
 
-            var outer = result.SpecifiedCommand().Parent;
+            var outer = result.Command().Parent;
 
             outer
                 .Name
@@ -109,18 +109,22 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
-            var parser = new Parser(
-                new CommandDefinition("outer", "", new[] { (SymbolDefinition) new CommandDefinition("inner", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()) }, new ArgumentDefinitionBuilder().ExactlyOne()));
+            var parser = new ParserBuilder()
+                         .AddCommand("outer", "",
+                                     symbols: outer => outer.AddCommand("inner", "",
+                                                                        arguments: innerArgs => innerArgs.ZeroOrMore()),
+                                     arguments: outerArgs => outerArgs.ExactlyOne())
+                         .Build();
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
-            result.SpecifiedCommand()
+            result.Command()
                   .Parent
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg1");
 
-            result.SpecifiedCommand()
+            result.Command()
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
@@ -129,23 +133,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ParseResult_Command_identifies_innermost_command()
         {
-            var command = new CommandDefinition("outer", "", new[] { new CommandDefinition("sibling", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()), new CommandDefinition("inner", "", new[] {
-                    new CommandDefinition("inner-er", "", new[] {
-                        new OptionDefinition(
-                            "-x",
-                            "",
-                            argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
-                    })
-                })
-            });
+            var command = new CommandDefinitionBuilder("outer")
+                          .AddCommand("inner", "",
+                                      symbols: sibling => sibling.AddCommand("inner-er", "",
+                                                                             arguments: args => args.ZeroOrMore()))
+                          .AddCommand("sibling", "",
+                                      arguments: args => args.ZeroOrMore())
+                          .BuildCommandDefinition();
 
             var result = command.Parse("outer inner inner-er -x arg");
 
-            result.SpecifiedCommand().Name.Should().Be("inner-er");
+            result.Command().Name.Should().Be("inner-er");
 
             result = command.Parse("outer inner");
 
-            result.SpecifiedCommand().Name.Should().Be("inner");
+            result.Command().Name.Should().Be("inner");
         }
 
         [Fact]
@@ -177,7 +179,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("-x -y");
 
-            var command = result.SpecifiedCommandDefinition();
+            var command = result.CommandDefinition();
 
             command.Should().NotBeNull();
             command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
@@ -201,13 +203,13 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            var parsedOption = result.SpecifiedCommand()["x"];
+            var parsedOption = result.Command()["x"];
 
             parsedOption.GetValueOrDefault().Should().Be("arg");
 
             result = command.Parse("outer sibling arg");
 
-            result.SpecifiedCommand().GetValueOrDefault().Should().Be("arg");
+            result.Command().GetValueOrDefault().Should().Be("arg");
         }
     }
 }

@@ -59,6 +59,10 @@ namespace System.CommandLine
 
         protected internal ArgumentDefinition ArgumentDefinition { get; protected set; }
 
+        protected internal bool HasArguments => ArgumentDefinition != null && ArgumentDefinition != ArgumentDefinition.None;
+
+        protected internal bool HasHelp => ArgumentDefinition != null && ArgumentDefinition.HasHelp;
+
         public string Name { get; }
 
         public virtual IEnumerable<string> Suggest(
@@ -84,9 +88,7 @@ namespace System.CommandLine
         public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
 
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
-
-        public override string ToString() => RawAliases.First(alias => alias.RemovePrefix() == Name);
-
+        internal string Token() => _rawAliases.First(alias => alias.RemovePrefix() == Name);
         internal void AddAlias(string alias) => _rawAliases.Add(alias);
     }
 }

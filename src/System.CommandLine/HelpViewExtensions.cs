@@ -11,7 +11,9 @@ namespace System.CommandLine
 {
     public static class HelpViewExtensions
     {
-        private static int columnGutterWidth = 3;
+        private const int MaxWidthLeeWay = 2;
+        private const int ColumnGutterWidth = 3;
+        private const string Indent = "  ";
 
         public static string HelpView(this CommandDefinition commandDefinition)
         {
@@ -39,7 +41,7 @@ namespace System.CommandLine
             CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
-            if (commandDefinition.TreatUnmatchedTokensAsErrors)
+            if (commandDefinition?.TreatUnmatchedTokensAsErrors == true)
             {
                 return;
             }
@@ -51,55 +53,43 @@ namespace System.CommandLine
             CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
-            var argName = commandDefinition.ArgumentDefinition.Help.Name;
-            var argDescription = commandDefinition.ArgumentDefinition.Help.Description;
+            var showArgHelp = commandDefinition.HasArguments && commandDefinition.HasHelp;
+            var showParentArgHelp = false;
 
-            var shouldWriteCommandArguments =
-                !string.IsNullOrWhiteSpace(argName) &&
-                !string.IsNullOrWhiteSpace(argDescription);
-
-            var parentCommand = commandDefinition.Parent;
-
-            var parentArgName = parentCommand?.ArgumentDefinition?.Help?.Name;
-            var parentArgDescription = parentCommand?.ArgumentDefinition?.Help?.Description;
-
-            var shouldWriteParentCommandArguments =
-                !string.IsNullOrWhiteSpace(parentArgName) &&
-                !string.IsNullOrWhiteSpace(parentArgDescription);
-
-            if (shouldWriteCommandArguments ||
-                shouldWriteParentCommandArguments)
+            if (commandDefinition.Parent != null)
             {
-                helpView.AppendLine();
-                helpView.AppendLine(DefaultHelpViewText.ArgumentsSection.Title);
+                showParentArgHelp = commandDefinition.Parent.HasArguments && commandDefinition.Parent.HasHelp;
             }
-            else
+
+            if (!showArgHelp && !showParentArgHelp)
             {
                 return;
             }
 
-            var indent = "  ";
-            var argLeftColumnText = $"{indent}<{argName}>";
-            var parentArgLeftColumnText = $"{indent}<{parentArgName}>";
-            var leftColumnWidth =
-                Math.Max(argLeftColumnText.Length,
-                         parentArgLeftColumnText.Length) +
-                columnGutterWidth;
+            var argHelp = commandDefinition.ArgumentDefinition?.Help;
+            var parentArgHelp = commandDefinition.Parent?.ArgumentDefinition?.Help;
 
-            if (shouldWriteParentCommandArguments)
+            helpView?.AppendLine();
+            helpView?.AppendLine(ArgumentsSection.Title);
+
+            var argLeftColumnText = showArgHelp ? $"{Indent}<{argHelp?.Name}>" : "";
+            var parentArgLeftColumnText = showParentArgHelp ? $"{Indent}<{parentArgHelp?.Name}>" : "";
+            var leftColumnWidth = ColumnGutterWidth + Math.Max(argLeftColumnText.Length, parentArgLeftColumnText.Length);
+
+            if (showParentArgHelp)
             {
                 WriteColumnizedSummary(
                     parentArgLeftColumnText,
-                    parentArgDescription,
+                    parentArgHelp?.Description,
                     leftColumnWidth,
                     helpView);
             }
 
-            if (shouldWriteCommandArguments)
+            if (showArgHelp)
             {
                 WriteColumnizedSummary(
                     argLeftColumnText,
-                    argDescription,
+                    argHelp?.Description,
                     leftColumnWidth,
                     helpView);
             }
@@ -111,8 +101,8 @@ namespace System.CommandLine
         {
             var options = commandDefinition
                 .SymbolDefinitions
-                .Where(o => !(o is CommandDefinition))
-                .Where(o => !o.IsHidden())
+                .OfType<OptionDefinition>()
+                .Where(opt => opt.HasHelp)
                 .ToArray();
 
             if (!options.Any())
@@ -121,7 +111,7 @@ namespace System.CommandLine
             }
 
             helpView.AppendLine();
-            helpView.AppendLine(DefaultHelpViewText.OptionsSection.Title);
+            helpView.AppendLine(OptionsSection.Title);
 
             WriteOptionsList(options, helpView);
         }
@@ -132,8 +122,8 @@ namespace System.CommandLine
         {
             var subcommands = commandDefinition
                 .SymbolDefinitions
-                .Where(o => !o.IsHidden())
                 .OfType<CommandDefinition>()
+                .Where(subCommand => subCommand.HasHelp)
                 .ToArray();
 
             if (!subcommands.Any())
@@ -142,7 +132,7 @@ namespace System.CommandLine
             }
 
             helpView.AppendLine();
-            helpView.AppendLine(DefaultHelpViewText.CommandsSection.Title);
+            helpView.AppendLine(CommandsSection.Title);
 
             WriteOptionsList(subcommands, helpView);
         }
@@ -151,61 +141,72 @@ namespace System.CommandLine
             IReadOnlyCollection<SymbolDefinition> symbols,
             StringBuilder helpView)
         {
-            var leftColumnTextFor = symbols
-                .ToDictionary(o => o, LeftColumnText);
+            var leftColumnTextFor = symbols.ToDictionary(symbol => symbol, LeftColumnText);
 
-            var leftColumnWidth = leftColumnTextFor
-                                      .Values
-                                      .Select(s => s.Length)
-                                      .OrderBy(length => length)
-                                      .Last() + columnGutterWidth;
+             var maxWidth = leftColumnTextFor
+                .Values
+                .Select(symbol => symbol.Length)
+                .OrderByDescending(length => length)
+                .First();
+
+            var leftColumnWidth = ColumnGutterWidth + maxWidth;
 
             foreach (var symbol in symbols)
             {
-                WriteColumnizedSummary(leftColumnTextFor[symbol],
-                                       symbol.Description,
-                                       leftColumnWidth,
-                                       helpView);
+                WriteColumnizedSummary(
+                    leftColumnTextFor[symbol],
+                    symbol.Description,
+                    leftColumnWidth,
+                    helpView);
             }
         }
 
         private static string LeftColumnText(SymbolDefinition symbolDefinition)
         {
-            var leftColumnText = "  " +
-                                 string.Join(", ",
-                                             symbolDefinition.RawAliases
-                                                   .OrderBy(a => a.Length));
+            var builder = new StringBuilder();
+            builder.Append(Indent);
+            builder.Append(string.Join(", ", symbolDefinition.RawAliases.OrderBy(alias => alias.Length)));
 
-            var argumentName = symbolDefinition.ArgumentDefinition.Help.Name;
+            var argumentName = symbolDefinition.ArgumentDefinition?.Help?.Name;
 
             if (!string.IsNullOrWhiteSpace(argumentName))
             {
-                leftColumnText += $" <{argumentName}>";
+                builder.Append($" <{argumentName}>");
             }
 
-            return leftColumnText;
+            return builder.ToString();
         }
 
         private static void WriteColumnizedSummary(
             string leftColumnText,
             string rightColumnText,
-            int width,
+            int maxWidth,
             StringBuilder helpView)
         {
+            if (leftColumnText == null)
+            {
+                leftColumnText = "";
+            }
+
+            if (rightColumnText == null)
+            {
+                rightColumnText = "";
+            }
+
             helpView.Append(leftColumnText);
 
-            if (leftColumnText.Length <= width - 2)
+            if (leftColumnText.Length <= maxWidth - MaxWidthLeeWay)
             {
-                helpView.Append(new string(' ', width - leftColumnText.Length));
+                helpView.Append(new string(' ', maxWidth - leftColumnText.Length));
             }
             else
             {
                 helpView.AppendLine();
-                helpView.Append(new string(' ', width));
+                helpView.Append(new string(' ', maxWidth));
             }
 
             var descriptionWithLineWraps = string.Join(
-                NewLine + new string(' ', width),
+                NewLine + new string(' ', maxWidth),
                 rightColumnText
                     .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(s => s.Trim()));
@@ -217,30 +218,33 @@ namespace System.CommandLine
             CommandDefinition commandDefinition,
             StringBuilder helpView)
         {
-            helpView.Append(DefaultHelpViewText.Synopsis.Title);
+            helpView.Append(Synopsis.Title);
 
-            foreach (var subcommand in commandDefinition
-                .RecurseWhileNotNull(c => c.Parent)
-                .Reverse())
+            var subcommands = commandDefinition
+                .RecurseWhileNotNull(commandDef => commandDef.Parent)
+                .Reverse();
+
+            foreach (var subcommand in subcommands)
             {
                 helpView.Append($" {subcommand.Name}");
 
-                var argsName = subcommand.ArgumentDefinition.Help.Name;
-                if (subcommand != commandDefinition &&
-                    !string.IsNullOrWhiteSpace(argsName))
+                var argsName = subcommand.ArgumentDefinition?.Help?.Name;
+                if (subcommand != commandDefinition && !string.IsNullOrWhiteSpace(argsName))
                 {
                     helpView.Append($" <{argsName}>");
                 }
             }
 
-            if (commandDefinition.SymbolDefinitions
-                       .Any(o => !(o is CommandDefinition) &&
-                                 !o.IsHidden()))
+            var hasHelp = commandDefinition.SymbolDefinitions
+                .Where(symbolDef => !(symbolDef is CommandDefinition))
+                .Any(symbolDef => symbolDef.HasHelp);
+
+            if (hasHelp)
             {
-                helpView.Append(DefaultHelpViewText.Synopsis.Options);
+                helpView.Append(Synopsis.Options);
             }
 
-            var argumentsName = commandDefinition.ArgumentDefinition.Help.Name;
+            var argumentsName = commandDefinition.ArgumentDefinition?.Help?.Name;
             if (!string.IsNullOrWhiteSpace(argumentsName))
             {
                 helpView.Append($" <{argumentsName}>");
@@ -248,12 +252,12 @@ namespace System.CommandLine
 
             if (commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
-                helpView.Append(DefaultHelpViewText.Synopsis.Command);
+                helpView.Append(Synopsis.Command);
             }
 
             if (!commandDefinition.TreatUnmatchedTokensAsErrors)
             {
-                helpView.Append(DefaultHelpViewText.Synopsis.AdditionalArguments);
+                helpView.Append(Synopsis.AdditionalArguments);
             }
 
             helpView.AppendLine();

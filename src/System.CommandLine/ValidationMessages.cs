@@ -2,70 +2,51 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace System.CommandLine
 {
-    public static class ValidationMessages
+    public class ValidationMessages
     {
-        private static IValidationMessages _current = new DefaultValidationMessages();
-        private static IValidationMessages _default = _current;
+        public static ValidationMessages Instance { get; } = new ValidationMessages();
 
-        public static IValidationMessages Current
-        {
-            get => _current;
-            set => _current = value ?? new DefaultValidationMessages();
-        }
+        protected ValidationMessages() { }
 
-        public static string NoArgumentsAllowed(string option) =>
-            _current.NoArgumentsAllowed(option).NotWhitespace() ??
-            _default.NoArgumentsAllowed(option);
+        public virtual string CommandAcceptsOnlyOneArgument(string command, int argumentCount) =>
+            $"Command '{command}' only accepts a single argument but {argumentCount} were provided.";
 
-        public static string CommandAcceptsOnlyOneArgument(
-            string command,
-            int argumentCount) =>
-            _current.CommandAcceptsOnlyOneArgument(command, argumentCount).NotWhitespace() ??
-            _default.CommandAcceptsOnlyOneArgument(command, argumentCount);
+        public virtual string FileDoesNotExist(string filePath) =>
+            $"File does not exist: {filePath}";
 
-        public static string FileDoesNotExist(string filePath) =>
-            _current.FileDoesNotExist(filePath).NotWhitespace() ??
-            _default.FileDoesNotExist(filePath);
+        public virtual string NoArgumentsAllowed(string option) =>
+            $"Arguments not allowed for option: {option}";
 
-        public static string OptionAcceptsOnlyOneArgument(
-            string option,
-            int argumentCount) =>
-            _current.OptionAcceptsOnlyOneArgument(option, argumentCount).NotWhitespace() ??
-            _default.OptionAcceptsOnlyOneArgument(option, argumentCount);
+        public virtual string OptionAcceptsOnlyOneArgument(string option, int argumentCount) =>
+            $"Option '{option}' only accepts a single argument but {argumentCount} were provided.";
 
-        public static string RequiredArgumentMissingForCommand(string command) =>
-            _current.RequiredArgumentMissingForCommand(command).NotWhitespace() ??
-            _default.RequiredArgumentMissingForCommand(command);
+        public virtual string RequiredArgumentMissingForCommand(string command) =>
+            $"Required argument missing for command: {command}";
 
-        public static string RequiredArgumentMissingForOption(string option) =>
-            _current.RequiredArgumentMissingForOption(option).NotWhitespace() ??
-            _default.RequiredArgumentMissingForOption(option);
+        public virtual string RequiredArgumentMissingForOption(string option) =>
+            $"Required argument missing for option: {option}";
 
-        internal static string RequiredCommandWasNotProvided() =>
-            _current.RequiredCommandWasNotProvided().NotWhitespace() ??
-            _default.RequiredCommandWasNotProvided();
+        public virtual string RequiredCommandWasNotProvided() =>
+            "Required command was not provided.";
 
-        internal static string SymbolAcceptsOnlyOneArgument(Symbol symbol) => symbol.SymbolDefinition is CommandDefinition
-                   ? CommandAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count)
-                   : OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count);
+        public virtual string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) =>
+            $"Argument '{unrecognizedArg}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
 
-        public static string UnrecognizedArgument(
-            string unrecognizedArg,
-            IReadOnlyCollection<string> allowedValues) =>
-            _current.UnrecognizedArgument(unrecognizedArg, allowedValues).NotWhitespace() ??
-            _default.UnrecognizedArgument(unrecognizedArg, allowedValues);
+        public virtual string UnrecognizedCommandOrArgument(string arg) =>
+            $"Unrecognized command or argument '{arg}'";
 
-        internal static string UnrecognizedCommandOrArgument(string arg) =>
-            _current.UnrecognizedCommandOrArgument(arg).NotWhitespace() ??
-            _default.UnrecognizedCommandOrArgument(arg);
+        public virtual string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) =>
+            $"Option '{unrecognizedOption}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
 
-        public static string UnrecognizedOption(
-            string unrecognizedOption,
-            IReadOnlyCollection<string> allowedValues) =>
-            _current.UnrecognizedOption(unrecognizedOption, allowedValues).NotWhitespace() ??
-            _default.UnrecognizedOption(unrecognizedOption, allowedValues);
+        public virtual string ResponseFileNotFound(string filePath) =>
+            $"Response file not found '{filePath}'";
+
+        public virtual string ErrorReadingResponseFile(string filePath, IOException e) =>
+            $"Error reading response file '{filePath}': {e.Message}";
     }
 }
