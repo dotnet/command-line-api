@@ -21,7 +21,7 @@ namespace System.CommandLine.Builder
 
         public bool? TreatUnmatchedTokensAsErrors { get; set; }
 
-        public MethodBinder ExecutionHandler { get; set; }
+        internal MethodBinder ExecutionHandler { get; set; }
 
         public string Name { get; }
 

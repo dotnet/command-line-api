@@ -9,26 +9,26 @@ namespace System.CommandLine
 
     public class MethodBinder
     {
-        private readonly Delegate _Delegate;
-        private readonly string[] _OptionAliases;
+        private readonly Delegate _delegate;
+        private readonly string[] _optionAliases;
 
         public MethodBinder(Delegate @delegate, params string[] optionAliases)
         {
-            _Delegate = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
-            _OptionAliases = optionAliases;
+            _delegate = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
+            _optionAliases = optionAliases;
         }
 
         public void Invoke(ParseResult result)
         {
             var arguments = new List<object>();
-            var parameters = _Delegate.Method.GetParameters();
+            var parameters = _delegate.Method.GetParameters();
             for (var index = 0; index < parameters.Length; index++)
             {
-                var argument = result.Command().ValueForOption(_OptionAliases[index]);
+                var argument = result.Command().ValueForOption(_optionAliases[index]);
                 arguments.Add(argument);
             }
 
-            _Delegate.DynamicInvoke(arguments.ToArray());
+            _delegate.DynamicInvoke(arguments.ToArray());
         }
     }
 
@@ -48,7 +48,22 @@ namespace System.CommandLine
 
     public interface IInvocationResult
     {
+        int ReturnCode { get; }
+        string StandardOutput { get; }
     }
+
+    public class HelpInvocationResult : IInvocationResult
+    {
+        public HelpInvocationResult(int returnCode, string standardOutput)
+        {
+            ReturnCode = returnCode;
+            StandardOutput = standardOutput;
+        }
+        public int ReturnCode { get; }
+        public string StandardOutput { get; }
+    }
+
+
 
     public static class InvocationExtensions
     {
@@ -118,12 +133,15 @@ namespace System.CommandLine
             return builder;
         }
 
-        private static void HelpInvocation(InvocationContext context, IReadOnlyCollection<string> helpOptionNames)
+        private static void HelpInvocation(
+            InvocationContext context, IReadOnlyCollection<string> helpOptionNames)
         {
             if (helpOptionNames.Contains(context.ParseResult.UnmatchedTokens.LastOrDefault()))
             {
                 var command = context.ParseResult.Command();
                 string helpView = command.Definition.HelpView();
+                context.InvocationResult = new HelpInvocationResult(0, helpView);
+
                 context.Output.Write(helpView);
             }
         }

@@ -147,6 +147,8 @@ namespace System.CommandLine.Tests
 
         private class TestInvocationResult : IInvocationResult
         {
+            public int ReturnCode { get; }
+            public string StandardOutput { get; }
         }
     }
 }
