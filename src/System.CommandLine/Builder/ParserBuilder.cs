@@ -9,13 +9,16 @@ namespace System.CommandLine.Builder
     {
         public bool EnablePosixBundling { get; set; } = true;
 
+        public ResponseFileHandling ResponseFileHandling { get; set; }
+
         public Parser Build()
         {
             return new Parser(
                 new ParserConfiguration(
                     BuildChildSymbolDefinitions(),
                     allowUnbundling: EnablePosixBundling,
-                    validationMessages: new DefaultValidationMessages()));
+                    validationMessages: new DefaultValidationMessages(),
+                    responseFileHandling: ResponseFileHandling));
         }
 
         public override CommandDefinition BuildCommandDefinition()

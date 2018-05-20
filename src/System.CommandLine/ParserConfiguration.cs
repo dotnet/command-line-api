@@ -10,7 +10,8 @@ namespace System.CommandLine
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
             bool allowUnbundling = true,
-            IValidationMessages validationMessages = null)
+            IValidationMessages validationMessages = null,
+            ResponseFileHandling responseFileHandling = default(ResponseFileHandling) )
         {
             if (symbolDefinitions == null)
             {
@@ -36,6 +37,8 @@ namespace System.CommandLine
             ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
             AllowUnbundling = allowUnbundling;
             ValidationMessages = validationMessages ?? new DefaultValidationMessages();
+            ResponseFileHandling = responseFileHandling;
+
             if (prefixes?.Count > 0)
             {
                 foreach (SymbolDefinition symbol in symbolDefinitions)
@@ -63,5 +66,7 @@ namespace System.CommandLine
         internal CommandDefinition RootCommandDefinition { get; }
 
         internal bool RootCommandIsImplicit => RootCommandDefinition != null;
+
+        internal ResponseFileHandling ResponseFileHandling { get; }
     }
 }

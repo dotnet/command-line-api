@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
@@ -58,6 +59,8 @@ namespace System.CommandLine.Tests
             public string UnrecognizedCommandOrArgument(string arg) => message;
 
             public string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) => message;
+            public string ResponseFileNotFound(string filePath) => message;
+            public string ErrorReadingResponseFile(string filePath, IOException e) => message;
         }
     }
 }

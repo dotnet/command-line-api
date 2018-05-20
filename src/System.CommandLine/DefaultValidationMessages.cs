@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace System.CommandLine
@@ -37,5 +38,11 @@ namespace System.CommandLine
 
         public string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) =>
             $"Option '{unrecognizedOption}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
+
+        public string ResponseFileNotFound(string filePath) =>
+            $"Response file not found '{filePath}'";
+
+        public string ErrorReadingResponseFile(string filePath, IOException e) =>
+            $"Error reading response file '{filePath}': {e.Message}";
     }
 }
