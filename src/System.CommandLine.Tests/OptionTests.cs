@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Builder;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -142,5 +144,23 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeEquivalentTo("-h", "--help", "/?");
         }
-    }
+
+        [Theory]
+        [InlineData("-")]
+        [InlineData("--")]
+        [InlineData("/")]
+        public void When_option_use_differnt_prefixes_they_still_work(string prefix)
+        {
+            var result = new ParserBuilder()
+                .AddOption(prefix + "a", "", a => a.ExactlyOne())
+                .AddOption(prefix + "b", "")
+                .AddOption(prefix + "c", "", a => a.ExactlyOne())
+                .Build()
+                .Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
+
+            result.ValueForOption(prefix + "a").Should().Be("value-for-a");
+            result.ValueForOption(prefix + "c").Should().Be("value-for-c");
+            result.HasOption(prefix + "b").Should().BeFalse();
+        }
+   }
 }
