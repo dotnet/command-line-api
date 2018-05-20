@@ -12,6 +12,10 @@ namespace System.CommandLine.DragonFruit
 {
     public class CommandLine
     {
+        private const int HELP_EXIT_CODE = 2;
+        private const int ERROR_EXIT_CODE = 1;
+        private const int OK_EXIT_CODE = 0;
+
         public static async Task<int> ExecuteAssemblyAsync(Assembly assembly, string[] args)
         {
             var candidates = new List<MethodInfo>();
@@ -49,8 +53,14 @@ namespace System.CommandLine.DragonFruit
                     "Could not find a static entry point named 'Main' on a type named 'Program' that accepts option parameters.");
             }
 
-            var mainmethod = candidates[0];
-            var parameters = mainmethod.GetParameters();
+            return await ExecuteMethodAsync(args,
+                candidates[0],
+                assembly.GetName().Name);
+        }
+
+        public static async Task<int> ExecuteMethodAsync(string[] args, MethodInfo method, string commandName)
+        {
+            var parameters = method.GetParameters();
 
             var helpOption = new OptionDefinition("--help", "Show help output");
             var optionDefinitions = new List<OptionDefinition> {
@@ -61,29 +71,11 @@ namespace System.CommandLine.DragonFruit
 
             for (var i = 0; i < parameters.Length; i++)
             {
-                var parameter = parameters[i];
-                var paramName = parameter.Name.ToKebabCase();
-
-                var argumentDefinitionBuilder = new ArgumentDefinitionBuilder();
-                if (parameter.HasDefaultValue)
-                {
-                    argumentDefinitionBuilder.WithDefaultValue(() => parameter.DefaultValue);
-                }
-
-                paramOptions[i] = new OptionDefinition(
-                    new[] {
-                        "-" + paramName[0],
-                        "--" + paramName,
-                    },
-                    parameter.Name,
-                    parameter.ParameterType != typeof(bool)
-                        ? argumentDefinitionBuilder.ParseArgumentsAs(parameter.ParameterType)
-                        : ArgumentDefinition.None);
-                optionDefinitions.Add(paramOptions[i]);
+                optionDefinitions.Add(paramOptions[i] = CreateOption(parameters[i]));
             }
 
             var commandDefinition = new CommandDefinition(
-                name: assembly.GetName().Name,
+                name: commandName,
                 description: string.Empty,
                 symbolDefinitions: optionDefinitions,
                 argumentDefinition: ArgumentDefinition.None);
@@ -100,7 +92,7 @@ namespace System.CommandLine.DragonFruit
             if (result.HasOption(helpOption))
             {
                 Console.WriteLine(commandDefinition.HelpView());
-                return 3;
+                return HELP_EXIT_CODE;
             }
 
             var rootCommand = result.Command();
@@ -111,7 +103,7 @@ namespace System.CommandLine.DragonFruit
                 values[i] = rootCommand.ValueForOption(paramOptions[i]);
             }
 
-            var retVal = mainmethod.Invoke(null, values);
+            var retVal = method.Invoke(null, values);
 
             switch (retVal)
             {
@@ -119,12 +111,34 @@ namespace System.CommandLine.DragonFruit
                     return await taskOfInt;
                 case Task task:
                     await task;
-                    return 0;
+                    return OK_EXIT_CODE;
                 case int exitCode:
                     return exitCode;
             }
 
-            return 0;
+            return OK_EXIT_CODE;
+        }
+
+        private static OptionDefinition CreateOption(ParameterInfo parameter)
+        {
+            var paramName = parameter.Name.ToKebabCase();
+
+            var argumentDefinitionBuilder = new ArgumentDefinitionBuilder();
+            if (parameter.HasDefaultValue)
+            {
+                argumentDefinitionBuilder.WithDefaultValue(() => parameter.DefaultValue);
+            }
+
+            var optionDefinition = new OptionDefinition(
+                new[] {
+                    "-" + paramName[0],
+                    "--" + paramName,
+                },
+                parameter.Name,
+                parameter.ParameterType != typeof(bool)
+                    ? argumentDefinitionBuilder.ParseArgumentsAs(parameter.ParameterType)
+                    : ArgumentDefinition.None);
+            return optionDefinition;
         }
 
         private static int HandleParserErrors(ParseResult result)
@@ -140,7 +154,7 @@ namespace System.CommandLine.DragonFruit
 
             Console.Error.WriteLine("Use --help to see available commands and options.");
 
-            return 1;
+            return ERROR_EXIT_CODE;
         }
     }
 }
