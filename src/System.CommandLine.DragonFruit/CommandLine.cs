@@ -63,11 +63,11 @@ namespace System.CommandLine.DragonFruit
             {
                 var parameter = parameters[i];
                 var paramName = parameter.Name.ToKebabCase();
-                var defBuilder = new ArgumentDefinitionBuilder();
 
+                var argumentDefinitionBuilder = new ArgumentDefinitionBuilder();
                 if (parameter.HasDefaultValue)
                 {
-                    defBuilder.WithDefaultValue(() => parameter.DefaultValue);
+                    argumentDefinitionBuilder.WithDefaultValue(() => parameter.DefaultValue);
                 }
 
                 paramOptions[i] = new OptionDefinition(
@@ -76,11 +76,17 @@ namespace System.CommandLine.DragonFruit
                         "--" + paramName,
                     },
                     parameter.Name,
-                    defBuilder.ParseArgumentsAs(parameter.ParameterType));
+                    parameter.ParameterType != typeof(bool)
+                        ? argumentDefinitionBuilder.ParseArgumentsAs(parameter.ParameterType)
+                        : ArgumentDefinition.None);
                 optionDefinitions.Add(paramOptions[i]);
             }
 
-            var commandDefinition = new CommandDefinition(assembly.GetName().Name, string.Empty, optionDefinitions);
+            var commandDefinition = new CommandDefinition(
+                name: assembly.GetName().Name,
+                description: string.Empty,
+                symbolDefinitions: optionDefinitions,
+                argumentDefinition: ArgumentDefinition.None);
 
             var parser = new Parser(new ParserConfiguration(new[] {commandDefinition}));
 
