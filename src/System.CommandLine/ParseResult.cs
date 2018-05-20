@@ -24,7 +24,7 @@ namespace System.CommandLine
             Tokens = tokens ??
                      throw new ArgumentNullException(nameof(tokens));
             Symbols = symbols ??
-                            throw new ArgumentNullException(nameof(symbols));
+                      throw new ArgumentNullException(nameof(symbols));
             this.configuration = configuration ??
                                  throw new ArgumentNullException(nameof(configuration));
 
@@ -52,11 +52,15 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public CommandDefinition CommandDefinition() =>
-            _commandDefinition ??
-            (_commandDefinition = configuration.RootCommandIsImplicit
-                           ? configuration.SymbolDefinitions.OfType<CommandDefinition>().Single()
-                           : Symbols.CommandDefinition());
+        public CommandDefinition CommandDefinition()
+        {
+            if (_commandDefinition == null)
+            {
+                return _commandDefinition = Symbols.CommandDefinition();
+            }
+
+            return _commandDefinition;
+        }
 
         private void CheckForErrors()
         {
@@ -97,6 +101,6 @@ namespace System.CommandLine
             return this[alias].GetValueOrDefault<T>();
         }
 
-        public Symbol this[string alias] => this.Command().Children[alias]; 
+        public Symbol this[string alias] => this.Command().Children[alias];
     }
 }

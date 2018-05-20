@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.HelpView();
+            var help = command.Subcommand("outer").HelpView();
 
             help.Should().Contain($"Arguments:{NewLine}  <>");
         }
@@ -42,7 +42,7 @@ namespace System.CommandLine.Tests
                     arguments: args => args.WithHelp("test name", "test desc").ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.HelpView();
+            var help = command.Subcommand("outer").HelpView();
 
             help.Should().Contain($"Arguments:{NewLine}  <test name>   test desc");
         }
@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests
                         .AddOption("-n", "Not hidden"))
                 .BuildCommandDefinition();
 
-            var help = command.HelpView();
+            var help = command.Subcommand("the-command").HelpView();
 
             help.Should().Contain("-x");
             help.Should().Contain("-n");
@@ -84,7 +84,7 @@ namespace System.CommandLine.Tests
                         .AddOption("-n", "Not hidden"))
                 .BuildCommandDefinition();
 
-            var help = command.HelpView();
+            var help = command.Subcommand("the-command").HelpView();
 
             help.Should().Contain("-n");
             help.Should().NotContain("-x");
@@ -106,7 +106,7 @@ namespace System.CommandLine.Tests
                                           arguments: args => args.ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var helpView = command.Subcommand("the-command").HelpView();
 
             var indent = "                    ";
 
@@ -130,7 +130,7 @@ namespace System.CommandLine.Tests
                                                                    .ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var helpView = command.Subcommand("inner").HelpView();
+            var helpView = command.Subcommand("outer").Subcommand("inner").HelpView();
 
             _output.WriteLine(helpView);
 
@@ -158,7 +158,7 @@ namespace System.CommandLine.Tests
                                                      "An option with 15 characters"))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var helpView = command.Subcommand("the-command").HelpView();
 
             var lines = helpView.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -189,11 +189,12 @@ namespace System.CommandLine.Tests
                                           "some option"))))
                           .BuildCommandDefinition();
 
-            command.Subcommand("inner")
+            command.Subcommand("outer")
+                   .Subcommand("inner")
                    .Subcommand("inner-er")
                    .HelpView()
                    .Should()
-                   .StartWith("Usage: outer inner inner-er [options]");
+                   .StartWith($"Usage: {ParserBuilder.ExeName} outer inner inner-er [options]");
         }
 
         [Fact]
@@ -215,7 +216,7 @@ namespace System.CommandLine.Tests
                               })
                           .BuildCommandDefinition();
 
-            command
+            command.Subcommand("outer")
                 .Subcommand("inner")
                 .HelpView()
                 .Should()
@@ -230,7 +231,7 @@ namespace System.CommandLine.Tests
                                       outer => outer.AddCommand("inner", "description for inner"))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var helpView = command.Subcommand("outer").HelpView();
 
             _output.WriteLine(helpView);
 
@@ -254,11 +255,12 @@ namespace System.CommandLine.Tests
                                           "Sets the verbosity"))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var helpView = command.Subcommand("the-command").HelpView();
 
             helpView
                 .Should()
-                .StartWith("Usage: the-command [options] <the-args>");
+                .StartWith(
+                    $"Usage: { ParserBuilder.ExeName } the-command [options] <the-args>");
         }
 
         [Fact]
@@ -279,13 +281,14 @@ namespace System.CommandLine.Tests
                                       "Sets the verbosity")))
                           .BuildCommandDefinition();
 
-            var helpView = command.Subcommand("inner-command").HelpView();
+            var helpView = command.Subcommand("outer-command").Subcommand("inner-command").HelpView();
 
             _output.WriteLine(helpView);
 
             helpView
                 .Should()
-                .StartWith("Usage: outer-command <outer-args> inner-command [options] <inner-args>");
+                .StartWith(
+                    $"Usage: { ParserBuilder.ExeName } outer-command <outer-args> inner-command [options] <inner-args>");
         }
 
         [Fact]
@@ -317,11 +320,12 @@ namespace System.CommandLine.Tests
                             "Indicates whether x"))
                     .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var helpView = command.Subcommand("some-command").HelpView();
 
             _output.WriteLine(helpView);
 
-            helpView.Should().StartWith("Usage: some-command [options] [[--] <additional arguments>...]]");
+            helpView.Should().StartWith(
+                $"Usage: { ParserBuilder.ExeName } some-command [options] [[--] <additional arguments>...]]");
         }
 
         #endregion " Synopsis "
@@ -351,7 +355,7 @@ namespace System.CommandLine.Tests
                                                                  .ExactlyOne()))
                           .BuildCommandDefinition();
 
-            command.HelpView().Should().Contain("  -v, --verbosity <LEVEL>   Sets the verbosity.");
+            command.Subcommand("the-command").HelpView().Should().Contain("  -v, --verbosity <LEVEL>   Sets the verbosity.");
         }
 
         [Fact]
@@ -367,7 +371,7 @@ namespace System.CommandLine.Tests
                                           "The first option"))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var helpView = command.Subcommand("the-command").HelpView();
 
             _output.WriteLine(helpView);
 
@@ -387,7 +391,7 @@ namespace System.CommandLine.Tests
                                           new[] { "-multi", "--alt-option" },
                                           "Help for option"))
                           .BuildCommandDefinition();
-            var helpView = command.HelpView();
+            var helpView = command.Subcommand("command").HelpView();
             helpView.Should().Contain("-multi");
             helpView.Should().NotContain("--multi");
         }
@@ -401,7 +405,7 @@ namespace System.CommandLine.Tests
                                           new[] { "--m", "--alt-option" },
                                           "Help for option"))
                           .BuildCommandDefinition();
-            var helpView = command.HelpView();
+            var helpView = command.Subcommand("command").HelpView();
             helpView.Should().Contain("--m");
         }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using System.Linq;
 
 namespace System.CommandLine
@@ -39,16 +40,22 @@ namespace System.CommandLine
                 }
             }
 
-            if (symbolDefinitions.OfType<CommandDefinition>().Count() != 1)
+            if (symbolDefinitions.Count == 1 &&
+                symbolDefinitions.Single() is CommandDefinition rootComanCommandDefinition)
             {
-                var symbolsDefinition = symbolDefinitions.ToArray();
-                RootCommandDefinition = CommandDefinition.CreateImplicitRootCommand(symbolsDefinition);
-                SymbolDefinitions.Add(RootCommandDefinition);
+                RootCommandDefinition = rootComanCommandDefinition;
             }
             else
             {
-                SymbolDefinitions.AddRange(symbolDefinitions);
+                RootCommandDefinition = new CommandDefinition(
+                    ParserBuilder.ExeName,
+                    "",
+                    symbolDefinitions);
             }
+
+            SymbolDefinitions.Add(RootCommandDefinition);
+
+
 
             AllowUnbundling = allowUnbundling;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
@@ -81,8 +88,6 @@ namespace System.CommandLine
         public ValidationMessages ValidationMessages { get; }
         
         internal CommandDefinition RootCommandDefinition { get; }
-
-        internal bool RootCommandIsImplicit => RootCommandDefinition != null;
 
         internal ResponseFileHandling ResponseFileHandling { get; }
     }

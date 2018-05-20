@@ -8,10 +8,6 @@ namespace System.CommandLine.Builder
 {
     public class CommandDefinitionBuilder : SymbolDefinitionBuilder
     {
-        protected CommandDefinitionBuilder()
-        {
-        }
-
         public CommandDefinitionBuilder(
             string name,
             CommandDefinitionBuilder parent = null) : base(parent)

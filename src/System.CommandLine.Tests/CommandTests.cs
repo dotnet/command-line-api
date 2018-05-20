@@ -151,25 +151,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_the_name_of_the_command_is_the_name_of_the_executable()
-        {
-            var command = new CommandDefinition(
-                new[]
-                {
-                    new OptionDefinition(
-                        "-x",
-                        "",
-                        argumentDefinition: null),
-                    new OptionDefinition(
-                        "-y",
-                        "",
-                        argumentDefinition: null)
-                });
-
-            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-        }
-
-        [Fact]
         public void ParsedCommand_identifies_the_ParsedCommand_for_the_innermost_command()
         {
             var command = new CommandDefinition("outer", "", new[] {
