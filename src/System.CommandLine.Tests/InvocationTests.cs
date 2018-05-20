@@ -14,7 +14,7 @@ namespace System.CommandLine.Tests
             var parser =
                 new ParserBuilder()
                     .AddCommand("command", "")
-                    .AddInvocation(InvokeMe)
+                    .AddInvocation(_ => wasCalled = true)
                     .Build();
 
             var result = parser.Parse("command");
@@ -22,11 +22,6 @@ namespace System.CommandLine.Tests
             result.Invoke();
 
             wasCalled.Should().BeTrue();
-
-            void InvokeMe(InvocationContext context)
-            {
-                wasCalled = true;
-            }
         }
 
         [Fact]
@@ -37,8 +32,8 @@ namespace System.CommandLine.Tests
             var parser =
                 new ParserBuilder()
                     .AddCommand("command", "")
-                    .AddInvocation(InvokeMe1)
-                    .AddInvocation(InvokeMe2)
+                    .AddInvocation(context => context.InvocationResult = new TestInvocationResult())
+                    .AddInvocation(_ => wasCalled = true)
                     .Build();
 
             var result = parser.Parse("command");
@@ -46,16 +41,6 @@ namespace System.CommandLine.Tests
             result.Invoke();
 
             wasCalled.Should().BeFalse();
-
-            void InvokeMe1(InvocationContext context)
-            {
-                context.InvocationResult = new TestInvocationResult();
-            }
-
-            void InvokeMe2(InvocationContext context)
-            {
-                wasCalled = true;
-            }
         }
 
         [Fact]
@@ -67,7 +52,7 @@ namespace System.CommandLine.Tests
                 new ParserBuilder()
                     .AddCommand(
                         "command", "",
-                        cmd => cmd.OnExecute(InvokeMe))
+                        cmd => cmd.OnExecute(() => wasCalled = true))
                     .BuildCommandDefinition();
 
             var result = commandDefinition.Parse("command");
@@ -75,11 +60,6 @@ namespace System.CommandLine.Tests
             result.Invoke();
 
             wasCalled.Should().BeTrue();
-
-            void InvokeMe()
-            {
-                wasCalled = true;
-            }
         }
 
         [Fact]
@@ -92,7 +72,10 @@ namespace System.CommandLine.Tests
                     .AddCommand(
                         "command", "",
                         cmd => cmd.AddOption("-name", "", a => a.ExactlyOne())
-                                  .OnExecute<string>(InvokeMe, "-name"))
+                                  .OnExecute<string>(s => {
+                                      wasCalled = true;
+                                      s.Should().Be("hello");
+                                  }, "-name"))
                     .BuildCommandDefinition();
 
             var result = commandDefinition.Parse("command -name hello");
@@ -100,12 +83,6 @@ namespace System.CommandLine.Tests
             result.Invoke();
 
             wasCalled.Should().BeTrue();
-
-            void InvokeMe(string name)
-            {
-                wasCalled = true;
-                name.Should().Be("hello");
-            }
         }
 
         [Fact]
@@ -119,7 +96,11 @@ namespace System.CommandLine.Tests
                         "command", "",
                         cmd => cmd
                                .AddOption("-name", "", a => a.ExactlyOne())
-                               .OnExecute<string, int>(InvokeMe, "-name", "-age")
+                               .OnExecute<string, int>((s, i) => {
+                                   wasCalled = true;
+                                   s.Should().Be("Gandalf");
+                                   i.Should().Be(425);
+                               }, "-name", "-age")
                                .AddOption("-age", "", a => a.ParseArgumentsAs<int>())
                     )
                     .BuildCommandDefinition();
@@ -129,13 +110,6 @@ namespace System.CommandLine.Tests
             result.Invoke();
 
             wasCalled.Should().BeTrue();
-
-            void InvokeMe(string name, int age)
-            {
-                wasCalled = true;
-                name.Should().Be("Gandalf");
-                age.Should().Be(425);
-            }
         }
 
         //[Fact]
