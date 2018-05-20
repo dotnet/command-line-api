@@ -14,7 +14,7 @@ namespace System.CommandLine.Builder
 
         public ArgumentDefinitionBuilder(SymbolDefinitionBuilder parent = null)
         {
-            this._parent = parent;
+            _parent = parent;
         }
 
         internal ArgumentArity ArgumentArity { get; set; }
@@ -110,7 +110,8 @@ namespace System.CommandLine.Builder
                 DefaultValue = argumentDefinition.GetDefaultValue,
                 Help = new ArgumentsRuleHelp(
                     argumentDefinition.Help?.Name,
-                    argumentDefinition.Help?.Description),
+                    argumentDefinition.Help?.Description,
+                    argumentDefinition.Help?.IsHidden ?? ArgumentsRuleHelp.DefaultIsHidden),
                 Parser = argumentDefinition.Parser,
                 _suggestionSource = suggestionSource,
                 SymbolValidators = new List<ValidateSymbol>(argumentDefinition.SymbolValidators)

@@ -78,5 +78,12 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        public static ParserBuilder ParseResponseFileAs(
+            this ParserBuilder builder,
+            ResponseFileHandling responseFileHandling)
+        {
+            builder.ResponseFileHandling = responseFileHandling;
+            return builder;
+        }
     }
 }

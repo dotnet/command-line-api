@@ -9,25 +9,26 @@ namespace System.CommandLine.Builder
     {
         public bool EnablePosixBundling { get; set; } = true;
 
+        public ResponseFileHandling ResponseFileHandling { get; set; }
+
         public Parser Build()
         {
             return new Parser(
                 new ParserConfiguration(
                     BuildChildSymbolDefinitions(),
                     allowUnbundling: EnablePosixBundling,
-                    validationMessages: new DefaultValidationMessages()));
+                    validationMessages: ValidationMessages.Instance,
+                    responseFileHandling: ResponseFileHandling));
         }
 
         public override CommandDefinition BuildCommandDefinition()
         {
-            if (CommandDefinitionBuilders.Count == 1)
+            if (CommandDefinitionBuilders?.Count == 1)
             {
                 return CommandDefinitionBuilders.Single().BuildCommandDefinition();
             }
-            else
-            {
-                return CommandDefinition.CreateImplicitRootCommand(BuildChildSymbolDefinitions().ToArray());
-            }
+
+            return CommandDefinition.CreateImplicitRootCommand(BuildChildSymbolDefinitions().ToArray());
         }
     }
 }
