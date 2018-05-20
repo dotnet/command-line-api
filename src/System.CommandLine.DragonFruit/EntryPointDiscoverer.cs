@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.DragonFruit
 {
-    internal class EntryPointCreator
+    internal class EntryPointDiscoverer
     {
         internal static MethodInfo FindStaticEntryMethod(Assembly assembly)
         {

@@ -33,8 +33,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 new[] { "--name", "Wayne" },
                 _console,
                 this,
-                action.Method,
-                new CommandHelpMetadata());
+                action.Method);
             exitCode.Should().Be(0);
             _captured.Should().Be("Wayne");
         }
@@ -50,8 +49,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 new[] { "--help" },
                 _console,
                 this,
-                action.Method,
-                new CommandHelpMetadata());
+                action.Method);
 
             exitCode.Should().Be(CommandLine.OkExitCode);
             stdout.ToString().Should()
@@ -70,8 +68,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 new[] { "--name", "Wayne" },
                 _console,
                 this,
-                action.Method,
-                new CommandHelpMetadata());
+                action.Method);
 
             exitCode.Should().Be(0);
             _captured.Should().Be("Wayne");
@@ -80,8 +77,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 Array.Empty<string>(),
                 _console,
                 this,
-                action.Method,
-                new CommandHelpMetadata());
+                action.Method);
 
             exitCode.Should().Be(0);
             _captured.Should().Be("Bruce");
@@ -101,8 +97,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 new[] { "--unknown" },
                 _console,
                 this,
-                action.Method,
-                new CommandHelpMetadata());
+                action.Method);
 
             exitCode.Should().Be(CommandLine.ErrorExitCode);
             stderr.ToString()
@@ -124,8 +119,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 Array.Empty<string>(),
                 _console,
                 this,
-                action.Method,
-                new CommandHelpMetadata());
+                action.Method);
 
             exitCode.Should().Be(CommandLine.ErrorExitCode);
             stderr.ToString()

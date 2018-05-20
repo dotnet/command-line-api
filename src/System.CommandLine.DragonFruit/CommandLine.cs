@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -16,13 +17,12 @@ namespace System.CommandLine.DragonFruit
         /// Finds and executes 'Program.Main', but with strong types.
         /// </summary>
         /// <param name="entryAssembly">The entry assembly</param>
-        /// <param name="args"></param>
-        /// <returns></returns>
+        /// <param name="args">The string arguments.</param>
+        /// <returns>The exit code.</returns>
         public static Task<int> ExecuteAssemblyAsync(Assembly entryAssembly, string[] args)
             => ExecuteAssemblyAsync(entryAssembly, args, PhysicalConsole.Instance);
 
-        internal static async Task<int> ExecuteAssemblyAsync(
-            Assembly entryAssembly,
+        internal static async Task<int> ExecuteAssemblyAsync(Assembly entryAssembly,
             string[] args,
             IConsole console)
         {
@@ -36,46 +36,24 @@ namespace System.CommandLine.DragonFruit
                 throw new ArgumentNullException(nameof(console));
             }
 
-            if (console == null)
-            {
-                throw new ArgumentNullException(nameof(console));
-            }
+            args = args ?? Array.Empty<string>();
 
-            MethodInfo entryMethod = EntryPointCreator.FindStaticEntryMethod(entryAssembly);
-
-            string docFilePath = Path.Combine(
-                Path.GetDirectoryName(entryAssembly.Location),
-                Path.GetFileNameWithoutExtension(entryAssembly.Location) + ".xml");
-
-            var commandHelpMetadata = new CommandHelpMetadata();
-            if (XmlDocReader.TryLoad(docFilePath, out XmlDocReader xmlDocs))
-            {
-                xmlDocs.TryGetMethodDescription(entryMethod, out commandHelpMetadata);
-            }
-
-            commandHelpMetadata.Name = entryAssembly.GetName().Name;
+            MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly);
 
             return await InvokeMethodAsync(
                 args,
                 console,
                 /* @object:*/ null, // this is a static method
-                entryMethod,
-                commandHelpMetadata);
+                entryMethod);
         }
 
-        internal static async Task<int> InvokeMethodAsync(
-            string[] args,
+        internal static async Task<int> InvokeMethodAsync(string[] args,
             IConsole console,
             object @object,
-            MethodInfo method,
-            CommandHelpMetadata helpMetadata)
+            MethodInfo method)
         {
-            if (helpMetadata == null)
-            {
-                throw new ArgumentNullException(nameof(helpMetadata));
-            }
-
             var helpOption = new OptionDefinition("--help", "Show help output");
+            var helpMetadata = GetHelpMetadata(method);
 
             MethodCommand command = new MethodCommandFactory()
                 .Create(
@@ -104,27 +82,49 @@ namespace System.CommandLine.DragonFruit
             }
             catch (Exception e)
             {
-                console.ForegroundColor = ConsoleColor.Red;
-                console.Error.Write("Unhandled exception: ");
-                console.Error.WriteLine(e.ToString());
-                console.ResetColor();
+                LogUnhandledException(console, e);
                 return ErrorExitCode;
             }
         }
 
+        private static CommandHelpMetadata GetHelpMetadata(MethodInfo method)
+        {
+            Assembly assembly = method.DeclaringType.Assembly;
+            string docFilePath = Path.Combine(
+                Path.GetDirectoryName(assembly.Location),
+                Path.GetFileNameWithoutExtension(assembly.Location) + ".xml");
+
+            var metadata = new CommandHelpMetadata();
+            if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
+            {
+                xmlDocs.TryGetMethodDescription(method, out metadata);
+            }
+
+            metadata.Name = assembly.GetName().Name;
+            return metadata;
+        }
+
+        private static void LogUnhandledException(IConsole console, Exception e)
+        {
+            console.ResetColor();
+            console.ForegroundColor = ConsoleColor.Red;
+            console.Error.Write("Unhandled exception: ");
+            console.Error.WriteLine(e.ToString());
+            console.ResetColor();
+        }
+
         private static int HandleParserErrors(ParseResult result, IConsole console)
         {
+            console.ResetColor();
             console.ForegroundColor = ConsoleColor.Red;
+
             foreach (ParseError parseError in result.Errors)
             {
                 console.Error.WriteLine(parseError.Message);
             }
 
             console.ResetColor();
-
-
-            console.Error.WriteLine("Use --help to see available commands and options.");
-
+            console.Error.WriteLine("Specify --help to see usage.");
             return ErrorExitCode;
         }
     }
