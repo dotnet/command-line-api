@@ -44,7 +44,7 @@ namespace System.CommandLine
                 return;
             }
 
-            helpView.Append(AdditionalArgumentsSection);
+            helpView.Append(AdditionalArgumentsSection.Title);
         }
 
         private static void WriteArgumentsSection(SymbolDefinition symbolDefinition, StringBuilder helpView)

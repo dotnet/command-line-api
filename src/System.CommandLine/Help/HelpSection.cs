@@ -7,34 +7,38 @@ namespace System.CommandLine
     {
         private readonly int _maxWidth;
 
-        public HelpSection(int maxWidth)
+        protected HelpSection(int maxWidth)
         {
             _maxWidth = maxWidth;
         }
 
-        public string Title { get; set; }
+        protected string Title { get; set; }
 
-        public IReadOnlyCollection<HelpDefinition> HelpDefinitions { get; set; }
+        protected IReadOnlyCollection<HelpDefinition> HelpDefinitions { get; set; }
 
-        public Func<HelpDefinition, string> NameFormatter { get; set; }
+        protected Func<HelpDefinition, string> NameFormatter { get; set; }
 
-        public Func<HelpDefinition, int, string> DescriptionFormatter { get; set; }
+        protected Func<HelpDefinition, int, string> DescriptionFormatter { get; set; }
 
-        public virtual void BuildSection(HelpBuilder builder)
+        protected virtual void AddSection(HelpBuilder builder)
         {
             AddHeading(builder);
+            builder.Indent();
             AddContent(builder);
+            builder.Dedent();
         }
 
-        public virtual void AddHeading(HelpBuilder builder)
+        protected virtual void AddHeading(HelpBuilder builder)
         {
-            if (!string.IsNullOrWhiteSpace(Title))
+            if (string.IsNullOrWhiteSpace(Title))
             {
-                builder.AddIndentedText(Title);
+                return;
             }
+
+            builder.AddLine(Title);
         }
 
-        public virtual void AddContent(HelpBuilder builder)
+        protected virtual void AddContent(HelpBuilder builder)
         {
             var helpText = HelpDefinitions.ToDictionary(helpDef => helpDef, NameFormatter);
 
@@ -50,7 +54,10 @@ namespace System.CommandLine
             {
                 var formattedName = helpText[helpDefinition];
                 var paddingWidth = availableWidth - formattedName.Length;
-                builder.AddLine(formattedName, paddingWidth, DescriptionFormatter(helpDefinition, descriptionWidth));
+                builder.AddSectionColumns(
+                    formattedName,
+                    paddingWidth,
+                    DescriptionFormatter(helpDefinition, descriptionWidth));
             }
         }
     }

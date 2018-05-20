@@ -6,8 +6,11 @@ namespace System.CommandLine
 {
     public class DefaultHelpViewText
     {
-        public static string AdditionalArgumentsSection { get; set; } =
-            $"{Environment.NewLine}Additional Arguments:{Environment.NewLine}  Arguments passed to the application that is being run.";
+        public static class AdditionalArgumentsSection
+        {
+            public static string Title { get; set; } = "Additional Arguments:";
+            public static string Description { get; set; } = "Arguments passed to the application that is being run.";
+        }
 
         public static class ArgumentsSection
         {
