@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "System.CommandLine.CompletionSuggestions": {
+      "commandName": "Project",
+      "commandLineArgs": "-p 12 -e \"C:\\Program Files\\dotnet\\dotnet.exe\" \"dotnet add\""
+    }
+  }
+}
