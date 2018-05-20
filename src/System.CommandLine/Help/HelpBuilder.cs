@@ -112,8 +112,17 @@ namespace System.CommandLine
             return help?.Name?.Length ?? 0;
         }
 
-        public string Build()
+        public string Build(CommandDefinition commandDefinition, int? windowWidth = null)
         {
+            if (commandDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(commandDefinition));
+            }
+
+            _builder = new StringBuilder();
+            _commandDefinition = commandDefinition;
+            _windowWidth = windowWidth ?? GetWindowWidth();
+
             WriteSynopsis();
             WriteArgumentsSection();
             WriteOptionsSection();

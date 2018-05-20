@@ -27,6 +27,8 @@ namespace System.CommandLine.Builder
 
         public string Name { get; }
 
+        public HelpBuilder HelpBuilder { get; set; }
+
         public virtual CommandDefinition BuildCommandDefinition()
         {
             return new CommandDefinition(
@@ -36,7 +38,8 @@ namespace System.CommandLine.Builder
                 symbolDefinitions: BuildChildSymbolDefinitions(),
                 treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
                                               Parent?.TreatUnmatchedTokensAsErrors ??
-                                              true);
+                                              true,
+                helpBuilder: HelpBuilder);
         }
 
         protected IReadOnlyCollection<SymbolDefinition> BuildChildSymbolDefinitions()

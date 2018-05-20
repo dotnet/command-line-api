@@ -11,6 +11,8 @@ namespace System.CommandLine
 {
     public class CommandDefinition : SymbolDefinition
     {
+        public HelpBuilder HelpBuilder { get; }
+
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
@@ -35,10 +37,12 @@ namespace System.CommandLine
             string description,
             IReadOnlyCollection<SymbolDefinition> symbolDefinitions = null,
             ArgumentDefinition argumentDefinition = null,
-            bool treatUnmatchedTokensAsErrors = true) :
+            bool treatUnmatchedTokensAsErrors = true,
+            HelpBuilder helpBuilder = null) :
             base(new[] { name }, description)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+            HelpBuilder = helpBuilder ?? new HelpBuilder();
 
             symbolDefinitions = symbolDefinitions ?? Array.Empty<SymbolDefinition>();
 
