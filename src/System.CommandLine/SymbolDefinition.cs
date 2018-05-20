@@ -28,16 +28,17 @@ namespace System.CommandLine
                 throw new ArgumentException("An option must have at least one alias.");
             }
 
-            if (aliases.Any(string.IsNullOrWhiteSpace))
-            {
-                throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
-            }
-
             _rawAliases = new HashSet<string>(aliases);
 
             foreach (var alias in aliases)
             {
-                _aliases.Add(alias.RemovePrefix());
+                var cleanedAlias = alias.RemovePrefix();
+                if (string.IsNullOrWhiteSpace(cleanedAlias))
+                {
+                    throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
+                }
+
+                _aliases.Add(cleanedAlias);
             }
 
             ArgumentDefinition = argumentDefinition ?? ArgumentDefinition.None;
@@ -59,10 +60,6 @@ namespace System.CommandLine
 
         public HelpDefinition Help { get; }
 
-        protected internal bool HasArguments => ArgumentDefinition != null && ArgumentDefinition != ArgumentDefinition.None;
-
-        protected internal bool HasHelp => ArgumentDefinition != null && ArgumentDefinition.HasHelp;
-
         public string Name { get; }
 
         // FIX: (Parent) make this immutable
@@ -76,6 +73,10 @@ namespace System.CommandLine
 
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
 
+        protected internal bool HasArguments => ArgumentDefinition != null && ArgumentDefinition != ArgumentDefinition.None;
+
+        protected internal bool HasHelp => ArgumentDefinition != null && ArgumentDefinition.HasHelp;
+
         internal string Token() => _rawAliases.First(alias => alias.RemovePrefix() == Name);
 
         public virtual IEnumerable<string> Suggest(
@@ -83,15 +84,15 @@ namespace System.CommandLine
             int? position = null)
         {
             var symbolAliases = SymbolDefinitions
-                                .Where(s => !s.IsHidden())
-                                .SelectMany(s => s.RawAliases);
+                                .Where(symbol => !symbol.IsHidden())
+                                .SelectMany(symbol => symbol.RawAliases);
 
             var argumentSuggestions = ArgumentDefinition.SuggestionSource
                                                    .Suggest(parseResult, position);
 
             return symbolAliases.Concat(argumentSuggestions)
                                 .Distinct()
-                                .OrderBy(s => s)
+                                .OrderBy(symbol => symbol)
                                 .Containing(parseResult.TextToMatch());
         }
     }

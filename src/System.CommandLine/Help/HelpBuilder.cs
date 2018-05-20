@@ -20,7 +20,7 @@ namespace System.CommandLine
         private const int MaxWidthLeeWay = 2;
         private const int ColumnGutterWidth = 3;
 
-        public HelpBuilder(CommandDefinition commandDefinition, int? windowWidth)
+        public HelpBuilder(CommandDefinition commandDefinition, int? windowWidth = null)
         {
             if (commandDefinition == null)
             {
@@ -124,9 +124,19 @@ namespace System.CommandLine
 
         private void WriteColumns(string name, string description, int maxWidth)
         {
+            if (name == null)
+            {
+                name = "";
+            }
+
+            if (description == null)
+            {
+                description = "";
+            }
+
             AddIndentedText(name);
 
-            if (name.Length <= maxWidth - MaxWidthLeeWay)
+            if (name.Length <= maxWidth)
             {
                 AddPadding(maxWidth - name.Length);
             }
@@ -161,6 +171,24 @@ namespace System.CommandLine
             return builder.ToString();
         }
 
+        private void WriteOptionsList(IReadOnlyCollection<SymbolDefinition> symbols)
+        {
+            var leftColumnTextFor = symbols.ToDictionary(symbol => symbol, OptionFormatter);
+
+            var maxWidth = leftColumnTextFor
+                .Values
+                .Select(symbol => symbol.Length)
+                .OrderByDescending(length => length)
+                .First();
+
+            var leftColumnWidth = ColumnGutterWidth + maxWidth;
+
+            foreach (var symbol in symbols)
+            {
+                WriteColumns(leftColumnTextFor[symbol], symbol.Description, leftColumnWidth);
+            }
+        }
+
         private void WriteSynopsis()
         {
             _builder.Append(Synopsis.Title);
@@ -189,7 +217,7 @@ namespace System.CommandLine
 
             if (hasHelp)
             {
-                _builder.Append(Synopsis.Options);
+                _builder.AppendFormat(" {0}", Synopsis.Options);
             }
 
             var argumentsName = _commandDefinition.ArgumentDefinition?.Help?.Name;
@@ -200,12 +228,12 @@ namespace System.CommandLine
 
             if (_commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
-                _builder.Append(Synopsis.Command);
+                _builder.AppendFormat(" {0}", Synopsis.Command);
             }
 
             if (!_commandDefinition.TreatUnmatchedTokensAsErrors)
             {
-                _builder.Append(Synopsis.AdditionalArguments);
+                _builder.AppendFormat(" {0}", Synopsis.AdditionalArguments);
             }
 
             _builder.AppendLine();
@@ -232,6 +260,8 @@ namespace System.CommandLine
             _builder.AppendLine();
             _builder.AppendLine(ArgumentsSection.Title);
 
+            Indent();
+
             var maxWidth = showArgHelp ? GetTextLength(argHelp) : 0;
 
             if (showParentArgHelp)
@@ -250,6 +280,8 @@ namespace System.CommandLine
             {
                 WriteColumns($"<{argHelp.Name}>", argHelp.Description, maxWidth);
             }
+
+            Dedent();
         }
 
         private void WriteOptionsSection()
@@ -268,25 +300,9 @@ namespace System.CommandLine
             _builder.AppendLine();
             _builder.AppendLine(OptionsSection.Title);
 
+            Indent();
             WriteOptionsList(options);
-        }
-
-        private void WriteOptionsList(IReadOnlyCollection<SymbolDefinition> symbols)
-        {
-            var leftColumnTextFor = symbols.ToDictionary(symbol => symbol, OptionFormatter);
-
-            var maxWidth = leftColumnTextFor
-                .Values
-                .Select(symbol => symbol.Length)
-                .OrderByDescending(length => length)
-                .First();
-
-            var leftColumnWidth = ColumnGutterWidth + maxWidth;
-
-            foreach (var symbol in symbols)
-            {
-                WriteColumns(leftColumnTextFor[symbol], symbol.Description, leftColumnWidth);
-            }
+            Dedent();
         }
 
         private void WriteSubcommandsSection()
@@ -305,7 +321,9 @@ namespace System.CommandLine
             _builder.AppendLine();
             _builder.AppendLine(CommandsSection.Title);
 
+            Indent();
             WriteOptionsList(subcommands);
+            Dedent();
         }
 
         private void WriteAdditionalArgumentsSection()

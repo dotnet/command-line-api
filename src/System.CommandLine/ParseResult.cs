@@ -94,9 +94,9 @@ namespace System.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return Symbols[alias].GetValueOrDefault<T>();
+            return this[alias].GetValueOrDefault<T>();
         }
 
-        public Symbol this[string alias] => Symbols[alias]; 
+        public Symbol this[string alias] => this.Command().Children[alias]; 
     }
 }

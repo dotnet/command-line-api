@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.HelpView();
+            var help = new HelpBuilder(command).Build();
 
             help.Should().Contain($"Arguments:{NewLine}  <>");
         }
