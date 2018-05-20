@@ -20,7 +20,7 @@ namespace System.CommandLine.CompletionSuggestions
                 .AddOption(Position, "the current character position on the command line",
                     position => position.ExactlyOne())
                 .AddOption(ExeName, "The executible to ask for argument resolution", argument => argument
-                    .LegalFilePathsOnly()
+                    //.LegalFilePathsOnly()
                     .ExactlyOne())
                 .TreatUnmatchedTokensAsErrors(false)
                 .Build();
