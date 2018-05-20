@@ -23,6 +23,22 @@ namespace System.CommandLine
                 throw new ArgumentException("You must specify at least one option.");
             }
 
+            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
+
+            foreach (var definition in symbolDefinitions)
+            {
+                foreach (var alias in definition.RawAliases)
+                {
+                    foreach (var delimiter in ArgumentDelimiters)
+                    {
+                        if (alias.Contains(delimiter))
+                        {
+                            throw new ArgumentException($"Symbol cannot contain delimiter: {delimiter}");
+                        }
+                    }
+                }
+            }
+
             if (!symbolDefinitions.OfType<CommandDefinition>().Any())
             {
                 var symbolsDefinition = symbolDefinitions.ToArray();
@@ -34,7 +50,6 @@ namespace System.CommandLine
                 SymbolDefinitions.AddRange(symbolDefinitions);
             }
 
-            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
             AllowUnbundling = allowUnbundling;
             ValidationMessages = validationMessages ?? new DefaultValidationMessages();
             ResponseFileHandling = responseFileHandling;
