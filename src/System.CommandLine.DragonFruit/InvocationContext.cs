@@ -3,17 +3,20 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.DragonFruit
 {
-    internal class MethodContext<TReturn>
+    internal class InvocationContext<TReturn>
     {
-        public MethodContext(MethodInfo methodInfo)
+        public InvocationContext(MethodInfo methodInfo, IConsole console)
         {
-            MethodInfo = methodInfo;
+            MethodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
+            Console = console ?? throw new ArgumentNullException(nameof(console));
         }
 
         // for testing
         internal object Object { get; set; }
 
         public MethodInfo MethodInfo { get; }
+
+        public IConsole Console { get; }
 
         public async Task<TReturn> RunAsync(object[] values)
         {

@@ -13,11 +13,14 @@ namespace System.CommandLine.DragonFruit
 {
     public class CommandLine
     {
-        private const int HelpExitCode = 2;
-        private const int ErrorExitCode = 1;
-        private const int OkExitCode = 0;
+        internal const int HelpExitCode = 2;
+        internal const int ErrorExitCode = 1;
+        internal const int OkExitCode = 0;
 
-        public static async Task<int> ExecuteAssemblyAsync(Assembly assembly, string[] args)
+        public static Task<int> ExecuteAssemblyAsync(Assembly assembly, string[] args)
+            => ExecuteAssemblyAsync(assembly, args, PhysicalConsole.Instance);
+
+        internal static async Task<int> ExecuteAssemblyAsync(Assembly assembly, string[] args, IConsole console)
         {
             MethodInfo entryMethod = EntryPointCreator.FindEntryMethod(assembly);
 
@@ -31,7 +34,7 @@ namespace System.CommandLine.DragonFruit
                 xmlDocs.TryGetMethodDescription(entryMethod, out methodDescription);
             }
 
-            var context = new MethodContext<int>(entryMethod);
+            var context = new InvocationContext<int>(entryMethod, console);
 
             return await ExecuteMethodAsync(args,
                 context,
@@ -40,7 +43,7 @@ namespace System.CommandLine.DragonFruit
         }
 
         internal static async Task<int> ExecuteMethodAsync(string[] args,
-            MethodContext<int> context,
+            InvocationContext<int> context,
             string commandName,
             MethodDescription methodDescription)
         {
@@ -72,12 +75,12 @@ namespace System.CommandLine.DragonFruit
 
             if (result.Errors.Count > 0)
             {
-                return HandleParserErrors(result);
+                return HandleParserErrors(result, context.Console);
             }
 
             if (result.HasOption(helpOption))
             {
-                Console.WriteLine(commandDefinition.HelpView());
+                context.Console.Out.WriteLine(commandDefinition.HelpView());
                 return HelpExitCode;
             }
 
@@ -117,18 +120,18 @@ namespace System.CommandLine.DragonFruit
             return optionDefinition;
         }
 
-        private static int HandleParserErrors(ParseResult result)
+        private static int HandleParserErrors(ParseResult result, IConsole console)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
+            console.ForegroundColor = ConsoleColor.Red;
             foreach (var parseError in result.Errors)
             {
-                Console.Error.WriteLine(parseError.Message);
+                console.Error.WriteLine(parseError.Message);
             }
 
-            Console.ResetColor();
+            console.ResetColor();
 
 
-            Console.Error.WriteLine("Use --help to see available commands and options.");
+            console.Error.WriteLine("Use --help to see available commands and options.");
 
             return ErrorExitCode;
         }
