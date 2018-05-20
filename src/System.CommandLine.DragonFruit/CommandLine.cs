@@ -13,46 +13,13 @@ namespace System.CommandLine.DragonFruit
 {
     public class CommandLine
     {
-        private const int HELP_EXIT_CODE = 2;
-        private const int ERROR_EXIT_CODE = 1;
-        private const int OK_EXIT_CODE = 0;
+        private const int HelpExitCode = 2;
+        private const int ErrorExitCode = 1;
+        private const int OkExitCode = 0;
 
         public static async Task<int> ExecuteAssemblyAsync(Assembly assembly, string[] args)
         {
-            var candidates = new List<MethodInfo>();
-            foreach (var type in assembly.DefinedTypes.Where(t =>
-                !t.IsAbstract && string.Equals("Program", t.Name, StringComparison.OrdinalIgnoreCase)))
-            {
-                if (type.GetCustomAttribute<CompilerGeneratedAttribute>() != null)
-                {
-                    continue;
-                }
-
-                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public |
-                                                       BindingFlags.NonPublic).Where(m =>
-                    string.Equals("Main", m.Name, StringComparison.OrdinalIgnoreCase)))
-                {
-                    if (method.ReturnType == typeof(void)
-                        || method.ReturnType == typeof(int)
-                        || method.ReturnType == typeof(Task)
-                        || method.ReturnType == typeof(Task<int>))
-                    {
-                        candidates.Add(method);
-                    }
-                }
-            }
-
-            if (candidates.Count > 1)
-            {
-                throw new AmbiguousMatchException(
-                    "Ambiguous entry point. Found muliple static functions named 'Program.Main'. Could not identify which method is the main entry point for this function.");
-            }
-
-            if (candidates.Count == 0)
-            {
-                throw new InvalidProgramException(
-                    "Could not find a static entry point named 'Main' on a type named 'Program' that accepts option parameters.");
-            }
+            MethodInfo entryMethod = EntryPointCreator.FindEntryMethod(assembly);
 
             var docFilePath = Path.Combine(
                 Path.GetDirectoryName(assembly.Location),
@@ -61,20 +28,23 @@ namespace System.CommandLine.DragonFruit
             MethodDescription methodDescription = null;
             if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
             {
-                xmlDocs.TryGetMethodDescription(candidates[0], out methodDescription);
+                xmlDocs.TryGetMethodDescription(entryMethod, out methodDescription);
             }
 
+            var context = new MethodContext<int>(entryMethod);
+
             return await ExecuteMethodAsync(args,
-                candidates[0],
+                context,
                 assembly.GetName().Name,
                 methodDescription);
         }
 
-        private static async Task<int> ExecuteMethodAsync(string[] args,
-            MethodInfo method,
+        internal static async Task<int> ExecuteMethodAsync(string[] args,
+            MethodContext<int> context,
             string commandName,
             MethodDescription methodDescription)
         {
+            var method = context.MethodInfo;
             var parameters = method.GetParameters();
 
             var helpOption = new OptionDefinition("--help", "Show help output");
@@ -108,7 +78,7 @@ namespace System.CommandLine.DragonFruit
             if (result.HasOption(helpOption))
             {
                 Console.WriteLine(commandDefinition.HelpView());
-                return HELP_EXIT_CODE;
+                return HelpExitCode;
             }
 
             var rootCommand = result.Command();
@@ -119,20 +89,7 @@ namespace System.CommandLine.DragonFruit
                 values[i] = rootCommand.ValueForOption(paramOptions[i]);
             }
 
-            var retVal = method.Invoke(null, values);
-
-            switch (retVal)
-            {
-                case Task<int> taskOfInt:
-                    return await taskOfInt;
-                case Task task:
-                    await task;
-                    return OK_EXIT_CODE;
-                case int exitCode:
-                    return exitCode;
-            }
-
-            return OK_EXIT_CODE;
+            return await context.RunAsync(values);
         }
 
         private static OptionDefinition CreateOption(ParameterInfo parameter, MethodDescription methodDescription)
@@ -173,7 +130,7 @@ namespace System.CommandLine.DragonFruit
 
             Console.Error.WriteLine("Use --help to see available commands and options.");
 
-            return ERROR_EXIT_CODE;
+            return ErrorExitCode;
         }
     }
 }
