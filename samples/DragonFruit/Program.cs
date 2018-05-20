@@ -23,7 +23,7 @@ namespace DragonFruit
                 Console.WriteLine("Running in verbose mode");
             }
             Console.WriteLine($"Creating {count} banana {(count == 1 ? "smoothie" : "smoothies")} with {flavor}");
-            return 1;
+            return 0;
         }
     }
 }

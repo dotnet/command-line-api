@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -9,17 +12,23 @@ namespace System.CommandLine.DragonFruit
         internal const int ErrorExitCode = 1;
         internal const int OkExitCode = 0;
 
-        public static Task<int> ExecuteAssemblyAsync(Assembly assembly, string[] args)
-            => ExecuteAssemblyAsync(assembly, args, PhysicalConsole.Instance);
+        /// <summary>
+        /// Finds and executes 'Program.Main', but with strong types.
+        /// </summary>
+        /// <param name="entryAssembly">The entry assembly</param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static Task<int> ExecuteAssemblyAsync(Assembly entryAssembly, string[] args)
+            => ExecuteAssemblyAsync(entryAssembly, args, PhysicalConsole.Instance);
 
         internal static async Task<int> ExecuteAssemblyAsync(
-            Assembly assembly,
+            Assembly entryAssembly,
             string[] args,
             IConsole console)
         {
-            if (assembly == null)
+            if (entryAssembly == null)
             {
-                throw new ArgumentNullException(nameof(assembly));
+                throw new ArgumentNullException(nameof(entryAssembly));
             }
 
             if (console == null)
@@ -32,11 +41,11 @@ namespace System.CommandLine.DragonFruit
                 throw new ArgumentNullException(nameof(console));
             }
 
-            MethodInfo entryMethod = EntryPointCreator.FindStaticEntryMethod(assembly);
+            MethodInfo entryMethod = EntryPointCreator.FindStaticEntryMethod(entryAssembly);
 
             string docFilePath = Path.Combine(
-                Path.GetDirectoryName(assembly.Location),
-                Path.GetFileNameWithoutExtension(assembly.Location) + ".xml");
+                Path.GetDirectoryName(entryAssembly.Location),
+                Path.GetFileNameWithoutExtension(entryAssembly.Location) + ".xml");
 
             var commandHelpMetadata = new CommandHelpMetadata();
             if (XmlDocReader.TryLoad(docFilePath, out XmlDocReader xmlDocs))
@@ -44,7 +53,7 @@ namespace System.CommandLine.DragonFruit
                 xmlDocs.TryGetMethodDescription(entryMethod, out commandHelpMetadata);
             }
 
-            commandHelpMetadata.Name = assembly.GetName().Name;
+            commandHelpMetadata.Name = entryAssembly.GetName().Name;
 
             return await InvokeMethodAsync(
                 args,
@@ -91,7 +100,7 @@ namespace System.CommandLine.DragonFruit
 
             try
             {
-                return await command.InvokeMethodAsync(@object, result);
+                return await command.InvokeAsync(@object, result);
             }
             catch (Exception e)
             {
