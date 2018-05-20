@@ -11,7 +11,7 @@ namespace System.CommandLine.DragonFruit
         internal static MethodInfo FindStaticEntryMethod(Assembly assembly)
         {
             var candidates = new List<MethodInfo>();
-            foreach (var type in assembly.DefinedTypes.Where(t =>
+            foreach (TypeInfo type in assembly.DefinedTypes.Where(t =>
                 !t.IsAbstract && string.Equals("Program", t.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 if (type.GetCustomAttribute<CompilerGeneratedAttribute>() != null)
@@ -19,8 +19,8 @@ namespace System.CommandLine.DragonFruit
                     continue;
                 }
 
-                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public |
-                                                       BindingFlags.NonPublic).Where(m =>
+                foreach (MethodInfo method in type.GetMethods(BindingFlags.Static | BindingFlags.Public |
+                                                              BindingFlags.NonPublic).Where(m =>
                     string.Equals("Main", m.Name, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (method.ReturnType == typeof(void)
@@ -45,7 +45,7 @@ namespace System.CommandLine.DragonFruit
                     "Could not find a static entry point named 'Main' on a type named 'Program' that accepts option parameters.");
             }
 
-            var entryMethod = candidates[0];
+            MethodInfo entryMethod = candidates[0];
             return entryMethod;
         }
     }

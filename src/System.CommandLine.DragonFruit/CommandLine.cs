@@ -1,12 +1,5 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-using System.Collections.Generic;
-using System.CommandLine.Builder;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.DragonFruit
@@ -41,12 +34,12 @@ namespace System.CommandLine.DragonFruit
 
             MethodInfo entryMethod = EntryPointCreator.FindStaticEntryMethod(assembly);
 
-            var docFilePath = Path.Combine(
+            string docFilePath = Path.Combine(
                 Path.GetDirectoryName(assembly.Location),
                 Path.GetFileNameWithoutExtension(assembly.Location) + ".xml");
 
-            CommandHelpMetadata commandHelpMetadata = new CommandHelpMetadata();
-            if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
+            var commandHelpMetadata = new CommandHelpMetadata();
+            if (XmlDocReader.TryLoad(docFilePath, out XmlDocReader xmlDocs))
             {
                 xmlDocs.TryGetMethodDescription(entryMethod, out commandHelpMetadata);
             }
@@ -75,15 +68,15 @@ namespace System.CommandLine.DragonFruit
 
             var helpOption = new OptionDefinition("--help", "Show help output");
 
-            var command = new MethodCommandFactory()
+            MethodCommand command = new MethodCommandFactory()
                 .Create(
                     method,
                     helpMetadata,
-                    additionalOptions: new[] {helpOption});
+                    new[] { helpOption });
 
-            var parser = new Parser(new ParserConfiguration(new[] {command.Definition}));
+            var parser = new Parser(new ParserConfiguration(new[] { command.Definition }));
 
-            var result = parser.Parse(args);
+            ParseResult result = parser.Parse(args);
 
             if (result.Errors.Count > 0)
             {
@@ -113,7 +106,7 @@ namespace System.CommandLine.DragonFruit
         private static int HandleParserErrors(ParseResult result, IConsole console)
         {
             console.ForegroundColor = ConsoleColor.Red;
-            foreach (var parseError in result.Errors)
+            foreach (ParseError parseError in result.Errors)
             {
                 console.Error.WriteLine(parseError.Message);
             }

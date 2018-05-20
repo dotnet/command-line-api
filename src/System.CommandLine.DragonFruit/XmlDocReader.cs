@@ -40,8 +40,8 @@ namespace System.CommandLine.DragonFruit
                 .Append(info.Name)
                 .Append("(");
 
-            var first = true;
-            foreach (var param in info.GetParameters())
+            bool first = true;
+            foreach (ParameterInfo param in info.GetParameters())
             {
                 if (first)
                 {
@@ -57,9 +57,9 @@ namespace System.CommandLine.DragonFruit
 
             sb.Append(")");
 
-            var name = sb.ToString();
+            string name = sb.ToString();
 
-            var member = _members.Elements("member")
+            XElement member = _members.Elements("member")
                 .FirstOrDefault(m => string.Equals(m.Attribute("name")?.Value, name));
 
             if (member == null)
@@ -69,7 +69,7 @@ namespace System.CommandLine.DragonFruit
 
             commandHelpMetadata = new CommandHelpMetadata();
 
-            foreach (var element in member.Elements())
+            foreach (XElement element in member.Elements())
             {
                 switch (element.Name.ToString())
                 {

@@ -12,27 +12,27 @@ namespace System.CommandLine.DragonFruit
             IEnumerable<OptionDefinition> additionalOptions)
         {
             var optionDefinitions = new List<OptionDefinition>(additionalOptions);
-            var parameters = method.GetParameters();
+            ParameterInfo[] parameters = method.GetParameters();
             var paramOptions = new OptionDefinition[parameters.Length];
 
-            for (var i = 0; i < parameters.Length; i++)
+            for (int i = 0; i < parameters.Length; i++)
             {
-                var optionDefinition = paramOptions[i] = CreateOption(parameters[i], helpMetadata);
+                OptionDefinition optionDefinition = paramOptions[i] = CreateOption(parameters[i], helpMetadata);
                 optionDefinitions.Add(optionDefinition);
             }
 
             var definition = new CommandDefinition(
-                name: helpMetadata.Name ?? method.Name,
-                description: helpMetadata.Description,
-                symbolDefinitions: optionDefinitions,
-                argumentDefinition: ArgumentDefinition.None);
+                helpMetadata.Name ?? method.Name,
+                helpMetadata.Description,
+                optionDefinitions,
+                ArgumentDefinition.None);
 
             return new MethodCommand(method, definition, paramOptions);
         }
 
         private static OptionDefinition CreateOption(ParameterInfo parameter, CommandHelpMetadata helpMetadata)
         {
-            var paramName = parameter.Name.ToKebabCase();
+            string paramName = parameter.Name.ToKebabCase();
 
             var argumentDefinitionBuilder = new ArgumentDefinitionBuilder();
             if (parameter.HasDefaultValue)

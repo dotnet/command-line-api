@@ -25,14 +25,14 @@ namespace System.CommandLine.DragonFruit
         /// <returns>The exit code of the application</returns>
         public async Task<int> InvokeMethodAsync(object @object, ParseResult parseResult)
         {
-            var rootCommand = parseResult.Command();
+            Command rootCommand = parseResult.Command();
             var values = new object[_paramOptions.Length];
-            for (var i = 0; i < _paramOptions.Length; i++)
+            for (int i = 0; i < _paramOptions.Length; i++)
             {
                 values[i] = rootCommand.ValueForOption(_paramOptions[i]);
             }
 
-            var retVal = _method.Invoke(@object, values);
+            object retVal = _method.Invoke(@object, values);
 
             switch (retVal)
             {

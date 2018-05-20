@@ -20,17 +20,14 @@ namespace System.CommandLine.DragonFruit.Tests
 
         private string _captured;
 
-        void TestMain(string name)
-        {
-            _captured = name;
-        }
+        private void TestMain(string name) => _captured = name;
 
         [Fact]
         public async Task It_executes_method_with_string_option()
         {
             Action<string> action = TestMain;
-            var exitCode = await CommandLine.InvokeMethodAsync(
-                new[] {"--name", "Wayne"},
+            int exitCode = await CommandLine.InvokeMethodAsync(
+                new[] { "--name", "Wayne" },
                 _console,
                 this,
                 action.Method,
@@ -46,8 +43,8 @@ namespace System.CommandLine.DragonFruit.Tests
             _console.Out = new StringWriter(stdout);
             Action<string> action = TestMain;
 
-            var exitCode = await CommandLine.InvokeMethodAsync(
-                new[] {"--help"},
+            int exitCode = await CommandLine.InvokeMethodAsync(
+                new[] { "--help" },
                 _console,
                 this,
                 action.Method,
@@ -59,18 +56,15 @@ namespace System.CommandLine.DragonFruit.Tests
                 .And.Contain("Options:");
         }
 
-        void TestMainWithDefault(string name = "Bruce")
-        {
-            _captured = name;
-        }
+        private void TestMainWithDefault(string name = "Bruce") => _captured = name;
 
         [Fact]
         public async Task It_executes_method_with_string_option_with_default()
         {
             Action<string> action = TestMainWithDefault;
 
-            var exitCode = await CommandLine.InvokeMethodAsync(
-                new[] {"--name", "Wayne"},
+            int exitCode = await CommandLine.InvokeMethodAsync(
+                new[] { "--name", "Wayne" },
                 _console,
                 this,
                 action.Method,
@@ -90,10 +84,7 @@ namespace System.CommandLine.DragonFruit.Tests
             _captured.Should().Be("Bruce");
         }
 
-        void TestMainThatThrows()
-        {
-            throw new InvalidOperationException("This threw an error");
-        }
+        private void TestMainThatThrows() => throw new InvalidOperationException("This threw an error");
 
         [Fact]
         public async Task It_shows_error_without_invoking_method()
@@ -103,8 +94,8 @@ namespace System.CommandLine.DragonFruit.Tests
             var stderr = new StringBuilder();
             _console.Error = new StringWriter(stderr);
 
-            var exitCode =await CommandLine.InvokeMethodAsync(
-                new[] {"--unknown"},
+            int exitCode = await CommandLine.InvokeMethodAsync(
+                new[] { "--unknown" },
                 _console,
                 this,
                 action.Method,
@@ -126,7 +117,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var stderr = new StringBuilder();
             _console.Error = new StringWriter(stderr);
 
-            var exitCode =await CommandLine.InvokeMethodAsync(
+            int exitCode = await CommandLine.InvokeMethodAsync(
                 Array.Empty<string>(),
                 _console,
                 this,

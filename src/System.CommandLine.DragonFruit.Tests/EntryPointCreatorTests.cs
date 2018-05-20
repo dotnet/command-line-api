@@ -7,7 +7,6 @@ namespace System.CommandLine.DragonFruit.Tests
 {
     public class EntryPointCreatorTests
     {
-
         [Fact]
         public void ItThrowsIfEntryPointNotFound()
         {
@@ -17,8 +16,8 @@ namespace System.CommandLine.DragonFruit.Tests
 
         private class Program
         {
-            public static void Main(string arg1){}
-            public static void Main(string arg2, string arg3){}
+            public static void Main(string arg1) { }
+            public static void Main(string arg2, string arg3) { }
         }
 
         [Fact]

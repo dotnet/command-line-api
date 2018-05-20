@@ -7,8 +7,7 @@ namespace System.CommandLine.DragonFruit
     /// </summary>
     internal class PhysicalConsole : IConsole
     {
-        private PhysicalConsole()
-        { }
+        private PhysicalConsole() { }
 
         public static IConsole Instance { get; } = new PhysicalConsole();
 

@@ -13,22 +13,11 @@ namespace System.CommandLine.DragonFruit.Tests
             Out = writer;
         }
 
-        public event ConsoleCancelEventHandler CancelKeyPress
-        {
-            add { }
-            remove { }
-        }
-
         public TextWriter Error { get; set; }
         public TextWriter Out { get; set; }
-        public TextReader In { get; set; } = new StringReader(string.Empty);
-        public bool IsInputRedirected { get; set; } = false;
         public ConsoleColor ForegroundColor { get; set; }
-        public ConsoleColor BackgroundColor { get; set; }
 
-        public void ResetColor()
-        {
-        }
+        public void ResetColor() { }
 
         private class TestOutputWriter : TextWriter
         {

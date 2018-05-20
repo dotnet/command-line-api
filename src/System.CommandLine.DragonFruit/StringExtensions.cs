@@ -12,12 +12,12 @@ namespace System.CommandLine.DragonFruit
             }
 
             var sb = new StringBuilder();
-            var i = 0;
-            var addDash = false;
+            int i = 0;
+            bool addDash = false;
 
             for (; i < str.Length; i++)
             {
-                var ch = str[i];
+                char ch = str[i];
                 if (char.IsLetterOrDigit(ch))
                 {
                     addDash = !char.IsUpper(ch);
@@ -29,7 +29,7 @@ namespace System.CommandLine.DragonFruit
 
             for (; i < str.Length; i++)
             {
-                var ch = str[i];
+                char ch = str[i];
                 if (char.IsUpper(ch))
                 {
                     if (addDash)
