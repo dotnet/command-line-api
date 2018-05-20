@@ -10,26 +10,18 @@ namespace System.CommandLine
     public class HelpBuilder
     {
         private readonly StringBuilder _builder;
-        private readonly CommandDefinition _commandDefinition;
         private int _indentationLevel;
         private int _currentIndentation;
         private const int IndentationSize = 2;
-        private readonly int _windowWidth;
+        public int MaxWidth { get; private set; }
 
         private const int DefaultWindowWidth = 80;
         private const int MaxWidthLeeWay = 2;
         private const int ColumnGutterWidth = 3;
 
-        public HelpBuilder(CommandDefinition commandDefinition, int? windowWidth = null)
+        public HelpBuilder()
         {
-            if (commandDefinition == null)
-            {
-                throw new ArgumentNullException(nameof(commandDefinition));
-            }
-
             _builder = new StringBuilder();
-            _commandDefinition = commandDefinition;
-            _windowWidth = windowWidth ?? GetWindowWidth();
         }
 
         internal int CurrentIndentation => _currentIndentation;
@@ -82,7 +74,7 @@ namespace System.CommandLine
 
         internal int GetAvailableWidth(int usedWidth = 0)
         {
-            return _windowWidth - _currentIndentation - MaxWidthLeeWay - usedWidth;
+            return MaxWidth - _currentIndentation - MaxWidthLeeWay - usedWidth;
         }
 
         internal void AddPadding(int width)
@@ -112,22 +104,20 @@ namespace System.CommandLine
             return help?.Name?.Length ?? 0;
         }
 
-        public string Build(CommandDefinition commandDefinition, int? windowWidth = null)
+        public string Build(CommandDefinition commandDefinition, int? maxWidth = null)
         {
             if (commandDefinition == null)
             {
                 throw new ArgumentNullException(nameof(commandDefinition));
             }
 
-            _builder = new StringBuilder();
-            _commandDefinition = commandDefinition;
-            _windowWidth = windowWidth ?? GetWindowWidth();
+            MaxWidth = maxWidth ?? GetWindowWidth();
 
-            WriteSynopsis();
-            WriteArgumentsSection();
-            WriteOptionsSection();
-            WriteSubcommandsSection();
-            WriteAdditionalArgumentsSection();
+            WriteSynopsis(commandDefinition);
+            WriteArgumentsSection(commandDefinition);
+            WriteOptionsSection(commandDefinition);
+            WriteSubcommandsSection(commandDefinition);
+            WriteAdditionalArgumentsSection(commandDefinition);
             return _builder.ToString();
         }
 
@@ -198,15 +188,15 @@ namespace System.CommandLine
             }
         }
 
-        private void WriteSynopsis()
+        private void WriteSynopsis(CommandDefinition commandDefinition)
         {
             _builder.Append(Synopsis.Title);
 
-            _builder.AppendFormat(" {0}", _commandDefinition.Name);
+            _builder.AppendFormat(" {0}", commandDefinition.Name);
 
-            var subcommands = _commandDefinition
+            var subcommands = commandDefinition
                 .RecurseWhileNotNull(commandDef => commandDef.Parent)
-                .Where(commandDef => commandDef != _commandDefinition)
+                .Where(commandDef => commandDef != commandDefinition)
                 .Reverse();
 
             foreach (var subcommand in subcommands)
@@ -220,7 +210,7 @@ namespace System.CommandLine
                 }
             }
 
-            var hasHelp = _commandDefinition.SymbolDefinitions
+            var hasHelp = commandDefinition.SymbolDefinitions
                 .Where(symbolDef => !(symbolDef is CommandDefinition))
                 .Any(symbolDef => symbolDef.HasHelp);
 
@@ -229,18 +219,18 @@ namespace System.CommandLine
                 _builder.AppendFormat(" {0}", Synopsis.Options);
             }
 
-            var argumentsName = _commandDefinition.ArgumentDefinition?.Help?.Name;
+            var argumentsName = commandDefinition.ArgumentDefinition?.Help?.Name;
             if (!string.IsNullOrWhiteSpace(argumentsName))
             {
                 _builder.AppendFormat(" <{0}>", argumentsName);
             }
 
-            if (_commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
+            if (commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
                 _builder.AppendFormat(" {0}", Synopsis.Command);
             }
 
-            if (!_commandDefinition.TreatUnmatchedTokensAsErrors)
+            if (!commandDefinition.TreatUnmatchedTokensAsErrors)
             {
                 _builder.AppendFormat(" {0}", Synopsis.AdditionalArguments);
             }
@@ -248,14 +238,14 @@ namespace System.CommandLine
             _builder.AppendLine();
         }
 
-        private void WriteArgumentsSection()
+        private void WriteArgumentsSection(CommandDefinition commandDefinition)
         {
-            var showArgHelp = _commandDefinition.HasArguments && _commandDefinition.HasHelp;
+            var showArgHelp = commandDefinition.HasArguments && commandDefinition.HasHelp;
             var showParentArgHelp = false;
 
-            if (_commandDefinition.Parent != null)
+            if (commandDefinition.Parent != null)
             {
-                showParentArgHelp = _commandDefinition.Parent.HasArguments && _commandDefinition.Parent.HasHelp;
+                showParentArgHelp = commandDefinition.Parent.HasArguments && commandDefinition.Parent.HasHelp;
             }
 
             if (!showArgHelp && !showParentArgHelp)
@@ -263,8 +253,8 @@ namespace System.CommandLine
                 return;
             }
 
-            var argHelp = _commandDefinition.ArgumentDefinition?.Help;
-            var parentArgHelp = _commandDefinition.Parent?.ArgumentDefinition?.Help;
+            var argHelp = commandDefinition.ArgumentDefinition?.Help;
+            var parentArgHelp = commandDefinition.Parent?.ArgumentDefinition?.Help;
 
             _builder.AppendLine();
             _builder.AppendLine(ArgumentsSection.Title);
@@ -293,9 +283,9 @@ namespace System.CommandLine
             Dedent();
         }
 
-        private void WriteOptionsSection()
+        private void WriteOptionsSection(CommandDefinition commandDefinition)
         {
-            var options = _commandDefinition
+            var options = commandDefinition
                 .SymbolDefinitions
                 .OfType<OptionDefinition>()
                 .Where(opt => opt.HasHelp)
@@ -314,9 +304,9 @@ namespace System.CommandLine
             Dedent();
         }
 
-        private void WriteSubcommandsSection()
+        private void WriteSubcommandsSection(CommandDefinition commandDefinition)
         {
-            var subcommands = _commandDefinition
+            var subcommands = commandDefinition
                 .SymbolDefinitions
                 .OfType<CommandDefinition>()
                 .Where(subCommand => subCommand.HasHelp)
@@ -335,9 +325,9 @@ namespace System.CommandLine
             Dedent();
         }
 
-        private void WriteAdditionalArgumentsSection()
+        private void WriteAdditionalArgumentsSection(CommandDefinition commandDefinition)
         {
-            if (_commandDefinition?.TreatUnmatchedTokensAsErrors == true)
+            if (commandDefinition?.TreatUnmatchedTokensAsErrors == true)
             {
                 return;
             }
