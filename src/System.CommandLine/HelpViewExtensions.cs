@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static System.Environment;
-using static System.CommandLine.DefaultHelpViewText;
+using static System.CommandLine.DefaultHelpText;
 
 namespace System.CommandLine
 {

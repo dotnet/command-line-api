@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using static System.Environment;
-using static System.CommandLine.DefaultHelpViewText;
+using static System.CommandLine.DefaultHelpText;
 
 namespace System.CommandLine
 {
@@ -98,6 +98,18 @@ namespace System.CommandLine
         }
 
         /// <summary>
+        /// Adds a section of text to the current builder, padded with the current indentation
+        /// </summary>
+        /// <param name="text"></param>
+        internal void AddText(string text)
+        {
+            _builder.AppendFormat(
+                "{0}{1}{2}",
+                new string(' ', _currentIndentation),
+                text ?? "");
+        }
+
+        /// <summary>
         /// Adds a new line of text to the current builder, padded with the current indentation
         /// </summary>
         /// <param name="text"></param>
@@ -106,7 +118,7 @@ namespace System.CommandLine
             _builder.AppendFormat(
                 "{0}{1}{2}",
                 new string(' ', _currentIndentation),
-                text,
+                text ?? "",
                 NewLine);
         }
 
@@ -157,7 +169,7 @@ namespace System.CommandLine
                 description = "";
             }
 
-            AddIndentedText(name);
+            AddText(name);
 
             if (name.Length <= maxWidth)
             {
