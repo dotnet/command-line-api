@@ -53,10 +53,6 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0BE8E56E-7580-4526-BE24-D304E1779724}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -69,28 +65,12 @@ Global
 		{F843CCCA-4CC9-422C-A881-3AE6A998B53F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Debug|x64.ActiveCfg = Debug|x64
-		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Debug|x64.Build.0 = Debug|x64
-		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Debug|x86.ActiveCfg = Debug|x86
-		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Debug|x86.Build.0 = Debug|x86
 		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Release|x64.ActiveCfg = Release|x64
-		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Release|x64.Build.0 = Release|x64
-		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Release|x86.ActiveCfg = Release|x86
-		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00}.Release|x86.Build.0 = Release|x86
 		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Debug|x64.ActiveCfg = Debug|x64
-		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Debug|x64.Build.0 = Debug|x64
-		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Debug|x86.ActiveCfg = Debug|x86
-		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Debug|x86.Build.0 = Debug|x86
 		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Release|x64.ActiveCfg = Release|x64
-		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Release|x64.Build.0 = Release|x64
-		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Release|x86.ActiveCfg = Release|x86
-		{EEC30462-078F-45EB-AA70-12E3170CD51E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
