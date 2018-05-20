@@ -11,7 +11,7 @@ namespace System.CommandLine
 {
     public static class StringExtensions
     {
-        private static readonly char[] _optionPrefixCharacters = { '-' };
+        private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
 
         private static readonly Regex _tokenizer = new Regex(
             @"(""(?<token>[^""]*)"")|(?<token>\S+)",
@@ -27,7 +27,15 @@ namespace System.CommandLine
                                 value ?? "",
                                 CompareOptions.OrdinalIgnoreCase) >= 0;
 
-        internal static string RemovePrefix(this string option) => option.TrimStart(_optionPrefixCharacters);
+        internal static string RemovePrefix(this string option)
+        {
+            foreach (var prefix in _optionPrefixStrings)
+            {
+                if (option.StartsWith(prefix))
+                    return option.Substring(prefix.Length);
+            }
+            return option;
+        }
 
         internal static LexResult Lex(
             this IEnumerable<string> args,
@@ -174,8 +182,7 @@ namespace System.CommandLine
             arg.Contains("=") ||
             arg.Contains(":");
 
-        private static bool HasPrefix(string arg) =>
-            arg != string.Empty && _optionPrefixCharacters.Contains(arg[0]);
+        private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
 
         public static IEnumerable<string> Tokenize(this string s)
         {
@@ -222,15 +229,15 @@ namespace System.CommandLine
         private static HashSet<Token> ValidTokens(this SymbolDefinition symbolDefinition) =>
             new HashSet<Token>(
                 symbolDefinition.RawAliases
-                    .Select(Command)
-                    .Concat(
-                        symbolDefinition.SymbolDefinitions
-                        .SelectMany(
-                            s => s.RawAliases
-                                .Select(a => new Token(
-                                    a,
-                                    s is CommandDefinition
-                                        ? TokenType.Command
-                                        : TokenType.Option)))));
+                      .Select(Command)
+                      .Concat(
+                          symbolDefinition.SymbolDefinitions
+                                .SelectMany(
+                                    s => s.RawAliases
+                                         .Select(a => new Token(
+                                                     a,
+                                                     s is CommandDefinition
+                                                         ? TokenType.Command
+                                                         : TokenType.Option)))));
     }
 }
