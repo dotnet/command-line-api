@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -53,12 +54,26 @@ namespace System.CommandLine.DragonFruit
                     "Could not find a static entry point named 'Main' on a type named 'Program' that accepts option parameters.");
             }
 
+            var docFilePath = Path.Combine(
+                Path.GetDirectoryName(assembly.Location),
+                Path.GetFileNameWithoutExtension(assembly.Location) + ".xml");
+
+            MethodDescription methodDescription = null;
+            if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
+            {
+                xmlDocs.TryGetMethodDescription(candidates[0], out methodDescription);
+            }
+
             return await ExecuteMethodAsync(args,
                 candidates[0],
-                assembly.GetName().Name);
+                assembly.GetName().Name,
+                methodDescription);
         }
 
-        public static async Task<int> ExecuteMethodAsync(string[] args, MethodInfo method, string commandName)
+        private static async Task<int> ExecuteMethodAsync(string[] args,
+            MethodInfo method,
+            string commandName,
+            MethodDescription methodDescription)
         {
             var parameters = method.GetParameters();
 
@@ -71,12 +86,13 @@ namespace System.CommandLine.DragonFruit
 
             for (var i = 0; i < parameters.Length; i++)
             {
-                optionDefinitions.Add(paramOptions[i] = CreateOption(parameters[i]));
+                var optionDefinition = paramOptions[i] = CreateOption(parameters[i], methodDescription);
+                optionDefinitions.Add(optionDefinition);
             }
 
             var commandDefinition = new CommandDefinition(
                 name: commandName,
-                description: string.Empty,
+                description: methodDescription?.Description,
                 symbolDefinitions: optionDefinitions,
                 argumentDefinition: ArgumentDefinition.None);
 
@@ -119,7 +135,7 @@ namespace System.CommandLine.DragonFruit
             return OK_EXIT_CODE;
         }
 
-        private static OptionDefinition CreateOption(ParameterInfo parameter)
+        private static OptionDefinition CreateOption(ParameterInfo parameter, MethodDescription methodDescription)
         {
             var paramName = parameter.Name.ToKebabCase();
 
@@ -129,12 +145,15 @@ namespace System.CommandLine.DragonFruit
                 argumentDefinitionBuilder.WithDefaultValue(() => parameter.DefaultValue);
             }
 
+            string description = null;
+            methodDescription?.TryGetParameterDescription(parameter.Name, out description);
+
             var optionDefinition = new OptionDefinition(
                 new[] {
                     "-" + paramName[0],
                     "--" + paramName,
                 },
-                parameter.Name,
+                description ?? parameter.Name,
                 parameter.ParameterType != typeof(bool)
                     ? argumentDefinitionBuilder.ParseArgumentsAs(parameter.ParameterType)
                     : ArgumentDefinition.None);
