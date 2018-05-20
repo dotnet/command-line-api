@@ -104,7 +104,7 @@ namespace System.CommandLine
         internal void AddText(string text)
         {
             _builder.AppendFormat(
-                "{0}{1}{2}",
+                "{0}{1}",
                 new string(' ', _currentIndentation),
                 text ?? "");
         }
@@ -169,20 +169,22 @@ namespace System.CommandLine
                 description = "";
             }
 
+            var leftColumnWidth = ColumnGutterWidth + _currentIndentation + maxWidth;
+
             AddText(name);
 
-            if (name.Length <= maxWidth)
+            if (name.Length <= leftColumnWidth)
             {
-                AddPadding(maxWidth - name.Length);
+                AddPadding(leftColumnWidth - name.Length - _currentIndentation);
             }
             else
             {
                 _builder.AppendLine();
-                AddPadding(maxWidth);
+                AddPadding(leftColumnWidth);
             }
 
             var descriptionWithLineWraps = string.Join(
-                NewLine + new string(' ', maxWidth),
+                NewLine + new string(' ', leftColumnWidth),
                 description
                     .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(s => s.Trim()));
@@ -205,17 +207,14 @@ namespace System.CommandLine
         {
             var leftColumnTextFor = symbols.ToDictionary(symbol => symbol, OptionFormatter);
 
-            var maxWidth = leftColumnTextFor
-                .Values
+            var maxWidth = leftColumnTextFor.Values
                 .Select(symbol => symbol.Length)
                 .OrderByDescending(length => length)
                 .First();
 
-            var leftColumnWidth = ColumnGutterWidth + maxWidth;
-
             foreach (var symbol in symbols)
             {
-                WriteColumns(leftColumnTextFor[symbol], symbol.Description, leftColumnWidth);
+                WriteColumns(leftColumnTextFor[symbol], symbol.Description, maxWidth);
             }
         }
 
@@ -223,19 +222,16 @@ namespace System.CommandLine
         {
             _builder.Append(Synopsis.Title);
 
-            _builder.AppendFormat(" {0}", commandDefinition.Name);
-
             var subcommands = commandDefinition
                 .RecurseWhileNotNull(commandDef => commandDef.Parent)
-                .Where(commandDef => commandDef != commandDefinition)
                 .Reverse();
 
             foreach (var subcommand in subcommands)
             {
                 _builder.AppendFormat(" {0}", subcommand.Name);
 
-                var argsName = subcommand.Help?.Name;
-                if (!string.IsNullOrWhiteSpace(argsName))
+                var argsName = subcommand.ArgumentDefinition?.Help?.Name;
+                if (subcommand != commandDefinition && !string.IsNullOrWhiteSpace(argsName))
                 {
                     _builder.AppendFormat(" <{0}>", argsName);
                 }
@@ -303,7 +299,7 @@ namespace System.CommandLine
                 maxWidth = Math.Max(maxWidth, GetHelpNameLength(parentArgHelp));
             }
 
-            maxWidth += ColumnGutterWidth;
+            maxWidth += 2;
 
             if (showParentArgHelp)
             {

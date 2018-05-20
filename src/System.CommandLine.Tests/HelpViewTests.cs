@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = new HelpBuilder().Build(command);
+            var help = command.GenerateHelp();
 
             help.Should().Contain($"Arguments:{NewLine}  <>");
         }
@@ -42,7 +42,7 @@ namespace System.CommandLine.Tests
                     arguments: args => args.WithHelp("test name", "test desc").ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.HelpView();
+            var help = command.GenerateHelp();
 
             help.Should().Contain($"Arguments:{NewLine}  <test name>   test desc");
         }
@@ -55,7 +55,7 @@ namespace System.CommandLine.Tests
                     arguments: args => args.WithHelp("test name", "test desc", true).ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.HelpView();
+            var help = command.GenerateHelp();
 
             help.Should().NotContain("test desc");
         }
@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests
                         .AddOption("-n", "Not hidden"))
                 .BuildCommandDefinition();
 
-            var help = command.HelpView();
+            var help = command.GenerateHelp();
 
             help.Should().Contain("-x");
             help.Should().Contain("-n");
@@ -84,7 +84,7 @@ namespace System.CommandLine.Tests
                         .AddOption("-n", "Not hidden"))
                 .BuildCommandDefinition();
 
-            var help = command.HelpView();
+            var help = command.GenerateHelp();
 
             help.Should().Contain("-n");
             help.Should().NotContain("-x");
@@ -106,12 +106,11 @@ namespace System.CommandLine.Tests
                                           arguments: args => args.ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var help = command.GenerateHelp();
 
             var indent = "                    ";
 
-            helpView.Should()
-                    .Contain($"Sets the verbosity. Accepted values are:{NewLine}{indent}- quiet{NewLine}{indent}- loud{NewLine}{indent}- very-loud");
+            help.Should().Contain($"Sets the verbosity. Accepted values are:{NewLine}{indent}- quiet{NewLine}{indent}- loud{NewLine}{indent}- very-loud");
         }
 
         [Fact]
@@ -130,18 +129,16 @@ namespace System.CommandLine.Tests
                                                                    .ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var helpView = command.Subcommand("inner").HelpView();
+            var help = command.Subcommand("inner").GenerateHelp();
 
-            _output.WriteLine(helpView);
+            _output.WriteLine(help);
 
-            var lines = helpView.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = help.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             var optionA = lines.Last(line => line.Contains("outer-command-arg"));
             var optionB = lines.Last(line => line.Contains("the-inner-command-arg"));
 
-            optionA.IndexOf("The argument")
-                   .Should()
-                   .Be(optionB.IndexOf("The argument"));
+            optionA.IndexOf("The argument").Should().Be(optionB.IndexOf("The argument"));
         }
 
         [Fact]
@@ -158,9 +155,9 @@ namespace System.CommandLine.Tests
                                                      "An option with 15 characters"))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var help = command.GenerateHelp();
 
-            var lines = helpView.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = help.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             var optionA = lines.Last(line => line.Contains("-a"));
             var optionB = lines.Last(line => line.Contains("-b"));
@@ -189,11 +186,8 @@ namespace System.CommandLine.Tests
                                           "some option"))))
                           .BuildCommandDefinition();
 
-            command.Subcommand("inner")
-                   .Subcommand("inner-er")
-                   .HelpView()
-                   .Should()
-                   .StartWith("Usage: outer inner inner-er [options]");
+            var help = command.Subcommand("inner").Subcommand("inner-er").GenerateHelp();
+            help.Should().StartWith("Usage: outer inner inner-er [options]");
         }
 
         [Fact]
@@ -215,11 +209,9 @@ namespace System.CommandLine.Tests
                               })
                           .BuildCommandDefinition();
 
-            command
-                .Subcommand("inner")
-                .HelpView()
-                .Should()
-                .NotContain("sibling");
+            var help = command.Subcommand("inner").GenerateHelp();
+
+            help.Should().NotContain("sibling");
         }
 
         [Fact]
@@ -230,11 +222,11 @@ namespace System.CommandLine.Tests
                                       outer => outer.AddCommand("inner", "description for inner"))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var help = command.GenerateHelp();
 
-            _output.WriteLine(helpView);
+            _output.WriteLine(help);
 
-            helpView.Should().NotContain("Options:");
+            help.Should().NotContain("Options:");
         }
 
         #endregion " Relationships "
@@ -254,9 +246,9 @@ namespace System.CommandLine.Tests
                                           "Sets the verbosity"))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var help = command.GenerateHelp();
 
-            helpView
+            help
                 .Should()
                 .StartWith("Usage: the-command [options] <the-args>");
         }
@@ -268,24 +260,23 @@ namespace System.CommandLine.Tests
                           .AddCommand(
                               "outer-command", "command help",
                               arguments: outerArgs => outerArgs
-                                                      .WithHelp(name: "outer-args")
-                                                      .ZeroOrMore(),
+                                  .WithHelp(name: "outer-args")
+                                  .ZeroOrMore(),
                               symbols: outer => outer.AddCommand(
                                   "inner-command", "command help",
-                                  arguments: args => args.WithHelp(name: "inner-args")
-                                                         .ZeroOrOne(),
+                                  arguments: args => args
+                                      .WithHelp(name: "inner-args")
+                                      .ZeroOrOne(),
                                   symbols: inner => inner.AddOption(
                                       "-v|--verbosity",
                                       "Sets the verbosity")))
                           .BuildCommandDefinition();
 
-            var helpView = command.Subcommand("inner-command").HelpView();
+            var help = command.Subcommand("inner-command").GenerateHelp();
 
-            _output.WriteLine(helpView);
+            _output.WriteLine(help);
 
-            helpView
-                .Should()
-                .StartWith("Usage: outer-command <outer-args> inner-command [options] <inner-args>");
+            help.Should().StartWith("Usage: outer-command <outer-args> inner-command [options] <inner-args>");
         }
 
         [Fact]
@@ -298,9 +289,9 @@ namespace System.CommandLine.Tests
                                           "Sets the verbosity"))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var help = command.GenerateHelp();
 
-            helpView
+            help
                 .Should()
                 .NotContain("arguments");
         }
@@ -317,11 +308,11 @@ namespace System.CommandLine.Tests
                             "Indicates whether x"))
                     .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var help = command.GenerateHelp();
 
-            _output.WriteLine(helpView);
+            _output.WriteLine(help);
 
-            helpView.Should().StartWith("Usage: some-command [options] [[--] <additional arguments>...]]");
+            help.Should().StartWith("Usage: some-command [options] [[--] <additional arguments>...]]");
         }
 
         #endregion " Synopsis "
@@ -335,7 +326,9 @@ namespace System.CommandLine.Tests
                 .AddCommand("the-command", "command help")
                 .BuildCommandDefinition();
 
-            command.HelpView().Should().NotContain("Arguments");
+            var help = command.GenerateHelp();
+
+            help.Should().NotContain("Arguments");
         }
 
         [Fact]
@@ -351,7 +344,9 @@ namespace System.CommandLine.Tests
                                                                  .ExactlyOne()))
                           .BuildCommandDefinition();
 
-            command.HelpView().Should().Contain("  -v, --verbosity <LEVEL>   Sets the verbosity.");
+            var help = command.GenerateHelp();
+
+            help.Should().Contain("  -v, --verbosity <LEVEL>   Sets the verbosity.");
         }
 
         [Fact]
@@ -367,11 +362,11 @@ namespace System.CommandLine.Tests
                                           "The first option"))
                           .BuildCommandDefinition();
 
-            var helpView = command.HelpView();
+            var help = command.GenerateHelp();
 
-            _output.WriteLine(helpView);
+            _output.WriteLine(help);
 
-            helpView.Should().Contain($"Arguments:{NewLine}  <the-arg>   This is the argument for the command.");
+            help.Should().Contain($"Arguments:{NewLine}  <the-arg>   This is the argument for the command.");
         }
 
         #endregion " Arguments "
@@ -387,9 +382,9 @@ namespace System.CommandLine.Tests
                                           new[] { "-multi", "--alt-option" },
                                           "HelpDefinition for option"))
                           .BuildCommandDefinition();
-            var helpView = command.HelpView();
-            helpView.Should().Contain("-multi");
-            helpView.Should().NotContain("--multi");
+            var help = command.GenerateHelp();
+            help.Should().Contain("-multi");
+            help.Should().NotContain("--multi");
         }
 
         [Fact]
@@ -401,8 +396,8 @@ namespace System.CommandLine.Tests
                                           new[] { "--m", "--alt-option" },
                                           "HelpDefinition for option"))
                           .BuildCommandDefinition();
-            var helpView = command.HelpView();
-            helpView.Should().Contain("--m");
+            var help = command.GenerateHelp();
+            help.Should().Contain("--m");
         }
 
         #endregion " Options "

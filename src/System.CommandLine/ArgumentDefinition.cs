@@ -39,7 +39,7 @@ namespace System.CommandLine
 
         public HelpDefinition Help { get; }
 
-        public bool HasHelp => Help != null && Help.IsHidden == false;
+        public bool HasHelp => Help?.IsHidden == false;
 
         internal ArgumentParser Parser { get; }
 

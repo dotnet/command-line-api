@@ -82,5 +82,10 @@ namespace System.CommandLine
 
         internal static CommandDefinition CreateImplicitRootCommand(params SymbolDefinition[] symbolsDefinition) =>
             new CommandDefinition(symbolsDefinition);
+
+        public string GenerateHelp()
+        {
+            return HelpBuilder.Build(this);
+        }
     }
 }
