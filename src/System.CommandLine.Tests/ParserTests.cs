@@ -858,7 +858,9 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse(command);
 
-            result.Symbols["rm"]
+            var resultSymbol = result.Symbols["rm"];
+
+            resultSymbol
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"/temp/the file.txt");

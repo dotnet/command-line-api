@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("outer").GenerateHelp();
 
             help.Should().Contain($"Arguments:{NewLine}  <>");
         }
@@ -42,7 +42,7 @@ namespace System.CommandLine.Tests
                     arguments: args => args.WithHelp("test name", "test desc").ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("outer").GenerateHelp();
 
             help.Should().Contain($"Arguments:{NewLine}  <test name>   test desc");
         }
@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests
                         .AddOption("-n", "Not hidden"))
                 .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("the-command").GenerateHelp();
 
             help.Should().Contain("-x");
             help.Should().Contain("-n");
@@ -84,7 +84,7 @@ namespace System.CommandLine.Tests
                         .AddOption("-n", "Not hidden"))
                 .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("the-command").GenerateHelp();
 
             help.Should().Contain("-n");
             help.Should().NotContain("-x");
@@ -106,9 +106,9 @@ namespace System.CommandLine.Tests
                                           arguments: args => args.ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("the-command").GenerateHelp();
 
-            var indent = "                    ";
+            const string indent = "                    ";
 
             help.Should().Contain($"Sets the verbosity. Accepted values are:{NewLine}{indent}- quiet{NewLine}{indent}- loud{NewLine}{indent}- very-loud");
         }
@@ -129,7 +129,7 @@ namespace System.CommandLine.Tests
                                                                    .ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("inner").GenerateHelp();
+            var help = command.Subcommand("outer").Subcommand("inner").GenerateHelp();
 
             _output.WriteLine(help);
 
@@ -155,16 +155,14 @@ namespace System.CommandLine.Tests
                                                      "An option with 15 characters"))
                           .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("the-command").GenerateHelp();
 
             var lines = help.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             var optionA = lines.Last(line => line.Contains("-a"));
             var optionB = lines.Last(line => line.Contains("-b"));
 
-            optionA.IndexOf("An option")
-                   .Should()
-                   .Be(optionB.IndexOf("An option"));
+            optionA.IndexOf("An option").Should().Be(optionB.IndexOf("An option"));
         }
 
         #endregion " Format "
@@ -186,8 +184,9 @@ namespace System.CommandLine.Tests
                                           "some option"))))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("inner").Subcommand("inner-er").GenerateHelp();
-            help.Should().StartWith("Usage: outer inner inner-er [options]");
+            var help = command.Subcommand("outer").Subcommand("inner").Subcommand("inner-er").GenerateHelp();
+
+            help.Should().StartWith($"Usage: {ParserBuilder.ExeName} outer inner inner-er [options]");
         }
 
         [Fact]
@@ -209,7 +208,7 @@ namespace System.CommandLine.Tests
                               })
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("inner").GenerateHelp();
+            var help = command.Subcommand("outer").Subcommand("inner").GenerateHelp();
 
             help.Should().NotContain("sibling");
         }
@@ -222,7 +221,7 @@ namespace System.CommandLine.Tests
                                       outer => outer.AddCommand("inner", "description for inner"))
                           .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("outer").GenerateHelp();
 
             _output.WriteLine(help);
 
@@ -246,11 +245,9 @@ namespace System.CommandLine.Tests
                                           "Sets the verbosity"))
                           .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("the-command").GenerateHelp();
 
-            help
-                .Should()
-                .StartWith("Usage: the-command [options] <the-args>");
+            help.Should().StartWith($"Usage: { ParserBuilder.ExeName } the-command [options] <the-args>");
         }
 
         [Fact]
@@ -272,11 +269,9 @@ namespace System.CommandLine.Tests
                                       "Sets the verbosity")))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("inner-command").GenerateHelp();
+            var help = command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp();
 
-            _output.WriteLine(help);
-
-            help.Should().StartWith("Usage: outer-command <outer-args> inner-command [options] <inner-args>");
+            help.Should().StartWith($"Usage: { ParserBuilder.ExeName } outer-command <outer-args> inner-command [options] <inner-args>");
         }
 
         [Fact]
@@ -291,9 +286,7 @@ namespace System.CommandLine.Tests
 
             var help = command.GenerateHelp();
 
-            help
-                .Should()
-                .NotContain("arguments");
+            help.Should().NotContain("arguments");
         }
 
         [Fact]
@@ -308,11 +301,9 @@ namespace System.CommandLine.Tests
                             "Indicates whether x"))
                     .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("some-command").GenerateHelp();
 
-            _output.WriteLine(help);
-
-            help.Should().StartWith("Usage: some-command [options] [[--] <additional arguments>...]]");
+            help.Should().StartWith($"Usage: { ParserBuilder.ExeName } some-command [options] [[--] <additional arguments>...]]");
         }
 
         #endregion " Synopsis "
@@ -344,7 +335,7 @@ namespace System.CommandLine.Tests
                                                                  .ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("the-command").GenerateHelp();
 
             help.Should().Contain("  -v, --verbosity <LEVEL>   Sets the verbosity.");
         }
@@ -362,7 +353,7 @@ namespace System.CommandLine.Tests
                                           "The first option"))
                           .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            var help = command.Subcommand("the-command").GenerateHelp();
 
             _output.WriteLine(help);
 
@@ -382,7 +373,8 @@ namespace System.CommandLine.Tests
                                           new[] { "-multi", "--alt-option" },
                                           "HelpDefinition for option"))
                           .BuildCommandDefinition();
-            var help = command.GenerateHelp();
+
+            var help = command.Subcommand("command").GenerateHelp();
             help.Should().Contain("-multi");
             help.Should().NotContain("--multi");
         }
@@ -396,7 +388,9 @@ namespace System.CommandLine.Tests
                                           new[] { "--m", "--alt-option" },
                                           "HelpDefinition for option"))
                           .BuildCommandDefinition();
-            var help = command.GenerateHelp();
+
+            var help = command.Subcommand("command").GenerateHelp();
+
             help.Should().Contain("--m");
         }
 

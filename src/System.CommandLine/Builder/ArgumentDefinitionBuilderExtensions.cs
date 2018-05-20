@@ -270,7 +270,7 @@ namespace System.CommandLine.Builder
 
         public static ArgumentDefinitionBuilder WithDefaultValue(
             this ArgumentDefinitionBuilder builder,
-            Func<string> defaultValue)
+            Func<object> defaultValue)
         {
             builder.DefaultValue = defaultValue;
 

@@ -3,24 +3,13 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace System.CommandLine
 {
     public class CommandDefinition : SymbolDefinition
     {
         public HelpBuilder HelpBuilder { get; }
-
-        private static readonly Lazy<string> executableName =
-            new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-
-        public CommandDefinition(
-            IReadOnlyCollection<SymbolDefinition> symbols) :
-            this(executableName.Value, "", symbols)
-        {
-        }
 
         public CommandDefinition(
             string name,
@@ -79,9 +68,6 @@ namespace System.CommandLine
         }
 
         public bool TreatUnmatchedTokensAsErrors { get; }
-
-        internal static CommandDefinition CreateImplicitRootCommand(params SymbolDefinition[] symbolsDefinition) =>
-            new CommandDefinition(symbolsDefinition);
 
         public string GenerateHelp()
         {

@@ -108,11 +108,6 @@ namespace System.CommandLine
 
         internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {
-            if (_configuration.RootCommandIsImplicit)
-            {
-                args = new[] { _configuration.RootCommandDefinition.Name }.Concat(args).ToArray();
-            }
-
             var firstArg = args.FirstOrDefault();
 
             if (SymbolDefinitions.Count != 1)

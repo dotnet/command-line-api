@@ -21,7 +21,7 @@ namespace System.CommandLine.Builder
 
         internal ConvertArgument ConvertArguments { get; set; }
 
-        internal Func<string> DefaultValue { get; set; }
+        internal Func<object> DefaultValue { get; set; }
 
         internal HelpDefinition Help { get; set; }
 

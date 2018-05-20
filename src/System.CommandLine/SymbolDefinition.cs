@@ -32,7 +32,7 @@ namespace System.CommandLine
 
             foreach (var alias in aliases)
             {
-                var cleanedAlias = alias.RemovePrefix();
+                var cleanedAlias = alias?.RemovePrefix();
                 if (string.IsNullOrWhiteSpace(cleanedAlias))
                 {
                     throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
