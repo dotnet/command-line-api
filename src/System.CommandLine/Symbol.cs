@@ -8,7 +8,7 @@ namespace System.CommandLine
 {
     public abstract class Symbol
     {
-        private readonly Lazy<string> _defaultValue;
+        private readonly Lazy<object> _defaultValue;
         private readonly List<string> _arguments = new List<string>();
         private ArgumentParseResult _result;
 
@@ -27,7 +27,7 @@ namespace System.CommandLine
 
             Parent = parent;
 
-            _defaultValue = new Lazy<string>(SymbolDefinition.ArgumentDefinition.GetDefaultValue);
+            _defaultValue = new Lazy<object>(SymbolDefinition.ArgumentDefinition.GetDefaultValue);
         }
 
         public IReadOnlyCollection<string> Arguments
@@ -37,7 +37,7 @@ namespace System.CommandLine
                 if (!_arguments.Any() &&
                     _defaultValue.Value != null)
                 {
-                    return new[] { _defaultValue.Value };
+                    return new[] { _defaultValue.Value?.ToString() };
                 }
 
                 return _arguments;

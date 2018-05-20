@@ -31,7 +31,7 @@ namespace System.CommandLine
 
             foreach (var alias in aliases)
             {
-                var cleanedAlias = alias.RemovePrefix();
+                var cleanedAlias = alias?.RemovePrefix();
                 if (string.IsNullOrWhiteSpace(cleanedAlias))
                 {
                     throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
@@ -70,7 +70,7 @@ namespace System.CommandLine
         public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
 
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
-        
+
         protected internal bool HasArguments => ArgumentDefinition != null && ArgumentDefinition != ArgumentDefinition.None;
 
         protected internal bool HasHelp => ArgumentDefinition != null && ArgumentDefinition.HasHelp;
