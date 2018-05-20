@@ -122,7 +122,8 @@ namespace System.CommandLine
         {
             if (helpOptionNames.Contains(context.ParseResult.UnmatchedTokens.LastOrDefault()))
             {
-                string helpView = context.ParseResult.Command().Definition.HelpView();
+                var command = context.ParseResult.Command();
+                string helpView = command.Definition.HelpView();
                 context.Output.Write(helpView);
             }
         }
