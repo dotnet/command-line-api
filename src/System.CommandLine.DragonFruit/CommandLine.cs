@@ -13,111 +13,101 @@ namespace System.CommandLine.DragonFruit
 {
     public class CommandLine
     {
-        internal const int HelpExitCode = 2;
         internal const int ErrorExitCode = 1;
         internal const int OkExitCode = 0;
 
         public static Task<int> ExecuteAssemblyAsync(Assembly assembly, string[] args)
             => ExecuteAssemblyAsync(assembly, args, PhysicalConsole.Instance);
 
-        internal static async Task<int> ExecuteAssemblyAsync(Assembly assembly, string[] args, IConsole console)
+        internal static async Task<int> ExecuteAssemblyAsync(
+            Assembly assembly,
+            string[] args,
+            IConsole console)
         {
-            MethodInfo entryMethod = EntryPointCreator.FindEntryMethod(assembly);
+            if (assembly == null)
+            {
+                throw new ArgumentNullException(nameof(assembly));
+            }
+
+            if (console == null)
+            {
+                throw new ArgumentNullException(nameof(console));
+            }
+
+            if (console == null)
+            {
+                throw new ArgumentNullException(nameof(console));
+            }
+
+            MethodInfo entryMethod = EntryPointCreator.FindStaticEntryMethod(assembly);
 
             var docFilePath = Path.Combine(
                 Path.GetDirectoryName(assembly.Location),
                 Path.GetFileNameWithoutExtension(assembly.Location) + ".xml");
 
-            MethodDescription methodDescription = null;
+            CommandHelpMetadata commandHelpMetadata = new CommandHelpMetadata();
             if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
             {
-                xmlDocs.TryGetMethodDescription(entryMethod, out methodDescription);
+                xmlDocs.TryGetMethodDescription(entryMethod, out commandHelpMetadata);
             }
 
-            var context = new InvocationContext<int>(entryMethod, console);
+            commandHelpMetadata.Name = assembly.GetName().Name;
 
-            return await ExecuteMethodAsync(args,
-                context,
-                assembly.GetName().Name,
-                methodDescription);
+            return await InvokeMethodAsync(
+                args,
+                console,
+                /* @object:*/ null, // this is a static method
+                entryMethod,
+                commandHelpMetadata);
         }
 
-        internal static async Task<int> ExecuteMethodAsync(string[] args,
-            InvocationContext<int> context,
-            string commandName,
-            MethodDescription methodDescription)
+        internal static async Task<int> InvokeMethodAsync(
+            string[] args,
+            IConsole console,
+            object @object,
+            MethodInfo method,
+            CommandHelpMetadata helpMetadata)
         {
-            var method = context.MethodInfo;
-            var parameters = method.GetParameters();
-
-            var helpOption = new OptionDefinition("--help", "Show help output");
-            var optionDefinitions = new List<OptionDefinition> {
-                helpOption,
-            };
-
-            var paramOptions = new OptionDefinition[parameters.Length];
-
-            for (var i = 0; i < parameters.Length; i++)
+            if (helpMetadata == null)
             {
-                var optionDefinition = paramOptions[i] = CreateOption(parameters[i], methodDescription);
-                optionDefinitions.Add(optionDefinition);
+                throw new ArgumentNullException(nameof(helpMetadata));
             }
 
-            var commandDefinition = new CommandDefinition(
-                name: commandName,
-                description: methodDescription?.Description,
-                symbolDefinitions: optionDefinitions,
-                argumentDefinition: ArgumentDefinition.None);
+            var helpOption = new OptionDefinition("--help", "Show help output");
 
-            var parser = new Parser(new ParserConfiguration(new[] {commandDefinition}));
+            var command = new MethodCommandFactory()
+                .Create(
+                    method,
+                    helpMetadata,
+                    additionalOptions: new[] {helpOption});
+
+            var parser = new Parser(new ParserConfiguration(new[] {command.Definition}));
 
             var result = parser.Parse(args);
 
             if (result.Errors.Count > 0)
             {
-                return HandleParserErrors(result, context.Console);
+                return HandleParserErrors(result, console);
             }
 
             if (result.HasOption(helpOption))
             {
-                context.Console.Out.WriteLine(commandDefinition.HelpView());
-                return HelpExitCode;
+                console.Out.WriteLine(command.Definition.HelpView());
+                return OkExitCode;
             }
 
-            var rootCommand = result.Command();
-
-            var values = new object[parameters.Length];
-            for (var i = 0; i < paramOptions.Length; i++)
+            try
             {
-                values[i] = rootCommand.ValueForOption(paramOptions[i]);
+                return await command.InvokeMethodAsync(@object, result);
             }
-
-            return await context.RunAsync(values);
-        }
-
-        private static OptionDefinition CreateOption(ParameterInfo parameter, MethodDescription methodDescription)
-        {
-            var paramName = parameter.Name.ToKebabCase();
-
-            var argumentDefinitionBuilder = new ArgumentDefinitionBuilder();
-            if (parameter.HasDefaultValue)
+            catch (Exception e)
             {
-                argumentDefinitionBuilder.WithDefaultValue(() => parameter.DefaultValue);
+                console.ForegroundColor = ConsoleColor.Red;
+                console.Error.Write("Unhandled exception: ");
+                console.Error.WriteLine(e.ToString());
+                console.ResetColor();
+                return ErrorExitCode;
             }
-
-            string description = null;
-            methodDescription?.TryGetParameterDescription(parameter.Name, out description);
-
-            var optionDefinition = new OptionDefinition(
-                new[] {
-                    "-" + paramName[0],
-                    "--" + paramName,
-                },
-                description ?? parameter.Name,
-                parameter.ParameterType != typeof(bool)
-                    ? argumentDefinitionBuilder.ParseArgumentsAs(parameter.ParameterType)
-                    : ArgumentDefinition.None);
-            return optionDefinition;
         }
 
         private static int HandleParserErrors(ParseResult result, IConsole console)

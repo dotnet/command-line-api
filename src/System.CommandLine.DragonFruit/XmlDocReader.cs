@@ -29,9 +29,9 @@ namespace System.CommandLine.DragonFruit
             }
         }
 
-        public bool TryGetMethodDescription(MethodInfo info, out MethodDescription methodDescription)
+        public bool TryGetMethodDescription(MethodInfo info, out CommandHelpMetadata commandHelpMetadata)
         {
-            methodDescription = null;
+            commandHelpMetadata = null;
 
             var sb = new StringBuilder();
             sb.Append("M:")
@@ -67,42 +67,22 @@ namespace System.CommandLine.DragonFruit
                 return false;
             }
 
-            methodDescription = new MethodDescription();
+            commandHelpMetadata = new CommandHelpMetadata();
 
             foreach (var element in member.Elements())
             {
                 switch (element.Name.ToString())
                 {
                     case "summary":
-                        methodDescription.Description = element.Value?.Trim();
+                        commandHelpMetadata.Description = element.Value?.Trim();
                         break;
                     case "param":
-                        methodDescription.AddParameter(element.Attribute("name")?.Value, element.Value?.Trim());
+                        commandHelpMetadata.AddParameter(element.Attribute("name")?.Value, element.Value?.Trim());
                         break;
                 }
             }
 
             return true;
         }
-    }
-
-    internal class MethodDescription
-    {
-        private readonly Dictionary<string, string> _parameters = new Dictionary<string, string>();
-
-        public string Description { get; set; }
-
-        public void AddParameter(string parameterName, string description)
-        {
-            if (string.IsNullOrWhiteSpace(description))
-            {
-                description = null;
-            }
-
-            _parameters.Add(parameterName, description);
-        }
-
-        public bool TryGetParameterDescription(string parameterName, out string description)
-            => _parameters.TryGetValue(parameterName, out description);
     }
 }

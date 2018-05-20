@@ -8,7 +8,7 @@ namespace System.CommandLine.DragonFruit
 {
     internal class EntryPointCreator
     {
-        internal static MethodInfo FindEntryMethod(Assembly assembly)
+        internal static MethodInfo FindStaticEntryMethod(Assembly assembly)
         {
             var candidates = new List<MethodInfo>();
             foreach (var type in assembly.DefinedTypes.Where(t =>
