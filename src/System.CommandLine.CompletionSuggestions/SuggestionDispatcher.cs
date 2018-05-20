@@ -7,12 +7,12 @@ using System.Reflection;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    internal static class SuggestionDispatcher
+    public static class SuggestionDispatcher
     {
         private const string Position = "-p";
         private const string ExeName = "-e";
 
-        internal static void Dispatch(string[] args)
+        public static void Dispatch(string[] args)
         {
             // CommandLine:
             // dotnet run System.CommandLine <currentCommandLine> <cursorPosition> Foo bar

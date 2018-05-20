@@ -51,6 +51,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.CommandLine.DragonFruit.Tests", "src\System.CommandLine.DragonFruit.Tests\System.CommandLine.DragonFruit.Tests.csproj", "{1F4B2074-F651-4A02-A860-7DDA74B2CC5F}"
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.CompletionSuggestions", "src\System.CommandLine.CompletionSuggestions\System.CommandLine.CompletionSuggestions.csproj", "{E23C760E-B826-4B4F-BE76-916D86BAD2DB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.CompletionSuggestions.Tests", "src\System.CommandLine.CompletionSuggestions.Tests\System.CommandLine.CompletionSuggestions.Tests.csproj", "{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +111,18 @@ Global
 		{E23C760E-B826-4B4F-BE76-916D86BAD2DB}.Release|x64.Build.0 = Release|Any CPU
 		{E23C760E-B826-4B4F-BE76-916D86BAD2DB}.Release|x86.ActiveCfg = Release|Any CPU
 		{E23C760E-B826-4B4F-BE76-916D86BAD2DB}.Release|x86.Build.0 = Release|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Debug|x64.Build.0 = Debug|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Debug|x86.Build.0 = Debug|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Release|x64.ActiveCfg = Release|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Release|x64.Build.0 = Release|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Release|x86.ActiveCfg = Release|Any CPU
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,13 +130,11 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0BE8E56E-7580-4526-BE24-D304E1779724} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
 		{F843CCCA-4CC9-422C-A881-3AE6A998B53F} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
-<<<<<<< HEAD
 		{8A592CB0-5FB9-4E70-A68A-BE5B5BE23C00} = {6749FB3E-39DE-4321-A39E-525278E9408D}
 		{EEC30462-078F-45EB-AA70-12E3170CD51E} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
 		{1F4B2074-F651-4A02-A860-7DDA74B2CC5F} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
-=======
 		{E23C760E-B826-4B4F-BE76-916D86BAD2DB} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
->>>>>>> Working concept for the completion dispatcher and registry.  NEEDS Refactor and tests!
+		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C159F93-800B-49E7-9905-EE09F8B8434A}
