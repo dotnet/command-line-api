@@ -62,6 +62,7 @@ namespace System.CommandLine
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
             InvocationList = invocationList;
+            Prefixes = prefixes;
 
             if (prefixes?.Count > 0)
             {

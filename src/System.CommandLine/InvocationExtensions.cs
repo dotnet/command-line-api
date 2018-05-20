@@ -7,6 +7,31 @@ namespace System.CommandLine
 {
     public delegate void Invocation(InvocationContext context);
 
+    public class MethodBinder
+    {
+        private readonly Delegate _Delegate;
+        private readonly string[] _OptionAliases;
+
+        public MethodBinder(Delegate @delegate, params string[] optionAliases)
+        {
+            _Delegate = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
+            _OptionAliases = optionAliases;
+        }
+
+        public void Invoke(ParseResult result)
+        {
+            var arguments = new List<object>();
+            var parameters = _Delegate.Method.GetParameters();
+            for (var index = 0; index < parameters.Length; index++)
+            {
+                var argument = result.Command().ValueForOption(_OptionAliases[index]);
+                arguments.Add(argument);
+            }
+
+            _Delegate.DynamicInvoke(arguments.ToArray());
+        }
+    }
+
     public class InvocationContext
     {
         public InvocationContext(ParseResult parseResult)
@@ -53,19 +78,53 @@ namespace System.CommandLine
                     }
                 }
             }
+
+            parseResult.CommandDefinition().ExecutionHandler?.Invoke(parseResult);
         }
 
         public static ParserBuilder AddHelp(this ParserBuilder builder)
         {
-            string[] helpTokens = new[] { "--help" };
             builder.AddInvocation(context => {
-                if (helpTokens.Contains(context.ParseResult.Tokens.LastOrDefault()))
+                var helpOptions = new HashSet<string>();
+                var prefixes = context.ParseResult.Configuration.Prefixes;
+                if (prefixes == null)
                 {
-                    string helpView = context.ParseResult.Command().Definition.HelpView();
-                    context.Output.Write(helpView);
+                    helpOptions.Add("-h");
+                    helpOptions.Add("--help");
+                    helpOptions.Add("-?");
+                    helpOptions.Add("/?");
                 }
+                else
+                {
+                    string[] helpOptionNames = { "help", "h", "?" };
+                    foreach (var helpOption in helpOptionNames)
+                    {
+                        foreach (var prefix in prefixes)
+                        {
+                            helpOptions.Add($"{prefix}{helpOption}");
+                        }
+                    }
+                }
+                HelpInvocation(context, helpOptions);
             });
             return builder;
+        }
+
+        public static ParserBuilder AddHelp(this ParserBuilder builder, IReadOnlyCollection<string> helpOptionNames)
+        {
+            builder.AddInvocation(context => {
+                HelpInvocation(context, helpOptionNames);
+            });
+            return builder;
+        }
+
+        private static void HelpInvocation(InvocationContext context, IReadOnlyCollection<string> helpOptionNames)
+        {
+            if (helpOptionNames.Contains(context.ParseResult.UnmatchedTokens.LastOrDefault()))
+            {
+                string helpView = context.ParseResult.Command().Definition.HelpView();
+                context.Output.Write(helpView);
+            }
         }
     }
 }
