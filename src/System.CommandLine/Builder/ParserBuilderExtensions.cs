@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -67,12 +68,39 @@ namespace System.CommandLine.Builder
 
         public static CommandDefinitionBuilder OnExecute(
             this CommandDefinitionBuilder builder,
-          Expression action  )
+          Action action)
         {
-            
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
             return builder;
         }
 
+        public static CommandDefinitionBuilder OnExecute<T>(
+            this CommandDefinitionBuilder builder,
+            Action<T> action, string optionAlias)
+        {
+            var methodBinder = new MethodBinder(action, optionAlias);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandDefinitionBuilder OnExecute<T1, T2>(
+            this CommandDefinitionBuilder builder,
+            Action<T1, T2> action, string optionAlias1, string optionAlias2)
+        {
+            var methodBinder = new MethodBinder(action, optionAlias1, optionAlias2);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandDefinitionBuilder OnExecute(
+            this CommandDefinitionBuilder builder,
+            Delegate action, params string[] optionAliases)
+        {
+            var methodBinder = new MethodBinder(action, optionAliases);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
 
         public static ParserBuilder TreatUnmatchedTokensAsErrors(
             this ParserBuilder builder,
@@ -95,6 +123,13 @@ namespace System.CommandLine.Builder
             ResponseFileHandling responseFileHandling)
         {
             builder.ResponseFileHandling = responseFileHandling;
+            return builder;
+        }
+
+        public static TBuilder UsePrefixes<TBuilder>(this TBuilder builder, IReadOnlyCollection<string> prefixes)
+            where TBuilder : ParserBuilder
+        {
+            builder.Prefixes = prefixes;
             return builder;
         }
     }

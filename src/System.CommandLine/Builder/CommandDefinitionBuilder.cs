@@ -21,6 +21,8 @@ namespace System.CommandLine.Builder
 
         public bool? TreatUnmatchedTokensAsErrors { get; set; }
 
+        public MethodBinder ExecutionHandler { get; set; }
+
         public string Name { get; }
 
         public virtual CommandDefinition BuildCommandDefinition()
@@ -32,7 +34,8 @@ namespace System.CommandLine.Builder
                 symbolDefinitions: BuildChildSymbolDefinitions(),
                 treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
                                               Parent?.TreatUnmatchedTokensAsErrors ??
-                                              true);
+                                              true,
+                executionHandler: ExecutionHandler);
         }
 
         protected IReadOnlyCollection<SymbolDefinition> BuildChildSymbolDefinitions()

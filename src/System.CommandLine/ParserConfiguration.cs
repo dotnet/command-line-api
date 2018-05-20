@@ -62,6 +62,7 @@ namespace System.CommandLine
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
             InvocationList = invocationList;
+            Prefixes = prefixes;
 
             if (prefixes?.Count > 0)
             {
@@ -80,6 +81,8 @@ namespace System.CommandLine
                 }
             }
         }
+
+        public IReadOnlyCollection<string> Prefixes { get; }
 
         public SymbolDefinitionSet SymbolDefinitions { get; } = new SymbolDefinitionSet();
 

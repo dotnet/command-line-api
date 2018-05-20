@@ -22,6 +22,7 @@ namespace System.CommandLine.Builder
         public static string ExeName { get; } = executableName.Value;
 
         public bool EnablePosixBundling { get; set; } = true;
+        public IReadOnlyCollection<string> Prefixes { get; set; }
 
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
@@ -30,6 +31,7 @@ namespace System.CommandLine.Builder
             return new Parser(
                 new ParserConfiguration(
                     BuildChildSymbolDefinitions(),
+                    prefixes: Prefixes,
                     allowUnbundling: EnablePosixBundling,
                     validationMessages: ValidationMessages.Instance,
                     responseFileHandling: ResponseFileHandling,
