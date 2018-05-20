@@ -27,8 +27,7 @@ namespace System.CommandLine
                                 value ?? "",
                                 CompareOptions.OrdinalIgnoreCase) >= 0;
 
-        internal static string RemovePrefix(this string option) =>
-            option.TrimStart(_optionPrefixCharacters);
+        internal static string RemovePrefix(this string option) => option.TrimStart(_optionPrefixCharacters);
 
         internal static LexResult Lex(
             this IEnumerable<string> args,

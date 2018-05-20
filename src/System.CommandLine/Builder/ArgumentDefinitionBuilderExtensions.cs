@@ -261,9 +261,9 @@ namespace System.CommandLine.Builder
             this ArgumentDefinitionBuilder builder,
             string name = null,
             string description = null,
-            bool isHidden = ArgumentsRuleHelp.DefaultIsHidden)
+            bool isHidden = HelpDefinition.DefaultIsHidden)
         {
-            builder.Help = new ArgumentsRuleHelp(name, description, isHidden);
+            builder.Help = new HelpDefinition(name, description, isHidden);
 
             return builder;
         }

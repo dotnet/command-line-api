@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         public void An_argument_is_not_hidden_from_help_if_no_help_is_provided()
         {
             var command = new ParserBuilder()
-                .AddCommand("outer", "Help text for the outer command",
+                .AddCommand("outer", "HelpDefinition text for the outer command",
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
 
@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests
         public void An_argument_shows_help_if_help_is_provided()
         {
             var command = new ParserBuilder()
-                .AddCommand("outer", "Help text for the outer command",
+                .AddCommand("outer", "HelpDefinition text for the outer command",
                     arguments: args => args.WithHelp("test name", "test desc").ExactlyOne())
                 .BuildCommandDefinition();
 
@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests
         public void An_argument_shows_no_help_if_help_is_hidden()
         {
             var command = new ParserBuilder()
-                .AddCommand("outer", "Help text for the outer command",
+                .AddCommand("outer", "HelpDefinition text for the outer command",
                     arguments: args => args.WithHelp("test name", "test desc", true).ExactlyOne())
                 .BuildCommandDefinition();
 
@@ -119,12 +119,12 @@ namespace System.CommandLine.Tests
         {
             var command = new ParserBuilder()
                           .AddCommand(
-                              "outer", "Help text for the outer command",
+                              "outer", "HelpDefinition text for the outer command",
                               arguments: args => args.WithHelp(name: "outer-command-arg",
                                                                description: "The argument for the inner command")
                                                      .ExactlyOne(),
                               symbols: outer => outer.AddCommand(
-                                  "inner", "Help text for the inner command",
+                                  "inner", "HelpDefinition text for the inner command",
                                   arguments: innerArgs => innerArgs.WithHelp(name: "the-inner-command-arg",
                                                                              description: "The argument for the inner command")
                                                                    .ExactlyOne()))
@@ -148,7 +148,7 @@ namespace System.CommandLine.Tests
         public void Column_for_options_descriptions_are_vertically_aligned()
         {
             var command = new ParserBuilder()
-                          .AddCommand("the-command", "Help text for the command",
+                          .AddCommand("the-command", "HelpDefinition text for the command",
                                       symbols =>
                                           symbols.AddOption(
                                                      new[] { "-a", "--aaa" },
@@ -382,10 +382,10 @@ namespace System.CommandLine.Tests
         public void Retain_single_dash_on_multi_char_option()
         {
             var command = new ParserBuilder()
-                          .AddCommand("command", "Help Test",
+                          .AddCommand("command", "HelpDefinition Test",
                                       c => c.AddOption(
                                           new[] { "-multi", "--alt-option" },
-                                          "Help for option"))
+                                          "HelpDefinition for option"))
                           .BuildCommandDefinition();
             var helpView = command.HelpView();
             helpView.Should().Contain("-multi");
@@ -396,10 +396,10 @@ namespace System.CommandLine.Tests
         public void Retain_multiple_dashes_on_single_char_option()
         {
             var command = new ParserBuilder()
-                          .AddCommand("command", "Help Test",
+                          .AddCommand("command", "HelpDefinition Test",
                                       c => c.AddOption(
                                           new[] { "--m", "--alt-option" },
-                                          "Help for option"))
+                                          "HelpDefinition for option"))
                           .BuildCommandDefinition();
             var helpView = command.HelpView();
             helpView.Should().Contain("--m");

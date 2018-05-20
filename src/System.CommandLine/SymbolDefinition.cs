@@ -15,7 +15,8 @@ namespace System.CommandLine
         protected internal SymbolDefinition(
             IReadOnlyCollection<string> aliases,
             string description,
-            ArgumentDefinition argumentDefinition = null)
+            ArgumentDefinition argumentDefinition = null,
+            HelpDefinition help = null)
         {
             if (aliases == null)
             {
@@ -39,31 +40,43 @@ namespace System.CommandLine
                 _aliases.Add(alias.RemovePrefix());
             }
 
+            ArgumentDefinition = argumentDefinition ?? ArgumentDefinition.None;
             Description = description;
-
+            Help = help;
             Name = aliases
                    .Select(a => a.RemovePrefix())
                    .OrderBy(a => a.Length)
                    .Last();
-
-            ArgumentDefinition = argumentDefinition ?? ArgumentDefinition.None;
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
-        public SymbolDefinitionSet SymbolDefinitions { get; } = new SymbolDefinitionSet();
+        protected internal ArgumentDefinition ArgumentDefinition { get; protected set; }
 
         public string Description { get; }
 
-        protected internal ArgumentDefinition ArgumentDefinition { get; protected set; }
+        public HelpDefinition Help { get; }
 
         protected internal bool HasArguments => ArgumentDefinition != null && ArgumentDefinition != ArgumentDefinition.None;
 
         protected internal bool HasHelp => ArgumentDefinition != null && ArgumentDefinition.HasHelp;
 
         public string Name { get; }
+
+        // FIX: (Parent) make this immutable
+        public CommandDefinition Parent { get; protected internal set; }
+
+        public SymbolDefinitionSet SymbolDefinitions { get; } = new SymbolDefinitionSet();
+
+        internal void AddAlias(string alias) => _rawAliases.Add(alias);
+
+        public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
+
+        public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
+
+        internal string Token() => _rawAliases.First(alias => alias.RemovePrefix() == Name);
 
         public virtual IEnumerable<string> Suggest(
             ParseResult parseResult,
@@ -81,14 +94,5 @@ namespace System.CommandLine
                                 .OrderBy(s => s)
                                 .Containing(parseResult.TextToMatch());
         }
-
-        // FIX: (Parent) make this immutable
-        public CommandDefinition Parent { get; protected internal set; }
-
-        public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
-
-        public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
-        internal string Token() => _rawAliases.First(alias => alias.RemovePrefix() == Name);
-        internal void AddAlias(string alias) => _rawAliases.Add(alias);
     }
 }

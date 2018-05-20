@@ -37,9 +37,7 @@ namespace System.CommandLine
             return helpView.ToString();
         }
 
-        private static void WriteAdditionalArgumentsSection(
-            CommandDefinition commandDefinition,
-            StringBuilder helpView)
+        private static void WriteAdditionalArgumentsSection(CommandDefinition commandDefinition, StringBuilder helpView)
         {
             if (commandDefinition?.TreatUnmatchedTokensAsErrors == true)
             {
@@ -49,16 +47,14 @@ namespace System.CommandLine
             helpView.Append(AdditionalArgumentsSection);
         }
 
-        private static void WriteArgumentsSection(
-            CommandDefinition commandDefinition,
-            StringBuilder helpView)
+        private static void WriteArgumentsSection(SymbolDefinition symbolDefinition, StringBuilder helpView)
         {
-            var showArgHelp = commandDefinition.HasArguments && commandDefinition.HasHelp;
+            var showArgHelp = symbolDefinition.HasArguments && symbolDefinition.HasHelp;
             var showParentArgHelp = false;
 
-            if (commandDefinition.Parent != null)
+            if (symbolDefinition.Parent != null)
             {
-                showParentArgHelp = commandDefinition.Parent.HasArguments && commandDefinition.Parent.HasHelp;
+                showParentArgHelp = symbolDefinition.Parent.HasArguments && symbolDefinition.Parent.HasHelp;
             }
 
             if (!showArgHelp && !showParentArgHelp)
@@ -66,8 +62,8 @@ namespace System.CommandLine
                 return;
             }
 
-            var argHelp = commandDefinition.ArgumentDefinition?.Help;
-            var parentArgHelp = commandDefinition.Parent?.ArgumentDefinition?.Help;
+            var argHelp = symbolDefinition.ArgumentDefinition?.Help;
+            var parentArgHelp = symbolDefinition.Parent?.ArgumentDefinition?.Help;
 
             helpView?.AppendLine();
             helpView?.AppendLine(ArgumentsSection.Title);
@@ -95,11 +91,9 @@ namespace System.CommandLine
             }
         }
 
-        private static void WriteOptionsSection(
-            CommandDefinition commandDefinition,
-            StringBuilder helpView)
+        private static void WriteOptionsSection(SymbolDefinition symbolDefinition, StringBuilder helpView)
         {
-            var options = commandDefinition
+            var options = symbolDefinition
                 .SymbolDefinitions
                 .OfType<OptionDefinition>()
                 .Where(opt => opt.HasHelp)
@@ -116,11 +110,9 @@ namespace System.CommandLine
             WriteOptionsList(options, helpView);
         }
 
-        private static void WriteSubcommandsSection(
-            CommandDefinition commandDefinition,
-            StringBuilder helpView)
+        private static void WriteSubcommandsSection(SymbolDefinition symbolDefinition, StringBuilder helpView)
         {
-            var subcommands = commandDefinition
+            var subcommands = symbolDefinition
                 .SymbolDefinitions
                 .OfType<CommandDefinition>()
                 .Where(subCommand => subCommand.HasHelp)
@@ -137,9 +129,7 @@ namespace System.CommandLine
             WriteOptionsList(subcommands, helpView);
         }
 
-        private static void WriteOptionsList(
-            IReadOnlyCollection<SymbolDefinition> symbols,
-            StringBuilder helpView)
+        private static void WriteOptionsList(IReadOnlyCollection<SymbolDefinition> symbols, StringBuilder helpView)
         {
             var leftColumnTextFor = symbols.ToDictionary(symbol => symbol, LeftColumnText);
 
@@ -214,9 +204,7 @@ namespace System.CommandLine
             helpView.AppendLine(descriptionWithLineWraps);
         }
 
-        private static void WriteSynopsis(
-            CommandDefinition commandDefinition,
-            StringBuilder helpView)
+        private static void WriteSynopsis(CommandDefinition commandDefinition, StringBuilder helpView)
         {
             helpView.Append(Synopsis.Title);
 
