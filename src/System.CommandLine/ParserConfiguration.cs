@@ -11,7 +11,7 @@ namespace System.CommandLine
             IReadOnlyCollection<string> prefixes = null,
             bool allowUnbundling = true,
             ValidationMessages validationMessages = null,
-            ResponseFileHandling responseFileHandling = default(ResponseFileHandling) )
+            ResponseFileHandling responseFileHandling = default(ResponseFileHandling))
         {
             if (symbolDefinitions == null)
             {
@@ -39,7 +39,7 @@ namespace System.CommandLine
                 }
             }
 
-            if (!symbolDefinitions.OfType<CommandDefinition>().Any())
+            if (symbolDefinitions.OfType<CommandDefinition>().Count() != 1)
             {
                 var symbolsDefinition = symbolDefinitions.ToArray();
                 RootCommandDefinition = CommandDefinition.CreateImplicitRootCommand(symbolsDefinition);
@@ -77,7 +77,9 @@ namespace System.CommandLine
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
         public bool AllowUnbundling { get; }
+        
         public ValidationMessages ValidationMessages { get; }
+        
         internal CommandDefinition RootCommandDefinition { get; }
 
         internal bool RootCommandIsImplicit => RootCommandDefinition != null;

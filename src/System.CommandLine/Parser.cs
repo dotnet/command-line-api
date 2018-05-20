@@ -96,15 +96,6 @@ namespace System.CommandLine
                     unmatchedTokens.Select(token => new ParseError(_configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
             }
 
-            if (_configuration.RootCommandIsImplicit)
-            {
-                rawTokens = rawTokens.Skip(1).ToArray();
-                var parsedOptions = rootSymbols
-                                     .SelectMany(o => o.Children)
-                                     .ToArray();
-                rootSymbols = new SymbolSet(parsedOptions);
-            }
-
             return new ParseResult(
                 rawTokens,
                 rootSymbols,

@@ -170,22 +170,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_no_commands_are_added_then_ParseResult_SpecifiedCommandDefinition_identifies_executable()
-        {
-            var parser = new ParserBuilder()
-                         .AddOption("-x", "")
-                         .AddOption("-y", "")
-                         .Build();
-
-            var result = parser.Parse("-x -y");
-
-            var command = result.CommandDefinition();
-
-            command.Should().NotBeNull();
-            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-        }
-
-        [Fact]
         public void ParsedCommand_identifies_the_ParsedCommand_for_the_innermost_command()
         {
             var command = new CommandDefinition("outer", "", new[] {
