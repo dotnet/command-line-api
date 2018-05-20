@@ -1,4 +1,5 @@
-using System;
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace System.CommandLine.CompletionSuggestions
 {
@@ -6,7 +7,7 @@ namespace System.CommandLine.CompletionSuggestions
     {
         static void Main(string[] args)
         {
-            SuggestionDispatcher.Dispatch(args);
+            Console.Write(SuggestionDispatcher.Dispatch(args, new CompletionFileProvider()));
         }
     }
 }

@@ -1,18 +1,20 @@
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    public static class SuggestionDispatcher
+    public class SuggestionDispatcher
     {
         private const string Position = "-p";
         private const string ExeName = "-e";
 
-        public static void Dispatch(string[] args)
+        public static string Dispatch(string[] args, ICompletionFileProvider completionFileProvider)
         {
             // CommandLine:
             // dotnet run System.CommandLine <currentCommandLine> <cursorPosition> Foo bar
@@ -33,47 +35,20 @@ namespace System.CommandLine.CompletionSuggestions
             }*/
 
 
-            // Load file where items are registered
-            IEnumerable<string> registrationConfigFilePaths =
-                new[] {
-                    Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                        "System.CommandLine.Completion.txt")
-                };
-
-
-            // TODO: Discuss/resolve using System.conco
-
-            string completionTarget = null;
-
-            foreach (string configFilePath in registrationConfigFilePaths)
-            {
-                if (File.Exists(configFilePath))
-                {
-                    // read file
-                    string[] configFileLines = File.ReadAllLines(configFilePath);
-
-                    // check if args[0] exists in the file
-                    completionTarget = configFileLines.SingleOrDefault(line =>
-                        line.StartsWith(parseResult.ValueForOption<FileInfo>(ExeName).FullName));
-
-                    if (completionTarget != null)
-                    {
-                        break;
-                    }
-                }
-            }
+            string completionTarget =
+                completionFileProvider.FindCompletionRegistration(parseResult.ValueForOption<FileInfo>(ExeName));
 
             if (string.IsNullOrEmpty(completionTarget))
             {
                 // Can't find a completion exe to call
-                return;
+                return string.Empty;
             }
 
             // Parse out path to completion target exe from config file line
             string[] keyValuePair = completionTarget.Split('=');
             if (keyValuePair.Length < 2)
             {
-                throw new Exception(
+                throw new FormatException(
                     $"Syntax for configuration of '{completionTarget}' is not of the format '<command>=<value>'");
             }
 
@@ -81,12 +56,13 @@ namespace System.CommandLine.CompletionSuggestions
 
             string targetArgs = GetArgsString(parseResult, targetCommands);
 
-            Console.Write(GetCompletionSuggestions(targetCommands.First(), targetArgs));
+            return GetCompletionSuggestions(targetCommands.First(), targetArgs);
 
         }
 
         private static string GetArgsString(ParseResult parseResult, List<string> targetCommands)
         {
+            //TODO: don't just assume the callee has a "--position" argument
             return string.Join(' ',
                 targetCommands[1],
                 "--position",
