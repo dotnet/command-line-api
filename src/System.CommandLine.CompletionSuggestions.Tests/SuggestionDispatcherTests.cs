@@ -17,5 +17,14 @@ namespace System.CommandLine.CompletionSuggestions.Tests
             SuggestionDispatcher.Dispatch(args);
 
         }
+
+
+        [Fact]
+        public void GetCompletionSuggestions()
+        {
+            Assert.Throws<System.IO.FileNotFoundException>( () =>
+                SuggestionDispatcher.GetCompletionSuggestions("Bogus file name", "")
+            );
+        }
     }
 }

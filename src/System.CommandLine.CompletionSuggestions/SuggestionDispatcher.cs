@@ -20,7 +20,7 @@ namespace System.CommandLine.CompletionSuggestions
                 .AddOption(Position, "the current character position on the command line",
                     position => position.ExactlyOne())
                 .AddOption(ExeName, "The executible to ask for argument resolution", argument => argument
-                    //.LegalFilePathsOnly()
+                    .LegalFilePathsOnly()
                     .ExactlyOne())
                 .TreatUnmatchedTokensAsErrors(false)
                 .Build();
@@ -79,15 +79,31 @@ namespace System.CommandLine.CompletionSuggestions
 
             List<string> targetCommands = keyValuePair[1].Tokenize().ToList();
 
-            string targetArgs = string.Join(' ',
+            string targetArgs = GetArgsString(parseResult, targetCommands);
+
+            Console.Write(GetCompletionSuggestions(targetCommands.First(), targetArgs));
+
+        }
+
+        private static string GetArgsString(ParseResult parseResult, List<string> targetCommands)
+        {
+            return string.Join(' ',
                 targetCommands[1],
                 "--position",
                 parseResult.ValueForOption<string>(Position),
                 $"\"{string.Join(' ', parseResult.UnmatchedTokens)}\"");
+        }
+
+        public static string GetCompletionSuggestions(string exeFileName, string args)
+        {
+            if (args == null)
+            {
+                args = "";
+            }
 
             // Invoke target with args
             var process = new Process {
-                StartInfo = new ProcessStartInfo(targetCommands.First(), targetArgs) {
+                StartInfo = new ProcessStartInfo(exeFileName, args) {
                     UseShellExecute = false,
                     RedirectStandardOutput = true
                 }
@@ -95,10 +111,9 @@ namespace System.CommandLine.CompletionSuggestions
 
             process.Start();
 
-            Console.Write(process.StandardOutput.ReadToEnd());
-
             process.WaitForExit(5000);
 
+            return process.StandardOutput.ReadToEnd();
         }
 
         private static void DisplayHelp() => throw new NotImplementedException();
