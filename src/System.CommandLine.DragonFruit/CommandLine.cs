@@ -6,12 +6,13 @@ using System.CommandLine.Builder;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.DragonFruit
 {
     public class CommandLine
     {
-        public static int ExecuteAssembly(Assembly assembly, string[] args)
+        public static async Task<int> ExecuteAssemblyAsync(Assembly assembly, string[] args)
         {
             var candidates = new List<MethodInfo>();
             foreach (var type in assembly.DefinedTypes.Where(t =>
@@ -23,36 +24,117 @@ namespace System.CommandLine.DragonFruit
                 }
 
                 foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public |
-                                                       BindingFlags.NonPublic).Where(m => string.Equals("Main", m.Name, StringComparison.OrdinalIgnoreCase)))
+                                                       BindingFlags.NonPublic).Where(m =>
+                    string.Equals("Main", m.Name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    candidates.Add(method);
+                    if (method.ReturnType == typeof(void)
+                        || method.ReturnType == typeof(int)
+                        || method.ReturnType == typeof(Task)
+                        || method.ReturnType == typeof(Task<int>))
+                    {
+                        candidates.Add(method);
+                    }
                 }
             }
 
             if (candidates.Count > 1)
             {
-                throw new InvalidProgramException("Ambiguous entry point. Could not identify which method is the main entry point for this function.");
+                throw new AmbiguousMatchException(
+                    "Ambiguous entry point. Found muliple static functions named 'Program.Main'. Could not identify which method is the main entry point for this function.");
+            }
+
+            if (candidates.Count == 0)
+            {
+                throw new InvalidProgramException(
+                    "Could not find a static entry point named 'Main' on a type named 'Program' that accepts option parameters.");
             }
 
             var mainmethod = candidates[0];
+            var parameters = mainmethod.GetParameters();
 
-            var parserBuilder = new ParserBuilder();
+            var helpOption = new OptionDefinition("--help", "Show help output");
+            var optionDefinitions = new List<OptionDefinition> {
+                helpOption,
+            };
 
-            parserBuilder.AddCommand(
-                mainmethod.Name, string.Empty,
-                cmd => {
-                    foreach (var parameter in mainmethod.GetParameters())
-                    {
-                        cmd.AddOption("--" + parameter.Name, parameter.Name,
-                            a => { a.ParseArgumentsAs(parameter.ParameterType); });
-                    }
-                });
+            var paramOptions = new OptionDefinition[parameters.Length];
 
-            var command = parserBuilder.BuildCommandDefinition();
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+                var paramName = parameter.Name.ToKebabCase();
+                var defBuilder = new ArgumentDefinitionBuilder();
 
-            Console.WriteLine(command.HelpView());
+                if (parameter.HasDefaultValue)
+                {
+                    defBuilder.WithDefaultValue(() => parameter.DefaultValue);
+                }
+
+                paramOptions[i] = new OptionDefinition(
+                    new[] {
+                        "-" + paramName[0],
+                        "--" + paramName,
+                    },
+                    parameter.Name,
+                    defBuilder.ParseArgumentsAs(parameter.ParameterType));
+                optionDefinitions.Add(paramOptions[i]);
+            }
+
+            var commandDefinition = new CommandDefinition(assembly.GetName().Name, string.Empty, optionDefinitions);
+
+            var parser = new Parser(new ParserConfiguration(new[] {commandDefinition}));
+
+            var result = parser.Parse(args);
+
+            if (result.Errors.Count > 0)
+            {
+                return HandleParserErrors(result);
+            }
+
+            if (result.HasOption(helpOption))
+            {
+                Console.WriteLine(commandDefinition.HelpView());
+                return 3;
+            }
+
+            var rootCommand = result.Command();
+
+            var values = new object[parameters.Length];
+            for (var i = 0; i < paramOptions.Length; i++)
+            {
+                values[i] = rootCommand.ValueForOption(paramOptions[i]);
+            }
+
+            var retVal = mainmethod.Invoke(null, values);
+
+            switch (retVal)
+            {
+                case Task<int> taskOfInt:
+                    return await taskOfInt;
+                case Task task:
+                    await task;
+                    return 0;
+                case int exitCode:
+                    return exitCode;
+            }
 
             return 0;
+        }
+
+        private static int HandleParserErrors(ParseResult result)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            foreach (var parseError in result.Errors)
+            {
+                Console.Error.WriteLine(parseError.Message);
+            }
+
+            Console.ResetColor();
+
+
+            Console.Error.WriteLine("Use --help to see available commands and options.");
+
+            return 1;
         }
     }
 }

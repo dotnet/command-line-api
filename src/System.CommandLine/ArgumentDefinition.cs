@@ -8,11 +8,11 @@ namespace System.CommandLine
 {
     public class ArgumentDefinition
     {
-        private readonly Func<string> _defaultValue;
+        private readonly Func<object> _defaultValue;
 
         internal ArgumentDefinition(
             ArgumentParser parser,
-            Func<string> defaultValue = null,
+            Func<object> defaultValue = null,
             ArgumentsRuleHelp help = null,
             IReadOnlyCollection<ValidateSymbol> symbolValidators = null,
             ISuggestionSource suggestionSource = null)
@@ -33,7 +33,7 @@ namespace System.CommandLine
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
 
-        public Func<string> GetDefaultValue => () => _defaultValue?.Invoke();
+        public Func<object> GetDefaultValue => () => _defaultValue?.Invoke();
 
         public bool HasDefaultValue => _defaultValue != null;
 

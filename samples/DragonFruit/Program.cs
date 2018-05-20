@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DragonFruitSample
+namespace DragonFruit
 {
     class Program
     {
@@ -10,7 +10,7 @@ namespace DragonFruitSample
         /// <param name="flavor"></param>
         /// <param name="count"></param>
         static void Main(
-            string flavor,
+            string flavor = "chocolate",
             int count = 1)
         {
             Console.WriteLine($"Creating {count} banana {(count == 1 ? "smoothie" : "smoothies")} with {flavor}");
