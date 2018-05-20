@@ -7,6 +7,7 @@ using FluentAssertions.Equivalency;
 using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -245,7 +246,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result["hello"].Arguments.Should().ContainSingle(a => a == "there");
+            result  ["hello"].Arguments.Should().ContainSingle(a => a == "there");
         }
 
         [Fact]
@@ -815,6 +816,39 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_no_commands_are_added_then_ParseResult_SpecifiedCommandDefinition_identifies_executable()
+        {
+            var parser = new ParserBuilder()
+                         .AddOption("-x", "")
+                         .AddOption("-y", "")
+                         .Build();
+
+            var result = parser.Parse("-x -y");
+
+            var command = result.CommandDefinition();
+
+            command.Should().NotBeNull();
+
+            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
+        }
+
+        [Fact]
+        public void An_implicit_root_command_is_returned_by_Command()
+        {
+            var result = new ParserBuilder()
+                         .AddOption("-x")
+                         .AddOption("-y")
+                         .Build()
+                         .Parse("-x -y");
+
+            var command = result.Command();
+
+            command.Should().NotBeNull();
+
+            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
+        }
+
+        [Fact]
         public void Absolute_unix_style_paths_are_lexed_correctly()
         {
             var command =
@@ -1004,12 +1038,14 @@ namespace System.CommandLine.Tests
             var parser = new Parser(option1, option2);
 
             parser.Parse("-a")
-                  .Symbols
+                  .Command()
+                  .Children
                   .Select(s => s.SymbolDefinition)
                   .Should()
                   .BeEquivalentTo(option1);
             parser.Parse("--a")
-                  .Symbols
+                  .Command()
+                  .Children
                   .Select(s => s.SymbolDefinition)
                   .Should()
                   .BeEquivalentTo(option2);
@@ -1046,8 +1082,8 @@ namespace System.CommandLine.Tests
             var parser = new Parser(configuration);
 
             ParseResult parseResult = parser.Parse(input);
-            parseResult.Symbols["output"].Should().NotBeNull();
-            parseResult.Symbols["o"].Should().NotBeNull();
+            parseResult["output"].Should().NotBeNull();
+            parseResult["o"].Should().NotBeNull();
         }
 
         [Theory]
@@ -1066,9 +1102,9 @@ namespace System.CommandLine.Tests
             var parser = new Parser(configuration);
 
             ParseResult parseResult = parser.Parse(input);
-            parseResult.Symbols["output"].Should().NotBeNull();
-            parseResult.Symbols["o"].Should().NotBeNull();
-            parseResult.Symbols["out"].Should().NotBeNull();
+            parseResult["o"].Should().NotBeNull();
+            parseResult["out"].Should().NotBeNull();
+            parseResult["output"].Should().NotBeNull();
         }
     }
 }

@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
                                           .AddSuggestions("one", "two", "three")
                                           .ExactlyOne());
 
-            var suggestions = option.Suggest(option.Parse("--hello"));
+            var suggestions = option.Suggest(option.Parse("--hello "));
 
             suggestions.Should().BeEquivalentTo("one", "two", "three");
         }
