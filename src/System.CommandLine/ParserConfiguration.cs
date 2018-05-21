@@ -57,8 +57,6 @@ namespace System.CommandLine
 
             SymbolDefinitions.Add(RootCommandDefinition);
 
-
-
             AllowUnbundling = allowUnbundling;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;

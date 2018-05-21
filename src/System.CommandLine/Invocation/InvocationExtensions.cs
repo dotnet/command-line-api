@@ -1,6 +1,11 @@
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
@@ -17,26 +22,33 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static void Invoke(
+        public static async Task<int> InvokeAsync(
             this ParseResult parseResult,
             IConsole console)
         {
             if (parseResult.Configuration.InvocationList is IEnumerable<InvocationDelegate> invocations)
             {
-                var context = new InvocationContext(parseResult, console) ;
+                var context = new InvocationContext(parseResult, console);
 
                 foreach (var invocation in invocations)
                 {
                     invocation(context);
                     if (context.InvocationResult != null)
                     {
-                       context.InvocationResult.Apply(context);
-                       return;
+                        context.InvocationResult.Apply(context);
+                        return context.ResultCode;
                     }
                 }
             }
 
-            parseResult.CommandDefinition().ExecutionHandler?.Invoke(parseResult);
+            var executionHandler = parseResult.CommandDefinition().ExecutionHandler;
+
+            if (executionHandler != null)
+            {
+                return await executionHandler.InvokeAsync(parseResult);
+            }
+
+            return 0;
         }
 
         public static ParserBuilder AddHelp(this ParserBuilder builder)
@@ -78,7 +90,28 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        
+        public static ParserBuilder AddParseErrorReporting(
+            this ParserBuilder builder)
+        {
+            builder.AddInvocation(context => {
+                if (context.ParseResult.Errors.Count > 0)
+                {
+                    context.InvocationResult = new ParseErrorResult();
+                }
+            });
+            return builder;
+        }
+
+        public static CommandDefinitionBuilder OnExecute(
+            this CommandDefinitionBuilder builder,
+            MethodInfo method,
+            object target)
+        {
+            var methodBinder = new MethodBinder(method, target);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+   
         public static CommandDefinitionBuilder OnExecute(
             this CommandDefinitionBuilder builder,
             Action action)

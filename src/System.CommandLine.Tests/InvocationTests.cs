@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command");
 
-            result.Invoke(_console);
+            result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests
                     .Build();
             var result = parser.Parse("command");
 
-            result.Invoke(_console);
+            result.InvokeAsync(_console);
 
             wasCalled.Should().BeFalse();
         }
@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command");
 
-            result.Invoke(_console);
+            result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
@@ -93,7 +93,7 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command --age 425 --name Gandalf");
 
-            result.Invoke(_console);
+            result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
@@ -121,7 +121,7 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command --age 425 --name Gandalf");
 
-            result.Invoke(_console);
+            result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
@@ -139,7 +139,7 @@ namespace System.CommandLine.Tests
                                      cmd => cmd.OnExecute<string>(_ => secondWasCalled = true))
                          .Build();
 
-            parser.Parse("first").Invoke(_console);
+            parser.Parse("first").InvokeAsync(_console);
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();

@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace System.CommandLine.Tests
         private readonly TestConsole _console = new TestConsole();
 
         [Fact]
-        public void AddHelp_writes_help_for_the_specified_command()
+        public async Task AddHelp_writes_help_for_the_specified_command()
         {
             var parser =
                 new ParserBuilder()
@@ -24,13 +25,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command subcommand --help");
 
-            result.Invoke(_console);
+            await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().StartWith("Usage: command subcommand");
+            _console.Out.ToString().Should().StartWith($"Usage: {ParserBuilder.ExeName} command subcommand");
         }
 
         [Fact]
-        public void AddHelp_interrupts_execution_of_the_specified_command()
+        public async Task AddHelp_interrupts_execution_of_the_specified_command()
         {
             var wasCalled = false;
 
@@ -44,13 +45,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command subcommand --help");
 
-            result.Invoke(new TestConsole());
+            await result.InvokeAsync(new TestConsole());
 
             wasCalled.Should().BeFalse();
         }
 
         [Fact]
-        public void AddHelp_allows_help_for_all_configured_prefixes()
+        public async Task AddHelp_allows_help_for_all_configured_prefixes()
         {
             var parser =
                 new ParserBuilder()
@@ -60,7 +61,8 @@ namespace System.CommandLine.Tests
                     .Build();
 
             var result = parser.Parse("command ~help");
-            result.Invoke(_console);
+
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().StartWith("Usage:");
         }
@@ -70,7 +72,7 @@ namespace System.CommandLine.Tests
         [InlineData("--help")]
         [InlineData("-?")]
         [InlineData("/?")]
-        public void AddHelp_accepts_default_values(string value)
+        public async Task AddHelp_accepts_default_values(string value)
         {
             var parser =
                 new ParserBuilder()
@@ -79,13 +81,14 @@ namespace System.CommandLine.Tests
                     .Build();
 
             var result = parser.Parse($"command {value}");
-            result.Invoke(_console);
+
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().StartWith("Usage:");
         }
 
         [Fact]
-        public void AddHelp_accepts_collection_of_help_options()
+        public async Task AddHelp_accepts_collection_of_help_options()
         {
             var parser =
                 new ParserBuilder()
@@ -95,13 +98,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command ~cthulhu");
 
-            result.Invoke(_console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().StartWith("Usage:");
         }
 
         [Fact]
-        public void AddHelp_does_not_display_when_option_defined_with_same_alias()
+        public async Task AddHelp_does_not_display_when_option_defined_with_same_alias()
         {
             var parser =
                 new ParserBuilder()
@@ -112,7 +115,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command -h");
 
-            result.Invoke(_console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().BeEmpty();
         }

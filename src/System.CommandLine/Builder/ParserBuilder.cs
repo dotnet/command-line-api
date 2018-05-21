@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.IO;
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -30,9 +30,11 @@ namespace System.CommandLine.Builder
 
         public Parser Build()
         {
+            var rootCommand = BuildCommandDefinition();
+
             return new Parser(
                 new ParserConfiguration(
-                    BuildChildSymbolDefinitions(),
+                    new[] { rootCommand },
                     prefixes: Prefixes,
                     allowUnbundling: EnablePosixBundling,
                     validationMessages: ValidationMessages.Instance,

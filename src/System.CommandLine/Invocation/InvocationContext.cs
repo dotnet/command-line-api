@@ -17,6 +17,8 @@ namespace System.CommandLine.Invocation
 
         public IConsole Console { get; }
 
+        public int ResultCode { get; set; }
+
         public IInvocationResult InvocationResult { get; set; }
     }
 }
