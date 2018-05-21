@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine
+namespace System.CommandLine.Invocation
 {
     public class MethodBinder
     {
