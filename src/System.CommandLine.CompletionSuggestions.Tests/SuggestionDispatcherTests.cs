@@ -94,7 +94,7 @@ reference
         [Fact]
         public void GetCompletionSuggestions_UseProcessThatRemainsOpen_ReturnsEmptyString()
         {
-            SuggestionDispatcher.GetSuggestions("cmd.exe", suggestionTargetArguments: "", millisecondsTimeout: 1)
+            SuggestionDispatcher.GetSuggestions("cmd.exe", suggestionTargetArguments: "", millisecondsTimeout: 5000)
                 .Should().BeEmpty();
         }
     }
