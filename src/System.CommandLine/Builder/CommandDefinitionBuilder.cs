@@ -26,7 +26,7 @@ namespace System.CommandLine.Builder
 
         public string Name { get; }
 
-        public virtual CommandDefinition BuildCommandDefinition()
+        public CommandDefinition BuildCommandDefinition()
         {
             return new CommandDefinition(
                 Name,
