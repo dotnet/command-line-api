@@ -93,7 +93,6 @@ namespace System.CommandLine.CompletionSuggestions
 
                 process.Start();
 
-                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
                 Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
 
                 readToEndTask.Wait(millisecondsTimeout);
@@ -102,12 +101,7 @@ namespace System.CommandLine.CompletionSuggestions
                 {
                     result = readToEndTask.Result;
                 }
-                else
-                {
-                    readToEndTask.ContinueWith(
-                        antecedentTask => antecedentTask.Wait(cancellationTokenSource.Token), TaskContinuationOptions.ExecuteSynchronously);
-                    cancellationTokenSource.Cancel();
-                }
+
             }
             return result;
         }
