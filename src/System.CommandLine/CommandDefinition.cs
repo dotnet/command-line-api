@@ -65,9 +65,7 @@ namespace System.CommandLine
         }
 
         public bool TreatUnmatchedTokensAsErrors { get; }
-        internal MethodBinder ExecutionHandler { get; }
 
-        internal static CommandDefinition CreateImplicitRootCommand(params SymbolDefinition[] symbolsDefinition) =>
-            new CommandDefinition(symbolsDefinition);
+        internal MethodBinder ExecutionHandler { get; }
     }
 }

@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.Linq;
 using System.Reflection;
 
@@ -13,7 +14,7 @@ namespace System.CommandLine.Builder
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
-        private List<Invocation> _invocationList;
+        private List<InvocationDelegate> _invocationList;
 
         public ParserBuilder() : base(executableName.Value)
         {
@@ -38,21 +39,11 @@ namespace System.CommandLine.Builder
                     invocationList: _invocationList));
         }
 
-        public override CommandDefinition BuildCommandDefinition()
-        {
-            if (CommandDefinitionBuilders?.Count == 1)
-            {
-                return CommandDefinitionBuilders.Single().BuildCommandDefinition();
-            }
-
-            return CommandDefinition.CreateImplicitRootCommand(BuildChildSymbolDefinitions().ToArray());
-        }
-
-        internal void AddInvocation(Invocation action)
+        internal void AddInvocation(InvocationDelegate action)
         {
             if (_invocationList == null)
             {
-                _invocationList = new List<Invocation>();
+                _invocationList = new List<InvocationDelegate>();
             }
 
             _invocationList.Add(action);

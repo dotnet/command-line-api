@@ -1,4 +1,5 @@
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.IO;
 using System.Text;
 using FluentAssertions;
@@ -9,12 +10,12 @@ namespace System.CommandLine.Tests
     public class AddHelpTests
     {
         [Fact]
-        public void AddHelp_interrupts_execution_of_the_specified_command_and_writes_its_help()
+        public void AddHelp_writes_help_for_the_specified_command()
         {
             var parser =
                 new ParserBuilder()
                     .AddCommand("command", "",
-                                command=> command.AddCommand("subcommand"))
+                                command => command.AddCommand("subcommand"))
                     .AddHelp()
                     .Build();
 
@@ -27,6 +28,28 @@ namespace System.CommandLine.Tests
             }
 
             sb.ToString().Should().StartWith("Usage: command subcommand");
+        }
+
+        [Fact]
+        public void AddHelp_interrupts_execution_of_the_specified_command()
+        {
+            var wasCalled = false;
+
+            var parser =
+                new ParserBuilder()
+                    .AddCommand("command", "",
+                                command => command.AddCommand("subcommand")
+                                                  .OnExecute<string>(_ => {
+                                                      wasCalled = true;
+                                                  }, "a"))
+                    .AddHelp()
+                    .Build();
+
+            var result = parser.Parse("command subcommand --help");
+
+            result.Invoke();
+
+            wasCalled.Should().BeFalse();
         }
 
         [Fact]

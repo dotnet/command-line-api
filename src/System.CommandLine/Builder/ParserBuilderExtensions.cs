@@ -66,42 +66,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static CommandDefinitionBuilder OnExecute(
-            this CommandDefinitionBuilder builder,
-          Action action)
-        {
-            var methodBinder = new MethodBinder(action);
-            builder.ExecutionHandler = methodBinder;
-            return builder;
-        }
-
-        public static CommandDefinitionBuilder OnExecute<T>(
-            this CommandDefinitionBuilder builder,
-            Action<T> action, string optionAlias)
-        {
-            var methodBinder = new MethodBinder(action, optionAlias);
-            builder.ExecutionHandler = methodBinder;
-            return builder;
-        }
-
-        public static CommandDefinitionBuilder OnExecute<T1, T2>(
-            this CommandDefinitionBuilder builder,
-            Action<T1, T2> action, string optionAlias1, string optionAlias2)
-        {
-            var methodBinder = new MethodBinder(action, optionAlias1, optionAlias2);
-            builder.ExecutionHandler = methodBinder;
-            return builder;
-        }
-
-        public static CommandDefinitionBuilder OnExecute(
-            this CommandDefinitionBuilder builder,
-            Delegate action, params string[] optionAliases)
-        {
-            var methodBinder = new MethodBinder(action, optionAliases);
-            builder.ExecutionHandler = methodBinder;
-            return builder;
-        }
-
         public static ParserBuilder TreatUnmatchedTokensAsErrors(
             this ParserBuilder builder,
             bool value = true)

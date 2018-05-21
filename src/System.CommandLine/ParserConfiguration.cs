@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine
@@ -13,7 +14,7 @@ namespace System.CommandLine
             bool allowUnbundling = true,
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = default(ResponseFileHandling),
-            IReadOnlyCollection<Invocation> invocationList = null)
+            IReadOnlyCollection<InvocationDelegate> invocationList = null)
         {
             if (symbolDefinitions == null)
             {
@@ -92,7 +93,7 @@ namespace System.CommandLine
         
         public ValidationMessages ValidationMessages { get; }
 
-        public IReadOnlyCollection<Invocation> InvocationList { get; }
+        public IReadOnlyCollection<InvocationDelegate> InvocationList { get; }
 
         internal CommandDefinition RootCommandDefinition { get; }
 

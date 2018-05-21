@@ -1,3 +1,4 @@
+using System.CommandLine.Invocation;
 using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
@@ -112,11 +113,23 @@ namespace System.CommandLine.Tests
             wasCalled.Should().BeTrue();
         }
 
-        //[Fact]
+        [Fact]
         public void Invoke_chooses_the_appropriate_command()
         {
-            // FIX (Invoke_chooses_the_appropriate_command) write test
-            throw new NotImplementedException();
+            var firstWasCalled = false;
+            var secondWasCalled = false;
+
+            var parser = new ParserBuilder()
+                         .AddCommand("first", "",
+                                     cmd => cmd.OnExecute<string>(_ => firstWasCalled = true, "a"))
+                         .AddCommand("second", "",
+                                     cmd => cmd.OnExecute<string>(_ => secondWasCalled = true, "b"))
+                         .Build();
+
+            parser.Parse("first").Invoke();
+
+            firstWasCalled.Should().BeTrue();
+            secondWasCalled.Should().BeFalse();
         }
 
         private class TestInvocationResult : IInvocationResult

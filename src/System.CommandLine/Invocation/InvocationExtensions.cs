@@ -3,65 +3,10 @@ using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 
-namespace System.CommandLine
+namespace System.CommandLine.Invocation
 {
-    public delegate void Invocation(InvocationContext context);
+    public delegate void InvocationDelegate(InvocationContext context);
 
-    public class MethodBinder
-    {
-        private readonly Delegate _delegate;
-        private readonly string[] _optionAliases;
-
-        public MethodBinder(Delegate @delegate, params string[] optionAliases)
-        {
-            _delegate = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
-            _optionAliases = optionAliases;
-        }
-
-        public void Invoke(ParseResult result)
-        {
-            var arguments = new List<object>();
-            var parameters = _delegate.Method.GetParameters();
-            for (var index = 0; index < parameters.Length; index++)
-            {
-                var argument = result.Command().ValueForOption(_optionAliases[index]);
-                arguments.Add(argument);
-            }
-
-            _delegate.DynamicInvoke(arguments.ToArray());
-        }
-    }
-
-    public class InvocationContext
-    {
-        public InvocationContext(ParseResult parseResult)
-        {
-            ParseResult = parseResult;
-        }
-
-        public ParseResult ParseResult { get; }
-
-        public IInvocationResult InvocationResult { get; set; }
-
-        public TextWriter Output { get; set; } = Console.Out;
-    }
-
-    public interface IInvocationResult
-    {
-        int ReturnCode { get; }
-        string StandardOutput { get; }
-    }
-
-    public class HelpInvocationResult : IInvocationResult
-    {
-        public HelpInvocationResult(int returnCode, string standardOutput)
-        {
-            ReturnCode = returnCode;
-            StandardOutput = standardOutput;
-        }
-        public int ReturnCode { get; }
-        public string StandardOutput { get; }
-    }
 
 
 
@@ -69,7 +14,7 @@ namespace System.CommandLine
     {
         public static ParserBuilder AddInvocation(
             this ParserBuilder builder,
-            Invocation action)
+            InvocationDelegate action)
         {
             builder.AddInvocation(action);
 
@@ -78,7 +23,7 @@ namespace System.CommandLine
 
         public static void Invoke(this ParseResult parseResult, TextWriter output = null)
         {
-            if (parseResult.Configuration.InvocationList is List<Invocation> invocations)
+            if (parseResult.Configuration.InvocationList is List<InvocationDelegate> invocations)
             {
                 var context = new InvocationContext(parseResult) {
                     Output = output
@@ -130,6 +75,34 @@ namespace System.CommandLine
             builder.AddInvocation(context => {
                 HelpInvocation(context, helpOptionNames);
             });
+            return builder;
+        }
+
+        
+        public static CommandDefinitionBuilder OnExecute(
+            this CommandDefinitionBuilder builder,
+            Action action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandDefinitionBuilder OnExecute<T>(
+            this CommandDefinitionBuilder builder,
+            Action<T> action, string optionAlias)
+        {
+            var methodBinder = new MethodBinder(action, optionAlias);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandDefinitionBuilder OnExecute<T1, T2>(
+            this CommandDefinitionBuilder builder,
+            Action<T1, T2> action, string optionAlias1, string optionAlias2)
+        {
+            var methodBinder = new MethodBinder(action, optionAlias1, optionAlias2);
+            builder.ExecutionHandler = methodBinder;
             return builder;
         }
 
