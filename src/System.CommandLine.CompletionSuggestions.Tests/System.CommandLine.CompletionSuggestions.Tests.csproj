@@ -4,6 +4,8 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <StartupObject>System.CommandLine.CompletionSuggestions.Tests.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

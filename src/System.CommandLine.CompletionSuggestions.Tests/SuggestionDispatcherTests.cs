@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using FluentAssertions;
 using Xunit;
 
@@ -94,7 +95,9 @@ reference
         [Fact]
         public void GetCompletionSuggestions_UseProcessThatRemainsOpen_ReturnsEmptyString()
         {
-            SuggestionDispatcher.GetSuggestions("cmd.exe", suggestionTargetArguments: "", millisecondsTimeout: 1)
+            SuggestionDispatcher.GetSuggestions(
+                "dotnet.exe" 
+                , suggestionTargetArguments: $"{Assembly.GetExecutingAssembly().Location}", millisecondsTimeout: 1)
                 .Should().BeEmpty();
         }
     }
