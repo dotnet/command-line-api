@@ -6,7 +6,6 @@ using System.CommandLine.Builder;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,7 +47,7 @@ namespace System.CommandLine.CompletionSuggestions
             }
 
             // Parse out path to completion target exe from config file line
-            string[] keyValuePair = completionTarget.Split('=');
+            string[] keyValuePair = completionTarget.Split(new [] {'='}, 2);
             if (keyValuePair.Length < 2)
             {
                 throw new FormatException(
