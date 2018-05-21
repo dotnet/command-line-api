@@ -44,8 +44,8 @@ reference
         [Fact]
         public void Dispatch_with_badly_formatted_completion_provider_throws()
         {
-            Action act = () => SuggestionDispatcher.Dispatch(_args, new TestCompletionFileProvider("foo^^bar"));
-            act
+            Action action = () => SuggestionDispatcher.Dispatch(_args, new TestCompletionFileProvider("foo^^bar"));
+            action
                 .Should()
                 .Throw<FormatException>()
                 .WithMessage("Syntax for configuration of 'foo^^bar' is not of the format '<command>=<value>'");
@@ -54,11 +54,11 @@ reference
         [Fact]
         public void Dispatch_with_missing_position_arg_throws()
         {
-            Action act = () =>
+            Action action = () =>
                 SuggestionDispatcher.Dispatch(
                     @"-e ""C:\Program Files\dotnet\dotnet.exe"" ""dotnet add"" -p".Tokenize().ToArray(),
                     new TestCompletionFileProvider());
-            act
+            action
                 .Should()
                 .Throw<InvalidOperationException>()
                 .WithMessage("Required argument missing for option: -p");
@@ -83,12 +83,19 @@ reference
         [Fact]
         public void GetCompletionSuggestions_withbogusfilename_throws_FileNotFound()
         {
-            Action act = () =>
+            Action action = () =>
                 SuggestionDispatcher.GetCompletionSuggestions("Bogus file name", "");
-            act
+            action
                 .Should()
                 .Throw<Win32Exception>("System.Diagnostics.Process is nuts.")
                 .WithMessage("The system cannot find the file specified");
+        }
+
+        [Fact]
+        public void GetCompletionSuggestions_UseProcessThatRemainsOpen_ReturnsEmptyString()
+        {
+            SuggestionDispatcher.GetCompletionSuggestions("cmd.exe", args: "", millisecondsTimeout: 1)
+                .Should().BeEmpty();
         }
     }
 }

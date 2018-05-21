@@ -6,6 +6,9 @@ using System.CommandLine.Builder;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.CompletionSuggestions
 {
@@ -70,26 +73,42 @@ namespace System.CommandLine.CompletionSuggestions
                 $"\"{string.Join(' ', parseResult.UnmatchedTokens)}\"");
         }
 
-        public static string GetCompletionSuggestions(string exeFileName, string args)
+        public static string GetCompletionSuggestions(string exeFileName, string args, int millisecondsTimeout = 5000)
         {
             if (args == null)
             {
                 args = "";
             }
 
+            string result = "";
             // Invoke target with args
-            var process = new Process {
+            using (var process = new Process {
                 StartInfo = new ProcessStartInfo(exeFileName, args) {
                     UseShellExecute = false,
                     RedirectStandardOutput = true
                 }
-            };
+            })
+            {
 
-            process.Start();
+                process.Start();
 
-            process.WaitForExit(5000);
+                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
 
-            return process.StandardOutput.ReadToEnd();
+                readToEndTask.Wait(millisecondsTimeout);
+
+                if (readToEndTask.IsCompleted)
+                {
+                    result = readToEndTask.Result;
+                }
+                else
+                {
+                    readToEndTask.ContinueWith(
+                        antecedentTask => antecedentTask.Wait(cancellationTokenSource.Token), TaskContinuationOptions.ExecuteSynchronously);
+                    cancellationTokenSource.Cancel();
+                }
+            }
+            return result;
         }
 
         private static void DisplayHelp() => throw new NotImplementedException();
