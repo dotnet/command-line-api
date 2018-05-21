@@ -8,21 +8,21 @@ namespace System.CommandLine.Invocation
     public class MethodBinder
     {
         private readonly Delegate _delegate;
-        private readonly string[] _optionAliases;
 
-        public MethodBinder(Delegate @delegate, params string[] optionAliases)
+        public MethodBinder(Delegate @delegate)
         {
             _delegate = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
-            _optionAliases = optionAliases;
         }
 
         public void Invoke(ParseResult result)
         {
             var arguments = new List<object>();
             var parameters = _delegate.Method.GetParameters();
+
             for (var index = 0; index < parameters.Length; index++)
             {
-                var argument = result.Command().ValueForOption(_optionAliases[index]);
+                var parameterName = parameters[index].Name;
+                var argument = result.Command().ValueForOption(parameterName);
                 arguments.Add(argument);
             }
 

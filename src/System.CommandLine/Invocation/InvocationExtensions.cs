@@ -90,18 +90,18 @@ namespace System.CommandLine.Invocation
 
         public static CommandDefinitionBuilder OnExecute<T>(
             this CommandDefinitionBuilder builder,
-            Action<T> action, string optionAlias)
+            Action<T> action)
         {
-            var methodBinder = new MethodBinder(action, optionAlias);
+            var methodBinder = new MethodBinder(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
 
         public static CommandDefinitionBuilder OnExecute<T1, T2>(
             this CommandDefinitionBuilder builder,
-            Action<T1, T2> action, string optionAlias1, string optionAlias2)
+            Action<T1, T2> action)
         {
-            var methodBinder = new MethodBinder(action, optionAlias1, optionAlias2);
+            var methodBinder = new MethodBinder(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }

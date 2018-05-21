@@ -68,22 +68,30 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Specific_invocation_behavior_can_be_specified_in_the_command_definition_with_argument()
+        public void Method_parameters_on_the_invoked_method_are_bound_to_matching_option_names()
         {
             var wasCalled = false;
+
+            void Execute(string name, int age)
+            {
+                wasCalled = true;
+                name.Should().Be("Gandalf");
+                age.Should().Be(425);
+            }
 
             var commandDefinition =
                 new ParserBuilder()
                     .AddCommand(
                         "command", "",
-                        cmd => cmd.AddOption("-name", "", a => a.ExactlyOne())
-                                  .OnExecute<string>(s => {
-                                      wasCalled = true;
-                                      s.Should().Be("hello");
-                                  }, "-name"))
+                        cmd => {
+                            cmd
+                                .AddOption("--name", "", a => a.ExactlyOne())
+                                .OnExecute<string, int>(Execute)
+                                .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
+                        })
                     .BuildCommandDefinition();
 
-            var result = commandDefinition.Parse("command -name hello");
+            var result = commandDefinition.Parse("command --age 425 --name Gandalf");
 
             result.Invoke(_console);
 
@@ -91,7 +99,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Specific_invocation_behaviors_can_be_specified_in_the_command_definition_in_any_order()
+        public void Method_parameters_on_the_invoked_lambda_are_bound_to_matching_option_names()
         {
             var wasCalled = false;
 
@@ -99,18 +107,19 @@ namespace System.CommandLine.Tests
                 new ParserBuilder()
                     .AddCommand(
                         "command", "",
-                        cmd => cmd
-                               .AddOption("-name", "", a => a.ExactlyOne())
-                               .OnExecute<string, int>((s, i) => {
-                                   wasCalled = true;
-                                   s.Should().Be("Gandalf");
-                                   i.Should().Be(425);
-                               }, "-name", "-age")
-                               .AddOption("-age", "", a => a.ParseArgumentsAs<int>())
-                    )
+                        cmd => {
+                            cmd
+                                .AddOption("--name", "", a => a.ExactlyOne())
+                                .OnExecute<string, int>((name, age) => {
+                                    wasCalled = true;
+                                    name.Should().Be("Gandalf");
+                                    age.Should().Be(425);
+                                })
+                                .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
+                        })
                     .BuildCommandDefinition();
 
-            var result = commandDefinition.Parse("command -age 425 -name Gandalf");
+            var result = commandDefinition.Parse("command --age 425 --name Gandalf");
 
             result.Invoke(_console);
 
@@ -125,9 +134,9 @@ namespace System.CommandLine.Tests
 
             var parser = new ParserBuilder()
                          .AddCommand("first", "",
-                                     cmd => cmd.OnExecute<string>(_ => firstWasCalled = true, "a"))
+                                     cmd => cmd.OnExecute<string>(_ => firstWasCalled = true))
                          .AddCommand("second", "",
-                                     cmd => cmd.OnExecute<string>(_ => secondWasCalled = true, "b"))
+                                     cmd => cmd.OnExecute<string>(_ => secondWasCalled = true))
                          .Build();
 
             parser.Parse("first").Invoke(_console);

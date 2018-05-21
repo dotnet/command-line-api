@@ -38,9 +38,7 @@ namespace System.CommandLine.Tests
                 new ParserBuilder()
                     .AddCommand("command", "",
                                 command => command.AddCommand("subcommand")
-                                                  .OnExecute<string>(_ => {
-                                                      wasCalled = true;
-                                                  }, "a"))
+                                                  .OnExecute<string>(_ => wasCalled = true))
                     .AddHelp()
                     .Build();
 
