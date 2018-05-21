@@ -7,7 +7,7 @@ namespace System.CommandLine.CompletionSuggestions
     {
         static void Main(string[] args)
         {
-            Console.Write(SuggestionDispatcher.Dispatch(args, new CompletionFileProvider()));
+            Console.Write(SuggestionDispatcher.Dispatch(args, new SuggestionFileProvider()));
         }
     }
 }

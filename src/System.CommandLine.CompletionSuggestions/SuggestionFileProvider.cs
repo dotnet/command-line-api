@@ -8,14 +8,7 @@ using System.Reflection;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    public interface ICompletionFileProvider
-    {
-        IReadOnlyCollection<string> RegistrationConfigFilePaths { get; }
-        void AddRegistrationConfigFilePath(string configFilePath);
-        string FindCompletionRegistration(FileInfo soughtExecutible);
-    }
-
-    public class CompletionFileProvider : ICompletionFileProvider
+    public class SuggestionFileProvider : ISuggestionFileProvider
     {
         readonly List<string> _registrationConfigFilePaths = new List<string>
              {
@@ -23,9 +16,9 @@ namespace System.CommandLine.CompletionSuggestions
                     "System.CommandLine.Completion.txt")
             };
 
-        public IReadOnlyCollection<string> RegistrationConfigFilePaths => _registrationConfigFilePaths;
+        public IReadOnlyCollection<string> RegistrationConfigurationFilePaths => _registrationConfigFilePaths;
 
-        public void AddRegistrationConfigFilePath(string configFilePath)
+        public void AddRegistrationConfigurationFilePath(string configFilePath)
         {
             if (string.IsNullOrEmpty(configFilePath))
             {
@@ -34,9 +27,9 @@ namespace System.CommandLine.CompletionSuggestions
             _registrationConfigFilePaths.Add(configFilePath);
         }
 
-        public string FindCompletionRegistration(FileInfo soughtExecutible)
+        public string FindRegistration(FileInfo soughtExecutable)
         {
-            foreach (string configFilePath in RegistrationConfigFilePaths)
+            foreach (string configFilePath in RegistrationConfigurationFilePaths)
             {
                 if (!File.Exists(configFilePath))
                 {
@@ -44,7 +37,7 @@ namespace System.CommandLine.CompletionSuggestions
                 }
 
                 string completionTarget = File.ReadAllLines(configFilePath).SingleOrDefault(line =>
-                    line.StartsWith(soughtExecutible.FullName, StringComparison.OrdinalIgnoreCase));
+                    line.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase));
 
                 if (completionTarget != null)
                 {

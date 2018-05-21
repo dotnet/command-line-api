@@ -7,23 +7,23 @@ using Xunit;
 
 namespace System.CommandLine.CompletionSuggestions.Tests
 {
-    internal class TestCompletionFileProvider : ICompletionFileProvider
+    internal class TestSuggestionFileProvider : ISuggestionFileProvider
     {
         private readonly string _regLine;
 
-        public TestCompletionFileProvider() : this("C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete")
+        public TestSuggestionFileProvider() : this("C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete")
         {
         }
 
-        public TestCompletionFileProvider(string regLine)
+        public TestSuggestionFileProvider(string regLine)
         {
             _regLine = regLine;
         }
 
-        public IReadOnlyCollection<string> RegistrationConfigFilePaths => new string[] { };
-        public void AddRegistrationConfigFilePath(string configFilePath) => throw new NotImplementedException();
+        public IReadOnlyCollection<string> RegistrationConfigurationFilePaths => new string[] { };
+        public void AddRegistrationConfigurationFilePath(string configFilePath) => throw new NotImplementedException();
 
-        public string FindCompletionRegistration(FileInfo soughtExecutible) => _regLine;
+        public string FindRegistration(FileInfo soughtExecutable) => _regLine;
     }
 
     public class SuggestionDispatcherTests
@@ -33,7 +33,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 
         [Fact]
         public void Dispatch_executes_dotnet_complete() => SuggestionDispatcher.Dispatch(_args,
-                new TestCompletionFileProvider())
+                new TestSuggestionFileProvider())
             .Should()
             .Be(@"-h
 --help
@@ -44,7 +44,7 @@ reference
         [Fact]
         public void Dispatch_with_badly_formatted_completion_provider_throws()
         {
-            Action action = () => SuggestionDispatcher.Dispatch(_args, new TestCompletionFileProvider("foo^^bar"));
+            Action action = () => SuggestionDispatcher.Dispatch(_args, new TestSuggestionFileProvider("foo^^bar"));
             action
                 .Should()
                 .Throw<FormatException>()
@@ -57,7 +57,7 @@ reference
             Action action = () =>
                 SuggestionDispatcher.Dispatch(
                     @"-e ""C:\Program Files\dotnet\dotnet.exe"" ""dotnet add"" -p".Tokenize().ToArray(),
-                    new TestCompletionFileProvider());
+                    new TestSuggestionFileProvider());
             action
                 .Should()
                 .Throw<InvalidOperationException>()
@@ -67,13 +67,13 @@ reference
         [Fact]
         public void Dispatch_with_unknown_completion_provider_returns_empty_string() => SuggestionDispatcher.Dispatch(
                 _args,
-                new TestCompletionFileProvider(string.Empty))
+                new TestSuggestionFileProvider(string.Empty))
             .Should()
             .BeEmpty();
 
         [Fact]
         public void GetCompletionSuggestions_executes_dotnet_complete() => SuggestionDispatcher
-            .GetCompletionSuggestions("dotnet", "complete --position 12 \"dotnet add\"")
+            .GetSuggestions("dotnet", "complete --position 12 \"dotnet add\"")
             .Should()
             .Contain("-h")
             .And.Contain("--help")
@@ -84,7 +84,7 @@ reference
         public void GetCompletionSuggestions_withbogusfilename_throws_FileNotFound()
         {
             Action action = () =>
-                SuggestionDispatcher.GetCompletionSuggestions("Bogus file name", "");
+                SuggestionDispatcher.GetSuggestions("Bogus file name", "");
             action
                 .Should()
                 .Throw<Win32Exception>("System.Diagnostics.Process is nuts.")
@@ -94,7 +94,7 @@ reference
         [Fact]
         public void GetCompletionSuggestions_UseProcessThatRemainsOpen_ReturnsEmptyString()
         {
-            SuggestionDispatcher.GetCompletionSuggestions("cmd.exe", args: "", millisecondsTimeout: 1)
+            SuggestionDispatcher.GetSuggestions("cmd.exe", suggestionTargetArguments: "", millisecondsTimeout: 1)
                 .Should().BeEmpty();
         }
     }

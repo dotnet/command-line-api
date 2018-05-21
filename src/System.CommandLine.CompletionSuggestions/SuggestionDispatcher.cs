@@ -16,7 +16,7 @@ namespace System.CommandLine.CompletionSuggestions
         private const string Position = "-p";
         private const string ExeName = "-e";
 
-        public static string Dispatch(string[] args, ICompletionFileProvider completionFileProvider)
+        public static string Dispatch(string[] args, ISuggestionFileProvider suggestionFileProvider)
         {
             // CommandLine:
             // dotnet run System.CommandLine <currentCommandLine> <cursorPosition> Foo bar
@@ -37,32 +37,32 @@ namespace System.CommandLine.CompletionSuggestions
             }*/
 
 
-            string completionTarget =
-                completionFileProvider.FindCompletionRegistration(parseResult.ValueForOption<FileInfo>(ExeName));
+            string suggestionRegistration =
+                suggestionFileProvider.FindRegistration(parseResult.ValueForOption<FileInfo>(ExeName));
 
-            if (string.IsNullOrEmpty(completionTarget))
+            if (string.IsNullOrWhiteSpace(suggestionRegistration))
             {
                 // Can't find a completion exe to call
                 return string.Empty;
             }
 
             // Parse out path to completion target exe from config file line
-            string[] keyValuePair = completionTarget.Split(new [] {'='}, 2);
+            string[] keyValuePair = suggestionRegistration.Split(new[] { '=' }, 2);
             if (keyValuePair.Length < 2)
             {
                 throw new FormatException(
-                    $"Syntax for configuration of '{completionTarget}' is not of the format '<command>=<value>'");
+                    $"Syntax for configuration of '{suggestionRegistration}' is not of the format '<command>=<value>'");
             }
 
             List<string> targetCommands = keyValuePair[1].Tokenize().ToList();
 
-            string targetArgs = GetArgsString(parseResult, targetCommands);
+            string targetArgs = FormatSuggestionArguments(parseResult, targetCommands);
 
-            return GetCompletionSuggestions(targetCommands.First(), targetArgs);
+            return GetSuggestions(targetCommands.First(), targetArgs);
 
         }
 
-        private static string GetArgsString(ParseResult parseResult, List<string> targetCommands)
+        private static string FormatSuggestionArguments(ParseResult parseResult, List<string> targetCommands)
         {
             //TODO: don't just assume the callee has a "--position" argument
             return string.Join(' ',
@@ -72,17 +72,19 @@ namespace System.CommandLine.CompletionSuggestions
                 $"\"{string.Join(' ', parseResult.UnmatchedTokens)}\"");
         }
 
-        public static string GetCompletionSuggestions(string exeFileName, string args, int millisecondsTimeout = 5000)
+        public static string GetSuggestions(string exeFileName,
+                                            string suggestionTargetArguments,
+                                            int millisecondsTimeout = 5000)
         {
-            if (args == null)
+            if (suggestionTargetArguments == null)
             {
-                args = "";
+                suggestionTargetArguments = "";
             }
 
             string result = "";
             // Invoke target with args
             using (var process = new Process {
-                StartInfo = new ProcessStartInfo(exeFileName, args) {
+                StartInfo = new ProcessStartInfo(exeFileName, suggestionTargetArguments) {
                     UseShellExecute = false,
                     RedirectStandardOutput = true
                 }
