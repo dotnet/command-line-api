@@ -13,10 +13,16 @@ namespace System.CommandLine.Tests
     public class HelpViewTests
     {
         private readonly ITestOutputHelper _output;
+        private const int ColumnGutterWidth = 4;
+        private const int IndentationWidth = 2;
+        private readonly string _columnPadding;
+        private readonly string _indentation;
 
         public HelpViewTests(ITestOutputHelper output)
         {
             _output = output;
+            _columnPadding = new string(' ', ColumnGutterWidth);
+            _indentation = new string(' ', IndentationWidth);
         }
 
         #region " Setup "
@@ -44,7 +50,7 @@ namespace System.CommandLine.Tests
 
             var help = command.Subcommand("outer").GenerateHelp();
 
-            help.Should().Contain($"Arguments:{NewLine}  <test name>   test desc");
+            help.Should().Contain($"Arguments:{NewLine}{_indentation}<test name>{_columnPadding}test desc");
         }
 
         [Fact]
@@ -102,15 +108,15 @@ namespace System.CommandLine.Tests
                                       "command help",
                                       cmd => cmd.AddOption(
                                           new[] { "-v", "--verbosity" },
-                                          $"Sets the verbosity. Accepted values are:{NewLine}- quiet{NewLine}- loud{NewLine}- very-loud",
+                                          $"Sets the verbosity. Accepted values are: [quiet] [loud] [very-loud]",
                                           arguments: args => args.ExactlyOne()))
                           .BuildCommandDefinition();
 
             var help = command.Subcommand("the-command").GenerateHelp();
 
-            const string indent = "                    ";
+            const string indent = "                     ";
 
-            help.Should().Contain($"Sets the verbosity. Accepted values are:{NewLine}{indent}- quiet{NewLine}{indent}- loud{NewLine}{indent}- very-loud");
+            help.Should().Contain($"Sets the verbosity. Accepted values are: [quiet] [loud]{NewLine}{indent}[very-loud]");
         }
 
         [Fact]
@@ -337,7 +343,7 @@ namespace System.CommandLine.Tests
 
             var help = command.Subcommand("the-command").GenerateHelp();
 
-            help.Should().Contain("  -v, --verbosity <LEVEL>   Sets the verbosity.");
+            help.Should().Contain($"{_indentation}-v, --verbosity <LEVEL>{_columnPadding}Sets the verbosity.");
         }
 
         [Fact]
@@ -357,7 +363,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(help);
 
-            help.Should().Contain($"Arguments:{NewLine}  <the-arg>   This is the argument for the command.");
+            help.Should().Contain($"Arguments:{NewLine}{_indentation}<the-arg>{_columnPadding}This is the argument for the command.");
         }
 
         #endregion " Arguments "

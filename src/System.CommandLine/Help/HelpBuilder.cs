@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using static System.Environment;
 using static System.CommandLine.DefaultHelpText;
 
@@ -9,34 +10,52 @@ namespace System.CommandLine
 {
     public class HelpBuilder
     {
-        private const int ColumnGutterWidth = 3;
-        private const int DefaultWindowWidth = 80;
-        private const int IndentationSize = 2;
-        private const int MaxWidthLeeWay = 2;
-
-        private readonly StringBuilder _builder;
+        private readonly StringBuilder _helpText;
         private int _indentationLevel;
-        private int _currentIndentation;
 
-        protected int MaxWidth { get; private set; }
+        internal const int DefaultColumnGutter = 4;
+        internal const int DefaultIndentationSize = 2;
+        internal const int DefaultWindowWidth = 80;
+        internal const int WindowMargin = 2;
+
+        public int ColumnGutter { get; private set; } = DefaultColumnGutter;
+        public int IndentationSize { get; private set; } = DefaultIndentationSize;
+        public int MaxWidth { get; private set; } = DefaultWindowWidth;
 
         public HelpBuilder()
         {
-            _builder = new StringBuilder();
+            _helpText = new StringBuilder();
         }
 
-        internal int CurrentIndentation => _currentIndentation;
-
-        private void Reset()
+        /// <summary>
+        /// Resets the configuration properties to their default values
+        /// </summary>
+        public void ResetConfiguration()
         {
-            _currentIndentation = 0;
             _indentationLevel = 0;
+            ColumnGutter = DefaultColumnGutter;
+            IndentationSize = DefaultIndentationSize;
+            MaxWidth = DefaultWindowWidth;
         }
+
+        /// <summary>
+        /// Sets the configuration properties to the specified, or default, values
+        /// </summary>
+        /// <param name="columnGutter"></param>
+        /// /// <param name="indentationSize"></param>
+        /// <param name="maxWidth"></param>
+        public void Configure(int? columnGutter = null, int? indentationSize = null, int? maxWidth = null)
+        {
+            ColumnGutter = columnGutter ?? DefaultColumnGutter;
+            IndentationSize = indentationSize ?? DefaultIndentationSize;
+            MaxWidth = maxWidth ?? GetWindowWidth();
+        }
+
+        internal int CurrentIndentation => _indentationLevel * IndentationSize;
 
         internal void Indent()
         {
             _indentationLevel += 1;
-            _currentIndentation += IndentationSize;
         }
 
         internal void Dedent()
@@ -47,7 +66,6 @@ namespace System.CommandLine
             }
 
             _indentationLevel -= 1;
-            _currentIndentation += IndentationSize;
         }
 
         private static int GetWindowWidth()
@@ -74,7 +92,7 @@ namespace System.CommandLine
         /// <returns></returns>
         internal int GetAvailableWidth()
         {
-            return MaxWidth - _currentIndentation - MaxWidthLeeWay;
+            return MaxWidth - CurrentIndentation - WindowMargin;
         }
 
         /// <summary>
@@ -83,7 +101,12 @@ namespace System.CommandLine
         /// <param name="width"></param>
         internal void AddPadding(int width)
         {
-            _builder.Append(new string(' ', width));
+            _helpText.Append(new string(' ', width));
+        }
+
+        internal void AddBlankLine()
+        {
+            _helpText.AppendLine();
         }
 
         /// <summary>
@@ -103,9 +126,9 @@ namespace System.CommandLine
         /// <param name="text"></param>
         internal void AddText(string text)
         {
-            _builder.AppendFormat(
+            _helpText.AppendFormat(
                 "{0}{1}",
-                new string(' ', _currentIndentation),
+                new string(' ', CurrentIndentation),
                 text ?? "");
         }
 
@@ -115,9 +138,9 @@ namespace System.CommandLine
         /// <param name="text"></param>
         internal void AddLine(string text)
         {
-            _builder.AppendFormat(
+            _helpText.AppendFormat(
                 "{0}{1}{2}",
-                new string(' ', _currentIndentation),
+                new string(' ', CurrentIndentation),
                 text ?? "",
                 NewLine);
         }
@@ -131,30 +154,96 @@ namespace System.CommandLine
         /// <param name="description"></param>
         internal void AddSectionColumns(string name, int padding, string description)
         {
-            _builder.AppendFormat(
+            _helpText.AppendFormat(
                 "{0}{1}{2}{3}{4}",
-                new string(' ', _currentIndentation),
+                new string(' ', CurrentIndentation),
                 name ?? "",
                 new string(' ', padding),
                 description ?? "",
                 NewLine);
         }
 
-        public string Build(CommandDefinition commandDefinition, int? maxWidth = null)
+        protected virtual IReadOnlyCollection<string> SplitText(string text, int maxLength)
+        {
+            var cleanText = Regex.Replace(text, "\\s+", " ");
+            var textLength = cleanText.Length;
+
+            if (string.IsNullOrWhiteSpace(cleanText) || textLength < maxLength)
+            {
+                return new[] {cleanText};
+            }
+
+            var lines = new List<string>();
+            var builder = new StringBuilder();
+            var index = 0;
+
+            foreach (var item in cleanText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var cleanedItem = item.Trim();
+                var length = cleanedItem.Length + builder.Length;
+
+                if (length > maxLength)
+                {
+                    lines.Add(builder.ToString());
+                    builder.Clear();
+                    index = 0;
+                }
+
+                if (index != 0)
+                {
+                    builder.Append(" ");
+                }
+                builder.Append(cleanedItem);
+                index += 1;
+            }
+
+            if (index != 0)
+            {
+                lines.Add(builder.ToString());
+            }
+
+            return lines;
+        }
+
+        internal void AddSectionColumns(string leftColumn, string rightColumn, int maxLeftColumnWidth)
+        {
+            var availableWidth = GetAvailableWidth();
+            var offset = maxLeftColumnWidth + ColumnGutter - leftColumn.Length;
+
+            var maxRightColumnWidth = availableWidth - maxLeftColumnWidth - ColumnGutter;
+            var rightColumnLines = SplitText(rightColumn, maxRightColumnWidth);
+
+            _helpText.AppendFormat(
+                "{0}{1}{2}{3}{4}",
+                new string(' ', CurrentIndentation),
+                leftColumn,
+                new string(' ', offset),
+                rightColumnLines.First(),
+                NewLine);
+
+            offset = CurrentIndentation + maxLeftColumnWidth + ColumnGutter;
+            foreach (var line in rightColumnLines.Skip(1))
+            {
+                _helpText.AppendFormat(
+                    "{0}{1}",
+                    new string(' ', offset),
+                    line);
+            }
+        }
+
+        public string Build(CommandDefinition commandDefinition)
         {
             if (commandDefinition == null)
             {
                 throw new ArgumentNullException(nameof(commandDefinition));
             }
 
-            MaxWidth = maxWidth ?? GetWindowWidth();
-
             AddSynopsis(commandDefinition);
             AddArgumentsSection(commandDefinition);
             AddOptionsSection(commandDefinition);
             AddSubcommandsSection(commandDefinition);
             AddAdditionalArgumentsSection(commandDefinition);
-            return _builder.ToString();
+            return _helpText.ToString();
         }
 
         private void WriteColumns(string name, string description, int maxWidth)
@@ -169,17 +258,17 @@ namespace System.CommandLine
                 description = "";
             }
 
-            var leftColumnWidth = ColumnGutterWidth + _currentIndentation + maxWidth;
+            var leftColumnWidth = ColumnGutter + CurrentIndentation + maxWidth;
 
             AddText(name);
 
             if (name.Length <= leftColumnWidth)
             {
-                AddPadding(leftColumnWidth - name.Length - _currentIndentation);
+                AddPadding(leftColumnWidth - name.Length - CurrentIndentation);
             }
             else
             {
-                _builder.AppendLine();
+                AddBlankLine();
                 AddPadding(leftColumnWidth);
             }
 
@@ -189,18 +278,35 @@ namespace System.CommandLine
                     .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(s => s.Trim()));
 
-            _builder.AppendLine(descriptionWithLineWraps);
+            _helpText.AppendLine(descriptionWithLineWraps);
         }
 
         private static string OptionFormatter(SymbolDefinition symbolDefinition)
         {
-            var aliases = string.Join(", ", symbolDefinition.RawAliases.OrderBy(alias => alias.Length));
+            var rawAliases = symbolDefinition.RawAliases
+                .OrderBy(alias => alias.Length);
+
+            var aliases = string.Join(", ", rawAliases);
 
             var argumentName = symbolDefinition.ArgumentDefinition?.Help?.Name;
 
             return string.IsNullOrWhiteSpace(argumentName)
                 ? aliases
                 : $"{aliases} <{argumentName}>";
+        }
+
+        private static Tuple<string, string> OptionFormatter2(SymbolDefinition symbol)
+        {
+            var rawAliases = symbol.RawAliases
+                .OrderBy(alias => alias.Length);
+
+            var aliases = string.Join(", ", rawAliases);
+
+            var argumentName = symbol.ArgumentDefinition?.Help?.Name;
+
+            var leftColumn = string.IsNullOrWhiteSpace(argumentName) ? aliases : $"{aliases} <{argumentName}>";
+            var rightColumn = symbol.Description ?? "";
+            return Tuple.Create(leftColumn, rightColumn);
         }
 
         private void WriteOptionsList(IReadOnlyCollection<SymbolDefinition> symbols)
@@ -220,7 +326,7 @@ namespace System.CommandLine
 
         private void AddSynopsis(CommandDefinition commandDefinition)
         {
-            _builder.Append(Synopsis.Title);
+            _helpText.Append(Synopsis.Title);
 
             var subcommands = commandDefinition
                 .RecurseWhileNotNull(commandDef => commandDef.Parent)
@@ -228,12 +334,12 @@ namespace System.CommandLine
 
             foreach (var subcommand in subcommands)
             {
-                _builder.AppendFormat(" {0}", subcommand.Name);
+                _helpText.AppendFormat(" {0}", subcommand.Name);
 
                 var argsName = subcommand.ArgumentDefinition?.Help?.Name;
                 if (subcommand != commandDefinition && !string.IsNullOrWhiteSpace(argsName))
                 {
-                    _builder.AppendFormat(" <{0}>", argsName);
+                    _helpText.AppendFormat(" <{0}>", argsName);
                 }
             }
 
@@ -247,26 +353,26 @@ namespace System.CommandLine
 
             if (hasOptionHelp)
             {
-                _builder.AppendFormat(" {0}", Synopsis.Options);
+                _helpText.AppendFormat(" {0}", Synopsis.Options);
             }
 
             var argumentsName = commandDefinition.ArgumentDefinition?.Help?.Name;
             if (!string.IsNullOrWhiteSpace(argumentsName))
             {
-                _builder.AppendFormat(" <{0}>", argumentsName);
+                _helpText.AppendFormat(" <{0}>", argumentsName);
             }
 
             if (hasCommand)
             {
-                _builder.AppendFormat(" {0}", Synopsis.Command);
+                _helpText.AppendFormat(" {0}", Synopsis.Command);
             }
 
             if (!commandDefinition.TreatUnmatchedTokensAsErrors)
             {
-                _builder.AppendFormat(" {0}", Synopsis.AdditionalArguments);
+                _helpText.AppendFormat(" {0}", Synopsis.AdditionalArguments);
             }
 
-            _builder.AppendLine();
+            AddBlankLine();
         }
 
         private void AddArgumentsSection(CommandDefinition commandDefinition)
@@ -287,8 +393,8 @@ namespace System.CommandLine
             var argHelp = commandDefinition.ArgumentDefinition?.Help;
             var parentArgHelp = commandDefinition.Parent?.ArgumentDefinition?.Help;
 
-            _builder.AppendLine();
-            _builder.AppendLine(ArgumentsSection.Title);
+            AddBlankLine();
+            _helpText.AppendLine(ArgumentsSection.Title);
 
             Indent();
 
@@ -327,12 +433,8 @@ namespace System.CommandLine
                 return;
             }
 
-            _builder.AppendLine();
-            _builder.AppendLine(OptionsSection.Title);
-
-            Indent();
-            WriteOptionsList(options);
-            Dedent();
+            var section = new HelpSection(this, OptionsSection.Title, options, OptionFormatter2);
+            section.Build();
         }
 
         private void AddSubcommandsSection(CommandDefinition commandDefinition)
@@ -348,8 +450,8 @@ namespace System.CommandLine
                 return;
             }
 
-            _builder.AppendLine();
-            _builder.AppendLine(CommandsSection.Title);
+            AddBlankLine();
+            _helpText.AppendLine(CommandsSection.Title);
 
             Indent();
             WriteOptionsList(subcommands);
@@ -363,10 +465,10 @@ namespace System.CommandLine
                 return;
             }
 
-            _builder.Append(AdditionalArgumentsSection.Title);
-            _builder.AppendLine();
+            _helpText.Append(AdditionalArgumentsSection.Title);
+            AddBlankLine();
             Indent();
-            _builder.Append(AdditionalArgumentsSection.Description);
+            _helpText.Append(AdditionalArgumentsSection.Description);
             Dedent();
         }
     }
