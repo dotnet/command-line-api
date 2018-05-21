@@ -23,6 +23,7 @@ namespace System.CommandLine.Builder
         public static string ExeName { get; } = executableName.Value;
 
         public bool EnablePosixBundling { get; set; } = true;
+
         public IReadOnlyCollection<string> Prefixes { get; set; }
 
         public ResponseFileHandling ResponseFileHandling { get; set; }
