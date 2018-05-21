@@ -1,5 +1,8 @@
-using System.CommandLine.Invocation;
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using FluentAssertions;
 using Xunit;
 
@@ -7,6 +10,8 @@ namespace System.CommandLine.Tests
 {
     public class InvocationTests
     {
+        private readonly TestConsole _console = new TestConsole();
+
         [Fact]
         public void General_invocation_behaviors_can_be_specified_in_the_parser_definition()
         {
@@ -20,7 +25,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command");
 
-            result.Invoke();
+            result.Invoke(_console);
 
             wasCalled.Should().BeTrue();
         }
@@ -36,10 +41,9 @@ namespace System.CommandLine.Tests
                     .AddInvocation(context => context.InvocationResult = new TestInvocationResult())
                     .AddInvocation(_ => wasCalled = true)
                     .Build();
-
             var result = parser.Parse("command");
 
-            result.Invoke();
+            result.Invoke(_console);
 
             wasCalled.Should().BeFalse();
         }
@@ -58,7 +62,7 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command");
 
-            result.Invoke();
+            result.Invoke(_console);
 
             wasCalled.Should().BeTrue();
         }
@@ -81,7 +85,7 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command -name hello");
 
-            result.Invoke();
+            result.Invoke(_console);
 
             wasCalled.Should().BeTrue();
         }
@@ -108,7 +112,7 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command -age 425 -name Gandalf");
 
-            result.Invoke();
+            result.Invoke(_console);
 
             wasCalled.Should().BeTrue();
         }
@@ -126,7 +130,7 @@ namespace System.CommandLine.Tests
                                      cmd => cmd.OnExecute<string>(_ => secondWasCalled = true, "b"))
                          .Build();
 
-            parser.Parse("first").Invoke();
+            parser.Parse("first").Invoke(_console);
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();
@@ -134,8 +138,9 @@ namespace System.CommandLine.Tests
 
         private class TestInvocationResult : IInvocationResult
         {
-            public int ReturnCode { get; }
-            public string StandardOutput { get; }
+            public void Apply(InvocationContext context)
+            {
+            }
         }
     }
 }

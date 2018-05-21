@@ -1,7 +1,8 @@
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using System.IO;
-using System.Text;
 using FluentAssertions;
 using Xunit;
 
@@ -9,6 +10,8 @@ namespace System.CommandLine.Tests
 {
     public class AddHelpTests
     {
+        private readonly TestConsole _console = new TestConsole();
+
         [Fact]
         public void AddHelp_writes_help_for_the_specified_command()
         {
@@ -21,13 +24,9 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command subcommand --help");
 
-            var sb = new StringBuilder();
-            using (var output = new StringWriter(sb))
-            {
-                result.Invoke(output);
-            }
+            result.Invoke(_console);
 
-            sb.ToString().Should().StartWith("Usage: command subcommand");
+            _console.Out.ToString().Should().StartWith("Usage: command subcommand");
         }
 
         [Fact]
@@ -47,7 +46,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command subcommand --help");
 
-            result.Invoke();
+            result.Invoke(new TestConsole());
 
             wasCalled.Should().BeFalse();
         }
@@ -63,15 +62,9 @@ namespace System.CommandLine.Tests
                     .Build();
 
             var result = parser.Parse("command ~help");
+            result.Invoke(_console);
 
-            var sb = new StringBuilder();
-            using (var output = new StringWriter(sb))
-            {
-                result.Invoke(output);
-            }
-
-            string helpView = sb.ToString();
-            helpView.Should().StartWith("Usage:");
+            _console.Out.ToString().Should().StartWith("Usage:");
         }
 
         [Theory]
@@ -88,15 +81,9 @@ namespace System.CommandLine.Tests
                     .Build();
 
             var result = parser.Parse($"command {value}");
+            result.Invoke(_console);
 
-            var sb = new StringBuilder();
-            using (var output = new StringWriter(sb))
-            {
-                result.Invoke(output);
-            }
-
-            string helpView = sb.ToString();
-            helpView.Should().StartWith("Usage:");
+            _console.Out.ToString().Should().StartWith("Usage:");
         }
 
         [Fact]
@@ -110,14 +97,9 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command ~cthulhu");
 
-            var sb = new StringBuilder();
-            using (var output = new StringWriter(sb))
-            {
-                result.Invoke(output);
-            }
+            result.Invoke(_console);
 
-            string helpView = sb.ToString();
-            helpView.Should().StartWith("Usage:");
+            _console.Out.ToString().Should().StartWith("Usage:");
         }
 
         [Fact]
@@ -132,14 +114,9 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command -h");
 
-            var sb = new StringBuilder();
-            using (var output = new StringWriter(sb))
-            {
-                result.Invoke(output);
-            }
+            result.Invoke(_console);
 
-            string helpView = sb.ToString();
-            helpView.Should().BeEmpty();
+            _console.Out.ToString().Should().BeEmpty();
         }
     }
 }

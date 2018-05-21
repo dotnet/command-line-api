@@ -1,14 +1,10 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
-using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Invocation
 {
     public delegate void InvocationDelegate(InvocationContext context);
-
-
-
 
     public static class InvocationExtensions
     {
@@ -21,20 +17,21 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static void Invoke(this ParseResult parseResult, TextWriter output = null)
+        public static void Invoke(
+            this ParseResult parseResult,
+            IConsole console)
         {
-            if (parseResult.Configuration.InvocationList is List<InvocationDelegate> invocations)
+            if (parseResult.Configuration.InvocationList is IEnumerable<InvocationDelegate> invocations)
             {
-                var context = new InvocationContext(parseResult) {
-                    Output = output
-                };
+                var context = new InvocationContext(parseResult, console) ;
 
                 foreach (var invocation in invocations)
                 {
                     invocation(context);
                     if (context.InvocationResult != null)
                     {
-                        break;
+                       context.InvocationResult.Apply(context);
+                       return;
                     }
                 }
             }
@@ -65,15 +62,18 @@ namespace System.CommandLine.Invocation
                         }
                     }
                 }
-                HelpInvocation(context, helpOptions);
+
+                ShowHelp(context, helpOptions);
             });
             return builder;
         }
 
-        public static ParserBuilder AddHelp(this ParserBuilder builder, IReadOnlyCollection<string> helpOptionNames)
+        public static ParserBuilder AddHelp(
+            this ParserBuilder builder,
+            IReadOnlyCollection<string> helpOptionNames)
         {
             builder.AddInvocation(context => {
-                HelpInvocation(context, helpOptionNames);
+                ShowHelp(context, helpOptionNames);
             });
             return builder;
         }
@@ -106,16 +106,13 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        private static void HelpInvocation(
-            InvocationContext context, IReadOnlyCollection<string> helpOptionNames)
+        private static void ShowHelp(
+            InvocationContext context,
+            IReadOnlyCollection<string> helpOptionAliases)
         {
-            if (helpOptionNames.Contains(context.ParseResult.UnmatchedTokens.LastOrDefault()))
+            if (helpOptionAliases.Contains(context.ParseResult.UnmatchedTokens.LastOrDefault()))
             {
-                var command = context.ParseResult.Command();
-                string helpView = command.Definition.HelpView();
-                context.InvocationResult = new HelpInvocationResult(0, helpView);
-
-                context.Output.Write(helpView);
+                context.InvocationResult = new HelpResult();
             }
         }
     }

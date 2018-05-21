@@ -3,8 +3,11 @@
 
 namespace System.CommandLine.Invocation
 {
-    public interface IInvocationResult
+    public class HelpResult : IInvocationResult
     {
-        void Apply(InvocationContext context);
+        public void Apply(InvocationContext context)
+        {
+            context.Console.Out.Write(context.ParseResult.CommandDefinition().HelpView());
+        }
     }
 }
