@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine.Builder
@@ -21,9 +22,11 @@ namespace System.CommandLine.Builder
 
         public bool? TreatUnmatchedTokensAsErrors { get; set; }
 
+        internal MethodBinder ExecutionHandler { get; set; }
+
         public string Name { get; }
 
-        public virtual CommandDefinition BuildCommandDefinition()
+        public CommandDefinition BuildCommandDefinition()
         {
             return new CommandDefinition(
                 Name,
@@ -32,7 +35,8 @@ namespace System.CommandLine.Builder
                 symbolDefinitions: BuildChildSymbolDefinitions(),
                 treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
                                               Parent?.TreatUnmatchedTokensAsErrors ??
-                                              true);
+                                              true,
+                executionHandler: ExecutionHandler);
         }
 
         protected IReadOnlyCollection<SymbolDefinition> BuildChildSymbolDefinitions()

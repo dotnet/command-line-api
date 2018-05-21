@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace System.CommandLine
@@ -155,6 +156,57 @@ namespace System.CommandLine
                 Tokens = tokenList,
                 Errors = errorList
             };
+        }
+
+        public static string ToKebabCase(this string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            var sb = new StringBuilder();
+            int i = 0;
+            bool addDash = false;
+
+            for (; i < value.Length; i++)
+            {
+                char ch = value[i];
+                if (char.IsLetterOrDigit(ch))
+                {
+                    addDash = !char.IsUpper(ch);
+                    sb.Append(char.ToLowerInvariant(ch));
+                    i++;
+                    break;
+                }
+            }
+
+            for (; i < value.Length; i++)
+            {
+                char ch = value[i];
+                if (char.IsUpper(ch))
+                {
+                    if (addDash)
+                    {
+                        addDash = false;
+                        sb.Append('-');
+                    }
+
+                    sb.Append(char.ToLowerInvariant(ch));
+                }
+                else if (char.IsLetterOrDigit(ch))
+                {
+                    addDash = true;
+                    sb.Append(ch);
+                }
+                else
+                {
+                    addDash = false;
+                    sb.Append('-');
+                }
+            }
+
+            return sb.ToString();
         }
 
         private static Token Argument(string value) => new Token(value, TokenType.Argument);

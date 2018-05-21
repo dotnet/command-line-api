@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace System.CommandLine.DragonFruit
 {
-    internal class XmlDocReader
+    public class XmlDocReader
     {
         private readonly IEnumerable<XElement> _members;
 

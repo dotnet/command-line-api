@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +14,8 @@ namespace System.CommandLine.Builder
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
+        private List<InvocationDelegate> _invocationList;
+
         public ParserBuilder() : base(executableName.Value)
         {
         }
@@ -20,16 +24,32 @@ namespace System.CommandLine.Builder
 
         public bool EnablePosixBundling { get; set; } = true;
 
+        public IReadOnlyCollection<string> Prefixes { get; set; }
+
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
         public Parser Build()
         {
+            var rootCommand = BuildCommandDefinition();
+
             return new Parser(
                 new ParserConfiguration(
-                    BuildChildSymbolDefinitions(),
+                    new[] { rootCommand },
+                    prefixes: Prefixes,
                     allowUnbundling: EnablePosixBundling,
                     validationMessages: ValidationMessages.Instance,
-                    responseFileHandling: ResponseFileHandling));
+                    responseFileHandling: ResponseFileHandling,
+                    invocationList: _invocationList));
+        }
+
+        internal void AddInvocation(InvocationDelegate action)
+        {
+            if (_invocationList == null)
+            {
+                _invocationList = new List<InvocationDelegate>();
+            }
+
+            _invocationList.Add(action);
         }
     }
 }

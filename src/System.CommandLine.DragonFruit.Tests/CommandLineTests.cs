@@ -1,24 +1,20 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using Xunit.Abstractions;
+using System.CommandLine.Tests;
 
 namespace System.CommandLine.DragonFruit.Tests
 {
     public class CommandLineTests
     {
-        private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
 
-        public CommandLineTests(ITestOutputHelper output)
+        public CommandLineTests()
         {
-            _output = output;
-            _console = new TestConsole(_output);
+            _console = new TestConsole();
         }
 
         private string _captured;
@@ -41,8 +37,6 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task It_shows_help_text()
         {
-            var stdout = new StringBuilder();
-            _console.Out = new StringWriter(stdout);
             Action<string> action = TestMain;
 
             int exitCode = await CommandLine.InvokeMethodAsync(
@@ -52,7 +46,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 action.Method);
 
             exitCode.Should().Be(CommandLine.OkExitCode);
-            stdout.ToString().Should()
+            _console.Out.ToString().Should()
                 .Contain("--name")
                 .And.Contain("Options:");
         }
@@ -90,9 +84,6 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             Action action = TestMainThatThrows;
 
-            var stderr = new StringBuilder();
-            _console.Error = new StringWriter(stderr);
-
             int exitCode = await CommandLine.InvokeMethodAsync(
                 new[] { "--unknown" },
                 _console,
@@ -100,7 +91,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 action.Method);
 
             exitCode.Should().Be(CommandLine.ErrorExitCode);
-            stderr.ToString()
+            _console.Error.ToString()
                 .Should().NotBeEmpty()
                 .And
                 .Contain("--unknown");
@@ -112,9 +103,6 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             Action action = TestMainThatThrows;
 
-            var stderr = new StringBuilder();
-            _console.Error = new StringWriter(stderr);
-
             int exitCode = await CommandLine.InvokeMethodAsync(
                 Array.Empty<string>(),
                 _console,
@@ -122,7 +110,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 action.Method);
 
             exitCode.Should().Be(CommandLine.ErrorExitCode);
-            stderr.ToString()
+            _console.Error.ToString()
                 .Should().NotBeEmpty()
                 .And
                 .Contain("This threw an error");

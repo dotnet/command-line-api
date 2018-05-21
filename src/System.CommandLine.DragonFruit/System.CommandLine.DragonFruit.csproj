@@ -4,7 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
-    <InternalsVisibleTo Include="System.CommandLine.DragonFruit.Tests" />
     <Content Include="targets\*" PackagePath="build\$(TargetFramework)\" />
   </ItemGroup>
 </Project>

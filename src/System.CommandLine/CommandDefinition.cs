@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine
@@ -24,11 +25,12 @@ namespace System.CommandLine
             string description,
             IReadOnlyCollection<SymbolDefinition> symbolDefinitions = null,
             ArgumentDefinition argumentDefinition = null,
-            bool treatUnmatchedTokensAsErrors = true) :
+            bool treatUnmatchedTokensAsErrors = true,
+            MethodBinder executionHandler = null) :
             base(new[] { name }, description)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-
+            ExecutionHandler = executionHandler;
             symbolDefinitions = symbolDefinitions ?? Array.Empty<SymbolDefinition>();
 
             var validSymbolAliases = symbolDefinitions
@@ -64,5 +66,7 @@ namespace System.CommandLine
         }
 
         public bool TreatUnmatchedTokensAsErrors { get; }
+
+        internal MethodBinder ExecutionHandler { get; }
     }
 }
