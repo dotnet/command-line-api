@@ -9,8 +9,8 @@ namespace System.CommandLine.DragonFruit
 {
     public class CommandLine
     {
-        internal const int ErrorExitCode = 1;
-        internal const int OkExitCode = 0;
+        public const int ErrorExitCode = 1;
+        public const int OkExitCode = 0;
 
         /// <summary>
         /// Finds and executes 'Program.Main', but with strong types.
