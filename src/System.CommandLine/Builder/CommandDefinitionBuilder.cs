@@ -23,7 +23,7 @@ namespace System.CommandLine.Builder
 
         public string Name { get; }
 
-        public HelpBuilder HelpBuilder { get; set; }
+        public IHelpBuilder HelpBuilder { get; set; }
 
         public virtual CommandDefinition BuildCommandDefinition()
         {

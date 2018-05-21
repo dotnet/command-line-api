@@ -43,11 +43,12 @@ namespace System.CommandLine
 
             ArgumentDefinition = argumentDefinition ?? ArgumentDefinition.None;
             Description = description;
-            Help = help;
             Name = aliases
                    .Select(a => a.RemovePrefix())
                    .OrderBy(a => a.Length)
                    .Last();
+
+            Help = help ?? new HelpDefinition(Name, Description, false);
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;

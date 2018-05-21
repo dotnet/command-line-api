@@ -9,7 +9,7 @@ namespace System.CommandLine
 {
     public class CommandDefinition : SymbolDefinition
     {
-        public HelpBuilder HelpBuilder { get; }
+        public IHelpBuilder HelpBuilder { get; }
 
         public CommandDefinition(
             string name,
@@ -27,7 +27,7 @@ namespace System.CommandLine
             IReadOnlyCollection<SymbolDefinition> symbolDefinitions = null,
             ArgumentDefinition argumentDefinition = null,
             bool treatUnmatchedTokensAsErrors = true,
-            HelpBuilder helpBuilder = null) :
+            IHelpBuilder helpBuilder = null) :
             base(new[] { name }, description)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
@@ -71,7 +71,7 @@ namespace System.CommandLine
 
         public string GenerateHelp()
         {
-            return HelpBuilder.Build(this);
+            return HelpBuilder.Generate(this);
         }
     }
 }

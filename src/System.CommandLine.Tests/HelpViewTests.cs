@@ -114,7 +114,7 @@ namespace System.CommandLine.Tests
 
             var help = command.Subcommand("the-command").GenerateHelp();
 
-            const string indent = "                     ";
+            const string indent = "                        ";
 
             help.Should().Contain($"Sets the verbosity. Accepted values are: [quiet] [loud]{NewLine}{indent}[very-loud]");
         }

@@ -7,6 +7,7 @@ namespace System.CommandLine
     {
         private readonly HelpBuilder _builder;
         private readonly string _title;
+        private readonly string _description;
         private IReadOnlyCollection<SymbolDefinition> _items;
         private readonly Func<SymbolDefinition, Tuple<string, string>> _formatter;
 
@@ -22,14 +23,40 @@ namespace System.CommandLine
             _formatter = formatter;
         }
 
+        public HelpSection(
+            HelpBuilder builder,
+            string title,
+            string description)
+        {
+            _builder = builder;
+            _title = title;
+            _description = description;
+        }
+
         internal virtual void Build()
         {
+            if (!ShouldBuild())
+            {
+                return;
+            }
+
             _builder.AddBlankLine();
             AddHeading();
             _builder.Indent();
-            AddContent();
+            AddDescription();
+            AddItems();
             _builder.Dedent();
             _builder.AddBlankLine();
+        }
+
+        protected virtual bool ShouldBuild()
+        {
+            if (!string.IsNullOrWhiteSpace(_description))
+            {
+                return true;
+            }
+
+            return _items != null && _items.Any();
         }
 
         protected virtual void AddHeading()
@@ -42,8 +69,23 @@ namespace System.CommandLine
             _builder.AddLine(_title);
         }
 
-        protected virtual void AddContent()
+        protected virtual void AddDescription()
         {
+            if (string.IsNullOrWhiteSpace(_description))
+            {
+                return;
+            }
+
+            _builder.AddLine(_description);
+        }
+
+        protected virtual void AddItems()
+        {
+            if (_items == null || !_items.Any())
+            {
+                return;
+            }
+
             var helpLines = _items
                 .Select(item => _formatter(item));
 
