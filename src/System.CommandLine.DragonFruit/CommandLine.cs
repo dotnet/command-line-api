@@ -47,7 +47,7 @@ namespace System.CommandLine.DragonFruit
                 entryMethod);
         }
 
-        internal static async Task<int> InvokeMethodAsync(string[] args,
+        public static async Task<int> InvokeMethodAsync(string[] args,
             IConsole console,
             object @object,
             MethodInfo method)
