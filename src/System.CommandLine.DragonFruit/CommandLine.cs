@@ -45,15 +45,15 @@ namespace System.CommandLine.DragonFruit
             return await InvokeMethodAsync(
                        args,
                        console,
-                       /* @object:*/ null, // this is a static method
-                       entryMethod);
+                       entryMethod,
+                       null /* this is a static method*/ );
         }
 
         public static async Task<int> InvokeMethodAsync(
             string[] args,
             IConsole console,
-            object @object,
-            MethodInfo method)
+            MethodInfo method,
+            object @object)
         {
             var helpOption = new OptionDefinition("--help", "Show help output");
             var helpMetadata = GetHelpMetadata(method);
@@ -67,15 +67,7 @@ namespace System.CommandLine.DragonFruit
 
             ParseResult result = parser.Parse(args);
 
-            try
-            {
-                return await result.InvokeAsync(console);
-            }
-            catch (Exception e)
-            {
-                LogUnhandledException(console, e);
-                return ErrorExitCode;
-            }
+            return await result.InvokeAsync(console);
         }
 
         private static CommandHelpMetadata GetHelpMetadata(MethodInfo method)
@@ -93,15 +85,6 @@ namespace System.CommandLine.DragonFruit
 
             metadata.Name = assembly.GetName().Name;
             return metadata;
-        }
-
-        private static void LogUnhandledException(IConsole console, Exception e)
-        {
-            console.ResetColor();
-            console.ForegroundColor = ConsoleColor.Red;
-            console.Error.Write("Unhandled exception: ");
-            console.Error.WriteLine(e.ToString());
-            console.ResetColor();
         }
     }
 }

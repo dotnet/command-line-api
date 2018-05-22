@@ -33,7 +33,7 @@ namespace System.CommandLine.Builder
         public static TBuilder ConfigureFromMethod<TBuilder>(
             this TBuilder builder,
             MethodInfo method,
-            object target)
+            object target = null)
             where TBuilder : CommandDefinitionBuilder
         {
             foreach (var parameter in method.GetParameters())

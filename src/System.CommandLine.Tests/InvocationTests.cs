@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -68,7 +69,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Method_parameters_on_the_invoked_method_are_bound_to_matching_option_names()
+        public async Task Method_parameters_on_the_invoked_method_are_bound_to_matching_option_names()
         {
             var wasCalled = false;
 
@@ -84,22 +85,21 @@ namespace System.CommandLine.Tests
                     .AddCommand(
                         "command", "",
                         cmd => {
-                            cmd
-                                .AddOption("--name", "", a => a.ExactlyOne())
-                                .OnExecute<string, int>(Execute)
-                                .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
+                            cmd.AddOption("--name", "", a => a.ExactlyOne())
+                               .OnExecute<string, int>(Execute)
+                               .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
                         })
                     .BuildCommandDefinition();
 
             var result = commandDefinition.Parse("command --age 425 --name Gandalf");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
 
         [Fact]
-        public void Method_parameters_on_the_invoked_lambda_are_bound_to_matching_option_names()
+        public async Task Method_parameters_on_the_invoked_lambda_are_bound_to_matching_option_names()
         {
             var wasCalled = false;
 
@@ -121,13 +121,13 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command --age 425 --name Gandalf");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
 
         [Fact]
-        public void Invoke_chooses_the_appropriate_command()
+        public async Task Invoke_chooses_the_appropriate_command()
         {
             var firstWasCalled = false;
             var secondWasCalled = false;
@@ -139,7 +139,7 @@ namespace System.CommandLine.Tests
                                      cmd => cmd.OnExecute<string>(_ => secondWasCalled = true))
                          .Build();
 
-            parser.Parse("first").InvokeAsync(_console);
+            await parser.Parse("first").InvokeAsync(_console);
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();

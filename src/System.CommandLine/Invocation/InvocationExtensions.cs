@@ -45,7 +45,19 @@ namespace System.CommandLine.Invocation
 
             if (executionHandler != null)
             {
-                return await executionHandler.InvokeAsync(parseResult);
+                try
+                {
+                    return await executionHandler.InvokeAsync(parseResult);
+                }
+                catch (Exception exception)
+                {
+                    console.ResetColor();
+                    console.ForegroundColor = ConsoleColor.Red;
+                    console.Error.Write("Unhandled exception: ");
+                    console.Error.WriteLine(exception.ToString());
+                    console.ResetColor();
+                    return 1;
+                }
             }
 
             return 0;
@@ -105,7 +117,7 @@ namespace System.CommandLine.Invocation
         public static CommandDefinitionBuilder OnExecute(
             this CommandDefinitionBuilder builder,
             MethodInfo method,
-            object target)
+            object target = null)
         {
             var methodBinder = new MethodBinder(method, target);
             builder.ExecutionHandler = methodBinder;
@@ -143,7 +155,15 @@ namespace System.CommandLine.Invocation
             InvocationContext context,
             IReadOnlyCollection<string> helpOptionAliases)
         {
-            if (helpOptionAliases.Contains(context.ParseResult.UnmatchedTokens.LastOrDefault()))
+            var lastToken = context.ParseResult.Tokens.LastOrDefault();
+
+            if (helpOptionAliases.Contains(lastToken) &&
+                !context.ParseResult
+                        .Configuration
+                        .SymbolDefinitions
+                        .FlattenBreadthFirst(s => s.SymbolDefinitions)
+                        .SelectMany(s => s.RawAliases)
+                        .Any(helpOptionAliases.Contains))
             {
                 context.InvocationResult = new HelpResult();
             }
