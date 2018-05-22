@@ -1,0 +1,46 @@
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace System.CommandLine.Tests
+{
+    public class ParseCommandTests
+    {
+        private readonly ITestOutputHelper output;
+
+        public ParseCommandTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
+        [Fact]
+        public async Task Parse_directive_writes_parse_diagram()
+        {
+            var parser = new ParserBuilder()
+                         .AddCommand("the-command", "",
+                                     cmd => cmd.AddOption(new[] { "-c", "--count" }, "",
+                                                          args => args.ParseArgumentsAs<int>()))
+                         .AddParseCommand()
+                         .Build();
+
+            var result = parser.Parse("!parse the-command -c 34 --nonexistent wat");
+
+            output.WriteLine(result.Diagram());
+
+            var console = new TestConsole();
+
+            await result.InvokeAsync(console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"[ {ParserBuilder.ExeName} [ the-command [ --count <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
+        }
+    }
+}
