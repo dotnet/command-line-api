@@ -10,13 +10,6 @@ namespace System.CommandLine.Builder
     {
         private ArgumentSuggestionSource _suggestionSource;
 
-        private readonly SymbolDefinitionBuilder _parent;
-
-        public ArgumentDefinitionBuilder(SymbolDefinitionBuilder parent = null)
-        {
-            _parent = parent;
-        }
-
         internal ArgumentArity ArgumentArity { get; set; }
 
         internal ConvertArgument ConvertArguments { get; set; }

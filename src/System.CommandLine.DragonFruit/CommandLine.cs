@@ -58,6 +58,7 @@ namespace System.CommandLine.DragonFruit
         {
             var parserBuilder = new ParserBuilder()
                                 .ConfigureFromMethod(method, @object)
+                                .UseParseDirective()
                                 .AddHelp()
                                 .AddParseErrorReporting();
 

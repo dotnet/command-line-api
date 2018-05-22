@@ -14,7 +14,7 @@ namespace System.CommandLine
         internal ParseResult(
             IReadOnlyCollection<string> tokens,
             SymbolSet symbols,
-            ParserConfiguration configuration,
+            Parser parser,
             IReadOnlyCollection<string> unparsedTokens = null,
             IReadOnlyCollection<string> unmatchedTokens = null,
             IReadOnlyCollection<ParseError> errors = null,
@@ -24,8 +24,8 @@ namespace System.CommandLine
                      throw new ArgumentNullException(nameof(tokens));
             Symbols = symbols ??
                       throw new ArgumentNullException(nameof(symbols));
-            Configuration = configuration ??
-                            throw new ArgumentNullException(nameof(configuration));
+            Parser = parser ??
+                     throw new ArgumentNullException(nameof(parser));
 
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
@@ -39,7 +39,7 @@ namespace System.CommandLine
             CheckForErrors();
         }
 
-        internal ParserConfiguration Configuration { get; }
+        internal Parser Parser { get; }
 
         public SymbolSet Symbols { get; }
 

@@ -22,11 +22,24 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
+        public static ParserBuilder UseParseDirective(
+            this ParserBuilder builder)
+        {
+            builder.AddInvocation(context => {
+                if (context.ParseResult.Tokens.FirstOrDefault() == "!parse")
+                {
+                    context.InvocationResult = new ParseDirectiveResult();
+                }
+            });
+
+            return builder;
+        }
+
         public static async Task<int> InvokeAsync(
             this ParseResult parseResult,
             IConsole console)
         {
-            if (parseResult.Configuration.InvocationList is IEnumerable<InvocationDelegate> invocations)
+            if (parseResult.Parser.Configuration.InvocationList is IEnumerable<InvocationDelegate> invocations)
             {
                 var context = new InvocationContext(parseResult, console);
 
@@ -67,7 +80,7 @@ namespace System.CommandLine.Invocation
         {
             builder.AddInvocation(context => {
                 var helpOptions = new HashSet<string>();
-                var prefixes = context.ParseResult.Configuration.Prefixes;
+                var prefixes = context.ParseResult.Parser.Configuration.Prefixes;
                 if (prefixes == null)
                 {
                     helpOptions.Add("-h");
@@ -151,6 +164,15 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
+        public static CommandDefinitionBuilder OnExecute<T1, T2, T3>(
+            this CommandDefinitionBuilder builder,
+            Action<T1, T2, T3> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
         private static void ShowHelp(
             InvocationContext context,
             IReadOnlyCollection<string> helpOptionAliases)
@@ -159,6 +181,7 @@ namespace System.CommandLine.Invocation
 
             if (helpOptionAliases.Contains(lastToken) &&
                 !context.ParseResult
+                        .Parser
                         .Configuration
                         .SymbolDefinitions
                         .FlattenBreadthFirst(s => s.SymbolDefinitions)
