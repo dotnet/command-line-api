@@ -9,22 +9,20 @@ namespace System.CommandLine
 {
     public class Parser
     {
-        private readonly ParserConfiguration _configuration;
+        public Parser(ParserConfiguration configuration)
+        {
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
         public Parser(params SymbolDefinition[] symbolDefinitions) : this(new ParserConfiguration(symbolDefinitions))
         {
         }
 
-        public Parser(ParserConfiguration configuration)
-        {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        }
-
-        public SymbolDefinitionSet SymbolDefinitions => _configuration.SymbolDefinitions;
+        internal readonly ParserConfiguration Configuration;
 
         public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
-            var lexResult = NormalizeRootCommand(rawTokens).Lex(_configuration);
+            var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
             var unparsedTokens = new Queue<Token>(lexResult.Tokens);
             var rootSymbols = new SymbolSet();
             var allSymbols = new List<Symbol>();
@@ -44,7 +42,8 @@ namespace System.CommandLine
                 if (token.Type != TokenType.Argument)
                 {
                     var definedOption =
-                        SymbolDefinitions.SingleOrDefault(o => o.HasAlias(token.Value));
+                        Configuration.SymbolDefinitions
+                                     .SingleOrDefault(o => o.HasAlias(token.Value));
 
                     if (definedOption != null)
                     {
@@ -53,7 +52,7 @@ namespace System.CommandLine
 
                         if (parsedOption == null)
                         {
-                            parsedOption = Symbol.Create(definedOption, token.Value, validationMessages: _configuration.ValidationMessages);
+                            parsedOption = Symbol.Create(definedOption, token.Value, validationMessages: Configuration.ValidationMessages);
 
                             rootSymbols.Add(parsedOption);
                         }
@@ -93,13 +92,13 @@ namespace System.CommandLine
             if (rootSymbols.CommandDefinition()?.TreatUnmatchedTokensAsErrors == true)
             {
                 errors.AddRange(
-                    unmatchedTokens.Select(token => new ParseError(_configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
+                    unmatchedTokens.Select(token => new ParseError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
             }
 
             return new ParseResult(
                 rawTokens,
                 rootSymbols,
-                _configuration,
+                this,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,
                 errors,
@@ -110,12 +109,13 @@ namespace System.CommandLine
         {
             var firstArg = args.FirstOrDefault();
 
-            if (SymbolDefinitions.Count != 1)
+            if (Configuration.SymbolDefinitions.Count != 1)
             {
                 return args;
             }
 
-            var commandName = SymbolDefinitions
+            var commandName = Configuration
+                              .SymbolDefinitions
                               .OfType<CommandDefinition>()
                               .SingleOrDefault()
                               ?.Name;
