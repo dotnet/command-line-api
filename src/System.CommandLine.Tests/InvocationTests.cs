@@ -14,7 +14,7 @@ namespace System.CommandLine.Tests
         private readonly TestConsole _console = new TestConsole();
 
         [Fact]
-        public void General_invocation_behaviors_can_be_specified_in_the_parser_definition()
+        public async Task General_invocation_behaviors_can_be_specified_in_the_parser_definition()
         {
             var wasCalled = false;
 
@@ -26,13 +26,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
 
         [Fact]
-        public void First_invocation_behavior_to_set_a_result_short_circuits()
+        public async Task First_invocation_behavior_to_set_a_result_short_circuits()
         {
             var wasCalled = false;
 
@@ -44,13 +44,13 @@ namespace System.CommandLine.Tests
                     .Build();
             var result = parser.Parse("command");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeFalse();
         }
 
         [Fact]
-        public void Specific_invocation_behavior_can_be_specified_in_the_command_definition()
+        public async Task Specific_invocation_behavior_can_be_specified_in_the_command_definition()
         {
             var wasCalled = false;
 
@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
