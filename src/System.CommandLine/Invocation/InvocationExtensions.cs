@@ -22,13 +22,13 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static ParserBuilder AddParseCommand(
+        public static ParserBuilder UseParseDirective(
             this ParserBuilder builder)
         {
             builder.AddInvocation(context => {
                 if (context.ParseResult.Tokens.FirstOrDefault() == "!parse")
                 {
-                    context.InvocationResult = new ParseDiagramResult();
+                    context.InvocationResult = new ParseDirectiveResult();
                 }
             });
 
@@ -158,6 +158,15 @@ namespace System.CommandLine.Invocation
         public static CommandDefinitionBuilder OnExecute<T1, T2>(
             this CommandDefinitionBuilder builder,
             Action<T1, T2> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandDefinitionBuilder OnExecute<T1, T2, T3>(
+            this CommandDefinitionBuilder builder,
+            Action<T1, T2, T3> action)
         {
             var methodBinder = new MethodBinder(action);
             builder.ExecutionHandler = methodBinder;

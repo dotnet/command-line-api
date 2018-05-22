@@ -10,11 +10,11 @@ using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
-    public class ParseCommandTests
+    public class ParseDirectiveTests
     {
         private readonly ITestOutputHelper output;
 
-        public ParseCommandTests(ITestOutputHelper output)
+        public ParseDirectiveTests(ITestOutputHelper output)
         {
             this.output = output;
         }
@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
                          .AddCommand("the-command", "",
                                      cmd => cmd.AddOption(new[] { "-c", "--count" }, "",
                                                           args => args.ParseArgumentsAs<int>()))
-                         .AddParseCommand()
+                         .UseParseDirective()
                          .Build();
 
             var result = parser.Parse("!parse the-command -c 34 --nonexistent wat");

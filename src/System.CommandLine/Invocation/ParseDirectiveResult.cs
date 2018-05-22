@@ -5,13 +5,13 @@ using System.Linq;
 
 namespace System.CommandLine.Invocation
 {
-    public class ParseDiagramResult : IInvocationResult
+    public class ParseDirectiveResult : IInvocationResult
     {
         public void Apply(InvocationContext context)
         {
-            var tokensAfterCommand = context.ParseResult.Tokens.Skip(1).ToArray();
+            var tokensAfterDirective = context.ParseResult.Tokens.Skip(1).ToArray();
 
-            var reparseResult = context.ParseResult.Parser.Parse(tokensAfterCommand);
+            var reparseResult = context.ParseResult.Parser.Parse(tokensAfterDirective);
 
             context.Console.Out.WriteLine(reparseResult.Diagram());
         }
