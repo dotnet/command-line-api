@@ -791,7 +791,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_no_commands_are_added_then_ParseResult_SpecifiedCommandDefinition_identifies_executable()
+        public void When_no_commands_are_added_then_ParseResult_CommandDefinition_identifies_executable()
         {
             var parser = new ParserBuilder()
                          .AddOption("-x", "")

@@ -25,7 +25,7 @@ namespace System.CommandLine.Builder
 
             arguments?.Invoke(commandDefinitionBuilder.Arguments);
 
-            builder.CommandDefinitionBuilders.Add(commandDefinitionBuilder);
+            builder.Commands.Add(commandDefinitionBuilder);
 
             return builder;
         }
@@ -84,7 +84,7 @@ namespace System.CommandLine.Builder
 
             arguments?.Invoke(optionDefinitionBuilder.Arguments);
 
-            builder.OptionDefinitionBuilders.Add(optionDefinitionBuilder);
+            builder.Options.Add(optionDefinitionBuilder);
 
             return builder;
         }
