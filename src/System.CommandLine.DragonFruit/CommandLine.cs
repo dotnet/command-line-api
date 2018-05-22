@@ -4,6 +4,7 @@
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -46,7 +47,7 @@ namespace System.CommandLine.DragonFruit
                        args,
                        console,
                        entryMethod,
-                       null /* this is a static method*/ );
+                       null /* this is a static method*/);
         }
 
         public static async Task<int> InvokeMethodAsync(
@@ -55,13 +56,12 @@ namespace System.CommandLine.DragonFruit
             MethodInfo method,
             object @object)
         {
-            var helpOption = new OptionDefinition("--help", "Show help output");
-            var helpMetadata = GetHelpMetadata(method);
-
             var parserBuilder = new ParserBuilder()
                                 .ConfigureFromMethod(method, @object)
                                 .AddHelp()
                                 .AddParseErrorReporting();
+
+            SetHelpMetadata(method, parserBuilder);
 
             Parser parser = parserBuilder.Build();
 
@@ -70,7 +70,7 @@ namespace System.CommandLine.DragonFruit
             return await result.InvokeAsync(console);
         }
 
-        private static CommandHelpMetadata GetHelpMetadata(MethodInfo method)
+        private static void SetHelpMetadata(MethodInfo method, CommandDefinitionBuilder builder)
         {
             Assembly assembly = method.DeclaringType.Assembly;
             string docFilePath = Path.Combine(
@@ -81,10 +81,22 @@ namespace System.CommandLine.DragonFruit
             if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
             {
                 xmlDocs.TryGetMethodDescription(method, out metadata);
+
+                if (metadata.Description != null)
+                {
+                    var options = builder.Options;
+
+                    foreach (var parameterDescription in metadata.ParameterDescriptions)
+                    {
+                        if (options[parameterDescription.Key] is OptionDefinitionBuilder option)
+                        {
+                            option.Description = parameterDescription.Value;
+                        }
+                    }
+                }
             }
 
             metadata.Name = assembly.GetName().Name;
-            return metadata;
         }
     }
 }
