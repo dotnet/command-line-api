@@ -22,7 +22,7 @@ namespace System.CommandLine.Builder
             {
                 if (_argumentDefinitionBuilder == null)
                 {
-                    _argumentDefinitionBuilder = new ArgumentDefinitionBuilder(this);
+                    _argumentDefinitionBuilder = new ArgumentDefinitionBuilder();
                 }
 
                 return _argumentDefinitionBuilder;
