@@ -60,7 +60,7 @@ namespace System.CommandLine
             return _helpText.ToString();
         }
 
-        internal int CurrentIndentation => _indentationLevel * IndentationSize;
+        protected int CurrentIndentation => _indentationLevel * IndentationSize;
 
         /// <summary>
         /// Increases the current indentation level
