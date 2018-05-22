@@ -4,7 +4,7 @@
 
 namespace System.CommandLine
 {
-    public class DefaultHelpText
+    public static class DefaultHelpText
     {
         public static class AdditionalArgumentsSection
         {

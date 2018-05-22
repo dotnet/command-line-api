@@ -45,7 +45,7 @@ namespace System.CommandLine
             _builder.Indent();
             AddDescription();
             AddItems();
-            _builder.Dedent();
+            _builder.Outdent();
             _builder.AddBlankLine();
         }
 
@@ -56,7 +56,7 @@ namespace System.CommandLine
                 return true;
             }
 
-            return _items != null && _items.Any();
+            return _items?.Any() == true;
         }
 
         protected virtual void AddHeading()
@@ -81,7 +81,7 @@ namespace System.CommandLine
 
         protected virtual void AddItems()
         {
-            if (_items == null || !_items.Any())
+            if (_items?.Any() != true)
             {
                 return;
             }

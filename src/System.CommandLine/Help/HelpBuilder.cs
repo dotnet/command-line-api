@@ -73,7 +73,7 @@ namespace System.CommandLine
         /// <summary>
         /// Decreases the current indentation level
         /// </summary>
-        internal void Dedent()
+        internal void Outdent()
         {
             if (_indentationLevel == 0)
             {
@@ -147,8 +147,7 @@ namespace System.CommandLine
 
             foreach (var item in cleanText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                var cleanedItem = item.Trim();
-                var length = cleanedItem.Length + builder.Length;
+                var length = item.Length + builder.Length;
 
                 if (length > maxLength)
                 {
@@ -162,7 +161,7 @@ namespace System.CommandLine
                     builder.Append(" ");
                 }
 
-                builder.Append(cleanedItem);
+                builder.Append(item);
                 index += 1;
             }
 
