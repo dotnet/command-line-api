@@ -36,11 +36,10 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public void Dispatch_executes_dotnet_complete() => SuggestionDispatcher.Dispatch(_args,
                 new TestSuggestionFileProvider())
             .Should()
-            .Be(@"-h
---help
-package
-reference
-");
+            .Contain("-h")
+            .And.Contain("--help")
+            .And.Contain("package")
+            .And.Contain("reference");
 
         [Fact]
         public void Dispatch_with_badly_formatted_completion_provider_throws()
@@ -84,19 +83,21 @@ reference
         [Fact]
         public void GetCompletionSuggestions_withbogusfilename_throws_FileNotFound()
         {
+            string exeFileName = "Bogus file name";
             Action action = () =>
-                SuggestionDispatcher.GetSuggestions("Bogus file name", "");
+                SuggestionDispatcher.GetSuggestions(exeFileName, "");
             action
                 .Should()
-                .Throw<Win32Exception>("System.Diagnostics.Process is nuts.")
-                .WithMessage("The system cannot find the file specified");
+                .Throw<ArgumentException>("System.Diagnostics.Process is nuts.")
+                .Where(exception => exception.Message.Contains(
+                    $"Unable to find the file '{ exeFileName }'"));
         }
 
         [Fact]
         public void GetCompletionSuggestions_UseProcessThatRemainsOpen_ReturnsEmptyString()
         {
             SuggestionDispatcher.GetSuggestions(
-                "dotnet.exe" 
+                "dotnet"
                 , suggestionTargetArguments: $"{Assembly.GetExecutingAssembly().Location}", millisecondsTimeout: 1)
                 .Should().BeEmpty();
         }

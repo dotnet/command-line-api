@@ -82,24 +82,38 @@ namespace System.CommandLine.CompletionSuggestions
             }
 
             string result = "";
-            // Invoke target with args
-            using (var process = new Process {
-                StartInfo = new ProcessStartInfo(exeFileName, suggestionTargetArguments) {
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true
-                }
-            })
+
+            try
             {
-
-                process.Start();
-
-                Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
-
-                readToEndTask.Wait(millisecondsTimeout);
-
-                if (readToEndTask.IsCompleted)
+                // Invoke target with args
+                using (var process = new Process {
+                    StartInfo = new ProcessStartInfo(exeFileName, suggestionTargetArguments) {
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true
+                    }
+                })
                 {
-                    result = readToEndTask.Result;
+
+                    process.Start();
+
+                    Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
+
+                    readToEndTask.Wait(millisecondsTimeout);
+
+                    if (readToEndTask.IsCompleted)
+                    {
+                        result = readToEndTask.Result;
+                    }
+                }
+            }
+            catch(ComponentModel.Win32Exception exception)
+            {
+                // We don't check for the existence of exeFileName until the exception in case
+                // it is a command that start process can resolve to a file name.
+                if (!File.Exists(exeFileName))
+                {
+                    throw new ArgumentException(
+                        $"Unable to find the file '{ exeFileName }'", nameof(exeFileName), exception);
                 }
 
             }
