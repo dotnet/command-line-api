@@ -19,10 +19,10 @@ namespace System.CommandLine.Invocation
             _method = _delegate.Method;
         }
 
-        public MethodBinder(MethodInfo method, object target)
+        public MethodBinder(MethodInfo method, object target = null)
         {
             _method = method ?? throw new ArgumentNullException(nameof(method));
-            _target = target ?? throw new ArgumentNullException(nameof(target));
+            _target = target;
         }
 
         public async Task<int> InvokeAsync(ParseResult result)

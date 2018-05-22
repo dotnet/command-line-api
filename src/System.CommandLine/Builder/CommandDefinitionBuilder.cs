@@ -16,9 +16,9 @@ namespace System.CommandLine.Builder
             Name = name;
         }
 
-        protected internal List<OptionDefinitionBuilder> OptionDefinitionBuilders { get; } = new List<OptionDefinitionBuilder>();
+        public OptionDefinitionBuilderSet Options { get; } = new OptionDefinitionBuilderSet();
 
-        protected internal List<CommandDefinitionBuilder> CommandDefinitionBuilders { get; } = new List<CommandDefinitionBuilder>();
+        public CommandDefinitionBuilderSet Commands { get; } = new CommandDefinitionBuilderSet();
 
         public bool? TreatUnmatchedTokensAsErrors { get; set; }
 
@@ -41,16 +41,18 @@ namespace System.CommandLine.Builder
 
         protected IReadOnlyCollection<SymbolDefinition> BuildChildSymbolDefinitions()
         {
-            var subcommands = CommandDefinitionBuilders
+            var subcommands = Commands
                 .Select(b => {
                     b.TreatUnmatchedTokensAsErrors = TreatUnmatchedTokensAsErrors;
                     return b.BuildCommandDefinition();
                 });
 
-            var options = OptionDefinitionBuilders
+            var options = Options
                 .Select(b => b.BuildOptionDefinition());
 
             return subcommands.Concat<SymbolDefinition>(options).ToArray();
         }
     }
+
+
 }

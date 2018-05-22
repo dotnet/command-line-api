@@ -37,19 +37,19 @@ namespace System.CommandLine.Tests
                 this.message = message;
             }
 
-            public override string NoArgumentsAllowed(string option) => message;
+            public override string NoArgumentsAllowed(SymbolDefinition option) => message;
 
-            public override string CommandAcceptsOnlyOneArgument(string command, int argumentCount) => message;
+            public override string CommandExpectsOneArgument(CommandDefinition command, int argumentCount) => message;
 
             public override string FileDoesNotExist(string filePath) => message;
 
             public string CommandAcceptsOnlyOneSubcommand(string command, string subcommandsSpecified) => message;
 
-            public override string OptionAcceptsOnlyOneArgument(string option, int argumentCount) => message;
+            public override string OptionExpectsOneArgument(OptionDefinition option, int argumentCount) => message;
 
-            public override string RequiredArgumentMissingForCommand(string command) => message;
+            public override string RequiredArgumentMissingForCommand(CommandDefinition command) => message;
 
-            public override string RequiredArgumentMissingForOption(string option) => message;
+            public override string RequiredArgumentMissingForOption(OptionDefinition option) => message;
 
             public override string RequiredCommandWasNotProvided() => message;
 

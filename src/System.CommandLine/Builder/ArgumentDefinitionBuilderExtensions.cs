@@ -23,9 +23,13 @@ namespace System.CommandLine.Builder
                 {
                     if (errorMessage == null)
                     {
-                        return symbol is Command command
-                            ? command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
-                            : symbol.ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.Token());
+                        switch (symbol)
+                        {
+                            case Command command:
+                                return command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
+                            case Option option:
+                                return symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
+                        }
                     }
                     return errorMessage(symbol);
                 }
@@ -34,9 +38,13 @@ namespace System.CommandLine.Builder
                 {
                     if (errorMessage == null)
                     {
-                        return symbol is Command command
-                                   ? command.ValidationMessages.CommandAcceptsOnlyOneArgument(command.Definition.ToString(), command.Arguments.Count)
-                                   : symbol.ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.Token(), symbol.Arguments.Count);
+                        switch (symbol)
+                        {
+                            case Command command:
+                                return command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
+                            case Option option:
+                                return symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, symbol.Arguments.Count);
+                        }
                     }
 
                     return errorMessage(symbol);
@@ -78,9 +86,13 @@ namespace System.CommandLine.Builder
             {
                 if (symbol.Arguments.Count > 1)
                 {
-                    return symbol is Command command
-                               ? command.ValidationMessages.CommandAcceptsOnlyOneArgument(command.Definition.ToString(), command.Arguments.Count)
-                               : symbol.ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count);
+                    switch (symbol)
+                    {
+                        case Command command:
+                            return command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
+                        case Option option:
+                            return symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, option.Arguments.Count);
+                    }
                 }
 
                 return null;
@@ -109,9 +121,15 @@ namespace System.CommandLine.Builder
                     return errorMessage(symbol);
                 }
 
-                return symbol is Command command
-                           ? command.ValidationMessages.RequiredArgumentMissingForCommand(command.SymbolDefinition.ToString())
-                           : symbol.ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.ToString());
+                switch (symbol)
+                {
+                    case Command command:
+                        return command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
+                    case Option option:
+                        return symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
+                }
+
+                return null;
             });
 
             builder.ArgumentArity = ArgumentArity.Many;
@@ -232,9 +250,18 @@ namespace System.CommandLine.Builder
                 convert = symbol => {
                     if (symbol.Arguments.Count != 1)
                     {
-                        var message = symbol is Command command
-                           ? command.ValidationMessages.CommandAcceptsOnlyOneArgument(command.SymbolDefinition.ToString(), command.Arguments.Count)
-                           : symbol.ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count);
+                        string message = null;
+
+                        switch (symbol)
+                        {
+                            case Command command:
+                                message = command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
+                                break;
+                            case Option option:
+                                message = symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, symbol.Arguments.Count);
+                                break;
+                        }
+
                         return ArgumentParseResult.Failure(message);
                     }
 

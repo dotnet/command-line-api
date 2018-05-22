@@ -96,7 +96,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_must_have_at_least_one_alias()
         {
-            Action create = () => new OptionDefinition(Array.Empty<string>(), "",     ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(Array.Empty<string>(), "", ArgumentDefinition.None);
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -109,7 +109,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new OptionDefinition(new[] { "" }, "",     ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(new[] { "" }, "", ArgumentDefinition.None);
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -122,7 +122,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new OptionDefinition(new[] { "  \t" }, "",     ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(new[] { "  \t" }, "", ArgumentDefinition.None);
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -137,8 +137,7 @@ namespace System.CommandLine.Tests
         {
             var option = new OptionDefinition(
                 new[] {"-h", "--help", "/?"},
-                "",
-                argumentDefinition: null);
+                "");
 
             option.RawAliases
                   .Should()

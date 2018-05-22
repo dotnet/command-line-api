@@ -151,10 +151,13 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParsedCommand_identifies_the_ParsedCommand_for_the_innermost_command()
+        public void ParseResult_Command_identifies_the_innermost_command()
         {
             var command = new CommandDefinition("outer", "", new[] {
-                new CommandDefinition("sibling", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()), new CommandDefinition("inner", "", new[] {
+                new CommandDefinition("sibling", "",
+                                      symbolDefinitions: null,
+                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()),
+                new CommandDefinition("inner", "", new[] {
                     new CommandDefinition("inner-er", "", new[] {
                         new OptionDefinition(
                             "-x",

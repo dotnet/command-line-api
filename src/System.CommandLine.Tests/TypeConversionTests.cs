@@ -172,11 +172,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
+            var optionDefinition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne());
+
             var definition = new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
+                optionDefinition
             });
 
             var result = definition.Parse("the-command -x");
@@ -188,7 +190,7 @@ namespace System.CommandLine.Tests
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissingForOption("-x"));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissingForOption(optionDefinition));
         }
 
         [Fact]
@@ -215,11 +217,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_one_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_throws()
         {
+            var optionDefinition = new OptionDefinition(
+                "-x",
+                "",
+                argumentDefinition: new ArgumentDefinitionBuilder().OneOrMore());
             var definition = new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    argumentDefinition: new ArgumentDefinitionBuilder().OneOrMore())
+                optionDefinition
             });
 
             var result = definition.Parse("the-command -x");
@@ -231,7 +234,7 @@ namespace System.CommandLine.Tests
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissingForOption("-x"));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissingForOption(optionDefinition));
         }
 
         [Fact]

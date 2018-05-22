@@ -13,23 +13,23 @@ namespace System.CommandLine
 
         protected ValidationMessages() { }
 
-        public virtual string CommandAcceptsOnlyOneArgument(string command, int argumentCount) =>
-            $"Command '{command}' only accepts a single argument but {argumentCount} were provided.";
+        public virtual string CommandExpectsOneArgument(CommandDefinition command, int argumentCount) =>
+            $"Command '{command.Name}' expects a single argument but {argumentCount} were provided.";
 
         public virtual string FileDoesNotExist(string filePath) =>
             $"File does not exist: {filePath}";
 
-        public virtual string NoArgumentsAllowed(string option) =>
-            $"Arguments not allowed for option: {option}";
+        public virtual string NoArgumentsAllowed(SymbolDefinition symbol) =>
+            $"Arguments not allowed for option: {symbol.Token()}";
 
-        public virtual string OptionAcceptsOnlyOneArgument(string option, int argumentCount) =>
-            $"Option '{option}' only accepts a single argument but {argumentCount} were provided.";
+        public virtual string OptionExpectsOneArgument(OptionDefinition option, int argumentCount) =>
+            $"Option '{option.Token()}' expects a single argument but {argumentCount} were provided.";
 
-        public virtual string RequiredArgumentMissingForCommand(string command) =>
-            $"Required argument missing for command: {command}";
+        public virtual string RequiredArgumentMissingForCommand(CommandDefinition command) =>
+            $"Required argument missing for command: {command.Name}";
 
-        public virtual string RequiredArgumentMissingForOption(string option) =>
-            $"Required argument missing for option: {option}";
+        public virtual string RequiredArgumentMissingForOption(OptionDefinition option) =>
+            $"Required argument missing for option: {option.Token()}";
 
         public virtual string RequiredCommandWasNotProvided() =>
             "Required command was not provided.";

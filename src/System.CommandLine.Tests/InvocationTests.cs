@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace System.CommandLine.Tests
         private readonly TestConsole _console = new TestConsole();
 
         [Fact]
-        public void General_invocation_behaviors_can_be_specified_in_the_parser_definition()
+        public async Task General_invocation_behaviors_can_be_specified_in_the_parser_definition()
         {
             var wasCalled = false;
 
@@ -25,13 +26,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
 
         [Fact]
-        public void First_invocation_behavior_to_set_a_result_short_circuits()
+        public async Task First_invocation_behavior_to_set_a_result_short_circuits()
         {
             var wasCalled = false;
 
@@ -43,13 +44,13 @@ namespace System.CommandLine.Tests
                     .Build();
             var result = parser.Parse("command");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeFalse();
         }
 
         [Fact]
-        public void Specific_invocation_behavior_can_be_specified_in_the_command_definition()
+        public async Task Specific_invocation_behavior_can_be_specified_in_the_command_definition()
         {
             var wasCalled = false;
 
@@ -62,13 +63,13 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
 
         [Fact]
-        public void Method_parameters_on_the_invoked_method_are_bound_to_matching_option_names()
+        public async Task Method_parameters_on_the_invoked_method_are_bound_to_matching_option_names()
         {
             var wasCalled = false;
 
@@ -84,22 +85,21 @@ namespace System.CommandLine.Tests
                     .AddCommand(
                         "command", "",
                         cmd => {
-                            cmd
-                                .AddOption("--name", "", a => a.ExactlyOne())
-                                .OnExecute<string, int>(Execute)
-                                .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
+                            cmd.AddOption("--name", "", a => a.ExactlyOne())
+                               .OnExecute<string, int>(Execute)
+                               .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
                         })
                     .BuildCommandDefinition();
 
             var result = commandDefinition.Parse("command --age 425 --name Gandalf");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
 
         [Fact]
-        public void Method_parameters_on_the_invoked_lambda_are_bound_to_matching_option_names()
+        public async Task Method_parameters_on_the_invoked_lambda_are_bound_to_matching_option_names()
         {
             var wasCalled = false;
 
@@ -121,13 +121,13 @@ namespace System.CommandLine.Tests
 
             var result = commandDefinition.Parse("command --age 425 --name Gandalf");
 
-            result.InvokeAsync(_console);
+            await result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
         }
 
         [Fact]
-        public void Invoke_chooses_the_appropriate_command()
+        public async Task Invoke_chooses_the_appropriate_command()
         {
             var firstWasCalled = false;
             var secondWasCalled = false;
@@ -139,7 +139,7 @@ namespace System.CommandLine.Tests
                                      cmd => cmd.OnExecute<string>(_ => secondWasCalled = true))
                          .Build();
 
-            parser.Parse("first").InvokeAsync(_console);
+            await parser.Parse("first").InvokeAsync(_console);
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();

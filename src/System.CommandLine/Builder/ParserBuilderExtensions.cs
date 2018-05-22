@@ -25,7 +25,7 @@ namespace System.CommandLine.Builder
 
             arguments?.Invoke(commandDefinitionBuilder.Arguments);
 
-            builder.CommandDefinitionBuilders.Add(commandDefinitionBuilder);
+            builder.Commands.Add(commandDefinitionBuilder);
 
             return builder;
         }
@@ -33,7 +33,7 @@ namespace System.CommandLine.Builder
         public static TBuilder ConfigureFromMethod<TBuilder>(
             this TBuilder builder,
             MethodInfo method,
-            object target)
+            object target = null)
             where TBuilder : CommandDefinitionBuilder
         {
             foreach (var parameter in method.GetParameters())
@@ -84,7 +84,7 @@ namespace System.CommandLine.Builder
 
             arguments?.Invoke(optionDefinitionBuilder.Arguments);
 
-            builder.OptionDefinitionBuilders.Add(optionDefinitionBuilder);
+            builder.Options.Add(optionDefinitionBuilder);
 
             return builder;
         }
