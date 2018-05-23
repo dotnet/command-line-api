@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "System.CommandLine.CompletionSuggestions": {
+      "commandName": "Project"
+    }
+  }
+}
