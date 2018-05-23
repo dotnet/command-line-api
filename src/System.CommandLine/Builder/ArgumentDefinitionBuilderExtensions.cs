@@ -23,26 +23,31 @@ namespace System.CommandLine.Builder
                 {
                     if (errorMessage == null)
                     {
-                        return symbol is Command command
-                                   ? ValidationMessages.RequiredArgumentMissingForCommand(command.Definition.ToString())
-                                   : ValidationMessages.RequiredArgumentMissingForOption(symbol.SymbolDefinition.Token());
+                        switch (symbol)
+                        {
+                            case Command command:
+                                return command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
+                            case Option option:
+                                return symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
+                        }
                     }
-                    else
-                    {
-                        return errorMessage(symbol);
-                    }
+                    return errorMessage(symbol);
                 }
 
                 if (argumentCount > 1)
                 {
                     if (errorMessage == null)
                     {
-                        return ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol);
+                        switch (symbol)
+                        {
+                            case Command command:
+                                return command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
+                            case Option option:
+                                return symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, symbol.Arguments.Count);
+                        }
                     }
-                    else
-                    {
-                        return errorMessage(symbol);
-                    }
+
+                    return errorMessage(symbol);
                 }
 
                 return null;
@@ -81,9 +86,13 @@ namespace System.CommandLine.Builder
             {
                 if (symbol.Arguments.Count > 1)
                 {
-                    return symbol is Command command
-                               ? ValidationMessages.CommandAcceptsOnlyOneArgument(command.Definition.ToString(), command.Arguments.Count)
-                               : ValidationMessages.OptionAcceptsOnlyOneArgument(symbol.SymbolDefinition.ToString(), symbol.Arguments.Count);
+                    switch (symbol)
+                    {
+                        case Command command:
+                            return command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
+                        case Option option:
+                            return symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, option.Arguments.Count);
+                    }
                 }
 
                 return null;
@@ -98,9 +107,9 @@ namespace System.CommandLine.Builder
             this ArgumentDefinitionBuilder builder,
             Func<Symbol, string> errorMessage = null)
         {
-            builder.AddValidator(o =>
+            builder.AddValidator(symbol =>
             {
-                var optionCount = o.Arguments.Count;
+                var optionCount = symbol.Arguments.Count;
 
                 if (optionCount != 0)
                 {
@@ -109,12 +118,18 @@ namespace System.CommandLine.Builder
 
                 if (errorMessage != null)
                 {
-                    return errorMessage(o);
+                    return errorMessage(symbol);
                 }
 
-                return o.SymbolDefinition is CommandDefinition
-                           ? ValidationMessages.RequiredArgumentMissingForCommand(o.SymbolDefinition.ToString())
-                           : ValidationMessages.RequiredArgumentMissingForOption(o.SymbolDefinition.ToString());
+                switch (symbol)
+                {
+                    case Command command:
+                        return command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
+                    case Option option:
+                        return symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
+                }
+
+                return null;
             });
 
             builder.ArgumentArity = ArgumentArity.Many;
@@ -149,7 +164,7 @@ namespace System.CommandLine.Builder
                 return symbol.Arguments
                                    .Where(filePath => !File.Exists(filePath) &&
                                                       !Directory.Exists(filePath))
-                                   .Select(ValidationMessages.FileDoesNotExist)
+                                   .Select(symbol.ValidationMessages.FileDoesNotExist)
                                    .FirstOrDefault();
             });
             return builder;
@@ -235,7 +250,19 @@ namespace System.CommandLine.Builder
                 convert = symbol => {
                     if (symbol.Arguments.Count != 1)
                     {
-                        return ArgumentParseResult.Failure(ValidationMessages.SymbolAcceptsOnlyOneArgument(symbol));
+                        string message = null;
+
+                        switch (symbol)
+                        {
+                            case Command command:
+                                message = command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
+                                break;
+                            case Option option:
+                                message = symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, symbol.Arguments.Count);
+                                break;
+                        }
+
+                        return ArgumentParseResult.Failure(message);
                     }
 
                     return originalConvert(symbol);
@@ -260,16 +287,17 @@ namespace System.CommandLine.Builder
         public static ArgumentDefinitionBuilder WithHelp(
             this ArgumentDefinitionBuilder builder,
             string name = null,
-            string description = null)
+            string description = null,
+            bool isHidden = ArgumentsRuleHelp.DefaultIsHidden)
         {
-            builder.Help = new ArgumentsRuleHelp(name, description);
+            builder.Help = new ArgumentsRuleHelp(name, description, isHidden);
 
             return builder;
         }
 
         public static ArgumentDefinitionBuilder WithDefaultValue(
             this ArgumentDefinitionBuilder builder,
-            Func<string> defaultValue)
+            Func<object> defaultValue)
         {
             builder.DefaultValue = defaultValue;
 

@@ -85,7 +85,19 @@ namespace System.CommandLine
                 throw new InvalidOperationException(failed.ErrorMessage);
             }
 
-            throw new InvalidOperationException(ValidationMessages.RequiredArgumentMissingForOption(symbol.Token));
+            string message = null;
+
+            switch (symbol)
+            {
+                case Command command:
+                    message = symbol.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
+                    break;
+                case Option option:
+                    message = symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
+                    break;
+            }
+
+            throw new InvalidOperationException(message);
         }
 
         internal static IEnumerable<Symbol> AllSymbols(

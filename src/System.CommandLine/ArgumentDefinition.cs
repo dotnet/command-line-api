@@ -8,11 +8,11 @@ namespace System.CommandLine
 {
     public class ArgumentDefinition
     {
-        private readonly Func<string> _defaultValue;
+        private readonly Func<object> _defaultValue;
 
         internal ArgumentDefinition(
             ArgumentParser parser,
-            Func<string> defaultValue = null,
+            Func<object> defaultValue = null,
             ArgumentsRuleHelp help = null,
             IReadOnlyCollection<ValidateSymbol> symbolValidators = null,
             ISuggestionSource suggestionSource = null)
@@ -33,11 +33,13 @@ namespace System.CommandLine
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
 
-        public Func<string> GetDefaultValue => () => _defaultValue?.Invoke();
+        public Func<object> GetDefaultValue => () => _defaultValue?.Invoke();
 
         public bool HasDefaultValue => _defaultValue != null;
 
         public ArgumentsRuleHelp Help { get; }
+
+        public bool HasHelp => Help != null && Help.IsHidden == false;
 
         internal ArgumentParser Parser { get; }
 
@@ -48,7 +50,7 @@ namespace System.CommandLine
                 {
                     if (symbol.Arguments.Any())
                     {
-                        return ArgumentParseResult.Failure(ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString()));
+                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition));
                     }
 
                     return ArgumentParseResult.Success(true);
@@ -59,14 +61,14 @@ namespace System.CommandLine
 
         public ArgumentArity ArgumentArity => Parser.ArgumentArity;
 
-        private static string AcceptNoArguments(Symbol o)
+        private static string AcceptNoArguments(Symbol symbol)
         {
-            if (!o.Arguments.Any())
+            if (!symbol.Arguments.Any())
             {
                 return null;
             }
 
-            return ValidationMessages.Current.NoArgumentsAllowed(o.SymbolDefinition.ToString());
+            return symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition);
         }
     }
 }

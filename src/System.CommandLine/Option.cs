@@ -8,7 +8,10 @@ namespace System.CommandLine
         public Option(OptionDefinition optionDefinition, string token = null, Command parent = null) :
             base(optionDefinition, token ?? optionDefinition?.ToString(), parent)
         {
+            Definition = optionDefinition;
         }
+
+        public OptionDefinition Definition { get; }
 
         public override Symbol TryTakeToken(Token token) =>
             TryTakeArgument(token);

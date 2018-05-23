@@ -3,14 +3,16 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace System.CommandLine
 {
     public static class StringExtensions
     {
-        private static readonly char[] _optionPrefixCharacters = { '-' };
+        private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
 
         private static readonly Regex _tokenizer = new Regex(
             @"(""(?<token>[^""]*)"")|(?<token>\S+)",
@@ -26,32 +28,77 @@ namespace System.CommandLine
                                 value ?? "",
                                 CompareOptions.OrdinalIgnoreCase) >= 0;
 
-        internal static string RemovePrefix(this string option) =>
-            option.TrimStart(_optionPrefixCharacters);
+        internal static string RemovePrefix(this string option)
+        {
+            foreach (var prefix in _optionPrefixStrings)
+            {
+                if (option.StartsWith(prefix))
+                    return option.Substring(prefix.Length);
+            }
+            return option;
+        }
 
-        internal static IEnumerable<Token> Lex(
+        internal static LexResult Lex(
             this IEnumerable<string> args,
             ParserConfiguration configuration)
         {
+            var tokenList = new List<Token>();
+            var errorList = new List<ParseError>();
+
             SymbolDefinition currentSymbol = null;
             bool foundEndOfArguments = false;
+            var argList = args.ToList();
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
             var knownTokens = new HashSet<Token>(configuration.SymbolDefinitions.SelectMany(ValidTokens));
 
-            foreach (var arg in args)
+            for (var i = 0; i < argList.Count; i++)
             {
+                var arg = argList[i];
+
                 if (foundEndOfArguments)
                 {
-                    yield return Operand(arg);
+                    tokenList.Add(Operand(arg));
                     continue;
                 }
-                else if (arg == "--")
+
+                if (arg == "--")
                 {
-                    yield return EndOfArguments();
+                    tokenList.Add(EndOfArguments());
                     foundEndOfArguments = true;
                     continue;
+                }
+                else if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled && arg.StartsWith("@"))
+                {
+                    var filePath = arg.Substring(1);
+                    if (!string.IsNullOrWhiteSpace(filePath))
+                    {
+                        try
+                        {
+                            var next = i + 1;
+                            foreach (var newArg in ParseResponseFile(filePath, configuration.ResponseFileHandling))
+                            {
+                                argList.Insert(next, newArg);
+                                next += 1;
+                            }
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            errorList.Add(new ParseError(configuration.ValidationMessages.ResponseFileNotFound(filePath),
+                                null,
+                                false));
+                        }
+                        catch (IOException e)
+                        {
+                            errorList.Add(new ParseError(
+                                configuration.ValidationMessages.ErrorReadingResponseFile(filePath, e),
+                                null,
+                                false));
+                        }
+
+                        continue;
+                    }
                 }
 
                 var argHasPrefix = HasPrefix(arg);
@@ -62,16 +109,16 @@ namespace System.CommandLine
 
                     if (knownTokens.Any(t => t.Value == parts.First()))
                     {
-                        yield return Option(parts[0]);
+                        tokenList.Add(Option(parts[0]));
 
                         if (parts.Length > 1)
                         {
-                            yield return Argument(parts[1]);
+                            tokenList.Add(Argument(parts[1]));
                         }
                     }
                     else
                     {
-                        yield return Argument(arg);
+                        tokenList.Add(Argument(arg));
                     }
                 }
                 else if (configuration.AllowUnbundling && arg.CanBeUnbundled(knownTokens))
@@ -79,20 +126,20 @@ namespace System.CommandLine
                     foreach (var character in arg.Skip(1))
                     {
                         // unbundle e.g. -xyz into -x -y -z
-                        yield return Option($"-{character}");
+                        tokenList.Add(Option($"-{character}"));
                     }
                 }
                 else if (knownTokens.All(t => t.Value != arg) ||
                          // if token matches the current commandDefinition name, consider it an argument
                          currentSymbol?.Name == arg)
                 {
-                    yield return Argument(arg);
+                    tokenList.Add(Argument(arg));
                 }
                 else
                 {
                     if (argHasPrefix)
                     {
-                        yield return Option(arg);
+                        tokenList.Add(Option(arg));
                     }
                     else
                     {
@@ -100,10 +147,66 @@ namespace System.CommandLine
                         currentSymbol = (currentSymbol?.SymbolDefinitions ??
                                           configuration.SymbolDefinitions)[arg];
                         knownTokens = currentSymbol.ValidTokens();
-                        yield return Command(arg);
+                        tokenList.Add(Command(arg));
                     }
                 }
             }
+
+            return new LexResult {
+                Tokens = tokenList,
+                Errors = errorList
+            };
+        }
+
+        public static string ToKebabCase(this string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            var sb = new StringBuilder();
+            int i = 0;
+            bool addDash = false;
+
+            for (; i < value.Length; i++)
+            {
+                char ch = value[i];
+                if (char.IsLetterOrDigit(ch))
+                {
+                    addDash = !char.IsUpper(ch);
+                    sb.Append(char.ToLowerInvariant(ch));
+                    i++;
+                    break;
+                }
+            }
+
+            for (; i < value.Length; i++)
+            {
+                char ch = value[i];
+                if (char.IsUpper(ch))
+                {
+                    if (addDash)
+                    {
+                        addDash = false;
+                        sb.Append('-');
+                    }
+
+                    sb.Append(char.ToLowerInvariant(ch));
+                }
+                else if (char.IsLetterOrDigit(ch))
+                {
+                    addDash = true;
+                    sb.Append(ch);
+                }
+                else
+                {
+                    addDash = false;
+                    sb.Append('-');
+                }
+            }
+
+            return sb.ToString();
         }
 
         private static Token Argument(string value) => new Token(value, TokenType.Argument);
@@ -131,9 +234,7 @@ namespace System.CommandLine
             arg.Contains("=") ||
             arg.Contains(":");
 
-        private static bool HasPrefix(string arg) =>
-            arg != string.Empty &&
-            _optionPrefixCharacters.Contains(arg[0]);
+        private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
 
         public static IEnumerable<string> Tokenize(this string s)
         {
@@ -148,8 +249,34 @@ namespace System.CommandLine
             }
         }
 
-        internal static string NotWhitespace(this string value) =>
-            string.IsNullOrWhiteSpace(value) ? null : value;
+        private static IEnumerable<string> ParseResponseFile(string filePath, ResponseFileHandling responseFileHandling)
+        {
+            foreach (var line in File.ReadAllLines(filePath))
+            {
+                var arg = line.Trim();
+
+                if (arg.Length == 0 || arg.StartsWith("#"))
+                {
+                    continue;
+                }
+
+                switch (responseFileHandling)
+                {
+                    case ResponseFileHandling.ParseArgsAsLineSeparated:
+                        yield return line;
+                        break;
+                    case ResponseFileHandling.ParseArgsAsSpaceSeparated:
+                        foreach (var word in Tokenize(arg))
+                        {
+                            yield return word;
+                        }
+                        break;
+                }
+
+            }
+        }
+
+        internal static string NotWhitespace(this string value) => string.IsNullOrWhiteSpace(value) ? null : value;
 
         private static HashSet<Token> ValidTokens(this SymbolDefinition symbolDefinition) =>
             new HashSet<Token>(
@@ -158,11 +285,8 @@ namespace System.CommandLine
                       .Concat(
                           symbolDefinition.SymbolDefinitions
                                 .SelectMany(
-                                    s =>
-                                        s.RawAliases
-                                         .Select(
-                                             a =>
-                                                 new Token(
+                                    s => s.RawAliases
+                                         .Select(a => new Token(
                                                      a,
                                                      s is CommandDefinition
                                                          ? TokenType.Command

@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Builder;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -94,7 +96,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_must_have_at_least_one_alias()
         {
-            Action create = () => new OptionDefinition(Array.Empty<string>(), "",     ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(Array.Empty<string>(), "", ArgumentDefinition.None);
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -107,7 +109,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new OptionDefinition(new[] { "" }, "",     ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(new[] { "" }, "", ArgumentDefinition.None);
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -120,7 +122,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new OptionDefinition(new[] { "  \t" }, "",     ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(new[] { "  \t" }, "", ArgumentDefinition.None);
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -135,12 +137,29 @@ namespace System.CommandLine.Tests
         {
             var option = new OptionDefinition(
                 new[] {"-h", "--help", "/?"},
-                "",
-                argumentDefinition: null);
+                "");
 
             option.RawAliases
                   .Should()
                   .BeEquivalentTo("-h", "--help", "/?");
         }
-    }
+
+        [Theory]
+        [InlineData("-")]
+        [InlineData("--")]
+        [InlineData("/")]
+        public void When_option_use_differnt_prefixes_they_still_work(string prefix)
+        {
+            var result = new ParserBuilder()
+                .AddOption(prefix + "a", "", a => a.ExactlyOne())
+                .AddOption(prefix + "b", "")
+                .AddOption(prefix + "c", "", a => a.ExactlyOne())
+                .Build()
+                .Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
+
+            result.ValueForOption(prefix + "a").Should().Be("value-for-a");
+            result.ValueForOption(prefix + "c").Should().Be("value-for-c");
+            result.HasOption(prefix + "b").Should().BeFalse();
+        }
+   }
 }

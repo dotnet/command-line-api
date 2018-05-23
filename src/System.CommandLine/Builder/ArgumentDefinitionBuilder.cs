@@ -10,18 +10,11 @@ namespace System.CommandLine.Builder
     {
         private ArgumentSuggestionSource _suggestionSource;
 
-        private readonly SymbolDefinitionBuilder _parent;
-
-        public ArgumentDefinitionBuilder(SymbolDefinitionBuilder parent = null)
-        {
-            this._parent = parent;
-        }
-
         internal ArgumentArity ArgumentArity { get; set; }
 
         internal ConvertArgument ConvertArguments { get; set; }
 
-        internal Func<string> DefaultValue { get; set; }
+        internal Func<object> DefaultValue { get; set; }
 
         internal ArgumentsRuleHelp Help { get; set; }
 
@@ -84,7 +77,7 @@ namespace System.CommandLine.Builder
                 {
                     if (!ValidTokens.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
                     {
-                        return ValidationMessages.UnrecognizedArgument(arg, ValidTokens);
+                        return symbol.ValidationMessages.UnrecognizedArgument(arg, ValidTokens);
                     }
                 }
 
@@ -110,7 +103,8 @@ namespace System.CommandLine.Builder
                 DefaultValue = argumentDefinition.GetDefaultValue,
                 Help = new ArgumentsRuleHelp(
                     argumentDefinition.Help?.Name,
-                    argumentDefinition.Help?.Description),
+                    argumentDefinition.Help?.Description,
+                    argumentDefinition.Help?.IsHidden ?? ArgumentsRuleHelp.DefaultIsHidden),
                 Parser = argumentDefinition.Parser,
                 _suggestionSource = suggestionSource,
                 SymbolValidators = new List<ValidateSymbol>(argumentDefinition.SymbolValidators)

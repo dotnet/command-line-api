@@ -67,7 +67,7 @@ namespace System.CommandLine
             symbol =
                 Definition.SymbolDefinitions
                       .Where(o => o.RawAliases.Contains(token.Value))
-                      .Select(o => Create(o, token.Value, this))
+                      .Select(o => Create(o, token.Value, this, this.ValidationMessages))
                       .SingleOrDefault();
 
             if (symbol != null)
@@ -76,6 +76,21 @@ namespace System.CommandLine
             }
 
             return symbol;
+        }
+
+        public object ValueForOption(
+            OptionDefinition option) =>
+            ValueForOption<object>(option);
+
+        public T ValueForOption<T>(
+            OptionDefinition option)
+        {
+            if (option == null)
+            {
+                throw new ArgumentNullException(nameof(option));
+            }
+
+            return Children.FirstOrDefault(c => c.SymbolDefinition == option).GetValueOrDefault<T>();
         }
 
         public object ValueForOption(

@@ -77,9 +77,7 @@ namespace System.CommandLine.Tests
 
             option.TryTakeToken(new Token("argument1", TokenType.Argument));
 
-            option.Arguments
-                        .Should()
-                        .HaveCount(0);
+            option.Arguments.Should().HaveCount(0);
         }
 
         [Fact]
@@ -98,11 +96,8 @@ namespace System.CommandLine.Tests
             command.TryTakeToken(new Token("inner", TokenType.Option));
             command.TryTakeToken(new Token("argument1", TokenType.Argument));
 
-            command.Children
-                         .Should()
-                         .ContainSingle(o =>
-                                            o.Name == "inner" &&
-                                            o.Arguments.Single() == "argument1");
+            command.Children.Should().ContainSingle(o => o.Name == "inner"
+                                                      && o.Arguments.Single() == "argument1");
         }
 
         [Fact]
@@ -125,16 +120,11 @@ namespace System.CommandLine.Tests
             command.TryTakeToken(new Token("inner2", TokenType.Option));
             command.TryTakeToken(new Token("argument2", TokenType.Argument));
 
-            command.Children
-                         .Should()
-                         .ContainSingle(o =>
-                                            o.Name == "inner1" &&
-                                            o.Arguments.Single() == "argument1");
-            command.Children
-                         .Should()
-                         .ContainSingle(o =>
-                                            o.Name == "inner2" &&
-                                            o.Arguments.Single() == "argument2");
+            command.Children.Should().ContainSingle(o => o.Name == "inner1"
+                                                      && o.Arguments.Single() == "argument1");
+
+            command.Children.Should().ContainSingle(o => o.Name == "inner2"
+                                                      && o.Arguments.Single() == "argument2");
         }
 
         [Fact]
@@ -185,14 +175,8 @@ namespace System.CommandLine.Tests
             var result1 = definition.Parse("-x");
             var result2 = definition.Parse("-x");
 
-            result1["x"]
-                .GetValueOrDefault()
-                .Should()
-                .Be("1");
-            result2["x"]
-                .GetValueOrDefault()
-                .Should()
-                .Be("2");
+            result1["x"].GetValueOrDefault().Should().Be("1");
+            result2["x"].GetValueOrDefault().Should().Be("2");
         }
 
         [Fact]
@@ -204,10 +188,8 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command");
 
-            result.Errors
-                  .Select(e => e.Message)
-                  .Should()
-                  .BeEquivalentTo("Expected 1 arg for option `the-command`, found none");
+            result.Errors.Select(e => e.Message)
+                  .Should().BeEquivalentTo("Expected 1 arg for option `the-command`, found none");
         }
 
         [Fact]
@@ -222,9 +204,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -h");
 
-            result.HasOption("help")
-                  .Should()
-                  .BeTrue();
+            result.HasOption("help").Should().BeTrue();
         }
 
         [Fact]
@@ -234,14 +214,11 @@ namespace System.CommandLine.Tests
 
             var command = new Command(definition);
 
-            command.TryTakeToken(new Token("two", TokenType.Command))
-                         .Name
-                         .Should()
-                         .Be("two");
-            command.TryTakeToken(new Token("three", TokenType.Command))
-                         .Name
-                         .Should()
-                         .Be("three");
+            command.TryTakeToken(new Token("two", TokenType.Command)).Name
+                .Should().Be("two");
+
+            command.TryTakeToken(new Token("three", TokenType.Command)).Name
+                .Should().Be("three");
         }
 
         [Fact]
@@ -256,10 +233,8 @@ namespace System.CommandLine.Tests
 
             var command = new Command(definition);
 
-            command.TryTakeToken(new Token("--one", TokenType.Option))
-                         .Name
-                         .Should()
-                         .Be("one");
+            command.TryTakeToken(new Token("--one", TokenType.Option)).Name
+                .Should().Be("one");
         }
 
         [Fact]
@@ -274,10 +249,8 @@ namespace System.CommandLine.Tests
 
             var command = new Command(definition);
 
-            command.TryTakeToken(new Token("-o", TokenType.Option))
-                         .Name
-                         .Should()
-                         .Be("one");
+            command.TryTakeToken(new Token("-o", TokenType.Option)).Name
+                .Should().Be("one");
         }
 
         [Fact]
@@ -293,12 +266,10 @@ namespace System.CommandLine.Tests
             var command = new Command(definition);
 
             command.TryTakeToken(new Token("--o", TokenType.Option))
-                         .Should()
-                         .BeNull();
+                .Should().BeNull();
 
             command.TryTakeToken(new Token("-one", TokenType.Option))
-                         .Should()
-                         .BeNull();
+                .Should().BeNull();
         }
 
         [Fact]
@@ -313,8 +284,7 @@ namespace System.CommandLine.Tests
             var command = new Command(definition);
 
             command.TryTakeToken(new Token("three", TokenType.Command))
-                         .Should()
-                         .BeNull();
+                .Should().BeNull();
         }
 
         [Fact]
@@ -324,14 +294,11 @@ namespace System.CommandLine.Tests
 
             var command = new Command(definition);
 
-            command.TryTakeToken(new Token("inner-one", TokenType.Command))
-                         .Name
-                         .Should()
-                         .Be("inner-one");
+            command.TryTakeToken(new Token("inner-one", TokenType.Command)).Name
+                .Should().Be("inner-one");
 
             command.TryTakeToken(new Token("inner-two", TokenType.Command))
-                         .Should()
-                         .BeNull();
+                .Should().BeNull();
         }
 
         [Fact]
@@ -345,8 +312,7 @@ namespace System.CommandLine.Tests
             var option = new Option(definition);
 
             option.TryTakeToken(new Token("arg", TokenType.Argument))
-                        .Should()
-                        .BeNull();
+                .Should().BeNull();
         }
 
         [Fact]
@@ -361,13 +327,8 @@ namespace System.CommandLine.Tests
 
             var option = new Option(definition);
 
-            option.Result
-                  .Should()
-                  .BeOfType<SuccessfulArgumentParseResult<string>>()
-                  .Which
-                  .Value
-                  .Should()
-                  .Be("default");
+            option.Result.Should().BeOfType<SuccessfulArgumentParseResult<string>>()
+                .Which.Value.Should().Be("default");
         }
 
         [Fact]
@@ -382,14 +343,8 @@ namespace System.CommandLine.Tests
 
             var option = new Option(definition);
 
-            option.Result
-                  .Should()
-                  .BeOfType<SuccessfulArgumentParseResult<IReadOnlyCollection<string>>>()
-                  .Which
-                  .Value
-                  .Should()
-                  .BeEquivalentTo("default");
+            option.Result.Should().BeOfType<SuccessfulArgumentParseResult<IReadOnlyCollection<string>>>()
+                .Which.Value.Should().BeEquivalentTo("default");
         }
-
     }
 }

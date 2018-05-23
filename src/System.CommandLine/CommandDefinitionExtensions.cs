@@ -12,12 +12,14 @@ namespace System.CommandLine
             this CommandDefinition commandDefinition,
             string name)
         {
-            if (String.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            return commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Single(c => c.Name == name);
+            return commandDefinition.SymbolDefinitions
+                .OfType<CommandDefinition>()
+                .Single(c => c.Name == name);
         }
 
         public static ParseResult Parse(

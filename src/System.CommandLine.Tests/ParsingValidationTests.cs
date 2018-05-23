@@ -107,7 +107,7 @@ namespace System.CommandLine.Tests
                     "--one",
                     "",
                     argumentDefinition: null),
-                (SymbolDefinition)new OptionDefinition(
+                new OptionDefinition(
                     "--two",
                     "",
                     argumentDefinition: null)
@@ -205,7 +205,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals(ValidationMessages.Current.RequiredCommandWasNotProvided()) &&
+                      e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
                            e.Symbol.Name.Equals("inner"));
         }
 
@@ -224,6 +224,21 @@ namespace System.CommandLine.Tests
                   .Select(e => e.Message)
                   .Should()
                   .Contain("Option '-x' cannot be specified more than once.");
+        }
+
+        [Theory]
+        [InlineData(":")]
+        [InlineData("=")]
+        public void When_an_option_contains_a_delimiter_then_an_informative_error_is_returned(string delimiter)
+        {
+            Action create = () => new Parser(
+               new OptionDefinition(
+                   $"-x{delimiter}",
+                   "",
+               new ArgumentDefinitionBuilder().ExactlyOne()));
+
+            create.Should().Throw<ArgumentException>().Which.Message.Should()
+                    .Be($"Symbol cannot contain delimiter: {delimiter}");
         }
     }
 }

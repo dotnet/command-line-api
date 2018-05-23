@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DragonFruit": {
+      "commandName": "Project",
+      "commandLineArgs": "--help"
+    }
+  }
+}

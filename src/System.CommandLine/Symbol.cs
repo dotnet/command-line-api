@@ -8,7 +8,7 @@ namespace System.CommandLine
 {
     public abstract class Symbol
     {
-        private readonly Lazy<string> _defaultValue;
+        private readonly Lazy<object> _defaultValue;
         private readonly List<string> _arguments = new List<string>();
         private ArgumentParseResult _result;
 
@@ -27,7 +27,7 @@ namespace System.CommandLine
 
             Parent = parent;
 
-            _defaultValue = new Lazy<string>(SymbolDefinition.ArgumentDefinition.GetDefaultValue);
+            _defaultValue = new Lazy<object>(SymbolDefinition.ArgumentDefinition.GetDefaultValue);
         }
 
         public IReadOnlyCollection<string> Arguments
@@ -37,7 +37,7 @@ namespace System.CommandLine
                 if (!_arguments.Any() &&
                     _defaultValue.Value != null)
                 {
-                    return new[] { _defaultValue.Value };
+                    return new[] { _defaultValue.Value?.ToString() };
                 }
 
                 return _arguments;
@@ -57,6 +57,8 @@ namespace System.CommandLine
         public IReadOnlyCollection<string> Aliases => SymbolDefinition.Aliases;
 
         public bool HasAlias(string alias) => SymbolDefinition.HasAlias(alias);
+
+        public ValidationMessages ValidationMessages { get; private set; } = ValidationMessages.Instance;
 
         protected internal virtual ParseError Validate()
         {
@@ -129,15 +131,21 @@ namespace System.CommandLine
             return null;
         }
 
-        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null)
+        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null, ValidationMessages validationMessages = null)
         {
             switch (symbolDefinition)
             {
                 case CommandDefinition command:
-                    return new Command(command, parent);
+                    return new Command(command, parent)
+                    {
+                        ValidationMessages = validationMessages
+                    };
 
                 case OptionDefinition option:
-                    return new Option(option, token, parent);
+                    return new Option(option, token, parent)
+                    {
+                        ValidationMessages = validationMessages
+                    };
 
                 default:
                     throw new ArgumentException($"Unrecognized symbolDefinition type: {symbolDefinition.GetType()}");

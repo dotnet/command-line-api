@@ -9,27 +9,24 @@ namespace System.CommandLine
 {
     public class Parser
     {
-        private readonly ParserConfiguration _configuration;
+        public Parser(ParserConfiguration configuration)
+        {
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
         public Parser(params SymbolDefinition[] symbolDefinitions) : this(new ParserConfiguration(symbolDefinitions))
         {
         }
 
-        public Parser(ParserConfiguration configuration)
-        {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        }
-
-        public SymbolDefinitionSet SymbolDefinitions => _configuration.SymbolDefinitions;
+        internal readonly ParserConfiguration Configuration;
 
         public virtual ParseResult Parse(string[] rawTokens, string rawInput = null)
         {
-            var unparsedTokens = new Queue<Token>(
-                NormalizeRootCommand(rawTokens)
-                    .Lex(_configuration));
+            var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
+            var unparsedTokens = new Queue<Token>(lexResult.Tokens);
             var rootSymbols = new SymbolSet();
             var allSymbols = new List<Symbol>();
-            var errors = new List<ParseError>();
+            var errors = new List<ParseError>(lexResult.Errors);
             var unmatchedTokens = new List<string>();
 
             while (unparsedTokens.Any())
@@ -45,7 +42,8 @@ namespace System.CommandLine
                 if (token.Type != TokenType.Argument)
                 {
                     var definedOption =
-                        SymbolDefinitions.SingleOrDefault(o => o.HasAlias(token.Value));
+                        Configuration.SymbolDefinitions
+                                     .SingleOrDefault(o => o.HasAlias(token.Value));
 
                     if (definedOption != null)
                     {
@@ -54,7 +52,7 @@ namespace System.CommandLine
 
                         if (parsedOption == null)
                         {
-                            parsedOption = Symbol.Create(definedOption, token.Value);
+                            parsedOption = Symbol.Create(definedOption, token.Value, validationMessages: Configuration.ValidationMessages);
 
                             rootSymbols.Add(parsedOption);
                         }
@@ -94,22 +92,13 @@ namespace System.CommandLine
             if (rootSymbols.CommandDefinition()?.TreatUnmatchedTokensAsErrors == true)
             {
                 errors.AddRange(
-                    unmatchedTokens.Select(token => UnrecognizedArg(token)));
-            }
-
-            if (_configuration.RootCommandIsImplicit)
-            {
-                rawTokens = rawTokens.Skip(1).ToArray();
-                var parsedOptions = rootSymbols
-                                     .SelectMany(o => o.Children)
-                                     .ToArray();
-                rootSymbols = new SymbolSet(parsedOptions);
+                    unmatchedTokens.Select(token => new ParseError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
             }
 
             return new ParseResult(
                 rawTokens,
                 rootSymbols,
-                _configuration,
+                this,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,
                 errors,
@@ -118,19 +107,15 @@ namespace System.CommandLine
 
         internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {
-            if (_configuration.RootCommandIsImplicit)
-            {
-                args = new[] { _configuration.RootCommandDefinition.Name }.Concat(args).ToArray();
-            }
-
             var firstArg = args.FirstOrDefault();
 
-            if (SymbolDefinitions.Count != 1)
+            if (Configuration.SymbolDefinitions.Count != 1)
             {
                 return args;
             }
 
-            var commandName = SymbolDefinitions
+            var commandName = Configuration
+                              .SymbolDefinitions
                               .OfType<CommandDefinition>()
                               .SingleOrDefault()
                               ?.Name;
@@ -155,8 +140,5 @@ namespace System.CommandLine
 
             return args;
         }
-
-        private static ParseError UnrecognizedArg(string arg) =>
-            new ParseError(ValidationMessages.UnrecognizedCommandOrArgument(arg));
     }
 }
