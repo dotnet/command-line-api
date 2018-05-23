@@ -46,7 +46,7 @@ namespace System.CommandLine
             var errorList = new List<ParseError>();
 
             SymbolDefinition currentSymbol = null;
-            bool foundEndOfArguments = false;
+            var foundEndOfArguments = false;
             var argList = args.ToList();
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
@@ -69,7 +69,8 @@ namespace System.CommandLine
                     foundEndOfArguments = true;
                     continue;
                 }
-                else if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled && arg.StartsWith("@"))
+
+                if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled && arg.StartsWith("@"))
                 {
                     var filePath = arg.Substring(1);
                     if (!string.IsNullOrWhiteSpace(filePath))
@@ -86,15 +87,15 @@ namespace System.CommandLine
                         catch (FileNotFoundException)
                         {
                             errorList.Add(new ParseError(configuration.ValidationMessages.ResponseFileNotFound(filePath),
-                                null,
-                                false));
+                                                         null,
+                                                         false));
                         }
                         catch (IOException e)
                         {
                             errorList.Add(new ParseError(
-                                configuration.ValidationMessages.ErrorReadingResponseFile(filePath, e),
-                                null,
-                                false));
+                                              configuration.ValidationMessages.ErrorReadingResponseFile(filePath, e),
+                                              null,
+                                              false));
                         }
 
                         continue;
@@ -113,7 +114,9 @@ namespace System.CommandLine
 
                         if (parts.Length > 1)
                         {
-                            tokenList.Add(Argument(parts[1]));
+                            // trim outer quotes in case of, e.g., -x="why"
+                            var secondPartWithOuterQuotesRemoved = parts[1].Trim('"');
+                            tokenList.Add(Argument(secondPartWithOuterQuotesRemoved));
                         }
                     }
                     else
