@@ -1045,6 +1045,36 @@ namespace System.CommandLine.Tests
                             .BeEquivalentTo(new[] { "" });
         }
 
+        [Fact]
+        public void Arguments_can_start_with_prefixes_that_make_them_look_like_options()
+        {
+            var parser = new ParserBuilder()
+                         .AddOption("-x", "", args => args.ZeroOrOne())
+                         .AddOption("-z", "", args => args.ZeroOrOne())
+                         .Build();
+
+            var result = parser.Parse("-x=-y");
+
+            var valueForOption = result.ValueForOption("-x");
+
+            valueForOption.Should().Be("-y");
+        }
+
+        [Fact]
+        public void Arguments_can_match_the_aliases_of_sibling_options()
+        {
+            var parser = new ParserBuilder()
+                         .AddOption("-x", "", args => args.ZeroOrOne())
+                         .AddOption("-y", "", args => args.ZeroOrOne())
+                         .Build();
+
+            var result = parser.Parse("-x=-y");
+
+            var valueForOption = result.ValueForOption("-x");
+
+            valueForOption.Should().Be("-y");
+        }
+
         [Theory]
         [InlineData("/o")]
         [InlineData("-o")]
