@@ -650,19 +650,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_inner_command()
         {
-            var parser = new Parser(
-                new CommandDefinition("outer", "", new[] {
-                    new CommandDefinition("inner", "", new[] {
-                        new OptionDefinition(
-                            "-x",
-                            "",
-                            argumentDefinition: null)
-                    }),
-                    (SymbolDefinition)new OptionDefinition(
-                        "-x",
-                        "",
-                        argumentDefinition: null)
-                }, ArgumentDefinition.None));
+            var parser = new ParserBuilder()
+                         .AddCommand(
+                             "outer", "",
+                             outer => {
+                                 outer.AddCommand(
+                                     "inner", "",
+                                     inner => inner.AddOption("-x", ""));
+                                 outer.AddOption("-x", "");
+                             })
+                         .Build();
 
             ParseResult result = parser.Parse("outer inner -x");
 
@@ -680,15 +677,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_in_between_then_it_attaches_to_the_outer_command()
         {
-            var parser = new Parser(
-                new CommandDefinition(
-                    "outer", "",
-                    new SymbolDefinition[] {
-                        new CommandDefinition("inner", "", new[] {
-                            new OptionDefinition("-x", "")
-                        }),
-                        new OptionDefinition("-x", "")
-                    }));
+            var parser = new ParserBuilder()
+                         .AddCommand(
+                             "outer", "",
+                             outer => {
+                                 outer.AddCommand(
+                                     "inner", "",
+                                     inner => inner.AddOption("-x", ""));
+                                 outer.AddOption("-x", "");
+                             })
+                         .Build();
 
             var result = parser.Parse("outer -x inner");
 
@@ -969,16 +967,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_and_Command_can_have_the_same_alias()
         {
-            var innerCommand = new CommandDefinition("inner", "",
-                                                     symbolDefinitions: null,
-                                                     argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore());
+            var innerCommand = new CommandDefinition(
+                "inner", "",
+                symbolDefinitions: null,
+                argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore());
 
             var option = new OptionDefinition("--inner", "");
 
-            var outerCommand = new CommandDefinition("outer", "", new[] {
-                                                         innerCommand, (SymbolDefinition)option
-                                                     },
-                                                     new ArgumentDefinitionBuilder().ZeroOrMore());
+            var outerCommand = new CommandDefinition(
+                "outer", "",
+                new SymbolDefinition[] {
+                    innerCommand,
+                    option
+                },
+                new ArgumentDefinitionBuilder().ZeroOrMore());
 
             var parser = new Parser(outerCommand);
 
