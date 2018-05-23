@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using FluentAssertions;
 using System.CommandLine.Builder;
+using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -15,9 +15,9 @@ namespace System.CommandLine.Tests
             var option = new OptionDefinition(
                 "--hello",
                 "",
-                argumentDefinition: new ArgumentDefinitionBuilder()
-                                          .AddSuggestions("one", "two", "three")
-                                          .ExactlyOne());
+                new ArgumentDefinitionBuilder()
+                    .AddSuggestions("one", "two", "three")
+                    .ExactlyOne());
 
             var suggestions = option.Suggest(option.Parse("--hello "));
 
@@ -28,16 +28,9 @@ namespace System.CommandLine.Tests
         public void Command_Suggest_returns_available_option_aliases()
         {
             var command = new CommandDefinition("command", "a command", new[] {
-                new OptionDefinition(
-                    "--one",
-                    "option one",
-                    argumentDefinition: null), new OptionDefinition(
-                    "--two",
-                    "option two",
-                    argumentDefinition: null), new OptionDefinition(
-                    "--three",
-                    "option three",
-                    argumentDefinition: null)
+                new OptionDefinition("--one", "option one"),
+                new OptionDefinition("--two", "option two"),
+                new OptionDefinition("--three", "option three")
             });
 
             var suggestions = command.Suggest(command.Parse("command "));
@@ -48,7 +41,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_Suggest_returns_available_subcommands()
         {
-            var command = new CommandDefinition("command", "a command", new[] { new CommandDefinition("one", "subcommand one", ArgumentDefinition.None), new CommandDefinition("two", "subcommand two", ArgumentDefinition.None), new CommandDefinition("three", "subcommand three", ArgumentDefinition.None) });
+            var command = new CommandDefinition(
+                "command", "a command",
+                new[] {
+                    new CommandDefinition("one", "subcommand one", ArgumentDefinition.None),
+                    new CommandDefinition("two", "subcommand two", ArgumentDefinition.None),
+                    new CommandDefinition("three", "subcommand three", ArgumentDefinition.None)
+                });
 
             var suggestions = command.Suggest(command.Parse("command "));
 
@@ -62,9 +61,7 @@ namespace System.CommandLine.Tests
                 "command", "a command",
                 new SymbolDefinition[] {
                     new CommandDefinition("subcommand", "subcommand", ArgumentDefinition.None),
-                    new OptionDefinition(
-                        "--option",
-                        "option")
+                    new OptionDefinition("--option", "option")
                 });
 
             var suggestions = command.Suggest(command.Parse("command "));
@@ -75,12 +72,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_Suggest_returns_available_subcommands_and_option_aliases_and_configured_arguments()
         {
-            var command = new CommandDefinition("command", "a command", new[] { new CommandDefinition("subcommand", "subcommand", ArgumentDefinition.None), (SymbolDefinition) new OptionDefinition(
-                "--option",
-                "option",
-                argumentDefinition: null) }, new ArgumentDefinitionBuilder()
-                                             .AddSuggestions("command-argument")
-                                             .OneOrMore());
+            var command = new CommandDefinition(
+                "command", "a command",
+                new SymbolDefinition[] {
+                    new CommandDefinition("subcommand", "subcommand", ArgumentDefinition.None),
+
+                    new OptionDefinition("--option", "option")
+                },
+                new ArgumentDefinitionBuilder()
+                    .AddSuggestions("command-argument")
+                    .OneOrMore());
 
             var suggestions = command.Suggest(command.Parse("command "));
 
@@ -91,15 +92,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_command_can_be_hidden_from_completions_by_leaving_its_help_empty()
         {
-            var command = new CommandDefinition("the-command", "Does things.", new[] {
-                new OptionDefinition(
-                    "--hide-me",
-                    "",
-                    argumentDefinition: null), new OptionDefinition(
-                    "-n",
-                    "Not hidden",
-                    argumentDefinition: null)
-            });
+            var command = new CommandDefinition(
+                "the-command", "Does things.",
+                new[] {
+                    new OptionDefinition("--hide-me", ""),
+                    new OptionDefinition("-n", "Not hidden")
+                });
 
             var suggestions = command.Parse("the-command ").Suggestions();
 
@@ -111,20 +109,15 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 new OptionDefinition(
-                    "--bread",
-                    "",
-                    argumentDefinition: new ArgumentDefinitionBuilder()
-                                        .FromAmong("wheat", "sourdough", "rye")
-                                        .ExactlyOne()),
+                    "--bread", "",
+                    new ArgumentDefinitionBuilder()
+                        .FromAmong("wheat", "sourdough", "rye")
+                        .ExactlyOne()),
                 new OptionDefinition(
-                    "--cheese",
-                    "",
-                    argumentDefinition: new ArgumentDefinitionBuilder()
-                                        .FromAmong(
-                                            "provolone",
-                                            "cheddar",
-                                            "cream cheese")
-                                        .ExactlyOne()));
+                    "--cheese", "",
+                    new ArgumentDefinitionBuilder()
+                        .FromAmong("provolone", "cheddar", "cream cheese")
+                        .ExactlyOne()));
 
             var result = parser.Parse("--bread ");
 
@@ -142,7 +135,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Subcommand_names_are_available_as_suggestions()
         {
-            var command = new CommandDefinition("test", "", new[] { new CommandDefinition("one", "Command one", ArgumentDefinition.None), (SymbolDefinition) new CommandDefinition("two", "Command two", ArgumentDefinition.None) }, new ArgumentDefinitionBuilder().ExactlyOne());
+            var command = new CommandDefinition(
+                "test", "",
+                new[] {
+                    new CommandDefinition("one", "Command one", ArgumentDefinition.None),
+                    new CommandDefinition("two", "Command two", ArgumentDefinition.None)
+                },
+                new ArgumentDefinitionBuilder().ExactlyOne());
 
             command.Parse("test ")
                    .Suggestions()
@@ -153,10 +152,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Both_subcommands_and_options_are_available_as_suggestions()
         {
-            var command = new CommandDefinition("test", "", new[] { new CommandDefinition("one", "Command one", ArgumentDefinition.None), (SymbolDefinition) new OptionDefinition(
-                "--one",
-                "Option one",
-                argumentDefinition: null) }, new ArgumentDefinitionBuilder().ExactlyOne());
+            var command = new CommandDefinition(
+                "test", "",
+                new SymbolDefinition[] {
+                    new CommandDefinition("one", "Command one", ArgumentDefinition.None),
+                    new OptionDefinition("--one", "Option one")
+                }, new ArgumentDefinitionBuilder().ExactlyOne());
 
             command.Parse("test ")
                    .Suggestions()
@@ -171,16 +172,9 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 new CommandDefinition("outer", "", new[] {
-                    new OptionDefinition(
-                        "--one",
-                        "Option one",
-                        argumentDefinition: null), new OptionDefinition(
-                        "--two",
-                        "Option two",
-                        argumentDefinition: null), new OptionDefinition(
-                        "--three",
-                        "Option three",
-                        argumentDefinition: null)
+                    new OptionDefinition("--one", "Option one"),
+                    new OptionDefinition("--two", "Option two"),
+                    new OptionDefinition("--three", "Option three")
                 }));
 
             ParseResult result = parser.Parse(input);
@@ -192,16 +186,9 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 new CommandDefinition("outer", "", new[] {
-                    new OptionDefinition(
-                        "--one",
-                        "Option one",
-                        argumentDefinition: null), new OptionDefinition(
-                        "--two",
-                        "Option two",
-                        argumentDefinition: null), new OptionDefinition(
-                        "--three",
-                        "Option three",
-                        argumentDefinition: null)
+                    new OptionDefinition("--one", "Option one"),
+                    new OptionDefinition("--two", "Option two"),
+                    new OptionDefinition("--three", "Option three")
                 }));
 
             ParseResult result = parser.Parse("outer ");
@@ -216,10 +203,15 @@ namespace System.CommandLine.Tests
                     new OptionDefinition(
                         "--one",
                         "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("one-a", "one-b").ExactlyOne()), new OptionDefinition(
+                        new ArgumentDefinitionBuilder()
+                            .FromAmong("one-a", "one-b")
+                            .ExactlyOne()),
+                    new OptionDefinition(
                         "--two",
                         "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().FromAmong("two-a", "two-b").ExactlyOne())
+                        new ArgumentDefinitionBuilder()
+                            .FromAmong("two-a", "two-b")
+                            .ExactlyOne())
                 }));
 
             ParseResult result = parser.Parse("outer --two ");
@@ -231,7 +223,13 @@ namespace System.CommandLine.Tests
         public void Option_suggestions_can_be_based_on_the_proximate_option_and_partial_input()
         {
             var parser = new Parser(
-                new CommandDefinition("outer", "", new[] { new CommandDefinition("one", "Command one", ArgumentDefinition.None), new CommandDefinition("two", "Command two", ArgumentDefinition.None), new CommandDefinition("three", "Command three", ArgumentDefinition.None) }));
+                new CommandDefinition(
+                    "outer", "",
+                    new[] {
+                        new CommandDefinition("one", "Command one",                                              ArgumentDefinition.None),
+                        new CommandDefinition("two", "Command two",                                              ArgumentDefinition.None),
+                        new CommandDefinition("three", "Command three",                                              ArgumentDefinition.None)
+                    }));
 
             ParseResult result = parser.Parse("outer o");
 
@@ -241,22 +239,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Suggestions_can_be_provided_in_the_absence_of_validation()
         {
-            CommandDefinition commandDefinition = new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition(
-                    "-t",
-                    "",
-                    argumentDefinition: new ArgumentDefinitionBuilder()
-                                        .AddSuggestions("vegetable",
-                                                        "mineral",
-                                                        "animal")
-                                        .ExactlyOne())
-            });
+            var commandDefinition = new CommandDefinition(
+                "the-command", "",
+                new[] {
+                    new OptionDefinition("-t", "",
+                                         new ArgumentDefinitionBuilder()
+                                             .AddSuggestions("vegetable", "mineral", "animal")
+                                             .ExactlyOne())
+                });
 
             commandDefinition.Parse("the-command -t m")
-                   .Suggestions()
-                   .Should()
-                   .BeEquivalentTo("animal",
-                                   "mineral");
+                             .Suggestions()
+                             .Should()
+                             .BeEquivalentTo("animal",
+                                             "mineral");
 
             commandDefinition.Parse("the-command -t something-else").Errors.Should().BeEmpty();
         }
@@ -264,22 +260,24 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Suggestions_can_be_provided_using_a_delegate()
         {
-            CommandDefinition commandDefinition = new CommandDefinition("the-command", "", new[] {
-                new CommandDefinition("one", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder()
-                                                                                              .AddSuggestionSource((parseResult, pos) => new[]
-                                                                                              {
-                                                                                                  "vegetable",
-                                                                                                  "mineral",
-                                                                                                  "animal"
-                                                                                              })
-                                                                                              .ExactlyOne())
-            });
+            var commandDefinition = new CommandDefinition(
+                "the-command", "",
+                new[] {
+                    new CommandDefinition(
+                        "one", "",
+                        new ArgumentDefinitionBuilder()
+                            .AddSuggestionSource((parseResult, pos) => new[] {
+                                "vegetable",
+                                "mineral",
+                                "animal"
+                            })
+                            .ExactlyOne())
+                });
 
             commandDefinition.Parse("the-command one m")
-                   .Suggestions()
-                   .Should()
-                   .BeEquivalentTo("animal",
-                                   "mineral");
+                             .Suggestions()
+                             .Should()
+                             .BeEquivalentTo("animal", "mineral");
         }
 
         [Fact]
@@ -394,17 +392,12 @@ namespace System.CommandLine.Tests
         public void When_position_is_unspecified_then_TextToMatch_matches_partial_argument_at_end_of_command_line()
         {
             CommandDefinition commandDefinition = new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition(
-                    "--option1",
-                    "",
-                    argumentDefinition: null), new OptionDefinition(
-                    "--option2",
-                    "",
-                    argumentDefinition: null)
+                new OptionDefinition("--option1", ""),
+                new OptionDefinition("--option2", "")
             });
 
             string textToMatch = commandDefinition.Parse("the-command t")
-                                     .TextToMatch();
+                                                  .TextToMatch();
 
             textToMatch.Should().Be("t");
         }
@@ -413,17 +406,12 @@ namespace System.CommandLine.Tests
         public void When_position_is_unspecified_and_command_line_ends_with_a_space_then_TextToMatch_returns_empty()
         {
             CommandDefinition commandDefinition = new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition(
-                    "--option1",
-                    "",
-                    argumentDefinition: null), new OptionDefinition(
-                    "--option2",
-                    "",
-                    argumentDefinition: null)
+                new OptionDefinition("--option1", ""),
+                new OptionDefinition("--option2", "")
             });
 
             string textToMatch = commandDefinition.Parse("the-command t ")
-                                     .TextToMatch();
+                                                  .TextToMatch();
 
             textToMatch.Should().Be("");
         }
@@ -437,10 +425,12 @@ namespace System.CommandLine.Tests
         [InlineData(" the-command  on$e --two ")]
         public void When_position_is_specified_then_TextToMatch_matches_argument_at_cursor_position(string input)
         {
-            CommandDefinition commandDefinition = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore());
+            CommandDefinition commandDefinition =
+                new CommandDefinition("the-command", "",
+                                      new ArgumentDefinitionBuilder().ZeroOrMore());
 
             string textToMatch = commandDefinition.Parse(input.Replace("$", ""))
-                                     .TextToMatch(input.IndexOf("$", StringComparison.Ordinal));
+                                                  .TextToMatch(input.IndexOf("$", StringComparison.Ordinal));
 
             textToMatch.Should().Be("one");
         }

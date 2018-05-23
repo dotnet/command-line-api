@@ -107,7 +107,7 @@ namespace System.CommandLine.Tests
                     "--one",
                     "",
                     argumentDefinition: null),
-                (SymbolDefinition)new OptionDefinition(
+                new OptionDefinition(
                     "--two",
                     "",
                     argumentDefinition: null)
