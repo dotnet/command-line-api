@@ -1032,45 +1032,57 @@ namespace System.CommandLine.Tests
                   .BeEquivalentTo(option2);
         }
 
-        [Fact]
-        public void Empty_string_can_be_accepted_as_a_command_line_argument_when_enclosed_in_double_quotes()
+        [Theory]
+        [InlineData("-x \"hello\"", "hello")]
+        [InlineData("-x=\"hello\"", "hello")]
+        [InlineData("-x:\"hello\"", "hello")]
+        [InlineData("-x \"\"", "")]
+        [InlineData("-x=\"\"", "")]
+        [InlineData("-x:\"\"", "")]
+        public void When_an_argument_is_enclosed_in_double_quotes_its_value_has_the_quotes_removed(string input, string expected)
         {
             ParseResult parseResult = new Parser(
                     new OptionDefinition(
                         "-x",
                         "",
-                        argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore()))
-                .Parse("-x \"\"");
+                        new ArgumentDefinitionBuilder().ZeroOrMore()))
+                .Parse(input);
 
             parseResult["x"].Arguments
                             .Should()
-                            .BeEquivalentTo(new[] { "" });
+                            .BeEquivalentTo(new[] { expected });
         }
 
-        [Fact]
-        public void Arguments_can_start_with_prefixes_that_make_them_look_like_options()
+        [Theory]
+        [InlineData("-x -y")]
+        [InlineData("-x=-y")]
+        [InlineData("-x:-y")]
+        public void Arguments_can_start_with_prefixes_that_make_them_look_like_options(string input)
         {
             var parser = new ParserBuilder()
                          .AddOption("-x", "", args => args.ZeroOrOne())
                          .AddOption("-z", "", args => args.ZeroOrOne())
                          .Build();
 
-            var result = parser.Parse("-x=-y");
+            var result = parser.Parse(input);
 
             var valueForOption = result.ValueForOption("-x");
 
             valueForOption.Should().Be("-y");
         }
 
-        [Fact]
-        public void Arguments_can_match_the_aliases_of_sibling_options()
+        [Theory]
+        [InlineData("-x -y", Skip="Issue #108")]
+        [InlineData("-x=-y")]
+        [InlineData("-x:-y")]
+        public void Arguments_can_match_the_aliases_of_sibling_options(string input)
         {
             var parser = new ParserBuilder()
                          .AddOption("-x", "", args => args.ZeroOrOne())
                          .AddOption("-y", "", args => args.ZeroOrOne())
                          .Build();
 
-            var result = parser.Parse("-x=-y");
+            var result = parser.Parse(input);
 
             var valueForOption = result.ValueForOption("-x");
 
