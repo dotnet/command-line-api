@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public delegate void InvocationDelegate(InvocationContext context);
-
     public static class InvocationExtensions
     {
         public static ParserBuilder AddInvocation(
@@ -29,6 +27,19 @@ namespace System.CommandLine.Invocation
                 if (context.ParseResult.Tokens.FirstOrDefault() == "!parse")
                 {
                     context.InvocationResult = new ParseDirectiveResult();
+                }
+            });
+
+            return builder;
+        }
+
+        public static ParserBuilder UseSuggestDirective(
+            this ParserBuilder builder)
+        {
+            builder.AddInvocation(context => {
+                if (context.ParseResult.Tokens.FirstOrDefault() == "!suggest")
+                {
+                    context.InvocationResult = new SuggestDirectiveResult();
                 }
             });
 
