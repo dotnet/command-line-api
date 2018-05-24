@@ -79,21 +79,6 @@ namespace System.CommandLine
         }
 
         public object ValueForOption(
-            OptionDefinition option) =>
-            ValueForOption<object>(option);
-
-        public T ValueForOption<T>(
-            OptionDefinition option)
-        {
-            if (option == null)
-            {
-                throw new ArgumentNullException(nameof(option));
-            }
-
-            return Children.FirstOrDefault(c => c.SymbolDefinition == option).GetValueOrDefault<T>();
-        }
-
-        public object ValueForOption(
             string alias) =>
             ValueForOption<object>(alias);
 

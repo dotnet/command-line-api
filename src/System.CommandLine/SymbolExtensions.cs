@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Text;
 
 namespace System.CommandLine
 {
@@ -114,15 +113,6 @@ namespace System.CommandLine
             {
                 yield return item;
             }
-        }
-
-        public static string Diagram(this Symbol symbol)
-        {
-            var stringbuilder = new StringBuilder();
-
-            stringbuilder.Diagram(symbol);
-
-            return stringbuilder.ToString();
         }
     }
 }

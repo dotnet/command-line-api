@@ -141,14 +141,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            var specifiedCommand = parseResult.Command();
-
-            if (specifiedCommand != null)
-            {
-                return specifiedCommand.Children.Contains(alias);
-            }
-
-            return parseResult.Symbols.Contains(alias);
+            return parseResult.Command().Children.Contains(alias);
         }
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>

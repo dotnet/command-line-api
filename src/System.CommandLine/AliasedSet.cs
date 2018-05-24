@@ -14,46 +14,15 @@ namespace System.CommandLine
     {
         private readonly HashSet<T> _items = new HashSet<T>();
 
-        protected AliasedSet()
-        {
-        }
-
-        protected AliasedSet(IReadOnlyCollection<T> symbols)
-        {
-            if (symbols == null)
-            {
-                throw new ArgumentNullException(nameof(symbols));
-            }
-
-            foreach (var option in symbols)
-            {
-                Add(option);
-            }
-        }
-
         public T this[string alias] =>
             _items.SingleOrDefault(o => ContainsItemWithRawAlias(o, alias)) ??
             _items.SingleOrDefault(o => ContainsItemWithAlias(o, alias));
 
         public int Count => _items.Count;
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return _items.GetEnumerator();
-        }
-
-        internal void AddRange(IEnumerable<T> options)
-        {
-            foreach (var option in options)
-            {
-                Add(option);
-            }
-        }
+        public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
 
         protected abstract bool ContainsItemWithAlias(T item, string alias);
 
