@@ -13,9 +13,42 @@ namespace System.CommandLine.Invocation
     {
         public static ParserBuilder AddInvocation(
             this ParserBuilder builder,
-            InvocationDelegate action)
+            InvocationMiddleware onInvoke)
         {
-            builder.AddInvocation(action);
+            builder.AddInvocation(onInvoke);
+            return builder;
+        }
+
+        public static ParserBuilder AddInvocation(
+            this ParserBuilder builder,
+            Action<InvocationContext> onInvoke)
+        {
+            builder.AddInvocation(async (context, next) => {
+                onInvoke(context);
+                await next(context);
+            });
+
+            return builder;
+        }
+
+        public static ParserBuilder HandleAndDisplayExceptions(
+            this ParserBuilder builder)
+        {
+            builder.AddInvocation(async (context, next) => {
+                try
+                {
+                    await next(context);
+                }
+                catch (Exception exception)
+                {
+                    context.Console.ResetColor();
+                    context.Console.ForegroundColor = ConsoleColor.Red;
+                    context.Console.Error.Write("Unhandled exception: ");
+                    context.Console.Error.WriteLine(exception.ToString());
+                    context.Console.ResetColor();
+                    context.ResultCode = 1;
+                }
+            });
 
             return builder;
         }
@@ -23,10 +56,14 @@ namespace System.CommandLine.Invocation
         public static ParserBuilder UseParseDirective(
             this ParserBuilder builder)
         {
-            builder.AddInvocation(context => {
+            builder.AddInvocation(async (context, next) => {
                 if (context.ParseResult.Tokens.FirstOrDefault() == "!parse")
                 {
                     context.InvocationResult = new ParseDirectiveResult();
+                }
+                else
+                {
+                    await next(context);
                 }
             });
 
@@ -36,10 +73,14 @@ namespace System.CommandLine.Invocation
         public static ParserBuilder UseSuggestDirective(
             this ParserBuilder builder)
         {
-            builder.AddInvocation(context => {
+            builder.AddInvocation(async (context, next) => {
                 if (context.ParseResult.Tokens.FirstOrDefault() == "!suggest")
                 {
                     context.InvocationResult = new SuggestDirectiveResult();
+                }
+                else
+                {
+                    await next(context);
                 }
             });
 
@@ -48,56 +89,21 @@ namespace System.CommandLine.Invocation
 
         public static async Task<int> InvokeAsync(
             this ParseResult parseResult,
-            IConsole console)
-        {
-            if (parseResult.Parser.Configuration.InvocationList is IEnumerable<InvocationDelegate> invocations)
-            {
-                var context = new InvocationContext(parseResult, console);
-
-                foreach (var invocation in invocations)
-                {
-                    invocation(context);
-                    if (context.InvocationResult != null)
-                    {
-                        context.InvocationResult.Apply(context);
-                        return context.ResultCode;
-                    }
-                }
-            }
-
-            var executionHandler = parseResult.CommandDefinition().ExecutionHandler;
-
-            if (executionHandler != null)
-            {
-                try
-                {
-                    return await executionHandler.InvokeAsync(parseResult);
-                }
-                catch (Exception exception)
-                {
-                    console.ResetColor();
-                    console.ForegroundColor = ConsoleColor.Red;
-                    console.Error.Write("Unhandled exception: ");
-                    console.Error.WriteLine(exception.ToString());
-                    console.ResetColor();
-                    return 1;
-                }
-            }
-
-            return 0;
-        }
+            IConsole console) =>
+            await new InvocationPipeline(parseResult)
+                .InvokeAsync(console);
 
         public static ParserBuilder AddHelp(this ParserBuilder builder)
         {
-            builder.AddInvocation(context => {
-                var helpOptions = new HashSet<string>();
+            builder.AddInvocation(async (context, next) => {
+                var helpOptionTokens = new HashSet<string>();
                 var prefixes = context.ParseResult.Parser.Configuration.Prefixes;
                 if (prefixes == null)
                 {
-                    helpOptions.Add("-h");
-                    helpOptions.Add("--help");
-                    helpOptions.Add("-?");
-                    helpOptions.Add("/?");
+                    helpOptionTokens.Add("-h");
+                    helpOptionTokens.Add("--help");
+                    helpOptionTokens.Add("-?");
+                    helpOptionTokens.Add("/?");
                 }
                 else
                 {
@@ -106,22 +112,29 @@ namespace System.CommandLine.Invocation
                     {
                         foreach (var prefix in prefixes)
                         {
-                            helpOptions.Add($"{prefix}{helpOption}");
+                            helpOptionTokens.Add($"{prefix}{helpOption}");
                         }
                     }
                 }
 
-                ShowHelp(context, helpOptions);
+                if (!ShowHelp(context, helpOptionTokens))
+                {
+                    await next(context);
+                }
             });
+
             return builder;
         }
 
         public static ParserBuilder AddHelp(
             this ParserBuilder builder,
-            IReadOnlyCollection<string> helpOptionNames)
+            IReadOnlyCollection<string> helpOptionTokens)
         {
-            builder.AddInvocation(context => {
-                ShowHelp(context, helpOptionNames);
+            builder.AddInvocation(async (context, next) => {
+                if (!ShowHelp(context, helpOptionTokens))
+                {
+                    await next(context);
+                }
             });
             return builder;
         }
@@ -129,11 +142,13 @@ namespace System.CommandLine.Invocation
         public static ParserBuilder AddParseErrorReporting(
             this ParserBuilder builder)
         {
-            builder.AddInvocation(context => {
+            builder.AddInvocation(async (context, next) => {
                 if (context.ParseResult.Errors.Count > 0)
                 {
                     context.InvocationResult = new ParseErrorResult();
                 }
+
+                await next(context);
             });
             return builder;
         }
@@ -184,23 +199,29 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        private static void ShowHelp(
+        private static bool ShowHelp(
             InvocationContext context,
             IReadOnlyCollection<string> helpOptionAliases)
         {
             var lastToken = context.ParseResult.Tokens.LastOrDefault();
 
             if (helpOptionAliases.Contains(lastToken) &&
-                !context.ParseResult
-                        .Parser
-                        .Configuration
-                        .SymbolDefinitions
-                        .FlattenBreadthFirst(s => s.SymbolDefinitions)
-                        .SelectMany(s => s.RawAliases)
-                        .Any(helpOptionAliases.Contains))
+                !TokenIsDefinedInSyntax())
             {
                 context.InvocationResult = new HelpResult();
+                return true;
             }
+
+            return false;
+
+            bool TokenIsDefinedInSyntax() =>
+                context.ParseResult
+                       .Parser
+                       .Configuration
+                       .SymbolDefinitions
+                       .FlattenBreadthFirst(s => s.SymbolDefinitions)
+                       .SelectMany(s => s.RawAliases)
+                       .Any(helpOptionAliases.Contains);
         }
     }
 }

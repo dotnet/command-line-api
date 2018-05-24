@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -29,24 +30,6 @@ namespace System.CommandLine.Tests
             await result.InvokeAsync(_console);
 
             wasCalled.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task First_invocation_behavior_to_set_a_result_short_circuits()
-        {
-            var wasCalled = false;
-
-            var parser =
-                new ParserBuilder()
-                    .AddCommand("command", "")
-                    .AddInvocation(context => context.InvocationResult = new TestInvocationResult())
-                    .AddInvocation(_ => wasCalled = true)
-                    .Build();
-            var result = parser.Parse("command");
-
-            await result.InvokeAsync(_console);
-
-            wasCalled.Should().BeFalse();
         }
 
         [Fact]
@@ -127,7 +110,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task Invoke_chooses_the_appropriate_command()
+        public async Task InvokeAsync_chooses_the_appropriate_command()
         {
             var firstWasCalled = false;
             var secondWasCalled = false;
@@ -143,6 +126,42 @@ namespace System.CommandLine.Tests
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();
+        }
+
+        [Fact]
+        public void When_invocation_middleware_throws_then_InvokeAsync_does_not_handle_the_exception()
+        {
+            var parser = new ParserBuilder()
+                         .AddCommand("the-command", "")
+                         .AddInvocation(_ => throw new Exception("oops!"))
+                         .Build();
+
+            Func<Task> invoke = async () => await parser.Parse("the-command").InvokeAsync(_console);
+
+            invoke.Should()
+                  .Throw<Exception>()
+                  .WithMessage("oops!");
+        }
+
+        [Fact]
+        public void When_command_handler_throws_then_InvokeAsync_does_not_handle_the_exception()
+        {
+            var parser = new ParserBuilder()
+                         .AddCommand("the-command", "",
+                                     cmd => cmd.OnExecute<string>(_ => throw new Exception("oops!")))
+                         .Build();
+
+            Func<Task> invoke = async () =>
+                await parser.Parse("the-command")
+                            .InvokeAsync(_console);
+
+            invoke.Should()
+                  .Throw<TargetInvocationException>()
+                  .Which
+                  .InnerException
+                  .Message
+                  .Should()
+                  .Be("oops!");
         }
 
         private class TestInvocationResult : IInvocationResult
