@@ -32,9 +32,19 @@ namespace System.CommandLine.Invocation
 
             for (var index = 0; index < parameters.Length; index++)
             {
-                var parameterName = parameters[index].Name;
-                var argument = result.Command().ValueForOption(parameterName);
-                arguments.Add(argument);
+                var parameterInfo = parameters[index];
+
+                var parameterName = parameterInfo.Name;
+
+                if (parameterInfo.ParameterType == typeof(ParseResult))
+                {
+                    arguments.Add(result);
+                }
+                else
+                {
+                    var argument = result.Command().ValueForOption(parameterName);
+                    arguments.Add(argument);
+                }
             }
 
             object value = null;

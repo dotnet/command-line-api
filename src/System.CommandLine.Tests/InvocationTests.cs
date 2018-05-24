@@ -110,6 +110,30 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public async Task Method_parameters_of_type_ParseResult_receive_the_current_ParseResult_instance()
+        {
+            var wasCalled = false;
+
+            var commandDefinition =
+                new ParserBuilder()
+                    .AddCommand(
+                        "command", "",
+                        cmd => {
+                            cmd
+                                .AddOption("-x", "", args => args.ParseArgumentsAs<int>())
+                                .OnExecute<ParseResult>(result => {
+                                    wasCalled = true;
+                                    result.ValueForOption("-x").Should().Be(123);
+                                });
+                        })
+                    .BuildCommandDefinition();
+
+            await commandDefinition.Parse("command -x 123").InvokeAsync(_console);
+
+            wasCalled.Should().BeTrue();
+        }
+
+        [Fact]
         public async Task InvokeAsync_chooses_the_appropriate_command()
         {
             var firstWasCalled = false;
