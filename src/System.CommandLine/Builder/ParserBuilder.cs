@@ -14,7 +14,7 @@ namespace System.CommandLine.Builder
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
-        private List<InvocationDelegate> _invocationList;
+        private List<InvocationMiddleware> _invocationList;
 
         public ParserBuilder() : base(executableName.Value)
         {
@@ -42,11 +42,11 @@ namespace System.CommandLine.Builder
                     invocationList: _invocationList));
         }
 
-        internal void AddInvocation(InvocationDelegate action)
+        internal void AddInvocation(InvocationMiddleware action)
         {
             if (_invocationList == null)
             {
-                _invocationList = new List<InvocationDelegate>();
+                _invocationList = new List<InvocationMiddleware>();
             }
 
             _invocationList.Add(action);
