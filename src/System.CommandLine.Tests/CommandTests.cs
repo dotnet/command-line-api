@@ -11,12 +11,9 @@ namespace System.CommandLine.Tests
     public class CommandTests
     {
         private readonly Parser _parser;
-        private readonly ITestOutputHelper _output;
 
-        public CommandTests(ITestOutputHelper output)
+        public CommandTests()
         {
-            _output = output;
-
             var builder = new ArgumentDefinitionBuilder();
 
             _parser = new Parser(
@@ -25,7 +22,7 @@ namespace System.CommandLine.Tests
                         new OptionDefinition(
                             "--option",
                             "",
-                            argumentDefinition: builder.ExactlyOne())
+                            builder.ExactlyOne())
                     })
                 }));
         }

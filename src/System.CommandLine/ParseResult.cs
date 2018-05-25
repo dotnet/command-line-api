@@ -89,6 +89,6 @@ namespace System.CommandLine
             return this[alias].GetValueOrDefault<T>();
         }
 
-        public Symbol this[string alias] => this.Command.Children[alias];
+        public Symbol this[string alias] => Command.Children[alias];
     }
 }

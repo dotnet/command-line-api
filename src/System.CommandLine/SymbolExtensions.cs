@@ -7,20 +7,6 @@ namespace System.CommandLine
 {
     public static class SymbolExtensions
     {
-        internal static IEnumerable<Symbol> FlattenBreadthFirst(
-            this IEnumerable<Symbol> options)
-        {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            foreach (var item in options.FlattenBreadthFirst(o => o.Children))
-            {
-                yield return item;
-            }
-        }
-
         public static object GetValueOrDefault(this Symbol symbol)
         {
             return symbol.GetValueOrDefault<object>();

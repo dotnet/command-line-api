@@ -18,7 +18,7 @@ namespace System.CommandLine
         {
         }
 
-        internal readonly ParserConfiguration Configuration;
+        internal ParserConfiguration Configuration { get; }
 
         public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
