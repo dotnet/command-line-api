@@ -262,7 +262,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("the-command -xyz");
 
-            result.Command()
+            result.Command
                   .Children
                   .Select(o => o.Name)
                   .Should()
@@ -304,7 +304,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("the-command --xyz");
 
-            result.Command()
+            result.Command
                   .Children
                   .Select(o => o.Name)
                   .Should()
@@ -328,12 +328,12 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("outer inner -abc");
 
-            result.Command()
+            result.Command
                   .Children
                   .Should()
                   .BeEmpty();
 
-            result.Command()
+            result.Command
                   .Arguments
                   .Should()
                   .BeEquivalentTo("-abc");
@@ -383,7 +383,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("the-command -a cat -v carrot -a dog");
 
-            var parsedCommand = result.Command();
+            var parsedCommand = result.Command;
 
             parsedCommand["animals"]
                 .Arguments
@@ -443,7 +443,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("the-command -a cat some-arg -v carrot");
 
-            var command = result.Command();
+            var command = result.Command;
 
             command["animals"]
                 .Arguments
@@ -583,9 +583,9 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("outer arg1 inner arg2");
 
-            result.Command().Parent.Arguments.Should().BeEquivalentTo("arg1");
+            result.Command.Parent.Arguments.Should().BeEquivalentTo("arg1");
 
-            result.Command().Arguments.Should().BeEquivalentTo("arg2");
+            result.Command.Arguments.Should().BeEquivalentTo("arg2");
         }
 
         [Fact]
@@ -626,7 +626,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("the-command -x two");
 
-            var command = result.Command();
+            var command = result.Command;
             command["x"].Arguments.Should().BeEmpty();
             command.Arguments.Should().BeEquivalentTo("two");
         }
@@ -643,8 +643,8 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("the-command -x two");
 
-            result.Command()["x"].Arguments.Should().BeEquivalentTo("two");
-            result.Command().Arguments.Should().BeEmpty();
+            result.Command["x"].Arguments.Should().BeEquivalentTo("two");
+            result.Command.Arguments.Should().BeEmpty();
         }
 
         [Fact]
@@ -663,12 +663,12 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("outer inner -x");
 
-            result.Command()
+            result.Command
                   .Parent
                   .Children
                   .Should()
                   .NotContain(o => o.Name == "x");
-            result.Command()
+            result.Command
                   .Children
                   .Should()
                   .ContainSingle(o => o.Name == "x");
@@ -690,11 +690,11 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("outer -x inner");
 
-            result.Command()
+            result.Command
                   .Children
                   .Should()
                   .BeEmpty();
-            result.Command()
+            result.Command
                   .Parent
                   .Children
                   .Should()
@@ -713,12 +713,12 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("outer inner arg1 arg2");
 
-            result.Command()
+            result.Command
                   .Parent
                   .Arguments
                   .Should()
                   .BeEmpty();
-            result.Command()
+            result.Command
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg1");
@@ -743,7 +743,7 @@ namespace System.CommandLine.Tests
                                                "7",
                                                "the-command");
 
-            Command complete = result.Command();
+            Command complete = result.Command;
 
             _output.WriteLine(result.Diagram());
 
@@ -798,7 +798,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("-x -y");
 
-            var command = result.CommandDefinition();
+            var command = result.CommandDefinition;
 
             command.Should().NotBeNull();
 
@@ -814,7 +814,7 @@ namespace System.CommandLine.Tests
                          .Build()
                          .Parse("-x -y");
 
-            var command = result.Command();
+            var command = result.Command;
 
             command.Should().NotBeNull();
 
@@ -872,7 +872,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.Command().Parent.Arguments.Should().BeEquivalentTo("default");
+            result.Command.Parent.Arguments.Should().BeEquivalentTo("default");
         }
 
         [Fact]
@@ -891,7 +891,7 @@ namespace System.CommandLine.Tests
 
             result.HasOption("o").Should().BeTrue();
             result.HasOption("option").Should().BeTrue();
-            result.Command().ValueForOption("o").Should().Be("the-default");
+            result.Command.ValueForOption("o").Should().Be("the-default");
         }
 
         [Fact]
@@ -923,7 +923,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.Command()
+            result.Command
                   .Arguments
                   .Should()
                   .BeEquivalentTo("-p:RandomThing=random");
@@ -958,7 +958,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("the-command --one one");
 
-            result.Command()["one"]
+            result.Command["one"]
                   .Arguments
                   .Should()
                   .BeEquivalentTo("one");
@@ -984,26 +984,22 @@ namespace System.CommandLine.Tests
 
             var parser = new Parser(outerCommand);
 
-            parser.Parse("outer inner")
-                  .Command()
+            parser.Parse("outer inner").Command
                   .Definition
                   .Should()
                   .Be(innerCommand);
 
-            parser.Parse("outer --inner")
-                  .Command()
+            parser.Parse("outer --inner").Command
                   .Definition
                   .Should()
                   .Be(outerCommand);
 
-            parser.Parse("outer --inner inner")
-                  .Command()
+            parser.Parse("outer --inner inner").Command
                   .Definition
                   .Should()
                   .Be(innerCommand);
 
-            parser.Parse("outer --inner inner")
-                  .Command()
+            parser.Parse("outer --inner inner").Command
                   .Parent
                   .Children
                   .Should()
@@ -1018,14 +1014,12 @@ namespace System.CommandLine.Tests
 
             var parser = new Parser(option1, option2);
 
-            parser.Parse("-a")
-                  .Command()
+            parser.Parse("-a").Command
                   .Children
                   .Select(s => s.SymbolDefinition)
                   .Should()
                   .BeEquivalentTo(option1);
-            parser.Parse("--a")
-                  .Command()
+            parser.Parse("--a").Command
                   .Children
                   .Select(s => s.SymbolDefinition)
                   .Should()

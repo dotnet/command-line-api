@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("custom one two three");
 
-            var customType = result.Command().GetValueOrDefault<MyCustomType>();
+            var customType = result.Command.GetValueOrDefault<MyCustomType>();
 
             customType
                 .Values
@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests
             var result = definition.Parse("the-command -o not-an-int");
 
             Action getValue = () =>
-                result.Command().ValueForOption("o");
+                result.Command.ValueForOption("o");
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -146,7 +146,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x the-argument");
 
-            result.Command()
+            result.Command
                   .ValueForOption("x")
                   .Should()
                   .Be("the-argument");
@@ -164,7 +164,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x the-argument");
 
-            result.Command()
+            result.Command
                   .ValueForOption("x")
                   .Should()
                   .Be("the-argument");
@@ -184,7 +184,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x");
 
-            Action getValue = () => result.Command().ValueForOption("x");
+            Action getValue = () => result.Command.ValueForOption("x");
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -206,7 +206,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x");
 
-            result.Command()
+            result.Command
                   .ValueForOption("x")
                   .Should()
                   .BeAssignableTo<IReadOnlyCollection<string>>()
@@ -228,7 +228,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("the-command -x");
 
-            Action getValue = () => result.Command().ValueForOption("x");
+            Action getValue = () => result.Command.ValueForOption("x");
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -248,8 +248,7 @@ namespace System.CommandLine.Tests
                     argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
             });
 
-            definition.Parse("the-command -x arg1 -x arg2")
-                      .Command()
+            definition.Parse("the-command -x arg1 -x arg2").Command
                       .ValueForOption("x")
                       .Should()
                       .BeEquivalentTo(new[] { "arg1", "arg2" });
@@ -265,8 +264,7 @@ namespace System.CommandLine.Tests
                     argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
             });
 
-            definition.Parse("the-command -x arg1")
-                      .Command()
+            definition.Parse("the-command -x arg1").Command
                       .ValueForOption("x")
                       .Should()
                       .BeEquivalentTo(new[] { "arg1" });
@@ -281,7 +279,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("something -x");
 
-            result.Command()
+            result.Command
                   .ValueForOption<bool>("x")
                   .Should()
                   .BeTrue();
@@ -297,7 +295,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("something");
 
-            result.Command().ValueForOption<bool>("x").Should().BeFalse();
+            result.Command.ValueForOption<bool>("x").Should().BeFalse();
         }
 
         [Fact]
@@ -312,7 +310,7 @@ namespace System.CommandLine.Tests
 
             var result = definition.Parse("something");
 
-            var option = result.Command()["x"];
+            var option = result.Command["x"];
 
             option.GetValueOrDefault<string>().Should().Be("123");
         }

@@ -36,6 +36,27 @@ namespace System.CommandLine
             CheckForErrors();
         }
 
+        public Command Command
+        {
+            get
+            {
+                var commandPath = CommandDefinition
+                                  .RecurseWhileNotNull(c => c.Parent)
+                                  .Select(c => c.Name)
+                                  .Reverse()
+                                  .ToArray();
+
+                var symbol = Symbols[commandPath.First()];
+
+                foreach (var commandName in commandPath.Skip(1))
+                {
+                    symbol = symbol.Children[commandName];
+                }
+
+                return (Command) symbol;
+            }
+        }
+
         public SymbolSet Symbols { get; }
 
         public IReadOnlyCollection<ParseError> Errors => _errors;
@@ -48,14 +69,17 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public CommandDefinition CommandDefinition()
+        public CommandDefinition CommandDefinition
         {
-            if (_commandDefinition == null)
+            get
             {
-                return _commandDefinition = Symbols.CommandDefinition();
-            }
+                if (_commandDefinition == null)
+                {
+                    return _commandDefinition = Symbols.CommandDefinition();
+                }
 
-            return _commandDefinition;
+                return _commandDefinition;
+            }
         }
 
         private void CheckForErrors()
@@ -70,12 +94,12 @@ namespace System.CommandLine
                 }
             }
 
-            var commandDefinition = CommandDefinition();
+            var commandDefinition = CommandDefinition;
 
             if (commandDefinition != null &&
                 commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
-                var symbol = this.Command();
+                var symbol = this.Command;
                 _errors.Insert(0, new ParseError(
                                   symbol.ValidationMessages.RequiredCommandWasNotProvided(),
                                   symbol));
@@ -97,6 +121,6 @@ namespace System.CommandLine
             return this[alias].GetValueOrDefault<T>();
         }
 
-        public Symbol this[string alias] => this.Command().Children[alias];
+        public Symbol this[string alias] => this.Command.Children[alias];
     }
 }

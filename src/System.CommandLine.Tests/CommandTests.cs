@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests
         {
             var result = _parser.Parse("outer inner --option argument1");
 
-            var outer = result.Command().Parent;
+            var outer = result.Command.Parent;
 
             outer
                 .Name
@@ -118,13 +118,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
-            result.Command()
+            result.Command
                   .Parent
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg1");
 
-            result.Command()
+            result.Command
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
@@ -143,11 +143,11 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("outer inner inner-er -x arg");
 
-            result.Command().Name.Should().Be("inner-er");
+            result.Command.Name.Should().Be("inner-er");
 
             result = command.Parse("outer inner");
 
-            result.Command().Name.Should().Be("inner");
+            result.Command.Name.Should().Be("inner");
         }
 
         [Fact]
@@ -171,13 +171,13 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            var parsedOption = result.Command()["x"];
+            var parsedOption = result.Command["x"];
 
             parsedOption.GetValueOrDefault().Should().Be("arg");
 
             result = command.Parse("outer sibling arg");
 
-            result.Command().GetValueOrDefault().Should().Be("arg");
+            result.Command.GetValueOrDefault().Should().Be("arg");
         }
     }
 }

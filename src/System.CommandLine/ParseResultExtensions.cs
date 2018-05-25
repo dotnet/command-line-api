@@ -41,25 +41,6 @@ namespace System.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
 
-        public static Command Command(this ParseResult result)
-        {
-            var commandPath = result
-                              .CommandDefinition()
-                              .RecurseWhileNotNull(c => c.Parent)
-                              .Select(c => c.Name)
-                              .Reverse()
-                              .ToArray();
-
-            var symbol = result.Symbols[commandPath.First()];
-
-            foreach (var commandName in commandPath.Skip(1))
-            {
-                symbol = symbol.Children[commandName];
-            }
-
-            return (Command)symbol;
-        }
-
         internal static Symbol CurrentSymbol(this ParseResult result) =>
             result.Symbols
                   .LastOrDefault()
@@ -122,7 +103,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            var specifiedCommand = parseResult.Command();
+            var specifiedCommand = parseResult.Command;
 
             if (specifiedCommand != null)
             {
@@ -141,7 +122,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.Command().Children.Contains(alias);
+            return parseResult.Command.Children.Contains(alias);
         }
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
