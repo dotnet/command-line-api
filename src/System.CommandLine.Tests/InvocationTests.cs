@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -15,19 +16,17 @@ namespace System.CommandLine.Tests
         private readonly TestConsole _console = new TestConsole();
 
         [Fact]
-        public async Task General_invocation_behaviors_can_be_specified_in_the_parser_definition()
+        public async Task General_invocation_middlware_can_be_specified_in_the_parser_definition()
         {
             var wasCalled = false;
 
             var parser =
                 new ParserBuilder()
                     .AddCommand("command", "")
-                    .AddInvocation(_ => wasCalled = true)
+                    .AddMiddleware(_ => wasCalled = true)
                     .Build();
 
-            var result = parser.Parse("command");
-
-            await result.InvokeAsync(_console);
+            await parser.InvokeAsync("command", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -37,16 +36,14 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
 
-            var commandDefinition =
+            var parser =
                 new ParserBuilder()
                     .AddCommand(
                         "command", "",
                         cmd => cmd.OnExecute(() => wasCalled = true))
-                    .BuildCommandDefinition();
+                    .Build();
 
-            var result = commandDefinition.Parse("command");
-
-            await result.InvokeAsync(_console);
+            await parser.InvokeAsync("command", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -63,7 +60,7 @@ namespace System.CommandLine.Tests
                 age.Should().Be(425);
             }
 
-            var commandDefinition =
+            var parser =
                 new ParserBuilder()
                     .AddCommand(
                         "command", "",
@@ -72,11 +69,9 @@ namespace System.CommandLine.Tests
                                .OnExecute<string, int>(Execute)
                                .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
                         })
-                    .BuildCommandDefinition();
+                    .Build();
 
-            var result = commandDefinition.Parse("command --age 425 --name Gandalf");
-
-            await result.InvokeAsync(_console);
+            await parser.InvokeAsync("command --age 425 --name Gandalf", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -86,7 +81,7 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
 
-            var commandDefinition =
+            var parser =
                 new ParserBuilder()
                     .AddCommand(
                         "command", "",
@@ -100,11 +95,9 @@ namespace System.CommandLine.Tests
                                 })
                                 .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
                         })
-                    .BuildCommandDefinition();
+                    .Build();
 
-            var result = commandDefinition.Parse("command --age 425 --name Gandalf");
-
-            await result.InvokeAsync(_console);
+            await parser.InvokeAsync("command --age 425 --name Gandalf", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -114,7 +107,7 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
 
-            var commandDefinition =
+            var parser =
                 new ParserBuilder()
                     .AddCommand(
                         "command", "",
@@ -126,9 +119,9 @@ namespace System.CommandLine.Tests
                                     result.ValueForOption("-x").Should().Be(123);
                                 });
                         })
-                    .BuildCommandDefinition();
+                    .Build();
 
-            await commandDefinition.Parse("command -x 123").InvokeAsync(_console);
+            await parser.InvokeAsync("command -x 123", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -146,7 +139,7 @@ namespace System.CommandLine.Tests
                                      cmd => cmd.OnExecute<string>(_ => secondWasCalled = true))
                          .Build();
 
-            await parser.Parse("first").InvokeAsync(_console);
+            await parser.InvokeAsync("first", _console);
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();
@@ -160,7 +153,7 @@ namespace System.CommandLine.Tests
                          .AddMiddleware(_ => throw new Exception("oops!"))
                          .Build();
 
-            Func<Task> invoke = async () => await parser.Parse("the-command").InvokeAsync(_console);
+            Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
 
             invoke.Should()
                   .Throw<Exception>()
@@ -175,9 +168,7 @@ namespace System.CommandLine.Tests
                                      cmd => cmd.OnExecute<string>(_ => throw new Exception("oops!")))
                          .Build();
 
-            Func<Task> invoke = async () =>
-                await parser.Parse("the-command")
-                            .InvokeAsync(_console);
+            Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
 
             invoke.Should()
                   .Throw<TargetInvocationException>()
@@ -193,6 +184,27 @@ namespace System.CommandLine.Tests
             public void Apply(InvocationContext context)
             {
             }
+        [Fact]
+        public async Task ParseResult_can_be_replaced_by_middleware()
+        {
+            var wasCalled = false;
+
+            var parser = new ParserBuilder()
+                         .AddMiddleware(context => {
+                             var tokensAfterFirst = context.ParseResult.Tokens.Skip(1).ToArray();
+                             var reparsed = context.Parser.Parse(tokensAfterFirst);
+                             context.ParseResult = reparsed;
+                         })
+                         .AddCommand("the-command", "",
+                                     cmd => cmd.OnExecute<ParseResult>(result => {
+                                         wasCalled = true;
+                                         result.Errors.Should().BeEmpty();
+                                     }))
+                         .Build();
+
+            await parser.InvokeAsync("!my-directive the-command", new TestConsole());
+
+            wasCalled.Should().BeTrue();
         }
     }
 }

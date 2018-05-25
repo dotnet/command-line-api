@@ -9,17 +9,23 @@ namespace System.CommandLine.Invocation
     internal class InvocationPipeline
     {
         private readonly ParseResult parseResult;
+        private readonly Parser parser;
 
-        public InvocationPipeline(ParseResult parseResult)
+        public InvocationPipeline(
+            Parser parser,
+            ParseResult parseResult)
         {
+            this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
             this.parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
         }
 
         public async Task<int> InvokeAsync(IConsole console)
         {
-            var context = new InvocationContext(parseResult, console);
+            var context = new InvocationContext(parseResult,
+                                                parser,
+                                                console);
 
-            var invocations = new List<InvocationMiddleware>(parseResult.Parser.Configuration.InvocationList);
+            var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.InvocationList);
 
             invocations.Add(async (invocationContext, next) => {
                 var handler = invocationContext.ParseResult
@@ -28,7 +34,7 @@ namespace System.CommandLine.Invocation
 
                 if (handler != null)
                 {
-                    await handler.InvokeAsync(parseResult);
+                    await handler.InvokeAsync(invocationContext.ParseResult);
                     context.ResultCode = 0;
                 }
             });

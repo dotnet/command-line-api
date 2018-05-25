@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
             
             var console = new TestConsole();
 
-            await result.InvokeAsync(console);
+            await parser.InvokeAsync(result, console);
 
             console.Out
                    .ToString()

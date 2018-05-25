@@ -11,7 +11,7 @@ namespace System.CommandLine.Invocation
         {
             var tokensAfterDirective = context.ParseResult.Tokens.Skip(1).ToArray();
 
-            var reparseResult = context.ParseResult.Parser.Parse(tokensAfterDirective);
+            var reparseResult = context.Parser.Parse(tokensAfterDirective);
 
             context.Console.Out.WriteLine(reparseResult.Diagram());
         }

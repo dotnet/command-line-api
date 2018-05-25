@@ -88,16 +88,31 @@ namespace System.CommandLine.Invocation
         }
 
         public static async Task<int> InvokeAsync(
-            this ParseResult parseResult,
+            this Parser parser,
+            ParseResult parseResult,
             IConsole console) =>
-            await new InvocationPipeline(parseResult)
+            await new InvocationPipeline(parser, parseResult)
+                .InvokeAsync(console);
+
+        public static async Task<int> InvokeAsync(
+            this Parser parser,
+            string commandLine,
+            IConsole console) =>
+            await new InvocationPipeline(parser, parser.Parse(commandLine))
+                .InvokeAsync(console);
+
+        public static async Task<int> InvokeAsync(
+            this Parser parser,
+            string[] args,
+            IConsole console) =>
+            await new InvocationPipeline(parser, parser.Parse(args))
                 .InvokeAsync(console);
 
         public static ParserBuilder AddHelp(this ParserBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
                 var helpOptionTokens = new HashSet<string>();
-                var prefixes = context.ParseResult.Parser.Configuration.Prefixes;
+                var prefixes = context.Parser.Configuration.Prefixes;
                 if (prefixes == null)
                 {
                     helpOptionTokens.Add("-h");
@@ -215,8 +230,7 @@ namespace System.CommandLine.Invocation
             return false;
 
             bool TokenIsDefinedInSyntax() =>
-                context.ParseResult
-                       .Parser
+                context.Parser
                        .Configuration
                        .SymbolDefinitions
                        .FlattenBreadthFirst(s => s.SymbolDefinitions)

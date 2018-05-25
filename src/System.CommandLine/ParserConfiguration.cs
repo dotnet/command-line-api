@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     public class ParserConfiguration
     {
-        private IReadOnlyCollection<InvocationMiddleware> _invocationList;
+        private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
 
         public ParserConfiguration(
             IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
@@ -16,7 +16,7 @@ namespace System.CommandLine
             bool allowUnbundling = true,
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = default(ResponseFileHandling),
-            IReadOnlyCollection<InvocationMiddleware> invocationList = null)
+            IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null)
         {
             if (symbolDefinitions == null)
             {
@@ -62,7 +62,7 @@ namespace System.CommandLine
             AllowUnbundling = allowUnbundling;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
-            _invocationList = invocationList;
+            _middlewarePipeline = middlewarePipeline;
             Prefixes = prefixes;
 
             if (prefixes?.Count > 0)
@@ -93,9 +93,9 @@ namespace System.CommandLine
 
         public ValidationMessages ValidationMessages { get; }
 
-        public IReadOnlyCollection<InvocationMiddleware> InvocationList =>
-            _invocationList ??
-            (_invocationList = new List<InvocationMiddleware>());
+        internal IReadOnlyCollection<InvocationMiddleware> InvocationList =>
+            _middlewarePipeline ??
+            (_middlewarePipeline = new List<InvocationMiddleware>());
 
         internal CommandDefinition RootCommandDefinition { get; }
 
