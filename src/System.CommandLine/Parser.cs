@@ -41,23 +41,23 @@ namespace System.CommandLine
 
                 if (token.Type != TokenType.Argument)
                 {
-                    var definedOption =
+                    var symbolDefinition =
                         Configuration.SymbolDefinitions
                                      .SingleOrDefault(o => o.HasAlias(token.Value));
 
-                    if (definedOption != null)
+                    if (symbolDefinition != null)
                     {
-                        var parsedOption = allSymbols
+                        var symbol = allSymbols
                             .LastOrDefault(o => o.HasAlias(token.Value));
 
-                        if (parsedOption == null)
+                        if (symbol == null)
                         {
-                            parsedOption = Symbol.Create(definedOption, token.Value, validationMessages: Configuration.ValidationMessages);
+                            symbol = Symbol.Create(symbolDefinition, token.Value, validationMessages: Configuration.ValidationMessages);
 
-                            rootSymbols.Add(parsedOption);
+                            rootSymbols.Add(symbol);
                         }
 
-                        allSymbols.Add(parsedOption);
+                        allSymbols.Add(symbol);
 
                         continue;
                     }
@@ -65,19 +65,19 @@ namespace System.CommandLine
 
                 var added = false;
 
-                foreach (var parsedOption in Enumerable.Reverse(allSymbols))
+                foreach (var symbol in Enumerable.Reverse(allSymbols))
                 {
-                    var option = parsedOption.TryTakeToken(token);
+                    var symbolForToken = symbol.TryTakeToken(token);
 
-                    if (option != null)
+                    if (symbolForToken != null)
                     {
-                        allSymbols.Add(option);
+                        allSymbols.Add(symbolForToken);
                         added = true;
                         break;
                     }
 
                     if (token.Type == TokenType.Argument &&
-                        parsedOption.SymbolDefinition is CommandDefinition)
+                        symbol.SymbolDefinition is CommandDefinition)
                     {
                         break;
                     }
