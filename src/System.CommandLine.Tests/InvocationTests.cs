@@ -153,11 +153,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_invocation_middleware_throws_then_InvokeAsync_does_not_handle_the_exception()
+        public void When_middleware_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
             var parser = new ParserBuilder()
                          .AddCommand("the-command", "")
-                         .AddInvocation(_ => throw new Exception("oops!"))
+                         .AddMiddleware(_ => throw new Exception("oops!"))
                          .Build();
 
             Func<Task> invoke = async () => await parser.Parse("the-command").InvokeAsync(_console);

@@ -42,7 +42,8 @@ namespace System.CommandLine.Builder
                     invocationList: _invocationList));
         }
 
-        internal void AddInvocation(InvocationMiddleware action)
+        internal void AddMiddleware(
+            InvocationMiddleware middleware,
         {
             if (_invocationList == null)
             {

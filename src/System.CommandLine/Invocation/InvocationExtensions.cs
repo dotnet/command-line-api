@@ -11,19 +11,19 @@ namespace System.CommandLine.Invocation
 {
     public static class InvocationExtensions
     {
-        public static ParserBuilder AddInvocation(
+        public static ParserBuilder AddMiddleware(
             this ParserBuilder builder,
             InvocationMiddleware onInvoke)
         {
-            builder.AddInvocation(onInvoke);
+            builder.AddMiddleware(onInvoke);
             return builder;
         }
 
-        public static ParserBuilder AddInvocation(
+        public static ParserBuilder AddMiddleware(
             this ParserBuilder builder,
             Action<InvocationContext> onInvoke)
         {
-            builder.AddInvocation(async (context, next) => {
+            builder.AddMiddleware(async (context, next) => {
                 onInvoke(context);
                 await next(context);
             });
@@ -34,7 +34,7 @@ namespace System.CommandLine.Invocation
         public static ParserBuilder HandleAndDisplayExceptions(
             this ParserBuilder builder)
         {
-            builder.AddInvocation(async (context, next) => {
+            builder.AddMiddleware(async (context, next) => {
                 try
                 {
                     await next(context);
@@ -56,7 +56,7 @@ namespace System.CommandLine.Invocation
         public static ParserBuilder UseParseDirective(
             this ParserBuilder builder)
         {
-            builder.AddInvocation(async (context, next) => {
+            builder.AddMiddleware(async (context, next) => {
                 if (context.ParseResult.Tokens.FirstOrDefault() == "!parse")
                 {
                     context.InvocationResult = new ParseDirectiveResult();
@@ -73,7 +73,7 @@ namespace System.CommandLine.Invocation
         public static ParserBuilder UseSuggestDirective(
             this ParserBuilder builder)
         {
-            builder.AddInvocation(async (context, next) => {
+            builder.AddMiddleware(async (context, next) => {
                 if (context.ParseResult.Tokens.FirstOrDefault() == "!suggest")
                 {
                     context.InvocationResult = new SuggestDirectiveResult();
@@ -95,7 +95,7 @@ namespace System.CommandLine.Invocation
 
         public static ParserBuilder AddHelp(this ParserBuilder builder)
         {
-            builder.AddInvocation(async (context, next) => {
+            builder.AddMiddleware(async (context, next) => {
                 var helpOptionTokens = new HashSet<string>();
                 var prefixes = context.ParseResult.Parser.Configuration.Prefixes;
                 if (prefixes == null)
@@ -130,7 +130,7 @@ namespace System.CommandLine.Invocation
             this ParserBuilder builder,
             IReadOnlyCollection<string> helpOptionTokens)
         {
-            builder.AddInvocation(async (context, next) => {
+            builder.AddMiddleware(async (context, next) => {
                 if (!ShowHelp(context, helpOptionTokens))
                 {
                     await next(context);
@@ -142,7 +142,7 @@ namespace System.CommandLine.Invocation
         public static ParserBuilder AddParseErrorReporting(
             this ParserBuilder builder)
         {
-            builder.AddInvocation(async (context, next) => {
+            builder.AddMiddleware(async (context, next) => {
                 if (context.ParseResult.Errors.Count > 0)
                 {
                     context.InvocationResult = new ParseErrorResult();
