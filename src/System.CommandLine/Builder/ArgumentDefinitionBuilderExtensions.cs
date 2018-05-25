@@ -235,7 +235,6 @@ namespace System.CommandLine.Builder
                 convert,
                 arity);
 
-
         public static ArgumentDefinition ParseArgumentsAs(
             this ArgumentDefinitionBuilder builder,
             Type type,

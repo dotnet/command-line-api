@@ -14,7 +14,7 @@ namespace System.CommandLine.Builder
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
-        private List<InvocationMiddleware> _invocationList;
+        private List<(InvocationMiddleware middleware, int order)> _middlewareList;
 
         public ParserBuilder() : base(executableName.Value)
         {
@@ -39,17 +39,29 @@ namespace System.CommandLine.Builder
                     allowUnbundling: EnablePosixBundling,
                     validationMessages: ValidationMessages.Instance,
                     responseFileHandling: ResponseFileHandling,
-                    invocationList: _invocationList));
+                    middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
+                                                       .Select(m => m.middleware)
+                                                       .ToArray()));
         }
 
-        internal void AddInvocation(InvocationMiddleware action)
+        internal void AddMiddleware(
+            InvocationMiddleware middleware,
+            int order)
         {
-            if (_invocationList == null)
+            if (_middlewareList == null)
             {
-                _invocationList = new List<InvocationMiddleware>();
+                _middlewareList = new List<(InvocationMiddleware, int)>();
             }
 
-            _invocationList.Add(action);
+            _middlewareList.Add((middleware, order));
+        }
+
+        internal static class MiddlewareOrder
+        {
+            public const int ExceptionHandler = int.MinValue;
+            public const int Preprocessing = ExceptionHandler + 1;
+            public const int AfterPreprocessing = Preprocessing + 1;
+            public const int Middle = 0;
         }
     }
 }

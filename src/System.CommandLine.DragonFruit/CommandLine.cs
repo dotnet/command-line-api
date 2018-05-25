@@ -67,9 +67,7 @@ namespace System.CommandLine.DragonFruit
 
             Parser parser = parserBuilder.Build();
 
-            ParseResult result = parser.Parse(args);
-
-            return await result.InvokeAsync(console);
+            return await parser.InvokeAsync(args, console);
         }
 
         private static void SetHelpMetadata(MethodInfo method, CommandDefinitionBuilder builder)

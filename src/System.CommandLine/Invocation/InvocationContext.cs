@@ -7,13 +7,17 @@ namespace System.CommandLine.Invocation
     {
         public InvocationContext(
             ParseResult parseResult,
+            Parser parser,
             IConsole console)
         {
-            ParseResult = parseResult;
+            ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
+            Parser = parser ?? throw new ArgumentNullException(nameof(parser));
             Console = console;
         }
 
-        public ParseResult ParseResult { get; }
+        public Parser Parser { get; }
+
+        public ParseResult ParseResult { get; set; }
 
         public IConsole Console { get; }
 

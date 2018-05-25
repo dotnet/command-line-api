@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command subcommand --help");
 
-            await result.InvokeAsync(_console);
+            await parser.InvokeAsync(result, _console);
 
             _console.Out.ToString().Should().StartWith($"Usage: {ParserBuilder.ExeName} command subcommand");
         }
@@ -43,9 +43,8 @@ namespace System.CommandLine.Tests
                     .AddHelp()
                     .Build();
 
-            var result = parser.Parse("command subcommand --help");
 
-            await result.InvokeAsync(new TestConsole());
+            await parser.InvokeAsync("command subcommand --help", _console);
 
             wasCalled.Should().BeFalse();
         }
@@ -60,9 +59,8 @@ namespace System.CommandLine.Tests
                     .UsePrefixes(new[] { "~" })
                     .Build();
 
-            var result = parser.Parse("command ~help");
 
-            await result.InvokeAsync(_console);
+            await parser.InvokeAsync("command ~help", _console);
 
             _console.Out.ToString().Should().StartWith("Usage:");
         }
@@ -80,9 +78,7 @@ namespace System.CommandLine.Tests
                     .AddHelp()
                     .Build();
 
-            var result = parser.Parse($"command {value}");
-
-            await result.InvokeAsync(_console);
+            await parser.InvokeAsync($"command {value}", _console);
 
             _console.Out.ToString().Should().StartWith("Usage:");
         }
@@ -96,9 +92,7 @@ namespace System.CommandLine.Tests
                     .AddHelp(new[] { "~cthulhu" })
                     .Build();
 
-            var result = parser.Parse("command ~cthulhu");
-
-            await result.InvokeAsync(_console);
+            await parser.InvokeAsync("command ~cthulhu", _console);
 
             _console.Out.ToString().Should().StartWith("Usage:");
         }
@@ -115,7 +109,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command -h");
 
-            await result.InvokeAsync(_console);
+            await parser.InvokeAsync(result, _console);
 
             _console.Out.ToString().Should().BeEmpty();
         }

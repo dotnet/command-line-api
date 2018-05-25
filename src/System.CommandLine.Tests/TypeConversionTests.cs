@@ -16,7 +16,8 @@ namespace System.CommandLine.Tests
         public void ParseArgumentsAs_can_specify_custom_types_and_conversion_logic()
         {
             var parser = new Parser(
-                new CommandDefinition("custom", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder()
+                new CommandDefinition("custom", "",
+                                      new ArgumentDefinitionBuilder()
                                           .ParseArgumentsAs<MyCustomType>(parsed => {
                                               var custom = new MyCustomType();
                                               foreach (var argument in parsed.Arguments)

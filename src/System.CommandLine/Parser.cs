@@ -98,7 +98,6 @@ namespace System.CommandLine
             return new ParseResult(
                 rawTokens,
                 rootSymbols,
-                this,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,
                 errors,
