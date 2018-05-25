@@ -179,11 +179,69 @@ namespace System.CommandLine.Tests
                   .Be("oops!");
         }
 
-        private class TestInvocationResult : IInvocationResult
+        [Fact]
+        public async Task HandleAndDisplayExceptions_catches_middleware_exceptions_and_writes_details_to_standard_error()
         {
-            public void Apply(InvocationContext context)
-            {
-            }
+            var parser = new ParserBuilder()
+                         .AddCommand("the-command", "")
+                         .AddMiddleware(_ => throw new Exception("oops!"))
+                         .HandleAndDisplayExceptions()
+                         .Build();
+
+            var resultCode = await parser.InvokeAsync("the-command", _console);
+
+            _console.Error.ToString().Should().Contain("Unhandled exception: System.Exception: oops!");
+
+            resultCode.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task HandleAndDisplayExceptions_catches_command_handler_exceptions_and_writes_details_to_standard_error()
+        {
+            var parser = new ParserBuilder()
+                         .AddCommand("the-command", "",
+                                     cmd => cmd.OnExecute<string>(_ => throw new Exception("oops!")))
+                         .HandleAndDisplayExceptions()
+                         .Build();
+
+            var resultCode = await parser.InvokeAsync("the-command", _console);
+
+            _console.Error.ToString().Should().Contain("System.Exception: oops!");
+            resultCode.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task Declaration_of_HandleAndDisplayExceptions_can_come_before_other_middleware()
+        {
+            await new ParserBuilder()
+                  .AddCommand("the-command", "")
+                  .HandleAndDisplayExceptions()
+                  .AddMiddleware(_ => throw new Exception("oops!"))
+                  .Build()
+                  .InvokeAsync("the-command", _console);
+
+            _console.Error
+                    .ToString()
+                    .Should()
+                    .Contain("oops!");
+        }
+
+        [Fact]
+        public async Task Declaration_of_HandleAndDisplayExceptions_can_come_after_other_middleware()
+        {
+            await new ParserBuilder()
+                  .AddCommand("the-command", "")
+                  .AddMiddleware(_ => throw new Exception("oops!"))
+                  .HandleAndDisplayExceptions()
+                  .Build()
+                  .InvokeAsync("the-command", _console);
+
+            _console.Error
+                    .ToString()
+                    .Should()
+                    .Contain("oops!");
+        }
+
         [Fact]
         public async Task ParseResult_can_be_replaced_by_middleware()
         {

@@ -26,7 +26,7 @@ namespace System.CommandLine.Invocation
             builder.AddMiddleware(async (context, next) => {
                 onInvoke(context);
                 await next(context);
-            });
+            }, ParserBuilder.MiddlewareOrder.Middle);
 
             return builder;
         }
@@ -48,7 +48,7 @@ namespace System.CommandLine.Invocation
                     context.Console.ResetColor();
                     context.ResultCode = 1;
                 }
-            });
+            }, order: ParserBuilder.MiddlewareOrder.ExceptionHandler);
 
             return builder;
         }
@@ -65,7 +65,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            });
+            }, ParserBuilder.MiddlewareOrder.Preprocessing);
 
             return builder;
         }
@@ -82,7 +82,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            });
+            }, ParserBuilder.MiddlewareOrder.Preprocessing);
 
             return builder;
         }
@@ -136,7 +136,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            });
+            }, ParserBuilder.MiddlewareOrder.Preprocessing);
 
             return builder;
         }
@@ -150,7 +150,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            });
+            }, ParserBuilder.MiddlewareOrder.Preprocessing);
             return builder;
         }
 
@@ -164,7 +164,7 @@ namespace System.CommandLine.Invocation
                 }
 
                 await next(context);
-            });
+            }, ParserBuilder.MiddlewareOrder.AfterPreprocessing);
             return builder;
         }
 
