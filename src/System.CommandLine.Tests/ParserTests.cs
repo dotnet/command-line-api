@@ -168,10 +168,6 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeTrue();
 
-            result.Symbols
-                  .Should()
-                  .HaveCount(1);
-
             result.UnparsedTokens
                   .Should()
                   .HaveCount(4);
@@ -480,18 +476,18 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            var applied = result.Symbols.Single();
-
-            applied.Children
-                   .Should()
-                   .ContainSingle(o =>
-                                      o.Name == "inner1" &&
-                                      o.Arguments.Single() == "argument1");
-            applied.Children
-                   .Should()
-                   .ContainSingle(o =>
-                                      o.Name == "inner2" &&
-                                      o.Arguments.Single() == "argument2");
+            result.Command
+                  .Children
+                  .Should()
+                  .ContainSingle(o =>
+                                     o.Name == "inner1" &&
+                                     o.Arguments.Single() == "argument1");
+            result.Command
+                  .Children
+                  .Should()
+                  .ContainSingle(o =>
+                                     o.Name == "inner2" &&
+                                     o.Arguments.Single() == "argument2");
         }
 
         [Fact]
@@ -831,12 +827,10 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse(command);
 
-            var resultSymbol = result.Symbols["rm"];
-
-            resultSymbol
-                .Arguments
-                .Should()
-                .OnlyContain(a => a == @"/temp/the file.txt");
+            result.Command
+                  .Arguments
+                  .Should()
+                  .OnlyContain(a => a == @"/temp/the file.txt");
         }
 
         [Fact]
@@ -849,9 +843,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse(command);
 
-            Console.WriteLine(result);
-
-            result.Symbols["rm"]
+            result.Command
                   .Arguments
                   .Should()
                   .OnlyContain(a => a == @"c:\temp\the file.txt\");

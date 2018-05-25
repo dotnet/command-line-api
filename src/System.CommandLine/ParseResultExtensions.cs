@@ -42,8 +42,7 @@ namespace System.CommandLine
         }
 
         internal static Symbol CurrentSymbol(this ParseResult result) =>
-            result.Symbols
-                  .LastOrDefault()
+            result.Command
                   .AllSymbols()
                   .LastOrDefault();
 
@@ -51,10 +50,7 @@ namespace System.CommandLine
         {
             var builder = new StringBuilder();
 
-            foreach (var o in result.Symbols)
-            {
-                builder.Diagram(o);
-            }
+            builder.Diagram(result.RootCommand);
 
             if (result.UnmatchedTokens.Any())
             {
@@ -103,14 +99,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            var specifiedCommand = parseResult.Command;
-
-            if (specifiedCommand != null)
-            {
-                return specifiedCommand.Children.Any(s => s.SymbolDefinition == optionDefinition);
-            }
-
-            return parseResult.Symbols.Any(s => s.SymbolDefinition == optionDefinition);
+            return parseResult.Command.Children.Any(s => s.SymbolDefinition == optionDefinition);
         }
 
         public static bool HasOption(
