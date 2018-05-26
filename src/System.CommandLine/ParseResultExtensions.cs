@@ -41,28 +41,8 @@ namespace System.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
 
-        public static Command Command(this ParseResult result)
-        {
-            var commandPath = result
-                              .CommandDefinition()
-                              .RecurseWhileNotNull(c => c.Parent)
-                              .Select(c => c.Name)
-                              .Reverse()
-                              .ToArray();
-
-            var symbol = result.Symbols[commandPath.First()];
-
-            foreach (var commandName in commandPath.Skip(1))
-            {
-                symbol = symbol.Children[commandName];
-            }
-
-            return (Command)symbol;
-        }
-
         internal static Symbol CurrentSymbol(this ParseResult result) =>
-            result.Symbols
-                  .LastOrDefault()
+            result.Command
                   .AllSymbols()
                   .LastOrDefault();
 
@@ -70,10 +50,7 @@ namespace System.CommandLine
         {
             var builder = new StringBuilder();
 
-            foreach (var o in result.Symbols)
-            {
-                builder.Diagram(o);
-            }
+            builder.Diagram(result.RootCommand);
 
             if (result.UnmatchedTokens.Any())
             {
@@ -122,14 +99,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            var specifiedCommand = parseResult.Command();
-
-            if (specifiedCommand != null)
-            {
-                return specifiedCommand.Children.Any(s => s.SymbolDefinition == optionDefinition);
-            }
-
-            return parseResult.Symbols.Any(s => s.SymbolDefinition == optionDefinition);
+            return parseResult.Command.Children.Any(s => s.SymbolDefinition == optionDefinition);
         }
 
         public static bool HasOption(
@@ -141,7 +111,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.Command().Children.Contains(alias);
+            return parseResult.Command.Children.Contains(alias);
         }
 
         public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>

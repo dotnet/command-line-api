@@ -67,7 +67,7 @@ namespace System.CommandLine
             symbol =
                 Definition.SymbolDefinitions
                       .Where(o => o.RawAliases.Contains(token.Value))
-                      .Select(o => Create(o, token.Value, this, this.ValidationMessages))
+                      .Select(o => Create(o, token.Value, this, ValidationMessages))
                       .SingleOrDefault();
 
             if (symbol != null)

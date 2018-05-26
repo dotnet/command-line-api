@@ -42,7 +42,7 @@ namespace System.CommandLine.Invocation
                 }
                 else
                 {
-                    var argument = result.Command().ValueForOption(parameterName);
+                    var argument = result.Command.ValueForOption(parameterName);
                     arguments.Add(argument);
                 }
             }

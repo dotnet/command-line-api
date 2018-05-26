@@ -3,23 +3,17 @@
 
 using System.CommandLine.Builder;
 using FluentAssertions;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
     public class CommandTests
     {
         private readonly Parser _parser;
-        private readonly ITestOutputHelper _output;
 
-        public CommandTests(ITestOutputHelper output)
+        public CommandTests()
         {
-            _output = output;
-
             var builder = new ArgumentDefinitionBuilder();
 
             _parser = new Parser(
@@ -28,19 +22,31 @@ namespace System.CommandLine.Tests
                         new OptionDefinition(
                             "--option",
                             "",
-                            argumentDefinition: builder.ExactlyOne())
+                            builder.ExactlyOne())
                     })
                 }));
         }
 
         [Fact]
-        public void Outer_command_is_identified_correctly()
+        public void Outer_command_is_identified_correctly_by_RootCommand()
         {
             var result = _parser.Parse("outer inner --option argument1");
 
-            var outer = result.Command().Parent;
+            result
+                .RootCommand
+                .Name
+                .Should()
+                .Be("outer");
+        }
 
-            outer
+        [Fact]
+        public void Outer_command_is_identified_correctly_by_Parent_property()
+        {
+            var result = _parser.Parse("outer inner --option argument1");
+
+            result
+                .Command
+                .Parent
                 .Name
                 .Should()
                 .Be("outer");
@@ -51,17 +57,10 @@ namespace System.CommandLine.Tests
         {
             var result = _parser.Parse("outer inner --option argument1");
 
-            var outer = result
-                .Symbols
-                .ElementAt(0);
-            var inner = outer
-                .Children
-                .ElementAt(0);
-
-            inner
-                .Name
-                .Should()
-                .Be("inner");
+            result.Command
+                  .Name
+                  .Should()
+                  .Be("inner");
         }
 
         [Fact]
@@ -69,20 +68,12 @@ namespace System.CommandLine.Tests
         {
             var result = _parser.Parse("outer inner --option argument1");
 
-            var outer = result
-                .Symbols
-                .ElementAt(0);
-            var inner = outer
-                .Children
-                .ElementAt(0);
-            var option = inner
-                .Children
-                .ElementAt(0);
-
-            option
-                .Name
-                .Should()
-                .Be("option");
+            result.Command
+                  .Children
+                  .ElementAt(0)
+                  .Name
+                  .Should()
+                  .Be("option");
         }
 
         [Fact]
@@ -90,20 +81,12 @@ namespace System.CommandLine.Tests
         {
             var result = _parser.Parse("outer inner --option argument1");
 
-            var outer = result
-                .Symbols
-                .ElementAt(0);
-            var inner = outer
-                .Children
-                .ElementAt(0);
-            var option = inner
-                .Children
-                .ElementAt(0);
-
-            option
-                .Arguments
-                .Should()
-                .BeEquivalentTo("argument1");
+            result.Command
+                  .Children
+                  .ElementAt(0)
+                  .Arguments
+                  .Should()
+                  .BeEquivalentTo("argument1");
         }
 
         [Fact]
@@ -118,66 +101,44 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
-            result.Command()
+            result.Command
                   .Parent
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg1");
 
-            result.Command()
+            result.Command
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
         }
 
-        [Fact]
-        public void ParseResult_Command_identifies_innermost_command()
+        [Theory]
+        [InlineData("outer", "outer")]
+        [InlineData("outer arg", "outer")]
+        [InlineData("outer inner", "inner")]
+        [InlineData("outer arg inner", "inner")]
+        [InlineData("outer arg inner arg", "inner")]
+        [InlineData("outer sibling", "sibling")]
+        [InlineData("outer inner inner-er", "inner-er")]
+        [InlineData("outer inner arg inner-er", "inner-er")]
+        [InlineData("outer inner arg inner-er arg", "inner-er")]
+        [InlineData("outer arg inner arg inner-er arg", "inner-er")]
+        public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand)
         {
-            var command = new CommandDefinitionBuilder("outer")
-                          .AddCommand("inner", "",
-                                      symbols: sibling => sibling.AddCommand("inner-er", "",
-                                                                             arguments: args => args.ZeroOrMore()))
-                          .AddCommand("sibling", "",
-                                      arguments: args => args.ZeroOrMore())
-                          .BuildCommandDefinition();
+            var builder = new CommandDefinitionBuilder("outer")
+                                           .AddCommand("inner", "",
+                                                       sibling => sibling.AddCommand("inner-er", "",
+                                                                                     arguments: args => args.ZeroOrMore()))
+                                           .AddCommand("sibling", "",
+                                                       arguments: args => args.ZeroOrMore());
+            builder.Arguments.ZeroOrMore();
 
-            var result = command.Parse("outer inner inner-er -x arg");
+            var command = builder.BuildCommandDefinition();
 
-            result.Command().Name.Should().Be("inner-er");
+            var result = command.Parse(input);
 
-            result = command.Parse("outer inner");
-
-            result.Command().Name.Should().Be("inner");
-        }
-
-        [Fact]
-        public void ParseResult_Command_identifies_the_innermost_command()
-        {
-            var command = new CommandDefinition("outer", "", new[] {
-                new CommandDefinition("sibling", "",
-                                      symbolDefinitions: null,
-                                      argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()),
-                new CommandDefinition("inner", "", new[] {
-                    new CommandDefinition("inner-er", "", new[] {
-                        new OptionDefinition(
-                            "-x",
-                            "",
-                            argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne())
-                    })
-                })
-            });
-
-            var result = command.Parse("outer inner inner-er -x arg");
-
-            _output.WriteLine(result.ToString());
-
-            var parsedOption = result.Command()["x"];
-
-            parsedOption.GetValueOrDefault().Should().Be("arg");
-
-            result = command.Parse("outer sibling arg");
-
-            result.Command().GetValueOrDefault().Should().Be("arg");
+            result.Command.Name.Should().Be(expectedCommand);
         }
     }
 }

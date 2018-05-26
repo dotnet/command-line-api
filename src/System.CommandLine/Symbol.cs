@@ -128,10 +128,15 @@ namespace System.CommandLine
             }
 
             _arguments.RemoveAt(_arguments.Count - 1);
+            
             return null;
         }
 
-        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null, ValidationMessages validationMessages = null)
+        internal static Symbol Create(
+            SymbolDefinition symbolDefinition, 
+            string token, 
+            Command parent = null, 
+            ValidationMessages validationMessages = null)
         {
             switch (symbolDefinition)
             {

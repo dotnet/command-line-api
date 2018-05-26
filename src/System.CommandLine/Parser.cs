@@ -18,16 +18,17 @@ namespace System.CommandLine
         {
         }
 
-        internal readonly ParserConfiguration Configuration;
+        internal ParserConfiguration Configuration { get; }
 
         public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {
             var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
             var unparsedTokens = new Queue<Token>(lexResult.Tokens);
-            var rootSymbols = new SymbolSet();
             var allSymbols = new List<Symbol>();
             var errors = new List<ParseError>(lexResult.Errors);
             var unmatchedTokens = new List<string>();
+            Command rootCommand = null;
+            Command innermostCommand = null;
 
             while (unparsedTokens.Any())
             {
@@ -41,23 +42,23 @@ namespace System.CommandLine
 
                 if (token.Type != TokenType.Argument)
                 {
-                    var definedOption =
+                    var symbolDefinition =
                         Configuration.SymbolDefinitions
                                      .SingleOrDefault(o => o.HasAlias(token.Value));
 
-                    if (definedOption != null)
+                    if (symbolDefinition != null)
                     {
-                        var parsedOption = allSymbols
+                        var symbol = allSymbols
                             .LastOrDefault(o => o.HasAlias(token.Value));
 
-                        if (parsedOption == null)
+                        if (symbol == null)
                         {
-                            parsedOption = Symbol.Create(definedOption, token.Value, validationMessages: Configuration.ValidationMessages);
+                            symbol = Symbol.Create(symbolDefinition, token.Value, validationMessages: Configuration.ValidationMessages);
 
-                            rootSymbols.Add(parsedOption);
+                            rootCommand = (Command) symbol;
                         }
 
-                        allSymbols.Add(parsedOption);
+                        allSymbols.Add(symbol);
 
                         continue;
                     }
@@ -65,19 +66,25 @@ namespace System.CommandLine
 
                 var added = false;
 
-                foreach (var parsedOption in Enumerable.Reverse(allSymbols))
+                foreach (var symbol in Enumerable.Reverse(allSymbols))
                 {
-                    var option = parsedOption.TryTakeToken(token);
+                    var symbolForToken = symbol.TryTakeToken(token);
 
-                    if (option != null)
+                    if (symbolForToken != null)
                     {
-                        allSymbols.Add(option);
+                        allSymbols.Add(symbolForToken);
+
+                        if (symbolForToken is Command command)
+                        {
+                            innermostCommand = command;
+                        }
+
                         added = true;
                         break;
                     }
 
                     if (token.Type == TokenType.Argument &&
-                        parsedOption.SymbolDefinition is CommandDefinition)
+                        symbol.SymbolDefinition is CommandDefinition)
                     {
                         break;
                     }
@@ -89,15 +96,16 @@ namespace System.CommandLine
                 }
             }
 
-            if (rootSymbols.CommandDefinition()?.TreatUnmatchedTokensAsErrors == true)
+            if (Configuration.RootCommandDefinition.TreatUnmatchedTokensAsErrors)
             {
                 errors.AddRange(
                     unmatchedTokens.Select(token => new ParseError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
             }
 
             return new ParseResult(
+                rootCommand,
+                innermostCommand ?? rootCommand,
                 rawTokens,
-                rootSymbols,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens,
                 errors,
@@ -108,19 +116,9 @@ namespace System.CommandLine
         {
             var firstArg = args.FirstOrDefault();
 
-            if (Configuration.SymbolDefinitions.Count != 1)
-            {
-                return args;
-            }
+            var commandName = Configuration.RootCommandDefinition.Name;
 
-            var commandName = Configuration
-                              .SymbolDefinitions
-                              .OfType<CommandDefinition>()
-                              .SingleOrDefault()
-                              ?.Name;
-
-            if (commandName == null ||
-                string.Equals(firstArg, commandName, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(firstArg, commandName, StringComparison.OrdinalIgnoreCase))
             {
                 return args;
             }

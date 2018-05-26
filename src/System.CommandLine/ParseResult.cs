@@ -9,21 +9,19 @@ namespace System.CommandLine
     public class ParseResult
     {
         private readonly List<ParseError> _errors = new List<ParseError>();
-        private CommandDefinition _commandDefinition;
 
         internal ParseResult(
+            Command rootCommand,
+            Command command,
             IReadOnlyCollection<string> tokens,
-            SymbolSet symbols,
-            IReadOnlyCollection<string> unparsedTokens = null,
-            IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<ParseError> errors = null,
-            string rawInput = null)
+            IReadOnlyCollection<string> unparsedTokens,
+            IReadOnlyCollection<string> unmatchedTokens,
+            IReadOnlyCollection<ParseError> errors,
+            string rawInput)
         {
-            Tokens = tokens ??
-                     throw new ArgumentNullException(nameof(tokens));
-            Symbols = symbols ??
-                      throw new ArgumentNullException(nameof(symbols));
-
+            RootCommand = rootCommand;
+            Command = command;
+            Tokens = tokens;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
             RawInput = rawInput;
@@ -36,7 +34,9 @@ namespace System.CommandLine
             CheckForErrors();
         }
 
-        public SymbolSet Symbols { get; }
+        public Command Command { get; }
+
+        public Command RootCommand { get; }
 
         public IReadOnlyCollection<ParseError> Errors => _errors;
 
@@ -48,19 +48,11 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public CommandDefinition CommandDefinition()
-        {
-            if (_commandDefinition == null)
-            {
-                return _commandDefinition = Symbols.CommandDefinition();
-            }
-
-            return _commandDefinition;
-        }
+        public CommandDefinition CommandDefinition => Command.Definition;
 
         private void CheckForErrors()
         {
-            foreach (var option in Symbols.FlattenBreadthFirst())
+            foreach (var option in RootCommand.AllSymbols())
             {
                 var error = option.Validate();
 
@@ -70,12 +62,12 @@ namespace System.CommandLine
                 }
             }
 
-            var commandDefinition = CommandDefinition();
+            var commandDefinition = CommandDefinition;
 
             if (commandDefinition != null &&
                 commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
             {
-                var symbol = this.Command();
+                var symbol = Command;
                 _errors.Insert(0, new ParseError(
                                   symbol.ValidationMessages.RequiredCommandWasNotProvided(),
                                   symbol));
@@ -97,6 +89,6 @@ namespace System.CommandLine
             return this[alias].GetValueOrDefault<T>();
         }
 
-        public Symbol this[string alias] => this.Command().Children[alias];
+        public Symbol this[string alias] => Command.Children[alias];
     }
 }

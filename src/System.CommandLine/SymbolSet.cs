@@ -16,5 +16,4 @@ namespace System.CommandLine
         protected override IReadOnlyCollection<string> GetAliases(Symbol item) =>
             item.SymbolDefinition.RawAliases;
     }
-
 }

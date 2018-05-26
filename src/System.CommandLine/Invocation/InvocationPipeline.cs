@@ -28,8 +28,7 @@ namespace System.CommandLine.Invocation
             var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.InvocationList);
 
             invocations.Add(async (invocationContext, next) => {
-                var handler = invocationContext.ParseResult
-                                               .CommandDefinition()
+                var handler = invocationContext.ParseResult.CommandDefinition
                                                .ExecutionHandler;
 
                 if (handler != null)
