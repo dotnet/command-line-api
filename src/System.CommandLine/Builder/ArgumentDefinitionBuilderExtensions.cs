@@ -12,42 +12,31 @@ namespace System.CommandLine.Builder
         #region arity
 
         public static ArgumentDefinition ExactlyOne(
-            this ArgumentDefinitionBuilder builder,
-            Func<Symbol, string> errorMessage = null)
+            this ArgumentDefinitionBuilder builder)
         {
-            builder.AddValidator(symbol =>
-            {
+            builder.AddValidator(symbol => {
                 var argumentCount = symbol.Arguments.Count;
 
                 if (argumentCount == 0)
                 {
-                    if (errorMessage == null)
+                    switch (symbol)
                     {
-                        switch (symbol)
-                        {
-                            case Command command:
-                                return command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
-                            case Option option:
-                                return symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
-                        }
+                        case Command command:
+                            return command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
+                        case Option option:
+                            return symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
                     }
-                    return errorMessage(symbol);
                 }
 
                 if (argumentCount > 1)
                 {
-                    if (errorMessage == null)
+                    switch (symbol)
                     {
-                        switch (symbol)
-                        {
-                            case Command command:
-                                return command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
-                            case Option option:
-                                return symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, symbol.Arguments.Count);
-                        }
+                        case Command command:
+                            return command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
+                        case Option option:
+                            return symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, symbol.Arguments.Count);
                     }
-
-                    return errorMessage(symbol);
                 }
 
                 return null;
@@ -59,8 +48,7 @@ namespace System.CommandLine.Builder
         }
 
         public static ArgumentDefinition None(
-            this ArgumentDefinitionBuilder builder,
-            Func<Option, string> errorMessage = null)
+            this ArgumentDefinitionBuilder builder)
         {
             // TODO: (None) reconcile with ArgumentDefinition.None
             builder.ArgumentArity = ArgumentArity.Zero;
@@ -70,8 +58,7 @@ namespace System.CommandLine.Builder
         }
 
         public static ArgumentDefinition ZeroOrMore(
-            this ArgumentDefinitionBuilder builder,
-            Func<Option, string> errorMessage = null)
+            this ArgumentDefinitionBuilder builder)
         {
             builder.ArgumentArity = ArgumentArity.Many;
 
@@ -79,8 +66,7 @@ namespace System.CommandLine.Builder
         }
 
         public static ArgumentDefinition ZeroOrOne(
-            this ArgumentDefinitionBuilder builder,
-            Func<Option, string> errorMessage = null)
+            this ArgumentDefinitionBuilder builder)
         {
             builder.AddValidator(symbol =>
             {
@@ -104,8 +90,7 @@ namespace System.CommandLine.Builder
         }
 
         public static ArgumentDefinition OneOrMore(
-            this ArgumentDefinitionBuilder builder,
-            Func<Symbol, string> errorMessage = null)
+            this ArgumentDefinitionBuilder builder)
         {
             builder.AddValidator(symbol =>
             {
@@ -114,11 +99,6 @@ namespace System.CommandLine.Builder
                 if (optionCount != 0)
                 {
                     return null;
-                }
-
-                if (errorMessage != null)
-                {
-                    return errorMessage(symbol);
                 }
 
                 switch (symbol)
