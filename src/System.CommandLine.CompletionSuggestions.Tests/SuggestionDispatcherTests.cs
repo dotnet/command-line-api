@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -34,7 +33,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 
         [Fact]
         public void Dispatch_executes_dotnet_complete() => SuggestionDispatcher.Dispatch(_args,
-                new TestSuggestionFileProvider())
+                new TestSuggestionFileProvider(), 20000)
             .Should()
             .Contain("-h")
             .And.Contain("--help")
@@ -72,13 +71,14 @@ namespace System.CommandLine.CompletionSuggestions.Tests
             .BeEmpty();
 
         [Fact]
-        public void GetCompletionSuggestions_executes_dotnet_complete() => SuggestionDispatcher
-            .GetSuggestions("dotnet", "complete --position 12 \"dotnet add\"")
-            .Should()
-            .Contain("-h")
-            .And.Contain("--help")
-            .And.Contain("package")
-            .And.Contain("reference");
+        public void GetCompletionSuggestions_executes_dotnet_complete() =>
+            SuggestionDispatcher
+                .GetSuggestions("dotnet", "complete --position 12 \"dotnet add\"", 20000)
+                .Should()
+                .Contain("-h")
+                .And.Contain("--help")
+                .And.Contain("package")
+                .And.Contain("reference");
 
         [Fact]
         public void GetCompletionSuggestions_withbogusfilename_throws_FileNotFound()

@@ -3,20 +3,24 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.CompletionSuggestions
 {
     public class SuggestionDispatcher
     {
+        private const int TimeoutMilliseconds = 5000;
         private const string Position = "-p";
         private const string ExeName = "-e";
 
-        public static string Dispatch(string[] args, ISuggestionFileProvider suggestionFileProvider)
+        public static string Dispatch(
+            string[] args,
+            ISuggestionFileProvider suggestionFileProvider,
+            int timeoutMilliseconds = TimeoutMilliseconds)
         {
             // CommandLine:
             // dotnet run System.CommandLine <currentCommandLine> <cursorPosition> Foo bar
@@ -35,7 +39,6 @@ namespace System.CommandLine.CompletionSuggestions
             {
                 throw new Exception(parseResult.ErrorText());
             }*/
-
 
             string suggestionRegistration =
                 suggestionFileProvider.FindRegistration(parseResult.ValueForOption<FileInfo>(ExeName));
@@ -58,7 +61,7 @@ namespace System.CommandLine.CompletionSuggestions
 
             string targetArgs = FormatSuggestionArguments(parseResult, targetCommands);
 
-            return GetSuggestions(targetCommands.First(), targetArgs);
+            return GetSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
 
         }
 
@@ -74,7 +77,7 @@ namespace System.CommandLine.CompletionSuggestions
 
         public static string GetSuggestions(string exeFileName,
                                             string suggestionTargetArguments,
-                                            int millisecondsTimeout = 5000)
+                                            int millisecondsTimeout = TimeoutMilliseconds)
         {
             if (suggestionTargetArguments == null)
             {
@@ -93,7 +96,6 @@ namespace System.CommandLine.CompletionSuggestions
                     }
                 })
                 {
-
                     process.Start();
 
                     Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
@@ -104,16 +106,20 @@ namespace System.CommandLine.CompletionSuggestions
                     {
                         result = readToEndTask.Result;
                     }
+                    else
+                    {
+                        process.Kill();
+                    }
                 }
             }
-            catch(ComponentModel.Win32Exception exception)
+            catch (Win32Exception exception)
             {
                 // We don't check for the existence of exeFileName until the exception in case
                 // it is a command that start process can resolve to a file name.
                 if (!File.Exists(exeFileName))
                 {
                     throw new ArgumentException(
-                        $"Unable to find the file '{ exeFileName }'", nameof(exeFileName), exception);
+                        $"Unable to find the file '{exeFileName}'", nameof(exeFileName), exception);
                 }
 
             }
