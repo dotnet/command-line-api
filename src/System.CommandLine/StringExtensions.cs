@@ -253,9 +253,9 @@ namespace System.CommandLine
 
         private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
 
-        public static IEnumerable<string> Tokenize(this string s)
+        public static IEnumerable<string> Tokenize(this string commandLine)
         {
-            var matches = _tokenizer.Matches(s);
+            var matches = _tokenizer.Matches(commandLine);
 
             foreach (Match match in matches)
             {
