@@ -180,26 +180,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ExactlyOne_error_message_can_be_customized()
-        {
-            var builder = new ArgumentDefinitionBuilder();
-            var definition =
-                new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.ExactlyOne(o => $"Expected 1 arg for option `{o.Name}`, found none"));
-
-            var result = definition.Parse("the-command");
-
-            result.Errors.Select(e => e.Message)
-                  .Should().BeEquivalentTo("Expected 1 arg for option `the-command`, found none");
-        }
-
-        [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_option()
         {
             var definition = new CommandDefinition("the-command", "", new[] {
                 new OptionDefinition(
-                    new[] {"-h", "--help"},
-                    "",
-                    argumentDefinition: null)
+                    new[] {"-h", "--help"}, "")
             });
 
             var result = definition.Parse("the-command -h");

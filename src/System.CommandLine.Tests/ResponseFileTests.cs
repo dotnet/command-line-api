@@ -8,8 +8,7 @@ namespace System.CommandLine.Tests
 {
     public class ResponseFileTests : IDisposable
     {
-
-        private string FilePath { get; set; }
+        private string FilePath { get; }
 
         public ResponseFileTests()
         {
@@ -43,14 +42,15 @@ namespace System.CommandLine.Tests
                 s.WriteLine("--flag");
                 s.WriteLine("");
                 s.WriteLine("--flag2");
+                s.WriteLine("123");
             }
             var result = new ParserBuilder()
                 .AddOption("--flag", "")
-                .AddOption("--flag2", "")
+                .AddOption("--flag2", "", a => a.ParseArgumentsAs<int>())
                 .Build()
                 .Parse("@" + FilePath);
             result.HasOption("--flag").Should().BeTrue();
-            result.HasOption("--flag2").Should().BeTrue();
+            result.ValueForOption("--flag2").Should().Be(123);
             result.Errors.Should().BeEmpty();
         }
 
@@ -122,22 +122,25 @@ namespace System.CommandLine.Tests
             }
         }
 
-        [Fact]
-        public void When_response_file_parse_as_space_separated_returns_expected_values()
+        [Theory]
+        [InlineData("--flag \"first value\" --flag2 123")]
+        [InlineData("--flag:\"first value\" --flag2:123")]
+        [InlineData("--flag=\"first value\" --flag2=123")]
+        public void When_response_file_parse_as_space_separated_returns_expected_values(string input)
         {
             using (var s = new StreamWriter(FilePath))
             {
-                s.WriteLine("--flag \"first value\" --flag2");
+                s.WriteLine(input);
             }
 
             var result = new ParserBuilder()
                 .AddOption("--flag", "", a => a.ExactlyOne())
-                .AddOption("--flag2", "")
+                .AddOption("--flag2", "", a=> a.ParseArgumentsAs<int>())
                 .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
                 .Build()
                 .Parse("@" + FilePath);
             result.ValueForOption("--flag").Should().Be("first value");
-            result.HasOption("--flag2").Should().BeTrue();
+            result.ValueForOption("--flag2").Should().Be(123);
         }
 
         [Fact]
