@@ -114,10 +114,24 @@ namespace System.CommandLine
             return parseResult.Command.Children.Contains(alias);
         }
 
-        public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
-            parseResult?.CurrentSymbol()
-                       ?.SymbolDefinition
-                       ?.Suggest(parseResult, position) ??
-            Array.Empty<string>();
+        public static IEnumerable<string> Suggestions(
+            this ParseResult parseResult,
+            int? position = null)
+        {
+            var currentSymbolDefinition = parseResult?.CurrentSymbol().SymbolDefinition;
+
+            var currentSymbolSuggestions = currentSymbolDefinition
+                                               ?.Suggest(parseResult, position)
+                                           ?? Array.Empty<string>();
+
+            var parentSymbolDefinition = currentSymbolDefinition?.Parent;
+
+            var parentSymbolSuggestions = parentSymbolDefinition?.Suggest(parseResult, position)
+                                          ?? Array.Empty<string>();
+
+            return parentSymbolSuggestions
+                   .Concat(currentSymbolSuggestions)
+                   .ToArray();
+        }
     }
 }

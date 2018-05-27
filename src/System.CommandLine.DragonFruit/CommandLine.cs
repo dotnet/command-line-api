@@ -60,6 +60,7 @@ namespace System.CommandLine.DragonFruit
                                 .ConfigureFromMethod(method, @object)
                                 .UseParseDirective()
                                 .AddHelp()
+                                .UseSuggestDirective()
                                 .AddParseErrorReporting()
                                 .HandleAndDisplayExceptions();
 

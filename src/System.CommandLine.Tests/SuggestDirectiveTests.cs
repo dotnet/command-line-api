@@ -6,22 +6,14 @@ using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using Xunit.Abstractions;
 using static System.Environment;
 
 namespace System.CommandLine.Tests
 {
     public class SuggestDirectiveTests
     {
-        private readonly ITestOutputHelper output;
-
-        public SuggestDirectiveTests(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
-
         [Fact]
-        public async Task Parse_directive_writes_parse_diagram()
+        public async Task Suggest_directive_writes_suggestions()
         {
             var parser = new ParserBuilder()
                          .AddCommand("eat", "",
