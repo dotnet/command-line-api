@@ -168,5 +168,7 @@ namespace System.CommandLine
                 return _result;
             }
         }
+
+        public override string ToString() => $"{GetType().Name}: {Token}";
     }
 }
