@@ -182,14 +182,21 @@ namespace System.CommandLine.Tests
                                                          .ExactlyOne())
                          .Build();
 
-            var result = parser.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var trash = Path.Combine(currentDirectory, ".trash");
+
+            var commandLine = $@"move ""{currentDirectory}"" --to ""{trash}""";
+
+            _output.WriteLine(commandLine);
+
+            var result = parser.Parse(commandLine);
 
             _output.WriteLine(result.Diagram());
 
             result.Command
                   .Arguments
                   .Should()
-                  .BeEquivalentTo(Directory.GetCurrentDirectory());
+                  .BeEquivalentTo(currentDirectory);
         }
 
         [Fact]
