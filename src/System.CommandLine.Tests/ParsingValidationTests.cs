@@ -233,6 +233,23 @@ namespace System.CommandLine.Tests
                   .Contain("Option '-x' cannot be specified more than once.");
         }
 
+        [Fact]
+        public void ParseArgumentsAs_with_arity_of_One_validates_against_extra_arguments()
+        {
+            var parser = new Parser(
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().ParseArgumentsAs<int>()));
+
+            var result = parser.Parse("-x 1 -x 2");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("Option '-x' cannot be specified more than once.");
+        }
+
         [Theory]
         [InlineData(":")]
         [InlineData("=")]
