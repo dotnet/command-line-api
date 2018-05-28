@@ -4,11 +4,19 @@
 using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
     public class SuggestionTests
     {
+        private ITestOutputHelper _output;
+
+        public SuggestionTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public void Option_Suggest_returns_argument_suggestions_if_configured()
         {
@@ -90,7 +98,51 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_command_can_be_hidden_from_completions_by_leaving_its_help_empty()
+        public void When_an_option_has_a_default_value_it_will_still_be_suggested()
+        {
+            var parser = new ParserBuilder()
+                         .AddOption("--apple", "kinds of apples", args => args.WithDefaultValue(() => "grannysmith"))
+                         .AddOption("--banana", "kinds of bananas")
+                         .AddOption("--cherry", "kinds of cherries")
+                         .Build();
+
+            var result = parser.Parse("");
+
+            _output.WriteLine(result.ToString());
+
+            _output.WriteLine(string.Join(Environment.NewLine, result.Suggestions()));
+
+            result.Suggestions()
+                  .Should()
+                  .BeEquivalentTo("--apple",
+                                  "--banana",
+                                  "--cherry");
+        }
+
+        [Fact]
+        public void When_one_option_has_been_specified_then_it_and_its_siblings_will_still_be_suggested()
+        {
+            var parser = new ParserBuilder()
+                         .AddOption("--apple", "kinds of apples")
+                         .AddOption("--banana", "kinds of bananas")
+                         .AddOption("--cherry", "kinds of cherries")
+                         .Build();
+
+            var result = parser.Parse("--apple grannysmith ");
+
+            _output.WriteLine(result.ToString());
+
+            _output.WriteLine(string.Join(Environment.NewLine, result.Suggestions()));
+
+            result.Suggestions()
+                  .Should()
+                  .BeEquivalentTo("--apple",
+                                  "--banana",
+                                  "--cherry");
+        }
+
+        [Fact]
+        public void A_command_can_be_hidden_from_completions_by_leaving_its_help_empty()
         {
             var command = new CommandDefinition(
                 "the-command", "Does things.",
@@ -434,5 +486,6 @@ namespace System.CommandLine.Tests
 
             textToMatch.Should().Be("one");
         }
+
     }
 }

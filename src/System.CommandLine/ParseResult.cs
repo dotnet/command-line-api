@@ -90,5 +90,7 @@ namespace System.CommandLine
         }
 
         public Symbol this[string alias] => Command.Children[alias];
+
+        public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
     }
 }
