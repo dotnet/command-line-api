@@ -49,7 +49,7 @@ namespace System.CommandLine
 
         internal static LexResult Lex(
             this IEnumerable<string> args,
-            ParserConfiguration configuration)
+            CommandLineConfiguration configuration)
         {
             var tokenList = new List<Token>();
             var errorList = new List<ParseError>();

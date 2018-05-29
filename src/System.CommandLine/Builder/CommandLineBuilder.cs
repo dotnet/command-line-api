@@ -33,7 +33,7 @@ namespace System.CommandLine.Builder
             var rootCommand = BuildCommandDefinition();
 
             return new Parser(
-                new ParserConfiguration(
+                new CommandLineConfiguration(
                     new[] { rootCommand },
                     prefixes: Prefixes,
                     allowUnbundling: EnablePosixBundling,

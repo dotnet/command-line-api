@@ -1085,7 +1085,7 @@ namespace System.CommandLine.Tests
         public void Option_aliases_can_be_specified_and_are_prefixed_with_defaults(string input)
         {
             var option = new OptionDefinition(new[] { "output", "o" }, "");
-            var configuration = new ParserConfiguration(
+            var configuration = new CommandLineConfiguration(
                 new[] { option },
                 prefixes: new[] { "-", "--", "/" });
             var parser = new Parser(configuration);
@@ -1105,7 +1105,7 @@ namespace System.CommandLine.Tests
         public void Option_aliases_can_be_specified_for_particular_prefixes(string input)
         {
             var option = new OptionDefinition(new[] { "--output", "-o", "/o", "out" }, "");
-            var configuration = new ParserConfiguration(
+            var configuration = new CommandLineConfiguration(
                 new[] { option },
                 prefixes: new[] { "-", "--", "/" });
             var parser = new Parser(configuration);

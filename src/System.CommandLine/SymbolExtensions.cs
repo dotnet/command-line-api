@@ -28,7 +28,7 @@ namespace System.CommandLine
 
                 switch (value)
                 {
-                    // the parser configuration specifies a type conversion
+                    // the configuration specifies a type conversion
                     case T alreadyConverted:
                         return alreadyConverted;
 

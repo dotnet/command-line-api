@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class ParserConfiguration
+    public class CommandLineConfiguration
     {
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
 
-        public ParserConfiguration(
+        public CommandLineConfiguration(
             IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
