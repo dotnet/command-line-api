@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Suggest_directive_writes_suggestions()
         {
-            var parser = new ParserBuilder()
+            var parser = new CommandLineBuilder()
                          .AddCommand("eat", "",
                                      cmd => cmd.AddOption(new[] { "--fruit" }, "",
                                                           args => args.AddSuggestions("apple", "banana", "cherry")))

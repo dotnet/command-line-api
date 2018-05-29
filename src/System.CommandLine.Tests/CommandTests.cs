@@ -92,7 +92,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
-            var parser = new ParserBuilder()
+            var parser = new CommandLineBuilder()
                          .AddCommand("outer", "",
                                      symbols: outer => outer.AddCommand("inner", "",
                                                                         arguments: innerArgs => innerArgs.ZeroOrMore()),

@@ -11,28 +11,28 @@ namespace System.CommandLine.Invocation
 {
     public static class InvocationExtensions
     {
-        public static ParserBuilder AddMiddleware(
-            this ParserBuilder builder,
+        public static CommandLineBuilder AddMiddleware(
+            this CommandLineBuilder builder,
             InvocationMiddleware onInvoke)
         {
             builder.AddMiddleware(onInvoke);
             return builder;
         }
 
-        public static ParserBuilder AddMiddleware(
-            this ParserBuilder builder,
+        public static CommandLineBuilder AddMiddleware(
+            this CommandLineBuilder builder,
             Action<InvocationContext> onInvoke)
         {
             builder.AddMiddleware(async (context, next) => {
                 onInvoke(context);
                 await next(context);
-            }, ParserBuilder.MiddlewareOrder.Middle);
+            }, CommandLineBuilder.MiddlewareOrder.Middle);
 
             return builder;
         }
 
-        public static ParserBuilder HandleAndDisplayExceptions(
-            this ParserBuilder builder)
+        public static CommandLineBuilder HandleAndDisplayExceptions(
+            this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
                 try
@@ -48,13 +48,13 @@ namespace System.CommandLine.Invocation
                     context.Console.ResetColor();
                     context.ResultCode = 1;
                 }
-            }, order: ParserBuilder.MiddlewareOrder.ExceptionHandler);
+            }, order: CommandLineBuilder.MiddlewareOrder.ExceptionHandler);
 
             return builder;
         }
 
-        public static ParserBuilder UseParseDirective(
-            this ParserBuilder builder)
+        public static CommandLineBuilder UseParseDirective(
+            this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
                 if (context.ParseResult.Tokens.FirstOrDefault() == "!parse")
@@ -65,13 +65,13 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            }, ParserBuilder.MiddlewareOrder.Preprocessing);
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
 
             return builder;
         }
 
-        public static ParserBuilder UseSuggestDirective(
-            this ParserBuilder builder)
+        public static CommandLineBuilder UseSuggestDirective(
+            this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
                 if (context.ParseResult.Tokens.FirstOrDefault() == "!suggest")
@@ -82,7 +82,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            }, ParserBuilder.MiddlewareOrder.Preprocessing);
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
 
             return builder;
         }
@@ -108,7 +108,7 @@ namespace System.CommandLine.Invocation
             await new InvocationPipeline(parser, parser.Parse(args))
                 .InvokeAsync(console);
 
-        public static ParserBuilder AddHelp(this ParserBuilder builder)
+        public static CommandLineBuilder AddHelp(this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
                 var helpOptionTokens = new HashSet<string>();
@@ -136,13 +136,13 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            }, ParserBuilder.MiddlewareOrder.Preprocessing);
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
 
             return builder;
         }
 
-        public static ParserBuilder AddHelp(
-            this ParserBuilder builder,
+        public static CommandLineBuilder AddHelp(
+            this CommandLineBuilder builder,
             IReadOnlyCollection<string> helpOptionTokens)
         {
             builder.AddMiddleware(async (context, next) => {
@@ -150,12 +150,12 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            }, ParserBuilder.MiddlewareOrder.Preprocessing);
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
             return builder;
         }
 
-        public static ParserBuilder AddParseErrorReporting(
-            this ParserBuilder builder)
+        public static CommandLineBuilder AddParseErrorReporting(
+            this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
                 if (context.ParseResult.Errors.Count > 0)
@@ -164,7 +164,7 @@ namespace System.CommandLine.Invocation
                 }
 
                 await next(context);
-            }, ParserBuilder.MiddlewareOrder.AfterPreprocessing);
+            }, CommandLineBuilder.MiddlewareOrder.AfterPreprocessing);
             return builder;
         }
 

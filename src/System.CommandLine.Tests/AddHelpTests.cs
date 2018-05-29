@@ -17,7 +17,7 @@ namespace System.CommandLine.Tests
         public async Task AddHelp_writes_help_for_the_specified_command()
         {
             var parser =
-                new ParserBuilder()
+                new CommandLineBuilder()
                     .AddCommand("command", "",
                                 command => command.AddCommand("subcommand"))
                     .AddHelp()
@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().StartWith($"Usage: {ParserBuilder.ExeName} command subcommand");
+            _console.Out.ToString().Should().StartWith($"Usage: {CommandLineBuilder.ExeName} command subcommand");
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace System.CommandLine.Tests
             var wasCalled = false;
 
             var parser =
-                new ParserBuilder()
+                new CommandLineBuilder()
                     .AddCommand("command", "",
                                 command => command.AddCommand("subcommand")
                                                   .OnExecute<string>(_ => wasCalled = true))
@@ -53,7 +53,7 @@ namespace System.CommandLine.Tests
         public async Task AddHelp_allows_help_for_all_configured_prefixes()
         {
             var parser =
-                new ParserBuilder()
+                new CommandLineBuilder()
                     .AddCommand("command", "")
                     .AddHelp()
                     .UsePrefixes(new[] { "~" })
@@ -73,7 +73,7 @@ namespace System.CommandLine.Tests
         public async Task AddHelp_accepts_default_values(string value)
         {
             var parser =
-                new ParserBuilder()
+                new CommandLineBuilder()
                     .AddCommand("command", "")
                     .AddHelp()
                     .Build();
@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
         public async Task AddHelp_accepts_collection_of_help_options()
         {
             var parser =
-                new ParserBuilder()
+                new CommandLineBuilder()
                     .AddCommand("command", "")
                     .AddHelp(new[] { "~cthulhu" })
                     .Build();
@@ -101,7 +101,7 @@ namespace System.CommandLine.Tests
         public async Task AddHelp_does_not_display_when_option_defined_with_same_alias()
         {
             var parser =
-                new ParserBuilder()
+                new CommandLineBuilder()
                     .AddCommand("command", "",
                                 cmd => cmd.AddOption("-h"))
                     .AddHelp()

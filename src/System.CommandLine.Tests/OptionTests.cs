@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests
         [InlineData("/")]
         public void When_option_use_differnt_prefixes_they_still_work(string prefix)
         {
-            var result = new ParserBuilder()
+            var result = new CommandLineBuilder()
                 .AddOption(prefix + "a", "", a => a.ExactlyOne())
                 .AddOption(prefix + "b", "")
                 .AddOption(prefix + "c", "", a => a.ExactlyOne())

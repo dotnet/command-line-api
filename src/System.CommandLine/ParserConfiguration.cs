@@ -52,7 +52,7 @@ namespace System.CommandLine
             else
             {
                 RootCommandDefinition = new CommandDefinition(
-                    ParserBuilder.ExeName,
+                    CommandLineBuilder.ExeName,
                     "",
                     symbolDefinitions);
             }
