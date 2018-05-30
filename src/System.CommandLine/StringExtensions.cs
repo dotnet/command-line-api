@@ -15,15 +15,13 @@ namespace System.CommandLine
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
 
         private static readonly Regex _tokenizer = new Regex(
-            @"(?<token>[^""\s]+""[^""]+"")     # token + quoted argument with non-space argument delimiter, ex: --opt:""c:\path with\spaces""
-               |                                
-              (""(?<token>[^""]*)"")           # tokens surrounded by spaces, ex: ""c:\path with\spaces""
-               |
-              (?<token>\S+)                    # tokens containing no quotes or spaces
-",                   
-            RegexOptions.Compiled |
-            RegexOptions.ExplicitCapture |
-            RegexOptions.IgnorePatternWhitespace
+            @"((?<opt>[^""\s]+)""(?<arg>[^""]+)"") # token + quoted argument with non-space argument delimiter, ex: --opt:""c:\path with\spaces""
+              |                                
+              (""(?<token>[^""]*)"")               # tokens surrounded by spaces, ex: ""c:\path with\spaces""
+              |
+              (?<token>\S+)                        # tokens containing no quotes or spaces
+              ",                   
+            RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace
         );
 
         internal static bool ContainsCaseInsensitive(
@@ -259,9 +257,18 @@ namespace System.CommandLine
 
             foreach (Match match in matches)
             {
-                foreach (var capture in match.Groups["token"].Captures)
+                if (match.Groups["arg"].Captures.Count > 0)
                 {
-                    yield return capture.ToString();
+                    var opt = match.Groups["opt"];
+                    var arg = match.Groups["arg"];
+                    yield return $"{opt}{arg}";
+                }
+                else
+                {
+                    foreach (var capture in match.Groups["token"].Captures)
+                    {
+                        yield return capture.ToString();
+                    }
                 }
             }
         }
