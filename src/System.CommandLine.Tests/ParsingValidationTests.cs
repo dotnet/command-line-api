@@ -175,7 +175,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_directory_existence()
         {
-            var parser = new ParserBuilder()
+            var parser = new CommandLineBuilder()
                          .AddCommand("move", "",
                                      toArgs => toArgs.AddOption("--to", "", args => args.ExactlyOne()),
                                      moveArgs => moveArgs.ExistingFilesOnly()

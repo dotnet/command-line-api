@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
 
             var builder = new ArgumentDefinitionBuilder();
             var commandDefinition = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.ExactlyOne());
-            var parser = new Parser(new ParserConfiguration(new[] { commandDefinition }, validationMessages: messages));
+            var parser = new Parser(new CommandLineConfiguration(new[] { commandDefinition }, validationMessages: messages));
             var result = parser.Parse("the-command");
 
             result.Errors

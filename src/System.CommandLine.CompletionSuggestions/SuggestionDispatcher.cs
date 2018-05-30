@@ -24,7 +24,7 @@ namespace System.CommandLine.CompletionSuggestions
         {
             // CommandLine:
             // dotnet run System.CommandLine <currentCommandLine> <cursorPosition> Foo bar
-            Parser parser = new ParserBuilder()
+            Parser parser = new CommandLineBuilder()
                 .AddOption(Position, "the current character position on the command line",
                     position => position.ExactlyOne())
                 .AddOption(ExeName, "The executible to ask for argument resolution", argument => argument

@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace System.CommandLine.Builder
 {
-    public static class ParserBuilderExtensions
+    public static class CommandLineBuilderExtensions
     {
         public static TBuilder AddCommand<TBuilder>(
             this TBuilder builder,
@@ -99,16 +99,16 @@ namespace System.CommandLine.Builder
             return builder.AddOption(new[] { name }, description, arguments);
         }
 
-        public static ParserBuilder EnablePosixBundling(
-            this ParserBuilder builder,
+        public static CommandLineBuilder EnablePosixBundling(
+            this CommandLineBuilder builder,
             bool value = true)
         {
             builder.EnablePosixBundling = value;
             return builder;
         }
 
-        public static ParserBuilder TreatUnmatchedTokensAsErrors(
-            this ParserBuilder builder,
+        public static CommandLineBuilder TreatUnmatchedTokensAsErrors(
+            this CommandLineBuilder builder,
             bool value = true)
         {
             builder.TreatUnmatchedTokensAsErrors = value;
@@ -124,8 +124,8 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static ParserBuilder ParseResponseFileAs(
-            this ParserBuilder builder,
+        public static CommandLineBuilder ParseResponseFileAs(
+            this CommandLineBuilder builder,
             ResponseFileHandling responseFileHandling)
         {
             builder.ResponseFileHandling = responseFileHandling;
@@ -133,7 +133,7 @@ namespace System.CommandLine.Builder
         }
 
         public static TBuilder UsePrefixes<TBuilder>(this TBuilder builder, IReadOnlyCollection<string> prefixes)
-            where TBuilder : ParserBuilder
+            where TBuilder : CommandLineBuilder
         {
             builder.Prefixes = prefixes;
             return builder;

@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Parse_directive_writes_parse_diagram()
         {
-            var parser = new ParserBuilder()
+            var parser = new CommandLineBuilder()
                          .AddCommand("the-command", "",
                                      cmd => cmd.AddOption(new[] { "-c", "--count" }, "",
                                                           args => args.ParseArgumentsAs<int>()))
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
             console.Out
                    .ToString()
                    .Should()
-                   .Be($"[ {ParserBuilder.ExeName} [ the-command [ --count <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
+                   .Be($"[ {CommandLineBuilder.ExeName} [ the-command [ --count <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
         }
     }
 }

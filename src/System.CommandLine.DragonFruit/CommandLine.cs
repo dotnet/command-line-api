@@ -56,17 +56,17 @@ namespace System.CommandLine.DragonFruit
             MethodInfo method,
             object @object)
         {
-            var parserBuilder = new ParserBuilder()
-                                .ConfigureFromMethod(method, @object)
-                                .UseParseDirective()
-                                .AddHelp()
-                                .UseSuggestDirective()
-                                .AddParseErrorReporting()
-                                .HandleAndDisplayExceptions();
+            var builder = new CommandLineBuilder()
+                          .ConfigureFromMethod(method, @object)
+                          .UseParseDirective()
+                          .AddHelp()
+                          .UseSuggestDirective()
+                          .AddParseErrorReporting()
+                          .HandleAndDisplayExceptions();
 
-            SetHelpMetadata(method, parserBuilder);
+            SetHelpMetadata(method, builder);
 
-            Parser parser = parserBuilder.Build();
+            Parser parser = builder.Build();
 
             return await parser.InvokeAsync(args, console);
         }

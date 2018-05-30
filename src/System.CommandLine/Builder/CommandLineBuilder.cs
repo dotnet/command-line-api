@@ -9,14 +9,14 @@ using System.Reflection;
 
 namespace System.CommandLine.Builder
 {
-    public class ParserBuilder : CommandDefinitionBuilder
+    public class CommandLineBuilder : CommandDefinitionBuilder
     {
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
         private List<(InvocationMiddleware middleware, int order)> _middlewareList;
 
-        public ParserBuilder() : base(executableName.Value)
+        public CommandLineBuilder() : base(executableName.Value)
         {
         }
 
@@ -33,7 +33,7 @@ namespace System.CommandLine.Builder
             var rootCommand = BuildCommandDefinition();
 
             return new Parser(
-                new ParserConfiguration(
+                new CommandLineConfiguration(
                     new[] { rootCommand },
                     prefixes: Prefixes,
                     allowUnbundling: EnablePosixBundling,

@@ -7,12 +7,12 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class ParserBuilderTests
+    public class CommandLineBuilderTests
     {
         [Fact]
         public void Child_builders_can_be_accessed_after_being_added()
         {
-            var builder = new ParserBuilder();
+            var builder = new CommandLineBuilder();
 
             builder.AddCommand("the-command", "",
                                cmd => cmd.AddOption(new[] { "-o", "--the-option" }));

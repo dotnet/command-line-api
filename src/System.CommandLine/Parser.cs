@@ -9,16 +9,16 @@ namespace System.CommandLine
 {
     public class Parser
     {
-        public Parser(ParserConfiguration configuration)
+        public Parser(CommandLineConfiguration configuration)
         {
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public Parser(params SymbolDefinition[] symbolDefinitions) : this(new ParserConfiguration(symbolDefinitions))
+        public Parser(params SymbolDefinition[] symbolDefinitions) : this(new CommandLineConfiguration(symbolDefinitions))
         {
         }
 
-        internal ParserConfiguration Configuration { get; }
+        internal CommandLineConfiguration Configuration { get; }
 
         public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
         {

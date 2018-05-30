@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests
                 s.WriteLine("--flag2");
                 s.WriteLine("123");
             }
-            var result = new ParserBuilder()
+            var result = new CommandLineBuilder()
                 .AddOption("--flag", "")
                 .AddOption("--flag2", "", a => a.ParseArgumentsAs<int>())
                 .Build()
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests
                 s.WriteLine(" # comment two");
                 s.WriteLine("--flag2");
             }
-            var result = new ParserBuilder()
+            var result = new CommandLineBuilder()
                 .AddOption("--flag", "")
                 .AddOption("--flag2", "")
                 .Build()
@@ -80,7 +80,7 @@ namespace System.CommandLine.Tests
         public void When_response_file_does_not_exist_adds_to_errors()
         {
             File.Delete(FilePath);
-            var result = new ParserBuilder()
+            var result = new CommandLineBuilder()
                 .AddOption("--flag", "")
                 .AddOption("--flag2", "")
                 .Build()
@@ -94,7 +94,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_filepath_is_not_specified_error_is_returned()
         {
-            var result = new ParserBuilder()
+            var result = new CommandLineBuilder()
                 .AddOption("--flag", "")
                 .AddOption("--flag2", "")
                 .Build()
@@ -110,7 +110,7 @@ namespace System.CommandLine.Tests
         {
             using (File.Open(FilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
             {
-                var result = new ParserBuilder()
+                var result = new CommandLineBuilder()
                     .AddOption("--flag", "")
                     .AddOption("--flag2", "")
                     .Build()
@@ -133,7 +133,7 @@ namespace System.CommandLine.Tests
                 s.WriteLine(input);
             }
 
-            var result = new ParserBuilder()
+            var result = new CommandLineBuilder()
                 .AddOption("--flag", "", a => a.ExactlyOne())
                 .AddOption("--flag2", "", a=> a.ParseArgumentsAs<int>())
                 .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
@@ -146,7 +146,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_processing_is_disabled_returns_response_file_name_as_argument()
         {
-            var result = new ParserBuilder()
+            var result = new CommandLineBuilder()
                 .AddOption("--flag", "")
                 .AddOption("--flag2", "")
                 .ParseResponseFileAs(ResponseFileHandling.Disabled)

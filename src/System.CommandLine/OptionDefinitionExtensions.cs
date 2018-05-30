@@ -11,6 +11,6 @@ namespace System.CommandLine
             this OptionDefinition optionDefinition,
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
-            new Parser(new ParserConfiguration(argumentDelimiters: delimiters, symbolDefinitions: new[] { optionDefinition })).Parse(commandLine);
+            new Parser(new CommandLineConfiguration(argumentDelimiters: delimiters, symbolDefinitions: new[] { optionDefinition })).Parse(commandLine);
     }
 }
