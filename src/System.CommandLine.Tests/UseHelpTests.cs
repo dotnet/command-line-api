@@ -9,18 +9,18 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class AddHelpTests
+    public class UseHelpTests
     {
         private readonly TestConsole _console = new TestConsole();
 
         [Fact]
-        public async Task AddHelp_writes_help_for_the_specified_command()
+        public async Task UseHelp_writes_help_for_the_specified_command()
         {
             var parser =
                 new CommandLineBuilder()
                     .AddCommand("command", "",
                                 command => command.AddCommand("subcommand"))
-                    .AddHelp()
+                    .UseHelp()
                     .Build();
 
             var result = parser.Parse("command subcommand --help");
@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task AddHelp_interrupts_execution_of_the_specified_command()
+        public async Task UseHelp_interrupts_execution_of_the_specified_command()
         {
             var wasCalled = false;
 
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
                     .AddCommand("command", "",
                                 command => command.AddCommand("subcommand")
                                                   .OnExecute<string>(_ => wasCalled = true))
-                    .AddHelp()
+                    .UseHelp()
                     .Build();
 
 
@@ -50,12 +50,12 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task AddHelp_allows_help_for_all_configured_prefixes()
+        public async Task UseHelp_allows_help_for_all_configured_prefixes()
         {
             var parser =
                 new CommandLineBuilder()
                     .AddCommand("command", "")
-                    .AddHelp()
+                    .UseHelp()
                     .UsePrefixes(new[] { "~" })
                     .Build();
 
@@ -70,12 +70,12 @@ namespace System.CommandLine.Tests
         [InlineData("--help")]
         [InlineData("-?")]
         [InlineData("/?")]
-        public async Task AddHelp_accepts_default_values(string value)
+        public async Task UseHelp_accepts_default_values(string value)
         {
             var parser =
                 new CommandLineBuilder()
                     .AddCommand("command", "")
-                    .AddHelp()
+                    .UseHelp()
                     .Build();
 
             await parser.InvokeAsync($"command {value}", _console);
@@ -84,12 +84,12 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task AddHelp_accepts_collection_of_help_options()
+        public async Task UseHelp_accepts_collection_of_help_options()
         {
             var parser =
                 new CommandLineBuilder()
                     .AddCommand("command", "")
-                    .AddHelp(new[] { "~cthulhu" })
+                    .UseHelp(new[] { "~cthulhu" })
                     .Build();
 
             await parser.InvokeAsync("command ~cthulhu", _console);
@@ -98,13 +98,13 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task AddHelp_does_not_display_when_option_defined_with_same_alias()
+        public async Task UseHelp_does_not_display_when_option_defined_with_same_alias()
         {
             var parser =
                 new CommandLineBuilder()
                     .AddCommand("command", "",
                                 cmd => cmd.AddOption("-h"))
-                    .AddHelp()
+                    .UseHelp()
                     .Build();
 
             var result = parser.Parse("command -h");

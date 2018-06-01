@@ -57,12 +57,12 @@ namespace System.CommandLine.DragonFruit
             object @object)
         {
             var builder = new CommandLineBuilder()
-                          .ConfigureFromMethod(method, @object)
+                          .AddCommandFromMethod(method, @object)
                           .UseParseDirective()
-                          .AddHelp()
+                          .UseHelp()
                           .UseSuggestDirective()
-                          .AddParseErrorReporting()
-                          .HandleAndDisplayExceptions();
+                          .UseParseErrorReporting()
+                          .UseExceptionHandler();
 
             SetHelpMetadata(method, builder);
 

@@ -11,15 +11,7 @@ namespace System.CommandLine.Invocation
 {
     public static class InvocationExtensions
     {
-        public static CommandLineBuilder AddMiddleware(
-            this CommandLineBuilder builder,
-            InvocationMiddleware onInvoke)
-        {
-            builder.AddMiddleware(onInvoke);
-            return builder;
-        }
-
-        public static CommandLineBuilder AddMiddleware(
+        public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
             Action<InvocationContext> onInvoke)
         {
@@ -31,7 +23,7 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandLineBuilder HandleAndDisplayExceptions(
+        public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
@@ -108,7 +100,7 @@ namespace System.CommandLine.Invocation
             await new InvocationPipeline(parser, parser.Parse(args))
                 .InvokeAsync(console);
 
-        public static CommandLineBuilder AddHelp(this CommandLineBuilder builder)
+        public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
                 var helpOptionTokens = new HashSet<string>();
@@ -141,7 +133,7 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandLineBuilder AddHelp(
+        public static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
             IReadOnlyCollection<string> helpOptionTokens)
         {
@@ -154,7 +146,7 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandLineBuilder AddParseErrorReporting(
+        public static CommandLineBuilder UseParseErrorReporting(
             this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
