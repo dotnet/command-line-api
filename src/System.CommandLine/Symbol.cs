@@ -87,7 +87,7 @@ namespace System.CommandLine
             considerAcceptingAnotherArgument = true;
         }
 
-        public abstract Symbol TryTakeToken(Token token);
+        internal abstract Symbol TryTakeToken(Token token);
 
         protected Symbol TryTakeArgument(Token token)
         {
