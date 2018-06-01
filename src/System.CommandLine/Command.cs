@@ -18,7 +18,7 @@ namespace System.CommandLine
 
         public Option this[string alias] => (Option) Children[alias];
 
-        public override Symbol TryTakeToken(Token token) =>
+        internal override Symbol TryTakeToken(Token token) =>
             TryTakeArgument(token) ??
             TryTakeOptionOrCommand(token);
 
@@ -37,24 +37,6 @@ namespace System.CommandLine
 
         private Symbol TryTakeOptionOrCommand(Token token)
         {
-            var child = Children
-                .SingleOrDefault(o =>
-                                     o.SymbolDefinition.SymbolDefinitions
-                                      .Any(oo => oo.RawAliases.Contains(token.Value)));
-
-            if (child != null)
-            {
-                return child.TryTakeToken(token);
-            }
-
-            if (token.Type == TokenType.Command &&
-                Children.Any(o => o.SymbolDefinition is CommandDefinition &&
-                                  !o.HasAlias(token.Value)))
-            {
-                // if a subcommand has already been applied, don't accept this one
-                return null;
-            }
-
             var symbol =
                 Children.SingleOrDefault(o => o.SymbolDefinition.HasRawAlias(token.Value));
 

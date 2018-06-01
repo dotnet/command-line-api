@@ -13,7 +13,7 @@ namespace System.CommandLine
 
         public OptionDefinition Definition { get; }
 
-        public override Symbol TryTakeToken(Token token) =>
+        internal override Symbol TryTakeToken(Token token) =>
             TryTakeArgument(token);
 
         protected internal override ParseError Validate()
