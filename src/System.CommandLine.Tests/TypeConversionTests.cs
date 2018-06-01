@@ -316,7 +316,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_OfType_is_used_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
+        public void When_ParseArgumentsAs_is_used_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
         {
             var definition = new CommandDefinition("tally", "", symbolDefinitions: null, argumentDefinition: new ArgumentDefinitionBuilder()
                                                        .ParseArgumentsAs<int>(symbol => {

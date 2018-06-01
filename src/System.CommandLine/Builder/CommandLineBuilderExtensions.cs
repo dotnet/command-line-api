@@ -30,7 +30,7 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder ConfigureFromMethod<TBuilder>(
+        public static TBuilder AddCommandFromMethod<TBuilder>(
             this TBuilder builder,
             MethodInfo method,
             object target = null)

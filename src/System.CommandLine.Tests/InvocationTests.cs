@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests
             var parser =
                 new CommandLineBuilder()
                     .AddCommand("command", "")
-                    .AddMiddleware(_ => wasCalled = true)
+                    .UseMiddleware(_ => wasCalled = true)
                     .Build();
 
             await parser.InvokeAsync("command", _console);
@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .AddCommand("the-command", "")
-                         .AddMiddleware(_ => throw new Exception("oops!"))
+                         .UseMiddleware(_ => throw new Exception("oops!"))
                          .Build();
 
             Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
@@ -184,8 +184,8 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .AddCommand("the-command", "")
-                         .AddMiddleware(_ => throw new Exception("oops!"))
-                         .HandleAndDisplayExceptions()
+                         .UseMiddleware(_ => throw new Exception("oops!"))
+                         .UseExceptionHandler()
                          .Build();
 
             var resultCode = await parser.InvokeAsync("the-command", _console);
@@ -201,7 +201,7 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .AddCommand("the-command", "",
                                      cmd => cmd.OnExecute<string>(_ => throw new Exception("oops!")))
-                         .HandleAndDisplayExceptions()
+                         .UseExceptionHandler()
                          .Build();
 
             var resultCode = await parser.InvokeAsync("the-command", _console);
@@ -215,8 +215,8 @@ namespace System.CommandLine.Tests
         {
             await new CommandLineBuilder()
                   .AddCommand("the-command", "")
-                  .HandleAndDisplayExceptions()
-                  .AddMiddleware(_ => throw new Exception("oops!"))
+                  .UseExceptionHandler()
+                  .UseMiddleware(_ => throw new Exception("oops!"))
                   .Build()
                   .InvokeAsync("the-command", _console);
 
@@ -231,8 +231,8 @@ namespace System.CommandLine.Tests
         {
             await new CommandLineBuilder()
                   .AddCommand("the-command", "")
-                  .AddMiddleware(_ => throw new Exception("oops!"))
-                  .HandleAndDisplayExceptions()
+                  .UseMiddleware(_ => throw new Exception("oops!"))
+                  .UseExceptionHandler()
                   .Build()
                   .InvokeAsync("the-command", _console);
 
@@ -248,7 +248,7 @@ namespace System.CommandLine.Tests
             var wasCalled = false;
 
             var parser = new CommandLineBuilder()
-                         .AddMiddleware(context => {
+                         .UseMiddleware(context => {
                              var tokensAfterFirst = context.ParseResult.Tokens.Skip(1).ToArray();
                              var reparsed = context.Parser.Parse(tokensAfterFirst);
                              context.ParseResult = reparsed;
