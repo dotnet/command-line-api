@@ -93,7 +93,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void TakeToken_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
+        public void Command_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
             var definition = new CommandDefinition("outer", "", new[] {
                 new CommandDefinition("inner-one", "", ArgumentDefinition.None),
@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasAlias_returns_true_if_command_has_an_alias()
+        public void HasAlias_returns_true_if_option_has_an_alias()
         {
             var option = new Option(new OptionDefinition(new []{"o", "one"}, ""));
 
