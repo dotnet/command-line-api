@@ -251,10 +251,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
-            var optionDefinition = new OptionDefinition(
-                "-x",
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne());
+            var optionDefinition = new OptionDefinition("-x", "",
+                                                        new ArgumentDefinitionBuilder().ExactlyOne());
 
             var definition = new CommandDefinition("the-command", "", new[] {
                 optionDefinition
@@ -269,7 +267,7 @@ namespace System.CommandLine.Tests
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissingForOption(optionDefinition));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new Option(optionDefinition)));
         }
 
         [Fact]
@@ -323,7 +321,7 @@ namespace System.CommandLine.Tests
             var optionDefinition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: new ArgumentDefinitionBuilder().OneOrMore());
+                new ArgumentDefinitionBuilder().OneOrMore());
             var definition = new CommandDefinition("the-command", "", new[] {
                 optionDefinition
             });
@@ -337,7 +335,7 @@ namespace System.CommandLine.Tests
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissingForOption(optionDefinition));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new Option(optionDefinition)));
         }
 
         [Fact]

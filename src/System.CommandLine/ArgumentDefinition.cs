@@ -50,7 +50,7 @@ namespace System.CommandLine
                 {
                     if (symbol.Arguments.Any())
                     {
-                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition));
+                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol));
                     }
 
                     return ArgumentParseResult.Success(true);
@@ -68,7 +68,7 @@ namespace System.CommandLine
                 return null;
             }
 
-            return symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition);
+            return symbol.ValidationMessages.NoArgumentsAllowed(symbol);
         }
     }
 }

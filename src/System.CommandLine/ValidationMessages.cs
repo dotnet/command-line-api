@@ -11,25 +11,30 @@ namespace System.CommandLine
     {
         public static ValidationMessages Instance { get; } = new ValidationMessages();
 
-        protected ValidationMessages() { }
+        protected ValidationMessages()
+        {
+        }
 
-        public virtual string CommandExpectsOneArgument(CommandDefinition command, int argumentCount) =>
-            $"Command '{command.Name}' expects a single argument but {argumentCount} were provided.";
+        public virtual string ExpectsOneArgument(Symbol symbol) =>
+            symbol is Command
+                ? $"Command '{symbol.Token}' expects a single argument but {symbol.Arguments.Count} were provided."
+                : $"Option '{symbol.Token}' expects a single argument but {symbol.Arguments.Count} were provided.";
+
+        public virtual string ExpectsFewerArguments(Symbol symbol, int maximumNumberOfArguments) =>
+            symbol is Command
+                ? $"Command '{symbol.Token}' expects no more than {maximumNumberOfArguments} arguments, but {symbol.Arguments.Count} were provided."
+                : $"Option '{symbol.Token}' expects no more than {maximumNumberOfArguments} arguments, but {symbol.Arguments.Count} were provided.";
 
         public virtual string FileDoesNotExist(string filePath) =>
             $"File does not exist: {filePath}";
 
-        public virtual string NoArgumentsAllowed(SymbolDefinition symbol) =>
-            $"Arguments not allowed for option: {symbol.Token()}";
+        public virtual string NoArgumentsAllowed(Symbol symbol) =>
+            $"Arguments not allowed for option: {symbol.Token}";
 
-        public virtual string OptionExpectsOneArgument(OptionDefinition option, int argumentCount) =>
-            $"Option '{option.Token()}' expects a single argument but {argumentCount} were provided.";
-
-        public virtual string RequiredArgumentMissingForCommand(CommandDefinition command) =>
-            $"Required argument missing for command: {command.Name}";
-
-        public virtual string RequiredArgumentMissingForOption(OptionDefinition option) =>
-            $"Required argument missing for option: {option.Token()}";
+        public virtual string RequiredArgumentMissing(Symbol symbol) =>
+            symbol is Command
+                ? $"Required argument missing for command: {symbol.Token}"
+                : $"Required argument missing for option: {symbol.Token}";
 
         public virtual string RequiredCommandWasNotProvided() =>
             "Required command was not provided.";

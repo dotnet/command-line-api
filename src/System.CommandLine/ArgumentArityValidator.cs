@@ -29,31 +29,18 @@ namespace System.CommandLine
         {
             if (symbol.Arguments.Count < MinimumNumberOfArguments)
             {
-                switch (symbol)
-                {
-                    case Option option:
-                        return symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
-                    case Command command:
-                        return symbol.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
-                }
+                return symbol.ValidationMessages.RequiredArgumentMissing(symbol);
             }
 
             if (symbol.Arguments.Count > MaximumNumberOfArguments)
             {
                 if (MaximumNumberOfArguments == 1)
                 {
-                    switch (symbol)
-                    {
-                        case Command command:
-                            return command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
-                        case Option option:
-                            return symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, option.Arguments.Count);
-                    }
+                    return symbol.ValidationMessages.ExpectsOneArgument(symbol);
                 }
                 else
                 {
-                    // FIX: (Validate)
-                    return $"Too many arguments for {symbol}";
+                    return symbol.ValidationMessages.ExpectsFewerArguments(symbol, MaximumNumberOfArguments);
                 }
             }
 

@@ -169,19 +169,7 @@ namespace System.CommandLine.Builder
                     convert = symbol => {
                         if (symbol.Arguments.Count != 1)
                         {
-                            string message = null;
-
-                            switch (symbol)
-                            {
-                                case Command command:
-                                    message = command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
-                                    break;
-                                case Option option:
-                                    message = symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, symbol.Arguments.Count);
-                                    break;
-                            }
-
-                            return ArgumentParseResult.Failure(message);
+                            return ArgumentParseResult.Failure(symbol.ValidationMessages.ExpectsOneArgument(symbol));
                         }
 
                         return originalConvert(symbol);
