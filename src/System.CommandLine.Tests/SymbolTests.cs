@@ -10,7 +10,6 @@ namespace System.CommandLine.Tests
 {
     public class SymbolTests
     {
-
         [Fact]
         public void An_option_with_a_default_argument_value_is_valid_without_having_the_argument_supplied()
         {
@@ -132,3 +131,4 @@ namespace System.CommandLine.Tests
         }
     }
 }
+

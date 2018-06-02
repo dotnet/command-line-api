@@ -379,14 +379,14 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("the-command -a cat -v carrot -a dog");
 
-            var parsedCommand = result.Command;
+            var command = result.Command;
 
-            parsedCommand["animals"]
+            command["animals"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
-            parsedCommand["vegetables"]
+            command["vegetables"]
                 .Arguments
                 .Should()
                 .BeEquivalentTo("carrot");
