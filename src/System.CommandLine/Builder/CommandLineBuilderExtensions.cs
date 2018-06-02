@@ -36,6 +36,16 @@ namespace System.CommandLine.Builder
             object target = null)
             where TBuilder : CommandDefinitionBuilder
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
             foreach (var parameter in method.GetParameters())
             {
                 builder.AddOptionFromParameter(parameter);

@@ -112,12 +112,11 @@ namespace System.CommandLine.Tests
                     .AddCommand(
                         "command", "",
                         cmd => {
-                            cmd
-                                .AddOption("-x", "", args => args.ParseArgumentsAs<int>())
-                                .OnExecute<ParseResult>(result => {
-                                    wasCalled = true;
-                                    result.ValueForOption("-x").Should().Be(123);
-                                });
+                            cmd.AddOption("-x", "", args => args.ParseArgumentsAs<int>())
+                               .OnExecute<ParseResult>(result => {
+                                   wasCalled = true;
+                                   result.ValueForOption("-x").Should().Be(123);
+                               });
                         })
                     .Build();
 
