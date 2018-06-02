@@ -45,7 +45,7 @@ namespace System.CommandLine
 
         internal static ArgumentDefinition None { get; } = new ArgumentDefinition(
             new ArgumentParser(
-                ArgumentArity.Zero,
+                System.CommandLine.ArgumentArity.Zero,
                 symbol =>
                 {
                     if (symbol.Arguments.Any())
@@ -59,7 +59,7 @@ namespace System.CommandLine
 
         public ISuggestionSource SuggestionSource { get; }
 
-        public ArgumentArity ArgumentArity => Parser.ArgumentArity;
+        public ArgumentArityValidator ArgumentArity => Parser.ArityValidator;
 
         private static string AcceptNoArguments(Symbol symbol)
         {

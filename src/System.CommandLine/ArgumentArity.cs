@@ -3,10 +3,10 @@
 
 namespace System.CommandLine
 {
-    public enum ArgumentArity
+    public static class ArgumentArity
     {
-        Zero,
-        One,
-        Many
+        public static ArgumentArityValidator Zero { get; } = new ArgumentArityValidator(0, 0);
+        public static ArgumentArityValidator One { get; } = new ArgumentArityValidator(0, 1);
+        public static ArgumentArityValidator Many { get; } = new ArgumentArityValidator(0, int.MaxValue);
     }
 }

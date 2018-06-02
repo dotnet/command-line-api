@@ -10,7 +10,7 @@ namespace System.CommandLine.Builder
     {
         private ArgumentSuggestionSource _suggestionSource;
 
-        internal ArgumentArity ArgumentArity { get; set; }
+        internal ArgumentArityValidator ArgumentArity { get; set; }
 
         internal ConvertArgument ConvertArguments { get; set; }
 
