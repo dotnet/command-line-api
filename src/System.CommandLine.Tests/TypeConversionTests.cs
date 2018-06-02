@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
                                               }
 
                                               return ArgumentParseResult.Success(custom);
-                                          }, ArgumentArity.Many)));
+                                          }, ArgumentArity.ZeroOrMore)));
 
             var result = parser.Parse("custom one two three");
 
@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseArgumentsAs_with_arity_of_One_can_be_called_without_custom_conversion_logic_if_the_type_has_a_constructor_thats_takes_a_single_string()
+        public void ParseArgumentsAs_with_arity_of_one_can_be_called_without_custom_conversion_logic_if_the_type_has_a_constructor_thats_takes_a_single_string()
         {
             var definition = new OptionDefinition(
                 "--file",
@@ -59,7 +59,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseArgumentsAs_with_arity_of_Many_can_be_called_without_custom_conversion_logic_if_the_item_type_has_a_constructor_thats_takes_a_single_string()
+        public void ParseArgumentsAs_with_arity_of_many_can_be_called_without_custom_conversion_logic_if_the_item_type_has_a_constructor_thats_takes_a_single_string()
         {
             var definition = new OptionDefinition(
                 "--file",
@@ -84,23 +84,24 @@ namespace System.CommandLine.Tests
         {
             var definition = new ArgumentDefinitionBuilder().ParseArgumentsAs<int>(s => ArgumentParseResult.Success(1));
 
-            definition.ArgumentArity.Should().Be(ArgumentArity.One);
+            definition.ArgumentArity.Should().Be(ArgumentArity.ExactlyOne);
         }
 
         [Fact]
-        public void ParseArgumentsAs_defaults_arity_to_One_for_string()
+        public void ParseArgumentsAs_defaults_arity_to_ExactlyOne_for_string()
         {
             var definition = new ArgumentDefinitionBuilder().ParseArgumentsAs<string>(s => ArgumentParseResult.Success(1));
 
-            definition.ArgumentArity.Should().Be(ArgumentArity.One);
+            definition.ArgumentArity.Should().Be(ArgumentArity.ExactlyOne);
         }
 
         [Fact]
-        public void ParseArgumentsAs_infers_arity_of_IEnumerable_types_as_Many()
+        public void ParseArgumentsAs_infers_arity_of_IEnumerable_types_as_OneOrMore()
         {
             var definition = new ArgumentDefinitionBuilder().ParseArgumentsAs<int[]>(s => ArgumentParseResult.Success(1));
 
-            definition.ArgumentArity.Should().Be(ArgumentArity.Many);
+            definition.ArgumentArity.Should().Be(ArgumentArity.OneOrMore);
+        }
         }
 
         [Fact]

@@ -74,9 +74,20 @@ namespace System.CommandLine
 
             _result = SymbolDefinition.ArgumentDefinition.Parser.Parse(this);
 
-            if (_result is FailedArgumentParseResult failed)
+            switch (_result)
             {
-                return new ParseError(failed.ErrorMessage, this, false);
+                case FailedArgumentArityResult arityFailure:
+                    return new ParseError(arityFailure.ErrorMessage,
+                                          this,
+                                          true);
+                case FailedArgumentTypeConversionResult conversionFailure:
+                    return new ParseError(conversionFailure.ErrorMessage,
+                                          this,
+                                          false);
+                case FailedArgumentParseResult general:
+                    return new ParseError(general.ErrorMessage,
+                                          this,
+                                          false);
             }
 
             return null;

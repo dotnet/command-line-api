@@ -6,7 +6,13 @@ namespace System.CommandLine
     public static class ArgumentArity
     {
         public static ArgumentArityValidator Zero { get; } = new ArgumentArityValidator(0, 0);
-        public static ArgumentArityValidator One { get; } = new ArgumentArityValidator(0, 1);
-        public static ArgumentArityValidator Many { get; } = new ArgumentArityValidator(0, int.MaxValue);
+
+        public static ArgumentArityValidator ZeroOrOne { get; } = new ArgumentArityValidator(0, 1);
+
+        public static ArgumentArityValidator ExactlyOne { get; } = new ArgumentArityValidator(1, 1);
+
+        public static ArgumentArityValidator ZeroOrMore { get; } = new ArgumentArityValidator(0, int.MaxValue);
+
+        public static ArgumentArityValidator OneOrMore { get; } = new ArgumentArityValidator(1, int.MaxValue);
     }
 }

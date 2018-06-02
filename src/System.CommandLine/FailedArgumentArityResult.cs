@@ -3,8 +3,10 @@
 
 namespace System.CommandLine
 {
-    public interface ISymbolValidator
+    internal class FailedArgumentArityResult : FailedArgumentParseResult
     {
-        string Validate(Symbol symbol);
+        public FailedArgumentArityResult(string errorMessage) : base(errorMessage)
+        {
+        }
     }
 }

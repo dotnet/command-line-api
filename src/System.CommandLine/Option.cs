@@ -19,7 +19,7 @@ namespace System.CommandLine
         protected internal override ParseError Validate()
         {
             if (Arguments.Count > 1 &&
-                SymbolDefinition.ArgumentDefinition.Parser.ArityValidator != ArgumentArity.Many)
+                SymbolDefinition.ArgumentDefinition.Parser.ArityValidator.MaximumNumberOfArguments == 1)
             {
                 // TODO: (Validate) localize
                 return new ParseError(

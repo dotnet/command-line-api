@@ -21,6 +21,12 @@ namespace System.CommandLine
 
         public ArgumentParseResult Parse(Symbol symbol)
         {
+            var error = ArityValidator?.Validate(symbol);
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                return new FailedArgumentArityResult(error);
+            }
+
             if (ConvertArguments != null)
             {
                 return ConvertArguments(symbol);
@@ -29,7 +35,7 @@ namespace System.CommandLine
             switch (ArityValidator?.MaximumNumberOfArguments)
             {
                 case 0:
-                    return ArgumentParseResult.Success((string) null);
+                    return ArgumentParseResult.Success((string)null);
                 case 1:
                     return ArgumentParseResult.Success(symbol.Arguments.SingleOrDefault());
                 default:

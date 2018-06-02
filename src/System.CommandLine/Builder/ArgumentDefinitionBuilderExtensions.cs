@@ -14,36 +14,7 @@ namespace System.CommandLine.Builder
         public static ArgumentDefinition ExactlyOne(
             this ArgumentDefinitionBuilder builder)
         {
-            builder.AddValidator(symbol => {
-                var argumentCount = symbol.Arguments.Count;
-
-                if (argumentCount == 0)
-                {
-                    switch (symbol)
-                    {
-                        case Command command:
-                            return command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
-                        case Option option:
-                            return symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
-                    }
-                }
-
-                if (argumentCount > 1)
-                {
-                    switch (symbol)
-                    {
-                        case Command command:
-                            return command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
-                        case Option option:
-                            return symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, symbol.Arguments.Count);
-                    }
-                }
-
-                return null;
-            });
-
-            builder.ArgumentArity = ArgumentArity.One;
-
+            builder.ArgumentArity = ArgumentArity.ExactlyOne;
             return builder.Build();
         }
 
@@ -51,67 +22,27 @@ namespace System.CommandLine.Builder
             this ArgumentDefinitionBuilder builder)
         {
             builder.ArgumentArity = ArgumentArity.Zero;
-            builder.SymbolValidators.AddRange(ArgumentDefinition.None.SymbolValidators);
             return builder.Build();
         }
 
         public static ArgumentDefinition ZeroOrMore(
             this ArgumentDefinitionBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.Many;
-
+            builder.ArgumentArity = ArgumentArity.ZeroOrMore;
             return builder.Build();
         }
 
         public static ArgumentDefinition ZeroOrOne(
             this ArgumentDefinitionBuilder builder)
         {
-            builder.AddValidator(symbol =>
-            {
-                if (symbol.Arguments.Count > 1)
-                {
-                    switch (symbol)
-                    {
-                        case Command command:
-                            return command.ValidationMessages.CommandExpectsOneArgument(command.Definition, command.Arguments.Count);
-                        case Option option:
-                            return symbol.ValidationMessages.OptionExpectsOneArgument(option.Definition, option.Arguments.Count);
-                    }
-                }
-
-                return null;
-            });
-
-            builder.ArgumentArity = ArgumentArity.One;
-
+            builder.ArgumentArity = ArgumentArity.ZeroOrOne;
             return builder.Build();
         }
 
         public static ArgumentDefinition OneOrMore(
             this ArgumentDefinitionBuilder builder)
         {
-            builder.AddValidator(symbol =>
-            {
-                var optionCount = symbol.Arguments.Count;
-
-                if (optionCount != 0)
-                {
-                    return null;
-                }
-
-                switch (symbol)
-                {
-                    case Command command:
-                        return command.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
-                    case Option option:
-                        return symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
-                }
-
-                return null;
-            });
-
-            builder.ArgumentArity = ArgumentArity.Many;
-
+            builder.ArgumentArity = ArgumentArity.OneOrMore;
             return builder.Build();
         }
 
@@ -265,11 +196,21 @@ namespace System.CommandLine.Builder
             return builder.Build();
         }
 
-        internal static ArgumentArityValidator DefaultArity(this Type type) =>
-            typeof(IEnumerable).IsAssignableFrom(type) &&
-            type != typeof(string)
-                ? ArgumentArity.Many
-                : ArgumentArity.One;
+        internal static ArgumentArityValidator DefaultArity(this Type type)
+        {
+            if (typeof(IEnumerable).IsAssignableFrom(type) &&
+                type != typeof(string))
+            {
+                return ArgumentArity.OneOrMore;
+            }
+
+            if (type == typeof(bool))
+            {
+                return ArgumentArity.ZeroOrOne;
+            }
+
+            return ArgumentArity.ExactlyOne;
+        }
 
         #endregion
 
