@@ -43,7 +43,7 @@ namespace System.CommandLine
 
         internal ArgumentParser Parser { get; }
 
-        public static ArgumentDefinition None { get; } = new ArgumentDefinition(
+        internal static ArgumentDefinition None { get; } = new ArgumentDefinition(
             new ArgumentParser(
                 ArgumentArity.Zero,
                 symbol =>

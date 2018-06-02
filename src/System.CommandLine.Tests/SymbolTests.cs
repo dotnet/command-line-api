@@ -95,8 +95,8 @@ namespace System.CommandLine.Tests
         public void Command_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
             var definition = new CommandDefinition("outer", "", new[] {
-                new CommandDefinition("inner-one", "", ArgumentDefinition.None),
-                new CommandDefinition("inner-two", "", ArgumentDefinition.None)
+                new CommandDefinition("inner-one", "", new ArgumentDefinitionBuilder().None()),
+                new CommandDefinition("inner-two", "", new ArgumentDefinitionBuilder().None())
             });
 
             var result = new Parser(definition).Parse("outer inner-one inner-two");

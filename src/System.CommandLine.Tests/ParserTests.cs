@@ -288,14 +288,10 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 new CommandDefinition("the-command", "", new[] {
-                    new OptionDefinition("--xyz", "",
-                                         argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition("-x", "",
-                                         argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition("-y", "",
-                                         argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition("-z", "",
-                                         argumentDefinition: ArgumentDefinition.None)
+                    new OptionDefinition("--xyz", ""),
+                    new OptionDefinition("-x", ""),
+                    new OptionDefinition("-y", ""),
+                    new OptionDefinition("-z", "")
                 }));
 
             var result = parser.Parse("the-command --xyz");

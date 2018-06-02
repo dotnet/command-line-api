@@ -72,10 +72,7 @@ namespace System.CommandLine.Tests
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
             var parser = new Parser(new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    ArgumentDefinition.None)
+                new OptionDefinition("-x", "")
             }));
 
             var result = parser.Parse("the-command -x some-arg");

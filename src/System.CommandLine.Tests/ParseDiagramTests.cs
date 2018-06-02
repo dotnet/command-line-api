@@ -22,8 +22,7 @@ namespace System.CommandLine.Tests
                             new ArgumentDefinitionBuilder().ExactlyOne()),
                         new OptionDefinition(
                             "-y",
-                            "Specifies value y",
-                            ArgumentDefinition.None)
+                            "Specifies value y")
                     },
                     new ArgumentDefinitionBuilder().ZeroOrMore()));
 
