@@ -102,7 +102,6 @@ namespace System.CommandLine.Tests
 
             definition.ArgumentArity.Should().Be(ArgumentArity.OneOrMore);
         }
-        }
 
         [Fact]
         public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
