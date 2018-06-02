@@ -41,7 +41,7 @@ namespace System.CommandLine.Builder
         internal virtual ArgumentParser BuildArgumentParser()
         {
             var parser = new ArgumentParser(
-                ArgumentArity,
+                ArgumentArity ?? CommandLine.ArgumentArity.Zero,
                 ConvertArguments);
 
             return parser;

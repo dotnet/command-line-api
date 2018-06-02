@@ -6,11 +6,11 @@ namespace System.CommandLine
     public class Option : Symbol
     {
         public Option(OptionDefinition optionDefinition, string token = null, Command parent = null) :
-            base(optionDefinition, token ?? optionDefinition?.ToString(), parent)
+            base(optionDefinition, token ?? optionDefinition?.Token(), parent)
         {
             Definition = optionDefinition;
         }
-
+        
         public OptionDefinition Definition { get; }
 
         internal override Symbol TryTakeToken(Token token) =>
@@ -29,6 +29,27 @@ namespace System.CommandLine
             }
 
             return base.Validate();
+        }
+
+        internal static Option CreateImplicit(
+            OptionDefinition optionDefinition,
+            Command parent)
+        {
+            var option = new Option(optionDefinition,
+                                    optionDefinition.Token());
+
+            if (optionDefinition.ArgumentDefinition.HasDefaultValue)
+            {
+                var value = optionDefinition.ArgumentDefinition.GetDefaultValue();
+                switch (value)
+                {
+                    case string arg:
+                        option.TryTakeToken(new Token(arg, TokenType.Argument));
+                        break;
+                }
+            }
+
+            return option;
         }
     }
 }

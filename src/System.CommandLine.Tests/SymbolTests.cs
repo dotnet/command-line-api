@@ -11,19 +11,18 @@ namespace System.CommandLine.Tests
     public class SymbolTests
     {
         [Fact]
-        public void An_option_with_a_default_argument_value_is_valid_without_having_the_argument_supplied()
+        public void An_option_with_a_default_value_and_no_explicitly_provided_argument_has_an_empty_arguments_property()
         {
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: new ArgumentDefinitionBuilder()
-                    .FromAmong("one", "two", "default")
+                new ArgumentDefinitionBuilder()
                     .WithDefaultValue(() => "default")
                     .ExactlyOne());
 
             var option = new Option(definition, "-x");
 
-            option.Arguments.Should().BeEquivalentTo("default");
+            option.Arguments.Should().BeEmpty();
         }
 
         [Fact]
@@ -38,8 +37,8 @@ namespace System.CommandLine.Tests
                         .WithDefaultValue(() => (++i).ToString())
                         .ExactlyOne());
 
-            var result1 = definition.Parse("-x");
-            var result2 = definition.Parse("-x");
+            var result1 = definition.Parse("");
+            var result2 = definition.Parse("");
 
             result1["x"].GetValueOrDefault().Should().Be("1");
             result2["x"].GetValueOrDefault().Should().Be("2");
@@ -56,39 +55,6 @@ namespace System.CommandLine.Tests
             var result = definition.Parse("the-command -h");
 
             result.HasOption("help").Should().BeTrue();
-        }
-
-
-        [Fact]
-        public void Result_returns_single_string_default_value_when_no_argument_is_provided()
-        {
-            var definition = new OptionDefinition(
-                "-x",
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder()
-                    .WithDefaultValue(() => "default")
-                    .ExactlyOne());
-
-            var option = new Option(definition);
-
-            option.Result.Should().BeOfType<SuccessfulArgumentParseResult<string>>()
-                .Which.Value.Should().Be("default");
-        }
-
-        [Fact]
-        public void Result_returns_IEnumerable_containing_string_default_value_when_no_argument_is_provided()
-        {
-            var definition = new OptionDefinition(
-                "-x",
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder()
-                    .WithDefaultValue(() => "default")
-                    .OneOrMore());
-
-            var option = new Option(definition);
-
-            option.Result.Should().BeOfType<SuccessfulArgumentParseResult<IReadOnlyCollection<string>>>()
-                .Which.Value.Should().BeEquivalentTo("default");
         }
 
         [Fact]

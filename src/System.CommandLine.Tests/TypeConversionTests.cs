@@ -104,6 +104,84 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void ParseArgumentsAs_bool_will_default_to_true_when_no_argument_is_passed()
+        {
+            var builder = new CommandLineBuilder()
+                          .AddOption("-x", "", args => args.ParseArgumentsAs<bool>())
+                          .Build();
+
+            var result = builder.Parse("-x");
+
+            result.Errors
+                  .Should()
+                  .BeEmpty();
+            result["x"].Result
+                       .Should()
+                       .BeOfType<SuccessfulArgumentParseResult<bool>>()
+                       .Which
+                       .Value
+                       .Should()
+                       .BeTrue();
+            result.ValueForOption("x").Should().Be(true);
+        }
+
+        [Fact]
+        public void ParseArgumentsAs_parses_as_the_default_value_when_the_option_has_not_been_applied()
+        {
+            var definition = new CommandDefinition("something", "", new[] {
+                new OptionDefinition("-x", "",
+                                     new ArgumentDefinitionBuilder()
+                                         .WithDefaultValue(() => "123")
+                                         .ParseArgumentsAs<int>())
+            });
+
+            var result = definition.Parse("something");
+
+            var option = result.Command["x"];
+
+            option.GetValueOrDefault().Should().Be(123);
+        }
+
+        [Fact]
+        public void ParseArgumentsAs_does_not_parse_as_the_default_value_when_the_option_has_been_applied()
+        {
+            var definition = new CommandDefinition("something", "", new[] {
+                new OptionDefinition("-x", "",
+                                     new ArgumentDefinitionBuilder()
+                                         .WithDefaultValue(() => "123")
+                                         .ParseArgumentsAs<int>())
+            });
+
+            var result = definition.Parse("something -x 456");
+
+            var option = result.Command["x"];
+
+            option.GetValueOrDefault().Should().Be(456);
+        }
+
+        [Theory]
+        [InlineData("the-command -x")]
+        [InlineData("the-command -x true")]
+        [InlineData("the-command -x:true")]
+        [InlineData("the-command -x=true")]
+        public void ParseArgumentsAs_bool_does_not_parse_as_the_default_value_when_the_option_has_been_applied(string commandLine)
+        {
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition("-x", "",
+                                     new ArgumentDefinitionBuilder()
+                                         .WithDefaultValue(() => "false")
+                                         .ParseArgumentsAs<bool>())
+            });
+
+            definition
+                .Parse(commandLine)
+                .Command["x"]
+                .GetValueOrDefault()
+                .Should()
+                .Be(true);
+        }
+
+        [Fact]
         public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
         {
             var definition = new CommandDefinition("the-command", "", new[] {
@@ -216,6 +294,30 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void
+            When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_and_there_is_a_default_then_getting_value_returns_default_in_an_empty_sequence_of_strings()
+        {
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder()
+                                        .WithDefaultValue(() => "the-default")
+                                        .ZeroOrMore())
+            });
+
+            var result = definition.Parse("the-command");
+
+            result.Command
+                  .ValueForOption("x")
+                  .Should()
+                  .BeAssignableTo<IReadOnlyCollection<string>>()
+                  .Which
+                  .Should()
+                  .BeEquivalentTo("the-default");
+        }
+
+        [Fact]
         public void When_one_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_throws()
         {
             var optionDefinition = new OptionDefinition(
@@ -299,7 +401,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_with_a_default_value_parses_as_the_default_value_when_it_the_option_has_not_been_applied()
+        public void An_option_with_a_default_value_parses_as_the_default_value_when_the_option_has_not_been_applied()
         {
             var definition = new CommandDefinition("something", "", new[] {
                 new OptionDefinition(
@@ -313,6 +415,23 @@ namespace System.CommandLine.Tests
             var option = result.Command["x"];
 
             option.GetValueOrDefault<string>().Should().Be("123");
+        }
+
+        [Fact]
+        public void Specifying_an_option_argument_overrides_the_default_value()
+        {
+            var definition = new CommandDefinition("something", "", new[] {
+                new OptionDefinition(
+                    "-x",
+                    "",
+                    argumentDefinition: new ArgumentDefinitionBuilder().WithDefaultValue(() => "123").ExactlyOne())
+            });
+
+            var result = definition.Parse("something -x 456");
+
+            var option = result.Command["x"];
+
+            option.GetValueOrDefault<string>().Should().Be("456");
         }
 
         [Fact]

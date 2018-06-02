@@ -52,9 +52,37 @@ namespace System.CommandLine
 
         private void CheckForErrors()
         {
-            foreach (var option in RootCommand.AllSymbols())
+            foreach (var symbol in RootCommand.AllSymbols())
             {
-                var error = option.Validate();
+                if (symbol is Command command)
+                {
+                    foreach (var definition in command.Definition.SymbolDefinitions)
+                    {
+                        if (definition.ArgumentDefinition.HasDefaultValue &&
+                            command.Children[definition.Name] == null)
+                        {
+                            switch (definition)
+                            {
+                                case OptionDefinition optionDefinition:
+                                    command.AddImplicitOption(optionDefinition);
+                                    break;
+                            }
+                        }
+                    }
+
+                    if (command.Definition.ArgumentDefinition.HasDefaultValue &&
+                        command.Arguments.Count == 0)
+                    {
+                        switch (command.Definition.ArgumentDefinition.GetDefaultValue())
+                        {
+                            case string arg:
+                                command.TryTakeToken(new Token(arg, TokenType.Argument));
+                                break;
+                        }
+                    }
+                }
+
+                var error = symbol.Validate();
 
                 if (error != null)
                 {

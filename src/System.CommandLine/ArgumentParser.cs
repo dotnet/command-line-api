@@ -11,7 +11,7 @@ namespace System.CommandLine
             ArgumentArityValidator arityValidator,
             ConvertArgument convert = null)
         {
-            ArityValidator = arityValidator;
+            ArityValidator = arityValidator ?? throw new ArgumentNullException(nameof(arityValidator));
             ConvertArguments = convert;
         }
 
@@ -21,7 +21,7 @@ namespace System.CommandLine
 
         public ArgumentParseResult Parse(Symbol symbol)
         {
-            var error = ArityValidator?.Validate(symbol);
+            var error = ArityValidator.Validate(symbol);
             if (!string.IsNullOrWhiteSpace(error))
             {
                 return new FailedArgumentArityResult(error);
@@ -32,12 +32,14 @@ namespace System.CommandLine
                 return ConvertArguments(symbol);
             }
 
-            switch (ArityValidator?.MaximumNumberOfArguments)
+            switch (ArityValidator.MaximumNumberOfArguments)
             {
                 case 0:
                     return ArgumentParseResult.Success((string)null);
+
                 case 1:
                     return ArgumentParseResult.Success(symbol.Arguments.SingleOrDefault());
+
                 default:
                     return ArgumentParseResult.Success(symbol.Arguments);
             }

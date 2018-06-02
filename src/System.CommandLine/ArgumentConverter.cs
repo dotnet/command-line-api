@@ -60,7 +60,17 @@ namespace System.CommandLine
 
         public static ArgumentParseResult Parse<T>(string value)
         {
-            return Parse(typeof(T), value);
+            var result = Parse(typeof(T), value);
+
+            switch (result)
+            {
+                case SuccessfulArgumentParseResult<object> successful:
+                    return new SuccessfulArgumentParseResult<T>((T)successful.Value);
+                case FailedArgumentParseResult failed:
+                    return failed;
+            }
+
+            return result;
         }
 
         public static ArgumentParseResult ParseMany<T>(IReadOnlyCollection<string> arguments)

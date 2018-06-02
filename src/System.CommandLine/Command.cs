@@ -10,30 +10,20 @@ namespace System.CommandLine
         public Command(CommandDefinition commandDefinition, Command parent = null) : base(commandDefinition, commandDefinition?.Name, parent)
         {
             Definition = commandDefinition ?? throw new ArgumentNullException(nameof(commandDefinition));
-
-            AddImplicitOptions(commandDefinition);
         }
 
         public CommandDefinition Definition { get; }
 
         public Option this[string alias] => (Option) Children[alias];
 
+        internal void AddImplicitOption(OptionDefinition optionDefinition)
+        {
+            Children.Add(Option.CreateImplicit(optionDefinition, this));
+        }
+
         internal override Symbol TryTakeToken(Token token) =>
             TryTakeArgument(token) ??
             TryTakeOptionOrCommand(token);
-
-        private void AddImplicitOptions(CommandDefinition commandDefinition)
-        {
-            foreach (var childOption in commandDefinition.SymbolDefinitions.OfType<OptionDefinition>())
-            {
-                if (!Children.Contains(childOption.Name) &&
-                    childOption.ArgumentDefinition.HasDefaultValue)
-                {
-                    Children.Add(
-                        new Option(childOption, childOption.Name));
-                }
-            }
-        }
 
         private Symbol TryTakeOptionOrCommand(Token token)
         {
@@ -42,15 +32,15 @@ namespace System.CommandLine
 
             if (symbol != null)
             {
-                symbol.OptionWasRespecified();
+                symbol.OptionWasRespecified = true;
                 return symbol;
             }
 
             symbol =
                 Definition.SymbolDefinitions
-                      .Where(o => o.RawAliases.Contains(token.Value))
-                      .Select(o => Create(o, token.Value, this, ValidationMessages))
-                      .SingleOrDefault();
+                          .Where(o => o.RawAliases.Contains(token.Value))
+                          .Select(o => Create(o, token.Value, this, ValidationMessages))
+                          .SingleOrDefault();
 
             if (symbol != null)
             {

@@ -142,6 +142,27 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_one_option_has_been_partially_specified_then_nonmatching_siblings_will_not_be_suggested()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption("--apple", "kinds of apples")
+                         .AddOption("--banana", "kinds of bananas")
+                         .AddOption("--cherry", "kinds of cherries")
+                         .Build();
+
+            var result = parser.Parse("a");
+
+            _output.WriteLine(result.ToString());
+
+            _output.WriteLine(string.Join(Environment.NewLine, result.Suggestions()));
+
+            result.Suggestions()
+                  .Should()
+                  .BeEquivalentTo("--apple",
+                                  "--banana");
+        }
+
+        [Fact]
         public void A_command_can_be_hidden_from_completions_by_leaving_its_help_empty()
         {
             var command = new CommandDefinition(
