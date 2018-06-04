@@ -48,11 +48,9 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public CommandDefinition CommandDefinition => Command.Definition;
-
         private void CheckForErrors()
         {
-            foreach (var symbol in RootCommand.AllSymbols())
+            foreach (var symbol in RootCommand.AllSymbols().ToArray())
             {
                 if (symbol is Command command)
                 {
@@ -90,15 +88,12 @@ namespace System.CommandLine
                 }
             }
 
-            var commandDefinition = CommandDefinition;
-
-            if (commandDefinition != null &&
-                commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
+            if (Command.Definition?.SymbolDefinitions.OfType<CommandDefinition>().Any() == true)
             {
-                var symbol = Command;
-                _errors.Insert(0, new ParseError(
-                                  symbol.ValidationMessages.RequiredCommandWasNotProvided(),
-                                  symbol));
+                _errors.Insert(0,
+                               new ParseError(
+                                   Command.ValidationMessages.RequiredCommandWasNotProvided(),
+                                   Command));
             }
         }
 

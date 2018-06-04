@@ -19,7 +19,7 @@ namespace System.CommandLine
         protected internal override ParseError Validate()
         {
             if (Arguments.Count > 1 &&
-                SymbolDefinition.ArgumentDefinition.Parser.ArityValidator.MaximumNumberOfArguments == 1)
+                SymbolDefinition.ArgumentDefinition.ArgumentArity.MaximumNumberOfArguments == 1)
             {
                 // TODO: (Validate) localize
                 return new ParseError(
@@ -41,10 +41,15 @@ namespace System.CommandLine
             if (optionDefinition.ArgumentDefinition.HasDefaultValue)
             {
                 var value = optionDefinition.ArgumentDefinition.GetDefaultValue();
+
                 switch (value)
                 {
                     case string arg:
                         option.TryTakeToken(new Token(arg, TokenType.Argument));
+                        break;
+
+                    default:
+                        option.Result = ArgumentParseResult.Success(value);
                         break;
                 }
             }

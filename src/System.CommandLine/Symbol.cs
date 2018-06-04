@@ -10,7 +10,6 @@ namespace System.CommandLine
         private readonly List<string> _arguments = new List<string>();
         private ArgumentParseResult _result;
 
-        internal bool OptionWasRespecified = true;
         private ValidationMessages _validationMessages = ValidationMessages.Instance;
 
         protected internal Symbol(SymbolDefinition symbolDefinition, string token, Command parent = null)
@@ -32,6 +31,8 @@ namespace System.CommandLine
         public SymbolSet Children { get; } = new SymbolSet();
 
         public string Name => SymbolDefinition.Name;
+
+        internal bool OptionWasRespecified { get; set; } = true;
 
         public Command Parent { get; }
 
@@ -160,8 +161,10 @@ namespace System.CommandLine
                 {
                     Validate();
                 }
+
                 return _result;
             }
+            protected set => _result = value;
         }
 
         public override string ToString() => $"{GetType().Name}: {Token}";

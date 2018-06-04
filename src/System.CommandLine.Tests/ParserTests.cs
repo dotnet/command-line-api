@@ -790,7 +790,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("-x -y");
 
-            var command = result.CommandDefinition;
+            var command = result.Command.Definition;
 
             command.Should().NotBeNull();
 
