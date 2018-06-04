@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Parse_result_diagram_helps_explain_partial_parse_operation()
+        public void Parse_result_diagram_displays_unmatched_tokens()
         {
             var parser = new Parser(
                 new CommandDefinition("command", "", new[] {
@@ -50,7 +50,22 @@ namespace System.CommandLine.Tests
 
             result.Diagram()
                   .Should()
-                  .Be("[ command [ -x ] ]   ???--> ar");
+                  .Be("[ command [ ! -x ] ]   ???--> ar");
+        }
+
+        [Fact]
+        public void Parse_diagram_shows_type_conversion_errors()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption("-f", "",
+                                    args => args.ParseArgumentsAs<int>())
+                         .Build();
+
+            var result = parser.Parse("-f not-an-int");
+
+            result.Diagram()
+                  .Should()
+                  .Be($"[ {CommandLineBuilder.ExeName} [ ! -f <not-an-int> ] ]");
         }
     }
 }

@@ -50,7 +50,7 @@ namespace System.CommandLine
         {
             var builder = new StringBuilder();
 
-            builder.Diagram(result.RootCommand);
+            builder.Diagram(result.RootCommand, result);
 
             if (result.UnmatchedTokens.Any())
             {
@@ -66,23 +66,32 @@ namespace System.CommandLine
             return builder.ToString();
         }
 
-        internal static void Diagram(
+        private static void Diagram(
             this StringBuilder builder,
-            Symbol symbol)
+            Symbol symbol,
+            ParseResult parseResult)
         {
-            builder.Append("[ ");
+            builder.Append("[");
+
+            if (parseResult.Errors.Any(e => e.Symbol == symbol))
+            {
+                builder.Append(" !");
+            }
+
+            builder.Append(" ");
 
             builder.Append(symbol.Token);
 
             foreach (var child in symbol.Children)
             {
                 builder.Append(" ");
-                builder.Diagram(child);
+                builder.Diagram(child, parseResult);
             }
 
             foreach (var arg in symbol.Arguments)
             {
                 builder.Append(" <");
+
                 builder.Append(arg);
                 builder.Append(">");
             }
