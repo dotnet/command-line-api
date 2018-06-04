@@ -72,7 +72,7 @@ namespace System.CommandLine
         {
             builder.Append("[ ");
 
-            builder.Append(symbol.SymbolDefinition.Token());
+            builder.Append(symbol.Token);
 
             foreach (var child in symbol.Children)
             {

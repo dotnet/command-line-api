@@ -288,14 +288,10 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 new CommandDefinition("the-command", "", new[] {
-                    new OptionDefinition("--xyz", "",
-                                         argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition("-x", "",
-                                         argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition("-y", "",
-                                         argumentDefinition: ArgumentDefinition.None),
-                    new OptionDefinition("-z", "",
-                                         argumentDefinition: ArgumentDefinition.None)
+                    new OptionDefinition("--xyz", ""),
+                    new OptionDefinition("-x", ""),
+                    new OptionDefinition("-y", ""),
+                    new OptionDefinition("-z", "")
                 }));
 
             var result = parser.Parse("the-command --xyz");
@@ -794,7 +790,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("-x -y");
 
-            var command = result.CommandDefinition;
+            var command = result.Command.Definition;
 
             command.Should().NotBeNull();
 
@@ -850,21 +846,18 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_default_argument_value_is_not_provided_then_the_default_value_can_be_accessed_from_the_parse_result()
+        public void Commands_can_have_default_argument_values()
         {
             var command = new CommandLineBuilder()
                           .AddCommand("command", "",
-                                      cmd => cmd.AddCommand("subcommand", "",
-                                                            arguments: subcommandArgs => subcommandArgs.ExactlyOne()),
+                                      arguments:
                                       args => args.WithDefaultValue(() => "default")
                                                   .ExactlyOne())
                           .BuildCommandDefinition();
 
-            ParseResult result = command.Parse("command subcommand subcommand-arg");
+            ParseResult result = command.Parse("command");
 
-            _output.WriteLine(result.Diagram());
-
-            result.Command.Parent.Arguments.Should().BeEquivalentTo("default");
+            result.Command.GetValueOrDefault().Should().Be("default");
         }
 
         [Fact]
@@ -883,22 +876,8 @@ namespace System.CommandLine.Tests
 
             result.HasOption("o").Should().BeTrue();
             result.HasOption("option").Should().BeTrue();
-            result.Command.ValueForOption("o").Should().Be("the-default");
-        }
-
-        [Fact]
-        public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_from_the_parse_result_as_though_it_had_been_applied()
-        {
-            var option = new OptionDefinition(
-                new[] { "-o", "--option" },
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder().WithDefaultValue(() => "the-default").ExactlyOne());
-
-            ParseResult result = option.Parse("");
-
-            result.HasOption("o").Should().BeTrue();
-            result.HasOption("option").Should().BeTrue();
             result["o"].GetValueOrDefault<string>().Should().Be("the-default");
+            result.Command.ValueForOption("o").Should().Be("the-default");
         }
 
         [Fact]

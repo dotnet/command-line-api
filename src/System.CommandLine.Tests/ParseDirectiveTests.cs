@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
             console.Out
                    .ToString()
                    .Should()
-                   .Be($"[ {CommandLineBuilder.ExeName} [ the-command [ --count <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
+                   .Be($"[ {CommandLineBuilder.ExeName} [ the-command [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
         }
     }
 }

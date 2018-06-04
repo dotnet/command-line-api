@@ -72,10 +72,7 @@ namespace System.CommandLine.Tests
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
             var parser = new Parser(new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    ArgumentDefinition.None)
+                new OptionDefinition("-x", "")
             }));
 
             var result = parser.Parse("the-command -x some-arg");
@@ -242,6 +239,42 @@ namespace System.CommandLine.Tests
                   .Select(e => e.Message)
                   .Should()
                   .Contain("Option '-x' cannot be specified more than once.");
+        }
+
+        [Fact]
+        public void When_an_option_has_a_default_value_it_is_not_valid_to_specify_the_option_without_an_argument()
+        {
+            var parser = new Parser(
+                new OptionDefinition(
+                    "-x", "",
+                    new ArgumentDefinitionBuilder()
+                        .WithDefaultValue(() => "123")
+                        .ParseArgumentsAs<int>()));
+
+            var result = parser.Parse("-x");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("Required argument missing for option: -x");
+        }
+
+        [Fact]
+        public void When_an_option_has_a_default_value_then_the_option_token_must_be_applied()
+        {
+            var parser = new Parser(
+                new OptionDefinition(
+                    "-x", "",
+                    new ArgumentDefinitionBuilder()
+                        .WithDefaultValue(() => "123")
+                        .ParseArgumentsAs<int>()));
+
+            var result = parser.Parse("456");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .ContainSingle("Unrecognized command or argument '456'");
         }
 
         [Theory]

@@ -70,19 +70,7 @@ namespace System.CommandLine
                 throw new InvalidOperationException(failed.ErrorMessage);
             }
 
-            string message = null;
-
-            switch (symbol)
-            {
-                case Command command:
-                    message = symbol.ValidationMessages.RequiredArgumentMissingForCommand(command.Definition);
-                    break;
-                case Option option:
-                    message = symbol.ValidationMessages.RequiredArgumentMissingForOption(option.Definition);
-                    break;
-            }
-
-            throw new InvalidOperationException(message);
+            throw new InvalidOperationException(symbol.ValidationMessages.RequiredArgumentMissing(symbol));
         }
 
         internal static IEnumerable<Symbol> AllSymbols(

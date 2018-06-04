@@ -10,7 +10,7 @@ namespace System.CommandLine.Builder
     {
         private ArgumentSuggestionSource _suggestionSource;
 
-        internal ArgumentArity ArgumentArity { get; set; }
+        internal ArgumentArityValidator ArgumentArity { get; set; }
 
         internal ConvertArgument ConvertArguments { get; set; }
 
@@ -41,7 +41,7 @@ namespace System.CommandLine.Builder
         internal virtual ArgumentParser BuildArgumentParser()
         {
             var parser = new ArgumentParser(
-                ArgumentArity,
+                ArgumentArity ?? CommandLine.ArgumentArity.Zero,
                 ConvertArguments);
 
             return parser;

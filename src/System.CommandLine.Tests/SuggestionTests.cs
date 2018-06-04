@@ -52,9 +52,9 @@ namespace System.CommandLine.Tests
             var command = new CommandDefinition(
                 "command", "a command",
                 new[] {
-                    new CommandDefinition("one", "subcommand one", ArgumentDefinition.None),
-                    new CommandDefinition("two", "subcommand two", ArgumentDefinition.None),
-                    new CommandDefinition("three", "subcommand three", ArgumentDefinition.None)
+                    new CommandDefinition("one", "subcommand one"),
+                    new CommandDefinition("two", "subcommand two"),
+                    new CommandDefinition("three", "subcommand three")
                 });
 
             var suggestions = command.Suggest(command.Parse("command "));
@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
             var command = new CommandDefinition(
                 "command", "a command",
                 new SymbolDefinition[] {
-                    new CommandDefinition("subcommand", "subcommand", ArgumentDefinition.None),
+                    new CommandDefinition("subcommand", "subcommand"),
                     new OptionDefinition("--option", "option")
                 });
 
@@ -83,7 +83,7 @@ namespace System.CommandLine.Tests
             var command = new CommandDefinition(
                 "command", "a command",
                 new SymbolDefinition[] {
-                    new CommandDefinition("subcommand", "subcommand", ArgumentDefinition.None),
+                    new CommandDefinition("subcommand", "subcommand"),
 
                     new OptionDefinition("--option", "option")
                 },
@@ -142,6 +142,27 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_one_option_has_been_partially_specified_then_nonmatching_siblings_will_not_be_suggested()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption("--apple", "kinds of apples")
+                         .AddOption("--banana", "kinds of bananas")
+                         .AddOption("--cherry", "kinds of cherries")
+                         .Build();
+
+            var result = parser.Parse("a");
+
+            _output.WriteLine(result.ToString());
+
+            _output.WriteLine(string.Join(Environment.NewLine, result.Suggestions()));
+
+            result.Suggestions()
+                  .Should()
+                  .BeEquivalentTo("--apple",
+                                  "--banana");
+        }
+
+        [Fact]
         public void A_command_can_be_hidden_from_completions_by_leaving_its_help_empty()
         {
             var command = new CommandDefinition(
@@ -190,8 +211,8 @@ namespace System.CommandLine.Tests
             var command = new CommandDefinition(
                 "test", "",
                 new[] {
-                    new CommandDefinition("one", "Command one", ArgumentDefinition.None),
-                    new CommandDefinition("two", "Command two", ArgumentDefinition.None)
+                    new CommandDefinition("one", "Command one"),
+                    new CommandDefinition("two", "Command two")
                 },
                 new ArgumentDefinitionBuilder().ExactlyOne());
 
@@ -207,7 +228,7 @@ namespace System.CommandLine.Tests
             var command = new CommandDefinition(
                 "test", "",
                 new SymbolDefinition[] {
-                    new CommandDefinition("one", "Command one", ArgumentDefinition.None),
+                    new CommandDefinition("one", "Command one"),
                     new OptionDefinition("--one", "Option one")
                 }, new ArgumentDefinitionBuilder().ExactlyOne());
 
@@ -278,9 +299,9 @@ namespace System.CommandLine.Tests
                 new CommandDefinition(
                     "outer", "",
                     new[] {
-                        new CommandDefinition("one", "Command one",                                              ArgumentDefinition.None),
-                        new CommandDefinition("two", "Command two",                                              ArgumentDefinition.None),
-                        new CommandDefinition("three", "Command three",                                              ArgumentDefinition.None)
+                        new CommandDefinition("one", "Command one"),
+                        new CommandDefinition("two", "Command two"),
+                        new CommandDefinition("three", "Command three")
                     }));
 
             ParseResult result = parser.Parse("outer o");

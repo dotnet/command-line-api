@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
@@ -11,19 +10,18 @@ namespace System.CommandLine.Tests
     public class SymbolTests
     {
         [Fact]
-        public void An_option_with_a_default_argument_value_is_valid_without_having_the_argument_supplied()
+        public void An_option_with_a_default_value_and_no_explicitly_provided_argument_has_an_empty_arguments_property()
         {
             var definition = new OptionDefinition(
                 "-x",
                 "",
-                argumentDefinition: new ArgumentDefinitionBuilder()
-                    .FromAmong("one", "two", "default")
+                new ArgumentDefinitionBuilder()
                     .WithDefaultValue(() => "default")
                     .ExactlyOne());
 
             var option = new Option(definition, "-x");
 
-            option.Arguments.Should().BeEquivalentTo("default");
+            option.Arguments.Should().BeEmpty();
         }
 
         [Fact]
@@ -38,8 +36,8 @@ namespace System.CommandLine.Tests
                         .WithDefaultValue(() => (++i).ToString())
                         .ExactlyOne());
 
-            var result1 = definition.Parse("-x");
-            var result2 = definition.Parse("-x");
+            var result1 = definition.Parse("");
+            var result2 = definition.Parse("");
 
             result1["x"].GetValueOrDefault().Should().Be("1");
             result2["x"].GetValueOrDefault().Should().Be("2");
@@ -58,45 +56,12 @@ namespace System.CommandLine.Tests
             result.HasOption("help").Should().BeTrue();
         }
 
-
-        [Fact]
-        public void Result_returns_single_string_default_value_when_no_argument_is_provided()
-        {
-            var definition = new OptionDefinition(
-                "-x",
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder()
-                    .WithDefaultValue(() => "default")
-                    .ExactlyOne());
-
-            var option = new Option(definition);
-
-            option.Result.Should().BeOfType<SuccessfulArgumentParseResult<string>>()
-                .Which.Value.Should().Be("default");
-        }
-
-        [Fact]
-        public void Result_returns_IEnumerable_containing_string_default_value_when_no_argument_is_provided()
-        {
-            var definition = new OptionDefinition(
-                "-x",
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder()
-                    .WithDefaultValue(() => "default")
-                    .OneOrMore());
-
-            var option = new Option(definition);
-
-            option.Result.Should().BeOfType<SuccessfulArgumentParseResult<IReadOnlyCollection<string>>>()
-                .Which.Value.Should().BeEquivalentTo("default");
-        }
-
         [Fact]
         public void Command_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
             var definition = new CommandDefinition("outer", "", new[] {
-                new CommandDefinition("inner-one", "", ArgumentDefinition.None),
-                new CommandDefinition("inner-two", "", ArgumentDefinition.None)
+                new CommandDefinition("inner-one", "", new ArgumentDefinitionBuilder().None()),
+                new CommandDefinition("inner-two", "", new ArgumentDefinitionBuilder().None())
             });
 
             var result = new Parser(definition).Parse("outer inner-one inner-two");

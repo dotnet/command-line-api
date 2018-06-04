@@ -46,8 +46,7 @@ namespace System.CommandLine.Tests
         public void HasAlias_accepts_prefixed_short_value()
         {
             var option = new OptionDefinition(
-                new[] { "-o", "--option" }, "",
-                    ArgumentDefinition.None);
+                new[] { "-o", "--option" }, "");
 
             option.HasAlias("-o").Should().BeTrue();
         }
@@ -56,8 +55,7 @@ namespace System.CommandLine.Tests
         public void HasAlias_accepts_unprefixed_short_value()
         {
             var option = new OptionDefinition(
-                new[] { "-o", "--option" }, "",
-                    ArgumentDefinition.None);
+                new[] { "-o", "--option" }, "");
 
             option.HasAlias("o").Should().BeTrue();
         }
@@ -66,8 +64,7 @@ namespace System.CommandLine.Tests
         public void HasAlias_accepts_prefixed_long_value()
         {
             var option = new OptionDefinition(
-                new[] { "-o", "--option" }, "",
-                    ArgumentDefinition.None);
+                new[] { "-o", "--option" }, "");
 
             option.HasAlias("--option").Should().BeTrue();
         }
@@ -76,8 +73,7 @@ namespace System.CommandLine.Tests
         public void HasAlias_accepts_unprefixed_long_value()
         {
             var option = new OptionDefinition(
-                new[] { "-o", "--option" }, "",
-                ArgumentDefinition.None);
+                new[] { "-o", "--option" }, "");
 
             option.HasAlias("option").Should().BeTrue();
         }
@@ -86,8 +82,7 @@ namespace System.CommandLine.Tests
         public void It_is_not_necessary_to_specify_a_prefix_when_adding_an_option()
         {
             var option = new OptionDefinition(
-                new[] { "o" }, "",
-                ArgumentDefinition.None);
+                new[] { "o" }, "");
 
             option.HasAlias("o").Should().BeTrue();
             option.HasAlias("-o").Should().BeTrue();
@@ -96,7 +91,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_must_have_at_least_one_alias()
         {
-            Action create = () => new OptionDefinition(Array.Empty<string>(), "", ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(Array.Empty<string>(), "");
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -109,7 +104,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new OptionDefinition(new[] { "" }, "", ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(new[] { "" }, "");
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -122,7 +117,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new OptionDefinition(new[] { "  \t" }, "", ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(new[] { "  \t" }, "");
 
             create.Should()
                   .Throw<ArgumentException>()

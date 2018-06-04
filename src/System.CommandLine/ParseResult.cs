@@ -48,13 +48,39 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public CommandDefinition CommandDefinition => Command.Definition;
-
         private void CheckForErrors()
         {
-            foreach (var option in RootCommand.AllSymbols())
+            foreach (var symbol in RootCommand.AllSymbols().ToArray())
             {
-                var error = option.Validate();
+                if (symbol is Command command)
+                {
+                    foreach (var definition in command.Definition.SymbolDefinitions)
+                    {
+                        if (definition.ArgumentDefinition.HasDefaultValue &&
+                            command.Children[definition.Name] == null)
+                        {
+                            switch (definition)
+                            {
+                                case OptionDefinition optionDefinition:
+                                    command.AddImplicitOption(optionDefinition);
+                                    break;
+                            }
+                        }
+                    }
+
+                    if (command.Definition.ArgumentDefinition.HasDefaultValue &&
+                        command.Arguments.Count == 0)
+                    {
+                        switch (command.Definition.ArgumentDefinition.GetDefaultValue())
+                        {
+                            case string arg:
+                                command.TryTakeToken(new Token(arg, TokenType.Argument));
+                                break;
+                        }
+                    }
+                }
+
+                var error = symbol.Validate();
 
                 if (error != null)
                 {
@@ -62,15 +88,12 @@ namespace System.CommandLine
                 }
             }
 
-            var commandDefinition = CommandDefinition;
-
-            if (commandDefinition != null &&
-                commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
+            if (Command.Definition?.SymbolDefinitions.OfType<CommandDefinition>().Any() == true)
             {
-                var symbol = Command;
-                _errors.Insert(0, new ParseError(
-                                  symbol.ValidationMessages.RequiredCommandWasNotProvided(),
-                                  symbol));
+                _errors.Insert(0,
+                               new ParseError(
+                                   Command.ValidationMessages.RequiredCommandWasNotProvided(),
+                                   Command));
             }
         }
 
