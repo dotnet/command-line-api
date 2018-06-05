@@ -57,6 +57,22 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void HasOption_can_be_used_to_check_the_presence_of_an_implicit_option()
+        {
+            var definition = new CommandDefinition("the-command", "", new[] {
+                new OptionDefinition(
+                    new[] { "-c", "--count" }, "",
+                    new ArgumentDefinitionBuilder()
+                        .WithDefaultValue(() => 5)
+                        .Build())
+            });
+
+            var result = definition.Parse("the-command");
+
+            result.HasOption("count").Should().BeTrue();
+        }
+
+        [Fact]
         public void Command_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
             var definition = new CommandDefinition("outer", "", new[] {

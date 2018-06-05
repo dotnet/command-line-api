@@ -348,7 +348,8 @@ namespace System.CommandLine.Tests
                     argumentDefinition: new ArgumentDefinitionBuilder().ZeroOrMore())
             });
 
-            definition.Parse("the-command -x arg1 -x arg2").Command
+            definition.Parse("the-command -x arg1 -x arg2")
+                      .Command
                       .ValueForOption("x")
                       .Should()
                       .BeEquivalentTo(new[] { "arg1", "arg2" });
@@ -370,18 +371,25 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_an_option_without_arguments_parses_as_true_when_it_is_applied()
+        public void The_default_value_of_a_command_with_no_arguments_is_an_empty_collection()
         {
-            var definition = new CommandDefinitionBuilder("something")
-                             .AddOption("-x", "")
-                             .BuildCommandDefinition();
+            var option = new Command(new CommandDefinition("-x", ""));
 
-            var result = definition.Parse("something -x");
-
-            result.Command
-                  .ValueForOption<bool>("x")
+            option.GetValueOrDefault()
                   .Should()
-                  .BeTrue();
+                  .BeAssignableTo<IReadOnlyCollection<string>>()
+                  .Which
+                  .Count
+                  .Should()
+                  .Be(0);
+        }
+        
+        [Fact]
+        public void The_default_value_of_an_option_with_no_arguments_is_true()
+        {
+            var command = new Option(new OptionDefinition("-x", ""));
+
+            command.GetValueOrDefault().Should().Be(null);
         }
 
         [Fact]
