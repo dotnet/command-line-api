@@ -154,8 +154,10 @@ namespace System.CommandLine.Invocation
                 {
                     context.InvocationResult = new ParseErrorResult();
                 }
-
-                await next(context);
+                else
+                {
+                    await next(context);
+                }
             }, CommandLineBuilder.MiddlewareOrder.AfterPreprocessing);
             return builder;
         }
