@@ -9,13 +9,13 @@ using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
-    public class AddCommandFromMethodTests
+    public class ConfigureFromMethodTests
     {
         private object[] _receivedValues;
         private readonly TestConsole _testConsole = new TestConsole();
         private readonly ITestOutputHelper _output;
 
-        public AddCommandFromMethodTests(ITestOutputHelper output)
+        public ConfigureFromMethodTests(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests
         public async Task Boolean_parameters_will_accept_zero_arguments()
         {
             var builder = new CommandLineBuilder()
-                          .AddCommandFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this)
+                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this)
                           .Build();
 
             var result = builder.Parse($"{CommandLineBuilder.ExeName} --value");
@@ -47,7 +47,7 @@ namespace System.CommandLine.Tests
         public async Task Boolean_parameters_will_accept_one_argument(string commandLine, bool expected)
         {
             var builder = new CommandLineBuilder()
-                          .AddCommandFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this)
+                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this)
                           .Build();
 
             await builder.InvokeAsync(commandLine, _testConsole);
@@ -70,7 +70,7 @@ namespace System.CommandLine.Tests
 
         private MethodInfo GetMethodInfo(string name)
         {
-            return typeof(AddCommandFromMethodTests)
+            return typeof(ConfigureFromMethodTests)
                    .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                    .Single(m => m.Name == name);
         }

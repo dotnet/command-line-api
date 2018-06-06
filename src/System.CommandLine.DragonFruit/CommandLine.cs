@@ -57,7 +57,7 @@ namespace System.CommandLine.DragonFruit
             object @object)
         {
             var builder = new CommandLineBuilder()
-                          .AddCommandFromMethod(method, @object)
+                          .ConfigureFromMethod(method, @object)
                           .UseParseDirective()
                           .UseHelp()
                           .UseSuggestDirective()
