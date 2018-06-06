@@ -138,12 +138,35 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeEquivalentTo("-h", "--help", "/?");
         }
+        
+        [Theory]
+        [InlineData(":", "-x{0}")]
+        [InlineData("=", "-x{0}")]
+        [InlineData(" ", "-x{0}")]
+        [InlineData(":", "{0}-x")]
+        [InlineData("=", "{0}-x")]
+        [InlineData(" ", "{0}-x")]
+        [InlineData(":", "--aa{0}aa")]
+        [InlineData("=", "--aa{0}aa")]
+        [InlineData(" ", "--aa{0}aa")]
+        public void When_an_option_alias_contains_a_delimiter_then_an_informative_error_is_returned(
+            string delimiter, 
+            string template)
+        {
+            Action create = () => new Parser(
+                new OptionDefinition(
+                    string.Format(template, delimiter), "",
+                    new ArgumentDefinitionBuilder().ExactlyOne()));
+
+            create.Should().Throw<ArgumentException>().Which.Message.Should()
+                  .Be($"Symbol cannot contain delimiter: \"{delimiter}\"");
+        }
 
         [Theory]
         [InlineData("-")]
         [InlineData("--")]
         [InlineData("/")]
-        public void When_option_use_differnt_prefixes_they_still_work(string prefix)
+        public void When_option_use_different_prefixes_they_still_work(string prefix)
         {
             var result = new CommandLineBuilder()
                 .AddOption(prefix + "a", "", a => a.ExactlyOne())
