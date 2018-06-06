@@ -4,6 +4,7 @@
 using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
+using static System.CommandLine.Builder.CommandLineBuilder;
 
 namespace System.CommandLine.Tests
 {
@@ -50,7 +51,7 @@ namespace System.CommandLine.Tests
 
             result.Diagram()
                   .Should()
-                  .Be("[ command [ ! -x ] ]   ???--> ar");
+                  .Be("[ command ![ -x ] ]   ???--> ar");
         }
 
         [Fact]
@@ -65,7 +66,30 @@ namespace System.CommandLine.Tests
 
             result.Diagram()
                   .Should()
-                  .Be($"[ {CommandLineBuilder.ExeName} [ ! -f <not-an-int> ] ]");
+                  .Be($"[ {ExeName} ![ -f <not-an-int> ] ]");
+        }
+
+        [Fact]
+        public void Parse_diagram_identifies_implicitly_applied_options()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption(new[] { "-h", "--height" }, "",
+                                    args => args.WithDefaultValue(() => 10)
+                                                .ExactlyOne())
+                         .AddOption(new[] { "-w", "--width" }, "",
+                                    args => args.WithDefaultValue(() => 15)
+                                                .ExactlyOne())
+                         .AddOption(new[] { "-c", "--color" }, "",
+                                    args => args.WithDefaultValue(() => ConsoleColor.Cyan)
+                                                .ExactlyOne())
+                         .Build();
+
+            var result = parser.Parse("-w 9000");
+
+            var diagram = result.Diagram();
+
+            diagram.Should()
+                   .Be($"[ {ExeName} [ -w <9000> ] *[ --height <10> ] *[ --color <Cyan> ] ]");
         }
     }
 }

@@ -5,13 +5,18 @@ namespace System.CommandLine
 {
     public class Option : Symbol
     {
-        public Option(OptionDefinition optionDefinition, string token = null, Command parent = null) :
+        public Option(
+            OptionDefinition optionDefinition,
+            string token = null,
+            Command parent = null) :
             base(optionDefinition, token ?? optionDefinition?.Token(), parent)
         {
             Definition = optionDefinition;
         }
-        
+
         public OptionDefinition Definition { get; }
+
+        internal bool IsImplicit { get; private set; }
 
         internal override Symbol TryTakeToken(Token token) =>
             TryTakeArgument(token);
@@ -37,6 +42,8 @@ namespace System.CommandLine
         {
             var option = new Option(optionDefinition,
                                     optionDefinition.Token());
+
+            option.IsImplicit = true;
 
             if (optionDefinition.ArgumentDefinition.HasDefaultValue)
             {

@@ -53,7 +53,7 @@ namespace System.CommandLine
                         return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol));
                     }
 
-                    return ArgumentParseResult.Success(true);
+                    return SuccessfulArgumentParseResult.Empty;
                 }),
             symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
 

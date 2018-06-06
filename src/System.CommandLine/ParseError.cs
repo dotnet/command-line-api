@@ -5,7 +5,7 @@ namespace System.CommandLine
 {
     public class ParseError
     {
-        public ParseError(
+        internal ParseError(
             string message, 
             Symbol symbol = null,
             bool canTokenBeRetried = true)

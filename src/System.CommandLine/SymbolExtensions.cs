@@ -21,9 +21,13 @@ namespace System.CommandLine
 
             ArgumentParseResult result = symbol.Result;
 
-            if (result != null &&
-                result.IsSuccessful)
+            if (result is SuccessfulArgumentParseResult successfulResult)
             {
+                if (!successfulResult.HasValue)
+                {
+                    return default(T);
+                }
+
                 object value = ((dynamic)symbol.Result).Value;
 
                 switch (value)
@@ -51,10 +55,11 @@ namespace System.CommandLine
                             return (dynamic)true;
                         }
 
-                        break;
+                        return default(T);
                 }
 
-                if (result.IsSuccessful)
+                if (result is SuccessfulArgumentParseResult success &&
+                    success.HasValue)
                 {
                     value = ((dynamic)result).Value;
                 }

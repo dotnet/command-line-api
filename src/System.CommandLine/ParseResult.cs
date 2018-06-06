@@ -31,7 +31,7 @@ namespace System.CommandLine
                 _errors.AddRange(errors);
             }
 
-            CheckForErrors();
+            AddImplicitOptionsAndCheckForErrors();
         }
 
         public Command Command { get; }
@@ -48,7 +48,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        private void CheckForErrors()
+        private void AddImplicitOptionsAndCheckForErrors()
         {
             foreach (var symbol in RootCommand.AllSymbols().ToArray())
             {
