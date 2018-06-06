@@ -93,7 +93,7 @@ namespace System.CommandLine
                                   .ToArray();
 
             var successfulParseResults = allParseResults
-                                         .Where(parseResult => parseResult.IsSuccessful)
+                                         .OfType<SuccessfulArgumentParseResult>()
                                          .ToArray();
 
             if (successfulParseResults.Length == arguments.Count)
@@ -102,10 +102,7 @@ namespace System.CommandLine
 
                 foreach (var parseResult in successfulParseResults)
                 {
-                    if (parseResult.IsSuccessful)
-                    {
-                        list.Add(((dynamic)parseResult).Value);
-                    }
+                    list.Add(((dynamic)parseResult).Value);
                 }
 
                 var value = type.IsArray

@@ -5,7 +5,7 @@ namespace System.CommandLine
 {
     public class SuccessfulArgumentParseResult<T> : SuccessfulArgumentParseResult
     {
-        public SuccessfulArgumentParseResult(T value = default(T))
+        public SuccessfulArgumentParseResult(T value)
         {
             Value = value;
         }

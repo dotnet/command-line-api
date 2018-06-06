@@ -58,7 +58,8 @@ namespace System.CommandLine
                         return default(T);
                 }
 
-                if (result.IsSuccessful)
+                if (result is SuccessfulArgumentParseResult success &&
+                    success.HasValue)
                 {
                     value = ((dynamic)result).Value;
                 }

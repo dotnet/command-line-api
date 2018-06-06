@@ -9,8 +9,6 @@ namespace System.CommandLine
         {
         }
 
-        public override bool IsSuccessful => true;
-
         internal virtual bool HasValue => false;
 
         internal static ArgumentParseResult Empty { get; } = new SuccessfulArgumentParseResult();

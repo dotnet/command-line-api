@@ -104,10 +104,10 @@ namespace System.CommandLine
             else
             {
                 var result = symbol.Result;
-                if (result.IsSuccessful)
+                if (result is SuccessfulArgumentParseResult _)
                 {
                     var value = symbol.GetValueOrDefault();
-
+                    
                     switch (value)
                     {
                         case null:
