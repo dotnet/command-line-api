@@ -276,20 +276,5 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle("Unrecognized command or argument '456'");
         }
-
-        [Theory]
-        [InlineData(":")]
-        [InlineData("=")]
-        public void When_an_option_contains_a_delimiter_then_an_informative_error_is_returned(string delimiter)
-        {
-            Action create = () => new Parser(
-               new OptionDefinition(
-                   $"-x{delimiter}",
-                   "",
-               new ArgumentDefinitionBuilder().ExactlyOne()));
-
-            create.Should().Throw<ArgumentException>().Which.Message.Should()
-                    .Be($"Symbol cannot contain delimiter: {delimiter}");
-        }
     }
 }

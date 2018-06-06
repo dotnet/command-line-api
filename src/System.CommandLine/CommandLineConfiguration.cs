@@ -28,7 +28,7 @@ namespace System.CommandLine
                 throw new ArgumentException("You must specify at least one option.");
             }
 
-            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
+            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=', ' ' };
 
             foreach (var definition in symbolDefinitions)
             {
@@ -38,7 +38,7 @@ namespace System.CommandLine
                     {
                         if (alias.Contains(delimiter))
                         {
-                            throw new ArgumentException($"Symbol cannot contain delimiter: {delimiter}");
+                            throw new ArgumentException($"Symbol cannot contain delimiter: \"{delimiter}\"");
                         }
                     }
                 }

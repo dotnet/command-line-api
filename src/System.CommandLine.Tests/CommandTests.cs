@@ -112,6 +112,29 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
         }
+             
+        [Theory]
+        [InlineData(":", "aa{0}")]
+        [InlineData("=", "aa{0}")]
+        [InlineData(" ", "aa{0}")]
+        [InlineData(":", "{0}aa")]
+        [InlineData("=", "{0}aa")]
+        [InlineData(" ", "{0}aa")]
+        [InlineData(":", "aa{0}aa")]
+        [InlineData("=", "aa{0}aa")]
+        [InlineData(" ", "aa{0}aa")]
+        public void When_a_command_name_contains_a_delimiter_then_an_informative_error_is_returned(
+            string delimiter, 
+            string template)
+        {
+            Action create = () => new Parser(
+                new CommandDefinition(
+                    string.Format(template, delimiter), "",
+                    new ArgumentDefinitionBuilder().ExactlyOne()));
+
+            create.Should().Throw<ArgumentException>().Which.Message.Should()
+                  .Be($"Symbol cannot contain delimiter: \"{delimiter}\"");
+        }
 
         [Theory]
         [InlineData("outer", "outer")]
