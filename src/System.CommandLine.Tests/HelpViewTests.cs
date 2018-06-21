@@ -190,12 +190,9 @@ namespace System.CommandLine.Tests
                                           "some option"))))
                           .BuildCommandDefinition();
 
-            command.Subcommand("outer")
-                   .Subcommand("inner")
-                   .Subcommand("inner-er")
-                   .HelpView()
-                   .Should()
-                   .StartWith($"Usage: {CommandLineBuilder.ExeName} outer inner inner-er [options]");
+            var help = command.Subcommand("outer").Subcommand("inner").Subcommand("inner-er").GenerateHelp();
+
+            help.Should().StartWith($"Usage: {CommandLineBuilder.ExeName} outer inner inner-er [options]");
         }
 
         [Fact]
@@ -232,8 +229,6 @@ namespace System.CommandLine.Tests
 
             var help = command.Subcommand("outer").GenerateHelp();
 
-            _output.WriteLine(help);
-
             help.Should().NotContain("Options:");
         }
 
@@ -256,10 +251,7 @@ namespace System.CommandLine.Tests
 
             var help = command.Subcommand("the-command").GenerateHelp();
 
-            help
-                .Should()
-                .StartWith(
-                    $"Usage: { CommandLineBuilder.ExeName } the-command [options] <the-args>");
+            help.Should().StartWith($"Usage: { CommandLineBuilder.ExeName } the-command [options] <the-args>");
         }
 
         [Fact]
@@ -283,10 +275,7 @@ namespace System.CommandLine.Tests
 
             var help = command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp();
 
-            help
-                .Should()
-                .StartWith(
-                    $"Usage: { CommandLineBuilder.ExeName } outer-command <outer-args> inner-command [options] <inner-args>");
+            help.Should().StartWith($"Usage: { CommandLineBuilder.ExeName } outer-command <outer-args> inner-command [options] <inner-args>");
         }
 
         [Fact]
@@ -320,8 +309,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(help);
 
-            help.Should().StartWith(
-                $"Usage: { CommandLineBuilder.ExeName } some-command [options] [[--] <additional arguments>...]]");
+            help.Should().StartWith($"Usage: { CommandLineBuilder.ExeName } some-command [options] [[--] <additional arguments>...]]");
         }
 
         #endregion " Synopsis "
@@ -373,8 +361,6 @@ namespace System.CommandLine.Tests
 
             var help = command.Subcommand("the-command").GenerateHelp();
 
-            _output.WriteLine(help);
-
             help.Should().Contain($"Arguments:{NewLine}{_indentation}<the-arg>{_columnPadding}This is the argument for the command.");
         }
 
@@ -393,6 +379,7 @@ namespace System.CommandLine.Tests
                           .BuildCommandDefinition();
 
             var help = command.Subcommand("command").GenerateHelp();
+
             help.Should().Contain("-multi");
             help.Should().NotContain("--multi");
         }
