@@ -8,25 +8,22 @@ namespace System.CommandLine
         private readonly HelpBuilder _builder;
         private readonly string _title;
         private readonly string _description;
-        private IReadOnlyCollection<SymbolDefinition> _items;
-        private readonly Func<SymbolDefinition, Tuple<string, string>> _formatter;
+        private IReadOnlyCollection<SymbolDefinition> _usageItems;
+        private readonly Func<SymbolDefinition, HelpItem> _formatter;
 
         public HelpSection(
             HelpBuilder builder,
             string title,
-            IReadOnlyCollection<SymbolDefinition> items,
-            Func<SymbolDefinition, Tuple<string, string>> formatter)
+            IReadOnlyCollection<SymbolDefinition> usageItems,
+            Func<SymbolDefinition, HelpItem> formatter)
         {
             _builder = builder;
             _title = title;
-            _items = items;
+            _usageItems = usageItems;
             _formatter = formatter;
         }
 
-        public HelpSection(
-            HelpBuilder builder,
-            string title,
-            string description)
+        public HelpSection(HelpBuilder builder, string title, string description)
         {
             _builder = builder;
             _title = title;
@@ -40,13 +37,11 @@ namespace System.CommandLine
                 return;
             }
 
-            _builder.AddBlankLine();
             AddHeading();
             _builder.Indent();
             AddDescription();
-            AddItems();
+            AddUsage();
             _builder.Outdent();
-            _builder.AddBlankLine();
         }
 
         protected virtual bool ShouldBuild()
@@ -56,7 +51,7 @@ namespace System.CommandLine
                 return true;
             }
 
-            return _items?.Any() == true;
+            return _usageItems?.Any() == true;
         }
 
         protected virtual void AddHeading()
@@ -66,7 +61,8 @@ namespace System.CommandLine
                 return;
             }
 
-            _builder.AddLine(_title);
+            _builder.AddHeading(_title);
+            _builder.AddBlankLine();
         }
 
         protected virtual void AddDescription()
@@ -77,27 +73,30 @@ namespace System.CommandLine
             }
 
             _builder.AddLine(_description);
+            _builder.AddBlankLine();
         }
 
-        protected virtual void AddItems()
+        protected virtual void AddUsage()
         {
-            if (_items?.Any() != true)
+            if (_usageItems?.Any() != true)
             {
                 return;
             }
 
-            var helpLines = _items
+            var helpItems = _usageItems
                 .Select(item => _formatter(item));
 
-            var maxWidth = helpLines
-                .Select(line => line.Item1.Length)
+            var maxWidth = helpItems
+                .Select(line => line.Usage.Length)
                 .OrderByDescending(textLength => textLength)
                 .First();
 
-            foreach (var line in helpLines)
+            foreach (var helpItem in helpItems)
             {
-                _builder.AddSectionColumns(line.Item1, line.Item2, maxWidth);
+                _builder.AddHelpItem(helpItem, maxWidth);
             }
+
+            _builder.AddBlankLine();
         }
     }
 }
