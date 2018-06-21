@@ -28,7 +28,10 @@ namespace System.CommandLine
         /// <param name="columnGutter"></param>
         /// <param name="indentationSize"></param>
         /// <param name="maxWidth"></param>
-        public HelpBuilder(int? columnGutter = null, int? indentationSize = null, int? maxWidth = null)
+        public HelpBuilder(
+            int? columnGutter = null,
+            int? indentationSize = null,
+            int? maxWidth = null)
         {
             ColumnGutter = columnGutter ?? DefaultColumnGutter;
             IndentationSize = indentationSize ?? DefaultIndentationSize;

@@ -24,6 +24,8 @@ namespace System.CommandLine.DragonFruit
             set => Console.ForegroundColor = value;
         }
 
+        public int WindowWidth => Console.WindowWidth;
+
         public void ResetColor() => Console.ResetColor();
     }
 }

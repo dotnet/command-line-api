@@ -19,6 +19,8 @@ namespace System.CommandLine.Tests
 
         public ConsoleColor ForegroundColor { get; set; }
 
+        public int WindowWidth { get; set; }
+
         public void ResetColor()
         {
         }

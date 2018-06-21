@@ -8,7 +8,7 @@ namespace System.CommandLine
         private readonly HelpBuilder _builder;
         private readonly string _title;
         private readonly string _description;
-        private IReadOnlyCollection<SymbolDefinition> _usageItems;
+        private readonly IReadOnlyCollection<SymbolDefinition> _usageItems;
         private readonly Func<SymbolDefinition, HelpItem> _formatter;
 
         public HelpSection(
@@ -30,7 +30,7 @@ namespace System.CommandLine
             _description = description;
         }
 
-        internal virtual void Build()
+        public void Build()
         {
             if (!ShouldBuild())
             {

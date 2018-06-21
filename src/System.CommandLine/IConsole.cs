@@ -13,6 +13,8 @@ namespace System.CommandLine
 
         ConsoleColor ForegroundColor { get; set; }
 
+        int WindowWidth { get; }
+
         void ResetColor();
     }
 }
