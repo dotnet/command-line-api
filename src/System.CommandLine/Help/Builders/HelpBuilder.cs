@@ -130,7 +130,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="helpItem"></param>
         /// <param name="maxLeftColumnWidth"></param>
-        public virtual void AddHelpItem(HelpItem helpItem, int maxLeftColumnWidth)
+        public void AddHelpItem(HelpItem helpItem, int maxLeftColumnWidth)
         {
             if (helpItem == null)
             {
@@ -141,23 +141,36 @@ namespace System.CommandLine
             var offset = maxLeftColumnWidth + ColumnGutter - helpItem.Usage.Length;
 
             var maxRightColumnWidth = availableWidth - maxLeftColumnWidth - ColumnGutter;
-            var rightColumnLines = SplitText(helpItem.Description, maxRightColumnWidth);
+            var descriptionLines = SplitText(helpItem.Description, maxRightColumnWidth);
+            var lineCount = descriptionLines.Count;
 
             _helpText.AppendFormat(
                 "{0}{1}{2}{3}{4}",
                 GetPadding(CurrentIndentation),
                 helpItem.Usage,
                 GetPadding(offset),
-                rightColumnLines.First(),
+                descriptionLines.First(),
                 NewLine);
 
+            if (lineCount == 1)
+            {
+                return;
+            }
+
             offset = CurrentIndentation + maxLeftColumnWidth + ColumnGutter;
-            foreach (var line in rightColumnLines.Skip(1))
+            var paddedOffset = GetPadding(offset);
+
+            for (var i = 1; i < lineCount; i++)
             {
                 _helpText.AppendFormat(
                     "{0}{1}",
-                    GetPadding(offset),
-                    line);
+                    paddedOffset,
+                    descriptionLines.ElementAt(i));
+
+                if (i < lineCount - 1)
+                {
+                    _helpText.AppendLine();
+                }
             }
         }
 
@@ -183,7 +196,7 @@ namespace System.CommandLine
             var builder = new StringBuilder();
             var index = 0;
 
-            foreach (var item in cleanText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var item in cleanText.Split(new char[0], StringSplitOptions.RemoveEmptyEntries))
             {
                 var length = item.Length + builder.Length;
 

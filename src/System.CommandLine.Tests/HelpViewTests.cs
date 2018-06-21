@@ -137,8 +137,6 @@ namespace System.CommandLine.Tests
 
             var help = command.Subcommand("outer").Subcommand("inner").GenerateHelp();
 
-            _output.WriteLine(help);
-
             var lines = help.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             var optionA = lines.Last(line => line.Contains("outer-command-arg"));
@@ -306,8 +304,6 @@ namespace System.CommandLine.Tests
                     .BuildCommandDefinition();
 
             var help = command.Subcommand("some-command").GenerateHelp();
-
-            _output.WriteLine(help);
 
             help.Should().StartWith($"Usage: { CommandLineBuilder.ExeName } some-command [options] [[--] <additional arguments>...]]");
         }
