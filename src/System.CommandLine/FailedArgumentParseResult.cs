@@ -17,7 +17,5 @@ namespace System.CommandLine
         }
 
         public string ErrorMessage { get; }
-
-        public override bool IsSuccessful { get; } = false;
     }
 }

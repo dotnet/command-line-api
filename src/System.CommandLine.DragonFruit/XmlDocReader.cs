@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace System.CommandLine.DragonFruit
 {
-    internal class XmlDocReader
+    public class XmlDocReader
     {
         private readonly IEnumerable<XElement> _members;
 
@@ -94,7 +94,7 @@ namespace System.CommandLine.DragonFruit
                         commandHelpMetadata.Description = element.Value?.Trim();
                         break;
                     case "param":
-                        commandHelpMetadata.AddParameter(element.Attribute("name")?.Value, element.Value?.Trim());
+                        commandHelpMetadata.ParameterDescriptions.Add(element.Attribute("name")?.Value, element.Value?.Trim());
                         break;
                 }
             }

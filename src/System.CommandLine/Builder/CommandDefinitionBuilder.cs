@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine.Builder
@@ -15,17 +16,19 @@ namespace System.CommandLine.Builder
             Name = name;
         }
 
-        protected internal List<OptionDefinitionBuilder> OptionDefinitionBuilders { get; } = new List<OptionDefinitionBuilder>();
+        public OptionDefinitionBuilderSet Options { get; } = new OptionDefinitionBuilderSet();
 
-        protected internal List<CommandDefinitionBuilder> CommandDefinitionBuilders { get; } = new List<CommandDefinitionBuilder>();
+        public CommandDefinitionBuilderSet Commands { get; } = new CommandDefinitionBuilderSet();
 
         public bool? TreatUnmatchedTokensAsErrors { get; set; }
+
+        internal MethodBinder ExecutionHandler { get; set; }
 
         public string Name { get; }
 
         public IHelpBuilder HelpBuilder { get; set; }
 
-        public virtual CommandDefinition BuildCommandDefinition()
+        public CommandDefinition BuildCommandDefinition()
         {
             return new CommandDefinition(
                 Name,
@@ -35,21 +38,24 @@ namespace System.CommandLine.Builder
                 treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
                                               Parent?.TreatUnmatchedTokensAsErrors ??
                                               true,
+                executionHandler: ExecutionHandler,
                 helpBuilder: HelpBuilder);
         }
 
         protected IReadOnlyCollection<SymbolDefinition> BuildChildSymbolDefinitions()
         {
-            var subcommands = CommandDefinitionBuilders
+            var subcommands = Commands
                 .Select(b => {
                     b.TreatUnmatchedTokensAsErrors = TreatUnmatchedTokensAsErrors;
                     return b.BuildCommandDefinition();
                 });
 
-            var options = OptionDefinitionBuilders
+            var options = Options
                 .Select(b => b.BuildOptionDefinition());
 
             return subcommands.Concat<SymbolDefinition>(options).ToArray();
         }
     }
+
+
 }

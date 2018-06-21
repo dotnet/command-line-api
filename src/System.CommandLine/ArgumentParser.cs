@@ -2,38 +2,44 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq;
-using static System.CommandLine.ArgumentArity;
 
 namespace System.CommandLine
 {
     internal class ArgumentParser
     {
         public ArgumentParser(
-            ArgumentArity argumentArity,
+            ArgumentArityValidator arityValidator,
             ConvertArgument convert = null)
         {
-            ArgumentArity = argumentArity;
+            ArityValidator = arityValidator ?? throw new ArgumentNullException(nameof(arityValidator));
             ConvertArguments = convert;
         }
 
-        public ArgumentArity ArgumentArity { get; }
+        public ArgumentArityValidator ArityValidator { get; }
 
         internal ConvertArgument ConvertArguments { get; }
 
         public ArgumentParseResult Parse(Symbol symbol)
         {
+            var error = ArityValidator.Validate(symbol);
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                return new FailedArgumentArityResult(error);
+            }
+
             if (ConvertArguments != null)
             {
                 return ConvertArguments(symbol);
             }
 
-            switch (ArgumentArity)
+            switch (ArityValidator.MaximumNumberOfArguments)
             {
-                case Zero:
-                    return ArgumentParseResult.Success((string) null);
-                case One:
+                case 0:
+                    return ArgumentParseResult.Success((string)null);
+
+                case 1:
                     return ArgumentParseResult.Success(symbol.Arguments.SingleOrDefault());
-                case Many:
+
                 default:
                     return ArgumentParseResult.Success(symbol.Arguments);
             }

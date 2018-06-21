@@ -2,26 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Text;
 
 namespace System.CommandLine
 {
     public static class SymbolExtensions
     {
-        internal static IEnumerable<Symbol> FlattenBreadthFirst(
-            this IEnumerable<Symbol> options)
-        {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            foreach (var item in options.FlattenBreadthFirst(o => o.Children))
-            {
-                yield return item;
-            }
-        }
-
         public static object GetValueOrDefault(this Symbol symbol)
         {
             return symbol.GetValueOrDefault<object>();
@@ -36,14 +21,18 @@ namespace System.CommandLine
 
             ArgumentParseResult result = symbol.Result;
 
-            if (result != null &&
-                result.IsSuccessful)
+            if (result is SuccessfulArgumentParseResult successfulResult)
             {
+                if (!successfulResult.HasValue)
+                {
+                    return default(T);
+                }
+
                 object value = ((dynamic)symbol.Result).Value;
 
                 switch (value)
                 {
-                    // the parser configuration specifies a type conversion
+                    // the configuration specifies a type conversion
                     case T alreadyConverted:
                         return alreadyConverted;
 
@@ -66,10 +55,11 @@ namespace System.CommandLine
                             return (dynamic)true;
                         }
 
-                        break;
+                        return default(T);
                 }
 
-                if (result.IsSuccessful)
+                if (result is SuccessfulArgumentParseResult success &&
+                    success.HasValue)
                 {
                     value = ((dynamic)result).Value;
                 }
@@ -85,7 +75,7 @@ namespace System.CommandLine
                 throw new InvalidOperationException(failed.ErrorMessage);
             }
 
-            throw new InvalidOperationException(symbol.ValidationMessages.RequiredArgumentMissingForOption(symbol.Token));
+            throw new InvalidOperationException(symbol.ValidationMessages.RequiredArgumentMissing(symbol));
         }
 
         internal static IEnumerable<Symbol> AllSymbols(
@@ -102,15 +92,6 @@ namespace System.CommandLine
             {
                 yield return item;
             }
-        }
-
-        public static string Diagram(this Symbol symbol)
-        {
-            var stringbuilder = new StringBuilder();
-
-            stringbuilder.Diagram(symbol);
-
-            return stringbuilder.ToString();
         }
     }
 }

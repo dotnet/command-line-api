@@ -43,23 +43,23 @@ namespace System.CommandLine
 
         internal ArgumentParser Parser { get; }
 
-        public static ArgumentDefinition None { get; } = new ArgumentDefinition(
+        internal static ArgumentDefinition None { get; } = new ArgumentDefinition(
             new ArgumentParser(
-                ArgumentArity.Zero,
+                System.CommandLine.ArgumentArity.Zero,
                 symbol =>
                 {
                     if (symbol.Arguments.Any())
                     {
-                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString()));
+                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol));
                     }
 
-                    return ArgumentParseResult.Success(true);
+                    return SuccessfulArgumentParseResult.Empty;
                 }),
             symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
 
         public ISuggestionSource SuggestionSource { get; }
 
-        public ArgumentArity ArgumentArity => Parser.ArgumentArity;
+        public ArgumentArityValidator ArgumentArity => Parser.ArityValidator;
 
         private static string AcceptNoArguments(Symbol symbol)
         {
@@ -68,7 +68,7 @@ namespace System.CommandLine
                 return null;
             }
 
-            return symbol.ValidationMessages.NoArgumentsAllowed(symbol.SymbolDefinition.ToString());
+            return symbol.ValidationMessages.NoArgumentsAllowed(symbol);
         }
     }
 }

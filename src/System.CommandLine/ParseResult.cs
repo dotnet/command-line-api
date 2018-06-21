@@ -8,41 +8,37 @@ namespace System.CommandLine
 {
     public class ParseResult
     {
-        private readonly ParserConfiguration configuration;
-        private readonly List<ParseError> errors = new List<ParseError>();
-        private CommandDefinition _commandDefinition;
+        private readonly List<ParseError> _errors = new List<ParseError>();
 
         internal ParseResult(
+            Command rootCommand,
+            Command command,
             IReadOnlyCollection<string> tokens,
-            SymbolSet symbols,
-            ParserConfiguration configuration,
-            IReadOnlyCollection<string> unparsedTokens = null,
-            IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<ParseError> errors = null,
-            string rawInput = null)
+            IReadOnlyCollection<string> unparsedTokens,
+            IReadOnlyCollection<string> unmatchedTokens,
+            IReadOnlyCollection<ParseError> errors,
+            string rawInput)
         {
-            Tokens = tokens ??
-                     throw new ArgumentNullException(nameof(tokens));
-            Symbols = symbols ??
-                      throw new ArgumentNullException(nameof(symbols));
-            this.configuration = configuration ??
-                                 throw new ArgumentNullException(nameof(configuration));
-
+            RootCommand = rootCommand;
+            Command = command;
+            Tokens = tokens;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
             RawInput = rawInput;
 
             if (errors != null)
             {
-                this.errors.AddRange(errors);
+                _errors.AddRange(errors);
             }
 
-            CheckForErrors();
+            AddImplicitOptionsAndCheckForErrors();
         }
 
-        public SymbolSet Symbols { get; }
+        public Command Command { get; }
 
-        public IReadOnlyCollection<ParseError> Errors => errors;
+        public Command RootCommand { get; }
+
+        public IReadOnlyCollection<ParseError> Errors => _errors;
 
         public IReadOnlyCollection<string> Tokens { get; }
 
@@ -52,37 +48,52 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public CommandDefinition CommandDefinition()
+        private void AddImplicitOptionsAndCheckForErrors()
         {
-            if (_commandDefinition == null)
+            foreach (var symbol in RootCommand.AllSymbols().ToArray())
             {
-                return _commandDefinition = Symbols.CommandDefinition();
-            }
+                if (symbol is Command command)
+                {
+                    foreach (var definition in command.Definition.SymbolDefinitions)
+                    {
+                        if (definition.ArgumentDefinition.HasDefaultValue &&
+                            command.Children[definition.Name] == null)
+                        {
+                            switch (definition)
+                            {
+                                case OptionDefinition optionDefinition:
+                                    command.AddImplicitOption(optionDefinition);
+                                    break;
+                            }
+                        }
+                    }
 
-            return _commandDefinition;
-        }
+                    if (command.Definition.ArgumentDefinition.HasDefaultValue &&
+                        command.Arguments.Count == 0)
+                    {
+                        switch (command.Definition.ArgumentDefinition.GetDefaultValue())
+                        {
+                            case string arg:
+                                command.TryTakeToken(new Token(arg, TokenType.Argument));
+                                break;
+                        }
+                    }
+                }
 
-        private void CheckForErrors()
-        {
-            foreach (var option in Symbols.FlattenBreadthFirst())
-            {
-                var error = option.Validate();
+                var error = symbol.Validate();
 
                 if (error != null)
                 {
-                    errors.Add(error);
+                    _errors.Add(error);
                 }
             }
 
-            var commandDefinition = CommandDefinition();
-
-            if (commandDefinition != null &&
-                commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
+            if (Command.Definition?.SymbolDefinitions.OfType<CommandDefinition>().Any() == true)
             {
-                var symbol = this.Command();
-                errors.Insert(0, new ParseError(
-                                  symbol.ValidationMessages.RequiredCommandWasNotProvided(),
-                                  symbol));
+                _errors.Insert(0,
+                               new ParseError(
+                                   Command.ValidationMessages.RequiredCommandWasNotProvided(),
+                                   Command));
             }
         }
 
@@ -101,6 +112,8 @@ namespace System.CommandLine
             return this[alias].GetValueOrDefault<T>();
         }
 
-        public Symbol this[string alias] => this.Command().Children[alias];
+        public Symbol this[string alias] => Command.Children[alias];
+
+        public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
     }
 }

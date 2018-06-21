@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
@@ -39,12 +39,9 @@ namespace System.CommandLine.DragonFruit.Tests
             XmlDocReader.TryLoad(reader, out var docReader).Should().BeTrue();
             docReader.TryGetMethodDescription(action.Method, out var helpMetadata).Should().BeTrue();
             helpMetadata.Description.Should().Be("Hello");
-            helpMetadata.TryGetParameterDescription("verbose", out var verboseDesc).Should().BeTrue();
-            verboseDesc.Should().Be("Show verbose output");
-            helpMetadata.TryGetParameterDescription("flavor", out var flavorDesc).Should().BeTrue();
-            flavorDesc.Should().Be("Which flavor to use");
-            helpMetadata.TryGetParameterDescription("count", out var countDesc).Should().BeTrue();
-            countDesc.Should().Be("How many smoothies?");
+            helpMetadata.ParameterDescriptions["verbose"].Should().Be("Show verbose output");
+            helpMetadata.ParameterDescriptions["flavor"].Should().Be("Which flavor to use");
+            helpMetadata.ParameterDescriptions["count"].Should().Be("How many smoothies?");
         }
     }
 }

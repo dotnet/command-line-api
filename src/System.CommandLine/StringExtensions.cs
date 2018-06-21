@@ -5,17 +5,23 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace System.CommandLine
 {
     public static class StringExtensions
     {
-        private static readonly char[] _optionPrefixCharacters = { '-' };
+        private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
 
         private static readonly Regex _tokenizer = new Regex(
-            @"(""(?<token>[^""]*)"")|(?<token>\S+)",
-            RegexOptions.Compiled | RegexOptions.ExplicitCapture
+            @"((?<opt>[^""\s]+)""(?<arg>[^""]+)"") # token + quoted argument with non-space argument delimiter, ex: --opt:""c:\path with\spaces""
+              |                                
+              (""(?<token>[^""]*)"")               # tokens surrounded by spaces, ex: ""c:\path with\spaces""
+              |
+              (?<token>\S+)                        # tokens containing no quotes or spaces
+              ",                   
+            RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace
         );
 
         internal static bool ContainsCaseInsensitive(
@@ -27,17 +33,27 @@ namespace System.CommandLine
                                 value ?? "",
                                 CompareOptions.OrdinalIgnoreCase) >= 0;
 
-        internal static string RemovePrefix(this string option) => option.TrimStart(_optionPrefixCharacters);
+        internal static string RemovePrefix(this string option)
+        {
+            foreach (var prefix in _optionPrefixStrings)
+            {
+                if (option.StartsWith(prefix))
+                {
+                    return option.Substring(prefix.Length);
+                }
+            }
+            return option;
+        }
 
         internal static LexResult Lex(
             this IEnumerable<string> args,
-            ParserConfiguration configuration)
+            CommandLineConfiguration configuration)
         {
             var tokenList = new List<Token>();
             var errorList = new List<ParseError>();
 
             SymbolDefinition currentSymbol = null;
-            bool foundEndOfArguments = false;
+            var foundEndOfArguments = false;
             var argList = args.ToList();
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
@@ -60,7 +76,9 @@ namespace System.CommandLine
                     foundEndOfArguments = true;
                     continue;
                 }
-                else if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled && arg.StartsWith("@"))
+
+                if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
+                    arg.StartsWith("@"))
                 {
                     var filePath = arg.Substring(1);
                     if (!string.IsNullOrWhiteSpace(filePath))
@@ -68,7 +86,9 @@ namespace System.CommandLine
                         try
                         {
                             var next = i + 1;
-                            foreach (var newArg in ParseResponseFile(filePath, configuration.ResponseFileHandling))
+                            foreach (var newArg in ParseResponseFile(
+                                filePath,
+                                configuration.ResponseFileHandling))
                             {
                                 argList.Insert(next, newArg);
                                 next += 1;
@@ -77,15 +97,15 @@ namespace System.CommandLine
                         catch (FileNotFoundException)
                         {
                             errorList.Add(new ParseError(configuration.ValidationMessages.ResponseFileNotFound(filePath),
-                                null,
-                                false));
+                                                         null,
+                                                         false));
                         }
                         catch (IOException e)
                         {
                             errorList.Add(new ParseError(
-                                configuration.ValidationMessages.ErrorReadingResponseFile(filePath, e),
-                                null,
-                                false));
+                                              configuration.ValidationMessages.ErrorReadingResponseFile(filePath, e),
+                                              null,
+                                              false));
                         }
 
                         continue;
@@ -94,17 +114,19 @@ namespace System.CommandLine
 
                 var argHasPrefix = HasPrefix(arg);
 
-                if (argHasPrefix && HasDelimiter(arg))
+                if (argHasPrefix &&
+                    SplitTokenByArgumentDelimiter(arg, argumentDelimiters) is string[] subtokens &&
+                    subtokens.Length > 1)
                 {
-                    var parts = arg.Split(argumentDelimiters, 2);
-
-                    if (knownTokens.Any(t => t.Value == parts.First()))
+                    if (knownTokens.Any(t => t.Value == subtokens.First()))
                     {
-                        tokenList.Add(Option(parts[0]));
+                        tokenList.Add(Option(subtokens[0]));
 
-                        if (parts.Length > 1)
+                        if (subtokens.Length > 1)
                         {
-                            tokenList.Add(Argument(parts[1]));
+                            // trim outer quotes in case of, e.g., -x="why"
+                            var secondPartWithOuterQuotesRemoved = subtokens[1].Trim('"');
+                            tokenList.Add(Argument(secondPartWithOuterQuotesRemoved));
                         }
                     }
                     else
@@ -149,6 +171,59 @@ namespace System.CommandLine
             };
         }
 
+        internal static string[] SplitTokenByArgumentDelimiter(string arg, char[] argumentDelimiters) => arg.Split(argumentDelimiters, 2);
+
+        public static string ToKebabCase(this string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            var sb = new StringBuilder();
+            int i = 0;
+            bool addDash = false;
+
+            for (; i < value.Length; i++)
+            {
+                char ch = value[i];
+                if (char.IsLetterOrDigit(ch))
+                {
+                    addDash = !char.IsUpper(ch);
+                    sb.Append(char.ToLowerInvariant(ch));
+                    i++;
+                    break;
+                }
+            }
+
+            for (; i < value.Length; i++)
+            {
+                char ch = value[i];
+                if (char.IsUpper(ch))
+                {
+                    if (addDash)
+                    {
+                        addDash = false;
+                        sb.Append('-');
+                    }
+
+                    sb.Append(char.ToLowerInvariant(ch));
+                }
+                else if (char.IsLetterOrDigit(ch))
+                {
+                    addDash = true;
+                    sb.Append(ch);
+                }
+                else
+                {
+                    addDash = false;
+                    sb.Append('-');
+                }
+            }
+
+            return sb.ToString();
+        }
+
         private static Token Argument(string value) => new Token(value, TokenType.Argument);
 
         private static Token Command(string value) => new Token(value, TokenType.Command);
@@ -161,36 +236,46 @@ namespace System.CommandLine
 
         private static bool CanBeUnbundled(
             this string arg,
-            IReadOnlyCollection<Token> knownTokens) =>
-            arg.StartsWith("-") &&
-            !arg.StartsWith("--") &&
-            arg.RemovePrefix()
-               .All(c => knownTokens
-                        .Where(t => t.Type == TokenType.Option)
-                        .Select(t => t.Value.RemovePrefix())
-                        .Contains(c.ToString()));
-
-        private static bool HasDelimiter(string arg) =>
-            arg.Contains("=") ||
-            arg.Contains(":");
-
-        private static bool HasPrefix(string arg) =>
-            arg != string.Empty && _optionPrefixCharacters.Contains(arg[0]);
-
-        public static IEnumerable<string> Tokenize(this string s)
+            IReadOnlyCollection<Token> knownTokens)
         {
-            var matches = _tokenizer.Matches(s);
+            return arg.StartsWith("-") &&
+                   !arg.StartsWith("--") &&
+                   arg.RemovePrefix()
+                      .All(CharacterIsValidOptionAlias);
+
+            bool CharacterIsValidOptionAlias(char c) =>
+                knownTokens.Where(t => t.Type == TokenType.Option)
+                           .Select(t => t.Value.RemovePrefix())
+                           .Contains(c.ToString());
+        }
+
+        private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
+
+        public static IEnumerable<string> Tokenize(this string commandLine)
+        {
+            var matches = _tokenizer.Matches(commandLine);
 
             foreach (Match match in matches)
             {
-                foreach (var capture in match.Groups["token"].Captures)
+                if (match.Groups["arg"].Captures.Count > 0)
                 {
-                    yield return capture.ToString();
+                    var opt = match.Groups["opt"];
+                    var arg = match.Groups["arg"];
+                    yield return $"{opt}{arg}";
+                }
+                else
+                {
+                    foreach (var capture in match.Groups["token"].Captures)
+                    {
+                        yield return capture.ToString();
+                    }
                 }
             }
         }
 
-        private static IEnumerable<string> ParseResponseFile(string filePath, ResponseFileHandling responseFileHandling)
+        private static IEnumerable<string> ParseResponseFile(
+            string filePath,
+            ResponseFileHandling responseFileHandling)
         {
             foreach (var line in File.ReadAllLines(filePath))
             {
@@ -211,9 +296,9 @@ namespace System.CommandLine
                         {
                             yield return word;
                         }
+
                         break;
                 }
-
             }
         }
 
@@ -222,15 +307,15 @@ namespace System.CommandLine
         private static HashSet<Token> ValidTokens(this SymbolDefinition symbolDefinition) =>
             new HashSet<Token>(
                 symbolDefinition.RawAliases
-                    .Select(Command)
-                    .Concat(
-                        symbolDefinition.SymbolDefinitions
-                        .SelectMany(
-                            s => s.RawAliases
-                                .Select(a => new Token(
-                                    a,
-                                    s is CommandDefinition
-                                        ? TokenType.Command
-                                        : TokenType.Option)))));
+                      .Select(Command)
+                      .Concat(
+                          symbolDefinition.SymbolDefinitions
+                                .SelectMany(
+                                    s => s.RawAliases
+                                         .Select(a => new Token(
+                                                     a,
+                                                     s is CommandDefinition
+                                                         ? TokenType.Command
+                                                         : TokenType.Option)))));
     }
 }

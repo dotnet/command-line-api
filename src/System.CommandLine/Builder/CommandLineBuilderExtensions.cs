@@ -1,9 +1,13 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.CommandLine.Invocation;
+using System.Reflection;
+
 namespace System.CommandLine.Builder
 {
-    public static class ParserBuilderExtensions
+    public static class CommandLineBuilderExtensions
     {
         public static TBuilder AddCommand<TBuilder>(
             this TBuilder builder,
@@ -21,7 +25,58 @@ namespace System.CommandLine.Builder
 
             arguments?.Invoke(commandDefinitionBuilder.Arguments);
 
-            builder.CommandDefinitionBuilders.Add(commandDefinitionBuilder);
+            builder.Commands.Add(commandDefinitionBuilder);
+
+            return builder;
+        }
+
+        public static TBuilder ConfigureFromMethod<TBuilder>(
+            this TBuilder builder,
+            MethodInfo method,
+            object target = null)
+            where TBuilder : CommandDefinitionBuilder
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
+            foreach (var parameter in method.GetParameters())
+            {
+                builder.AddOptionFromParameter(parameter);
+            }
+
+            builder.OnExecute(method, target);
+
+            return builder;
+        }
+
+        public static TBuilder AddOptionFromParameter<TBuilder>(
+            this TBuilder builder,
+            ParameterInfo parameter)
+            where TBuilder : CommandDefinitionBuilder
+        {
+            string paramName = parameter.Name.ToKebabCase();
+
+            builder.AddOption(
+                new[] {
+                    "-" + paramName[0],
+                    "--" + paramName,
+                },
+                parameter.Name,
+                args => {
+                    args.ParseArgumentsAs(parameter.ParameterType);
+
+                    if (parameter.HasDefaultValue)
+                    {
+                        args.WithDefaultValue(() => parameter.DefaultValue);
+                    }
+                });
 
             return builder;
         }
@@ -39,7 +94,7 @@ namespace System.CommandLine.Builder
 
             arguments?.Invoke(optionDefinitionBuilder.Arguments);
 
-            builder.OptionDefinitionBuilders.Add(optionDefinitionBuilder);
+            builder.Options.Add(optionDefinitionBuilder);
 
             return builder;
         }
@@ -54,21 +109,22 @@ namespace System.CommandLine.Builder
             return builder.AddOption(new[] { name }, description, arguments);
         }
 
-        public static ParserBuilder EnablePosixBundling(
-            this ParserBuilder builder,
+        public static CommandLineBuilder EnablePosixBundling(
+            this CommandLineBuilder builder,
             bool value = true)
         {
             builder.EnablePosixBundling = value;
             return builder;
         }
 
-        public static ParserBuilder TreatUnmatchedTokensAsErrors(
-            this ParserBuilder builder,
+        public static CommandLineBuilder TreatUnmatchedTokensAsErrors(
+            this CommandLineBuilder builder,
             bool value = true)
         {
             builder.TreatUnmatchedTokensAsErrors = value;
             return builder;
         }
+
         public static TBuilder AddArguments<TBuilder>(
             this TBuilder builder,
             Action<ArgumentDefinitionBuilder> action)
@@ -78,11 +134,18 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static ParserBuilder ParseResponseFileAs(
-            this ParserBuilder builder,
+        public static CommandLineBuilder ParseResponseFileAs(
+            this CommandLineBuilder builder,
             ResponseFileHandling responseFileHandling)
         {
             builder.ResponseFileHandling = responseFileHandling;
+            return builder;
+        }
+
+        public static TBuilder UsePrefixes<TBuilder>(this TBuilder builder, IReadOnlyCollection<string> prefixes)
+            where TBuilder : CommandLineBuilder
+        {
+            builder.Prefixes = prefixes;
             return builder;
         }
     }

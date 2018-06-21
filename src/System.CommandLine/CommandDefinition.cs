@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine
@@ -27,13 +28,14 @@ namespace System.CommandLine
             IReadOnlyCollection<SymbolDefinition> symbolDefinitions = null,
             ArgumentDefinition argumentDefinition = null,
             bool treatUnmatchedTokensAsErrors = true,
+            MethodBinder executionHandler = null,
             IHelpBuilder helpBuilder = null) :
             base(new[] { name }, description)
         {
-            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-            HelpBuilder = helpBuilder ?? new HelpBuilder();
-
             symbolDefinitions = symbolDefinitions ?? Array.Empty<SymbolDefinition>();
+            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+            ExecutionHandler = executionHandler;
+            HelpBuilder = helpBuilder ?? new HelpBuilder();
 
             var validSymbolAliases = symbolDefinitions
                                      .SelectMany(o => o.RawAliases)
@@ -68,6 +70,8 @@ namespace System.CommandLine
         }
 
         public bool TreatUnmatchedTokensAsErrors { get; }
+
+        internal MethodBinder ExecutionHandler { get; }
 
         public string GenerateHelp()
         {

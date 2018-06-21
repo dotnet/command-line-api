@@ -10,65 +10,37 @@ namespace System.CommandLine
         public Command(CommandDefinition commandDefinition, Command parent = null) : base(commandDefinition, commandDefinition?.Name, parent)
         {
             Definition = commandDefinition ?? throw new ArgumentNullException(nameof(commandDefinition));
-
-            AddImplicitOptions(commandDefinition);
         }
 
         public CommandDefinition Definition { get; }
 
         public Option this[string alias] => (Option) Children[alias];
 
-        public override Symbol TryTakeToken(Token token) =>
+        internal void AddImplicitOption(OptionDefinition optionDefinition)
+        {
+            Children.Add(Option.CreateImplicit(optionDefinition, this));
+        }
+
+        internal override Symbol TryTakeToken(Token token) =>
             TryTakeArgument(token) ??
             TryTakeOptionOrCommand(token);
 
-        private void AddImplicitOptions(CommandDefinition commandDefinition)
-        {
-            foreach (var childOption in commandDefinition.SymbolDefinitions.OfType<OptionDefinition>())
-            {
-                if (!Children.Contains(childOption.Name) &&
-                    childOption.ArgumentDefinition.HasDefaultValue)
-                {
-                    Children.Add(
-                        new Option(childOption, childOption.Name));
-                }
-            }
-        }
-
         private Symbol TryTakeOptionOrCommand(Token token)
         {
-            var child = Children
-                .SingleOrDefault(o =>
-                                     o.SymbolDefinition.SymbolDefinitions
-                                      .Any(oo => oo.RawAliases.Contains(token.Value)));
-
-            if (child != null)
-            {
-                return child.TryTakeToken(token);
-            }
-
-            if (token.Type == TokenType.Command &&
-                Children.Any(o => o.SymbolDefinition is CommandDefinition &&
-                                  !o.HasAlias(token.Value)))
-            {
-                // if a subcommand has already been applied, don't accept this one
-                return null;
-            }
-
             var symbol =
                 Children.SingleOrDefault(o => o.SymbolDefinition.HasRawAlias(token.Value));
 
             if (symbol != null)
             {
-                symbol.OptionWasRespecified();
+                symbol.OptionWasRespecified = true;
                 return symbol;
             }
 
             symbol =
                 Definition.SymbolDefinitions
-                      .Where(o => o.RawAliases.Contains(token.Value))
-                      .Select(o => Create(o, token.Value, this, this.ValidationMessages))
-                      .SingleOrDefault();
+                          .Where(o => o.RawAliases.Contains(token.Value))
+                          .Select(o => Create(o, token.Value, this, ValidationMessages))
+                          .SingleOrDefault();
 
             if (symbol != null)
             {
@@ -76,21 +48,6 @@ namespace System.CommandLine
             }
 
             return symbol;
-        }
-
-        public object ValueForOption(
-            OptionDefinition option) =>
-            ValueForOption<object>(option);
-
-        public T ValueForOption<T>(
-            OptionDefinition option)
-        {
-            if (option == null)
-            {
-                throw new ArgumentNullException(nameof(option));
-            }
-
-            return Children.FirstOrDefault(c => c.SymbolDefinition == option).GetValueOrDefault<T>();
         }
 
         public object ValueForOption(

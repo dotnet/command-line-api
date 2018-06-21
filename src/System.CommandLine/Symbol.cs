@@ -2,17 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine
 {
     public abstract class Symbol
     {
-        private readonly Lazy<object> _defaultValue;
         private readonly List<string> _arguments = new List<string>();
         private ArgumentParseResult _result;
 
-        private bool considerAcceptingAnotherArgument = true;
+        private ValidationMessages _validationMessages = ValidationMessages.Instance;
 
         protected internal Symbol(SymbolDefinition symbolDefinition, string token, Command parent = null)
         {
@@ -26,27 +24,15 @@ namespace System.CommandLine
             Token = token;
 
             Parent = parent;
-
-            _defaultValue = new Lazy<object>(SymbolDefinition.ArgumentDefinition.GetDefaultValue);
         }
 
-        public IReadOnlyCollection<string> Arguments
-        {
-            get
-            {
-                if (!_arguments.Any() &&
-                    _defaultValue.Value != null)
-                {
-                    return new[] { _defaultValue.Value?.ToString() };
-                }
-
-                return _arguments;
-            }
-        }
+        public IReadOnlyCollection<string> Arguments => _arguments;
 
         public SymbolSet Children { get; } = new SymbolSet();
 
         public string Name => SymbolDefinition.Name;
+
+        internal bool OptionWasRespecified { get; set; } = true;
 
         public Command Parent { get; }
 
@@ -58,7 +44,11 @@ namespace System.CommandLine
 
         public bool HasAlias(string alias) => SymbolDefinition.HasAlias(alias);
 
-        public ValidationMessages ValidationMessages { get; private set; } = ValidationMessages.Instance;
+        public ValidationMessages ValidationMessages    
+        {
+            get => _validationMessages ?? (_validationMessages = ValidationMessages.Instance);
+            set => _validationMessages = value;
+        }
 
         protected internal virtual ParseError Validate()
         {
@@ -74,30 +64,36 @@ namespace System.CommandLine
 
             _result = SymbolDefinition.ArgumentDefinition.Parser.Parse(this);
 
-            if (_result is FailedArgumentParseResult failed)
+            switch (_result)
             {
-                return new ParseError(failed.ErrorMessage, this, false);
+                case FailedArgumentArityResult arityFailure:
+                    return new ParseError(arityFailure.ErrorMessage,
+                                          this,
+                                          true);
+                case FailedArgumentTypeConversionResult conversionFailure:
+                    return new ParseError(conversionFailure.ErrorMessage,
+                                          this,
+                                          false);
+                case FailedArgumentParseResult general:
+                    return new ParseError(general.ErrorMessage,
+                                          this,
+                                          false);
             }
 
             return null;
         }
 
-        internal void OptionWasRespecified()
-        {
-            considerAcceptingAnotherArgument = true;
-        }
+        internal abstract Symbol TryTakeToken(Token token);
 
-        public abstract Symbol TryTakeToken(Token token);
-
-        protected Symbol TryTakeArgument(Token token)
+        protected internal Symbol TryTakeArgument(Token token)
         {
             if (token.Type != TokenType.Argument)
             {
                 return null;
             }
 
-            if (!considerAcceptingAnotherArgument &&
-                !(SymbolDefinition is CommandDefinition))
+            if (!OptionWasRespecified &&
+                SymbolDefinition is OptionDefinition)
             {
                 // Options must be respecified in order to accept additional arguments. This is
                 // not the case for commandDefinitions.
@@ -118,7 +114,7 @@ namespace System.CommandLine
             var parseError = Validate();
             if (parseError == null)
             {
-                considerAcceptingAnotherArgument = false;
+                OptionWasRespecified = false;
                 return this;
             }
 
@@ -128,10 +124,15 @@ namespace System.CommandLine
             }
 
             _arguments.RemoveAt(_arguments.Count - 1);
+            
             return null;
         }
 
-        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null, ValidationMessages validationMessages = null)
+        internal static Symbol Create(
+            SymbolDefinition symbolDefinition, 
+            string token, 
+            Command parent = null, 
+            ValidationMessages validationMessages = null)
         {
             switch (symbolDefinition)
             {
@@ -160,8 +161,12 @@ namespace System.CommandLine
                 {
                     Validate();
                 }
+
                 return _result;
             }
+            protected set => _result = value;
         }
+
+        public override string ToString() => $"{GetType().Name}: {Token}";
     }
 }

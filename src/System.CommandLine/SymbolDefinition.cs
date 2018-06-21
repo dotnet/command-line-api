@@ -88,13 +88,16 @@ namespace System.CommandLine
                                 .Where(symbol => !symbol.IsHidden())
                                 .SelectMany(symbol => symbol.RawAliases);
 
-            var argumentSuggestions = ArgumentDefinition.SuggestionSource
-                                                   .Suggest(parseResult, position);
+            var argumentSuggestions = ArgumentDefinition
+                                      .SuggestionSource
+                                      .Suggest(parseResult, position);
 
             return symbolAliases.Concat(argumentSuggestions)
                                 .Distinct()
                                 .OrderBy(symbol => symbol)
                                 .Containing(parseResult.TextToMatch());
         }
+
+        public override string ToString() => $"{GetType().Name}: {Name}";
     }
 }

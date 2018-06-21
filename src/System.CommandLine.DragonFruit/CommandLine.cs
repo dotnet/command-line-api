@@ -1,8 +1,10 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.IO;
-using System.Linq.Expressions;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -10,8 +12,8 @@ namespace System.CommandLine.DragonFruit
 {
     public class CommandLine
     {
-        internal const int ErrorExitCode = 1;
-        internal const int OkExitCode = 0;
+        public const int ErrorExitCode = 1;
+        public const int OkExitCode = 0;
 
         /// <summary>
         /// Finds and executes 'Program.Main', but with strong types.
@@ -22,7 +24,8 @@ namespace System.CommandLine.DragonFruit
         public static Task<int> ExecuteAssemblyAsync(Assembly entryAssembly, string[] args)
             => ExecuteAssemblyAsync(entryAssembly, args, PhysicalConsole.Instance);
 
-        internal static async Task<int> ExecuteAssemblyAsync(Assembly entryAssembly,
+        internal static async Task<int> ExecuteAssemblyAsync(
+            Assembly entryAssembly,
             string[] args,
             IConsole console)
         {
@@ -41,53 +44,34 @@ namespace System.CommandLine.DragonFruit
             MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly);
 
             return await InvokeMethodAsync(
-                args,
-                console,
-                /* @object:*/ null, // this is a static method
-                entryMethod);
+                       args,
+                       console,
+                       entryMethod,
+                       null /* this is a static method*/);
         }
 
-        internal static async Task<int> InvokeMethodAsync(string[] args,
+        public static async Task<int> InvokeMethodAsync(
+            string[] args,
             IConsole console,
-            object @object,
-            MethodInfo method)
+            MethodInfo method,
+            object @object)
         {
-            var helpOption = new OptionDefinition("--help", "Show help output");
-            var helpMetadata = GetHelpMetadata(method);
+            var builder = new CommandLineBuilder()
+                          .ConfigureFromMethod(method, @object)
+                          .UseParseDirective()
+                          .UseHelp()
+                          .UseSuggestDirective()
+                          .UseParseErrorReporting()
+                          .UseExceptionHandler();
 
-            MethodCommand command = new MethodCommandFactory()
-                .Create(
-                    method,
-                    helpMetadata,
-                    new[] { helpOption });
+            SetHelpMetadata(method, builder);
 
-            var parser = new Parser(new ParserConfiguration(new[] { command.Definition }));
+            Parser parser = builder.Build();
 
-            ParseResult result = parser.Parse(args);
-
-            if (result.Errors.Count > 0)
-            {
-                return HandleParserErrors(result, console);
-            }
-
-            if (result.HasOption(helpOption))
-            {
-                console.Out.WriteLine(command.Definition.HelpView());
-                return OkExitCode;
-            }
-
-            try
-            {
-                return await command.InvokeAsync(@object, result);
-            }
-            catch (Exception e)
-            {
-                LogUnhandledException(console, e);
-                return ErrorExitCode;
-            }
+            return await parser.InvokeAsync(args, console);
         }
 
-        private static CommandHelpMetadata GetHelpMetadata(MethodInfo method)
+        private static void SetHelpMetadata(MethodInfo method, CommandDefinitionBuilder builder)
         {
             Assembly assembly = method.DeclaringType.Assembly;
             string docFilePath = Path.Combine(
@@ -98,34 +82,22 @@ namespace System.CommandLine.DragonFruit
             if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
             {
                 xmlDocs.TryGetMethodDescription(method, out metadata);
+
+                if (metadata.Description != null)
+                {
+                    var options = builder.Options;
+
+                    foreach (var parameterDescription in metadata.ParameterDescriptions)
+                    {
+                        if (options[parameterDescription.Key] is OptionDefinitionBuilder option)
+                        {
+                            option.Description = parameterDescription.Value;
+                        }
+                    }
+                }
             }
 
             metadata.Name = assembly.GetName().Name;
-            return metadata;
-        }
-
-        private static void LogUnhandledException(IConsole console, Exception e)
-        {
-            console.ResetColor();
-            console.ForegroundColor = ConsoleColor.Red;
-            console.Error.Write("Unhandled exception: ");
-            console.Error.WriteLine(e.ToString());
-            console.ResetColor();
-        }
-
-        private static int HandleParserErrors(ParseResult result, IConsole console)
-        {
-            console.ResetColor();
-            console.ForegroundColor = ConsoleColor.Red;
-
-            foreach (ParseError parseError in result.Errors)
-            {
-                console.Error.WriteLine(parseError.Message);
-            }
-
-            console.ResetColor();
-            console.Error.WriteLine("Specify --help to see usage.");
-            return ErrorExitCode;
         }
     }
 }

@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Builder;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -44,8 +46,7 @@ namespace System.CommandLine.Tests
         public void HasAlias_accepts_prefixed_short_value()
         {
             var option = new OptionDefinition(
-                new[] { "-o", "--option" }, "",
-                    ArgumentDefinition.None);
+                new[] { "-o", "--option" }, "");
 
             option.HasAlias("-o").Should().BeTrue();
         }
@@ -54,8 +55,7 @@ namespace System.CommandLine.Tests
         public void HasAlias_accepts_unprefixed_short_value()
         {
             var option = new OptionDefinition(
-                new[] { "-o", "--option" }, "",
-                    ArgumentDefinition.None);
+                new[] { "-o", "--option" }, "");
 
             option.HasAlias("o").Should().BeTrue();
         }
@@ -64,8 +64,7 @@ namespace System.CommandLine.Tests
         public void HasAlias_accepts_prefixed_long_value()
         {
             var option = new OptionDefinition(
-                new[] { "-o", "--option" }, "",
-                    ArgumentDefinition.None);
+                new[] { "-o", "--option" }, "");
 
             option.HasAlias("--option").Should().BeTrue();
         }
@@ -74,8 +73,7 @@ namespace System.CommandLine.Tests
         public void HasAlias_accepts_unprefixed_long_value()
         {
             var option = new OptionDefinition(
-                new[] { "-o", "--option" }, "",
-                ArgumentDefinition.None);
+                new[] { "-o", "--option" }, "");
 
             option.HasAlias("option").Should().BeTrue();
         }
@@ -84,8 +82,7 @@ namespace System.CommandLine.Tests
         public void It_is_not_necessary_to_specify_a_prefix_when_adding_an_option()
         {
             var option = new OptionDefinition(
-                new[] { "o" }, "",
-                ArgumentDefinition.None);
+                new[] { "o" }, "");
 
             option.HasAlias("o").Should().BeTrue();
             option.HasAlias("-o").Should().BeTrue();
@@ -94,7 +91,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_must_have_at_least_one_alias()
         {
-            Action create = () => new OptionDefinition(Array.Empty<string>(), "",     ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(Array.Empty<string>(), "");
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -107,7 +104,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new OptionDefinition(new[] { "" }, "",     ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(new[] { "" }, "");
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -120,7 +117,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new OptionDefinition(new[] { "  \t" }, "",     ArgumentDefinition.None);
+            Action create = () => new OptionDefinition(new[] { "  \t" }, "");
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -135,12 +132,52 @@ namespace System.CommandLine.Tests
         {
             var option = new OptionDefinition(
                 new[] {"-h", "--help", "/?"},
-                "",
-                argumentDefinition: null);
+                "");
 
             option.RawAliases
                   .Should()
                   .BeEquivalentTo("-h", "--help", "/?");
         }
-    }
+        
+        [Theory]
+        [InlineData(":", "-x{0}")]
+        [InlineData("=", "-x{0}")]
+        [InlineData(" ", "-x{0}")]
+        [InlineData(":", "{0}-x")]
+        [InlineData("=", "{0}-x")]
+        [InlineData(" ", "{0}-x")]
+        [InlineData(":", "--aa{0}aa")]
+        [InlineData("=", "--aa{0}aa")]
+        [InlineData(" ", "--aa{0}aa")]
+        public void When_an_option_alias_contains_a_delimiter_then_an_informative_error_is_returned(
+            string delimiter, 
+            string template)
+        {
+            Action create = () => new Parser(
+                new OptionDefinition(
+                    string.Format(template, delimiter), "",
+                    new ArgumentDefinitionBuilder().ExactlyOne()));
+
+            create.Should().Throw<ArgumentException>().Which.Message.Should()
+                  .Be($"Symbol cannot contain delimiter: \"{delimiter}\"");
+        }
+
+        [Theory]
+        [InlineData("-")]
+        [InlineData("--")]
+        [InlineData("/")]
+        public void When_option_use_different_prefixes_they_still_work(string prefix)
+        {
+            var result = new CommandLineBuilder()
+                .AddOption(prefix + "a", "", a => a.ExactlyOne())
+                .AddOption(prefix + "b", "")
+                .AddOption(prefix + "c", "", a => a.ExactlyOne())
+                .Build()
+                .Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
+
+            result.ValueForOption(prefix + "a").Should().Be("value-for-a");
+            result.ValueForOption(prefix + "c").Should().Be("value-for-c");
+            result.HasOption(prefix + "b").Should().BeFalse();
+        }
+   }
 }
