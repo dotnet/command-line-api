@@ -6,23 +6,23 @@ namespace System.CommandLine
 {
     public static class DefaultHelpText
     {
-        public static class AdditionalArgumentsSection
+        public static class AdditionalArguments
         {
             public static string Title { get; set; } = "Additional Arguments:";
             public static string Description { get; set; } = "Arguments passed to the application that is being run.";
         }
 
-        public static class ArgumentsSection
+        public static class Arguments
         {
             public static string Title { get; set; } = "Arguments:";
         }
 
-        public static class CommandsSection
+        public static class Commands
         {
             public static string Title { get; set; } = "Commands:";
         }
 
-        public static class OptionsSection
+        public static class Options
         {
             public static string Title { get; set; } = "Options:";
         }

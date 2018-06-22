@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
-using FluentAssertions;
 using System.Linq;
+using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Environment;
@@ -12,6 +12,7 @@ namespace System.CommandLine.Tests
 {
     public class HelpViewTests
     {
+        private readonly IConsole _console;
         private readonly ITestOutputHelper _output;
         private const int ColumnGutterWidth = 4;
         private const int IndentationWidth = 2;
@@ -20,12 +21,18 @@ namespace System.CommandLine.Tests
 
         public HelpViewTests(ITestOutputHelper output)
         {
+            _console = new TestConsole();
             _output = output;
             _columnPadding = new string(' ', ColumnGutterWidth);
             _indentation = new string(' ', IndentationWidth);
         }
 
         #region " Setup "
+
+        public string GetHelpText()
+        {
+            return _console.Out.ToString();
+        }
 
         [Fact]
         public void An_argument_is_not_hidden_from_help_if_no_help_is_provided()
@@ -35,10 +42,12 @@ namespace System.CommandLine.Tests
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.Subcommand("outer").GenerateHelp();
+            command.Subcommand("outer").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().Contain($"Arguments:{NewLine}  <>");
         }
+
 
         [Fact]
         public void An_argument_shows_help_if_help_is_provided()
@@ -48,8 +57,9 @@ namespace System.CommandLine.Tests
                     arguments: args => args.WithHelp("test name", "test desc").ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.Subcommand("outer").GenerateHelp();
+            command.Subcommand("outer").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().Contain($"Arguments:{NewLine}{_indentation}<test name>{_columnPadding}test desc");
         }
 
@@ -61,8 +71,9 @@ namespace System.CommandLine.Tests
                     arguments: args => args.WithHelp("test name", "test desc", true).ExactlyOne())
                 .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            command.GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().NotContain("test desc");
         }
 
@@ -75,8 +86,9 @@ namespace System.CommandLine.Tests
                         .AddOption("-n", "Not hidden"))
                 .BuildCommandDefinition();
 
-            var help = command.Subcommand("the-command").GenerateHelp();
+            command.Subcommand("the-command").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().Contain("-x");
             help.Should().Contain("-n");
         }
@@ -90,8 +102,9 @@ namespace System.CommandLine.Tests
                         .AddOption("-n", "Not hidden"))
                 .BuildCommandDefinition();
 
-            var help = command.Subcommand("the-command").GenerateHelp();
+            command.Subcommand("the-command").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().Contain("-n");
             help.Should().NotContain("-x");
         }
@@ -112,10 +125,11 @@ namespace System.CommandLine.Tests
                                           arguments: args => args.ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("the-command").GenerateHelp();
+            command.Subcommand("the-command").GenerateHelp(_console);
 
-            const string indent = "                        ";
+            const string indent = "                     ";
 
+            var help = GetHelpText();
             help.Should().Contain($"Sets the verbosity. Accepted values are: [quiet] [loud]{NewLine}{indent}[very-loud]");
         }
 
@@ -135,8 +149,9 @@ namespace System.CommandLine.Tests
                                                                    .ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("outer").Subcommand("inner").GenerateHelp();
+            command.Subcommand("outer").Subcommand("inner").GenerateHelp(_console);
 
+            var help = GetHelpText();
             var lines = help.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             var optionA = lines.Last(line => line.Contains("outer-command-arg"));
@@ -159,8 +174,9 @@ namespace System.CommandLine.Tests
                                                      "An option with 15 characters"))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("the-command").GenerateHelp();
+            command.Subcommand("the-command").GenerateHelp(_console);
 
+            var help = GetHelpText();
             var lines = help.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             var optionA = lines.Last(line => line.Contains("-a"));
@@ -188,9 +204,10 @@ namespace System.CommandLine.Tests
                                           "some option"))))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("outer").Subcommand("inner").Subcommand("inner-er").GenerateHelp();
+            command.Subcommand("outer").Subcommand("inner").Subcommand("inner-er").GenerateHelp(_console);
 
-            help.Should().StartWith($"Usage: {CommandLineBuilder.ExeName} outer inner inner-er [options]");
+            var help = GetHelpText();
+            help.Should().StartWith($"Usage:{NewLine}{_indentation}{CommandLineBuilder.ExeName} outer inner inner-er [options]");
         }
 
         [Fact]
@@ -212,8 +229,9 @@ namespace System.CommandLine.Tests
                               })
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("outer").Subcommand("inner").GenerateHelp();
+            command.Subcommand("outer").Subcommand("inner").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().NotContain("sibling");
         }
 
@@ -225,8 +243,9 @@ namespace System.CommandLine.Tests
                                       outer => outer.AddCommand("inner", "description for inner"))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("outer").GenerateHelp();
+            command.Subcommand("outer").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().NotContain("Options:");
         }
 
@@ -247,9 +266,10 @@ namespace System.CommandLine.Tests
                                           "Sets the verbosity"))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("the-command").GenerateHelp();
+            command.Subcommand("the-command").GenerateHelp(_console);
 
-            help.Should().StartWith($"Usage: { CommandLineBuilder.ExeName } the-command [options] <the-args>");
+            var help = GetHelpText();
+            help.Should().StartWith($"Usage:{NewLine}{_indentation}{ CommandLineBuilder.ExeName } the-command [options] <the-args>");
         }
 
         [Fact]
@@ -271,9 +291,10 @@ namespace System.CommandLine.Tests
                                       "Sets the verbosity")))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp();
+            command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp(_console);
 
-            help.Should().StartWith($"Usage: { CommandLineBuilder.ExeName } outer-command <outer-args> inner-command [options] <inner-args>");
+            var help = GetHelpText();
+            help.Should().StartWith($"Usage:{NewLine}{_indentation}{ CommandLineBuilder.ExeName } outer-command <outer-args> inner-command [options] <inner-args>");
         }
 
         [Fact]
@@ -286,8 +307,9 @@ namespace System.CommandLine.Tests
                                           "Sets the verbosity"))
                           .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            command.GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().NotContain("arguments");
         }
 
@@ -303,9 +325,10 @@ namespace System.CommandLine.Tests
                             "Indicates whether x"))
                     .BuildCommandDefinition();
 
-            var help = command.Subcommand("some-command").GenerateHelp();
+            command.Subcommand("some-command").GenerateHelp(_console);
 
-            help.Should().StartWith($"Usage: { CommandLineBuilder.ExeName } some-command [options] [[--] <additional arguments>...]]");
+            var help = GetHelpText();
+            help.Should().StartWith($"Usage:{NewLine}{_indentation}{ CommandLineBuilder.ExeName } some-command [options] [[--] <additional arguments>...]]");
         }
 
         #endregion " Synopsis "
@@ -319,8 +342,9 @@ namespace System.CommandLine.Tests
                 .AddCommand("the-command", "command help")
                 .BuildCommandDefinition();
 
-            var help = command.GenerateHelp();
+            command.GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().NotContain("Arguments");
         }
 
@@ -337,8 +361,9 @@ namespace System.CommandLine.Tests
                                                                  .ExactlyOne()))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("the-command").GenerateHelp();
+            command.Subcommand("the-command").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().Contain($"{_indentation}-v, --verbosity <LEVEL>{_columnPadding}Sets the verbosity.");
         }
 
@@ -355,8 +380,9 @@ namespace System.CommandLine.Tests
                                           "The first option"))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("the-command").GenerateHelp();
+            command.Subcommand("the-command").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().Contain($"Arguments:{NewLine}{_indentation}<the-arg>{_columnPadding}This is the argument for the command.");
         }
 
@@ -374,8 +400,9 @@ namespace System.CommandLine.Tests
                                           "HelpDefinition for option"))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("command").GenerateHelp();
+            command.Subcommand("command").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().Contain("-multi");
             help.Should().NotContain("--multi");
         }
@@ -390,8 +417,9 @@ namespace System.CommandLine.Tests
                                           "HelpDefinition for option"))
                           .BuildCommandDefinition();
 
-            var help = command.Subcommand("command").GenerateHelp();
+            command.Subcommand("command").GenerateHelp(_console);
 
+            var help = GetHelpText();
             help.Should().Contain("--m");
         }
 

@@ -10,8 +10,9 @@ namespace System.CommandLine
 {
     public class HelpBuilder : IHelpBuilder
     {
-        private readonly StringBuilder _helpText;
         private int _indentationLevel;
+//        protected readonly StringBuilder _helpText;
+        protected IConsole _console;
 
         protected const int DefaultColumnGutter = 4;
         protected const int DefaultIndentationSize = 2;
@@ -25,23 +26,26 @@ namespace System.CommandLine
         /// <summary>
         ///
         /// </summary>
+        /// <param name="console"></param>
         /// <param name="columnGutter"></param>
         /// <param name="indentationSize"></param>
         /// <param name="maxWidth"></param>
         public HelpBuilder(
+            IConsole console,
             int? columnGutter = null,
             int? indentationSize = null,
             int? maxWidth = null)
         {
+            _console = console ?? throw new ArgumentNullException(nameof(console));
             ColumnGutter = columnGutter ?? DefaultColumnGutter;
             IndentationSize = indentationSize ?? DefaultIndentationSize;
             MaxWidth = maxWidth ?? GetWindowWidth();
 
-            _helpText = new StringBuilder();
+//            _helpText = new StringBuilder();
         }
 
         /// <inheritdoc />
-        public string Generate(CommandDefinition commandDefinition)
+        public void Generate(CommandDefinition commandDefinition)
         {
             if (commandDefinition == null)
             {
@@ -49,11 +53,10 @@ namespace System.CommandLine
             }
 
             AddSynopsis(commandDefinition);
-            AddArgumentsSection(commandDefinition);
-            AddOptionsSection(commandDefinition);
-            AddSubcommandsSection(commandDefinition);
-            AddAdditionalArgumentsSection(commandDefinition);
-            return _helpText.ToString();
+            AddArguments(commandDefinition);
+            AddOptions(commandDefinition);
+            AddSubcommands(commandDefinition);
+            AddAdditionalArguments(commandDefinition);
         }
 
         protected int CurrentIndentation => _indentationLevel * IndentationSize;
@@ -61,22 +64,22 @@ namespace System.CommandLine
         /// <summary>
         /// Increases the current indentation level
         /// </summary>
-        public void Indent()
+        protected void Indent(int levels = 1)
         {
-            _indentationLevel += 1;
+            _indentationLevel += levels;
         }
 
         /// <summary>
         /// Decreases the current indentation level
         /// </summary>
-        public void Outdent()
+        protected void Outdent(int levels = 1)
         {
             if (_indentationLevel == 0)
             {
                 throw new ArithmeticException("Cannot dedent any further");
             }
 
-            _indentationLevel -= 1;
+            _indentationLevel -= levels;
         }
 
         /// <summary>
@@ -101,27 +104,38 @@ namespace System.CommandLine
         /// <summary>
         /// Adds a blank line to the current builder
         /// </summary>
-        public void AddBlankLine()
+        private void AppendBlankLine()
         {
-            _helpText.AppendLine();
+            _console.Out.WriteLine();
         }
 
         /// <summary>
         /// Adds a new line of text to the current builder, padded with the current indentation
         /// </summary>
         /// <param name="text"></param>
-        public void AddLine(string text)
+        /// /// <param name="offset"></param>
+        private void AppendLine(string text, int? offset = null)
         {
-            _helpText.AppendFormat(
-                "{0}{1}{2}",
-                GetPadding(CurrentIndentation),
-                text ?? "",
-                NewLine);
+            var padding = GetPadding(offset ?? CurrentIndentation);
+            _console.Out.Write(padding);
+            _console.Out.WriteLine(text ?? "");
         }
 
-        public void AddHeading(string heading)
+        /// <summary>
+        /// Adds a new line of text to the current builder, padded with the current indentation
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="offset"></param>
+        private void AppendText(string text, int? offset = null)
         {
-            _helpText.Append(heading);
+            var padding = GetPadding(offset ?? CurrentIndentation);
+            _console.Out.Write(padding);
+            _console.Out.Write(text ?? "");
+        }
+
+        protected virtual void AddHeading(string heading)
+        {
+            AppendLine(heading);
         }
 
         /// <summary>
@@ -130,27 +144,23 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="helpItem"></param>
         /// <param name="maxLeftColumnWidth"></param>
-        public void AddHelpItem(HelpItem helpItem, int maxLeftColumnWidth)
+        protected void AddHelpItem(HelpItem helpItem, int maxLeftColumnWidth)
         {
             if (helpItem == null)
             {
                 throw new ArgumentNullException(nameof(helpItem));
             }
 
-            var availableWidth = GetAvailableWidth();
-            var offset = maxLeftColumnWidth + ColumnGutter - helpItem.Usage.Length;
+            AppendText(helpItem.Usage, CurrentIndentation);
 
+            var offset = maxLeftColumnWidth + ColumnGutter - helpItem.Usage.Length;
+            var availableWidth = GetAvailableWidth();
             var maxRightColumnWidth = availableWidth - maxLeftColumnWidth - ColumnGutter;
+
             var descriptionLines = SplitText(helpItem.Description, maxRightColumnWidth);
             var lineCount = descriptionLines.Count;
 
-            _helpText.AppendFormat(
-                "{0}{1}{2}{3}{4}",
-                GetPadding(CurrentIndentation),
-                helpItem.Usage,
-                GetPadding(offset),
-                descriptionLines.First(),
-                NewLine);
+            AppendLine(descriptionLines.First(), offset);
 
             if (lineCount == 1)
             {
@@ -158,19 +168,10 @@ namespace System.CommandLine
             }
 
             offset = CurrentIndentation + maxLeftColumnWidth + ColumnGutter;
-            var paddedOffset = GetPadding(offset);
 
             for (var i = 1; i < lineCount; i++)
             {
-                _helpText.AppendFormat(
-                    "{0}{1}",
-                    paddedOffset,
-                    descriptionLines.ElementAt(i));
-
-                if (i < lineCount - 1)
-                {
-                    _helpText.AppendLine();
-                }
+                AppendLine(descriptionLines.ElementAt(i), offset);
             }
         }
 
@@ -229,7 +230,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        protected static HelpItem ArgumentFormatter(SymbolDefinition symbol)
+        protected virtual HelpItem ArgumentFormatter(SymbolDefinition symbol)
         {
             var argHelp = symbol?.ArgumentDefinition?.Help;
 
@@ -244,16 +245,17 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        protected static HelpItem OptionFormatter(SymbolDefinition symbol)
+        protected virtual HelpItem OptionFormatter(SymbolDefinition symbol)
         {
             var rawAliases = symbol.RawAliases
                 .OrderBy(alias => alias.Length);
 
-            var aliases = string.Join(", ", rawAliases);
+            var usage = string.Join(", ", rawAliases);
 
-            var usage = symbol.HasArguments
-                ? $"{aliases} <{symbol.ArgumentDefinition?.Help?.Name}>"
-                : aliases;
+            if (symbol.HasArguments && !string.IsNullOrWhiteSpace(symbol.ArgumentDefinition?.Help?.Name))
+            {
+                usage = $"{usage} <{symbol.ArgumentDefinition?.Help?.Name}>";
+            }
 
             return new HelpItem {
                 Usage = usage,
@@ -263,7 +265,7 @@ namespace System.CommandLine
 
         protected virtual void AddSynopsis(CommandDefinition commandDefinition)
         {
-            AddHeading(Synopsis.Title);
+            var synopsis = new StringBuilder();
 
             var subcommands = commandDefinition
                 .RecurseWhileNotNull(commandDef => commandDef.Parent)
@@ -271,12 +273,12 @@ namespace System.CommandLine
 
             foreach (var subcommand in subcommands)
             {
-                _helpText.AppendFormat(" {0}", subcommand.Name);
+                synopsis.AppendFormat("{0} ", subcommand.Name);
 
                 var argsName = subcommand.ArgumentDefinition?.Help?.Name;
                 if (subcommand != commandDefinition && !string.IsNullOrWhiteSpace(argsName))
                 {
-                    _helpText.AppendFormat(" <{0}>", argsName);
+                    synopsis.AppendFormat("<{0}> ", argsName);
                 }
             }
 
@@ -286,13 +288,13 @@ namespace System.CommandLine
 
             if (hasOptionHelp)
             {
-                _helpText.AppendFormat(" {0}", Synopsis.Options);
+                synopsis.AppendFormat("{0} ", Synopsis.Options);
             }
 
             var argumentsName = commandDefinition.ArgumentDefinition?.Help?.Name;
             if (!string.IsNullOrWhiteSpace(argumentsName))
             {
-                _helpText.AppendFormat(" <{0}>", argumentsName);
+                synopsis.AppendFormat("<{0}> ", argumentsName);
             }
 
             var hasCommand = commandDefinition.SymbolDefinitions
@@ -301,18 +303,18 @@ namespace System.CommandLine
 
             if (hasCommand)
             {
-                _helpText.AppendFormat(" {0}", Synopsis.Command);
+                synopsis.AppendFormat("{0} ", Synopsis.Command);
             }
 
             if (!commandDefinition.TreatUnmatchedTokensAsErrors)
             {
-                _helpText.AppendFormat(" {0}", Synopsis.AdditionalArguments);
+                synopsis.AppendFormat("{0} ", Synopsis.AdditionalArguments);
             }
 
-            AddBlankLine();
+            HelpSection.Build(this, Synopsis.Title, synopsis.ToString());
         }
 
-        protected virtual void AddArgumentsSection(CommandDefinition commandDefinition)
+        protected virtual void AddArguments(CommandDefinition commandDefinition)
         {
             var arguments = new List<CommandDefinition>();
 
@@ -326,11 +328,10 @@ namespace System.CommandLine
                 arguments.Add(commandDefinition);
             }
 
-            var section = new HelpSection(this, ArgumentsSection.Title, arguments, ArgumentFormatter);
-            section.Build();
+            HelpSection.Build(this, Arguments.Title, arguments, ArgumentFormatter);
         }
 
-        protected virtual void AddOptionsSection(SymbolDefinition commandDefinition)
+        protected virtual void AddOptions(SymbolDefinition commandDefinition)
         {
             var options = commandDefinition
                 .SymbolDefinitions
@@ -338,11 +339,10 @@ namespace System.CommandLine
                 .Where(opt => opt.HasHelp)
                 .ToArray();
 
-            var section = new HelpSection(this, OptionsSection.Title, options, OptionFormatter);
-            section.Build();
+            HelpSection.Build(this, Options.Title, options, OptionFormatter);
         }
 
-        protected virtual void AddSubcommandsSection(SymbolDefinition commandDefinition)
+        protected virtual void AddSubcommands(SymbolDefinition commandDefinition)
         {
             var subcommands = commandDefinition
                 .SymbolDefinitions
@@ -350,19 +350,17 @@ namespace System.CommandLine
                 .Where(subCommand => subCommand.HasHelp)
                 .ToArray();
 
-            var section = new HelpSection(this, CommandsSection.Title, subcommands, OptionFormatter);
-            section.Build();
+            HelpSection.Build(this, Commands.Title, subcommands, OptionFormatter);
         }
 
-        protected virtual void AddAdditionalArgumentsSection(CommandDefinition commandDefinition)
+        protected virtual void AddAdditionalArguments(CommandDefinition commandDefinition)
         {
             if (commandDefinition.TreatUnmatchedTokensAsErrors)
             {
                 return;
             }
 
-            var section = new HelpSection(this, AdditionalArgumentsSection.Title, AdditionalArgumentsSection.Description);
-            section.Build();
+            HelpSection.Build(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
         /// <summary>
@@ -379,6 +377,108 @@ namespace System.CommandLine
             catch (Exception exception) when (exception is ArgumentOutOfRangeException || exception is IOException)
             {
                 return DefaultWindowWidth;
+            }
+        }
+
+        protected class HelpItem
+        {
+            public string Usage { get; set; }
+
+            public string Description { get; set; }
+        }
+
+        private static class HelpSection
+        {
+            public static void Build(
+                HelpBuilder builder,
+                string title,
+                IReadOnlyCollection<SymbolDefinition> usageItems = null,
+                Func<SymbolDefinition, HelpItem> formatter = null,
+                string description = null)
+            {
+                if (!ShouldBuild(description, usageItems))
+                {
+                    return;
+                }
+
+                AddHeading(builder, title);
+                builder.Indent();
+                AddDescription(builder, description);
+                AddUsage(builder, usageItems, formatter);
+                builder.Outdent();
+            }
+
+            public static void Build(
+                HelpBuilder builder,
+                string title,
+                string description)
+            {
+                if (!ShouldBuild(description, null))
+                {
+                    return;
+                }
+
+                AddHeading(builder, title);
+                builder.Indent();
+                AddDescription(builder, description);
+                builder.Outdent();
+            }
+
+            private static bool ShouldBuild(string description, IReadOnlyCollection<SymbolDefinition> usageItems)
+            {
+                if (!string.IsNullOrWhiteSpace(description))
+                {
+                    return true;
+                }
+
+                return usageItems?.Any() == true;
+            }
+
+            private static void AddHeading(HelpBuilder builder, string title)
+            {
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    return;
+                }
+
+                builder.AddHeading(title);
+            }
+
+            private static void AddDescription(HelpBuilder builder, string description)
+            {
+                if (string.IsNullOrWhiteSpace(description))
+                {
+                    return;
+                }
+
+                builder.AppendLine(description);
+                builder.AppendBlankLine();
+            }
+
+            private static void AddUsage(
+                HelpBuilder builder,
+                IReadOnlyCollection<SymbolDefinition> usageItems,
+                Func<SymbolDefinition, HelpItem> formatter)
+            {
+                if (usageItems?.Any() != true)
+                {
+                    return;
+                }
+
+                var helpItems = usageItems
+                    .Select(item => formatter(item));
+
+                var maxWidth = helpItems
+                    .Select(line => line.Usage.Length)
+                    .OrderByDescending(textLength => textLength)
+                    .First();
+
+                foreach (var helpItem in helpItems)
+                {
+                    builder.AddHelpItem(helpItem, maxWidth);
+                }
+
+                builder.AppendBlankLine();
             }
         }
     }

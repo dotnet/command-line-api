@@ -18,6 +18,11 @@ namespace System.CommandLine.DragonFruit
 
         public TextWriter Out => Console.Out;
 
+        public void SetOut(TextWriter newOut)
+        {
+            Console.SetOut(newOut);
+        }
+
         public ConsoleColor ForegroundColor
         {
             get => Console.ForegroundColor;

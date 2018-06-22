@@ -6,8 +6,7 @@
         ///
         /// </summary>
         /// <param name="commandDefinition"></param>
-        /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        string Generate(CommandDefinition commandDefinition);
+        void Generate(CommandDefinition commandDefinition);
     }
 }

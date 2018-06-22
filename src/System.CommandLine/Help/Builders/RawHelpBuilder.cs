@@ -8,17 +8,19 @@ namespace System.CommandLine
 {
     public class RawHelpBuilder : HelpBuilder
     {
-        public RawHelpBuilder(int? columnGutter = null, int? indentationSize = null, int? maxWidth = null)
-            : base(columnGutter, indentationSize, maxWidth)
+        public RawHelpBuilder(
+            IConsole console,
+            int? columnGutter = null,
+            int? indentationSize = null,
+            int? maxWidth = null)
+            : base(console, columnGutter, indentationSize, maxWidth)
         {
         }
 
         /// <inheritdoc />
         protected override IReadOnlyCollection<string> SplitText(string text, int maxLength)
         {
-            var textLength = text.Length;
-
-            if (string.IsNullOrWhiteSpace(text) || textLength < maxLength)
+            if (string.IsNullOrWhiteSpace(text))
             {
                 return new[] {text};
             }
@@ -29,21 +31,21 @@ namespace System.CommandLine
 
             foreach (var item in Regex.Split(text, @"(\s+)"))
             {
-                var length = item.Length + builder.Length;
-                Debug.WriteLine(item);
+                var nextLength = item.Length + builder.Length;
 
-                if (length > maxLength || item == NewLine)
+                if (nextLength > maxLength || item == NewLine)
                 {
                     lines.Add(builder.ToString());
                     builder.Clear();
                     index = 0;
                 }
 
-                if (item != NewLine)
+                if (item == NewLine)
                 {
-                    builder.Append(item);
+                    continue;
                 }
 
+                builder.Append(item);
                 index += 1;
             }
 

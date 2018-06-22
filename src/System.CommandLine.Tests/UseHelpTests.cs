@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().StartWith($"Usage: {CommandLineBuilder.ExeName} command subcommand");
+            _console.Out.ToString().Should().Contain($"{CommandLineBuilder.ExeName} command subcommand");
         }
 
         [Fact]
