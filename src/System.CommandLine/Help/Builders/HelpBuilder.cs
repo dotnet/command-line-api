@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using static System.Environment;
 using static System.CommandLine.DefaultHelpText;
 
 namespace System.CommandLine
@@ -11,7 +10,6 @@ namespace System.CommandLine
     public class HelpBuilder : IHelpBuilder
     {
         private int _indentationLevel;
-//        protected readonly StringBuilder _helpText;
         protected IConsole _console;
 
         protected const int DefaultColumnGutter = 4;
@@ -40,8 +38,6 @@ namespace System.CommandLine
             ColumnGutter = columnGutter ?? DefaultColumnGutter;
             IndentationSize = indentationSize ?? DefaultIndentationSize;
             MaxWidth = maxWidth ?? GetWindowWidth();
-
-//            _helpText = new StringBuilder();
         }
 
         /// <inheritdoc />
@@ -110,14 +106,23 @@ namespace System.CommandLine
         }
 
         /// <summary>
+        ///
+        /// </summary>
+        /// <param name="offset"></param>
+        private void AppendPadding(int? offset = null)
+        {
+            var padding = GetPadding(offset ?? CurrentIndentation);
+            _console.Out.Write(padding);
+        }
+
+        /// <summary>
         /// Adds a new line of text to the current builder, padded with the current indentation
         /// </summary>
         /// <param name="text"></param>
         /// /// <param name="offset"></param>
         private void AppendLine(string text, int? offset = null)
         {
-            var padding = GetPadding(offset ?? CurrentIndentation);
-            _console.Out.Write(padding);
+            AppendPadding(offset);
             _console.Out.WriteLine(text ?? "");
         }
 
@@ -128,11 +133,14 @@ namespace System.CommandLine
         /// <param name="offset"></param>
         private void AppendText(string text, int? offset = null)
         {
-            var padding = GetPadding(offset ?? CurrentIndentation);
-            _console.Out.Write(padding);
+            AppendPadding(offset);
             _console.Out.Write(text ?? "");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="heading"></param>
         protected virtual void AddHeading(string heading)
         {
             AppendLine(heading);
