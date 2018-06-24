@@ -49,6 +49,7 @@ namespace System.CommandLine
             }
 
             AddSynopsis(commandDefinition);
+            AddUsage(commandDefinition);
             AddArguments(commandDefinition);
             AddOptions(commandDefinition);
             AddSubcommands(commandDefinition);
@@ -138,7 +139,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="heading"></param>
         protected virtual void AddHeading(string heading)
@@ -159,9 +160,9 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(helpItem));
             }
 
-            AppendText(helpItem.Usage, CurrentIndentation);
+            AppendText(helpItem.Invocation, CurrentIndentation);
 
-            var offset = maxLeftColumnWidth + ColumnGutter - helpItem.Usage.Length;
+            var offset = maxLeftColumnWidth + ColumnGutter - helpItem.Invocation.Length;
             var availableWidth = GetAvailableWidth();
             var maxRightColumnWidth = availableWidth - maxLeftColumnWidth - ColumnGutter;
 
@@ -243,7 +244,7 @@ namespace System.CommandLine
             var argHelp = symbol?.ArgumentDefinition?.Help;
 
             return new HelpItem {
-                Usage = $"<{argHelp?.Name}>",
+                Invocation = $"<{argHelp?.Name}>",
                 Description = argHelp?.Description ?? "",
             };
         }
@@ -258,22 +259,33 @@ namespace System.CommandLine
             var rawAliases = symbol.RawAliases
                 .OrderBy(alias => alias.Length);
 
-            var usage = string.Join(", ", rawAliases);
+            var option = string.Join(", ", rawAliases);
 
             if (symbol.HasArguments && !string.IsNullOrWhiteSpace(symbol.ArgumentDefinition?.Help?.Name))
             {
-                usage = $"{usage} <{symbol.ArgumentDefinition?.Help?.Name}>";
+                option = $"{option} <{symbol.ArgumentDefinition?.Help?.Name}>";
             }
 
             return new HelpItem {
-                Usage = usage,
+                Invocation = option,
                 Description = symbol.Help?.Description ?? "",
             };
         }
 
         protected virtual void AddSynopsis(CommandDefinition commandDefinition)
         {
-            var synopsis = new StringBuilder();
+            if (!commandDefinition.HasHelp)
+            {
+                return;
+            }
+
+            var title = $"{commandDefinition.Help.Name}:";
+            HelpSection.Build(this, title, commandDefinition.Help.Description);
+        }
+
+        protected virtual void AddUsage(CommandDefinition commandDefinition)
+        {
+            var usage = new List<string>();
 
             var subcommands = commandDefinition
                 .RecurseWhileNotNull(commandDef => commandDef.Parent)
@@ -281,12 +293,12 @@ namespace System.CommandLine
 
             foreach (var subcommand in subcommands)
             {
-                synopsis.AppendFormat("{0} ", subcommand.Name);
+                usage.Add(subcommand.Name);
 
                 var argsName = subcommand.ArgumentDefinition?.Help?.Name;
                 if (subcommand != commandDefinition && !string.IsNullOrWhiteSpace(argsName))
                 {
-                    synopsis.AppendFormat("<{0}> ", argsName);
+                    usage.Add($"<{argsName}>");
                 }
             }
 
@@ -296,13 +308,13 @@ namespace System.CommandLine
 
             if (hasOptionHelp)
             {
-                synopsis.AppendFormat("{0} ", Synopsis.Options);
+                usage.Add(Usage.Options);
             }
 
             var argumentsName = commandDefinition.ArgumentDefinition?.Help?.Name;
             if (!string.IsNullOrWhiteSpace(argumentsName))
             {
-                synopsis.AppendFormat("<{0}> ", argumentsName);
+                usage.Add($"<{argumentsName}>");
             }
 
             var hasCommand = commandDefinition.SymbolDefinitions
@@ -311,15 +323,15 @@ namespace System.CommandLine
 
             if (hasCommand)
             {
-                synopsis.AppendFormat("{0} ", Synopsis.Command);
+                usage.Add(Usage.Command);
             }
 
             if (!commandDefinition.TreatUnmatchedTokensAsErrors)
             {
-                synopsis.AppendFormat("{0} ", Synopsis.AdditionalArguments);
+                usage.Add(Usage.AdditionalArguments);
             }
 
-            HelpSection.Build(this, Synopsis.Title, synopsis.ToString());
+            HelpSection.Build(this, Usage.Title, string.Join(" ", usage));
         }
 
         protected virtual void AddArguments(CommandDefinition commandDefinition)
@@ -390,13 +402,30 @@ namespace System.CommandLine
 
         protected class HelpItem
         {
-            public string Usage { get; set; }
+            public string Invocation { get; set; }
 
             public string Description { get; set; }
         }
 
         private static class HelpSection
         {
+            public static void Build(
+                HelpBuilder builder,
+                string title,
+                string description)
+            {
+                if (!ShouldBuild(description, null))
+                {
+                    return;
+                }
+
+                AddHeading(builder, title);
+                builder.Indent();
+                AddDescription(builder, description);
+                builder.Outdent();
+                builder.AppendBlankLine();
+            }
+
             public static void Build(
                 HelpBuilder builder,
                 string title,
@@ -412,24 +441,9 @@ namespace System.CommandLine
                 AddHeading(builder, title);
                 builder.Indent();
                 AddDescription(builder, description);
-                AddUsage(builder, usageItems, formatter);
+                AddInvocation(builder, usageItems, formatter);
                 builder.Outdent();
-            }
-
-            public static void Build(
-                HelpBuilder builder,
-                string title,
-                string description)
-            {
-                if (!ShouldBuild(description, null))
-                {
-                    return;
-                }
-
-                AddHeading(builder, title);
-                builder.Indent();
-                AddDescription(builder, description);
-                builder.Outdent();
+                builder.AppendBlankLine();
             }
 
             private static bool ShouldBuild(string description, IReadOnlyCollection<SymbolDefinition> usageItems)
@@ -460,24 +474,23 @@ namespace System.CommandLine
                 }
 
                 builder.AppendLine(description);
-                builder.AppendBlankLine();
             }
 
-            private static void AddUsage(
+            private static void AddInvocation(
                 HelpBuilder builder,
-                IReadOnlyCollection<SymbolDefinition> usageItems,
+                IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
                 Func<SymbolDefinition, HelpItem> formatter)
             {
-                if (usageItems?.Any() != true)
+                if (symbolDefinitions?.Any() != true)
                 {
                     return;
                 }
 
-                var helpItems = usageItems
+                var helpItems = symbolDefinitions
                     .Select(item => formatter(item));
 
                 var maxWidth = helpItems
-                    .Select(line => line.Usage.Length)
+                    .Select(line => line.Invocation.Length)
                     .OrderByDescending(textLength => textLength)
                     .First();
 
@@ -485,8 +498,6 @@ namespace System.CommandLine
                 {
                     builder.AddHelpItem(helpItem, maxWidth);
                 }
-
-                builder.AppendBlankLine();
             }
         }
     }

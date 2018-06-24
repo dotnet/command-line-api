@@ -27,7 +27,7 @@ namespace System.CommandLine
             public static string Title { get; set; } = "Options:";
         }
 
-        public static class Synopsis
+        public static class Usage
         {
             public static string AdditionalArguments { get; set; } = "[[--] <additional arguments>...]]";
             public static string Command { get; set; } = "[command]";
