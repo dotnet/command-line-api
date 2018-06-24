@@ -142,9 +142,30 @@ namespace System.CommandLine
         ///
         /// </summary>
         /// <param name="heading"></param>
-        protected virtual void AddHeading(string heading)
+        protected virtual void AppendHeading(string heading)
         {
             AppendLine(heading);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="description"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        protected virtual void AppendDescription(string description)
+        {
+            if (description == null)
+            {
+                throw new ArgumentNullException(nameof(description));
+            }
+
+            var availableWidth = GetAvailableWidth();
+            var descriptionLines = SplitText(description, availableWidth);
+
+            foreach (var descriptionLine in descriptionLines)
+            {
+                AppendLine(descriptionLine, CurrentIndentation);
+            }
         }
 
         /// <summary>
@@ -153,7 +174,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="helpItem"></param>
         /// <param name="maxLeftColumnWidth"></param>
-        protected void AddHelpItem(HelpItem helpItem, int maxLeftColumnWidth)
+        protected void AppendHelpItem(HelpItem helpItem, int maxLeftColumnWidth)
         {
             if (helpItem == null)
             {
@@ -419,7 +440,7 @@ namespace System.CommandLine
                     return;
                 }
 
-                AddHeading(builder, title);
+                AppendHeading(builder, title);
                 builder.Indent();
                 AddDescription(builder, description);
                 builder.Outdent();
@@ -438,7 +459,7 @@ namespace System.CommandLine
                     return;
                 }
 
-                AddHeading(builder, title);
+                AppendHeading(builder, title);
                 builder.Indent();
                 AddDescription(builder, description);
                 AddInvocation(builder, usageItems, formatter);
@@ -456,14 +477,14 @@ namespace System.CommandLine
                 return usageItems?.Any() == true;
             }
 
-            private static void AddHeading(HelpBuilder builder, string title)
+            private static void AppendHeading(HelpBuilder builder, string title)
             {
                 if (string.IsNullOrWhiteSpace(title))
                 {
                     return;
                 }
 
-                builder.AddHeading(title);
+                builder.AppendHeading(title);
             }
 
             private static void AddDescription(HelpBuilder builder, string description)
@@ -473,7 +494,7 @@ namespace System.CommandLine
                     return;
                 }
 
-                builder.AppendLine(description);
+                builder.AppendDescription(description);
             }
 
             private static void AddInvocation(
@@ -487,7 +508,7 @@ namespace System.CommandLine
                 }
 
                 var helpItems = symbolDefinitions
-                    .Select(item => formatter(item));
+                    .Select(formatter);
 
                 var maxWidth = helpItems
                     .Select(line => line.Invocation.Length)
@@ -496,7 +517,7 @@ namespace System.CommandLine
 
                 foreach (var helpItem in helpItems)
                 {
-                    builder.AddHelpItem(helpItem, maxWidth);
+                    builder.AppendHelpItem(helpItem, maxWidth);
                 }
             }
         }

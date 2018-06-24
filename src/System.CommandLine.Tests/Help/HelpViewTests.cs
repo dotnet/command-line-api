@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests.Help
         private readonly HelpBuilder _helpBuilder;
         private readonly IConsole _console;
         private readonly ITestOutputHelper _output;
-        private const int MaxWidth = 60;
+        private const int MaxWidth = 80;
         private const int ColumnGutterWidth = 4;
         private const int IndentationWidth = 2;
         private readonly string _columnPadding;
@@ -155,7 +155,7 @@ namespace System.CommandLine.Tests.Help
                 cmd => cmd
                     .AddOption(
                         new[] { "-v", "--verbosity" },
-                        $"Sets the verbosity. Accepted values are: [quiet] [loud] [very-loud]",
+                        "Sets the verbosity. Accepted values are: [quiet] [loud] [very-loud]",
                         arguments: args => args.ExactlyOne()))
             .BuildCommandDefinition();
 
@@ -164,7 +164,7 @@ namespace System.CommandLine.Tests.Help
             const string indent = "                     ";
 
             var help = GetHelpText();
-            help.Should().Contain($"Sets the verbosity. Accepted values{NewLine}{indent}are: [quiet] [loud] [very-loud]");
+            help.Should().Contain($"Sets the verbosity. Accepted values are: [quiet] [loud]{NewLine}{indent}[very-loud]");
         }
 
         [Fact]

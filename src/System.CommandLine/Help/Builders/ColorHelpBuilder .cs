@@ -2,20 +2,26 @@
 {
     public class ColorHelpBuilder : HelpBuilder
     {
+        protected const ConsoleColor DefaultHeadingColor = ConsoleColor.Cyan;
+
+        public ConsoleColor HeadingColor { get; } = DefaultHeadingColor;
+
         public ColorHelpBuilder(
             IConsole console,
+            ConsoleColor? headingColor = null,
             int? columnGutter = null,
             int? indentationSize = null,
             int? maxWidth = null)
             : base(console, columnGutter, indentationSize, maxWidth)
         {
+            HeadingColor = headingColor ?? DefaultHeadingColor;
         }
 
-        protected override void AddHeading(string heading)
+        protected override void AppendHeading(string heading)
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            base.AddHeading(heading);
-            Console.ResetColor();
+            _console.ForegroundColor = HeadingColor;
+            base.AppendHeading(heading);
+            _console.ResetColor();
         }
     }
 }

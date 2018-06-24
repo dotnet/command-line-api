@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests.Help
         private readonly IConsole _console;
         private readonly ITestOutputHelper _output;
         private const string ExecutableName = "testhost";
-        private const int MaxWidth = 60;
+        private const int MaxWidth = 80;
         private const int ColumnGutterWidth = 4;
         private const int IndentationWidth = 2;
         private readonly string _columnPadding;
@@ -44,6 +44,8 @@ namespace System.CommandLine.Tests.Help
             return _console.Out.ToString();
         }
 
+        #region " Synopsis "
+
         [Fact]
         public void Whitespace_is_preserved_in_synopsis()
         {
@@ -55,8 +57,10 @@ namespace System.CommandLine.Tests.Help
             .BuildCommandDefinition();
             command.GenerateHelp(_console);
 
-            _expected.AppendLine($"{ExecutableName}:{NewLine}{_indentation}test  description{NewLine}");
-            _expected.AppendLine($"Usage:{NewLine}{_indentation}{ExecutableName}{NewLine}");
+            _expected.AppendLine($"{ExecutableName}:");
+            _expected.AppendLine($"{_indentation}test  description{NewLine}");
+            _expected.AppendLine("Usage:");
+            _expected.AppendLine($"{_indentation}{ExecutableName}{NewLine}");
 
             var help = GetHelpText();
             _output.WriteLine(help);
@@ -65,26 +69,59 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Whitespace_is_preserved_in_summary()
+        public void Newlines_are_preserved_in_synopsis()
         {
             var command = new CommandLineBuilder
-            {
-                HelpBuilder = _rawHelpBuilder,
-                Description = "test  description"
-            }
-            .AddCommand("outer", "Help text   for the outer   command",
-                arguments: args => args.ExactlyOne())
-            .BuildCommandDefinition();
+                {
+                    HelpBuilder = _rawHelpBuilder,
+                    Description = $"test{NewLine}description with{NewLine}line breaks",
+                }
+                .BuildCommandDefinition();
             command.GenerateHelp(_console);
 
-            _expected.AppendLine($"{ExecutableName}:{NewLine}{_indentation}test  description{NewLine}");
-            _expected.AppendLine($"Usage:{NewLine}{_indentation}{ExecutableName} [command]{NewLine}");
-            _expected.AppendLine($"Commands:{NewLine}{_indentation}outer{_columnPadding}Help text   for the outer   command{NewLine}");
+            _expected.AppendLine($"{ExecutableName}:");
+            _expected.AppendLine($"{_indentation}test");
+            _expected.AppendLine($"{_indentation}description with");
+            _expected.AppendLine($"{_indentation}line breaks{NewLine}");
+            _expected.AppendLine("Usage:");
+            _expected.AppendLine($"{_indentation}{ExecutableName}{NewLine}");
 
             var help = GetHelpText();
             _output.WriteLine(help);
 
             help.Should().Be(_expected.ToString());
         }
+
+        #endregion " Synopsis "
+
+        #region " Usage "
+
+        [Fact]
+        public void Whitespace_is_preserved_in_usage()
+        {
+            var command = new CommandLineBuilder
+                {
+                    HelpBuilder = _rawHelpBuilder,
+                    Description = "test  description"
+                }
+                .AddCommand("outer", "Help text   for the outer   command",
+                    arguments: args => args.ExactlyOne())
+                .BuildCommandDefinition();
+            command.GenerateHelp(_console);
+
+            _expected.AppendLine($"{ExecutableName}:");
+            _expected.AppendLine($"{_indentation}test  description{NewLine}");
+            _expected.AppendLine("Usage:");
+            _expected.AppendLine($"{_indentation}{ExecutableName} [command]{NewLine}");
+            _expected.AppendLine("Commands:");
+            _expected.AppendLine($"{_indentation}outer{_columnPadding}Help text   for the outer   command{NewLine}");
+
+            var help = GetHelpText();
+            _output.WriteLine(help);
+
+            help.Should().Be(_expected.ToString());
+        }
+
+        #endregion " Usage "
     }
 }
