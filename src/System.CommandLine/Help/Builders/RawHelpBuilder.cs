@@ -29,7 +29,7 @@ namespace System.CommandLine
             var builder = new StringBuilder();
             var index = 0;
 
-            foreach (var item in Regex.Split(text, @"(\s+)"))
+            foreach (var item in Regex.Split(text, @"(\s)"))
             {
                 var nextLength = item.Length + builder.Length;
 

@@ -409,11 +409,11 @@ namespace System.CommandLine
         /// if necessary
         /// </summary>
         /// <returns></returns>
-        private static int GetWindowWidth()
+        private int GetWindowWidth()
         {
             try
             {
-                return Console.WindowWidth;
+                return _console.WindowWidth;
             }
             catch (Exception exception) when (exception is ArgumentOutOfRangeException || exception is IOException)
             {

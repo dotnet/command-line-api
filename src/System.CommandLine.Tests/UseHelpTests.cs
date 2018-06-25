@@ -11,7 +11,9 @@ namespace System.CommandLine.Tests
 {
     public class UseHelpTests
     {
-        private readonly TestConsole _console = new TestConsole();
+        private readonly TestConsole _console = new TestConsole {
+            WindowWidth = 80,
+        };
 
         [Fact]
         public async Task UseHelp_writes_help_for_the_specified_command()
