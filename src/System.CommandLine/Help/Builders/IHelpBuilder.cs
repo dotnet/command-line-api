@@ -3,10 +3,13 @@
     public interface IHelpBuilder
     {
         /// <summary>
-        ///
+        /// Writes help text for the provided <see cref="CommandDefinition"/> to
+        /// the configured <see cref="IConsole"/> instance
         /// </summary>
-        /// <param name="commandDefinition"></param>
+        /// <param name="commandDefinition">
+        /// The <see cref="CommandDefinition"/> to generate and write text for
+        /// </param>
         /// <exception cref="ArgumentNullException"></exception>
-        void Generate(CommandDefinition commandDefinition);
+        void Write(CommandDefinition commandDefinition);
     }
 }

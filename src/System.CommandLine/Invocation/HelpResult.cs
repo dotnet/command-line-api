@@ -7,7 +7,7 @@ namespace System.CommandLine.Invocation
     {
         public void Apply(InvocationContext context)
         {
-            context.ParseResult.Command.Definition.GenerateHelp(context.Console);
+            context.ParseResult.Command.Definition.WriteHelp(context.Console);
         }
     }
 }

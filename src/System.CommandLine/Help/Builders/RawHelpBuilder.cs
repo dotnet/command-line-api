@@ -8,6 +8,10 @@ namespace System.CommandLine
 {
     public class RawHelpBuilder : HelpBuilder
     {
+        /// <inheritdoc />
+        /// <summary>
+        /// Unlike the base <see cref="HelpBuilder"/>, this derivation preserves the formatting of the incoming text.
+        /// </summary>
         public RawHelpBuilder(
             IConsole console,
             int? columnGutter = null,
@@ -18,6 +22,11 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
+        /// <summary>
+        /// Takes a string of text and breaks it into lines of <see cref="maxLength"/>
+        /// characters.
+        /// This derivation preserves the formatting of the incoming text.
+        /// </summary>
         protected override IReadOnlyCollection<string> SplitText(string text, int maxLength)
         {
             if (string.IsNullOrWhiteSpace(text))

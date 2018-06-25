@@ -57,7 +57,7 @@ namespace System.CommandLine.Tests.Help
                 Description = "test  description\tfor synopsis",
             }
             .BuildCommandDefinition();
-            command.GenerateHelp(_console);
+            command.WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(2);
             _console.ForegroundColorCalls.Should().Be(2);
@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests.Help
                 .AddCommand("outer", "Help text   for the outer   command",
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
-            command.GenerateHelp(_console);
+            command.WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
             _console.ForegroundColorCalls.Should().Be(3);
@@ -102,7 +102,7 @@ namespace System.CommandLine.Tests.Help
                             description: "Argument\tfor the   inner command")
                         .ExactlyOne())
                 .BuildCommandDefinition();
-            command.Subcommand("outer").GenerateHelp(_console);
+            command.Subcommand("outer").WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
             _console.ForegroundColorCalls.Should().Be(3);
@@ -125,7 +125,7 @@ namespace System.CommandLine.Tests.Help
                             new[] { "-a", "--aaa" },
                             "Help   for      the   option"))
                 .BuildCommandDefinition();
-            command.Subcommand("test-command").GenerateHelp(_console);
+            command.Subcommand("test-command").WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
             _console.ForegroundColorCalls.Should().Be(3);
@@ -157,7 +157,7 @@ namespace System.CommandLine.Tests.Help
                             "Inner    option \twith spaces")))
                 .BuildCommandDefinition();
 
-            command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp(_console);
+            command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(4);
             _console.ForegroundColorCalls.Should().Be(4);

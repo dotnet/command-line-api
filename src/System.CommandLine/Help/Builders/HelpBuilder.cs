@@ -22,12 +22,17 @@ namespace System.CommandLine
         public int MaxWidth { get; } = DefaultWindowWidth;
 
         /// <summary>
-        ///
+        /// Brokers the generation and output of help text of <see cref="SymbolDefinition"/>
+        /// and the <see cref="IConsole"/>
         /// </summary>
-        /// <param name="console"></param>
-        /// <param name="columnGutter"></param>
-        /// <param name="indentationSize"></param>
-        /// <param name="maxWidth"></param>
+        /// <param name="console"><see cref="IConsole"/> instance to write the help text output</param>
+        /// <param name="columnGutter">
+        /// Number of characters to pad invocation information from their descriptions
+        /// </param>
+        /// <param name="indentationSize">Number of characters to indent new lines</param>
+        /// <param name="maxWidth">
+        /// Maximum number of characters available for each line to write to the console
+        /// </param>
         public HelpBuilder(
             IConsole console,
             int? columnGutter = null,
@@ -41,7 +46,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public void Generate(CommandDefinition commandDefinition)
+        public void Write(CommandDefinition commandDefinition)
         {
             if (commandDefinition == null)
             {
@@ -80,10 +85,10 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the currently available width based on the <see cref="MaxWidth"/> from the window
+        /// Gets the currently available space based on the <see cref="MaxWidth"/> from the window
         /// and the current indentation level
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The number of characters available on the current line</returns>
         protected int GetAvailableWidth()
         {
             return MaxWidth - CurrentIndentation - WindowMargin;
@@ -92,24 +97,27 @@ namespace System.CommandLine
         /// <summary>
         /// Create a string of whitespace for the supplied number of characters
         /// </summary>
-        /// <param name="width"></param>
+        /// <param name="width">The length of whitespace required</param>
+        /// <returns>A string of <see cref="width"/> whitespace characters</returns>
         protected static string GetPadding(int width)
         {
             return new string(' ', width);
         }
 
         /// <summary>
-        /// Adds a blank line to the current builder
+        /// Writes a blank line to the console
         /// </summary>
         private void AppendBlankLine()
         {
             _console.Out.WriteLine();
         }
 
+
         /// <summary>
-        ///
+        /// Writes whitespace to the console based on the provided offset,
+        /// defaulting to the <see cref="CurrentIndentation"/>
         /// </summary>
-        /// <param name="offset"></param>
+        /// <param name="offset">Number of characters to pad</param>
         private void AppendPadding(int? offset = null)
         {
             var padding = GetPadding(offset ?? CurrentIndentation);
@@ -117,10 +125,11 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Adds a new line of text to the current builder, padded with the current indentation
+        /// Writes a new line of text to the console, padded with a supplied offset
+        /// defaulting to the <see cref="CurrentIndentation"/>
         /// </summary>
-        /// <param name="text"></param>
-        /// /// <param name="offset"></param>
+        /// <param name="text">The text content to write to the console</param>
+        /// <param name="offset">Number of characters to pad the text</param>
         private void AppendLine(string text, int? offset = null)
         {
             AppendPadding(offset);
@@ -128,10 +137,10 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Adds a new line of text to the current builder, padded with the current indentation
+        /// Writes text to the console, padded with a supplied offset
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="offset"></param>
+        /// <param name="text">Text content to write to the console</param>
+        /// <param name="offset">Number of characters to pad the text</param>
         private void AppendText(string text, int? offset = null)
         {
             AppendPadding(offset);
@@ -139,18 +148,24 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        ///
+        /// Writes heading text to the console.
         /// </summary>
-        /// <param name="heading"></param>
+        /// <param name="heading">Heading text content to write to the console</param>
+        /// <exception cref="ArgumentNullException"></exception>
         protected virtual void AppendHeading(string heading)
         {
+            if (heading == null)
+            {
+                throw new ArgumentNullException(nameof(heading));
+            }
+
             AppendLine(heading);
         }
 
         /// <summary>
-        ///
+        /// Writes a description block to the console
         /// </summary>
-        /// <param name="description"></param>
+        /// <param name="description">Description text to write to the console</param>
         /// <exception cref="ArgumentNullException"></exception>
         protected virtual void AppendDescription(string description)
         {
@@ -169,12 +184,17 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Adds columnar content for a <see cref="HelpDefinition"/> using the current indentation
+        /// Adds columnar content for a <see cref="HelpItem"/> using the current indentation
         /// for the line, and adding the appropriate padding between the columns
         /// </summary>
-        /// <param name="helpItem"></param>
-        /// <param name="maxLeftColumnWidth"></param>
-        protected void AppendHelpItem(HelpItem helpItem, int maxLeftColumnWidth)
+        /// <param name="helpItem">
+        /// Current <see cref="HelpItem" /> to write to the console
+        /// </param>
+        /// <param name="maxInvocationWidth">
+        /// Maximum number of characters accross all <see cref="HelpItem">help items</see>
+        /// occupied by the invocation text
+        /// </param>
+        protected void AppendHelpItem(HelpItem helpItem, int maxInvocationWidth)
         {
             if (helpItem == null)
             {
@@ -183,11 +203,11 @@ namespace System.CommandLine
 
             AppendText(helpItem.Invocation, CurrentIndentation);
 
-            var offset = maxLeftColumnWidth + ColumnGutter - helpItem.Invocation.Length;
+            var offset = maxInvocationWidth + ColumnGutter - helpItem.Invocation.Length;
             var availableWidth = GetAvailableWidth();
-            var maxRightColumnWidth = availableWidth - maxLeftColumnWidth - ColumnGutter;
+            var maxDescriptionWidth = availableWidth - maxInvocationWidth - ColumnGutter;
 
-            var descriptionLines = SplitText(helpItem.Description, maxRightColumnWidth);
+            var descriptionLines = SplitText(helpItem.Description, maxDescriptionWidth);
             var lineCount = descriptionLines.Count;
 
             AppendLine(descriptionLines.First(), offset);
@@ -197,7 +217,7 @@ namespace System.CommandLine
                 return;
             }
 
-            offset = CurrentIndentation + maxLeftColumnWidth + ColumnGutter;
+            offset = CurrentIndentation + maxInvocationWidth + ColumnGutter;
 
             for (var i = 1; i < lineCount; i++)
             {
@@ -207,12 +227,16 @@ namespace System.CommandLine
 
         /// <summary>
         /// Takes a string of text and breaks it into lines of <see cref="maxLength"/>
-        /// characters. This does not preserve any formatting of the incoming text - something
-        /// that would need to be handled on a derivation of HelpBuilder
+        /// characters. This does not preserve any formatting of the incoming text.
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="maxLength"></param>
-        /// <returns></returns>
+        /// <param name="text">Text content to split into writable lines</param>
+        /// <param name="maxLength">
+        /// Maximum number of characters allowed for writing the supplied <see cref="text"/>
+        /// </param>
+        /// <returns>
+        /// Collection of lines of at most <see cref="maxLength"/> characters
+        /// generated from the supplied <see cref="text"/>
+        /// </returns>
         protected virtual IReadOnlyCollection<string> SplitText(string text, int maxLength)
         {
             var cleanText = Regex.Replace(text, "\\s+", " ");
@@ -259,7 +283,7 @@ namespace System.CommandLine
         /// Formats the help rows for a given argument
         /// </summary>
         /// <param name="symbol"></param>
-        /// <returns></returns>
+        /// <returns>A new <see cref="HelpItem"/></returns>
         protected virtual HelpItem ArgumentFormatter(SymbolDefinition symbol)
         {
             var argHelp = symbol?.ArgumentDefinition?.Help;
@@ -274,7 +298,7 @@ namespace System.CommandLine
         /// Formats the help rows for a given option
         /// </summary>
         /// <param name="symbol"></param>
-        /// <returns></returns>
+        /// <returns>A new <see cref="HelpItem"/></returns>
         protected virtual HelpItem OptionFormatter(SymbolDefinition symbol)
         {
             var rawAliases = symbol.RawAliases
@@ -293,6 +317,10 @@ namespace System.CommandLine
             };
         }
 
+        /// <summary>
+        /// Writes a summary, if configured, for the supplied <see cref="commandDefinition"/>
+        /// </summary>
+        /// <param name="commandDefinition"></param>
         protected virtual void AddSynopsis(CommandDefinition commandDefinition)
         {
             if (!commandDefinition.HasHelp)
@@ -301,9 +329,13 @@ namespace System.CommandLine
             }
 
             var title = $"{commandDefinition.Help.Name}:";
-            HelpSection.Build(this, title, commandDefinition.Help.Description);
+            HelpSection.Write(this, title, commandDefinition.Help.Description);
         }
 
+        /// <summary>
+        /// Writes the usage summary for the supplied <see cref="commandDefinition"/>
+        /// </summary>
+        /// <param name="commandDefinition"></param>
         protected virtual void AddUsage(CommandDefinition commandDefinition)
         {
             var usage = new List<string>();
@@ -352,9 +384,13 @@ namespace System.CommandLine
                 usage.Add(Usage.AdditionalArguments);
             }
 
-            HelpSection.Build(this, Usage.Title, string.Join(" ", usage));
+            HelpSection.Write(this, Usage.Title, string.Join(" ", usage));
         }
 
+        /// <summary>
+        /// Writes the arguments, if any, for the supplied <see cref="commandDefinition"/>
+        /// </summary>
+        /// <param name="commandDefinition"></param>
         protected virtual void AddArguments(CommandDefinition commandDefinition)
         {
             var arguments = new List<CommandDefinition>();
@@ -369,9 +405,14 @@ namespace System.CommandLine
                 arguments.Add(commandDefinition);
             }
 
-            HelpSection.Build(this, Arguments.Title, arguments, ArgumentFormatter);
+            HelpSection.Write(this, Arguments.Title, arguments, ArgumentFormatter);
         }
 
+        /// <summary>
+        /// Writes the <see cref="OptionDefinition"/> help content, if any,
+        /// for the supplied <see cref="commandDefinition"/>
+        /// </summary>
+        /// <param name="commandDefinition"></param>
         protected virtual void AddOptions(SymbolDefinition commandDefinition)
         {
             var options = commandDefinition
@@ -380,9 +421,14 @@ namespace System.CommandLine
                 .Where(opt => opt.HasHelp)
                 .ToArray();
 
-            HelpSection.Build(this, Options.Title, options, OptionFormatter);
+            HelpSection.Write(this, Options.Title, options, OptionFormatter);
         }
 
+        /// <summary>
+        /// Writes the help content of the <see cref="CommandDefinition"/> subcommands, if any,
+        /// for the supplied <see cref="commandDefinition"/>
+        /// </summary>
+        /// <param name="commandDefinition"></param>
         protected virtual void AddSubcommands(SymbolDefinition commandDefinition)
         {
             var subcommands = commandDefinition
@@ -391,7 +437,7 @@ namespace System.CommandLine
                 .Where(subCommand => subCommand.HasHelp)
                 .ToArray();
 
-            HelpSection.Build(this, Commands.Title, subcommands, OptionFormatter);
+            HelpSection.Write(this, Commands.Title, subcommands, OptionFormatter);
         }
 
         protected virtual void AddAdditionalArguments(CommandDefinition commandDefinition)
@@ -401,14 +447,16 @@ namespace System.CommandLine
                 return;
             }
 
-            HelpSection.Build(this, AdditionalArguments.Title, AdditionalArguments.Description);
+            HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
         /// <summary>
-        /// Gets the width of the current window, falling back to the <see cref="DefaultWindowWidth"/>
-        /// if necessary
+        /// Gets the number of characters of the current <see cref="IConsole"/> window if necessary
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// The current width (number of characters) of the configured <see cref="IConsole"/>,
+        /// or the <see cref="DefaultWindowWidth"/> if unavailable
+        /// </returns>
         private int GetWindowWidth()
         {
             try
@@ -430,12 +478,12 @@ namespace System.CommandLine
 
         private static class HelpSection
         {
-            public static void Build(
+            public static void Write(
                 HelpBuilder builder,
                 string title,
                 string description)
             {
-                if (!ShouldBuild(description, null))
+                if (!ShouldWrite(description, null))
                 {
                     return;
                 }
@@ -447,14 +495,14 @@ namespace System.CommandLine
                 builder.AppendBlankLine();
             }
 
-            public static void Build(
+            public static void Write(
                 HelpBuilder builder,
                 string title,
                 IReadOnlyCollection<SymbolDefinition> usageItems = null,
                 Func<SymbolDefinition, HelpItem> formatter = null,
                 string description = null)
             {
-                if (!ShouldBuild(description, usageItems))
+                if (!ShouldWrite(description, usageItems))
                 {
                     return;
                 }
@@ -467,7 +515,7 @@ namespace System.CommandLine
                 builder.AppendBlankLine();
             }
 
-            private static bool ShouldBuild(string description, IReadOnlyCollection<SymbolDefinition> usageItems)
+            private static bool ShouldWrite(string description, IReadOnlyCollection<SymbolDefinition> usageItems)
             {
                 if (!string.IsNullOrWhiteSpace(description))
                 {

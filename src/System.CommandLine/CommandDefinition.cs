@@ -75,10 +75,10 @@ namespace System.CommandLine
 
         internal MethodBinder ExecutionHandler { get; }
 
-        public void GenerateHelp(IConsole console)
+        public void WriteHelp(IConsole console)
         {
             IHelpBuilder helpBuilder = _helpBuilder ?? new HelpBuilder(console);
-            helpBuilder.Generate(this);
+            helpBuilder.Write(this);
         }
     }
 }

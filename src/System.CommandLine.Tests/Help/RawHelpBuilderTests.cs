@@ -52,7 +52,7 @@ namespace System.CommandLine.Tests.Help
                 Description = "test  description\tfor synopsis",
             }
             .BuildCommandDefinition();
-            command.GenerateHelp(_console);
+            command.WriteHelp(_console);
 
             var expected = $@"{ExecutableName}:
 {_indentation}test  description{"\t"}for synopsis
@@ -73,7 +73,7 @@ Usage:
                     Description = $"test{NewLine}description with{NewLine}line breaks",
                 }
                 .BuildCommandDefinition();
-            command.GenerateHelp(_console);
+            command.WriteHelp(_console);
 
             var expected = $@"{ExecutableName}:
 {_indentation}test
@@ -98,7 +98,7 @@ Usage:
                     Description = longText,
                 }
                 .BuildCommandDefinition();
-            command.GenerateHelp(_console);
+            command.WriteHelp(_console);
 
             var expected = $@"{ExecutableName}:
 {_indentation}test
@@ -128,7 +128,7 @@ Usage:
                 .AddCommand("outer", "Help text   for the outer   command",
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
-            command.GenerateHelp(_console);
+            command.WriteHelp(_console);
 
             var expected = $@"{ExecutableName}:
 {_indentation}test  description
@@ -155,7 +155,7 @@ Commands:
                 .AddCommand("outer", $"Help text{NewLine}for the outer{NewLine}command",
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
-            command.GenerateHelp(_console);
+            command.WriteHelp(_console);
 
             var expected = $@"{ExecutableName}:
 {_indentation}test  description
@@ -184,7 +184,7 @@ Commands:
                 .AddCommand("outer", longText,
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
-            command.GenerateHelp(_console);
+            command.WriteHelp(_console);
 
             var expected = $@"{ExecutableName}:
 {_indentation}test  description
@@ -220,7 +220,7 @@ Commands:
                             description: "Argument\tfor the   inner command")
                         .ExactlyOne())
                 .BuildCommandDefinition();
-            command.Subcommand("outer").GenerateHelp(_console);
+            command.Subcommand("outer").WriteHelp(_console);
 
             var expected = $@"outer:
 {_indentation}Help text for the outer command
@@ -250,7 +250,7 @@ Arguments:
                             description: $"The argument{NewLine}for the{NewLine}inner command")
                         .ExactlyOne())
                 .BuildCommandDefinition();
-            command.Subcommand("outer").GenerateHelp(_console);
+            command.Subcommand("outer").WriteHelp(_console);
 
             var expected = $@"outer:
   Help text for the outer command
@@ -283,7 +283,7 @@ Arguments:
                             description: longText)
                         .ExactlyOne())
                 .BuildCommandDefinition();
-            command.Subcommand("outer").GenerateHelp(_console);
+            command.Subcommand("outer").WriteHelp(_console);
 
             var expected = $@"outer:
   Help text for the outer command
@@ -320,7 +320,7 @@ Arguments:
                             new[] { "-a", "--aaa" },
                             "Help   for      the   option"))
                 .BuildCommandDefinition();
-            command.Subcommand("test-command").GenerateHelp(_console);
+            command.Subcommand("test-command").WriteHelp(_console);
 
             var expected = $@"test-command:
 {_indentation}Help text for the command
@@ -349,7 +349,7 @@ Options:
                             new[] { "-a", "--aaa" },
                             $"Help{NewLine}for {NewLine} the{NewLine}option"))
                 .BuildCommandDefinition();
-            command.Subcommand("test-command").GenerateHelp(_console);
+            command.Subcommand("test-command").WriteHelp(_console);
 
             var expected = $@"test-command:
 {_indentation}Help text for the command
@@ -382,7 +382,7 @@ Options:
                             new[] { "-a", "--aaa" },
                             longText))
                 .BuildCommandDefinition();
-            command.Subcommand("test-command").GenerateHelp(_console);
+            command.Subcommand("test-command").WriteHelp(_console);
 
             var expected = $@"test-command:
 {_indentation}Help text for the command
@@ -427,7 +427,7 @@ Options:
                             "Inner    option \twith spaces")))
                 .BuildCommandDefinition();
 
-            command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp(_console);
+            command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
 
             var expected = $@"inner-command:
 {_indentation}inner    command{"\t"} help  with whitespace
@@ -470,7 +470,7 @@ Options:
                             $"Inner {NewLine} command {NewLine}option with{NewLine} newlines")))
                 .BuildCommandDefinition();
 
-            command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp(_console);
+            command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
 
             var expected = $@"inner-command:
 {_indentation}inner
@@ -520,7 +520,7 @@ Options:
                             longText)))
                 .BuildCommandDefinition();
 
-            command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp(_console);
+            command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
 
             var expected = $@"inner-command:
 {_indentation}The

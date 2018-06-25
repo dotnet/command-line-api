@@ -4,6 +4,9 @@
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Static strings used for default titles and labels in the output help sections
+    /// </summary>
     public static class DefaultHelpText
     {
         public static class AdditionalArguments
