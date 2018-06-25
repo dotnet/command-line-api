@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests.Help
         private readonly IConsole _console;
         private readonly ITestOutputHelper _output;
         private const string ExecutableName = "testhost";
-        private const int MaxWidth = 80;
+        private const int MaxWidth = 60;
         private const int ColumnGutterWidth = 4;
         private const int IndentationWidth = 2;
         private readonly string _columnPadding;
@@ -92,6 +92,31 @@ Usage:
             GetHelpText().Should().Be(expected);
         }
 
+        [Fact]
+        public void Format_is_preserved_with_wrapping_in_synopsis()
+        {
+            var longText = $"test{NewLine}description with line breaks that is long enough to wrap to a{NewLine}new line";
+            var command = new CommandLineBuilder
+                {
+                    HelpBuilder = _rawHelpBuilder,
+                    Description = longText,
+                }
+                .BuildCommandDefinition();
+            command.GenerateHelp(_console);
+
+            var expected = $@"{ExecutableName}:
+{_indentation}test
+{_indentation}description with line breaks that is long enough to wrap
+{_indentation} to a
+{_indentation}new line
+
+Usage:
+{_indentation}{ExecutableName}
+
+";
+            GetHelpText().Should().Be(expected);
+        }
+
         #endregion " Synopsis "
 
         #region " Usage "
@@ -148,7 +173,36 @@ Commands:
 {_indentation}     {_columnPadding}command
 
 ";
+            GetHelpText().Should().Be(expected);
+        }
 
+        [Fact]
+        public void Format_is_preserved_with_wrapping_in_usage()
+        {
+            var longText = $"Help{NewLine}text with line breaks that is long enough to wrap to a{NewLine}new line";
+            var command = new CommandLineBuilder
+                {
+                    HelpBuilder = _rawHelpBuilder,
+                    Description = "test  description",
+                }
+                .AddCommand("outer", longText,
+                    arguments: args => args.ExactlyOne())
+                .BuildCommandDefinition();
+            command.GenerateHelp(_console);
+
+            var expected = $@"{ExecutableName}:
+{_indentation}test  description
+
+Usage:
+{_indentation}{ExecutableName} [command]
+
+Commands:
+{_indentation}outer{_columnPadding}Help
+{_indentation}     {_columnPadding}text with line breaks that is long enough to{" "}
+{_indentation}     {_columnPadding}wrap to a
+{_indentation}     {_columnPadding}new line
+
+";
             GetHelpText().Should().Be(expected);
         }
 
@@ -167,19 +221,19 @@ Commands:
                     arguments: args => args
                         .WithHelp(
                             name: "outer-command-arg",
-                            description: "The argument\tfor the    inner command")
+                            description: "Argument\tfor the   inner command")
                         .ExactlyOne())
                 .BuildCommandDefinition();
             command.Subcommand("outer").GenerateHelp(_console);
 
             var expected = $@"outer:
-  Help text for the outer command
+{_indentation}Help text for the outer command
 
 Usage:
 {_indentation}{ExecutableName} outer <outer-command-arg>
 
 Arguments:
-{_indentation}<outer-command-arg>{_columnPadding}The argument{"\t"}for the    inner command
+{_indentation}<outer-command-arg>{_columnPadding}Argument{"\t"}for the   inner command
 
 ";
 
@@ -212,6 +266,41 @@ Arguments:
 {_indentation}<outer-command-arg>{_columnPadding}The argument
 {_indentation}                   {_columnPadding}for the
 {_indentation}                   {_columnPadding}inner command
+
+";
+
+            GetHelpText().Should().Be(expected);
+        }
+
+        [Fact]
+        public void Format_is_preserved_with_wrapping_in_arguments()
+        {
+            var longText = $"The argument{NewLine}for the inner command with line breaks that is long enough to wrap to a{NewLine}new line";
+            var command = new CommandLineBuilder
+                {
+                    HelpBuilder = _rawHelpBuilder,
+                }
+                .AddCommand("outer", "Help text for the outer command",
+                    arguments: args => args
+                        .WithHelp(
+                            name: "outer-command-arg",
+                            description: longText)
+                        .ExactlyOne())
+                .BuildCommandDefinition();
+            command.Subcommand("outer").GenerateHelp(_console);
+
+            var expected = $@"outer:
+  Help text for the outer command
+
+Usage:
+{_indentation}{ExecutableName} outer <outer-command-arg>
+
+Arguments:
+{_indentation}<outer-command-arg>{_columnPadding}The argument
+{_indentation}                   {_columnPadding}for the inner command with line{" "}
+{_indentation}                   {_columnPadding}breaks that is long enough to{" "}
+{_indentation}                   {_columnPadding}wrap to a
+{_indentation}                   {_columnPadding}new line
 
 ";
 
@@ -283,6 +372,39 @@ Options:
             GetHelpText().Should().Be(expected);
         }
 
+        [Fact]
+        public void Format_is_preserved_with_wrapping_in_options()
+        {
+            var longText = $"The option{NewLine}with line breaks that is long enough to wrap to a{NewLine}new line";
+            var command = new CommandLineBuilder
+                {
+                    HelpBuilder = _rawHelpBuilder,
+                }
+                .AddCommand("test-command", "Help text for the command",
+                    symbols => symbols
+                        .AddOption(
+                            new[] { "-a", "--aaa" },
+                            longText))
+                .BuildCommandDefinition();
+            command.Subcommand("test-command").GenerateHelp(_console);
+
+            var expected = $@"test-command:
+{_indentation}Help text for the command
+
+Usage:
+{_indentation}{ExecutableName} test-command [options]
+
+Options:
+{_indentation}-a, --aaa{_columnPadding}The option
+{_indentation}         {_columnPadding}with line breaks that is long enough to{" "}
+{_indentation}         {_columnPadding}wrap to a
+{_indentation}         {_columnPadding}new line
+
+";
+
+            GetHelpText().Should().Be(expected);
+        }
+
         #endregion " Options "
 
         #region " Subcommands "
@@ -306,7 +428,7 @@ Options:
                             .ZeroOrOne(),
                         symbols: inner => inner.AddOption(
                             new[] { "-v", "--verbosity" },
-                            "Inner    command    option \twith spaces")))
+                            "Inner    option \twith spaces")))
                 .BuildCommandDefinition();
 
             command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp(_console);
@@ -315,14 +437,15 @@ Options:
 {_indentation}inner    command{"\t"} help  with whitespace
 
 Usage:
-{_indentation}{ExecutableName} outer-command <outer-args> inner-command [options] <inner-args>
+{_indentation}{ExecutableName} outer-command <outer-args> inner-command{" "}
+{_indentation}[options] <inner-args>
 
 Arguments:
   <outer-args>{_columnPadding}
   <inner-args>{_columnPadding}
 
 Options:
-{_indentation}-v, --verbosity{_columnPadding}Inner    command    option {"\t"}with spaces
+{_indentation}-v, --verbosity{_columnPadding}Inner    option {"\t"}with spaces
 
 ";
 
@@ -360,7 +483,8 @@ Options:
 {_indentation}newlines
 
 Usage:
-{_indentation}{ExecutableName} outer-command <outer-args> inner-command [options] <inner-args>
+{_indentation}{ExecutableName} outer-command <outer-args> inner-command{" "}
+{_indentation}[options] <inner-args>
 
 Arguments:
   <outer-args>{_columnPadding}
@@ -371,6 +495,56 @@ Options:
 {_indentation}               {_columnPadding} command{" "}
 {_indentation}               {_columnPadding}option with
 {_indentation}               {_columnPadding} newlines
+
+";
+
+            GetHelpText().Should().Be(expected);
+        }
+
+        [Fact]
+        public void Format_is_preserved_with_wrapping_in_subcommands()
+        {
+            var longText = $"The{NewLine}subcommand with line breaks that is long enough to wrap to a{NewLine}new line";
+            var command = new CommandLineBuilder
+                {
+                    HelpBuilder = _rawHelpBuilder,
+                }
+                .AddCommand(
+                    "outer-command", "outer command help",
+                    arguments: outerArgs => outerArgs
+                        .WithHelp(name: "outer-args")
+                        .ZeroOrMore(),
+                    symbols: outer => outer.AddCommand(
+                        "inner-command", longText,
+                        arguments: args => args
+                            .WithHelp(name: "inner-args")
+                            .ZeroOrOne(),
+                        symbols: inner => inner.AddOption(
+                            new[] { "-v", "--verbosity" },
+                            longText)))
+                .BuildCommandDefinition();
+
+            command.Subcommand("outer-command").Subcommand("inner-command").GenerateHelp(_console);
+
+            var expected = $@"inner-command:
+{_indentation}The
+{_indentation}subcommand with line breaks that is long enough to wrap{" "}
+{_indentation}to a
+{_indentation}new line
+
+Usage:
+{_indentation}{ExecutableName} outer-command <outer-args> inner-command{" "}
+{_indentation}[options] <inner-args>
+
+Arguments:
+  <outer-args>{_columnPadding}
+  <inner-args>{_columnPadding}
+
+Options:
+{_indentation}-v, --verbosity{_columnPadding}The
+{_indentation}               {_columnPadding}subcommand with line breaks that is{" "}
+{_indentation}               {_columnPadding}long enough to wrap to a
+{_indentation}               {_columnPadding}new line
 
 ";
 
