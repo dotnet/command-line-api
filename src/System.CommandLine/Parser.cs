@@ -20,7 +20,7 @@ namespace System.CommandLine
 
         internal CommandLineConfiguration Configuration { get; }
 
-        public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
+        public virtual ParseResult Parse(string[] rawTokens, string rawInput = null)
         {
             var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
             var unparsedTokens = new Queue<Token>(lexResult.Tokens);
