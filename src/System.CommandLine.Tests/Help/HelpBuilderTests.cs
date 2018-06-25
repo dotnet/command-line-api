@@ -10,7 +10,7 @@ using static System.Environment;
 
 namespace System.CommandLine.Tests.Help
 {
-    public class HelpViewTests
+    public class HelpBuilderTests
     {
         private readonly HelpBuilder _helpBuilder;
         private readonly IConsole _console;
@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests.Help
         private readonly string _columnPadding;
         private readonly string _indentation;
 
-        public HelpViewTests(ITestOutputHelper output)
+        public HelpBuilderTests(ITestOutputHelper output)
         {
             _console = new TestConsole();
             _helpBuilder = new HelpBuilder(

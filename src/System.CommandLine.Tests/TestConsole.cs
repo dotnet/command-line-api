@@ -21,11 +21,11 @@ namespace System.CommandLine.Tests
         {
         }
 
-        public ConsoleColor ForegroundColor { get; set; }
+        public virtual ConsoleColor ForegroundColor { get; set; }
 
         public int WindowWidth { get; set; }
 
-        public void ResetColor()
+        public virtual void ResetColor()
         {
         }
     }

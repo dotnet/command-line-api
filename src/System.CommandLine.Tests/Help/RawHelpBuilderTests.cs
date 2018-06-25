@@ -9,7 +9,7 @@ using static System.Environment;
 
 namespace System.CommandLine.Tests.Help
 {
-    public class RawHelpViewTests
+    public class RawHelpBuilderTests
     {
         private readonly RawHelpBuilder _rawHelpBuilder;
         private readonly IConsole _console;
@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests.Help
         private readonly string _columnPadding;
         private readonly string _indentation;
 
-        public RawHelpViewTests(ITestOutputHelper output)
+        public RawHelpBuilderTests(ITestOutputHelper output)
         {
             _console = new TestConsole();
             _rawHelpBuilder = new RawHelpBuilder(
@@ -61,11 +61,7 @@ Usage:
 {_indentation}{ExecutableName}
 
 ";
-
-            var help = GetHelpText();
-            _output.WriteLine(help);
-
-            help.Should().Be(expected);
+            GetHelpText().Should().Be(expected);
         }
 
         [Fact]
