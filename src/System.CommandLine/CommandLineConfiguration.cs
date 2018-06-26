@@ -10,7 +10,7 @@ namespace System.CommandLine
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
 
         public CommandLineConfiguration(
-            IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
+            IReadOnlyCollection<Symbol> symbols,
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
             bool allowUnbundling = true,
@@ -18,21 +18,21 @@ namespace System.CommandLine
             ResponseFileHandling responseFileHandling = default(ResponseFileHandling),
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null)
         {
-            if (symbolDefinitions == null)
+            if (symbols == null)
             {
-                throw new ArgumentNullException(nameof(symbolDefinitions));
+                throw new ArgumentNullException(nameof(symbols));
             }
 
-            if (!symbolDefinitions.Any())
+            if (!symbols.Any())
             {
                 throw new ArgumentException("You must specify at least one option.");
             }
 
             ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=', ' ' };
 
-            foreach (var definition in symbolDefinitions)
+            foreach (var symbol in symbols)
             {
-                foreach (var alias in definition.RawAliases)
+                foreach (var alias in symbol.RawAliases)
                 {
                     foreach (var delimiter in ArgumentDelimiters)
                     {
@@ -44,20 +44,20 @@ namespace System.CommandLine
                 }
             }
 
-            if (symbolDefinitions.Count == 1 &&
-                symbolDefinitions.Single() is CommandDefinition rootComanCommandDefinition)
+            if (symbols.Count == 1 &&
+                symbols.Single() is Command rootCommand)
             {
-                RootCommandDefinition = rootComanCommandDefinition;
+                RootCommand = rootCommand;
             }
             else
             {
-                RootCommandDefinition = new CommandDefinition(
+                RootCommand = new Command(
                     CommandLineBuilder.ExeName,
                     "",
-                    symbolDefinitions);
+                    symbols);
             }
 
-            SymbolDefinitions.Add(RootCommandDefinition);
+            Symbol.Add(RootCommand);
 
             AllowUnbundling = allowUnbundling;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
@@ -67,9 +67,9 @@ namespace System.CommandLine
 
             if (prefixes?.Count > 0)
             {
-                foreach (SymbolDefinition symbol in symbolDefinitions)
+                foreach (var symbol in symbols)
                 {
-                    foreach (string alias in symbol.RawAliases.ToList())
+                    foreach (var alias in symbol.RawAliases.ToList())
                     {
                         if (!prefixes.All(prefix => alias.StartsWith(prefix)))
                         {
@@ -85,7 +85,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> Prefixes { get; }
 
-        public SymbolDefinitionSet SymbolDefinitions { get; } = new SymbolDefinitionSet();
+        public SymbolSet Symbol { get; } = new SymbolSet();
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
@@ -97,7 +97,7 @@ namespace System.CommandLine
             _middlewarePipeline ??
             (_middlewarePipeline = new List<InvocationMiddleware>());
 
-        internal CommandDefinition RootCommandDefinition { get; }
+        internal Command RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
     }

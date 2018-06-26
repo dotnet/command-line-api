@@ -7,18 +7,18 @@ using System.Linq;
 
 namespace System.CommandLine.Builder
 {
-    public class CommandDefinitionBuilder : SymbolDefinitionBuilder
+    public class CommandBuilder : SymbolBuilder
     {
-        public CommandDefinitionBuilder(
+        public CommandBuilder(
             string name,
-            CommandDefinitionBuilder parent = null) : base(parent)
+            CommandBuilder parent = null) : base(parent)
         {
             Name = name;
         }
 
-        public OptionDefinitionBuilderSet Options { get; } = new OptionDefinitionBuilderSet();
+        public OptionBuilderSet Options { get; } = new OptionBuilderSet();
 
-        public CommandDefinitionBuilderSet Commands { get; } = new CommandDefinitionBuilderSet();
+        public CommandBuilderSet Commands { get; } = new CommandBuilderSet();
 
         public bool? TreatUnmatchedTokensAsErrors { get; set; }
 
@@ -28,13 +28,13 @@ namespace System.CommandLine.Builder
 
         public IHelpBuilder HelpBuilder { get; set; }
 
-        public CommandDefinition BuildCommandDefinition()
+        public Command BuildCommand()
         {
-            return new CommandDefinition(
+            return new Command(
                 Name,
                 Description,
-                argumentDefinition: BuildArguments(),
-                symbolDefinitions: BuildChildSymbolDefinitions(),
+                argument: BuildArguments(),
+                symbols: BuildChildSymbols(),
                 treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
                                               Parent?.TreatUnmatchedTokensAsErrors ??
                                               true,
@@ -42,18 +42,18 @@ namespace System.CommandLine.Builder
                 helpBuilder: HelpBuilder);
         }
 
-        protected IReadOnlyCollection<SymbolDefinition> BuildChildSymbolDefinitions()
+        protected IReadOnlyCollection<Symbol> BuildChildSymbols()
         {
             var subcommands = Commands
                 .Select(b => {
                     b.TreatUnmatchedTokensAsErrors = TreatUnmatchedTokensAsErrors;
-                    return b.BuildCommandDefinition();
+                    return b.BuildCommand();
                 });
 
             var options = Options
-                .Select(b => b.BuildOptionDefinition());
+                .Select(b => b.BuildOption());
 
-            return subcommands.Concat<SymbolDefinition>(options).ToArray();
+            return subcommands.Concat<Symbol>(options).ToArray();
         }
     }
 

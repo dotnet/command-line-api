@@ -5,12 +5,12 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public static class OptionDefinitionExtensions
+    public static class OptionExtensions
     {
         public static ParseResult Parse(
-            this OptionDefinition optionDefinition,
+            this Option option,
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
-            new Parser(new CommandLineConfiguration(argumentDelimiters: delimiters, symbolDefinitions: new[] { optionDefinition })).Parse(commandLine);
+            new Parser(new CommandLineConfiguration(argumentDelimiters: delimiters, symbols: new[] { option })).Parse(commandLine);
     }
 }

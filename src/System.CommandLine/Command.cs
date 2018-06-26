@@ -1,68 +1,84 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine
 {
     public class Command : Symbol
     {
-        public Command(CommandDefinition commandDefinition, Command parent = null) : base(commandDefinition, commandDefinition?.Name, parent)
+        private readonly IHelpBuilder _helpBuilder;
+
+        public Command(
+            string name,
+            string description,
+            Argument argument,
+            bool treatUnmatchedTokensAsErrors = true,
+            IHelpBuilder helpBuilder = null) :
+            base(new[] { name }, description, argument)
         {
-            Definition = commandDefinition ?? throw new ArgumentNullException(nameof(commandDefinition));
+            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+            _helpBuilder = helpBuilder;
         }
 
-        public CommandDefinition Definition { get; }
-
-        public Option this[string alias] => (Option) Children[alias];
-
-        internal void AddImplicitOption(OptionDefinition optionDefinition)
+        public Command(
+            string name,
+            string description,
+            IReadOnlyCollection<Symbol> symbols = null,
+            Argument argument = null,
+            bool treatUnmatchedTokensAsErrors = true,
+            MethodBinder executionHandler = null,
+            IHelpBuilder helpBuilder = null) :
+            base(new[] { name }, description)
         {
-            Children.Add(Option.CreateImplicit(optionDefinition, this));
+            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+            ExecutionHandler = executionHandler;
+            _helpBuilder = helpBuilder;
+            symbols = symbols ?? Array.Empty<Symbol>();
+
+            var validSymbolAliases = symbols
+                                     .SelectMany(o => o.RawAliases)
+                                     .ToArray();
+
+            ArgumentBuilder builder;
+            if (argument == null)
+            {
+                builder = new ArgumentBuilder();
+            }
+            else
+            {
+                builder = ArgumentBuilder.From(argument);
+            }
+
+            builder.ValidTokens.UnionWith(validSymbolAliases);
+
+            if (argument == null)
+            {
+                Argument = builder.ZeroOrMore();
+            }
+            else
+            {
+                Argument = argument;
+            }
+
+            foreach (Symbol symbol in symbols)
+            {
+                symbol.Parent = this;
+                Symbols.Add(symbol);
+            }
         }
 
-        internal override Symbol TryTakeToken(Token token) =>
-            TryTakeArgument(token) ??
-            TryTakeOptionOrCommand(token);
+        public bool TreatUnmatchedTokensAsErrors { get; }
 
-        private Symbol TryTakeOptionOrCommand(Token token)
+        internal MethodBinder ExecutionHandler { get; }
+        
+        public void WriteHelp(IConsole console)
         {
-            var symbol =
-                Children.SingleOrDefault(o => o.SymbolDefinition.HasRawAlias(token.Value));
-
-            if (symbol != null)
-            {
-                symbol.OptionWasRespecified = true;
-                return symbol;
-            }
-
-            symbol =
-                Definition.SymbolDefinitions
-                          .Where(o => o.RawAliases.Contains(token.Value))
-                          .Select(o => Create(o, token.Value, this, ValidationMessages))
-                          .SingleOrDefault();
-
-            if (symbol != null)
-            {
-                Children.Add(symbol);
-            }
-
-            return symbol;
-        }
-
-        public object ValueForOption(
-            string alias) =>
-            ValueForOption<object>(alias);
-
-        public T ValueForOption<T>(
-            string alias)
-        {
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
-            }
-
-            return Children[alias].GetValueOrDefault<T>();
+            IHelpBuilder helpBuilder = _helpBuilder ?? new HelpBuilder(console);
+            helpBuilder.Write(this);
         }
     }
 }

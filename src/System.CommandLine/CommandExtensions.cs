@@ -6,10 +6,10 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public static class CommandDefinitionExtensions
+    public static class CommandExtensions
     {
-        public static CommandDefinition Subcommand(
-            this CommandDefinition commandDefinition,
+        public static Command Subcommand(
+            this Command command,
             string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -17,20 +17,20 @@ namespace System.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            return commandDefinition.SymbolDefinitions
-                .OfType<CommandDefinition>()
-                .Single(c => c.Name == name);
+            return command.Symbols
+                          .OfType<Command>()
+                          .Single(c => c.Name == name);
         }
 
         public static ParseResult Parse(
-            this CommandDefinition commandDefinition,
+            this Command command,
             params string[] args) =>
-            new Parser(new[] { commandDefinition }).Parse(args);
+            new Parser(new[] { command }).Parse(args);
 
         public static ParseResult Parse(
-            this CommandDefinition commandDefinition,
+            this Command command,
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
-            new Parser(new[] { commandDefinition }).Parse(commandLine);
+            new Parser(new[] { command }).Parse(commandLine);
     }
 }

@@ -21,7 +21,7 @@ namespace System.CommandLine.Invocation
 
             context.Console.ResetColor();
 
-            context.ParseResult.Command.Definition.WriteHelp(context.Console);
+            context.ParseResult.CommandResult.Command.WriteHelp(context.Console);
         }
     }
 }

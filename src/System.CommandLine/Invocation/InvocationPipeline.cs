@@ -29,8 +29,8 @@ namespace System.CommandLine.Invocation
 
             invocations.Add(async (invocationContext, next) => {
                 var handler = invocationContext.ParseResult
+                                               .CommandResult
                                                .Command
-                                               .Definition
                                                .ExecutionHandler;
 
                 if (handler != null)

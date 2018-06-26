@@ -5,6 +5,6 @@ namespace System.CommandLine
 {
     public interface ISymbolValidator
     {
-        string Validate(Symbol symbol);
+        string Validate(SymbolResult symbolResult);
     }
 }

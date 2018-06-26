@@ -70,7 +70,7 @@ namespace System.CommandLine.DragonFruit
             return await parser.InvokeAsync(args, console);
         }
 
-        private static void SetHelpMetadata(MethodInfo method, CommandDefinitionBuilder builder)
+        private static void SetHelpMetadata(MethodInfo method, CommandBuilder builder)
         {
             Assembly assembly = method.DeclaringType.Assembly;
             string docFilePath = Path.Combine(
@@ -88,7 +88,7 @@ namespace System.CommandLine.DragonFruit
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
                     {
-                        if (options[parameterDescription.Key] is OptionDefinitionBuilder option)
+                        if (options[parameterDescription.Key] is OptionBuilder option)
                         {
                             option.Description = parameterDescription.Value;
                         }

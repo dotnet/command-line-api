@@ -14,7 +14,7 @@ namespace System.CommandLine
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public Parser(params SymbolDefinition[] symbolDefinitions) : this(new CommandLineConfiguration(symbolDefinitions))
+        public Parser(params Symbol[] symbol) : this(new CommandLineConfiguration(symbol))
         {
         }
 
@@ -25,13 +25,13 @@ namespace System.CommandLine
             var rawTokens = arguments;  // allow a more user-friendly name for callers of Parse
             var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
             var unparsedTokens = new Queue<Token>(lexResult.Tokens);
-            var allSymbols = new List<Symbol>();
+            var allSymbolResults = new List<SymbolResult>();
             var errors = new List<ParseError>(lexResult.Errors);
             var unmatchedTokens = new List<Token>();
-            Command rootCommand = null;
-            Command innermostCommand = null;
+            CommandResult rootCommand = null;   
+            CommandResult innermostCommand = null;
 
-            IList<OptionDefinition> optionQueue = GatherOptions(Configuration.SymbolDefinitions);
+            IList<Option> optionQueue = GatherOptions(Configuration.Symbol);
 
             while (unparsedTokens.Any())
             {
@@ -45,23 +45,23 @@ namespace System.CommandLine
 
                 if (token.Type != TokenType.Argument)
                 {
-                    var symbolDefinition =
-                        Configuration.SymbolDefinitions
+                    var symbol =
+                        Configuration.Symbol
                                      .SingleOrDefault(o => o.HasAlias(token.Value));
 
-                    if (symbolDefinition != null)
+                    if (symbol != null)
                     {
-                        var symbol = allSymbols
+                        var result = allSymbolResults
                             .LastOrDefault(o => o.HasAlias(token.Value));
 
-                        if (symbol == null)
+                        if (result == null)
                         {
-                            symbol = Symbol.Create(symbolDefinition, token.Value, validationMessages: Configuration.ValidationMessages);
+                            result = SymbolResult.Create(symbol, token.Value, validationMessages: Configuration.ValidationMessages);
 
-                            rootCommand = (Command)symbol;
+                            rootCommand = (CommandResult) result;
                         }
 
-                        allSymbols.Add(symbol);
+                        allSymbolResults.Add(result);
 
                         continue;
                     }
@@ -69,15 +69,15 @@ namespace System.CommandLine
 
                 var added = false;
 
-                foreach (var topLevelSymbol in Enumerable.Reverse(allSymbols))
+                foreach (var topLevelSymbol in Enumerable.Reverse(allSymbolResults))
                 {
                     var symbolForToken = topLevelSymbol.TryTakeToken(token);
 
                     if (symbolForToken != null)
                     {
-                        allSymbols.Add(symbolForToken);
+                        allSymbolResults.Add(symbolForToken);
                         added = true;
-                        if (symbolForToken is Command command)
+                        if (symbolForToken is CommandResult command)
                         {
                             ProcessImplicitTokens();
                             innermostCommand = command;
@@ -96,7 +96,7 @@ namespace System.CommandLine
                     }
 
                     if (token.Type == TokenType.Argument &&
-                        topLevelSymbol.SymbolDefinition is CommandDefinition)
+                        topLevelSymbol.Symbol is Command)
                     {
                         break;
                     }
@@ -110,7 +110,7 @@ namespace System.CommandLine
 
             ProcessImplicitTokens();
 
-            if (Configuration.RootCommandDefinition.TreatUnmatchedTokensAsErrors)
+            if (Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
                 errors.AddRange(
                     unmatchedTokens.Select(token => new ParseError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value))));
@@ -127,7 +127,7 @@ namespace System.CommandLine
 
             void ProcessImplicitTokens()
             {
-                Command currentCommand = innermostCommand ?? rootCommand;
+                var currentCommand = innermostCommand ?? rootCommand;
                 if (currentCommand == null) return;
 
                 Token[] tokensToAttemptByPosition =
@@ -138,39 +138,39 @@ namespace System.CommandLine
 
                 foreach (Token token in tokensToAttemptByPosition)
                 {
-                    SymbolDefinition optionSymdef = optionQueue.FirstOrDefault();
+                    var optionSymdef = optionQueue.FirstOrDefault();
                     if (optionSymdef != null)
                     {
                         var newToken = new Token(optionSymdef.RawAliases.First(), TokenType.Option);
-                        Symbol optionSymbol = currentCommand.TryTakeToken(newToken);
-                        Symbol optionArgument = optionSymbol?.TryTakeToken(token);
+                        var optionResult = currentCommand.TryTakeToken(newToken);
+                        var optionArgument = optionResult?.TryTakeToken(token);
                         if (optionArgument != null)
                         {
                             optionQueue.RemoveAt(0);
-                            allSymbols.Add(optionSymbol);
-                            if (optionSymbol != optionArgument)
+                            allSymbolResults.Add(optionResult);
+                            if (optionResult != optionArgument)
                             {
-                                allSymbols.Add(optionArgument);
+                                allSymbolResults.Add(optionArgument);
                             }
                             unmatchedTokens.Remove(token);
                         }
-                        else if (optionSymbol != null)
+                        else if (optionResult != null)
                         {
-                            currentCommand.Children.Remove(optionSymbol);
+                            currentCommand.Children.Remove(optionResult);
                         }
                     }
                 }
             }
         }
 
-        private static IList<OptionDefinition> GatherOptions(SymbolDefinitionSet symbolDefinitions)
+        private static IList<Option> GatherOptions(SymbolSet symbols)
         {
-            var optionList = new List<OptionDefinition>();
-            foreach (SymbolDefinition symbolDefinition in symbolDefinitions)
+            var optionList = new List<Option>();
+            foreach (var symbol in symbols)
             {
-                if (symbolDefinition is OptionDefinition optionDefinition)
+                if (symbol is Option optionDefinition)
                 {
-                    var validator = optionDefinition.ArgumentDefinition.Parser.ArityValidator;
+                    var validator = optionDefinition.Argument.Parser.ArityValidator;
                     if (validator?.MaximumNumberOfArguments == 1 &&
                         validator.MinimumNumberOfArguments == 1)    // Exactly One
                     {
@@ -178,7 +178,7 @@ namespace System.CommandLine
                     }
                 }
 
-                optionList.AddRange(GatherOptions(symbolDefinition.SymbolDefinitions));
+                optionList.AddRange(GatherOptions(symbol.Symbols));
             }
             return optionList;
         }
@@ -187,7 +187,7 @@ namespace System.CommandLine
         {
             var firstArg = args.FirstOrDefault();
 
-            var commandName = Configuration.RootCommandDefinition.Name;
+            var commandName = Configuration.RootCommand.Name;
 
             if (string.Equals(firstArg, commandName, StringComparison.OrdinalIgnoreCase))
             {

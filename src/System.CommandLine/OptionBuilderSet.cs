@@ -7,15 +7,15 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class OptionDefinitionBuilderSet : AliasedSet<OptionDefinitionBuilder>
+    public class OptionBuilderSet : AliasedSet<OptionBuilder>
     {
-        protected override bool ContainsItemWithAlias(OptionDefinitionBuilder item, string alias) =>
+        protected override bool ContainsItemWithAlias(OptionBuilder item, string alias) =>
             item.Aliases.Any(c => c == alias);
 
-        protected override bool ContainsItemWithRawAlias(OptionDefinitionBuilder item, string alias) =>
+        protected override bool ContainsItemWithRawAlias(OptionBuilder item, string alias) =>
             item.Aliases.Any(c => c.RemovePrefix() == alias);
 
-        protected override IReadOnlyCollection<string> GetAliases(OptionDefinitionBuilder item) =>
+        protected override IReadOnlyCollection<string> GetAliases(OptionBuilder item) =>
             item.Aliases;
     }
 }

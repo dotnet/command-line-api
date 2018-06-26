@@ -5,20 +5,20 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Builder
 {
-    public class OptionDefinitionBuilder : SymbolDefinitionBuilder
+    public class OptionBuilder : SymbolBuilder
     {
-        public OptionDefinitionBuilder(
+        public OptionBuilder(
             IReadOnlyCollection<string> aliases,
-            CommandDefinitionBuilder parent) : base(parent)
+            CommandBuilder parent) : base(parent)
         {
             Aliases.AddRange(aliases);
         }
 
         public List<string> Aliases { get; } = new List<string>();
 
-        public OptionDefinition BuildOptionDefinition()
+        public Option BuildOption()
         {
-            return new OptionDefinition(Aliases, Description, BuildArguments());
+            return new Option(Aliases, Description, BuildArguments());
         }
     }
 }

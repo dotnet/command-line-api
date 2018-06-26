@@ -3,5 +3,5 @@
 
 namespace System.CommandLine
 {
-    public delegate ArgumentParseResult ConvertArgument(Symbol symbol);
+    public delegate ArgumentParseResult ConvertArgument(SymbolResult symbolResult);
 }

@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
         private readonly TestConsole _console = new TestConsole();
 
         [Fact]
-        public async Task General_invocation_middlware_can_be_specified_in_the_parser_definition()
+        public async Task General_invocation_middlware_can_be_specified_in_the_parser()
         {
             var wasCalled = false;
 
@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task Specific_invocation_behavior_can_be_specified_in_the_command_definition()
+        public async Task Specific_invocation_behavior_can_be_specified_in_the_command()
         {
             var wasCalled = false;
 
