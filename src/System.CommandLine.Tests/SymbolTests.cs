@@ -11,7 +11,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Symbol_WithNullAliases_ThrowsArgumentNullException()
         {
-            Action result = () => new SymbolTest(null, null);
+            Action result = () => new TestSymbol(null, null);
             result.Should().Throw<ArgumentNullException>();
         }
 
@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
         public void Symbol_WithNoAliases_ThrowsArgumentException()
         {
             var mockAliases = new string[] {};
-            Action result = () => new SymbolTest(mockAliases, null);
+            Action result = () => new TestSymbol(mockAliases, null);
             result.Should().Throw<ArgumentException>()
                 .WithMessage("An option must have at least one alias.");
         }
@@ -28,7 +28,7 @@ namespace System.CommandLine.Tests
         public void Symbol_WithWhitespaceAlias_ThrowsArgumentException()
         {
             var mockAliases = new [] {""};
-            Action result = () => new SymbolTest(mockAliases, null);
+            Action result = () => new TestSymbol(mockAliases, null);
 
             result.Should().Throw<ArgumentException>()
                 .WithMessage("An option alias cannot be null, empty, or consist entirely of whitespace.");
@@ -42,7 +42,7 @@ namespace System.CommandLine.Tests
         public void Symbol_WithAliasWithOnlyPrefix_ThrowsArgumentException()
         {
             var mockAliases = new [] {"--"};
-            Action result = () => new SymbolTest(mockAliases, null);
+            Action result = () => new TestSymbol(mockAliases, null);
             result.Should().Throw<ArgumentException>()
                 .WithMessage("An option alias cannot be null, empty, or consist entirely of whitespace.");
 
