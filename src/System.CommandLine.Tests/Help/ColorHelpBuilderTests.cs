@@ -5,7 +5,6 @@ using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
-using static System.Environment;
 
 namespace System.CommandLine.Tests.Help
 {
@@ -19,6 +18,8 @@ namespace System.CommandLine.Tests.Help
 
             public int ResetColorCalls { get; private set; }
 
+            public string Output => Out.ToString();
+
             public override ConsoleColor ForegroundColor
             {
                 get => _foregroundColor;
@@ -29,6 +30,7 @@ namespace System.CommandLine.Tests.Help
                 }
             }
 
+
             public override void ResetColor()
             {
                 ResetColorCalls += 1;
@@ -37,16 +39,14 @@ namespace System.CommandLine.Tests.Help
 
         private readonly ColorHelpBuilder _colorHelpBuilder;
         private readonly ColorTestConsole _console;
-        private readonly ITestOutputHelper _output;
 
-        public ColorHelpBuilderTests(ITestOutputHelper output)
+        public ColorHelpBuilderTests()
         {
             _console = new ColorTestConsole();
             _colorHelpBuilder = new ColorHelpBuilder(_console);
-            _output = output;
         }
 
-        #region " Synopsis "
+        #region "Synopsis"
 
         [Fact]
         public void Synopsis_sets_and_resets_foreground_color()
@@ -63,9 +63,9 @@ namespace System.CommandLine.Tests.Help
             _console.ResetColorCalls.Should().Be(2);
         }
 
-        #endregion " Synopsis "
+        #endregion "Synopsis"
 
-        #region " Usage "
+        #region "Usage"
 
         [Fact]
         public void Usage_section_sets_and_resets_foreground_color()
@@ -84,9 +84,9 @@ namespace System.CommandLine.Tests.Help
             _console.ResetColorCalls.Should().Be(3);
         }
 
-        #endregion " Usage "
+        #endregion "Usage"
 
-        #region " Arguments "
+        #region "Arguments"
 
         [Fact]
         public void Arguments_section_sets_and_resets_foreground_color()
@@ -108,9 +108,9 @@ namespace System.CommandLine.Tests.Help
             _console.ResetColorCalls.Should().Be(3);
         }
 
-        #endregion " Arguments "
+        #endregion "Arguments"
 
-        #region " Options "
+        #region "Options"
 
         [Fact]
         public void Options_section_sets_and_resets_foreground_color()
@@ -131,9 +131,9 @@ namespace System.CommandLine.Tests.Help
             _console.ResetColorCalls.Should().Be(3);
         }
 
-        #endregion " Options "
+        #endregion "Options"
 
-        #region " Subcommands "
+        #region "Subcommands"
 
         [Fact]
         public void Subcommands_section_sets_and_resets_foreground_color()
@@ -163,6 +163,6 @@ namespace System.CommandLine.Tests.Help
             _console.ResetColorCalls.Should().Be(4);
         }
 
-        #endregion " Subcommands "
+        #endregion "Subcommands"
     }
 }

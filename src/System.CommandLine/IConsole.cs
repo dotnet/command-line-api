@@ -9,7 +9,7 @@ namespace System.CommandLine
     {
         TextWriter Out { get; }
 
-        void SetOut(TextWriter newOut);
+        TextWriter SetOut { set; }
 
         TextWriter Error { get; }
 

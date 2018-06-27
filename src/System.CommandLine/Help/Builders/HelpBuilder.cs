@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -556,7 +556,7 @@ namespace System.CommandLine
                 }
 
                 var helpItems = symbolDefinitions
-                    .Select(formatter);
+                    .Select(formatter).ToList();
 
                 var maxWidth = helpItems
                     .Select(line => line.Invocation.Length)
