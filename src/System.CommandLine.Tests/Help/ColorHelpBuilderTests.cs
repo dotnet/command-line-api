@@ -35,32 +35,32 @@ namespace System.CommandLine.Tests.Help
             }
         }
 
-        private readonly ColorHelpBuilder _rawHelpBuilder;
+        private readonly ColorHelpBuilder _colorHelpBuilder;
         private readonly ColorTestConsole _console;
         private readonly ITestOutputHelper _output;
 
         public ColorHelpBuilderTests(ITestOutputHelper output)
         {
             _console = new ColorTestConsole();
-            _rawHelpBuilder = new ColorHelpBuilder(_console);
+            _colorHelpBuilder = new ColorHelpBuilder(_console);
             _output = output;
         }
 
         #region " Synopsis "
 
         [Fact]
-        public void Whitespace_is_preserved_in_synopsis()
+        public void Synopsis_sets_and_resets_foreground_color()
         {
             var command = new CommandLineBuilder
             {
-                HelpBuilder = _rawHelpBuilder,
-                Description = "test  description\tfor synopsis",
+                HelpBuilder = _colorHelpBuilder,
+                Description = "test description for synopsis",
             }
             .BuildCommandDefinition();
             command.WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(2);
-            _console.ForegroundColorCalls.Should().Be(2);
+            _console.ResetColorCalls.Should().Be(2);
         }
 
         #endregion " Synopsis "
@@ -68,11 +68,11 @@ namespace System.CommandLine.Tests.Help
         #region " Usage "
 
         [Fact]
-        public void Whitespace_is_preserved_in_usage()
+        public void Usage_section_sets_and_resets_foreground_color()
         {
             var command = new CommandLineBuilder
                 {
-                    HelpBuilder = _rawHelpBuilder,
+                    HelpBuilder = _colorHelpBuilder,
                     Description = "test  description",
                 }
                 .AddCommand("outer", "Help text   for the outer   command",
@@ -81,7 +81,7 @@ namespace System.CommandLine.Tests.Help
             command.WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
-            _console.ForegroundColorCalls.Should().Be(3);
+            _console.ResetColorCalls.Should().Be(3);
         }
 
         #endregion " Usage "
@@ -89,11 +89,11 @@ namespace System.CommandLine.Tests.Help
         #region " Arguments "
 
         [Fact]
-        public void Whitespace_is_preserved_in_arguments()
+        public void Arguments_section_sets_and_resets_foreground_color()
         {
             var command = new CommandLineBuilder
                 {
-                    HelpBuilder = _rawHelpBuilder,
+                    HelpBuilder = _colorHelpBuilder,
                 }
                 .AddCommand("outer", "Help text for the outer command",
                     arguments: args => args
@@ -105,7 +105,7 @@ namespace System.CommandLine.Tests.Help
             command.Subcommand("outer").WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
-            _console.ForegroundColorCalls.Should().Be(3);
+            _console.ResetColorCalls.Should().Be(3);
         }
 
         #endregion " Arguments "
@@ -113,11 +113,11 @@ namespace System.CommandLine.Tests.Help
         #region " Options "
 
         [Fact]
-        public void Whitespace_is_preserved_in_options()
+        public void Options_section_sets_and_resets_foreground_color()
         {
             var command = new CommandLineBuilder
                 {
-                    HelpBuilder = _rawHelpBuilder,
+                    HelpBuilder = _colorHelpBuilder,
                 }
                 .AddCommand("test-command", "Help text for the command",
                     symbols => symbols
@@ -128,7 +128,7 @@ namespace System.CommandLine.Tests.Help
             command.Subcommand("test-command").WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
-            _console.ForegroundColorCalls.Should().Be(3);
+            _console.ResetColorCalls.Should().Be(3);
         }
 
         #endregion " Options "
@@ -136,11 +136,11 @@ namespace System.CommandLine.Tests.Help
         #region " Subcommands "
 
         [Fact]
-        public void Whitespace_is_preserved_in_subcommands()
+        public void Subcommands_section_sets_and_resets_foreground_color()
         {
             var command = new CommandLineBuilder
                 {
-                    HelpBuilder = _rawHelpBuilder,
+                    HelpBuilder = _colorHelpBuilder,
                 }
                 .AddCommand(
                     "outer-command", "outer command help",
@@ -160,7 +160,7 @@ namespace System.CommandLine.Tests.Help
             command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(4);
-            _console.ForegroundColorCalls.Should().Be(4);
+            _console.ResetColorCalls.Should().Be(4);
         }
 
         #endregion " Subcommands "
