@@ -17,8 +17,9 @@ namespace System.CommandLine.Tests
 
         public TextWriter Out { get; }
 
-        public void SetOut(TextWriter newOut)
+        public TextWriter SetOut
         {
+            set { }
         }
 
         public virtual ConsoleColor ForegroundColor { get; set; }

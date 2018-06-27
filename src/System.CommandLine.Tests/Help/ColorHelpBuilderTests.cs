@@ -5,7 +5,6 @@ using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
-using static System.Environment;
 
 namespace System.CommandLine.Tests.Help
 {
@@ -19,6 +18,8 @@ namespace System.CommandLine.Tests.Help
 
             public int ResetColorCalls { get; private set; }
 
+            public string Output => Out.ToString();
+
             public override ConsoleColor ForegroundColor
             {
                 get => _foregroundColor;
@@ -29,6 +30,7 @@ namespace System.CommandLine.Tests.Help
                 }
             }
 
+
             public override void ResetColor()
             {
                 ResetColorCalls += 1;
@@ -37,16 +39,14 @@ namespace System.CommandLine.Tests.Help
 
         private readonly ColorHelpBuilder _rawHelpBuilder;
         private readonly ColorTestConsole _console;
-        private readonly ITestOutputHelper _output;
 
-        public ColorHelpBuilderTests(ITestOutputHelper output)
+        public ColorHelpBuilderTests()
         {
             _console = new ColorTestConsole();
             _rawHelpBuilder = new ColorHelpBuilder(_console);
-            _output = output;
         }
 
-        #region " Synopsis "
+        #region "Synopsis"
 
         [Fact]
         public void Whitespace_is_preserved_in_synopsis()
@@ -60,12 +60,12 @@ namespace System.CommandLine.Tests.Help
             command.WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(2);
-            _console.ForegroundColorCalls.Should().Be(2);
+            _console.Output.Should().Contain("\t");
         }
 
-        #endregion " Synopsis "
+        #endregion "Synopsis"
 
-        #region " Usage "
+        #region "Usage"
 
         [Fact]
         public void Whitespace_is_preserved_in_usage()
@@ -81,12 +81,11 @@ namespace System.CommandLine.Tests.Help
             command.WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
-            _console.ForegroundColorCalls.Should().Be(3);
         }
 
-        #endregion " Usage "
+        #endregion "Usage"
 
-        #region " Arguments "
+        #region "Arguments"
 
         [Fact]
         public void Whitespace_is_preserved_in_arguments()
@@ -105,12 +104,11 @@ namespace System.CommandLine.Tests.Help
             command.Subcommand("outer").WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
-            _console.ForegroundColorCalls.Should().Be(3);
         }
 
-        #endregion " Arguments "
+        #endregion "Arguments"
 
-        #region " Options "
+        #region "Options"
 
         [Fact]
         public void Whitespace_is_preserved_in_options()
@@ -128,12 +126,11 @@ namespace System.CommandLine.Tests.Help
             command.Subcommand("test-command").WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
-            _console.ForegroundColorCalls.Should().Be(3);
         }
 
-        #endregion " Options "
+        #endregion "Options"
 
-        #region " Subcommands "
+        #region "Subcommands"
 
         [Fact]
         public void Whitespace_is_preserved_in_subcommands()
@@ -160,9 +157,8 @@ namespace System.CommandLine.Tests.Help
             command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(4);
-            _console.ForegroundColorCalls.Should().Be(4);
         }
 
-        #endregion " Subcommands "
+        #endregion "Subcommands"
     }
 }

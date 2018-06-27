@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
@@ -18,9 +18,9 @@ namespace System.CommandLine.DragonFruit
 
         public TextWriter Out => Console.Out;
 
-        public void SetOut(TextWriter newOut)
+        public TextWriter SetOut
         {
-            Console.SetOut(newOut);
+            set => Console.SetOut(value);
         }
 
         public ConsoleColor ForegroundColor
