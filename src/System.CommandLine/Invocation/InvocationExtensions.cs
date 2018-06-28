@@ -226,7 +226,7 @@ namespace System.CommandLine.Invocation
             bool TokenIsDefinedInSyntax() =>
                 context.Parser
                        .Configuration
-                       .Symbol
+                       .Symbols
                        .FlattenBreadthFirst(s => s.Symbols)
                        .SelectMany(s => s.RawAliases)
                        .Any(helpOptionAliases.Contains);

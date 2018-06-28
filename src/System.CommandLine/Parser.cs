@@ -31,7 +31,7 @@ namespace System.CommandLine
             CommandResult rootCommand = null;   
             CommandResult innermostCommand = null;
 
-            IList<Option> optionQueue = GatherOptions(Configuration.Symbol);
+            IList<Option> optionQueue = GatherOptions(Configuration.Symbols);
 
             while (unparsedTokens.Any())
             {
@@ -46,7 +46,7 @@ namespace System.CommandLine
                 if (token.Type != TokenType.Argument)
                 {
                     var symbol =
-                        Configuration.Symbol
+                        Configuration.Symbols
                                      .SingleOrDefault(o => o.HasAlias(token.Value));
 
                     if (symbol != null)

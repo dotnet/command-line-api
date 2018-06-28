@@ -58,7 +58,7 @@ namespace System.CommandLine
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
-            var knownTokens = new HashSet<Token>(configuration.Symbol.SelectMany(ValidTokens));
+            var knownTokens = new HashSet<Token>(configuration.Symbols.SelectMany(ValidTokens));
 
             for (var i = 0; i < argList.Count; i++)
             {
@@ -158,7 +158,7 @@ namespace System.CommandLine
                     {
                         // when a subcommand is encountered, re-scope which tokens are valid
                         currentSymbol = (currentSymbol?.Symbols ??
-                                          configuration.Symbol)[arg];
+                                          configuration.Symbols)[arg];
                         knownTokens = currentSymbol.ValidTokens();
                         tokenList.Add(Command(arg));
                     }

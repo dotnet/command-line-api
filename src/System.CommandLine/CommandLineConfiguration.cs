@@ -57,7 +57,7 @@ namespace System.CommandLine
                     symbols);
             }
 
-            Symbol.Add(RootCommand);
+            Symbols.Add(RootCommand);
 
             AllowUnbundling = allowUnbundling;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
@@ -85,7 +85,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> Prefixes { get; }
 
-        public SymbolSet Symbol { get; } = new SymbolSet();
+        public SymbolSet Symbols { get; } = new SymbolSet();
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
