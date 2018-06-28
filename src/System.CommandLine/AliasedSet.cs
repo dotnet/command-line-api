@@ -43,6 +43,11 @@ namespace System.CommandLine
             _items.Add(item);
         }
 
+        internal void Remove(T item)
+        {
+            _items.Remove(item);
+        }
+
         protected abstract IReadOnlyCollection<string> GetAliases(T item);
 
         public bool Contains(string alias) =>
