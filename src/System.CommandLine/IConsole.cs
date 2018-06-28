@@ -9,8 +9,6 @@ namespace System.CommandLine
     {
         TextWriter Out { get; }
 
-        TextWriter SetOut { set; }
-
         TextWriter Error { get; }
 
         ConsoleColor ForegroundColor { get; set; }

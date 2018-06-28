@@ -9,13 +9,13 @@ namespace System.CommandLine
 {
     public class HelpBuilder : IHelpBuilder
     {
-        private int _indentationLevel;
-        protected IConsole _console;
-
         protected const int DefaultColumnGutter = 4;
         protected const int DefaultIndentationSize = 2;
         protected const int DefaultWindowWidth = 80;
+
         protected const int WindowMargin = 2;
+        private int _indentationLevel;
+        protected IConsole _console;
 
         public int ColumnGutter { get; } = DefaultColumnGutter;
         public int IndentationSize { get; } = DefaultIndentationSize;
@@ -78,7 +78,7 @@ namespace System.CommandLine
         {
             if (_indentationLevel == 0)
             {
-                throw new ArithmeticException("Cannot dedent any further");
+                throw new InvalidOperationException("Cannot outdent any further");
             }
 
             _indentationLevel -= levels;
@@ -210,7 +210,7 @@ namespace System.CommandLine
             var descriptionLines = SplitText(helpItem.Description, maxDescriptionWidth);
             var lineCount = descriptionLines.Count;
 
-            AppendLine(descriptionLines.First(), offset);
+            AppendLine(descriptionLines.FirstOrDefault(), offset);
 
             if (lineCount == 1)
             {
@@ -219,9 +219,9 @@ namespace System.CommandLine
 
             offset = CurrentIndentation + maxInvocationWidth + ColumnGutter;
 
-            for (var i = 1; i < lineCount; i++)
+            foreach (var descriptionLine in descriptionLines.Skip(1))
             {
-                AppendLine(descriptionLines.ElementAt(i), offset);
+                AppendLine(descriptionLine, offset);
             }
         }
 
@@ -249,7 +249,6 @@ namespace System.CommandLine
 
             var lines = new List<string>();
             var builder = new StringBuilder();
-            var index = 0;
 
             foreach (var item in cleanText.Split(new char[0], StringSplitOptions.RemoveEmptyEntries))
             {
@@ -259,19 +258,17 @@ namespace System.CommandLine
                 {
                     lines.Add(builder.ToString());
                     builder.Clear();
-                    index = 0;
                 }
 
-                if (index != 0)
+                if (builder.Length > 0)
                 {
                     builder.Append(" ");
                 }
 
                 builder.Append(item);
-                index += 1;
             }
 
-            if (index != 0)
+            if (builder.Length > 0)
             {
                 lines.Add(builder.ToString());
             }

@@ -11,13 +11,14 @@ namespace System.CommandLine.Tests.Help
 {
     public class RawHelpBuilderTests
     {
-        private readonly RawHelpBuilder _rawHelpBuilder;
-        private readonly IConsole _console;
-        private readonly ITestOutputHelper _output;
-        private const string ExecutableName = "testhost";
         private const int MaxWidth = 60;
         private const int ColumnGutterWidth = 4;
         private const int IndentationWidth = 2;
+
+        private readonly RawHelpBuilder _rawHelpBuilder;
+        private readonly IConsole _console;
+        private readonly ITestOutputHelper _output;
+        private readonly string _executableName;
         private readonly string _columnPadding;
         private readonly string _indentation;
 
@@ -34,56 +35,56 @@ namespace System.CommandLine.Tests.Help
             _output = output;
             _columnPadding = new string(' ', ColumnGutterWidth);
             _indentation = new string(' ', IndentationWidth);
+            _executableName = CommandLineBuilder.ExeName;
         }
 
-        public string GetHelpText()
+        private string GetHelpText()
         {
             return _console.Out.ToString();
         }
 
-        #region " Synopsis "
+        #region Synopsis
 
         [Fact]
-        public void Whitespace_is_preserved_in_synopsis()
+        public void Extra_whitespace_is_preserved_in_synopsis()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
             {
                 HelpBuilder = _rawHelpBuilder,
                 Description = "test  description\tfor synopsis",
             }
             .BuildCommandDefinition();
-            command.WriteHelp(_console);
 
-            var expected = $@"{ExecutableName}:
-{_indentation}test  description{"\t"}for synopsis
+            commandLineBuilder.WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName}
+            var expected =
+            $"{_executableName}:{NewLine}" +
+            $"{_indentation}test  description\tfor synopsis{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName}{NewLine}{NewLine}";
 
-";
             GetHelpText().Should().Be(expected);
         }
 
         [Fact]
         public void Newlines_are_preserved_in_synopsis()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                     Description = $"test{NewLine}description with{NewLine}line breaks",
                 }
                 .BuildCommandDefinition();
-            command.WriteHelp(_console);
 
-            var expected = $@"{ExecutableName}:
-{_indentation}test
-{_indentation}description with
-{_indentation}line breaks
+            commandLineBuilder.WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName}
-
-";
+            var expected =
+            $"{_executableName}:{NewLine}" +
+            $"{_indentation}test{NewLine}" +
+            $"{_indentation}description with{NewLine}" +
+            $"{_indentation}line breaks{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName}{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
@@ -92,35 +93,35 @@ Usage:
         public void Format_is_preserved_with_wrapping_in_synopsis()
         {
             var longText = $"test{NewLine}description with line breaks that is long enough to wrap to a{NewLine}new line";
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                     Description = longText,
                 }
                 .BuildCommandDefinition();
-            command.WriteHelp(_console);
 
-            var expected = $@"{ExecutableName}:
-{_indentation}test
-{_indentation}description with line breaks that is long enough to wrap
-{_indentation} to a
-{_indentation}new line
+            commandLineBuilder.WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName}
+            var expected =
+            $"{_executableName}:{NewLine}" +
+            $"{_indentation}test{NewLine}" +
+            $"{_indentation}description with line breaks that is long enough to wrap{NewLine}" +
+            $"{_indentation} to a{NewLine}" +
+            $"{_indentation}new line{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName}{NewLine}{NewLine}";
 
-";
             GetHelpText().Should().Be(expected);
         }
 
-        #endregion " Synopsis "
+        #endregion Synopsis
 
-        #region " Usage "
+        #region Usage
 
         [Fact]
-        public void Whitespace_is_preserved_in_usage()
+        public void Extra_whitespace_is_preserved_in_usage()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                     Description = "test  description",
@@ -128,18 +129,16 @@ Usage:
                 .AddCommand("outer", "Help text   for the outer   command",
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
-            command.WriteHelp(_console);
 
-            var expected = $@"{ExecutableName}:
-{_indentation}test  description
+            commandLineBuilder.WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName} [command]
-
-Commands:
-{_indentation}outer{_columnPadding}Help text   for the outer   command
-
-";
+            var expected =
+            $"{_executableName}:{NewLine}" +
+            $"{_indentation}test  description{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} [command]{NewLine}{NewLine}" +
+            $"Commands:{NewLine}" +
+            $"{_indentation}outer{_columnPadding}Help text   for the outer   command{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
@@ -147,7 +146,7 @@ Commands:
         [Fact]
         public void Newlines_are_preserved_in_usage()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                     Description = "test  description",
@@ -155,20 +154,19 @@ Commands:
                 .AddCommand("outer", $"Help text{NewLine}for the outer{NewLine}command",
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
-            command.WriteHelp(_console);
 
-            var expected = $@"{ExecutableName}:
-{_indentation}test  description
+            commandLineBuilder.WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName} [command]
+            var expected =
+            $"{_executableName}:{NewLine}" +
+            $"{_indentation}test  description{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} [command]{NewLine}{NewLine}" +
+            $"Commands:{NewLine}" +
+            $"{_indentation}outer{_columnPadding}Help text{NewLine}" +
+            $"{_indentation}     {_columnPadding}for the outer{NewLine}" +
+            $"{_indentation}     {_columnPadding}command{NewLine}{NewLine}";
 
-Commands:
-{_indentation}outer{_columnPadding}Help text
-{_indentation}     {_columnPadding}for the outer
-{_indentation}     {_columnPadding}command
-
-";
             GetHelpText().Should().Be(expected);
         }
 
@@ -176,7 +174,7 @@ Commands:
         public void Format_is_preserved_with_wrapping_in_usage()
         {
             var longText = $"Help{NewLine}text with line breaks that is long enough to wrap to a{NewLine}new line";
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                     Description = "test  description",
@@ -184,32 +182,31 @@ Commands:
                 .AddCommand("outer", longText,
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
-            command.WriteHelp(_console);
 
-            var expected = $@"{ExecutableName}:
-{_indentation}test  description
+            commandLineBuilder.WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName} [command]
+            var expected =
+            $"{_executableName}:{NewLine}" +
+            $"{_indentation}test  description{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} [command]{NewLine}{NewLine}" +
+            $"Commands:{NewLine}" +
+            $"{_indentation}outer{_columnPadding}Help{NewLine}" +
+            $"{_indentation}     {_columnPadding}text with line breaks that is long enough to {NewLine}" +
+            $"{_indentation}     {_columnPadding}wrap to a{NewLine}" +
+            $"{_indentation}     {_columnPadding}new line{NewLine}{NewLine}";
 
-Commands:
-{_indentation}outer{_columnPadding}Help
-{_indentation}     {_columnPadding}text with line breaks that is long enough to{" "}
-{_indentation}     {_columnPadding}wrap to a
-{_indentation}     {_columnPadding}new line
-
-";
             GetHelpText().Should().Be(expected);
         }
 
-        #endregion " Usage "
+        #endregion Usage
 
-        #region " Arguments "
+        #region Arguments
 
         [Fact]
-        public void Whitespace_is_preserved_in_arguments()
+        public void Extra_whitespace_is_preserved_in_arguments()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                 }
@@ -220,18 +217,18 @@ Commands:
                             description: "Argument\tfor the   inner command")
                         .ExactlyOne())
                 .BuildCommandDefinition();
-            command.Subcommand("outer").WriteHelp(_console);
 
-            var expected = $@"outer:
-{_indentation}Help text for the outer command
+            commandLineBuilder
+                .Subcommand("outer")
+                .WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName} outer <outer-command-arg>
-
-Arguments:
-{_indentation}<outer-command-arg>{_columnPadding}Argument{"\t"}for the   inner command
-
-";
+            var expected =
+            $"outer:{NewLine}" +
+            $"{_indentation}Help text for the outer command{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} outer <outer-command-arg>{NewLine}{NewLine}" +
+            $"Arguments:{NewLine}" +
+            $"{_indentation}<outer-command-arg>{_columnPadding}Argument{"\t"}for the   inner command{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
@@ -239,7 +236,7 @@ Arguments:
         [Fact]
         public void Newlines_are_preserved_in_arguments()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                 }
@@ -250,20 +247,20 @@ Arguments:
                             description: $"The argument{NewLine}for the{NewLine}inner command")
                         .ExactlyOne())
                 .BuildCommandDefinition();
-            command.Subcommand("outer").WriteHelp(_console);
 
-            var expected = $@"outer:
-  Help text for the outer command
+            commandLineBuilder
+                .Subcommand("outer")
+                .WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName} outer <outer-command-arg>
-
-Arguments:
-{_indentation}<outer-command-arg>{_columnPadding}The argument
-{_indentation}                   {_columnPadding}for the
-{_indentation}                   {_columnPadding}inner command
-
-";
+            var expected =
+            $"outer:{NewLine}" +
+            $"{_indentation}Help text for the outer command{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} outer <outer-command-arg>{NewLine}{NewLine}" +
+            $"Arguments:{NewLine}" +
+            $"{_indentation}<outer-command-arg>{_columnPadding}The argument{NewLine}" +
+            $"{_indentation}                   {_columnPadding}for the{NewLine}" +
+            $"{_indentation}                   {_columnPadding}inner command{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
@@ -272,7 +269,7 @@ Arguments:
         public void Format_is_preserved_with_wrapping_in_arguments()
         {
             var longText = $"The argument{NewLine}for the inner command with line breaks that is long enough to wrap to a{NewLine}new line";
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                 }
@@ -283,34 +280,34 @@ Arguments:
                             description: longText)
                         .ExactlyOne())
                 .BuildCommandDefinition();
-            command.Subcommand("outer").WriteHelp(_console);
 
-            var expected = $@"outer:
-  Help text for the outer command
+            commandLineBuilder
+                .Subcommand("outer")
+                .WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName} outer <outer-command-arg>
-
-Arguments:
-{_indentation}<outer-command-arg>{_columnPadding}The argument
-{_indentation}                   {_columnPadding}for the inner command with line{" "}
-{_indentation}                   {_columnPadding}breaks that is long enough to{" "}
-{_indentation}                   {_columnPadding}wrap to a
-{_indentation}                   {_columnPadding}new line
-
-";
+            var expected =
+            $"outer:{NewLine}" +
+            $"{_indentation}Help text for the outer command{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} outer <outer-command-arg>{NewLine}{NewLine}" +
+            $"Arguments:{NewLine}" +
+            $"{_indentation}<outer-command-arg>{_columnPadding}The argument{NewLine}" +
+            $"{_indentation}                   {_columnPadding}for the inner command with line {NewLine}" +
+            $"{_indentation}                   {_columnPadding}breaks that is long enough to {NewLine}" +
+            $"{_indentation}                   {_columnPadding}wrap to a{NewLine}" +
+            $"{_indentation}                   {_columnPadding}new line{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
 
-        #endregion " Arguments "
+        #endregion Arguments
 
-        #region " Options "
+        #region Options
 
         [Fact]
-        public void Whitespace_is_preserved_in_options()
+        public void Extra_whitespace_is_preserved_in_options()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                 }
@@ -320,18 +317,18 @@ Arguments:
                             new[] { "-a", "--aaa" },
                             "Help   for      the   option"))
                 .BuildCommandDefinition();
-            command.Subcommand("test-command").WriteHelp(_console);
 
-            var expected = $@"test-command:
-{_indentation}Help text for the command
+            commandLineBuilder
+                .Subcommand("test-command")
+                .WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName} test-command [options]
-
-Options:
-{_indentation}-a, --aaa{_columnPadding}Help   for      the   option
-
-";
+            var expected =
+            $"test-command:{NewLine}" +
+            $"{_indentation}Help text for the command{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} test-command [options]{NewLine}{NewLine}" +
+            $"Options:{NewLine}" +
+            $"{_indentation}-a, --aaa{_columnPadding}Help   for      the   option{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
@@ -339,7 +336,7 @@ Options:
         [Fact]
         public void Newlines_are_preserved_in_options()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                 }
@@ -349,21 +346,21 @@ Options:
                             new[] { "-a", "--aaa" },
                             $"Help{NewLine}for {NewLine} the{NewLine}option"))
                 .BuildCommandDefinition();
-            command.Subcommand("test-command").WriteHelp(_console);
 
-            var expected = $@"test-command:
-{_indentation}Help text for the command
+            commandLineBuilder
+                .Subcommand("test-command")
+                .WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName} test-command [options]
-
-Options:
-{_indentation}-a, --aaa{_columnPadding}Help
-{_indentation}         {_columnPadding}for{" "}
-{_indentation}         {_columnPadding} the
-{_indentation}         {_columnPadding}option
-
-";
+            var expected =
+            $"test-command:{NewLine}" +
+            $"{_indentation}Help text for the command{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} test-command [options]{NewLine}{NewLine}" +
+            $"Options:{NewLine}" +
+            $"{_indentation}-a, --aaa{_columnPadding}Help{NewLine}" +
+            $"{_indentation}         {_columnPadding}for {NewLine}" +
+            $"{_indentation}         {_columnPadding} the{NewLine}" +
+            $"{_indentation}         {_columnPadding}option{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
@@ -372,7 +369,7 @@ Options:
         public void Format_is_preserved_with_wrapping_in_options()
         {
             var longText = $"The option{NewLine}with line breaks that is long enough to wrap to a{NewLine}new line";
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                 }
@@ -382,33 +379,33 @@ Options:
                             new[] { "-a", "--aaa" },
                             longText))
                 .BuildCommandDefinition();
-            command.Subcommand("test-command").WriteHelp(_console);
 
-            var expected = $@"test-command:
-{_indentation}Help text for the command
+            commandLineBuilder
+                .Subcommand("test-command")
+                .WriteHelp(_console);
 
-Usage:
-{_indentation}{ExecutableName} test-command [options]
-
-Options:
-{_indentation}-a, --aaa{_columnPadding}The option
-{_indentation}         {_columnPadding}with line breaks that is long enough to{" "}
-{_indentation}         {_columnPadding}wrap to a
-{_indentation}         {_columnPadding}new line
-
-";
+            var expected =
+            $"test-command:{NewLine}" +
+            $"{_indentation}Help text for the command{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} test-command [options]{NewLine}{NewLine}" +
+            $"Options:{NewLine}" +
+            $"{_indentation}-a, --aaa{_columnPadding}The option{NewLine}" +
+            $"{_indentation}         {_columnPadding}with line breaks that is long enough to {NewLine}" +
+            $"{_indentation}         {_columnPadding}wrap to a{NewLine}" +
+            $"{_indentation}         {_columnPadding}new line{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
 
-        #endregion " Options "
+        #endregion Options
 
-        #region " Subcommands "
+        #region Subcommands
 
         [Fact]
-        public void Whitespace_is_preserved_in_subcommands()
+        public void Extra_whitespace_is_preserved_in_subcommands()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                 }
@@ -427,23 +424,22 @@ Options:
                             "Inner    option \twith spaces")))
                 .BuildCommandDefinition();
 
-            command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
+            commandLineBuilder
+                .Subcommand("outer-command")
+                .Subcommand("inner-command")
+                .WriteHelp(_console);
 
-            var expected = $@"inner-command:
-{_indentation}inner    command{"\t"} help  with whitespace
-
-Usage:
-{_indentation}{ExecutableName} outer-command <outer-args> inner-command{" "}
-{_indentation}[options] <inner-args>
-
-Arguments:
-  <outer-args>{_columnPadding}
-  <inner-args>{_columnPadding}
-
-Options:
-{_indentation}-v, --verbosity{_columnPadding}Inner    option {"\t"}with spaces
-
-";
+            var expected =
+            $"inner-command:{NewLine}" +
+            $"{_indentation}inner    command\t help  with whitespace{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} outer-command <outer-args> inner-command {NewLine}" +
+            $"{_indentation}[options] <inner-args>{NewLine}{NewLine}" +
+            $"Arguments:{NewLine}" +
+            $"{_indentation}<outer-args>{_columnPadding}{NewLine}" +
+            $"{_indentation}<inner-args>{_columnPadding}{NewLine}{NewLine}" +
+            $"Options:{NewLine}" +
+            $"{_indentation}-v, --verbosity{_columnPadding}Inner    option \twith spaces{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
@@ -451,7 +447,7 @@ Options:
         [Fact]
         public void Newlines_are_preserved_in_subcommands()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                 }
@@ -470,29 +466,28 @@ Options:
                             $"Inner {NewLine} command {NewLine}option with{NewLine} newlines")))
                 .BuildCommandDefinition();
 
-            command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
+            commandLineBuilder
+                .Subcommand("outer-command")
+                .Subcommand("inner-command")
+                .WriteHelp(_console);
 
-            var expected = $@"inner-command:
-{_indentation}inner
-{_indentation}command help{" "}
-{_indentation} with{" "}
-{_indentation}newlines
-
-Usage:
-{_indentation}{ExecutableName} outer-command <outer-args> inner-command{" "}
-{_indentation}[options] <inner-args>
-
-Arguments:
-  <outer-args>{_columnPadding}
-  <inner-args>{_columnPadding}
-
-Options:
-{_indentation}-v, --verbosity{_columnPadding}Inner{" "}
-{_indentation}               {_columnPadding} command{" "}
-{_indentation}               {_columnPadding}option with
-{_indentation}               {_columnPadding} newlines
-
-";
+            var expected =
+            $"inner-command:{NewLine}" +
+            $"{_indentation}inner{NewLine}" +
+            $"{_indentation}command help {NewLine}" +
+            $"{_indentation} with {NewLine}" +
+            $"{_indentation}newlines{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} outer-command <outer-args> inner-command {NewLine}" +
+            $"{_indentation}[options] <inner-args>{NewLine}{NewLine}" +
+            $"Arguments:{NewLine}" +
+            $"{_indentation}<outer-args>{_columnPadding}{NewLine}" +
+            $"{_indentation}<inner-args>{_columnPadding}{NewLine}{NewLine}" +
+            $"Options:{NewLine}" +
+            $"{_indentation}-v, --verbosity{_columnPadding}Inner {NewLine}" +
+            $"{_indentation}               {_columnPadding} command {NewLine}" +
+            $"{_indentation}               {_columnPadding}option with{NewLine}" +
+            $"{_indentation}               {_columnPadding} newlines{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
@@ -501,7 +496,7 @@ Options:
         public void Format_is_preserved_with_wrapping_in_subcommands()
         {
             var longText = $"The{NewLine}subcommand with line breaks that is long enough to wrap to a{NewLine}new line";
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _rawHelpBuilder,
                 }
@@ -520,33 +515,32 @@ Options:
                             longText)))
                 .BuildCommandDefinition();
 
-            command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
+            commandLineBuilder
+                .Subcommand("outer-command")
+                .Subcommand("inner-command")
+                .WriteHelp(_console);
 
-            var expected = $@"inner-command:
-{_indentation}The
-{_indentation}subcommand with line breaks that is long enough to wrap{" "}
-{_indentation}to a
-{_indentation}new line
-
-Usage:
-{_indentation}{ExecutableName} outer-command <outer-args> inner-command{" "}
-{_indentation}[options] <inner-args>
-
-Arguments:
-  <outer-args>{_columnPadding}
-  <inner-args>{_columnPadding}
-
-Options:
-{_indentation}-v, --verbosity{_columnPadding}The
-{_indentation}               {_columnPadding}subcommand with line breaks that is{" "}
-{_indentation}               {_columnPadding}long enough to wrap to a
-{_indentation}               {_columnPadding}new line
-
-";
+            var expected =
+            $"inner-command:{NewLine}" +
+            $"{_indentation}The{NewLine}" +
+            $"{_indentation}subcommand with line breaks that is long enough to wrap {NewLine}" +
+            $"{_indentation}to a{NewLine}" +
+            $"{_indentation}new line{NewLine}{NewLine}" +
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} outer-command <outer-args> inner-command {NewLine}" +
+            $"{_indentation}[options] <inner-args>{NewLine}{NewLine}" +
+            $"Arguments:{NewLine}" +
+            $"{_indentation}<outer-args>{_columnPadding}{NewLine}" +
+            $"{_indentation}<inner-args>{_columnPadding}{NewLine}{NewLine}" +
+            $"Options:{NewLine}" +
+            $"{_indentation}-v, --verbosity{_columnPadding}The{NewLine}" +
+            $"{_indentation}               {_columnPadding}subcommand with line breaks that is {NewLine}" +
+            $"{_indentation}               {_columnPadding}long enough to wrap to a{NewLine}" +
+            $"{_indentation}               {_columnPadding}new line{NewLine}{NewLine}";
 
             GetHelpText().Should().Be(expected);
         }
 
-        #endregion " Subcommands "
+        #endregion Subcommands
     }
 }

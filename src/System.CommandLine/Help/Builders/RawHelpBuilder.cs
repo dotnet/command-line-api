@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using static System.Environment;
@@ -36,7 +35,6 @@ namespace System.CommandLine
 
             var lines = new List<string>();
             var builder = new StringBuilder();
-            var index = 0;
 
             foreach (var item in Regex.Split(text, @"(\s)"))
             {
@@ -46,7 +44,6 @@ namespace System.CommandLine
                 {
                     lines.Add(builder.ToString());
                     builder.Clear();
-                    index = 0;
                 }
 
                 if (item == NewLine)
@@ -55,10 +52,9 @@ namespace System.CommandLine
                 }
 
                 builder.Append(item);
-                index += 1;
             }
 
-            if (index != 0)
+            if (builder.Length > 0)
             {
                 lines.Add(builder.ToString());
             }

@@ -46,31 +46,32 @@ namespace System.CommandLine.Tests.Help
             _colorHelpBuilder = new ColorHelpBuilder(_console);
         }
 
-        #region "Synopsis"
+        #region Synopsis
 
         [Fact]
         public void Synopsis_sets_and_resets_foreground_color()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
             {
                 HelpBuilder = _colorHelpBuilder,
                 Description = "test description for synopsis",
             }
             .BuildCommandDefinition();
-            command.WriteHelp(_console);
+
+            commandLineBuilder.WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(2);
             _console.ResetColorCalls.Should().Be(2);
         }
 
-        #endregion "Synopsis"
+        #endregion Synopsis
 
-        #region "Usage"
+        #region Usage
 
         [Fact]
         public void Usage_section_sets_and_resets_foreground_color()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _colorHelpBuilder,
                     Description = "test  description",
@@ -78,20 +79,21 @@ namespace System.CommandLine.Tests.Help
                 .AddCommand("outer", "Help text   for the outer   command",
                     arguments: args => args.ExactlyOne())
                 .BuildCommandDefinition();
-            command.WriteHelp(_console);
+
+            commandLineBuilder.WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
             _console.ResetColorCalls.Should().Be(3);
         }
 
-        #endregion "Usage"
+        #endregion Usage
 
-        #region "Arguments"
+        #region Arguments
 
         [Fact]
         public void Arguments_section_sets_and_resets_foreground_color()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _colorHelpBuilder,
                 }
@@ -102,20 +104,23 @@ namespace System.CommandLine.Tests.Help
                             description: "Argument\tfor the   inner command")
                         .ExactlyOne())
                 .BuildCommandDefinition();
-            command.Subcommand("outer").WriteHelp(_console);
+
+            commandLineBuilder
+                .Subcommand("outer")
+                .WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
             _console.ResetColorCalls.Should().Be(3);
         }
 
-        #endregion "Arguments"
+        #endregion Arguments
 
-        #region "Options"
+        #region Options
 
         [Fact]
         public void Options_section_sets_and_resets_foreground_color()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _colorHelpBuilder,
                 }
@@ -125,20 +130,23 @@ namespace System.CommandLine.Tests.Help
                             new[] { "-a", "--aaa" },
                             "Help   for      the   option"))
                 .BuildCommandDefinition();
-            command.Subcommand("test-command").WriteHelp(_console);
+
+            commandLineBuilder
+                .Subcommand("test-command")
+                .WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
             _console.ResetColorCalls.Should().Be(3);
         }
 
-        #endregion "Options"
+        #endregion Options
 
-        #region "Subcommands"
+        #region Subcommands
 
         [Fact]
         public void Subcommands_section_sets_and_resets_foreground_color()
         {
-            var command = new CommandLineBuilder
+            var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _colorHelpBuilder,
                 }
@@ -157,12 +165,15 @@ namespace System.CommandLine.Tests.Help
                             "Inner    option \twith spaces")))
                 .BuildCommandDefinition();
 
-            command.Subcommand("outer-command").Subcommand("inner-command").WriteHelp(_console);
+            commandLineBuilder
+                .Subcommand("outer-command")
+                .Subcommand("inner-command")
+                .WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(4);
             _console.ResetColorCalls.Should().Be(4);
         }
 
-        #endregion "Subcommands"
+        #endregion Subcommands
     }
 }
