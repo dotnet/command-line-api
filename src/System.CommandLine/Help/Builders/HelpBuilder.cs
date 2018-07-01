@@ -254,7 +254,7 @@ namespace System.CommandLine
             {
                 var length = item.Length + builder.Length;
 
-                if (length > maxLength)
+                if (length >= maxLength)
                 {
                     lines.Add(builder.ToString());
                     builder.Clear();

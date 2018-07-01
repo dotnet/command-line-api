@@ -16,6 +16,7 @@ namespace System.CommandLine.Tests.Help
     {
         private const int SmallMaxWidth = 70;
         private const int LargeMaxWidth = 200;
+        private const int WindowMargin = 2;
         private const int ColumnGutterWidth = 4;
         private const int IndentationWidth = 2;
 
@@ -57,11 +58,14 @@ namespace System.CommandLine.Tests.Help
             var expectedLines = new List<string> { "Usage:" };
             var builder = new StringBuilder();
 
+            // Don't subtract indentation since we're adding that explicitly
+            const int maxWidth = SmallMaxWidth - WindowMargin;
+
             foreach (var word in Regex.Split(usageText, @"(\r\n|\s)"))
             {
                 var nextLength = word.Length + builder.Length;
 
-                if (nextLength > SmallMaxWidth || word == NewLine)
+                if (nextLength > maxWidth || word == NewLine)
                 {
                     expectedLines.Add(builder.ToString());
                     builder.Clear();
