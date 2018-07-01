@@ -30,6 +30,14 @@ steps:
     testRunTitle: 'Unit Tests'
   condition: and(succeededOrFailed(), ne(variables['PB_SkipTests'], 'true'))
 
+- task: NuGetPublisher@0
+  displayName: Publish NuGet Packages to MyGet
+  inputs:
+    searchPattern: 'artifacts\$(BuildConfiguration)\packages\*.nupkg'
+    connectedServiceName: 'DotNet Core Nuget Feed'
+    nuGetVersion: 4.0.0.2283
+  condition: and(succeeded(), not(contains(variables['PB_PublishType'], 'blob')))
+
 - task: CopyPublishBuildArtifacts@1
   displayName: Publish Artifacts
   inputs:
@@ -38,6 +46,7 @@ steps:
      artifacts\$(BuildConfiguration)\bin
      artifacts\$(BuildConfiguration)\log
      artifacts\$(BuildConfiguration)\TestResults
+     artifacts\$(BuildConfiguration)\packages
     ArtifactName: '$(Build.BuildNumber)'
     ArtifactType: FilePath
     TargetPath: '$(DropRoot)\$(TeamName)\$(Build.DefinitionName)'
