@@ -30,12 +30,13 @@ steps:
     testRunTitle: 'Unit Tests'
   condition: and(succeededOrFailed(), ne(variables['PB_SkipTests'], 'true'))
 
-- task: NuGetPublisher@0
+- task: NuGetCommand@2
   displayName: Publish NuGet Packages to MyGet
   inputs:
-    searchPattern: 'artifacts\$(BuildConfiguration)\packages\*.nupkg'
-    connectedServiceName: 'dotnet-core MyGet Feed'
-    nuGetVersion: 4.0.0.2283
+    command: push
+    packagesToPush: 'artifacts\$(BuildConfiguration)\packages\*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'dotnet-core MyGet Feed'
   condition: and(succeeded(), not(contains(variables['PB_PublishType'], 'blob')))
 
 - task: CopyPublishBuildArtifacts@1
