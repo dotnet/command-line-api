@@ -16,12 +16,13 @@ steps:
     esrpSigning: true
   condition: and(succeeded(), eq(variables['PB_SignType'], 'real'))
 
-- script: build\cibuild.cmd
-            -configuration $(BuildConfiguration)
-            /p:PB_PublishBlobFeedKey=$(PB_PublishBlobFeedKey)
+- task: BatchScript@1
   displayName: Build
+  inputs:
+    filename: 'build\cibuild.cmd'
+    arguments: '-configuration $(BuildConfiguration) /p:PB_PublishBlobFeedKey=$(PB_PublishBlobFeedKey)'
 
-- task: PublishTestResults@1
+- task: PublishTestResults@2
   displayName: Publish Test Results
   inputs:
     testRunner: XUnit
