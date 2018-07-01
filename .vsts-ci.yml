@@ -1,0 +1,57 @@
+resources:
+- repo: self
+  clean: true
+queue:
+  name: VSEng-MicroBuildVS2017
+  demands: Cmd
+variables:
+  BuildConfiguration: Release
+  TeamName: Roslyn
+
+steps:
+- task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
+  displayName: Install Signing Plugin
+  inputs:
+    signType: real
+    esrpSigning: true
+  condition: and(succeeded(), eq(variables['PB_SignType'], 'real'))
+
+- script: build\cibuild.cmd
+            -configuration $(BuildConfiguration)
+            /p:PB_PublishBlobFeedKey=$(PB_PublishBlobFeedKey)
+  displayName: Build
+
+- task: PublishTestResults@1
+  displayName: Publish Test Results
+  inputs:
+    testRunner: XUnit
+    testResultsFiles: 'artifacts/$(BuildConfiguration)/TestResults/*.xml'
+    mergeTestResults: true
+    testRunTitle: 'Unit Tests'
+  condition: and(succeededOrFailed(), ne(variables['PB_SkipTests'], 'true'))
+
+- task: CopyPublishBuildArtifacts@1
+  displayName: Publish Artifacts
+  inputs:
+    CopyRoot: '$(Build.SourcesDirectory)'
+    Contents: |
+     artifacts\$(BuildConfiguration)\bin
+     artifacts\$(BuildConfiguration)\log
+     artifacts\$(BuildConfiguration)\TestResults
+    ArtifactName: '$(Build.BuildNumber)'
+    ArtifactType: FilePath
+    TargetPath: '$(DropRoot)\$(TeamName)\$(Build.DefinitionName)'
+  condition: and(succeededOrFailed(), not(contains(variables['PB_PublishType'], 'blob')))
+
+- task: ms-vseng.MicroBuildTasks.521a94ea-9e68-468a-8167-6dcf361ea776.MicroBuildCleanup@1
+  displayName: Cleanup
+  condition: succeededOrFailed()
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish MicroBuild Artifacts
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)\MicroBuild\Output'
+    ArtifactName: '$(Build.BuildNumber)'
+    publishLocation: FilePath
+    TargetPath: '$(DropRoot)\$(TeamName)\$(Build.DefinitionName)'
+  condition: and(succeededOrFailed(), not(contains(variables['PB_PublishType'], 'blob')))
