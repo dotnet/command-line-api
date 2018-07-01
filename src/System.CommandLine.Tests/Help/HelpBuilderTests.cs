@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.Linq;
 using System.Text;
@@ -362,25 +363,28 @@ namespace System.CommandLine.Tests.Help
                 .Subcommand("outer-command")
                 .WriteHelp(_console);
 
-            var usageText = $"{_indentation}{_executableName} outer-command <outer args long enough to wrap to a new line> [command]";
+            var usageText = $"{_executableName} outer-command <outer args long enough to wrap to a new line> [command]";
 
-            var expectedLines = new [] { "Usage:" };
+            var expectedLines = new List<string> { "Usage:" };
             var builder = new StringBuilder();
             foreach (var word in usageText.Split())
             {
-                if (builder.Length >= SmallMaxWidth)
+                var nextLength = 1 + word.Length + builder.Length;
+
+                if (nextLength > SmallMaxWidth)
                 {
-                    expectedLines.Append(builder.ToString());
+                    expectedLines.Add(builder.ToString());
                     builder.Clear();
-                    builder.Append($"{_indentation}");
                 }
+
+                builder.Append(builder.Length == 0 ? $"{_indentation}" : " ");
 
                 builder.Append(word);
             }
 
             if (builder.Length > 0)
             {
-                expectedLines.Append(builder.ToString());
+                expectedLines.Add(builder.ToString());
             }
 
             var expected = string.Join($"{NewLine}", expectedLines);
