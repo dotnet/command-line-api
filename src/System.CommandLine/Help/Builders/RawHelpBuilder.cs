@@ -36,7 +36,7 @@ namespace System.CommandLine
             var lines = new List<string>();
             var builder = new StringBuilder();
 
-            foreach (var item in Regex.Split(text, @"(\s)"))
+            foreach (var item in Regex.Split(text, @"(\r\n|\s)"))
             {
                 var nextLength = item.Length + builder.Length;
 

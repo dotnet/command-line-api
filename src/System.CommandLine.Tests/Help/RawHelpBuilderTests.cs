@@ -56,7 +56,8 @@ namespace System.CommandLine.Tests.Help
         {
             var expectedLines = new List<string> { "Usage:" };
             var builder = new StringBuilder();
-            foreach (var word in Regex.Split(usageText, @"(\s)"))
+
+            foreach (var word in Regex.Split(usageText, @"(\r\n|\s)"))
             {
                 var nextLength = word.Length + builder.Length;
 
