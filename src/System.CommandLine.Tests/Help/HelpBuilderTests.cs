@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.Linq;
+using System.Text;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -52,164 +53,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         #region Synopsis
-
-        [Fact]
-        public void Synopsis_section_shows_arguments_if_there_are_arguments_for_command()
-        {
-            var commandLineBuilder = new CommandLineBuilder
-            {
-                HelpBuilder = _helpBuilder,
-            }
-            .AddCommand("the-command", "command help",
-                arguments: args => args
-                    .WithHelp(name: "the-args")
-                    .ZeroOrMore(),
-                symbols: cmd => cmd.AddOption(
-                    new[] { "-v", "--verbosity" },
-                    "Sets the verbosity"))
-            .BuildCommandDefinition();
-
-            commandLineBuilder
-                .Subcommand("the-command")
-                .WriteHelp(_console);
-
-            var expected =
-            $"Usage:{NewLine}" +
-            $"{_indentation}{_executableName} the-command [options] <the-args>";
-
-            GetHelpText().Should().Contain(expected);
-        }
-
-        [Fact]
-        public void Synopsis_section_for_subcommand_shows_names_of_parent_commands()
-        {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                }
-                .AddCommand(
-                    "outer", "the outer command",
-                    outer => outer.AddCommand(
-                        "inner", "the inner command",
-                        inner => inner.AddCommand(
-                            "inner-er", "the inner-er command",
-                            innerEr => innerEr.AddOption(
-                                "--some-option",
-                                "some option"))))
-                .BuildCommandDefinition();
-
-            commandLineBuilder
-                .Subcommand("outer")
-                .Subcommand("inner")
-                .Subcommand("inner-er")
-                .WriteHelp(_console);
-
-            var expected =
-            $"Usage:{NewLine}" +
-            $"{_indentation}{_executableName} outer inner inner-er [options]";
-
-            GetHelpText().Should().Contain(expected);
-        }
-
-        [Fact]
-        public void Synopsis_section_for_subcommand_shows_arguments_for_subcommand_and_parent_command()
-        {
-            var commandLineBuilder = new CommandLineBuilder
-            {
-                HelpBuilder = _helpBuilder,
-            }
-            .AddCommand(
-                "outer-command", "command help",
-                arguments: outerArgs => outerArgs
-                    .WithHelp(name: "outer-args")
-                    .ZeroOrMore(),
-                symbols: outer => outer.AddCommand(
-                    "inner-command", "command help",
-                    arguments: args => args
-                        .WithHelp(name: "inner-args")
-                        .ZeroOrOne(),
-                symbols: inner => inner.AddOption(
-                    "-v|--verbosity",
-                    "Sets the verbosity")))
-            .BuildCommandDefinition();
-
-            commandLineBuilder
-                .Subcommand("outer-command")
-                .Subcommand("inner-command")
-                .WriteHelp(_console);
-
-            var expected =
-            $"Usage:{NewLine}" +
-            $"{_indentation}{_executableName} outer-command <outer-args> inner-command [options] <inner-args>";
-
-            GetHelpText().Should().Contain(expected);
-        }
-
-        [Fact]
-        public void Synopsis_section_does_not_show_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_not_specified()
-        {
-            var commandLineBuilder = new CommandLineBuilder
-            {
-                HelpBuilder = _helpBuilder,
-            }
-            .TreatUnmatchedTokensAsErrors(true)
-            .AddCommand("some-command", "Does something",
-                c => c.AddOption(
-                    "-x",
-                    "Indicates whether x"))
-            .BuildCommandDefinition();
-
-            commandLineBuilder
-                .Subcommand("some-command")
-                .WriteHelp(_console);
-
-            GetHelpText().Should().NotContain("additional arguments");
-        }
-
-        [Fact]
-        public void Synopsis_section_does_not_show_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_true()
-        {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                }
-                .AddCommand("some-command", "Does something",
-                    c => c.AddOption(
-                        "-x",
-                        "Indicates whether x"))
-                .BuildCommandDefinition();
-
-            commandLineBuilder
-                .Subcommand("some-command")
-                .WriteHelp(_console);
-
-            GetHelpText().Should().NotContain("additional arguments");
-        }
-
-        [Fact]
-        public void Synopsis_section_shows_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_false()
-        {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                }
-                .TreatUnmatchedTokensAsErrors(false)
-                .AddCommand("some-command", "Does something",
-                    c => c.AddOption(
-                        "-x",
-                        "Indicates whether x"))
-                .BuildCommandDefinition();
-
-            commandLineBuilder
-                .Subcommand("some-command")
-                .WriteHelp(_console);
-
-            var expected =
-                $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} some-command [options] [[--] <additional arguments>...]]";
-
-            GetHelpText().Should().Contain(expected);
-        }
 
         [Fact]
         public void Synopsis_section_removes_extra_whitespace()
@@ -279,22 +122,189 @@ namespace System.CommandLine.Tests.Help
         #region Usage
 
         [Fact]
-        public void Usage_section_removes_extra_whitespace()
+        public void Usage_section_shows_arguments_if_there_are_arguments_for_command()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+            {
+                HelpBuilder = _helpBuilder,
+            }
+            .AddCommand("the-command", "command help",
+                arguments: args => args
+                    .WithHelp(name: "the-args")
+                    .ZeroOrMore(),
+                symbols: cmd => cmd.AddOption(
+                    new[] { "-v", "--verbosity" },
+                    "Sets the verbosity"))
+            .BuildCommandDefinition();
+
+            commandLineBuilder
+                .Subcommand("the-command")
+                .WriteHelp(_console);
+
+            var expected =
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} the-command [options] <the-args>";
+
+            GetHelpText().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Usage_section_for_subcommand_shows_names_of_parent_commands()
         {
             var commandLineBuilder = new CommandLineBuilder
                 {
                     HelpBuilder = _helpBuilder,
-                    Description = "test  description",
                 }
-                .AddCommand("outer", "Help text   for the outer   command",
-                    arguments: args => args.ExactlyOne())
+                .AddCommand(
+                    "outer", "the outer command",
+                    outer => outer.AddCommand(
+                        "inner", "the inner command",
+                        inner => inner.AddCommand(
+                            "inner-er", "the inner-er command",
+                            innerEr => innerEr.AddOption(
+                                "--some-option",
+                                "some option"))))
                 .BuildCommandDefinition();
 
-            commandLineBuilder.WriteHelp(_console);
+            commandLineBuilder
+                .Subcommand("outer")
+                .Subcommand("inner")
+                .Subcommand("inner-er")
+                .WriteHelp(_console);
 
             var expected =
             $"Usage:{NewLine}" +
-            $"{_indentation}{_executableName} [command]{NewLine}{NewLine}";
+            $"{_indentation}{_executableName} outer inner inner-er [options]";
+
+            GetHelpText().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Usage_section_for_subcommand_shows_arguments_for_subcommand_and_parent_command()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+            {
+                HelpBuilder = _helpBuilder,
+            }
+            .AddCommand(
+                "outer-command", "command help",
+                arguments: outerArgs => outerArgs
+                    .WithHelp(name: "outer-args")
+                    .ZeroOrMore(),
+                symbols: outer => outer.AddCommand(
+                    "inner-command", "command help",
+                    arguments: args => args
+                        .WithHelp(name: "inner-args")
+                        .ZeroOrOne(),
+                symbols: inner => inner.AddOption(
+                    "-v|--verbosity",
+                    "Sets the verbosity")))
+            .BuildCommandDefinition();
+
+            commandLineBuilder
+                .Subcommand("outer-command")
+                .Subcommand("inner-command")
+                .WriteHelp(_console);
+
+            var expected =
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} outer-command <outer-args> inner-command [options] <inner-args>";
+
+            GetHelpText().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Usage_section_does_not_show_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_not_specified()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+            {
+                HelpBuilder = _helpBuilder,
+            }
+            .TreatUnmatchedTokensAsErrors(true)
+            .AddCommand("some-command", "Does something",
+                c => c.AddOption(
+                    "-x",
+                    "Indicates whether x"))
+            .BuildCommandDefinition();
+
+            commandLineBuilder
+                .Subcommand("some-command")
+                .WriteHelp(_console);
+
+            GetHelpText().Should().NotContain("additional arguments");
+        }
+
+        [Fact]
+        public void Usage_section_does_not_show_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_true()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+                {
+                    HelpBuilder = _helpBuilder,
+                }
+                .AddCommand("some-command", "Does something",
+                    c => c.AddOption(
+                        "-x",
+                        "Indicates whether x"))
+                .BuildCommandDefinition();
+
+            commandLineBuilder
+                .Subcommand("some-command")
+                .WriteHelp(_console);
+
+            GetHelpText().Should().NotContain("additional arguments");
+        }
+
+        [Fact]
+        public void Usage_section_shows_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_false()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+                {
+                    HelpBuilder = _helpBuilder,
+                }
+                .TreatUnmatchedTokensAsErrors(false)
+                .AddCommand("some-command", "Does something",
+                    c => c.AddOption(
+                        "-x",
+                        "Indicates whether x"))
+                .BuildCommandDefinition();
+
+            commandLineBuilder
+                .Subcommand("some-command")
+                .WriteHelp(_console);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}{_executableName} some-command [options] [[--] <additional arguments>...]]";
+
+            GetHelpText().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Usage_section_removes_extra_whitespace()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+            {
+                HelpBuilder = GetHelpBuilder(SmallMaxWidth),
+            }
+            .AddCommand(
+                "outer-command", "command help",
+                arguments: outerArgs => outerArgs
+                    .WithHelp(name: $"outer  args \twith  whitespace")
+                    .ZeroOrMore(),
+                symbols: outer => outer.AddCommand(
+                    "inner-command", "command help",
+                    arguments: args => args
+                        .WithHelp(name: "inner-args")
+                        .ZeroOrOne()))
+            .BuildCommandDefinition();
+
+            commandLineBuilder
+                .Subcommand("outer-command")
+                .WriteHelp(_console);
+
+            var expected =
+            $"Usage:{NewLine}" +
+            $"{_indentation}{_executableName} outer-command <outer args with whitespace> [command]{NewLine}{NewLine}";
 
             GetHelpText().Should().Contain(expected);
         }
@@ -303,19 +313,28 @@ namespace System.CommandLine.Tests.Help
         public void Usage_section_removes_added_newlines()
         {
             var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                    Description = "test  description",
-                }
-                .AddCommand("outer", $"Help text{NewLine}for the outer{NewLine}command",
-                    arguments: args => args.ExactlyOne())
-                .BuildCommandDefinition();
+            {
+                HelpBuilder = _helpBuilder,
+            }
+            .AddCommand(
+                "outer-command", "command help",
+                arguments: outerArgs => outerArgs
+                    .WithHelp(name: $"outer args {NewLine}with new{NewLine}lines")
+                    .ZeroOrMore(),
+                symbols: outer => outer.AddCommand(
+                    "inner-command", "command help",
+                    arguments: args => args
+                        .WithHelp(name: "inner-args")
+                        .ZeroOrOne()))
+            .BuildCommandDefinition();
 
-            commandLineBuilder.WriteHelp(_console);
+            commandLineBuilder
+                .Subcommand("outer-command")
+                .WriteHelp(_console);
 
             var expected =
             $"Usage:{NewLine}" +
-            $"{_indentation}{_executableName} [command]{NewLine}{NewLine}";
+            $"{_indentation}{_executableName} outer-command <outer args with new lines> [command]{NewLine}{NewLine}";
 
             GetHelpText().Should().Contain(expected);
         }
@@ -323,25 +342,48 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_properly_wraps_description()
         {
-            var longUsageText =
-            $"Help{NewLine}" +
-            $"text with line breaks that is long enough to wrap to a{NewLine}" +
-            $"new line";
-
             var commandLineBuilder = new CommandLineBuilder
+            {
+                HelpBuilder = GetHelpBuilder(SmallMaxWidth),
+            }
+            .AddCommand(
+                "outer-command", "command help",
+                arguments: outerArgs => outerArgs
+                    .WithHelp(name: "outer args long enough to wrap to a new line")
+                    .ZeroOrMore(),
+                symbols: outer => outer.AddCommand(
+                    "inner-command", "command help",
+                    arguments: args => args
+                        .WithHelp(name: "inner-args")
+                        .ZeroOrOne()))
+            .BuildCommandDefinition();
+
+            commandLineBuilder
+                .Subcommand("outer-command")
+                .WriteHelp(_console);
+
+            var usageText = $"{_indentation}{_executableName} outer-command <outer args long enough to wrap to a new line> [command]";
+
+            var expectedLines = new [] { "Usage:" };
+            var builder = new StringBuilder();
+            foreach (var word in usageText.Split())
+            {
+                if (builder.Length >= SmallMaxWidth)
                 {
-                    HelpBuilder = GetHelpBuilder(SmallMaxWidth),
-                    Description = "test  description",
+                    expectedLines.Append(builder.ToString());
+                    builder.Clear();
+                    builder.Append($"{_indentation}");
                 }
-                .AddCommand("outer", longUsageText,
-                    arguments: args => args.ExactlyOne())
-                .BuildCommandDefinition();
 
-            commandLineBuilder.WriteHelp(_console);
+                builder.Append(word);
+            }
 
-            var expected =
-            $"Usage:{NewLine}" +
-            $"{_indentation}{_executableName} [command]{NewLine}{NewLine}";
+            if (builder.Length > 0)
+            {
+                expectedLines.Append(builder.ToString());
+            }
+
+            var expected = string.Join($"{NewLine}", expectedLines);
 
             GetHelpText().Should().Contain(expected);
         }
@@ -645,6 +687,40 @@ namespace System.CommandLine.Tests.Help
         #region Options
 
         [Fact]
+        public void Options_section_is_not_included_if_no_options_configured()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+                {
+                    HelpBuilder = _helpBuilder,
+                }
+                .AddCommand("outer", "description for outer")
+                .BuildCommandDefinition();
+
+            commandLineBuilder.WriteHelp(_console);
+
+            GetHelpText().Should().NotContain("Options:");
+        }
+
+        [Fact]
+        public void Options_section_is_not_included_if_only_subcommands_configured()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+                {
+                    HelpBuilder = _helpBuilder,
+                }
+                .AddCommand("outer", "description for outer",
+                    outer => outer.AddCommand(
+                        "inner", "description for inner"))
+                .BuildCommandDefinition();
+
+            commandLineBuilder
+                .Subcommand("outer")
+                .WriteHelp(_console);
+
+            GetHelpText().Should().NotContain("Options:");
+        }
+
+        [Fact]
         public void Options_section_includes_option_with_empty_description()
         {
             var commandLineBuilder = new CommandLineBuilder
@@ -861,11 +937,11 @@ namespace System.CommandLine.Tests.Help
                         "sibling", "sibling description");
                     outer.AddCommand(
                         "inner", "inner description",
-                    inner => inner.AddCommand(
-                        "inner-er", "inner-er description",
-                        innerEr => innerEr.AddOption(
-                            "some-option",
-                            "some-option description")));
+                        inner => inner.AddCommand(
+                            "inner-er", "inner-er description",
+                            innerEr => innerEr.AddOption(
+                                "some-option",
+                                "some-option description")));
             })
             .BuildCommandDefinition();
 
@@ -875,24 +951,6 @@ namespace System.CommandLine.Tests.Help
                 .WriteHelp(_console);
 
             GetHelpText().Should().NotContain("sibling");
-        }
-
-        [Fact]
-        public void Subcommand_help_does_not_include_options_section()
-        {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                }
-                .AddCommand("outer", "description for outer",
-                    outer => outer.AddCommand("inner", "description for inner"))
-                .BuildCommandDefinition();
-
-            commandLineBuilder
-                .Subcommand("outer")
-                .WriteHelp(_console);
-
-            GetHelpText().Should().NotContain("Options:");
         }
 
         [Fact]
@@ -919,21 +977,13 @@ namespace System.CommandLine.Tests.Help
 
             commandLineBuilder
                 .Subcommand("outer-command")
-                .Subcommand("inner-command")
                 .WriteHelp(_console);
 
             var expected =
-            $@"inner-command:{NewLine}" +
-            $"{_indentation}inner command help with whitespace{NewLine}{NewLine}" +
-            $"Usage:{NewLine}" +
-            $"{_indentation}{_executableName} outer-command <outer-args> inner-command [options] <inner-args>{NewLine}{NewLine}" +
-            $"Arguments:{NewLine}" +
-            $"{_indentation}<outer-args>{_columnPadding}{NewLine}" +
-            $"{_indentation}<inner-args>{_columnPadding}{NewLine}{NewLine}" +
-            $"Options:{NewLine}" +
-            $"{_indentation}-v, --verbosity{_columnPadding}Inner option with whitespace{NewLine}{NewLine}";
+            $"Commands:{NewLine}" +
+            $"{_indentation}inner-command <inner-args>{_columnPadding}inner command help with whitespace{NewLine}{NewLine}";
 
-            GetHelpText().Should().Be(expected);
+            GetHelpText().Should().Contain(expected);
         }
 
         [Fact]
@@ -960,25 +1010,17 @@ namespace System.CommandLine.Tests.Help
 
             commandLineBuilder
                 .Subcommand("outer-command")
-                .Subcommand("inner-command")
                 .WriteHelp(_console);
 
             var expected =
-            $@"inner-command:{NewLine}" +
-            $"{_indentation}inner command help with newlines{NewLine}{NewLine}" +
-            $"Usage:{NewLine}" +
-            $"{_indentation}{_executableName} outer-command <outer-args> inner-command [options] <inner-args>{NewLine}{NewLine}" +
-            $"Arguments:{NewLine}" +
-            $"{_indentation}<outer-args>{_columnPadding}{NewLine}" +
-            $"{_indentation}<inner-args>{_columnPadding}{NewLine}{NewLine}" +
-            $"Options:{NewLine}" +
-            $"{_indentation}-v, --verbosity{_columnPadding}Inner command option with newlines{NewLine}{NewLine}";
+            $"Commands:{NewLine}" +
+            $"{_indentation}inner-command <inner-args>{_columnPadding}inner command help with newlines{NewLine}{NewLine}";
 
-            GetHelpText().Should().Be(expected);
+            GetHelpText().Should().Contain(expected);
         }
 
         [Fact]
-        public void Properly_wraps_description_in_subcommands()
+        public void Subcommands_properly_wraps_description()
         {
             var longSubcommandText =
             $"The{NewLine}" +
@@ -1005,23 +1047,14 @@ namespace System.CommandLine.Tests.Help
 
             commandLineBuilder
                 .Subcommand("outer-command")
-                .Subcommand("inner-command")
                 .WriteHelp(_console);
 
             var expected =
-            $@"inner-command:{NewLine}" +
-            $"{_indentation}The subcommand with line breaks that is long enough to wrap to a{NewLine}" +
-            $"{_indentation}new line{NewLine}{NewLine}" +
-            $"Usage:{NewLine}" +
-            $"{_indentation}{_executableName} outer-command <outer-args> inner-command [options]{NewLine}" +
-            $"{_indentation}<inner-args>{NewLine}{NewLine}" +
-            $"Arguments:{NewLine}" +
-            $"{_indentation}<outer-args>{_columnPadding}{NewLine}" +
-            $"{_indentation}<inner-args>{_columnPadding}{NewLine}{NewLine}" +
-            $"Options:{NewLine}" +
-            $"{_indentation}-v, --verbosity{_columnPadding}{NewLine}{NewLine}";
+            $"Commands:{NewLine}" +
+            $"{_indentation}inner-command <inner-args>{_columnPadding}The subcommand with line breaks that{NewLine}" +
+            $"{_indentation}                          {_columnPadding}is long enough to wrap to a new line{NewLine}{NewLine}";
 
-            GetHelpText().Should().Be(expected);
+            GetHelpText().Should().Contain(expected);
         }
 
         #endregion Subcommands
