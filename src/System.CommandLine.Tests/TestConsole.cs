@@ -17,9 +17,11 @@ namespace System.CommandLine.Tests
 
         public TextWriter Out { get; }
 
-        public ConsoleColor ForegroundColor { get; set; }
+        public virtual ConsoleColor ForegroundColor { get; set; }
 
-        public void ResetColor()
+        public int WindowWidth { get; set; }
+
+        public virtual void ResetColor()
         {
         }
     }

@@ -3,15 +3,15 @@
 
 namespace System.CommandLine
 {
-    public class ArgumentsRuleHelp
+    public class HelpDefinition
     {
         internal const bool DefaultIsHidden = false;
 
-        public ArgumentsRuleHelp()
+        public HelpDefinition()
         {
         }
 
-        public ArgumentsRuleHelp(string name, string description, bool isHidden)
+        public HelpDefinition(string name, string description, bool isHidden)
         {
             Description = description;
             IsHidden = isHidden;
