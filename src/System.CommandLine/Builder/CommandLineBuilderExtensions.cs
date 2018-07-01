@@ -14,11 +14,13 @@ namespace System.CommandLine.Builder
             string name,
             string description = null,
             Action<CommandDefinitionBuilder> symbols = null,
-            Action<ArgumentDefinitionBuilder> arguments = null)
+            Action<ArgumentDefinitionBuilder> arguments = null,
+            IHelpBuilder helpBuilder = null)
             where TBuilder : CommandDefinitionBuilder
         {
             var commandDefinitionBuilder = new CommandDefinitionBuilder(name, builder) {
-                Description = description
+                Description = description,
+                HelpBuilder = helpBuilder ?? builder.HelpBuilder,
             };
 
             symbols?.Invoke(commandDefinitionBuilder);
@@ -89,7 +91,7 @@ namespace System.CommandLine.Builder
             where TBuilder : CommandDefinitionBuilder
         {
             var optionDefinitionBuilder = new OptionDefinitionBuilder(aliases, builder) {
-                Description = description
+                Description = description,
             };
 
             arguments?.Invoke(optionDefinitionBuilder.Arguments);

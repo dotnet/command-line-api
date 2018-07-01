@@ -10,14 +10,18 @@ namespace System.CommandLine
 {
     public class CommandDefinition : SymbolDefinition
     {
+        private IHelpBuilder _helpBuilder;
+
         public CommandDefinition(
             string name,
             string description,
             ArgumentDefinition argumentDefinition,
-            bool treatUnmatchedTokensAsErrors = true) :
+            bool treatUnmatchedTokensAsErrors = true,
+            IHelpBuilder helpBuilder = null) :
             base(new[] { name }, description, argumentDefinition)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+            _helpBuilder = helpBuilder;
         }
 
         public CommandDefinition(
@@ -26,12 +30,14 @@ namespace System.CommandLine
             IReadOnlyCollection<SymbolDefinition> symbolDefinitions = null,
             ArgumentDefinition argumentDefinition = null,
             bool treatUnmatchedTokensAsErrors = true,
-            MethodBinder executionHandler = null) :
+            MethodBinder executionHandler = null,
+            IHelpBuilder helpBuilder = null) :
             base(new[] { name }, description)
         {
+            symbolDefinitions = symbolDefinitions ?? Array.Empty<SymbolDefinition>();
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
             ExecutionHandler = executionHandler;
-            symbolDefinitions = symbolDefinitions ?? Array.Empty<SymbolDefinition>();
+            _helpBuilder = helpBuilder;
 
             var validSymbolAliases = symbolDefinitions
                                      .SelectMany(o => o.RawAliases)
@@ -68,5 +74,11 @@ namespace System.CommandLine
         public bool TreatUnmatchedTokensAsErrors { get; }
 
         internal MethodBinder ExecutionHandler { get; }
+
+        public void WriteHelp(IConsole console)
+        {
+            IHelpBuilder helpBuilder = _helpBuilder ?? new HelpBuilder(console);
+            helpBuilder.Write(this);
+        }
     }
 }

@@ -15,7 +15,8 @@ namespace System.CommandLine
         protected internal SymbolDefinition(
             IReadOnlyCollection<string> aliases,
             string description,
-            ArgumentDefinition argumentDefinition = null)
+            ArgumentDefinition argumentDefinition = null,
+            HelpDefinition help = null)
         {
             if (aliases == null)
             {
@@ -40,14 +41,14 @@ namespace System.CommandLine
                 _aliases.Add(cleanedAlias);
             }
 
+            ArgumentDefinition = argumentDefinition ?? ArgumentDefinition.None;
             Description = description;
-
             Name = aliases
                    .Select(a => a.RemovePrefix())
                    .OrderBy(a => a.Length)
                    .Last();
 
-            ArgumentDefinition = argumentDefinition ?? ArgumentDefinition.None;
+            Help = help ?? new HelpDefinition(Name, Description, false);
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
@@ -57,6 +58,8 @@ namespace System.CommandLine
         protected internal ArgumentDefinition ArgumentDefinition { get; protected set; }
 
         public string Description { get; }
+
+        public HelpDefinition Help { get; }
 
         public string Name { get; }
 
