@@ -34,7 +34,7 @@ steps:
   displayName: Publish NuGet Packages to MyGet
   inputs:
     searchPattern: 'artifacts\$(BuildConfiguration)\packages\*.nupkg'
-    connectedServiceName: 'DotNet Core Nuget Feed'
+    connectedServiceName: 'dotnet-core MyGet Feed'
     nuGetVersion: 4.0.0.2283
   condition: and(succeeded(), not(contains(variables['PB_PublishType'], 'blob')))
 
