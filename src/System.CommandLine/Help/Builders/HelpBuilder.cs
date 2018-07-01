@@ -279,11 +279,11 @@ namespace System.CommandLine
         /// <summary>
         /// Formats the help rows for a given argument
         /// </summary>
-        /// <param name="symbol"></param>
+        /// <param name="commandDef"></param>
         /// <returns>A new <see cref="HelpItem"/></returns>
-        protected virtual HelpItem ArgumentFormatter(SymbolDefinition symbol)
+        protected virtual HelpItem ArgumentFormatter(SymbolDefinition commandDef)
         {
-            var argHelp = symbol?.ArgumentDefinition?.Help;
+            var argHelp = commandDef?.ArgumentDefinition?.Help;
 
             return new HelpItem {
                 Invocation = $"<{argHelp?.Name}>",
@@ -345,10 +345,10 @@ namespace System.CommandLine
             {
                 usage.Add(subcommand.Name);
 
-                var argsName = subcommand.ArgumentDefinition?.Help?.Name;
-                if (subcommand != commandDefinition && !string.IsNullOrWhiteSpace(argsName))
+                var subcommandArgHelp = GetArgumentHelp(subcommand);
+                if (subcommand != commandDefinition && subcommandArgHelp != null)
                 {
-                    usage.Add($"<{argsName}>");
+                    usage.Add($"<{subcommandArgHelp}>");
                 }
             }
 
@@ -361,17 +361,17 @@ namespace System.CommandLine
                 usage.Add(Usage.Options);
             }
 
-            var argumentsName = commandDefinition.ArgumentDefinition?.Help?.Name;
-            if (!string.IsNullOrWhiteSpace(argumentsName))
+            var commandArgHelp = GetArgumentHelp(commandDefinition);
+            if (commandArgHelp != null)
             {
-                usage.Add($"<{argumentsName}>");
+                usage.Add($"<{commandArgHelp}>");
             }
 
-            var hasCommand = commandDefinition.SymbolDefinitions
+            var hasCommandHelp = commandDefinition.SymbolDefinitions
                 .OfType<CommandDefinition>()
-                .Any();
+                .Any(f => f.HasHelp);
 
-            if (hasCommand)
+            if (hasCommandHelp)
             {
                 usage.Add(Usage.Command);
             }
@@ -445,6 +445,19 @@ namespace System.CommandLine
             }
 
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
+        }
+
+        private string GetArgumentHelp(SymbolDefinition symbolDef)
+        {
+            var argDef = symbolDef?.ArgumentDefinition;
+            var argHelp = argDef?.Help?.Name;
+
+            if (argDef?.HasHelp != true || string.IsNullOrEmpty(argHelp))
+            {
+                return null;
+            }
+
+            return argHelp;
         }
 
         /// <summary>

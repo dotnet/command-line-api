@@ -30,7 +30,6 @@ namespace System.CommandLine.Tests.Help
                 }
             }
 
-
             public override void ResetColor()
             {
                 ResetColorCalls += 1;
