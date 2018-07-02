@@ -286,7 +286,7 @@ namespace System.CommandLine.Tests.Help
         {
             var commandLineBuilder = new CommandLineBuilder
             {
-                HelpBuilder = GetHelpBuilder(SmallMaxWidth),
+                HelpBuilder = _helpBuilder
             }
             .AddCommand(
                 "outer-command", "command help",
