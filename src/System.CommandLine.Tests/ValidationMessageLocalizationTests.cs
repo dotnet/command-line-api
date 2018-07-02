@@ -16,9 +16,9 @@ namespace System.CommandLine.Tests
         {
             var messages = new FakeValidationMessages("the-message");
 
-            var builder = new ArgumentDefinitionBuilder();
-            var commandDefinition = new CommandDefinition("the-command", "", builder.ExactlyOne());
-            var parser = new Parser(new CommandLineConfiguration(new[] { commandDefinition }, validationMessages: messages));
+            var builder = new ArgumentBuilder();
+            var command = new Command("the-command", "", builder.ExactlyOne());
+            var parser = new Parser(new CommandLineConfiguration(new[] { command }, validationMessages: messages));
             var result = parser.Parse("the-command");
 
             result.Errors
@@ -36,15 +36,15 @@ namespace System.CommandLine.Tests
                 this.message = message;
             }
 
-            public override string NoArgumentsAllowed(Symbol symbol) => message;
+            public override string NoArgumentsAllowed(SymbolResult symbolResult) => message;
 
-            public override string ExpectsOneArgument(Symbol symbol) => message;
+            public override string ExpectsOneArgument(SymbolResult symbolResult) => message;
 
             public override string FileDoesNotExist(string filePath) => message;
 
             public string CommandAcceptsOnlyOneSubcommand(string command, string subcommandsSpecified) => message;
 
-            public override string RequiredArgumentMissing(Symbol symbol) => message;
+            public override string RequiredArgumentMissing(SymbolResult symbolResult) => message;
 
             public override string RequiredCommandWasNotProvided() => message;
 

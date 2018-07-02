@@ -22,7 +22,7 @@ namespace System.CommandLine
         public int MaxWidth { get; } = DefaultWindowWidth;
 
         /// <summary>
-        /// Brokers the generation and output of help text of <see cref="SymbolDefinition"/>
+        /// Brokers the generation and output of help text of <see cref="Symbol"/>
         /// and the <see cref="IConsole"/>
         /// </summary>
         /// <param name="console"><see cref="IConsole"/> instance to write the help text output</param>
@@ -46,19 +46,19 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public void Write(CommandDefinition commandDefinition)
+        public void Write(Command command)
         {
-            if (commandDefinition == null)
+            if (command == null)
             {
-                throw new ArgumentNullException(nameof(commandDefinition));
+                throw new ArgumentNullException(nameof(command));
             }
 
-            AddSynopsis(commandDefinition);
-            AddUsage(commandDefinition);
-            AddArguments(commandDefinition);
-            AddOptions(commandDefinition);
-            AddSubcommands(commandDefinition);
-            AddAdditionalArguments(commandDefinition);
+            AddSynopsis(command);
+            AddUsage(command);
+            AddArguments(command);
+            AddOptions(command);
+            AddSubcommands(command);
+            AddAdditionalArguments(command);
         }
 
         protected int CurrentIndentation => _indentationLevel * IndentationSize;
@@ -281,9 +281,9 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="commandDef"></param>
         /// <returns>A new <see cref="HelpItem"/></returns>
-        protected virtual HelpItem ArgumentFormatter(SymbolDefinition commandDef)
+        protected virtual HelpItem ArgumentFormatter(Symbol commandDef)
         {
-            var argHelp = commandDef?.ArgumentDefinition?.Help;
+            var argHelp = commandDef?.Argument?.Help;
 
             return new HelpItem {
                 Invocation = $"<{argHelp?.Name}>",
@@ -296,16 +296,16 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns>A new <see cref="HelpItem"/></returns>
-        protected virtual HelpItem OptionFormatter(SymbolDefinition symbol)
+        protected virtual HelpItem OptionFormatter(Symbol symbol)
         {
             var rawAliases = symbol.RawAliases
                 .OrderBy(alias => alias.Length);
 
             var option = string.Join(", ", rawAliases);
 
-            if (symbol.HasArguments && !string.IsNullOrWhiteSpace(symbol.ArgumentDefinition?.Help?.Name))
+            if (symbol.HasArguments && !string.IsNullOrWhiteSpace(symbol.Argument?.Help?.Name))
             {
-                option = $"{option} <{symbol.ArgumentDefinition?.Help?.Name}>";
+                option = $"{option} <{symbol.Argument?.Help?.Name}>";
             }
 
             return new HelpItem {
@@ -315,29 +315,29 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Writes a summary, if configured, for the supplied <see cref="commandDefinition"/>
+        /// Writes a summary, if configured, for the supplied <see cref="command"/>
         /// </summary>
-        /// <param name="commandDefinition"></param>
-        protected virtual void AddSynopsis(CommandDefinition commandDefinition)
+        /// <param name="command"></param>
+        protected virtual void AddSynopsis(Command command)
         {
-            if (!commandDefinition.HasHelp)
+            if (!command.HasHelp)
             {
                 return;
             }
 
-            var title = $"{commandDefinition.Help.Name}:";
-            HelpSection.Write(this, title, commandDefinition.Help.Description);
+            var title = $"{command.Help.Name}:";
+            HelpSection.Write(this, title, command.Help.Description);
         }
 
         /// <summary>
-        /// Writes the usage summary for the supplied <see cref="commandDefinition"/>
+        /// Writes the usage summary for the supplied <see cref="command"/>
         /// </summary>
-        /// <param name="commandDefinition"></param>
-        protected virtual void AddUsage(CommandDefinition commandDefinition)
+        /// <param name="command"></param>
+        protected virtual void AddUsage(Command command)
         {
             var usage = new List<string>();
 
-            var subcommands = commandDefinition
+            var subcommands = command
                 .RecurseWhileNotNull(commandDef => commandDef.Parent)
                 .Reverse();
 
@@ -346,14 +346,14 @@ namespace System.CommandLine
                 usage.Add(subcommand.Name);
 
                 var subcommandArgHelp = GetArgumentHelp(subcommand);
-                if (subcommand != commandDefinition && subcommandArgHelp != null)
+                if (subcommand != command && subcommandArgHelp != null)
                 {
                     usage.Add($"<{subcommandArgHelp}>");
                 }
             }
 
-            var hasOptionHelp = commandDefinition.SymbolDefinitions
-                .OfType<OptionDefinition>()
+            var hasOptionHelp = command.Symbols
+                .OfType<Option>()
                 .Any(symbolDef => symbolDef.HasHelp);
 
             if (hasOptionHelp)
@@ -361,14 +361,14 @@ namespace System.CommandLine
                 usage.Add(Usage.Options);
             }
 
-            var commandArgHelp = GetArgumentHelp(commandDefinition);
+            var commandArgHelp = GetArgumentHelp(command);
             if (commandArgHelp != null)
             {
                 usage.Add($"<{commandArgHelp}>");
             }
 
-            var hasCommandHelp = commandDefinition.SymbolDefinitions
-                .OfType<CommandDefinition>()
+            var hasCommandHelp = command.Symbols
+                .OfType<Command>()
                 .Any(f => f.HasHelp);
 
             if (hasCommandHelp)
@@ -376,7 +376,7 @@ namespace System.CommandLine
                 usage.Add(Usage.Command);
             }
 
-            if (!commandDefinition.TreatUnmatchedTokensAsErrors)
+            if (!command.TreatUnmatchedTokensAsErrors)
             {
                 usage.Add(Usage.AdditionalArguments);
             }
@@ -385,36 +385,36 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Writes the arguments, if any, for the supplied <see cref="commandDefinition"/>
+        /// Writes the arguments, if any, for the supplied <see cref="command"/>
         /// </summary>
-        /// <param name="commandDefinition"></param>
-        protected virtual void AddArguments(CommandDefinition commandDefinition)
+        /// <param name="command"></param>
+        protected virtual void AddArguments(Command command)
         {
-            var arguments = new List<CommandDefinition>();
+            var arguments = new List<Command>();
 
-            if (commandDefinition.Parent?.HasArguments == true && commandDefinition.Parent.HasHelp)
+            if (command.Parent?.HasArguments == true && command.Parent.HasHelp)
             {
-                arguments.Add(commandDefinition.Parent);
+                arguments.Add(command.Parent);
             }
 
-            if (commandDefinition.HasArguments && commandDefinition.HasHelp)
+            if (command.HasArguments && command.HasHelp)
             {
-                arguments.Add(commandDefinition);
+                arguments.Add(command);
             }
 
             HelpSection.Write(this, Arguments.Title, arguments, ArgumentFormatter);
         }
 
         /// <summary>
-        /// Writes the <see cref="OptionDefinition"/> help content, if any,
-        /// for the supplied <see cref="commandDefinition"/>
+        /// Writes the <see cref="Option"/> help content, if any,
+        /// for the supplied <see cref="command"/>
         /// </summary>
-        /// <param name="commandDefinition"></param>
-        protected virtual void AddOptions(SymbolDefinition commandDefinition)
+        /// <param name="command"></param>
+        protected virtual void AddOptions(Symbol command)
         {
-            var options = commandDefinition
-                .SymbolDefinitions
-                .OfType<OptionDefinition>()
+            var options = command
+                .Symbols
+                .OfType<Option>()
                 .Where(opt => opt.HasHelp)
                 .ToArray();
 
@@ -422,24 +422,24 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Writes the help content of the <see cref="CommandDefinition"/> subcommands, if any,
-        /// for the supplied <see cref="commandDefinition"/>
+        /// Writes the help content of the <see cref="Command"/> subcommands, if any,
+        /// for the supplied <see cref="command"/>
         /// </summary>
-        /// <param name="commandDefinition"></param>
-        protected virtual void AddSubcommands(SymbolDefinition commandDefinition)
+        /// <param name="command"></param>
+        protected virtual void AddSubcommands(Symbol command)
         {
-            var subcommands = commandDefinition
-                .SymbolDefinitions
-                .OfType<CommandDefinition>()
+            var subcommands = command
+                .Symbols
+                .OfType<Command>()
                 .Where(subCommand => subCommand.HasHelp)
                 .ToArray();
 
             HelpSection.Write(this, Commands.Title, subcommands, OptionFormatter);
         }
 
-        protected virtual void AddAdditionalArguments(CommandDefinition commandDefinition)
+        protected virtual void AddAdditionalArguments(Command command)
         {
-            if (commandDefinition.TreatUnmatchedTokensAsErrors)
+            if (command.TreatUnmatchedTokensAsErrors)
             {
                 return;
             }
@@ -447,9 +447,9 @@ namespace System.CommandLine
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private string GetArgumentHelp(SymbolDefinition symbolDef)
+        private string GetArgumentHelp(Symbol symbolDef)
         {
-            var argDef = symbolDef?.ArgumentDefinition;
+            var argDef = symbolDef?.Argument;
             var argHelp = argDef?.Help?.Name;
 
             if (argDef?.HasHelp != true || string.IsNullOrEmpty(argHelp))
@@ -508,8 +508,8 @@ namespace System.CommandLine
             public static void Write(
                 HelpBuilder builder,
                 string title,
-                IReadOnlyCollection<SymbolDefinition> usageItems = null,
-                Func<SymbolDefinition, HelpItem> formatter = null,
+                IReadOnlyCollection<Symbol> usageItems = null,
+                Func<Symbol, HelpItem> formatter = null,
                 string description = null)
             {
                 if (!ShouldWrite(description, usageItems))
@@ -525,7 +525,7 @@ namespace System.CommandLine
                 builder.AppendBlankLine();
             }
 
-            private static bool ShouldWrite(string description, IReadOnlyCollection<SymbolDefinition> usageItems)
+            private static bool ShouldWrite(string description, IReadOnlyCollection<Symbol> usageItems)
             {
                 if (!string.IsNullOrWhiteSpace(description))
                 {
@@ -557,15 +557,15 @@ namespace System.CommandLine
 
             private static void AddInvocation(
                 HelpBuilder builder,
-                IReadOnlyCollection<SymbolDefinition> symbolDefinitions,
-                Func<SymbolDefinition, HelpItem> formatter)
+                IReadOnlyCollection<Symbol> symbols,
+                Func<Symbol, HelpItem> formatter)
             {
-                if (symbolDefinitions?.Any() != true)
+                if (symbols?.Any() != true)
                 {
                     return;
                 }
 
-                var helpItems = symbolDefinitions
+                var helpItems = symbols
                     .Select(formatter).ToList();
 
                 var maxWidth = helpItems

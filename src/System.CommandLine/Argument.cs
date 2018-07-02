@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class ArgumentDefinition
+    public class Argument
     {
         private readonly Func<object> _defaultValue;
 
-        internal ArgumentDefinition(
+        internal Argument(
             ArgumentParser parser,
             Func<object> defaultValue = null,
             HelpDefinition help = null,
@@ -43,7 +43,7 @@ namespace System.CommandLine
 
         internal ArgumentParser Parser { get; }
 
-        internal static ArgumentDefinition None { get; } = new ArgumentDefinition(
+        internal static Argument None { get; } = new Argument(
             new ArgumentParser(
                 System.CommandLine.ArgumentArity.Zero,
                 symbol =>
@@ -61,14 +61,14 @@ namespace System.CommandLine
 
         public ArgumentArityValidator ArgumentArity => Parser.ArityValidator;
 
-        private static string AcceptNoArguments(Symbol symbol)
+        private static string AcceptNoArguments(SymbolResult symbolResult)
         {
-            if (!symbol.Arguments.Any())
+            if (!symbolResult.Arguments.Any())
             {
                 return null;
             }
 
-            return symbol.ValidationMessages.NoArgumentsAllowed(symbol);
+            return symbolResult.ValidationMessages.NoArgumentsAllowed(symbolResult);
         }
     }
 }

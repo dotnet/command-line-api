@@ -13,21 +13,21 @@ namespace System.CommandLine.Builder
             this TBuilder builder,
             string name,
             string description = null,
-            Action<CommandDefinitionBuilder> symbols = null,
-            Action<ArgumentDefinitionBuilder> arguments = null,
+            Action<CommandBuilder> symbols = null,
+            Action<ArgumentBuilder> arguments = null,
             IHelpBuilder helpBuilder = null)
-            where TBuilder : CommandDefinitionBuilder
+            where TBuilder : CommandBuilder
         {
-            var commandDefinitionBuilder = new CommandDefinitionBuilder(name, builder) {
+            var commandBuilder = new CommandBuilder(name, builder) {
                 Description = description,
                 HelpBuilder = helpBuilder ?? builder.HelpBuilder,
             };
 
-            symbols?.Invoke(commandDefinitionBuilder);
+            symbols?.Invoke(commandBuilder);
 
-            arguments?.Invoke(commandDefinitionBuilder.Arguments);
+            arguments?.Invoke(commandBuilder.Arguments);
 
-            builder.Commands.Add(commandDefinitionBuilder);
+            builder.Commands.Add(commandBuilder);
 
             return builder;
         }
@@ -36,7 +36,7 @@ namespace System.CommandLine.Builder
             this TBuilder builder,
             MethodInfo method,
             object target = null)
-            where TBuilder : CommandDefinitionBuilder
+            where TBuilder : CommandBuilder
         {
             if (builder == null)
             {
@@ -61,7 +61,7 @@ namespace System.CommandLine.Builder
         public static TBuilder AddOptionFromParameter<TBuilder>(
             this TBuilder builder,
             ParameterInfo parameter)
-            where TBuilder : CommandDefinitionBuilder
+            where TBuilder : CommandBuilder
         {
             string paramName = parameter.Name.ToKebabCase();
 
@@ -87,16 +87,16 @@ namespace System.CommandLine.Builder
             this TBuilder builder,
             string[] aliases,
             string description = null,
-            Action<ArgumentDefinitionBuilder> arguments = null)
-            where TBuilder : CommandDefinitionBuilder
+            Action<ArgumentBuilder> arguments = null)
+            where TBuilder : CommandBuilder
         {
-            var optionDefinitionBuilder = new OptionDefinitionBuilder(aliases, builder) {
+            var optionBuilder = new OptionBuilder(aliases, builder) {
                 Description = description,
             };
 
-            arguments?.Invoke(optionDefinitionBuilder.Arguments);
+            arguments?.Invoke(optionBuilder.Arguments);
 
-            builder.Options.Add(optionDefinitionBuilder);
+            builder.Options.Add(optionBuilder);
 
             return builder;
         }
@@ -105,8 +105,8 @@ namespace System.CommandLine.Builder
             this TBuilder builder,
             string name,
             string description = null,
-            Action<ArgumentDefinitionBuilder> arguments = null)
-            where TBuilder : CommandDefinitionBuilder
+            Action<ArgumentBuilder> arguments = null)
+            where TBuilder : CommandBuilder
         {
             return builder.AddOption(new[] { name }, description, arguments);
         }
@@ -129,8 +129,8 @@ namespace System.CommandLine.Builder
 
         public static TBuilder AddArguments<TBuilder>(
             this TBuilder builder,
-            Action<ArgumentDefinitionBuilder> action)
-            where TBuilder : CommandDefinitionBuilder
+            Action<ArgumentBuilder> action)
+            where TBuilder : CommandBuilder
         {
             action.Invoke(builder.Arguments);
             return builder;

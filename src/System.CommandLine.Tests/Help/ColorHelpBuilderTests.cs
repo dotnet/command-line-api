@@ -37,6 +37,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         private readonly ColorHelpBuilder _colorHelpBuilder;
+
         private readonly ColorTestConsole _console;
 
         public ColorHelpBuilderTests()
@@ -55,7 +56,7 @@ namespace System.CommandLine.Tests.Help
                 HelpBuilder = _colorHelpBuilder,
                 Description = "test description for synopsis",
             }
-            .BuildCommandDefinition();
+            .BuildCommand();
 
             commandLineBuilder.WriteHelp(_console);
 
@@ -77,7 +78,7 @@ namespace System.CommandLine.Tests.Help
                 }
                 .AddCommand("outer", "Help text   for the outer   command",
                     arguments: args => args.ExactlyOne())
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder.WriteHelp(_console);
 
@@ -102,7 +103,7 @@ namespace System.CommandLine.Tests.Help
                             name: "outer-command-arg",
                             description: "Argument\tfor the   inner command")
                         .ExactlyOne())
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer")
@@ -128,7 +129,7 @@ namespace System.CommandLine.Tests.Help
                         .AddOption(
                             new[] { "-a", "--aaa" },
                             "Help   for      the   option"))
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("test-command")
@@ -162,7 +163,7 @@ namespace System.CommandLine.Tests.Help
                         symbols: inner => inner.AddOption(
                             new[] { "-v", "--verbosity" },
                             "Inner    option \twith spaces")))
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer-command")

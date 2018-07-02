@@ -14,12 +14,12 @@ namespace System.CommandLine.Tests
 
         public CommandTests()
         {
-            var builder = new ArgumentDefinitionBuilder();
+            var builder = new ArgumentBuilder();
 
             _parser = new Parser(
-                new CommandDefinition("outer", "", new[] {
-                    new CommandDefinition("inner", "", new[] {
-                        new OptionDefinition(
+                new Command("outer", "", new[] {
+                    new Command("inner", "", new[] {
+                        new Option(
                             "--option",
                             "",
                             builder.ExactlyOne())
@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests
             var result = _parser.Parse("outer inner --option argument1");
 
             result
-                .RootCommand
+                .RootCommandResult
                 .Name
                 .Should()
                 .Be("outer");
@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests
             var result = _parser.Parse("outer inner --option argument1");
 
             result
-                .Command
+                .CommandResult
                 .Parent
                 .Name
                 .Should()
@@ -57,7 +57,7 @@ namespace System.CommandLine.Tests
         {
             var result = _parser.Parse("outer inner --option argument1");
 
-            result.Command
+            result.CommandResult
                   .Name
                   .Should()
                   .Be("inner");
@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
         {
             var result = _parser.Parse("outer inner --option argument1");
 
-            result.Command
+            result.CommandResult
                   .Children
                   .ElementAt(0)
                   .Name
@@ -81,7 +81,7 @@ namespace System.CommandLine.Tests
         {
             var result = _parser.Parse("outer inner --option argument1");
 
-            result.Command
+            result.CommandResult
                   .Children
                   .ElementAt(0)
                   .Arguments
@@ -101,13 +101,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
-            result.Command
+            result.CommandResult
                   .Parent
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg1");
 
-            result.Command
+            result.CommandResult
                   .Arguments
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
@@ -128,9 +128,9 @@ namespace System.CommandLine.Tests
             string template)
         {
             Action create = () => new Parser(
-                new CommandDefinition(
+                new Command(
                     string.Format(template, delimiter), "",
-                    new ArgumentDefinitionBuilder().ExactlyOne()));
+                    new ArgumentBuilder().ExactlyOne()));
 
             create.Should().Throw<ArgumentException>().Which.Message.Should()
                   .Be($"Symbol cannot contain delimiter: \"{delimiter}\"");
@@ -149,7 +149,7 @@ namespace System.CommandLine.Tests
         [InlineData("outer arg inner arg inner-er arg", "inner-er")]
         public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand)
         {
-            var builder = new CommandDefinitionBuilder("outer")
+            var builder = new CommandBuilder("outer")
                                            .AddCommand("inner", "",
                                                        sibling => sibling.AddCommand("inner-er", "",
                                                                                      arguments: args => args.ZeroOrMore()))
@@ -157,11 +157,11 @@ namespace System.CommandLine.Tests
                                                        arguments: args => args.ZeroOrMore());
             builder.Arguments.ZeroOrMore();
 
-            var command = builder.BuildCommandDefinition();
+            var command = builder.BuildCommand();
 
             var result = command.Parse(input);
 
-            result.Command.Name.Should().Be(expectedCommand);
+            result.CommandResult.Name.Should().Be(expectedCommand);
         }
     }
 }

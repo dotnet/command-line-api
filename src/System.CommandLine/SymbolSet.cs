@@ -8,12 +8,12 @@ namespace System.CommandLine
     public class SymbolSet : AliasedSet<Symbol>
     {
         protected override bool ContainsItemWithAlias(Symbol item, string alias) =>
-            item.SymbolDefinition.HasAlias(alias);
+            item.HasAlias(alias);
 
         protected override bool ContainsItemWithRawAlias(Symbol item, string alias) =>
-            item.SymbolDefinition.HasRawAlias(alias);
+            item.HasRawAlias(alias);
 
         protected override IReadOnlyCollection<string> GetAliases(Symbol item) =>
-            item.SymbolDefinition.RawAliases;
+            item.RawAliases;
     }
 }

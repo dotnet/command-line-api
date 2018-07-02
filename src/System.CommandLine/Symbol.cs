@@ -2,171 +2,104 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace System.CommandLine
 {
-    public abstract class Symbol
+    public abstract class Symbol : ISuggestionSource
     {
-        private readonly List<string> _arguments = new List<string>();
-        private ArgumentParseResult _result;
+        private readonly HashSet<string> _aliases = new HashSet<string>();
 
-        private ValidationMessages _validationMessages = ValidationMessages.Instance;
+        private readonly HashSet<string> _rawAliases;
 
-        protected internal Symbol(SymbolDefinition symbolDefinition, string token, Command parent = null)
+        protected internal Symbol(
+            IReadOnlyCollection<string> aliases,
+            string description,
+            Argument argument = null,
+            HelpDefinition help = null)
         {
-            if (string.IsNullOrWhiteSpace(token))
+            if (aliases == null)
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
+                throw new ArgumentNullException(nameof(aliases));
             }
 
-            SymbolDefinition = symbolDefinition ?? throw new ArgumentNullException(nameof(symbolDefinition));
-
-            Token = token;
-
-            Parent = parent;
-        }
-
-        public IReadOnlyCollection<string> Arguments => _arguments;
-
-        public SymbolSet Children { get; } = new SymbolSet();
-
-        public string Name => SymbolDefinition.Name;
-
-        internal bool OptionWasRespecified { get; set; } = true;
-
-        public Command Parent { get; }
-
-        public SymbolDefinition SymbolDefinition { get; }
-
-        public string Token { get; }
-
-        public IReadOnlyCollection<string> Aliases => SymbolDefinition.Aliases;
-
-        public bool HasAlias(string alias) => SymbolDefinition.HasAlias(alias);
-
-        public ValidationMessages ValidationMessages    
-        {
-            get => _validationMessages ?? (_validationMessages = ValidationMessages.Instance);
-            set => _validationMessages = value;
-        }
-
-        protected internal virtual ParseError Validate()
-        {
-            foreach (var symbolValidator in SymbolDefinition.ArgumentDefinition.SymbolValidators)
+            if (!aliases.Any())
             {
-                var errorMessage = symbolValidator(this);
+                throw new ArgumentException("An option must have at least one alias.");
+            }
 
-                if (!string.IsNullOrWhiteSpace(errorMessage))
+            _rawAliases = new HashSet<string>(aliases);
+
+            foreach (var alias in aliases)
+            {
+                var cleanedAlias = alias?.RemovePrefix();
+                if (string.IsNullOrWhiteSpace(cleanedAlias))
                 {
-                    return new ParseError(errorMessage, this);
-                }
-            }
-
-            _result = SymbolDefinition.ArgumentDefinition.Parser.Parse(this);
-
-            switch (_result)
-            {
-                case FailedArgumentArityResult arityFailure:
-                    return new ParseError(arityFailure.ErrorMessage,
-                                          this,
-                                          true);
-                case FailedArgumentTypeConversionResult conversionFailure:
-                    return new ParseError(conversionFailure.ErrorMessage,
-                                          this,
-                                          false);
-                case FailedArgumentParseResult general:
-                    return new ParseError(general.ErrorMessage,
-                                          this,
-                                          false);
-            }
-
-            return null;
-        }
-
-        internal abstract Symbol TryTakeToken(Token token);
-
-        protected internal Symbol TryTakeArgument(Token token)
-        {
-            if (token.Type != TokenType.Argument)
-            {
-                return null;
-            }
-
-            if (!OptionWasRespecified &&
-                SymbolDefinition is OptionDefinition)
-            {
-                // Options must be respecified in order to accept additional arguments. This is
-                // not the case for commandDefinitions.
-                return null;
-            }
-
-            foreach (var child in Children)
-            {
-                var a = child.TryTakeToken(token);
-                if (a != null)
-                {
-                    return a;
-                }
-            }
-
-            _arguments.Add(token.Value);
-
-            var parseError = Validate();
-            if (parseError == null)
-            {
-                OptionWasRespecified = false;
-                return this;
-            }
-
-            if (!parseError.CanTokenBeRetried)
-            {
-                return this;
-            }
-
-            _arguments.RemoveAt(_arguments.Count - 1);
-            
-            return null;
-        }
-
-        internal static Symbol Create(
-            SymbolDefinition symbolDefinition, 
-            string token, 
-            Command parent = null, 
-            ValidationMessages validationMessages = null)
-        {
-            switch (symbolDefinition)
-            {
-                case CommandDefinition command:
-                    return new Command(command, parent)
-                    {
-                        ValidationMessages = validationMessages
-                    };
-
-                case OptionDefinition option:
-                    return new Option(option, token, parent)
-                    {
-                        ValidationMessages = validationMessages
-                    };
-
-                default:
-                    throw new ArgumentException($"Unrecognized symbolDefinition type: {symbolDefinition.GetType()}");
-            }
-        }
-
-        public ArgumentParseResult Result
-        {
-            get
-            {
-                if (_result == null)
-                {
-                    Validate();
+                    throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
                 }
 
-                return _result;
+                _aliases.Add(cleanedAlias);
             }
-            protected set => _result = value;
+
+            Description = description;
+
+            Name = aliases
+                   .Select(a => a.RemovePrefix())
+                   .OrderBy(a => a.Length)
+                   .Last();
+
+            Argument = argument ?? Argument.None;
+
+            Help = help ?? new HelpDefinition(Name, Description, false);
         }
 
-        public override string ToString() => $"{GetType().Name}: {Token}";
+        public IReadOnlyCollection<string> Aliases => _aliases;
+
+        public IReadOnlyCollection<string> RawAliases => _rawAliases;
+
+        protected internal Argument Argument { get; protected set; }
+
+        public string Description { get; }
+
+        public HelpDefinition Help { get; }
+
+        public string Name { get; }
+
+        // FIX: (Parent) make this immutable
+        public Command Parent { get; protected internal set; }
+
+        public SymbolSet Symbols { get; } = new SymbolSet();
+
+        internal void AddAlias(string alias) => _rawAliases.Add(alias);
+
+        public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
+
+        public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
+
+        protected internal bool HasArguments => Argument != null && Argument != Argument.None;
+
+        protected internal bool HasHelp => Argument != null && Argument.HasHelp;
+
+        internal string Token() => _rawAliases.First(alias => alias.RemovePrefix() == Name);
+
+        public virtual IEnumerable<string> Suggest(
+            ParseResult parseResult,
+            int? position = null)
+        {
+            var symbolAliases = Symbols
+                                .Where(symbol => !symbol.IsHidden())
+                                .SelectMany(symbol => symbol.RawAliases);
+
+            var argumentSuggestions = Argument
+                                      .SuggestionSource
+                                      .Suggest(parseResult, position);
+
+            return symbolAliases.Concat(argumentSuggestions)
+                                .Distinct()
+                                .OrderBy(symbol => symbol)
+                                .Containing(parseResult.TextToMatch());
+        }
+
+        public override string ToString() => $"{GetType().Name}: {Name}";
     }
 }

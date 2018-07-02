@@ -21,9 +21,9 @@ namespace System.CommandLine.Tests
         public void
             When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var builder = new ArgumentDefinitionBuilder();
+            var builder = new ArgumentBuilder();
             var parser = new Parser(
-                new OptionDefinition(
+                new Option(
                     "-x",
                     "",
                     builder.FromAmong("this", "that", "the-other-thing").ExactlyOne()));
@@ -38,8 +38,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var option = new OptionDefinition(
+            var builder = new ArgumentBuilder();
+            var option = new Option(
                 "-x",
                 "",
                 builder.FromAmong("this", "that").ExactlyOne());
@@ -49,19 +49,19 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x something_else");
 
             result.Errors
-                .Where(e => e.Symbol != null)
-                .Should()
-                .Contain(e => e.Symbol.Name == option.Name);
+                  .Where(e => e.SymbolResult != null)
+                  .Should()
+                  .Contain(e => e.SymbolResult.Name == option.Name);
         }
 
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var parser = new Parser(new OptionDefinition(
-                "-x",
-                "",
-                builder.ExactlyOne()));
+            var builder = new ArgumentBuilder();
+            var parser = new Parser(new Option(
+                                        "-x",
+                                        "",
+                                        builder.ExactlyOne()));
 
             var result = parser.Parse("-x");
 
@@ -73,8 +73,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition("-x", "")
+            var parser = new Parser(new Command("the-command", "", new[] {
+                new Option("-x", "")
             }));
 
             var result = parser.Parse("the-command -x some-arg");
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
         {
-            var builder = new ArgumentDefinitionBuilder();
+            var builder = new ArgumentBuilder();
             builder.AddValidator(symbol => {
                 if (symbol.Children.Contains("one") &&
                     symbol.Children.Contains("two"))
@@ -101,9 +101,9 @@ namespace System.CommandLine.Tests
                 return null;
             });
 
-            var command = new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition("--one", ""),
-                new OptionDefinition("--two", "")
+            var command = new Command("the-command", "", new[] {
+                new Option("--one", ""),
+                new Option("--two", "")
             }, builder.ExactlyOne());
 
             var result = command.Parse("the-command --one --two");
@@ -118,8 +118,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var command = new CommandDefinition("the-command", "", builder.LegalFilePathsOnly().ZeroOrMore());
+            var builder = new ArgumentBuilder();
+            var command = new Command("the-command", "", builder.LegalFilePathsOnly().ZeroOrMore());
 
             var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
 
@@ -136,8 +136,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_accepts_arguments_containing_valid_path_characters()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var command = new CommandDefinition("the-command", "", builder.LegalFilePathsOnly().ZeroOrMore());
+            var builder = new ArgumentBuilder();
+            var command = new Command("the-command", "", builder.LegalFilePathsOnly().ZeroOrMore());
 
             var validPathName = Directory.GetCurrentDirectory();
             var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
@@ -150,10 +150,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_file_existence()
         {
-            var commandDefinitionBuilder = new CommandDefinitionBuilder("move")
+            var commandBuilder = new CommandBuilder("move")
                 .AddOption("--to", "", toArgs => toArgs.ExactlyOne());
-            commandDefinitionBuilder.Arguments.ExistingFilesOnly().ExactlyOne();
-            var command = commandDefinitionBuilder.BuildCommandDefinition();
+            commandBuilder.Arguments.ExistingFilesOnly().ExactlyOne();
+            var command = commandBuilder.BuildCommand();
 
             var result =
                 command.Parse(
@@ -161,10 +161,10 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.Command
-                .Arguments
-                .Should()
-                .BeEmpty();
+            result.CommandResult
+                  .Arguments
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -188,27 +188,27 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.Command
-                .Arguments
-                .Should()
-                .BeEquivalentTo(currentDirectory);
+            result.CommandResult
+                  .Arguments
+                  .Should()
+                  .BeEquivalentTo(currentDirectory);
         }
 
         [Fact]
         public void When_there_are_subcommands_and_options_then_a_subcommand_must_be_provided()
         {
-            var command = new CommandDefinitionBuilder("outer")
-                .AddCommand("inner", "",
-                    inner => inner.AddCommand("inner-er", ""))
-                .BuildCommandDefinition();
+            var command = new CommandBuilder("outer")
+                          .AddCommand("inner", "",
+                                      inner => inner.AddCommand("inner-er", ""))
+                          .BuildCommand();
 
             var result = command.Parse("outer inner arg");
 
             result.Errors
-                .Should()
-                .ContainSingle(
-                    e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
-                         e.Symbol.Name.Equals("inner"));
+                  .Should()
+                  .ContainSingle(
+                      e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
+                           e.SymbolResult.Name.Equals("inner"));
         }
 
         [Fact]
@@ -216,10 +216,10 @@ namespace System.CommandLine.Tests
             When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
         {
             var parser = new Parser(
-                new OptionDefinition(
+                new Option(
                     "-x",
                     "",
-                    new ArgumentDefinitionBuilder().ExactlyOne()));
+                    new ArgumentBuilder().ExactlyOne()));
 
             var result = parser.Parse("-x 1 -x 2");
 
@@ -233,10 +233,10 @@ namespace System.CommandLine.Tests
         public void ParseArgumentsAs_with_arity_of_One_validates_against_extra_arguments()
         {
             var parser = new Parser(
-                new OptionDefinition(
+                new Option(
                     "-x",
                     "",
-                    new ArgumentDefinitionBuilder().ParseArgumentsAs<int>()));
+                    new ArgumentBuilder().ParseArgumentsAs<int>()));
 
             var result = parser.Parse("-x 1 -x 2");
 
@@ -250,9 +250,9 @@ namespace System.CommandLine.Tests
         public void When_an_option_has_a_default_value_it_is_not_valid_to_specify_the_option_without_an_argument()
         {
             var parser = new Parser(
-                new OptionDefinition(
+                new Option(
                     "-x", "",
-                    new ArgumentDefinitionBuilder()
+                    new ArgumentBuilder()
                         .WithDefaultValue(() => "123")
                         .ParseArgumentsAs<int>()));
 
@@ -268,16 +268,16 @@ namespace System.CommandLine.Tests
         public void When_an_option_has_a_default_value_then_the_default_should_apply_if_not_specified()
         {
             var parser = new Parser(
-                    new OptionDefinition(
+                    new Option(
                             "-x",
                             "",
-                            new ArgumentDefinitionBuilder()
+                            new ArgumentBuilder()
                                     .WithDefaultValue(() => "123")
                                     .ParseArgumentsAs<int>()),
-                    new OptionDefinition(
+                    new Option(
                             "-y",
                             "",
-                            new ArgumentDefinitionBuilder()
+                            new ArgumentBuilder()
                                     .WithDefaultValue(() => "456")
                                     .ParseArgumentsAs<int>())
             );
@@ -285,24 +285,24 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("");
 
             result.Errors.Should().BeEmpty();
-            result.RootCommand.ValueForOption("-x").Should().Be(123);
-            result.RootCommand.ValueForOption("-y").Should().Be(456);
+            result.RootCommandResult.ValueForOption("-x").Should().Be(123);
+            result.RootCommandResult.ValueForOption("-y").Should().Be(456);
         }
 
         [Fact]
         public void When_an_option_has_a_default_value_then_a_given_positional_value_should_override()
         {
             var parser = new Parser(
-                    new OptionDefinition(
+                    new Option(
                             "-x",
                             "",
-                            new ArgumentDefinitionBuilder()
+                            new ArgumentBuilder()
                                     .WithDefaultValue(() => "123")
                                     .ParseArgumentsAs<int>()),
-                    new OptionDefinition(
+                    new Option(
                             "-y",
                             "",
-                            new ArgumentDefinitionBuilder()
+                            new ArgumentBuilder()
                                     .WithDefaultValue(() => "456")
                                     .ParseArgumentsAs<int>())
             );
@@ -310,24 +310,24 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("42");
 
             result.Errors.Should().BeEmpty();
-            result.RootCommand.ValueForOption("-x").Should().Be(42);
-            result.RootCommand.ValueForOption("-y").Should().Be(456);
+            result.RootCommandResult.ValueForOption("-x").Should().Be(42);
+            result.RootCommandResult.ValueForOption("-y").Should().Be(456);
         }
 
         [Fact]
         public void When_an_option_has_a_default_value_then_a_given_positional_value_should_override_with_other_specified()
         {
             var parser = new Parser(
-                    new OptionDefinition(
+                    new Option(
                             "-x",
                             "",
-                            new ArgumentDefinitionBuilder()
+                            new ArgumentBuilder()
                                     .WithDefaultValue(() => "123")
                                     .ParseArgumentsAs<int>()),
-                    new OptionDefinition(
+                    new Option(
                             "-y",
                             "",
-                            new ArgumentDefinitionBuilder()
+                            new ArgumentBuilder()
                                     .WithDefaultValue(() => "456")
                                     .ParseArgumentsAs<int>())
             );
@@ -335,8 +335,8 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-y 23 42");
 
             result.Errors.Should().BeEmpty();
-            result.RootCommand.ValueForOption("-x").Should().Be(42);
-            result.RootCommand.ValueForOption("-y").Should().Be(23);
+            result.RootCommandResult.ValueForOption("-x").Should().Be(42);
+            result.RootCommandResult.ValueForOption("-y").Should().Be(23);
         }
 
         [Fact]
@@ -362,16 +362,16 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                 .AddCommand("subcommand", symbols: b =>
-                    b.AddOption("-annon1", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
-                        .AddOption("-annon2", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
+                    b.AddOption("-anon1", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
+                        .AddOption("-anon2", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
                 )
                 .Build();
 
             ParseResult result = parser.Parse("subcommand anon1-value anon2-value");
 
             result.Errors.Should().BeEmpty();
-            result.Command["-annon1"].GetValueOrDefault<string>().Should().Be("anon1-value");
-            result.Command["-annon2"].GetValueOrDefault<string>().Should().Be("anon2-value");
+            result.CommandResult["-anon1"].GetValueOrDefault<string>().Should().Be("anon1-value");
+            result.CommandResult["-anon2"].GetValueOrDefault<string>().Should().Be("anon2-value");
         }
 
         [Fact]
@@ -379,18 +379,18 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                 .AddCommand("command1", symbols: b =>
-                    b.AddOption("-annon", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
+                    b.AddOption("-anon", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
                 )
                 .AddCommand("command2", symbols: b =>
-                    b.AddOption("-annon", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
+                    b.AddOption("-anon", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
                 )
                 .Build();
 
             ParseResult result = parser.Parse("command2 anon-value");
 
             result.Errors.Should().BeEmpty();
-            result.Command.Name.Should().Be("command2");
-            result.Command["-annon"].GetValueOrDefault<string>().Should().Be("anon-value");
+            result.CommandResult.Name.Should().Be("command2");
+            result.CommandResult["-anon"].GetValueOrDefault<string>().Should().Be("anon-value");
         }
 
         [Theory]
@@ -404,13 +404,13 @@ namespace System.CommandLine.Tests
                 .AddCommand("subcommand1", symbols: b => {
                     foreach (int optionIndex in Enumerable.Range(1, subcommand1Options))
                     {
-                        b.AddOption($"-annon{optionIndex}", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne());
+                        b.AddOption($"-anon{optionIndex}", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne());
                     }
 
                     b.AddCommand("subcommand2", symbols: subCommandBuilder => {
                         foreach (int optionIndex in Enumerable.Range(1, subcommand2Options))
                         {
-                            subCommandBuilder.AddOption($"-annon{optionIndex}",
+                            subCommandBuilder.AddOption($"-anon{optionIndex}",
                                 arguments: argumentsBuilder => argumentsBuilder.ExactlyOne());
                         }
                     });
@@ -423,12 +423,12 @@ namespace System.CommandLine.Tests
             ParseResult result = parser.Parse(commandLine);
 
             result.Errors.Should().BeEmpty();
-            for (Command command = result.Command; command != null; command = command.Parent)
+            for (var commandResult = result.CommandResult; commandResult != null; commandResult = commandResult.Parent)
             {
                 int index = 1;
-                foreach (Option option in command.Children.OfType<Option>())
+                foreach (var optionResult in commandResult.Children.OfType<OptionResult>())
                 {
-                    option.GetValueOrDefault<string>().Should().Be($"annon{index++}-value");
+                    optionResult.GetValueOrDefault<string>().Should().Be($"anon{index++}-value");
                 }
             }
 
@@ -437,13 +437,13 @@ namespace System.CommandLine.Tests
                 yield return "subcommand1";
                 foreach (int optionIndex in Enumerable.Range(1, subcommand1Options))
                 {
-                    yield return $"annon{optionIndex}-value";
+                    yield return $"anon{optionIndex}-value";
                 }
 
                 yield return "subcommand2";
                 foreach (int optionIndex in Enumerable.Range(1, subcommand2Options))
                 {
-                    yield return $"annon{optionIndex}-value";
+                    yield return $"anon{optionIndex}-value";
                 }
             }
         }

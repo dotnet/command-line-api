@@ -14,18 +14,18 @@ namespace System.CommandLine.Tests
         public void Parse_result_diagram_helps_explain_parse_operation()
         {
             var parser = new Parser(
-                new CommandDefinition(
+                new Command(
                     "the-command", "",
                     new[] {
-                        new OptionDefinition(
+                        new Option(
                             "-x",
                             "Specifies value x",
-                            new ArgumentDefinitionBuilder().ExactlyOne()),
-                        new OptionDefinition(
+                            new ArgumentBuilder().ExactlyOne()),
+                        new Option(
                             "-y",
                             "Specifies value y")
                     },
-                    new ArgumentDefinitionBuilder().ZeroOrMore()));
+                    new ArgumentBuilder().ZeroOrMore()));
 
             var result = parser.Parse("the-command -x one -y two three");
 
@@ -38,11 +38,11 @@ namespace System.CommandLine.Tests
         public void Parse_result_diagram_displays_unmatched_tokens()
         {
             var parser = new Parser(
-                new CommandDefinition("command", "", new[] {
-                    new OptionDefinition(
+                new Command("command", "", new[] {
+                    new Option(
                         "-x",
                         "",
-                        new ArgumentDefinitionBuilder()
+                        new ArgumentBuilder()
                             .FromAmong("arg1", "arg2", "arg3")
                             .ExactlyOne())
                 }));

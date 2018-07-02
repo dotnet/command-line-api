@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace System.CommandLine.Builder
 {
-    public class CommandLineBuilder : CommandDefinitionBuilder
+    public class CommandLineBuilder : CommandBuilder
     {
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
@@ -30,7 +30,7 @@ namespace System.CommandLine.Builder
 
         public Parser Build()
         {
-            var rootCommand = BuildCommandDefinition();
+            var rootCommand = BuildCommand();
 
             return new Parser(
                 new CommandLineConfiguration(

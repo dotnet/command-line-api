@@ -11,16 +11,16 @@ namespace System.CommandLine
         private readonly List<ParseError> _errors = new List<ParseError>();
 
         internal ParseResult(
-            Command rootCommand,
-            Command command,
+            CommandResult rootCommandResult,
+            CommandResult commandResult,
             IReadOnlyCollection<string> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
             IReadOnlyCollection<ParseError> errors,
             string rawInput)
         {
-            RootCommand = rootCommand;
-            Command = command;
+            RootCommandResult = rootCommandResult;
+            CommandResult = commandResult;
             Tokens = tokens;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
@@ -34,9 +34,9 @@ namespace System.CommandLine
             AddImplicitOptionsAndCheckForErrors();
         }
 
-        public Command Command { get; }
+        public CommandResult CommandResult { get; }
 
-        public Command RootCommand { get; }
+        public CommandResult RootCommandResult { get; }
 
         public IReadOnlyCollection<ParseError> Errors => _errors;
 
@@ -50,28 +50,28 @@ namespace System.CommandLine
 
         private void AddImplicitOptionsAndCheckForErrors()
         {
-            foreach (var symbol in RootCommand.AllSymbols().ToArray())
+            foreach (var result in RootCommandResult.AllSymbolResults().ToArray())
             {
-                if (symbol is Command command)
+                if (result is CommandResult command)
                 {
-                    foreach (var definition in command.Definition.SymbolDefinitions)
+                    foreach (var symbol in command.Command.Symbols)
                     {
-                        if (definition.ArgumentDefinition.HasDefaultValue &&
-                            command.Children[definition.Name] == null)
+                        if (symbol.Argument.HasDefaultValue &&
+                            command.Children[symbol.Name] == null)
                         {
-                            switch (definition)
+                            switch (symbol)
                             {
-                                case OptionDefinition optionDefinition:
-                                    command.AddImplicitOption(optionDefinition);
+                                case Option option:
+                                    command.AddImplicitOption(option);
                                     break;
                             }
                         }
                     }
 
-                    if (command.Definition.ArgumentDefinition.HasDefaultValue &&
+                    if (command.Command.Argument.HasDefaultValue &&
                         command.Arguments.Count == 0)
                     {
-                        switch (command.Definition.ArgumentDefinition.GetDefaultValue())
+                        switch (command.Command.Argument.GetDefaultValue())
                         {
                             case string arg:
                                 command.TryTakeToken(new Token(arg, TokenType.Argument));
@@ -80,7 +80,7 @@ namespace System.CommandLine
                     }
                 }
 
-                var error = symbol.Validate();
+                var error = result.Validate();
 
                 if (error != null)
                 {
@@ -88,12 +88,12 @@ namespace System.CommandLine
                 }
             }
 
-            if (Command.Definition?.SymbolDefinitions.OfType<CommandDefinition>().Any() == true)
+            if (CommandResult.Command?.Symbols.OfType<Command>().Any() == true)
             {
                 _errors.Insert(0,
                                new ParseError(
-                                   Command.ValidationMessages.RequiredCommandWasNotProvided(),
-                                   Command));
+                                   CommandResult.ValidationMessages.RequiredCommandWasNotProvided(),
+                                   CommandResult));
             }
         }
 
@@ -112,7 +112,7 @@ namespace System.CommandLine
             return this[alias].GetValueOrDefault<T>();
         }
 
-        public Symbol this[string alias] => Command.Children[alias];
+        public SymbolResult this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
     }

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace System.CommandLine.Builder
 {
-    public class ArgumentDefinitionBuilder
+    public class ArgumentBuilder
     {
         private ArgumentSuggestionSource _suggestionSource;
 
@@ -47,11 +47,11 @@ namespace System.CommandLine.Builder
             return parser;
         }
 
-        public ArgumentDefinition Build()
+        public Argument Build()
         {
             AddTokenValidator();
 
-            return new ArgumentDefinition(
+            return new Argument(
                 Parser ?? (Parser = BuildArgumentParser()),
                 DefaultValue,
                 Help,
@@ -85,29 +85,29 @@ namespace System.CommandLine.Builder
             });
         }
 
-        internal static ArgumentDefinitionBuilder From(ArgumentDefinition argumentDefinition)
+        internal static ArgumentBuilder From(Argument argument)
         {
             // TODO: (From) get rid of this method
 
-            if (argumentDefinition == null)
+            if (argument == null)
             {
-                throw new ArgumentNullException(nameof(argumentDefinition));
+                throw new ArgumentNullException(nameof(argument));
             }
 
             var suggestionSource = new ArgumentSuggestionSource();
-            suggestionSource.AddSuggestionSource(argumentDefinition.SuggestionSource.Suggest);
+            suggestionSource.AddSuggestionSource(argument.SuggestionSource.Suggest);
 
-            var builder = new ArgumentDefinitionBuilder
+            var builder = new ArgumentBuilder
             {
-                ConvertArguments = argumentDefinition.Parser.ConvertArguments,
-                DefaultValue = argumentDefinition.GetDefaultValue,
+                ConvertArguments = argument.Parser.ConvertArguments,
+                DefaultValue = argument.GetDefaultValue,
                 Help = new HelpDefinition(
-                    argumentDefinition.Help?.Name,
-                    argumentDefinition.Help?.Description,
-                    argumentDefinition.Help?.IsHidden ?? HelpDefinition.DefaultIsHidden),
-                Parser = argumentDefinition.Parser,
+                    argument.Help?.Name,
+                    argument.Help?.Description,
+                    argument.Help?.IsHidden ?? HelpDefinition.DefaultIsHidden),
+                Parser = argument.Parser,
                 _suggestionSource = suggestionSource,
-                SymbolValidators = new List<ValidateSymbol>(argumentDefinition.SymbolValidators)
+                SymbolValidators = new List<ValidateSymbol>(argument.SymbolValidators)
             };
 
             return builder;

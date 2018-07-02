@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests
             {
                 s.Write("--flag");
             }
-            var result = new Parser(new OptionDefinition(
+            var result = new Parser(new Option(
                     "--flag",
                     ""))
                 .Parse("@" + FilePath);

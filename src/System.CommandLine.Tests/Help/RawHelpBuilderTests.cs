@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests.Help
                         symbols: inner => inner.AddOption(
                             new[] { "-v", "--verbosity" },
                             "Inner    option \twith spaces")))
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer-command")
@@ -153,7 +153,7 @@ namespace System.CommandLine.Tests.Help
                         symbols: inner => inner.AddOption(
                             new[] { "-v", "--verbosity" },
                             $"Inner {NewLine} command {NewLine}option with{NewLine} newlines")))
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer-command")
@@ -201,7 +201,7 @@ namespace System.CommandLine.Tests.Help
                         symbols: inner => inner.AddOption(
                             new[] { "-v", "--verbosity" },
                             longText)))
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer-command")
@@ -241,7 +241,7 @@ namespace System.CommandLine.Tests.Help
                 HelpBuilder = _rawHelpBuilder,
                 Description = "test  description\tfor synopsis",
             }
-            .BuildCommandDefinition();
+            .BuildCommand();
 
             commandLineBuilder.WriteHelp(_console);
 
@@ -260,7 +260,7 @@ namespace System.CommandLine.Tests.Help
                     HelpBuilder = _rawHelpBuilder,
                     Description = $"test{NewLine}description with{NewLine}line breaks",
                 }
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder.WriteHelp(_console);
 
@@ -282,7 +282,7 @@ namespace System.CommandLine.Tests.Help
                     HelpBuilder = GetHelpBuilder(SmallMaxWidth),
                     Description = longText,
                 }
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder.WriteHelp(_console);
 
@@ -316,7 +316,7 @@ namespace System.CommandLine.Tests.Help
                     arguments: args => args
                         .WithHelp(name: "inner-args")
                         .ZeroOrOne()))
-            .BuildCommandDefinition();
+            .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer-command")
@@ -346,7 +346,7 @@ namespace System.CommandLine.Tests.Help
                     arguments: args => args
                         .WithHelp(name: "inner-args")
                         .ZeroOrOne()))
-            .BuildCommandDefinition();
+            .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer-command")
@@ -378,7 +378,7 @@ namespace System.CommandLine.Tests.Help
                     arguments: args => args
                         .WithHelp(name: "inner-args")
                         .ZeroOrOne()))
-            .BuildCommandDefinition();
+            .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer-command")
@@ -407,7 +407,7 @@ namespace System.CommandLine.Tests.Help
                             name: "outer-command-arg",
                             description: "Argument\tfor the   inner command")
                         .ExactlyOne())
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer")
@@ -433,7 +433,7 @@ namespace System.CommandLine.Tests.Help
                             name: "outer-command-arg",
                             description: $"The argument{NewLine}for the{NewLine}inner command")
                         .ExactlyOne())
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer")
@@ -462,7 +462,7 @@ namespace System.CommandLine.Tests.Help
                             name: "outer-command-arg",
                             description: longText)
                         .ExactlyOne())
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("outer")
@@ -494,7 +494,7 @@ namespace System.CommandLine.Tests.Help
                         .AddOption(
                             new[] { "-a", "--aaa" },
                             "Help   for      the   option"))
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("test-command")
@@ -519,7 +519,7 @@ namespace System.CommandLine.Tests.Help
                         .AddOption(
                             new[] { "-a", "--aaa" },
                             $"Help{NewLine}for {NewLine} the{NewLine}option"))
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("test-command")
@@ -548,7 +548,7 @@ namespace System.CommandLine.Tests.Help
                         .AddOption(
                             new[] { "-a", "--aaa" },
                             longText))
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("test-command")
@@ -577,7 +577,7 @@ namespace System.CommandLine.Tests.Help
                 }
                 .AddCommand("outer", "Help text   for the outer   command",
                     arguments: args => args.ExactlyOne())
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder.WriteHelp(_console);
 
@@ -598,7 +598,7 @@ namespace System.CommandLine.Tests.Help
                 }
                 .AddCommand("outer", $"Help text{NewLine}for the outer{NewLine}command",
                     arguments: args => args.ExactlyOne())
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder.WriteHelp(_console);
 
@@ -622,7 +622,7 @@ namespace System.CommandLine.Tests.Help
                 }
                 .AddCommand("outer", longText,
                     arguments: args => args.ExactlyOne())
-                .BuildCommandDefinition();
+                .BuildCommand();
 
             commandLineBuilder.WriteHelp(_console);
 

@@ -25,22 +25,22 @@ namespace System.CommandLine
 
         public int MaximumNumberOfArguments { get; }
 
-        public string Validate(Symbol symbol)
+        public string Validate(SymbolResult symbolResult)
         {
-            if (symbol.Arguments.Count < MinimumNumberOfArguments)
+            if (symbolResult.Arguments.Count < MinimumNumberOfArguments)
             {
-                return symbol.ValidationMessages.RequiredArgumentMissing(symbol);
+                return symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult);
             }
 
-            if (symbol.Arguments.Count > MaximumNumberOfArguments)
+            if (symbolResult.Arguments.Count > MaximumNumberOfArguments)
             {
                 if (MaximumNumberOfArguments == 1)
                 {
-                    return symbol.ValidationMessages.ExpectsOneArgument(symbol);
+                    return symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult);
                 }
                 else
                 {
-                    return symbol.ValidationMessages.ExpectsFewerArguments(symbol, MaximumNumberOfArguments);
+                    return symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, MaximumNumberOfArguments);
                 }
             }
 

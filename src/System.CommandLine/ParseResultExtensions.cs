@@ -41,16 +41,16 @@ namespace System.CommandLine
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
 
-        internal static Symbol CurrentSymbol(this ParseResult result) =>
-            result.Command
-                  .AllSymbols()
+        internal static SymbolResult CurrentSymbol(this ParseResult result) =>
+            result.CommandResult
+                  .AllSymbolResults()
                   .LastOrDefault();
 
         public static string Diagram(this ParseResult result)
         {
             var builder = new StringBuilder();
 
-            builder.Diagram(result.RootCommand, result);
+            builder.Diagram(result.RootCommandResult, result);
 
             if (result.UnmatchedTokens.Any())
             {
@@ -68,15 +68,15 @@ namespace System.CommandLine
 
         private static void Diagram(
             this StringBuilder builder,
-            Symbol symbol,
+            SymbolResult symbolResult,
             ParseResult parseResult)
         {
-            if (parseResult.Errors.Any(e => e.Symbol == symbol))
+            if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult))
             {
                 builder.Append("!");
             }
             
-            if (symbol is Option option &&
+            if (symbolResult is OptionResult option &&
                 option.IsImplicit)
             {
                 builder.Append("*");
@@ -84,17 +84,17 @@ namespace System.CommandLine
 
             builder.Append("[ ");
 
-            builder.Append(symbol.Token);
+            builder.Append(symbolResult.Token);
 
-            foreach (var child in symbol.Children)
+            foreach (var child in symbolResult.Children)
             {
                 builder.Append(" ");
                 builder.Diagram(child, parseResult);
             }
 
-            if (symbol.Arguments.Count > 0)
+            if (symbolResult.Arguments.Count > 0)
             {
-                foreach (var arg in symbol.Arguments)
+                foreach (var arg in symbolResult.Arguments)
                 {
                     builder.Append(" <");
                     builder.Append(arg);
@@ -103,10 +103,10 @@ namespace System.CommandLine
             }
             else
             {
-                var result = symbol.Result;
+                var result = symbolResult.Result;
                 if (result is SuccessfulArgumentParseResult _)
                 {
-                    var value = symbol.GetValueOrDefault();
+                    var value = symbolResult.GetValueOrDefault();
                     
                     switch (value)
                     {
@@ -127,14 +127,14 @@ namespace System.CommandLine
 
         public static bool HasOption(
             this ParseResult parseResult,
-            OptionDefinition optionDefinition)
+            Option option)
         {
             if (parseResult == null)
             {
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.Command.Children.Any(s => s.SymbolDefinition == optionDefinition);
+            return parseResult.CommandResult.Children.Any(s => s.Symbol == option);
         }
 
         public static bool HasOption(
@@ -146,22 +146,22 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.Command.Children.Contains(alias);
+            return parseResult.CommandResult.Children.Contains(alias);
         }
 
         public static IEnumerable<string> Suggestions(
             this ParseResult parseResult,
             int? position = null)
         {
-            var currentSymbolDefinition = parseResult?.CurrentSymbol().SymbolDefinition;
+            var currentSymbol = parseResult?.CurrentSymbol().Symbol;
 
-            var currentSymbolSuggestions = currentSymbolDefinition
+            var currentSymbolSuggestions = currentSymbol
                                                ?.Suggest(parseResult, position)
                                            ?? Array.Empty<string>();
 
-            var parentSymbolDefinition = currentSymbolDefinition?.Parent;
+            var command = currentSymbol?.Parent;
 
-            var parentSymbolSuggestions = parentSymbolDefinition?.Suggest(parseResult, position)
+            var parentSymbolSuggestions = command?.Suggest(parseResult, position)
                                           ?? Array.Empty<string>();
 
             return parentSymbolSuggestions

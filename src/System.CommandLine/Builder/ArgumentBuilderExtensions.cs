@@ -7,40 +7,40 @@ using System.Linq;
 
 namespace System.CommandLine.Builder
 {
-    public static class ArgumentDefinitionBuilderExtensions
+    public static class ArgumentBuilderExtensions
     {
         #region arity
 
-        public static ArgumentDefinition ExactlyOne(
-            this ArgumentDefinitionBuilder builder)
+        public static Argument ExactlyOne(
+            this ArgumentBuilder builder)
         {
             builder.ArgumentArity = ArgumentArity.ExactlyOne;
             return builder.Build();
         }
 
-        public static ArgumentDefinition None(
-            this ArgumentDefinitionBuilder builder)
+        public static Argument None(
+            this ArgumentBuilder builder)
         {
             builder.ArgumentArity = ArgumentArity.Zero;
             return builder.Build();
         }
 
-        public static ArgumentDefinition ZeroOrMore(
-            this ArgumentDefinitionBuilder builder)
+        public static Argument ZeroOrMore(
+            this ArgumentBuilder builder)
         {
             builder.ArgumentArity = ArgumentArity.ZeroOrMore;
             return builder.Build();
         }
 
-        public static ArgumentDefinition ZeroOrOne(
-            this ArgumentDefinitionBuilder builder)
+        public static Argument ZeroOrOne(
+            this ArgumentBuilder builder)
         {
             builder.ArgumentArity = ArgumentArity.ZeroOrOne;
             return builder.Build();
         }
 
-        public static ArgumentDefinition OneOrMore(
-            this ArgumentDefinitionBuilder builder)
+        public static Argument OneOrMore(
+            this ArgumentBuilder builder)
         {
             builder.ArgumentArity = ArgumentArity.OneOrMore;
             return builder.Build();
@@ -50,8 +50,8 @@ namespace System.CommandLine.Builder
 
         #region set inclusion
 
-        public static ArgumentDefinitionBuilder FromAmong(
-            this ArgumentDefinitionBuilder builder,
+        public static ArgumentBuilder FromAmong(
+            this ArgumentBuilder builder,
             params string[] values)
         {
             builder.ValidTokens.UnionWith(values);
@@ -65,8 +65,8 @@ namespace System.CommandLine.Builder
 
         #region files
 
-        public static ArgumentDefinitionBuilder ExistingFilesOnly(
-            this ArgumentDefinitionBuilder builder)
+        public static ArgumentBuilder ExistingFilesOnly(
+            this ArgumentBuilder builder)
         {
             builder.AddValidator(symbol =>
             {
@@ -79,8 +79,8 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static ArgumentDefinitionBuilder LegalFilePathsOnly(
-            this ArgumentDefinitionBuilder builder)
+        public static ArgumentBuilder LegalFilePathsOnly(
+            this ArgumentBuilder builder)
         {
             builder.AddValidator(symbol =>
             {
@@ -110,14 +110,14 @@ namespace System.CommandLine.Builder
 
         #region type / return value
 
-        public static ArgumentDefinition ParseArgumentsAs<T>(
-            this ArgumentDefinitionBuilder builder) =>
+        public static Argument ParseArgumentsAs<T>(
+            this ArgumentBuilder builder) =>
             ParseArgumentsAs(
                 builder,
                 typeof(T));
 
-        public static ArgumentDefinition ParseArgumentsAs(
-            this ArgumentDefinitionBuilder builder,
+        public static Argument ParseArgumentsAs(
+            this ArgumentBuilder builder,
             Type type) =>
             ParseArgumentsAs(
                 builder,
@@ -132,8 +132,8 @@ namespace System.CommandLine.Builder
                     }
                 });
 
-        public static ArgumentDefinition ParseArgumentsAs<T>(
-            this ArgumentDefinitionBuilder builder,
+        public static Argument ParseArgumentsAs<T>(
+            this ArgumentBuilder builder,
             ConvertArgument convert,
             ArgumentArityValidator arity = null) =>
             ParseArgumentsAs(
@@ -142,8 +142,8 @@ namespace System.CommandLine.Builder
                 convert,
                 arity);
 
-        public static ArgumentDefinition ParseArgumentsAs(
-            this ArgumentDefinitionBuilder builder,
+        public static Argument ParseArgumentsAs(
+            this ArgumentBuilder builder,
             Type type,
             ConvertArgument convert,
             ArgumentArityValidator arity = null)
@@ -202,8 +202,8 @@ namespace System.CommandLine.Builder
 
         #endregion
 
-        public static ArgumentDefinitionBuilder WithHelp(
-            this ArgumentDefinitionBuilder builder,
+        public static ArgumentBuilder WithHelp(
+            this ArgumentBuilder builder,
             string name = null,
             string description = null,
             bool isHidden = HelpDefinition.DefaultIsHidden)
@@ -213,8 +213,8 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static ArgumentDefinitionBuilder WithDefaultValue(
-            this ArgumentDefinitionBuilder builder,
+        public static ArgumentBuilder WithDefaultValue(
+            this ArgumentBuilder builder,
             Func<object> defaultValue)
         {
             builder.DefaultValue = defaultValue;
@@ -222,8 +222,8 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static ArgumentDefinitionBuilder AddSuggestions(
-            this ArgumentDefinitionBuilder builder,
+        public static ArgumentBuilder AddSuggestions(
+            this ArgumentBuilder builder,
             params string[] suggestions)
         {
             builder.SuggestionSource.AddSuggestions(suggestions);
@@ -231,8 +231,8 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static ArgumentDefinitionBuilder AddSuggestionSource(
-            this ArgumentDefinitionBuilder builder,
+        public static ArgumentBuilder AddSuggestionSource(
+            this ArgumentBuilder builder,
             Suggest suggest)
         {
             if (suggest == null)

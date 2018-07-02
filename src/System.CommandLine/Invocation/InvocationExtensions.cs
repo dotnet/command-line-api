@@ -162,8 +162,8 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandDefinitionBuilder OnExecute(
-            this CommandDefinitionBuilder builder,
+        public static CommandBuilder OnExecute(
+            this CommandBuilder builder,
             MethodInfo method,
             object target = null)
         {
@@ -172,8 +172,8 @@ namespace System.CommandLine.Invocation
             return builder;
         }
    
-        public static CommandDefinitionBuilder OnExecute(
-            this CommandDefinitionBuilder builder,
+        public static CommandBuilder OnExecute(
+            this CommandBuilder builder,
             Action action)
         {
             var methodBinder = new MethodBinder(action);
@@ -181,8 +181,8 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandDefinitionBuilder OnExecute<T>(
-            this CommandDefinitionBuilder builder,
+        public static CommandBuilder OnExecute<T>(
+            this CommandBuilder builder,
             Action<T> action)
         {
             var methodBinder = new MethodBinder(action);
@@ -190,8 +190,8 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandDefinitionBuilder OnExecute<T1, T2>(
-            this CommandDefinitionBuilder builder,
+        public static CommandBuilder OnExecute<T1, T2>(
+            this CommandBuilder builder,
             Action<T1, T2> action)
         {
             var methodBinder = new MethodBinder(action);
@@ -199,8 +199,8 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandDefinitionBuilder OnExecute<T1, T2, T3>(
-            this CommandDefinitionBuilder builder,
+        public static CommandBuilder OnExecute<T1, T2, T3>(
+            this CommandBuilder builder,
             Action<T1, T2, T3> action)
         {
             var methodBinder = new MethodBinder(action);
@@ -226,8 +226,8 @@ namespace System.CommandLine.Invocation
             bool TokenIsDefinedInSyntax() =>
                 context.Parser
                        .Configuration
-                       .SymbolDefinitions
-                       .FlattenBreadthFirst(s => s.SymbolDefinitions)
+                       .Symbols
+                       .FlattenBreadthFirst(s => s.Symbols)
                        .SelectMany(s => s.RawAliases)
                        .Any(helpOptionAliases.Contains);
         }
