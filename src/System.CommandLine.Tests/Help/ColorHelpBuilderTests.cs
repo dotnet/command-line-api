@@ -4,7 +4,6 @@
 using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests.Help
 {
@@ -17,8 +16,6 @@ namespace System.CommandLine.Tests.Help
             public int ForegroundColorCalls { get; private set; }
 
             public int ResetColorCalls { get; private set; }
-
-            public string Output => Out.ToString();
 
             public override ConsoleColor ForegroundColor
             {

@@ -82,21 +82,21 @@ namespace System.CommandLine.Invocation
         public static async Task<int> InvokeAsync(
             this Parser parser,
             ParseResult parseResult,
-            IConsole console) =>
+            IConsole console = null) =>
             await new InvocationPipeline(parser, parseResult)
                 .InvokeAsync(console);
 
         public static async Task<int> InvokeAsync(
             this Parser parser,
             string commandLine,
-            IConsole console) =>
+            IConsole console = null) =>
             await new InvocationPipeline(parser, parser.Parse(commandLine))
                 .InvokeAsync(console);
 
         public static async Task<int> InvokeAsync(
             this Parser parser,
             string[] args,
-            IConsole console) =>
+            IConsole console = null) =>
             await new InvocationPipeline(parser, parser.Parse(args))
                 .InvokeAsync(console);
 

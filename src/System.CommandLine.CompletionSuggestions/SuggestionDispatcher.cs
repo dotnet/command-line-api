@@ -11,37 +11,41 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    public class SuggestionDispatcher
+    public static class SuggestionDispatcher
     {
         private const int TimeoutMilliseconds = 5000;
         private const string Position = "-p";
         private const string ExeName = "-e";
+
+        public static Parser Parser { get; } =
+            new CommandLineBuilder()
+                .AddOption(Position, "the current character position on the command line",
+                           position => position.ExactlyOne())
+                .AddOption(ExeName, "The executible to ask for argument resolution", argument => argument
+                                                                                                 .LegalFilePathsOnly()
+                                                                                                 .ExactlyOne())
+                .TreatUnmatchedTokensAsErrors(false)
+                .Build();
 
         public static string Dispatch(
             string[] args,
             ISuggestionFileProvider suggestionFileProvider,
             int timeoutMilliseconds = TimeoutMilliseconds)
         {
-            // CommandLine:
-            // dotnet run System.CommandLine <currentCommandLine> <cursorPosition> Foo bar
-            Parser parser = new CommandLineBuilder()
-                .AddOption(Position, "the current character position on the command line",
-                    position => position.ExactlyOne())
-                .AddOption(ExeName, "The executible to ask for argument resolution", argument => argument
-                    .LegalFilePathsOnly()
-                    .ExactlyOne())
-                .TreatUnmatchedTokensAsErrors(false)
-                .Build();
-            ParseResult parseResult = parser.Parse(args);
+            ParseResult parseResult = Parser.Parse(args);
 
-            // TODO Figure out when TreatUnmatchedTokensAsError(false) still puts things in the .Errors property
-            /*if (parseResult.Errors.Count > 0)
-            {
-                throw new Exception(parseResult.ErrorText());
-            }*/
+            return Dispatch(parseResult, suggestionFileProvider, timeoutMilliseconds);
+        }
+
+        internal static string Dispatch(
+            ParseResult parseResult,
+            ISuggestionFileProvider suggestionFileProvider,
+            int timeoutMilliseconds)
+        {
+            var exePath = parseResult.ValueForOption<FileInfo>(ExeName);
 
             string suggestionRegistration =
-                suggestionFileProvider.FindRegistration(parseResult.ValueForOption<FileInfo>(ExeName));
+                suggestionFileProvider.FindRegistration(exePath);
 
             if (string.IsNullOrWhiteSpace(suggestionRegistration))
             {
@@ -62,7 +66,6 @@ namespace System.CommandLine.CompletionSuggestions
             string targetArgs = FormatSuggestionArguments(parseResult, targetCommands);
 
             return GetSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
-
         }
 
         private static string FormatSuggestionArguments(ParseResult parseResult, List<string> targetCommands)

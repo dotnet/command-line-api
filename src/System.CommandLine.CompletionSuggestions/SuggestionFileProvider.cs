@@ -29,6 +29,11 @@ namespace System.CommandLine.CompletionSuggestions
 
         public string FindRegistration(FileInfo soughtExecutable)
         {
+            if (soughtExecutable == null)
+            {
+                return null;
+            }
+
             foreach (string configFilePath in RegistrationConfigurationFilePaths)
             {
                 if (!File.Exists(configFilePath))
