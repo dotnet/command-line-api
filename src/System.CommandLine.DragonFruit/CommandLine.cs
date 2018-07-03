@@ -52,7 +52,6 @@ namespace System.CommandLine.DragonFruit
         {
             var builder = new CommandLineBuilder()
                           .ConfigureFromMethod(method, @object)
-                          .UseDebugDirective()
                           .UseParseErrorReporting()
                           .UseParseDirective()
                           .UseHelp()
