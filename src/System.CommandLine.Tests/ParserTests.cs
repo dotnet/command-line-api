@@ -1037,7 +1037,6 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("-x -y", Skip="Issue #108")]
         [InlineData("-x=-y")]
         [InlineData("-x:-y")]
         public void Arguments_can_match_the_aliases_of_sibling_options(string input)

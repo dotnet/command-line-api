@@ -21,7 +21,7 @@ namespace System.CommandLine.DragonFruit
         /// <param name="args">The string arguments.</param>
         /// <returns>The exit code.</returns>
         public static Task<int> ExecuteAssemblyAsync(Assembly entryAssembly, string[] args)
-            => ExecuteAssemblyAsync(entryAssembly, args, PhysicalConsole.Instance);
+            => ExecuteAssemblyAsync(entryAssembly, args, null);
 
         internal static async Task<int> ExecuteAssemblyAsync(
             Assembly entryAssembly,
@@ -31,11 +31,6 @@ namespace System.CommandLine.DragonFruit
             if (entryAssembly == null)
             {
                 throw new ArgumentNullException(nameof(entryAssembly));
-            }
-
-            if (console == null)
-            {
-                throw new ArgumentNullException(nameof(console));
             }
 
             args = args ?? Array.Empty<string>();
@@ -57,10 +52,10 @@ namespace System.CommandLine.DragonFruit
         {
             var builder = new CommandLineBuilder()
                           .ConfigureFromMethod(method, @object)
+                          .UseParseErrorReporting()
                           .UseParseDirective()
                           .UseHelp()
                           .UseSuggestDirective()
-                          .UseParseErrorReporting()
                           .UseExceptionHandler();
 
             SetHelpMetadata(method, builder);

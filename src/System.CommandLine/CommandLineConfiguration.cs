@@ -93,7 +93,7 @@ namespace System.CommandLine
 
         public ValidationMessages ValidationMessages { get; }
 
-        internal IReadOnlyCollection<InvocationMiddleware> InvocationList =>
+        internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
             _middlewarePipeline ??
             (_middlewarePipeline = new List<InvocationMiddleware>());
 

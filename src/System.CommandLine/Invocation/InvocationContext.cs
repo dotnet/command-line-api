@@ -8,11 +8,11 @@ namespace System.CommandLine.Invocation
         public InvocationContext(
             ParseResult parseResult,
             Parser parser,
-            IConsole console)
+            IConsole console = null)
         {
             ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
-            Console = console;
+            Console = console ?? Invocation.Console.Instance;
         }
 
         public Parser Parser { get; }

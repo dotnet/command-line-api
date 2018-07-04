@@ -19,13 +19,13 @@ namespace System.CommandLine.Invocation
             this.parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
         }
 
-        public async Task<int> InvokeAsync(IConsole console)
+        public async Task<int> InvokeAsync(IConsole console = null)
         {
             var context = new InvocationContext(parseResult,
                                                 parser,
                                                 console);
 
-            var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.InvocationList);
+            var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware);
 
             invocations.Add(async (invocationContext, next) => {
                 var handler = invocationContext.ParseResult
