@@ -23,7 +23,11 @@ namespace System.CommandLine.Invocation
             set => System.Console.ForegroundColor = value;
         }
 
-        public int WindowWidth { get; set; }
+        public int WindowWidth
+        {
+            get => System.Console.WindowWidth;
+            set => System.Console.WindowWidth = value;
+        }
 
         public void ResetColor() => System.Console.ResetColor();
     }
