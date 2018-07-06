@@ -447,7 +447,7 @@ namespace System.CommandLine
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private static HelpDefinition GetArgumentHelp(Symbol symbolDef)
+        private static HelpDetail GetArgumentHelp(Symbol symbolDef)
         {
             if (symbolDef?.HasArguments != true || symbolDef.Argument?.HasHelp != true)
             {

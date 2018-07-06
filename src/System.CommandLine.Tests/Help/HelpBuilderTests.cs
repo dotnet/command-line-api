@@ -527,13 +527,13 @@ namespace System.CommandLine.Tests.Help
             }
             .AddCommand("the-command", "Help text from description",
                 arguments: args => args
-                    .WithHelp(name: "the-arg", description: "Help text from HelpDefinition")
+                    .WithHelp(name: "the-arg", description: "Help text from HelpDetail")
                     .ExactlyOne())
             .BuildCommand();
 
             var expected =
             $"Arguments:{NewLine}" +
-            $"{_indentation}<the-arg>{_columnPadding}Help text from HelpDefinition";
+            $"{_indentation}<the-arg>{_columnPadding}Help text from HelpDetail";
 
             commandLineBuilder
                 .Subcommand("the-command")
@@ -577,7 +577,7 @@ namespace System.CommandLine.Tests.Help
                     HelpBuilder = _helpBuilder,
                 }
                 .AddCommand(
-                    "outer", "HelpDefinition text for the outer command",
+                    "outer", "HelpDetail text for the outer command",
                     arguments: args => args
                         .WithHelp(
                             name: "outer-command-arg",
@@ -585,7 +585,7 @@ namespace System.CommandLine.Tests.Help
                         .ExactlyOne(),
                     symbols: outer => outer
                         .AddCommand(
-                            "inner", "HelpDefinition text for the inner command",
+                            "inner", "HelpDetail text for the inner command",
                             arguments: innerArgs => innerArgs
                                 .WithHelp(
                                     name: "the-inner-command-arg",
@@ -614,7 +614,7 @@ namespace System.CommandLine.Tests.Help
                     HelpBuilder = _helpBuilder,
                 }
                 .AddCommand(
-                    "outer", "HelpDefinition text for the outer command",
+                    "outer", "HelpDetail text for the outer command",
                     arguments: args => args.ExactlyOne())
                 .BuildCommand();
 
@@ -634,7 +634,7 @@ namespace System.CommandLine.Tests.Help
                     HelpBuilder = _helpBuilder,
                 }
                 .AddCommand(
-                    "outer", "HelpDefinition text for the outer command",
+                    "outer", "HelpDetail text for the outer command",
                     arguments: args => args
                         .WithHelp(
                             name: "outer-command-arg",
@@ -642,7 +642,7 @@ namespace System.CommandLine.Tests.Help
                         .ExactlyOne(),
                     symbols: outer => outer
                         .AddCommand(
-                            "inner", "HelpDefinition text for the inner command",
+                            "inner", "HelpDetail text for the inner command",
                             arguments: innerArgs => innerArgs
                                 .WithHelp(
                                     name: "",
@@ -871,7 +871,7 @@ namespace System.CommandLine.Tests.Help
                 .AddCommand("command", "Help Test",
                     c => c.AddOption(
                         new[] { "-multi", "--alt-option" },
-                        "HelpDefinition for option"))
+                        "HelpDetail for option"))
                 .BuildCommand();
 
             commandLineBuilder
@@ -893,7 +893,7 @@ namespace System.CommandLine.Tests.Help
                 .AddCommand("command", "Help Test",
                     c => c.AddOption(
                         new[] { "--m", "--alt-option" },
-                        "HelpDefinition for option"))
+                        "HelpDetail for option"))
                 .BuildCommand();
 
             commandLineBuilder

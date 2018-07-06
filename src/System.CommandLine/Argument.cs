@@ -13,7 +13,7 @@ namespace System.CommandLine
         internal Argument(
             ArgumentParser parser,
             Func<object> defaultValue = null,
-            HelpDefinition help = null,
+            HelpDetail help = null,
             IReadOnlyCollection<ValidateSymbol> symbolValidators = null,
             ISuggestionSource suggestionSource = null)
         {
@@ -21,7 +21,7 @@ namespace System.CommandLine
 
             _defaultValue = defaultValue;
 
-            Help = help ?? new HelpDefinition();
+            Help = help ?? new HelpDetail();
 
             SuggestionSource = suggestionSource ?? NullSuggestionSource.Instance;
 
@@ -37,7 +37,7 @@ namespace System.CommandLine
 
         public bool HasDefaultValue => _defaultValue != null;
 
-        public HelpDefinition Help { get; }
+        public HelpDetail Help { get; }
 
         public bool HasHelp => Help.IsHidden == false;
 
