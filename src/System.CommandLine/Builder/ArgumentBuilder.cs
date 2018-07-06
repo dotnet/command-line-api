@@ -16,7 +16,7 @@ namespace System.CommandLine.Builder
 
         internal Func<object> DefaultValue { get; set; }
 
-        internal HelpDefinition Help { get; set; }
+        internal HelpDetail Help { get; set; }
 
         internal ArgumentParser Parser { get; set; }
 
@@ -101,10 +101,10 @@ namespace System.CommandLine.Builder
             {
                 ConvertArguments = argument.Parser.ConvertArguments,
                 DefaultValue = argument.GetDefaultValue,
-                Help = new HelpDefinition(
+                Help = new HelpDetail(
                     argument.Help?.Name,
                     argument.Help?.Description,
-                    argument.Help?.IsHidden ?? HelpDefinition.DefaultIsHidden),
+                    argument.Help?.IsHidden ?? HelpDetail.DefaultIsHidden),
                 Parser = argument.Parser,
                 _suggestionSource = suggestionSource,
                 SymbolValidators = new List<ValidateSymbol>(argument.SymbolValidators)

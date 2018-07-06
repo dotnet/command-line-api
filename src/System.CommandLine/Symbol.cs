@@ -16,7 +16,7 @@ namespace System.CommandLine
             IReadOnlyCollection<string> aliases,
             string description,
             Argument argument = null,
-            HelpDefinition help = null)
+            HelpDetail help = null)
         {
             if (aliases == null)
             {
@@ -50,7 +50,7 @@ namespace System.CommandLine
 
             Argument = argument ?? Argument.None;
 
-            Help = help ?? new HelpDefinition(Name, Description, false);
+            Help = help ?? new HelpDetail(Name, Description, false);
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
@@ -61,7 +61,7 @@ namespace System.CommandLine
 
         public string Description { get; }
 
-        public HelpDefinition Help { get; }
+        public HelpDetail Help { get; }
 
         public string Name { get; }
 

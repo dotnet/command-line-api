@@ -3,15 +3,15 @@
 
 namespace System.CommandLine
 {
-    public class HelpDefinition
+    public class HelpDetail
     {
         internal const bool DefaultIsHidden = false;
 
-        public HelpDefinition()
+        public HelpDetail()
         {
         }
 
-        public HelpDefinition(string name, string description, bool isHidden)
+        public HelpDetail(string name, string description, bool isHidden)
         {
             Description = description;
             IsHidden = isHidden;
