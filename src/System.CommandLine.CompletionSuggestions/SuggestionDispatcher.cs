@@ -128,7 +128,5 @@ namespace System.CommandLine.CompletionSuggestions
             }
             return result;
         }
-
-        private static void DisplayHelp() => throw new NotImplementedException();
     }
 }

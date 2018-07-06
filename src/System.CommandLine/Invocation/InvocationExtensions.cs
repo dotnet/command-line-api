@@ -208,6 +208,42 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
+        public static CommandBuilder OnExecute<T1, T2, T3, T4>(
+            this CommandBuilder builder,
+            Action<T1, T2, T3, T4> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandBuilder OnExecute<T1, T2, T3, T4, T5>(
+            this CommandBuilder builder,
+            Action<T1, T2, T3, T4, T5> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandBuilder OnExecute<T1, T2, T3, T4, T5, T6>(
+            this CommandBuilder builder,
+            Action<T1, T2, T3, T4, T5, T6> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandBuilder OnExecute<T1, T2, T3, T4, T5, T6, T7>(
+            this CommandBuilder builder,
+            Action<T1, T2, T3, T4, T5, T6, T7> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
         private static bool ShowHelp(
             InvocationContext context,
             IReadOnlyCollection<string> helpOptionAliases)
