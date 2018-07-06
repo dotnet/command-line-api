@@ -35,7 +35,7 @@ namespace System.CommandLine.Invocation
 
                 if (handler != null)
                 {
-                    await handler.InvokeAsync(invocationContext.ParseResult);
+                    await handler.InvokeAsync(invocationContext);
                     context.ResultCode = 0;
                 }
             });

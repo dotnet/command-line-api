@@ -25,7 +25,7 @@ namespace System.CommandLine.Invocation
             _target = target;
         }
 
-        public async Task<int> InvokeAsync(ParseResult result)
+        public async Task<int> InvokeAsync(InvocationContext context)
         {
             var arguments = new List<object>();
             var parameters = _method.GetParameters();
@@ -38,7 +38,15 @@ namespace System.CommandLine.Invocation
 
                 if (parameterInfo.ParameterType == typeof(ParseResult))
                 {
-                    arguments.Add(result);
+                    arguments.Add(context.ParseResult);
+                }
+                else if (parameterInfo.ParameterType == typeof(InvocationContext))
+                {
+                    arguments.Add(context);
+                }
+                else if (parameterInfo.ParameterType == typeof(IConsole))
+                {
+                    arguments.Add(context.Console);
                 }
                 else
                 {

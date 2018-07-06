@@ -126,6 +126,53 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public async Task Method_parameters_of_type_IConsole_receive_the_current_console_instance()
+        {
+            var wasCalled = false;
+
+            var parser =
+                new CommandLineBuilder()
+                    .AddCommand(
+                        "command", "",
+                        cmd => {
+                            cmd.AddOption("-x", "", args => args.ParseArgumentsAs<int>())
+                               .OnExecute<IConsole>(console => {
+                                   wasCalled = true;
+                                   console.Out.Write("Hello!");
+                               });
+                        })
+                    .Build();
+
+            await parser.InvokeAsync("command", _console);
+
+            wasCalled.Should().BeTrue();
+            _console.Out.ToString().Should().Be("Hello!");
+        }
+
+        [Fact]
+        public async Task Method_parameters_of_type_InvocationContext_receive_the_current_InvocationContext_instance()
+        {
+            var wasCalled = false;
+
+            var parser =
+                new CommandLineBuilder()
+                    .AddCommand(
+                        "command", "",
+                        cmd => {
+                            cmd.AddOption("-x", "", args => args.ParseArgumentsAs<int>())
+                               .OnExecute<InvocationContext>(context => {
+                                   wasCalled = true;
+                                   context.ParseResult.ValueForOption("-x").Should().Be(123);
+                               });
+                        })
+                    .Build();
+
+            await parser.InvokeAsync("command -x 123", _console);
+
+            wasCalled.Should().BeTrue();
+        }
+
+        [Fact]
         public async Task InvokeAsync_chooses_the_appropriate_command()
         {
             var firstWasCalled = false;
