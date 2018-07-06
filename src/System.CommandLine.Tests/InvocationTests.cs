@@ -77,6 +77,88 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_hyphenated_option_names()
+        {
+            var wasCalled = false;
+
+            void Execute(string firstName)
+            {
+                wasCalled = true;
+                firstName.Should().Be("Gandalf");
+            }
+
+            var parser =
+                new CommandLineBuilder()
+                    .AddCommand(
+                        "command", "",
+                        cmd => {
+                            cmd.AddOption("--first-name", "", a => a.ExactlyOne())
+                               .OnExecute<string>(Execute);
+                        })
+                    .Build();
+
+            await parser.InvokeAsync("command --first-name Gandalf", _console);
+
+            wasCalled.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_option_names_case_insensitively()
+        {
+            var wasCalled = false;
+
+            void Execute(string name, int Age)
+            {
+                wasCalled = true;
+                name.Should().Be("Gandalf");
+                Age.Should().Be(425);
+            }
+
+            var parser =
+                new CommandLineBuilder()
+                    .AddCommand(
+                        "command", "",
+                        cmd => {
+                            cmd.AddOption("--NAME", "", a => a.ExactlyOne())
+                               .OnExecute<string, int>(Execute)
+                               .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
+                        })
+                    .Build();
+
+            await parser.InvokeAsync("command --age 425 --NAME Gandalf", _console);
+
+            wasCalled.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_option_names_by_alias()
+        {
+            var wasCalled = false;
+
+            void Execute(string name, int Age)
+            {
+                wasCalled = true;
+                name.Should().Be("Gandalf");
+                Age.Should().Be(425);
+            }
+
+            var parser =
+                new CommandLineBuilder()
+                    .AddCommand(
+                        "command", "",
+                        cmd => {
+                            cmd.AddOption(new[] { "-n", "--NAME" }, "", a => a.ExactlyOne())
+                               .OnExecute<string, int>(Execute)
+                               .AddOption(new[] { "-a", "--age" }, "", a => a.ParseArgumentsAs<int>());
+                        })
+                    .Build();
+
+            await parser.InvokeAsync("command -a 425 -n Gandalf", _console);
+
+            wasCalled.Should().BeTrue();
+        }
+
+        [Fact]
         public async Task Method_parameters_on_the_invoked_lambda_are_bound_to_matching_option_names()
         {
             var wasCalled = false;
@@ -180,9 +262,9 @@ namespace System.CommandLine.Tests
 
             var parser = new CommandLineBuilder()
                          .AddCommand("first", "",
-                                     cmd => cmd.OnExecute<string>(_ => firstWasCalled = true))
+                                     cmd => cmd.OnExecute(() => firstWasCalled = true))
                          .AddCommand("second", "",
-                                     cmd => cmd.OnExecute<string>(_ => secondWasCalled = true))
+                                     cmd => cmd.OnExecute(() => secondWasCalled = true))
                          .Build();
 
             await parser.InvokeAsync("first", _console);
@@ -211,7 +293,7 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute<string>(_ => throw new Exception("oops!")))
+                                     cmd => cmd.OnExecute(() => throw new Exception("oops!")))
                          .Build();
 
             Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
@@ -246,7 +328,7 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute<string>(_ => throw new Exception("oops!")))
+                                     cmd => cmd.OnExecute(() => throw new Exception("oops!")))
                          .UseExceptionHandler()
                          .Build();
 
