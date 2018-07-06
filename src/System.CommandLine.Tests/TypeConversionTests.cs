@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseArgumentsAs_with_arity_of_one_can_be_called_without_custom_conversion_logic_if_the_type_has_a_constructor_thats_takes_a_single_string()
+        public void ParseArgumentsAs_with_arity_of_one_can_be_called_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
         {
             var option = new Option(
                 "--file",
@@ -59,7 +59,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseArgumentsAs_with_arity_of_many_can_be_called_without_custom_conversion_logic_if_the_item_type_has_a_constructor_thats_takes_a_single_string()
+        public void ParseArgumentsAs_with_arity_of_many_can_be_called_without_custom_conversion_logic_if_the_item_type_has_a_constructor_that_takes_a_single_string()
         {
             var option = new Option(
                 "--file",
@@ -95,10 +95,13 @@ namespace System.CommandLine.Tests
             argument.ArgumentArity.Should().Be(ArgumentArity.ExactlyOne);
         }
 
-        [Fact]
-        public void ParseArgumentsAs_infers_arity_of_IEnumerable_types_as_OneOrMore()
+        [Theory]
+        [InlineData(typeof(int[]))]
+        [InlineData(typeof(IEnumerable<int>))]
+        [InlineData(typeof(List<int>))]
+        public void ParseArgumentsAs_infers_arity_of_IEnumerable_types_as_OneOrMore(Type type)
         {
-            var argument = new ArgumentBuilder().ParseArgumentsAs<int[]>(s => ArgumentParseResult.Success(1));
+            var argument = new ArgumentBuilder().ParseArgumentsAs(type, s => ArgumentParseResult.Success(1));
 
             argument.ArgumentArity.Should().Be(ArgumentArity.OneOrMore);
         }
