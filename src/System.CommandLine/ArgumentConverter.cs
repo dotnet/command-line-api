@@ -80,6 +80,16 @@ namespace System.CommandLine
 
         public static ArgumentParseResult ParseMany(Type type, IReadOnlyCollection<string> arguments)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            if (arguments == null)
+            {
+                throw new ArgumentNullException(nameof(arguments));
+            }
+
             var itemType = type
                            .GetInterfaces()
                            .SingleOrDefault(i =>
