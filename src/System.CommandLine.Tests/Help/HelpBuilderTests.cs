@@ -594,9 +594,9 @@ namespace System.CommandLine.Tests.Help
                 .BuildCommand();
 
             var expected =
-                $"Arguments:{NewLine}" +
-                $"{_indentation}<outer-command-arg>    {_columnPadding}The argument for the outer command{NewLine}" +
-                $"{_indentation}<the-inner-command-arg>{_columnPadding}The argument for the inner command";
+            $"Arguments:{NewLine}" +
+            $"{_indentation}<outer-command-arg>    {_columnPadding}The argument for the outer command{NewLine}" +
+            $"{_indentation}<the-inner-command-arg>{_columnPadding}The argument for the inner command";
 
             commandLineBuilder
                 .Subcommand("outer")
@@ -604,6 +604,63 @@ namespace System.CommandLine.Tests.Help
                 .WriteHelp(_console);
 
             GetHelpText().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Arguments_section_is_not_included_with_only_unnamed_command_arguments()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+                {
+                    HelpBuilder = _helpBuilder,
+                }
+                .AddCommand(
+                    "outer", "HelpDefinition text for the outer command",
+                    arguments: args => args.ExactlyOne())
+                .BuildCommand();
+
+            commandLineBuilder
+                .Subcommand("outer")
+                .WriteHelp(_console);
+
+            GetHelpText().Should().NotContain("Arguments:");
+            GetHelpText().Should().NotContain("<>");
+        }
+
+        [Fact]
+        public void Arguments_section_does_not_include_unnamed_subcommand_arguments()
+        {
+            var commandLineBuilder = new CommandLineBuilder
+                {
+                    HelpBuilder = _helpBuilder,
+                }
+                .AddCommand(
+                    "outer", "HelpDefinition text for the outer command",
+                    arguments: args => args
+                        .WithHelp(
+                            name: "outer-command-arg",
+                            description: "The argument for the outer command")
+                        .ExactlyOne(),
+                    symbols: outer => outer
+                        .AddCommand(
+                            "inner", "HelpDefinition text for the inner command",
+                            arguments: innerArgs => innerArgs
+                                .WithHelp(
+                                    name: "",
+                                    description: "The argument for the inner command")
+                                .ExactlyOne()))
+                .BuildCommand();
+
+            var expected =
+            $"Arguments:{NewLine}" +
+            $"{_indentation}<outer-command-arg>{_columnPadding}The argument for the outer command{NewLine}{NewLine}";
+
+            commandLineBuilder
+                .Subcommand("outer")
+                .Subcommand("inner")
+                .WriteHelp(_console);
+
+            GetHelpText().Should().Contain(expected);
+            GetHelpText().Should().NotContain("<>");
         }
 
         [Fact]

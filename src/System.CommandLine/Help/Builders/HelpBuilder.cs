@@ -348,7 +348,7 @@ namespace System.CommandLine
                 var subcommandArgHelp = GetArgumentHelp(subcommand);
                 if (subcommand != command && subcommandArgHelp != null)
                 {
-                    usage.Add($"<{subcommandArgHelp}>");
+                    usage.Add($"<{subcommandArgHelp.Name}>");
                 }
             }
 
@@ -364,7 +364,7 @@ namespace System.CommandLine
             var commandArgHelp = GetArgumentHelp(command);
             if (commandArgHelp != null)
             {
-                usage.Add($"<{commandArgHelp}>");
+                usage.Add($"<{commandArgHelp.Name}>");
             }
 
             var hasCommandHelp = command.Symbols
@@ -392,12 +392,12 @@ namespace System.CommandLine
         {
             var arguments = new List<Command>();
 
-            if (command.Parent?.HasArguments == true && command.Parent.HasHelp)
+            if (GetArgumentHelp(command.Parent) != null)
             {
                 arguments.Add(command.Parent);
             }
 
-            if (command.HasArguments && command.HasHelp)
+            if (GetArgumentHelp(command) != null)
             {
                 arguments.Add(command);
             }
@@ -447,17 +447,15 @@ namespace System.CommandLine
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private string GetArgumentHelp(Symbol symbolDef)
+        private static HelpDefinition GetArgumentHelp(Symbol symbolDef)
         {
-            var argDef = symbolDef?.Argument;
-            var argHelp = argDef?.Help?.Name;
-
-            if (argDef?.HasHelp != true || string.IsNullOrEmpty(argHelp))
+            if (symbolDef?.HasArguments != true || symbolDef.Argument?.HasHelp != true)
             {
                 return null;
             }
 
-            return argHelp;
+            var argHelp = symbolDef.Argument.Help;
+            return string.IsNullOrEmpty(argHelp.Name) ? null : argHelp;
         }
 
         /// <summary>
