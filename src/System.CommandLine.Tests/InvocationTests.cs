@@ -131,6 +131,34 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public async Task Method_parameters_on_the_invoked_method_do_not_need_to_be_matched()
+        {
+            var wasCalled = false;
+
+            void Execute(string name, int age)
+            {
+                wasCalled = true;
+                name.Should().Be(null);
+                age.Should().Be(0);
+            }
+
+            var parser =
+                new CommandLineBuilder()
+                    .AddCommand(
+                        "command", "",
+                        cmd => {
+                            cmd.AddOption("--name", "", a => a.ExactlyOne())
+                               .AddOption("--age", "", a => a.ParseArgumentsAs<int>())
+                               .OnExecute<string, int>(Execute);
+                        })
+                    .Build();
+
+            await parser.InvokeAsync("command", _console);
+
+            wasCalled.Should().BeTrue();
+        }
+
+        [Fact]
         public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_option_names_by_alias()
         {
             var wasCalled = false;
