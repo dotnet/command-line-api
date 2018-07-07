@@ -106,7 +106,7 @@ namespace System.CommandLine.Invocation
                 throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", candidates.ToString())}");
             }
 
-            throw new ArgumentException($"No symbol was found to bind to parameter {parameterName} from among: {string.Join(",", candidates.ToString())}");
+            return parameterName;
 
             bool Matching(string alias)
             {
