@@ -160,7 +160,7 @@ namespace System.CommandLine.Builder
         public static CommandLineBuilder AddVersionOption(
             this CommandLineBuilder builder)
         {
-            builder.AddOption("--version");
+            builder.AddOption("--version", "Display version information");
 
             builder.AddMiddleware(async (context, next) =>
             {

@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
 
         public virtual ConsoleColor ForegroundColor { get; set; }
 
-        public int WindowWidth { get; set; }
+        public int WindowWidth { get; set; } = 100;
 
         public virtual void ResetColor()
         {

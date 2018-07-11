@@ -4,21 +4,15 @@ using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using Xunit.Abstractions;
 using static System.Environment;
 
 namespace System.CommandLine.Tests
 {
     public class VersionOptionTests
     {
-        private readonly ITestOutputHelper output;
-
-        private static readonly string version = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
-
-        public VersionOptionTests(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
+        private static readonly string version = Assembly.GetEntryAssembly()
+                                                         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                                         .InformationalVersion;
 
         [Fact]
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
@@ -30,8 +24,6 @@ namespace System.CommandLine.Tests
             var console = new TestConsole();
 
             await parser.InvokeAsync("--version", console);
-
-            output.WriteLine(console.Out.ToString());
 
             console.Out.ToString().Should().Be($"{version}{NewLine}");
         }
@@ -50,9 +42,25 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync("--version", console);
 
-            output.WriteLine(console.Out.ToString());
-
             wasCalled.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task Version_option_appears_in_help()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseHelp()
+                         .AddVersionOption()
+                         .Build();
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync("--help", console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Match("*Options:*--version*Display version information*");
         }
     }
 }
