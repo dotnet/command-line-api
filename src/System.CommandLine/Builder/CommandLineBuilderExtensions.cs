@@ -164,7 +164,7 @@ namespace System.CommandLine.Builder
 
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.HasOption("--version"))
+                if (context.ParseResult.HasOption("version"))
                 {
                     context.Console.Out.WriteLine(_assemblyVersion.Value);
                 }

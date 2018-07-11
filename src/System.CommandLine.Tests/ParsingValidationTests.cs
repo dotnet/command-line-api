@@ -150,10 +150,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_file_existence()
         {
-            var commandBuilder = new CommandBuilder("move")
-                .AddOption("--to", "", toArgs => toArgs.ExactlyOne());
-            commandBuilder.Arguments.ExistingFilesOnly().ExactlyOne();
-            var command = commandBuilder.BuildCommand();
+            var command = new CommandBuilder("move")
+                          .AddOption("--to", "",
+                                     args => args.ExactlyOne())
+                          .AddArguments(args => args.ExistingFilesOnly()
+                                                    .ExactlyOne())
+                          .BuildCommand();
 
             var result =
                 command.Parse(
