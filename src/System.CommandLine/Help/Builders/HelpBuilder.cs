@@ -17,9 +17,9 @@ namespace System.CommandLine
         private int _indentationLevel;
         protected IConsole _console;
 
-        public int ColumnGutter { get; } = DefaultColumnGutter;
-        public int IndentationSize { get; } = DefaultIndentationSize;
-        public int MaxWidth { get; } = DefaultWindowWidth;
+        public int ColumnGutter { get; } 
+        public int IndentationSize { get; } 
+        public int MaxWidth { get; } 
 
         /// <summary>
         /// Brokers the generation and output of help text of <see cref="Symbol"/>

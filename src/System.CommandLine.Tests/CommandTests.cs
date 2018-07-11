@@ -149,15 +149,14 @@ namespace System.CommandLine.Tests
         [InlineData("outer arg inner arg inner-er arg", "inner-er")]
         public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand)
         {
-            var builder = new CommandBuilder("outer")
-                                           .AddCommand("inner", "",
-                                                       sibling => sibling.AddCommand("inner-er", "",
-                                                                                     arguments: args => args.ZeroOrMore()))
-                                           .AddCommand("sibling", "",
-                                                       arguments: args => args.ZeroOrMore());
-            builder.Arguments.ZeroOrMore();
-
-            var command = builder.BuildCommand();
+            var command = new CommandBuilder("outer")
+                          .AddCommand("inner", "",
+                                      sibling => sibling.AddCommand("inner-er", "",
+                                                                    arguments: args => args.ZeroOrMore()))
+                          .AddCommand("sibling", "",
+                                      arguments: args => args.ZeroOrMore())
+                          .AddArguments(a => a.ZeroOrMore())
+                          .BuildCommand();
 
             var result = command.Parse(input);
 

@@ -150,5 +150,31 @@ namespace System.CommandLine.Builder
             builder.Prefixes = prefixes;
             return builder;
         }
+
+        private static readonly Lazy<string> _assemblyVersion =
+            new Lazy<string>(() =>
+                                 Assembly.GetEntryAssembly()
+                                         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                         .InformationalVersion);
+
+        public static CommandLineBuilder AddVersionOption(
+            this CommandLineBuilder builder)
+        {
+            builder.AddOption("--version", "Display version information");
+
+            builder.AddMiddleware(async (context, next) =>
+            {
+                if (context.ParseResult.HasOption("version"))
+                {
+                    context.Console.Out.WriteLine(_assemblyVersion.Value);
+                }
+                else
+                {
+                    await next(context);
+                }
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+
+            return builder;
+        }
     }
 }
