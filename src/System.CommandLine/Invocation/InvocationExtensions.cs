@@ -162,19 +162,21 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandBuilder OnExecute(
-            this CommandBuilder builder,
+        public static TBuilder OnExecute<TBuilder>(
+            this TBuilder builder,
             MethodInfo method,
             object target = null)
+            where TBuilder : CommandBuilder
         {
             var methodBinder = new MethodBinder(method, target);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
    
-        public static CommandBuilder OnExecute(
-            this CommandBuilder builder,
+        public static TBuilder OnExecute<TBuilder>(
+            this TBuilder builder,
             Action action)
+            where TBuilder : CommandBuilder
         {
             var methodBinder = new MethodBinder(action);
             builder.ExecutionHandler = methodBinder;
@@ -237,6 +239,69 @@ namespace System.CommandLine.Invocation
 
         public static CommandBuilder OnExecute<T1, T2, T3, T4, T5, T6, T7>(
             this CommandBuilder builder,
+            Action<T1, T2, T3, T4, T5, T6, T7> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandLineBuilder OnExecute<T>(
+            this CommandLineBuilder builder,
+            Action<T> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandLineBuilder OnExecute<T1, T2>(
+            this CommandLineBuilder builder,
+            Action<T1, T2> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandLineBuilder OnExecute<T1, T2, T3>(
+            this CommandLineBuilder builder,
+            Action<T1, T2, T3> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandLineBuilder OnExecute<T1, T2, T3, T4>(
+            this CommandLineBuilder builder,
+            Action<T1, T2, T3, T4> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandLineBuilder OnExecute<T1, T2, T3, T4, T5>(
+            this CommandLineBuilder builder,
+            Action<T1, T2, T3, T4, T5> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandLineBuilder OnExecute<T1, T2, T3, T4, T5, T6>(
+            this CommandLineBuilder builder,
+            Action<T1, T2, T3, T4, T5, T6> action)
+        {
+            var methodBinder = new MethodBinder(action);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
+        public static CommandLineBuilder OnExecute<T1, T2, T3, T4, T5, T6, T7>(
+            this CommandLineBuilder builder,
             Action<T1, T2, T3, T4, T5, T6, T7> action)
         {
             var methodBinder = new MethodBinder(action);
