@@ -25,7 +25,7 @@ namespace System.CommandLine.Views
                 throw new ArgumentNullException(nameof(table));
             }
 
-            var tableView = new ConsoleTable<T>(view as IFormatProvider);
+            var tableView = new ConsoleTable<T>(view.ConsoleWriter);
 
             table(tableView);
 
@@ -38,10 +38,10 @@ namespace System.CommandLine.Views
             {
                 foreach (var column in tableView.Columns)
                 {
-                    column.FlushRow(rowIndex, view.Console.Out);
+                    column.FlushRow(rowIndex, view.ConsoleWriter);
                 }
 
-                view.Console.Out.WriteLine();
+                view.ConsoleWriter.WriteLine();
             }
         }
 

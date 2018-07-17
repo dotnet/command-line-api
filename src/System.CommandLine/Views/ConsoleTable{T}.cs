@@ -6,9 +6,9 @@ namespace System.CommandLine.Views
     {
         public IFormatProvider FormatProvider { get; }
 
-        internal ConsoleTable(IFormatProvider formatProvider = null)
+        internal ConsoleTable(IFormatProvider formatProvider)
         {
-            FormatProvider = formatProvider;
+            FormatProvider = formatProvider ?? throw new ArgumentNullException(nameof(formatProvider));
         }
 
         public void RenderColumn(

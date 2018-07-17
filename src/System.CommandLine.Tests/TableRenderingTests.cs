@@ -22,12 +22,14 @@ namespace System.CommandLine.Tests
         {
             var console = new TestConsole();
 
+            var consoleWriter = new ConsoleWriter(console);
+
             var options = new[] {
                 new Option("-s", "a short option"),
                 new Option("--very-long", "a long option")
             };
 
-            var view = new OptionsHelpView(console);
+            var view = new OptionsHelpView(consoleWriter);
 
             view.Render(options);
 
@@ -50,7 +52,9 @@ namespace System.CommandLine.Tests
                 new Option("--very-long", "an option")
             };
 
-            var view = new OptionsHelpView(console);
+            var consoleWriter = new ConsoleWriter(console);
+
+            var view = new OptionsHelpView(consoleWriter);
 
             view.Render(options);
 
@@ -68,7 +72,7 @@ namespace System.CommandLine.Tests
 
     public class OptionsHelpView : ConsoleView<IEnumerable<Option>>
     {
-        public OptionsHelpView(IConsole console) : base(console)
+        public OptionsHelpView(IConsoleWriter writer) : base(writer)
         {
         }
 

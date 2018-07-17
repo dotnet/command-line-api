@@ -24,7 +24,7 @@ namespace System.CommandLine.Views
 
         public void FlushRow(
             int index,
-            TextWriter consoleWriter)
+            IConsoleWriter consoleWriter)
         {
             if (_writers == null)
             {

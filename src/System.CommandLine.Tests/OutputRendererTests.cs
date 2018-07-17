@@ -12,6 +12,8 @@ namespace System.CommandLine.Tests
     public class OutputRendererTests
     {
         private readonly ITestOutputHelper _output;
+        private readonly TestConsole console;
+        private readonly ConsoleWriter consoleWriter;
 
         #region command line data and sample for "top" 
 
@@ -57,14 +59,24 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         public OutputRendererTests(ITestOutputHelper output)
         {
             _output = output;
+
+            console = new TestConsole {
+                WindowWidth = 150
+            };
+
+            consoleWriter = new ConsoleWriter(console);
         }
 
         [Fact]
-        public void Output_can_be_formatted_based_on_type_specific_formatters()
+        public void Output_can_be_formatted_based_on_type_specific_formatters_when_type_is_rendered_directly()
         {
-            var console = new TestConsole();
+            consoleWriter.AddFormatter<TimeSpan>((ts, writer) => {
+                writer.Write($"{ts.TotalSeconds} seconds");
+            });
 
-            var view = new AnonymousView<TimeSpan>(console);
+            var view = new AnonymousView<TimeSpan>(
+                consoleWriter,
+                (value, writer) => writer.Write(value));
 
             view.Render(21.Seconds());
 
@@ -72,13 +84,57 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         }
 
         [Fact]
+        public void Output_can_be_formatted_based_on_type_specific_formatters_when_type_is_embedded_in_interpolated_string()
+        {
+            consoleWriter.AddFormatter<TimeSpan>((ts, writer) => {
+                writer.Write($"{ts.TotalSeconds} seconds");
+            });
+
+            var view = new AnonymousView<TimeSpan>(
+                consoleWriter,
+                (value, writer) => writer.Write($"{value}"));
+
+            view.Render(21.Seconds());
+
+            console.Out.ToString().Should().Be("21 seconds");
+        }
+
+        [Fact]
+        public void Format_strings_are_honored_when_type_is_rendered_directly()
+        {
+            consoleWriter.AddFormatter<TimeSpan>((ts, writer) => {
+                writer.Write($"{ts.TotalSeconds:F2} seconds");
+            });
+
+            var view = new AnonymousView<TimeSpan>(
+                consoleWriter,
+                (value, writer) => writer.Write(value));
+
+            view.Render(21.Seconds());
+
+            console.Out.ToString().Should().Be("21.00 seconds");
+        }
+
+        [Fact]
+        public void Format_strings_are_honored_when_type_is_embedded_in_interpolated_string()
+        {
+            consoleWriter.AddFormatter<TimeSpan>((ts, writer) => {
+                writer.Write($"{ts.TotalSeconds:F2} seconds");
+            });
+
+            var view = new AnonymousView<TimeSpan>(
+                consoleWriter,
+                (value, writer) => writer.Write($"{value}"));
+
+            view.Render(21.Seconds());
+
+            console.Out.ToString().Should().Be("21.00 seconds");
+        }
+
+        [Fact]
         public void Table_view_concept_1()
         {
-            var console = new TestConsole {
-                WindowWidth = 150
-            };
-
-            var view = new ProcessesTableView_Concept1(console);
+            var view = new ProcessesTableView_Concept1(consoleWriter);
 
             view.Render(_processes);
 
@@ -88,11 +144,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         [Fact]
         public void composition_sandbox()
         {
-            var console = new TestConsole {
-                WindowWidth = 150
-            };
-
-            var view = new ProcessListView(console);
+            var view = new ProcessListView(consoleWriter);
 
             view.Render(_processes);
 
@@ -102,14 +154,16 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
     public class AnonymousView<T> : ConsoleView<T>
     {
-        public AnonymousView(IConsole console) : base(console)
+        private readonly Action<T, IConsoleWriter> render;
+
+        public AnonymousView(
+            IConsoleWriter writer,
+            Action<T, IConsoleWriter> render) : base(writer)
         {
+            this.render = render ?? throw new ArgumentNullException(nameof(render));
         }
 
-        public override void Render(T value)
-        {
-            Console.Out.Write(value);
-        }
+        public override void Render(T value) => render(value, ConsoleWriter);
     }
 
     public class ProcessInfo
@@ -185,7 +239,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
     public class ProcessesTableView_Concept1 : ConsoleView<IReadOnlyCollection<ProcessInfo>>
     {
-        public ProcessesTableView_Concept1(IConsole console) : base(console)
+        public ProcessesTableView_Concept1(IConsoleWriter writer) : base(writer)
         {
         }
 
@@ -223,7 +277,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
     public class ProcessesSummaryView : ConsoleView<IEnumerable<ProcessInfo>>
     {
-        public ProcessesSummaryView(IConsole console) : base(console)
+        public ProcessesSummaryView(IConsoleWriter writer) : base(writer)
         {
         }
 
@@ -247,10 +301,10 @@ Disks: 33227518/502G read, 16839665/472G written.
 
     public class ProcessListView : ConsoleView<IEnumerable<ProcessInfo>>
     {
-        public ProcessListView(IConsole console) : base(console)
+        public ProcessListView(IConsoleWriter writer) : base(writer)
         {
-            ProcessesSummary = new ProcessesSummaryView(Console);
-            ProcessDetail = new ProcessDetail(Console);
+            ProcessesSummary = new ProcessesSummaryView(ConsoleWriter);
+            ProcessDetail = new ProcessDetail(ConsoleWriter);
         }
 
         public override void Render(IEnumerable<ProcessInfo> processes)
@@ -275,47 +329,47 @@ Disks: 33227518/502G read, 16839665/472G written.
     {
         public override void Render(ProcessInfo p)
         {
-            Console.Out.Write($"{p.ProcessId}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.Command}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.CpuPercentage}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.ExecutionTime}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.NumberOfThreads}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.WorkQueue}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.Port}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.InternalMemorySize}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.PurgeableMemorySize}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.CompressedDataBytes}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.ProcessGroupId}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.ParentProcessID}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.State}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.ProcessWasAbleToSendBoosts}{p.NumberOfBoosts}[{p.NumberOfBoostTransitions}]");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.CpuMe}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.CpuOthers}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.Uid}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.Faults}");
-            Console.Out.Write($"{Column}");
-            Console.Out.Write($"{p.CopyOnWriteFaults}");
-            Console.Out.WriteLine();
+            ConsoleWriter.Write($"{p.ProcessId}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.Command}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.CpuPercentage}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.ExecutionTime}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.NumberOfThreads}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.WorkQueue}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.Port}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.InternalMemorySize}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.PurgeableMemorySize}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.CompressedDataBytes}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.ProcessGroupId}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.ParentProcessID}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.State}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.ProcessWasAbleToSendBoosts}{p.NumberOfBoosts}[{p.NumberOfBoostTransitions}]");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.CpuMe}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.CpuOthers}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.Uid}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.Faults}");
+            ConsoleWriter.Write($"{Column}");
+            ConsoleWriter.Write($"{p.CopyOnWriteFaults}");
+            ConsoleWriter.WriteLine();
         }
 
-        public ProcessDetail(IConsole console) : base(console)
+        public ProcessDetail(IConsoleWriter writer) : base(writer)
         {
         }
     }
