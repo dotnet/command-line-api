@@ -6,7 +6,7 @@ namespace System.CommandLine.Views
         IConsoleWriter,
         ICustomFormatter
     {
-        private readonly Dictionary<Type, Action<object, IConsoleWriter>> _formatters = new Dictionary<Type, Action<object, IConsoleWriter>>();
+        private readonly Dictionary<Type, Func<object, string>> _formatters = new Dictionary<Type, Func<object, string>>();
 
         public ConsoleWriter(IConsole console)
         {
@@ -17,7 +17,7 @@ namespace System.CommandLine.Views
 
         public void Write(object value)
         {
-            Format($"{value}");
+            Console.Out.Write(Format($"{value}"));
         }
 
         public void WriteLine(object value)
@@ -47,31 +47,18 @@ namespace System.CommandLine.Views
 
             if (_formatters.TryGetValue(arg.GetType(), out var formatter))
             {
-                formatter(arg, this);
-            }
-            else
-            {
-                switch (arg)
-                {
-                    case IFormattable formattable:
-                        Console.Out.Write(formattable.ToString(format, null));
-                        break;
-
-                    default:
-                        Console.Out.Write(arg);
-                        break;
-                }
+                return formatter(arg);
             }
 
-            return null;
+            return arg.ToString();
         }
 
         object IFormatProvider.GetFormat(Type formatType) => this;
 
-        public void AddFormatter<T>(Action<T, IConsoleWriter> format)
+        public void AddFormatter<T>(Func<T, string> format)
         {
             _formatters.Add(typeof(T),
-                            (t, _) => format((T)t, this));
+                            t => format((T)t));
         }
     }
 }

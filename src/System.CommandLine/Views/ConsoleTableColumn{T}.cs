@@ -33,12 +33,7 @@ namespace System.CommandLine.Views
 
             var columnWriter = _writers[index];
 
-            var outputLines = columnWriter.ToString().SplitLines();
-
-            for (var lineIndex = 0; lineIndex < outputLines.Count; lineIndex++)
-            {
-                consoleWriter.Write(columnWriter.ToString());
-            }
+            consoleWriter.Write(columnWriter.ToString());
         }
 
         public void Render(IReadOnlyList<T> items)
@@ -54,12 +49,6 @@ namespace System.CommandLine.Views
                 _writers[i + 1] = new StringWriter();
 
                 var value = RenderCell(items[i]);
-
-                // TODO: (Render) centralize 
-                if (value is IFormattable fm)
-                {
-                    value = fm.ToString(null, FormatProvider);
-                }
 
                 _writers[i + 1].Write(value);
             }

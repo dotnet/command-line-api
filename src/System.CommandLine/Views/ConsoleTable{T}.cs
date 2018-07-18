@@ -18,13 +18,6 @@ namespace System.CommandLine.Views
             Columns.Add(new ConsoleTableColumn<T>($"{header}", cell, FormatProvider));
         }
 
-        internal void RenderColumn(
-            FormattableString header,
-            Func<T, object> cell)
-        {
-            Columns.Add(new ConsoleTableColumn<T>(header, cell, FormatProvider));
-        }
-
         internal IList<ConsoleTableColumn<T>> Columns { get; } = new List<ConsoleTableColumn<T>>();
     }
 }

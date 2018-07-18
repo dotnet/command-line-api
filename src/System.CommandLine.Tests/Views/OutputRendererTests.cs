@@ -7,7 +7,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests.Views
 {
     public class OutputRendererTests
     {
@@ -70,29 +70,11 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         [Fact]
         public void Output_can_be_formatted_based_on_type_specific_formatters_when_type_is_rendered_directly()
         {
-            consoleWriter.AddFormatter<TimeSpan>((ts, writer) => {
-                writer.Write($"{ts.TotalSeconds} seconds");
-            });
+            consoleWriter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
             var view = new AnonymousView<TimeSpan>(
                 consoleWriter,
                 (value, writer) => writer.Write(value));
-
-            view.Render(21.Seconds());
-
-            console.Out.ToString().Should().Be("21 seconds");
-        }
-
-        [Fact]
-        public void Output_can_be_formatted_based_on_type_specific_formatters_when_type_is_embedded_in_interpolated_string()
-        {
-            consoleWriter.AddFormatter<TimeSpan>((ts, writer) => {
-                writer.Write($"{ts.TotalSeconds} seconds");
-            });
-
-            var view = new AnonymousView<TimeSpan>(
-                consoleWriter,
-                (value, writer) => writer.Write($"{value}"));
 
             view.Render(21.Seconds());
 
@@ -102,9 +84,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         [Fact]
         public void Format_strings_are_honored_when_type_is_rendered_directly()
         {
-            consoleWriter.AddFormatter<TimeSpan>((ts, writer) => {
-                writer.Write($"{ts.TotalSeconds:F2} seconds");
-            });
+            consoleWriter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds:F2} seconds");
 
             var view = new AnonymousView<TimeSpan>(
                 consoleWriter,
@@ -116,37 +96,17 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         }
 
         [Fact]
-        public void Format_strings_are_honored_when_type_is_embedded_in_interpolated_string()
+        public void EXAMPLE_Table_view_emulating_top()
         {
-            consoleWriter.AddFormatter<TimeSpan>((ts, writer) => {
-                writer.Write($"{ts.TotalSeconds:F2} seconds");
-            });
-
-            var view = new AnonymousView<TimeSpan>(
-                consoleWriter,
-                (value, writer) => writer.Write($"{value}"));
-
-            view.Render(21.Seconds());
-
-            console.Out.ToString().Should().Be("21.00 seconds");
-        }
-
-        [Fact]
-        public void Table_view_concept_1()
-        {
-            var view = new ProcessesTableView_Concept1(consoleWriter);
+            var view = new ProcessesTableView(consoleWriter);
 
             view.Render(_processes);
 
-            _output.WriteLine(console.Out.ToString());
-        }
+            _output.WriteLine("REAL top output:\n");
 
-        [Fact]
-        public void composition_sandbox()
-        {
-            var view = new ProcessListView(consoleWriter);
+            _output.WriteLine(_topSampleOutput);
 
-            view.Render(_processes);
+            _output.WriteLine("\n\nVIEW emulating top output:\n");
 
             _output.WriteLine(console.Out.ToString());
         }
@@ -237,15 +197,15 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         public int CopyOnWriteFaults { get; } // COW
     }
 
-    public class ProcessesTableView_Concept1 : ConsoleView<IReadOnlyCollection<ProcessInfo>>
+    public class ProcessesTableView : ConsoleView<IReadOnlyCollection<ProcessInfo>>
     {
-        public ProcessesTableView_Concept1(IConsoleWriter writer) : base(writer)
+        public ProcessesTableView(IConsoleWriter writer) : base(writer)
         {
         }
 
         public override void Render(IReadOnlyCollection<ProcessInfo> processes)
         {
-            this.RenderTable(
+            RenderTable(
                 items: processes,
                 table: table => {
                     table.RenderColumn("PID", p => p.ProcessId);
@@ -267,7 +227,6 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
                     table.RenderColumn("UID", p => p.Uid);
                     table.RenderColumn("FAULTS", p => p.Faults);
                     table.RenderColumn("COW", p => p.CopyOnWriteFaults);
-                    table.RenderColumn("PID", p => p.ProcessId);
                 });
 
             FormattableString Boosts(ProcessInfo p) =>
@@ -288,89 +247,13 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
             var sleeping = processes.Count(v => v.State == "sleeping");
             var threads = processes.Sum(v => v.NumberOfThreads);
 
-            Render(
-                $@"
+            ConsoleWriter.WriteLine($@"
 Processes: {total} total, {running} running, {sleeping} sleeping, {threads} threads                                                                                    22:27:52
 Load Avg: 1.80, 1.92, 2.06  CPU usage: 6.47% user, 3.76% sys, 89.75% idle  SharedLibs: 147M resident, 49M data, 32M linkedit.
 MemRegions: 109904 total, 2311M resident, 68M private, 793M shared. PhysMem: 8102M used (2150M wired), 89M unused.
 VM: 1586G vsize, 1113M framework vsize, 67722816(0) swapins, 71848748(0) swapouts.   Networks: packets: 5742250/5467M in, 5175598/572M out.
 Disks: 33227518/502G read, 16839665/472G written.
 ");
-        }
-    }
-
-    public class ProcessListView : ConsoleView<IEnumerable<ProcessInfo>>
-    {
-        public ProcessListView(IConsoleWriter writer) : base(writer)
-        {
-            ProcessesSummary = new ProcessesSummaryView(ConsoleWriter);
-            ProcessDetail = new ProcessDetail(ConsoleWriter);
-        }
-
-        public override void Render(IEnumerable<ProcessInfo> processes)
-        {
-            ProcessesSummary.Render(processes);
-
-            Render(
-                $"PID{Column}COMMAND{Column}%CPU{Column}TIME{Column}#TH{Column}#WQ{Column}#PORT{Column}MEM{Column}PURG{Column}CMPRS{Column}PGRP{Column}PPID{Column}STATE{Column}BOOSTS{Column}%CPU_ME{Column}%CPU_OTHRS{Column}UID{Column}FAULTS{Column}COW");
-
-            foreach (var result in processes)
-            {
-                ProcessDetail.Render(result);
-            }
-        }
-
-        public ProcessDetail ProcessDetail { get; }
-
-        public ProcessesSummaryView ProcessesSummary { get; }
-    }
-
-    public class ProcessDetail : ConsoleView<ProcessInfo>
-    {
-        public override void Render(ProcessInfo p)
-        {
-            ConsoleWriter.Write($"{p.ProcessId}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.Command}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.CpuPercentage}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.ExecutionTime}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.NumberOfThreads}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.WorkQueue}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.Port}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.InternalMemorySize}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.PurgeableMemorySize}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.CompressedDataBytes}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.ProcessGroupId}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.ParentProcessID}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.State}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.ProcessWasAbleToSendBoosts}{p.NumberOfBoosts}[{p.NumberOfBoostTransitions}]");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.CpuMe}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.CpuOthers}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.Uid}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.Faults}");
-            ConsoleWriter.Write($"{Column}");
-            ConsoleWriter.Write($"{p.CopyOnWriteFaults}");
-            ConsoleWriter.WriteLine();
-        }
-
-        public ProcessDetail(IConsoleWriter writer) : base(writer)
-        {
         }
     }
 }

@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using System.CommandLine.Views;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Environment;
+using System.CommandLine.Views;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests.Views
 {
     public class TableRenderingTests
     {
