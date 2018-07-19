@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
@@ -31,8 +30,8 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x none-of-those");
 
             result.Errors
-                .Should()
-                .Contain(e => e.Message == "Required argument missing for option: -x");
+                  .Should()
+                  .Contain(e => e.Message == "Required argument missing for option: -x");
         }
 
         [Fact]
@@ -66,8 +65,8 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x");
 
             result.Errors
-                .Should()
-                .Contain(e => e.Message == "Required argument missing for option: -x");
+                  .Should()
+                  .Contain(e => e.Message == "Required argument missing for option: -x");
         }
 
         [Fact]
@@ -82,9 +81,9 @@ namespace System.CommandLine.Tests
             _output.WriteLine(result.ToString());
 
             result.Errors
-                .Select(e => e.Message)
-                .Should()
-                .ContainSingle(e => e == "Unrecognized command or argument 'some-arg'");
+                  .Select(e => e.Message)
+                  .Should()
+                  .ContainSingle(e => e == "Unrecognized command or argument 'some-arg'");
         }
 
         [Fact]
@@ -129,8 +128,8 @@ namespace System.CommandLine.Tests
             var result = command.Parse($"the-command {invalidCharacters}");
 
             result.UnmatchedTokens
-                .Should()
-                .BeEquivalentTo(invalidCharacters);
+                  .Should()
+                  .BeEquivalentTo(invalidCharacters);
         }
 
         [Fact]
@@ -173,11 +172,11 @@ namespace System.CommandLine.Tests
         public void An_argument_can_be_invalid_based_on_directory_existence()
         {
             var parser = new CommandLineBuilder()
-                .AddCommand("move", "",
-                    toArgs => toArgs.AddOption("--to", "", args => args.ExactlyOne()),
-                    moveArgs => moveArgs.ExistingFilesOnly()
-                        .ExactlyOne())
-                .Build();
+                         .AddCommand("move", "",
+                                     toArgs => toArgs.AddOption("--to", "", args => args.ExactlyOne()),
+                                     moveArgs => moveArgs.ExistingFilesOnly()
+                                                         .ExactlyOne())
+                         .Build();
 
             var currentDirectory = Directory.GetCurrentDirectory();
             var trash = Path.Combine(currentDirectory, ".trash");
@@ -226,9 +225,9 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x 1 -x 2");
 
             result.Errors
-                .Select(e => e.Message)
-                .Should()
-                .Contain("Option '-x' cannot be specified more than once.");
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("Option '-x' cannot be specified more than once.");
         }
 
         [Fact]
@@ -243,9 +242,9 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x 1 -x 2");
 
             result.Errors
-                .Select(e => e.Message)
-                .Should()
-                .Contain("Option '-x' cannot be specified more than once.");
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("Option '-x' cannot be specified more than once.");
         }
 
         [Fact]
@@ -261,27 +260,27 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x");
 
             result.Errors
-                .Select(e => e.Message)
-                .Should()
-                .Contain("Required argument missing for option: -x");
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("Required argument missing for option: -x");
         }
 
         [Fact]
         public void When_an_option_has_a_default_value_then_the_default_should_apply_if_not_specified()
         {
             var parser = new Parser(
-                    new Option(
-                            "-x",
-                            "",
-                            new ArgumentBuilder()
-                                    .WithDefaultValue(() => "123")
-                                    .ParseArgumentsAs<int>()),
-                    new Option(
-                            "-y",
-                            "",
-                            new ArgumentBuilder()
-                                    .WithDefaultValue(() => "456")
-                                    .ParseArgumentsAs<int>())
+                new Option(
+                    "-x",
+                    "",
+                    new ArgumentBuilder()
+                        .WithDefaultValue(() => "123")
+                        .ParseArgumentsAs<int>()),
+                new Option(
+                    "-y",
+                    "",
+                    new ArgumentBuilder()
+                        .WithDefaultValue(() => "456")
+                        .ParseArgumentsAs<int>())
             );
 
             var result = parser.Parse("");
@@ -292,162 +291,21 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_an_option_has_a_default_value_then_a_given_positional_value_should_override()
-        {
-            var parser = new Parser(
-                    new Option(
-                            "-x",
-                            "",
-                            new ArgumentBuilder()
-                                    .WithDefaultValue(() => "123")
-                                    .ParseArgumentsAs<int>()),
-                    new Option(
-                            "-y",
-                            "",
-                            new ArgumentBuilder()
-                                    .WithDefaultValue(() => "456")
-                                    .ParseArgumentsAs<int>())
-            );
-
-            var result = parser.Parse("42");
-
-            result.Errors.Should().BeEmpty();
-            result.RootCommandResult.ValueForOption("-x").Should().Be(42);
-            result.RootCommandResult.ValueForOption("-y").Should().Be(456);
-        }
-
-        [Fact]
-        public void When_an_option_has_a_default_value_then_a_given_positional_value_should_override_with_other_specified()
-        {
-            var parser = new Parser(
-                    new Option(
-                            "-x",
-                            "",
-                            new ArgumentBuilder()
-                                    .WithDefaultValue(() => "123")
-                                    .ParseArgumentsAs<int>()),
-                    new Option(
-                            "-y",
-                            "",
-                            new ArgumentBuilder()
-                                    .WithDefaultValue(() => "456")
-                                    .ParseArgumentsAs<int>())
-            );
-
-            var result = parser.Parse("-y 23 42");
-
-            result.Errors.Should().BeEmpty();
-            result.RootCommandResult.ValueForOption("-x").Should().Be(42);
-            result.RootCommandResult.ValueForOption("-y").Should().Be(23);
-        }
-
-        [Fact]
         public void When_a_command_line_has_unmatched_tokens_they_are_not_applied_to_subsequent_options()
         {
             var parser = new CommandLineBuilder()
-                        .AddOption("-x", "",
-                            argument => argument.ExactlyOne())
-                        .AddOption("-y", "",
-                            argument => argument.ExactlyOne())
-                        .TreatUnmatchedTokensAsErrors(false)
-                        .Build();
+                         .AddOption("-x", "",
+                                    argument => argument.ExactlyOne())
+                         .AddOption("-y", "",
+                                    argument => argument.ExactlyOne())
+                         .TreatUnmatchedTokensAsErrors(false)
+                         .Build();
 
             var result = parser.Parse("-x 23 unmatched-token -y 42");
 
             result.ValueForOption("-x").Should().Be("23");
             result.ValueForOption("-y").Should().Be("42");
             result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
-        }
-
-        [Fact]
-        public void When_a_subcommand_has_options_they_can_be_positional()
-        {
-            var parser = new CommandLineBuilder()
-                .AddCommand("subcommand", symbols: b =>
-                    b.AddOption("-anon1", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
-                        .AddOption("-anon2", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
-                )
-                .Build();
-
-            ParseResult result = parser.Parse("subcommand anon1-value anon2-value");
-
-            result.Errors.Should().BeEmpty();
-            result.CommandResult["-anon1"].GetValueOrDefault<string>().Should().Be("anon1-value");
-            result.CommandResult["-anon2"].GetValueOrDefault<string>().Should().Be("anon2-value");
-        }
-
-        [Fact]
-        public void When_a_sibling_commands_have_options_with_the_same_name_it_matches_based_on_command()
-        {
-            var parser = new CommandLineBuilder()
-                .AddCommand("command1", symbols: b =>
-                    b.AddOption("-anon", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
-                )
-                .AddCommand("command2", symbols: b =>
-                    b.AddOption("-anon", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
-                )
-                .Build();
-
-            ParseResult result = parser.Parse("command2 anon-value");
-
-            result.Errors.Should().BeEmpty();
-            result.CommandResult.Name.Should().Be("command2");
-            result.CommandResult["-anon"].GetValueOrDefault<string>().Should().Be("anon-value");
-        }
-
-        [Theory]
-        [InlineData(2, 0)]
-        [InlineData(1, 1)]
-        [InlineData(0, 2)]
-        public void When_nested_subcommands_have_options_they_can_be_positional(int subcommand1Options,
-            int subcommand2Options)
-        {
-            var parser = new CommandLineBuilder()
-                .AddCommand("subcommand1", symbols: b => {
-                    foreach (int optionIndex in Enumerable.Range(1, subcommand1Options))
-                    {
-                        b.AddOption($"-anon{optionIndex}", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne());
-                    }
-
-                    b.AddCommand("subcommand2", symbols: subCommandBuilder => {
-                        foreach (int optionIndex in Enumerable.Range(1, subcommand2Options))
-                        {
-                            subCommandBuilder.AddOption($"-anon{optionIndex}",
-                                arguments: argumentsBuilder => argumentsBuilder.ExactlyOne());
-                        }
-                    });
-                })
-                .Build();
-
-            string commandLine = string.Join(' ', GetCommandLineParts());
-            _output.WriteLine($"Parsing {commandLine}");
-
-            ParseResult result = parser.Parse(commandLine);
-
-            result.Errors.Should().BeEmpty();
-            for (var commandResult = result.CommandResult; commandResult != null; commandResult = commandResult.Parent)
-            {
-                int index = 1;
-                foreach (var optionResult in commandResult.Children.OfType<OptionResult>())
-                {
-                    optionResult.GetValueOrDefault<string>().Should().Be($"anon{index++}-value");
-                }
-            }
-
-            IEnumerable<string> GetCommandLineParts()
-            {
-                yield return "subcommand1";
-                foreach (int optionIndex in Enumerable.Range(1, subcommand1Options))
-                {
-                    yield return $"anon{optionIndex}-value";
-                }
-
-                yield return "subcommand2";
-                foreach (int optionIndex in Enumerable.Range(1, subcommand2Options))
-                {
-                    yield return $"anon{optionIndex}-value";
-                }
-            }
         }
     }
 }
