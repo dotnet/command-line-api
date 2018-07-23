@@ -1,9 +1,13 @@
 System.CommandLine
 ==================
 
-This repository contains the code for System.CommandLine, an API for parsing command line arguments in .NET console applications.
+This repository contains the code for System.CommandLine, a library for command line parsing, invocation, and rendering of terminal output.
 
-### Contributing
+## Packages
+
+Packages are available on [MyGet](https://dotnet.myget.org/F/system-commandline/api/v3/index.json). The core package is `System.CommandLine.Experimental`.
+
+## Contributing
 
 See the [Contributing guide](CONTRIBUTING.md) for developer documentation.
 
