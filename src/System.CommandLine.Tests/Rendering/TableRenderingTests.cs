@@ -25,6 +25,22 @@ namespace System.CommandLine.Tests.Rendering
             _consoleWriter = new ConsoleWriter(_console);
         }
 
+
+// __________________________________
+// | A     | .......                 |
+// | B     | .............           |
+// | C     | .......                 |
+// | D     | ....                    |
+        
+// ___________________________
+// | A B C | The quick brown |
+// |       | fox jumps over  |
+// |       | the lazy dog    |
+// |       |                 | 
+        
+        
+        
+        
         [Fact]
         public void A_row_is_written_for_each_item_and_a_header_for_each_column()
         {
@@ -68,6 +84,33 @@ namespace System.CommandLine.Tests.Rendering
                     .Should()
                     .Be(lines[2].IndexOf("an option"));
         }
+
+        [Fact]
+        public void Text_can_be_wrapped_within_a_specified_region()
+        {
+            var toRender = "The quick brown fox jumps over the lazy dog";
+            var view = new MutilineView(_consoleWriter, 4, 15);
+            view.Render(toRender);
+            _output.WriteLine(_console.Out.ToString());
+
+            var lines = _console.Out.ToString();
+
+            lines.Should().Be($"The quick{NewLine}" +
+                              $"brown fox {NewLine}" +
+                              $"jumps over the{NewLine}" +
+                              $"lazy dog");
+
+
+        }
+    }
+
+    internal class MutilineView : ConsoleView<string>
+    {
+        public MutilineView(IConsoleWriter writer, int height, int width) : base(writer)
+        {
+        }
+
+        public override void Render(string value) => ConsoleWriter.Write(value);
     }
 
     public class OptionsHelpView : ConsoleView<IEnumerable<Option>>
