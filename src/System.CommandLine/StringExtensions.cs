@@ -317,5 +317,38 @@ namespace System.CommandLine
                                                      s is Command
                                                          ? TokenType.Command
                                                          : TokenType.Option)))));
+
+        public static IReadOnlyCollection<string> SplitAndFitToWidth(this string text, int maxLength)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return new[] { text };
+            }
+
+            var lines = new List<string>();
+            var builder = new StringBuilder();
+
+            foreach (var item in text.Split(new char[0], StringSplitOptions.RemoveEmptyEntries))
+            {
+                var nextLength = item.Length + builder.Length;
+
+                if (nextLength > (maxLength))
+                {
+                    lines.Add(builder.ToString().TrimEnd());
+                    builder.Clear();
+                }
+                
+                builder.Append(item);
+
+                builder.Append(" ");
+            }
+
+            if (builder.Length > 0)
+            {
+                lines.Add(builder.ToString().TrimEnd());
+            }
+
+            return lines;
+        }
     }
 }

@@ -26,19 +26,6 @@ namespace System.CommandLine.Tests.Rendering
         }
 
 
-// __________________________________
-// | A     | .......                 |
-// | B     | .............           |
-// | C     | .......                 |
-// | D     | ....                    |
-        
-// ___________________________
-// | A B C | The quick brown |
-// |       | fox jumps over  |
-// |       | the lazy dog    |
-// |       |                 | 
-        
-        
         
         
         [Fact]
@@ -85,22 +72,52 @@ namespace System.CommandLine.Tests.Rendering
                     .Be(lines[2].IndexOf("an option"));
         }
 
+
+
+        // __________________________________
+        // | A     | .......                 |
+        // | B     | .............           |
+        // | C     | .......                 |
+        // | D     | ....                    |
+
+        // ___________________________
+        // | A B C | The quick brown |
+        // |       | fox jumps over  |
+        // |       | the lazy dog    |
+        // |       |                 | 
+
+
+
         [Fact]
-        public void Text_can_be_wrapped_within_a_specified_region()
+        public void Text_can_be_wrapped_within_the_console_window()
         {
-            var toRender = "The quick brown fox jumps over the lazy dog";
-            var view = new MutilineView(_consoleWriter, 4, 15);
-            view.Render(toRender);
+            var text = "The quick brown fox jumps over the lazy dog";
+            _console.WindowWidth = 14;
+            var view = new AnonymousView<string>(_consoleWriter, (arg, writer) => writer.Write(arg));
+            view.Render(text);
             _output.WriteLine(_console.Out.ToString());
 
             var lines = _console.Out.ToString();
 
             lines.Should().Be($"The quick{NewLine}" +
-                              $"brown fox {NewLine}" +
+                              $"brown fox{NewLine}" +
                               $"jumps over the{NewLine}" +
                               $"lazy dog");
+        }
 
+        [Fact]
+        public void Text_wraps_exactly_to_the_window_width()
+        {
+            var text = "a a a a a";
+            _console.WindowWidth = 5;
+            var view = new AnonymousView<string>(_consoleWriter, (arg, writer) => writer.Write(arg));
+            view.Render(text);
+            _output.WriteLine(_console.Out.ToString());
 
+            var lines = _console.Out.ToString();
+
+            lines.Should().Be($"a a a{NewLine}" +
+                              $"a a");
         }
     }
 

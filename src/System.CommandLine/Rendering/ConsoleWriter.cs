@@ -17,7 +17,12 @@ namespace System.CommandLine.Rendering
 
         public virtual void Write(object value)
         {
-            Console.Out.Write(Format(value));
+            Console.Out.Write(SplitAndFitToWidth(Format(value)));
+        }
+
+        private string SplitAndFitToWidth(string value)
+        {
+            return string.Join(Environment.NewLine, value.SplitAndFitToWidth(Console.WindowWidth));
         }
 
         public void WriteLine(object value)
