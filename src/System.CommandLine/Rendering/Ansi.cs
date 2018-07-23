@@ -25,7 +25,6 @@ namespace System.CommandLine.Rendering
             public static string Off { get; } = $"{Esc}[0m";
 
             public class Background
-
             {
                 public static string Default => $"{Esc}[49m";
 

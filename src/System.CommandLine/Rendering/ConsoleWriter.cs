@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace System.CommandLine.Views
+namespace System.CommandLine.Rendering
 {
     public class ConsoleWriter :
         IConsoleWriter,
@@ -15,9 +15,9 @@ namespace System.CommandLine.Views
 
         public IConsole Console { get; }
 
-        public void Write(object value)
+        public virtual void Write(object value)
         {
-            Console.Out.Write(Format($"{value}"));
+            Console.Out.Write(Format(value));
         }
 
         public void WriteLine(object value)
@@ -45,12 +45,7 @@ namespace System.CommandLine.Views
                 return "";
             }
 
-            if (_formatters.TryGetValue(arg.GetType(), out var formatter))
-            {
-                return formatter(arg);
-            }
-
-            return arg.ToString();
+            return Format(arg);
         }
 
         object IFormatProvider.GetFormat(Type formatType) => this;
@@ -59,6 +54,18 @@ namespace System.CommandLine.Views
         {
             _formatters.Add(typeof(T),
                             t => format((T)t));
+        }
+
+        public string Format(object value)
+        {
+            if (_formatters.TryGetValue(value.GetType(), out var formatter))
+            {
+                return formatter(value);
+            }
+            else
+            {
+                return value.ToString();
+            }
         }
     }
 }

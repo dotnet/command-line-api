@@ -20,7 +20,7 @@ namespace System.CommandLine.Rendering
             out uint mode);
 
         [DllImport("kernel32.dll")]
-        public static extern uint GetLastError();
+        private static extern uint GetLastError();
 
         [DllImport("kernel32.dll")]
         private static extern bool SetConsoleMode(
@@ -68,12 +68,12 @@ namespace System.CommandLine.Rendering
 
             if (!GetConsoleMode(stdOutHandle, out var originalOutputMode))
             {
-                return new VirtualTerminalMode(false);
+                return new VirtualTerminalMode(false, GetLastError());
             }
 
             if (!GetConsoleMode(stdInHandle, out var originalInputMode))
             {
-                return new VirtualTerminalMode(false);
+                return new VirtualTerminalMode(false, GetLastError());
             }
 
             var requestedInputMode = originalInputMode |
@@ -101,8 +101,11 @@ namespace System.CommandLine.Rendering
 
         public void Dispose()
         {
-            SetConsoleMode(_stdOutHandle, _originalOutputMode);
-            SetConsoleMode(_stdInHandle, _originalInputMode);
+            if (IsEnabled)
+            {
+                SetConsoleMode(_stdOutHandle, _originalOutputMode);
+                SetConsoleMode(_stdInHandle, _originalInputMode);
+            }
         }
     }
 }

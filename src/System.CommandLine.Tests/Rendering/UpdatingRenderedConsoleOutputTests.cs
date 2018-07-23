@@ -1,11 +1,11 @@
-using System.CommandLine.Views;
+using System.CommandLine.Rendering;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace System.CommandLine.Tests.Views
+namespace System.CommandLine.Tests.Rendering
 {
     public class UpdatingRenderedConsoleOutputTests
     {

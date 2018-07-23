@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace System.CommandLine.Views
+namespace System.CommandLine.Rendering
 {
     internal class ConsoleTableColumn<T>
     {
@@ -11,10 +11,10 @@ namespace System.CommandLine.Views
         public ConsoleTableColumn(
             FormattableString header,
             Func<T, object> renderCell,
-            IFormatProvider formatProvider = null)
+            IConsoleWriter consoleWriter)
         {
             RenderCell = renderCell ?? throw new ArgumentNullException(nameof(renderCell));
-            FormatProvider = formatProvider;
+            ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
             Header = header;
         }
 
@@ -40,17 +40,17 @@ namespace System.CommandLine.Views
         {
             _writers = new Dictionary<int, StringWriter>();
 
-            _writers[0] = new StringWriter(FormatProvider);
+            _writers[0] = new StringWriter(ConsoleWriter);
 
             _writers[0].Write(Header);
 
             for (var i = 0; i < items.Count; i++)
             {
-                _writers[i + 1] = new StringWriter();
+                _writers[i + 1] = new StringWriter(ConsoleWriter);
 
                 var value = RenderCell(items[i]);
 
-                _writers[i + 1].Write(value);
+                _writers[i + 1].Write(ConsoleWriter.Format(value));
             }
 
             var longest = _writers.Values.Max(v => v.GetStringBuilder().Length);
@@ -64,6 +64,6 @@ namespace System.CommandLine.Views
 
         public int ColumnGutter { get; } = 3;
 
-        public IFormatProvider FormatProvider { get; }
+        public IConsoleWriter ConsoleWriter { get; }
     }
 }
