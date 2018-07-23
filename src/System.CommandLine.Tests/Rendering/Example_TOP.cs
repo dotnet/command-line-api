@@ -1,23 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.CommandLine.Views;
-using FluentAssertions;
-using FluentAssertions.Extensions;
+using System.CommandLine.Rendering;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace System.CommandLine.Tests.Views
+namespace System.CommandLine.Tests.Rendering
 {
-    public class OutputRendererTests
+    public class Example_TOP
     {
         private readonly ITestOutputHelper _output;
-        private readonly TestConsole console;
-        private readonly ConsoleWriter consoleWriter;
+        private readonly TestConsole _console;
+        private readonly ConsoleWriter _consoleWriter;
 
         #region command line data and sample for "top" 
 
-        private readonly ProcessInfo[] _processes = {
+        public static readonly ProcessInfo[] Processes = {
             new ProcessInfo(5747, "Terminal", 18.0, TimeSpan.Parse("00:00:42.82"), 8, 3, 261, 23_000_000, 496_000, 1_360_000, 5747, 1, "sleeping", 0, true, 1916, 0.06615, 0.69163,
                             501, 142717, 811),
             new ProcessInfo(5683, "WindowServer", 6.8, TimeSpan.Parse("00:20:04:23"), 5, 2, 1685, 62_000_000, 3_920_000, 75_000_000, 5683, 1, "sleeping", 0, true, 1, 0.69163,
@@ -56,74 +54,34 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
         #endregion
 
-        public OutputRendererTests(ITestOutputHelper output)
+        public Example_TOP(ITestOutputHelper output)
         {
             _output = output;
 
-            console = new TestConsole {
+            _console = new TestConsole {
                 WindowWidth = 150
             };
 
-            consoleWriter = new ConsoleWriter(console);
-        }
-
-        [Fact]
-        public void Output_can_be_formatted_based_on_type_specific_formatters_when_type_is_rendered_directly()
-        {
-            consoleWriter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
-
-            var view = new AnonymousView<TimeSpan>(
-                consoleWriter,
-                (value, writer) => writer.Write(value));
-
-            view.Render(21.Seconds());
-
-            console.Out.ToString().Should().Be("21 seconds");
-        }
-
-        [Fact]
-        public void Format_strings_are_honored_when_type_is_rendered_directly()
-        {
-            consoleWriter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds:F2} seconds");
-
-            var view = new AnonymousView<TimeSpan>(
-                consoleWriter,
-                (value, writer) => writer.Write(value));
-
-            view.Render(21.Seconds());
-
-            console.Out.ToString().Should().Be("21.00 seconds");
+            _consoleWriter = new ConsoleWriter(_console);
         }
 
         [Fact]
         public void EXAMPLE_Table_view_emulating_top()
         {
-            var view = new ProcessesTableView(consoleWriter);
+            _consoleWriter.AddFormatter<TimeSpan>(t => t.ToString(@"hh\:mm\:ss"));
 
-            view.Render(_processes);
+            var view = new ProcessesTableView(_consoleWriter);
 
+            view.Render(Processes);
+            
             _output.WriteLine("REAL top output:\n");
 
             _output.WriteLine(_topSampleOutput);
 
             _output.WriteLine("\n\nVIEW emulating top output:\n");
 
-            _output.WriteLine(console.Out.ToString());
+            _output.WriteLine(_console.Out.ToString());
         }
-    }
-
-    public class AnonymousView<T> : ConsoleView<T>
-    {
-        private readonly Action<T, IConsoleWriter> render;
-
-        public AnonymousView(
-            IConsoleWriter writer,
-            Action<T, IConsoleWriter> render) : base(writer)
-        {
-            this.render = render ?? throw new ArgumentNullException(nameof(render));
-        }
-
-        public override void Render(T value) => render(value, ConsoleWriter);
     }
 
     public class ProcessInfo
@@ -205,7 +163,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
         public override void Render(IReadOnlyCollection<ProcessInfo> processes)
         {
-            RenderTable(
+            ConsoleWriter.RenderTable(
                 items: processes,
                 table: table => {
                     table.RenderColumn("PID", p => p.ProcessId);

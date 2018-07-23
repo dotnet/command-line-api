@@ -1,41 +1,45 @@
 using System.Collections.Generic;
+using System.CommandLine.Rendering;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Environment;
-using System.CommandLine.Views;
 
-namespace System.CommandLine.Tests.Views
+namespace System.CommandLine.Tests.Rendering
 {
     public class TableRenderingTests
     {
         private readonly ITestOutputHelper _output;
+        private readonly TestConsole _console;
+        private readonly ConsoleWriter _consoleWriter;
 
         public TableRenderingTests(ITestOutputHelper output)
         {
             _output = output;
+
+            _console = new TestConsole {
+                WindowWidth = 150
+            };
+
+            _consoleWriter = new ConsoleWriter(_console);
         }
 
         [Fact]
-        public void A_row_is_written_for_each_item_and_a_header()
+        public void A_row_is_written_for_each_item_and_a_header_for_each_column()
         {
-            var console = new TestConsole();
-
-            var consoleWriter = new ConsoleWriter(console);
-
             var options = new[] {
                 new Option("-s", "a short option"),
                 new Option("--very-long", "a long option")
             };
 
-            var view = new OptionsHelpView(consoleWriter);
+            var view = new OptionsHelpView(_consoleWriter);
 
             view.Render(options);
 
-            _output.WriteLine(console.Out.ToString());
+            _output.WriteLine(_console.Out.ToString());
 
-            var lines = console.Out.ToString().Split(NewLine);
+            var lines = _console.Out.ToString().Split(NewLine);
 
             lines[0].Should().Contain("Option");
             lines[1].Should().Contain("-s");
@@ -45,22 +49,18 @@ namespace System.CommandLine.Tests.Views
         [Fact]
         public void Column_widths_are_aligned_to_the_longest_cell()
         {
-            var console = new TestConsole();
-
             var options = new[] {
                 new Option("-s", "an option"),
                 new Option("--very-long", "an option")
             };
 
-            var consoleWriter = new ConsoleWriter(console);
-
-            var view = new OptionsHelpView(consoleWriter);
+            var view = new OptionsHelpView(_consoleWriter);
 
             view.Render(options);
 
-            _output.WriteLine(console.Out.ToString());
+            _output.WriteLine(_console.Out.ToString());
 
-            var lines = console.Out
+            var lines = _console.Out
                                .ToString()
                                .Split(NewLine);
 
@@ -78,11 +78,11 @@ namespace System.CommandLine.Tests.Views
 
         public override void Render(IEnumerable<Option> options)
         {
-            this.RenderTable(options.ToArray(),
-                             table => {
-                                 table.RenderColumn("Option", o => string.Join(", ", o.RawAliases));
-                                 table.RenderColumn("", o => o.Description);
-                             });
+            ConsoleWriter.RenderTable(options.ToArray(),
+                                      table => {
+                                          table.RenderColumn("Option", o => string.Join(", ", o.RawAliases));
+                                          table.RenderColumn("", o => o.Description);
+                                      });
         }
     }
 }
