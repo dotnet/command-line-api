@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using static System.Environment;
 
 namespace System.CommandLine.Rendering
 {
     public class ConsoleWriter :
-        IConsoleWriter,
-        ICustomFormatter
+        ICustomFormatter,
+        IFormatProvider
     {
         private readonly Dictionary<Type, Func<object, string>> _formatters = new Dictionary<Type, Func<object, string>>();
 
@@ -15,23 +16,20 @@ namespace System.CommandLine.Rendering
 
         public IConsole Console { get; }
 
-        public virtual void Write(object value)
+        public virtual void WriteToRegion(
+            string formatted,
+            Region viewport)
         {
-            Console.Out.Write(Format(value));
+            var wrapped = string.Join(NewLine,
+                                      formatted.Wrap(
+                                          viewport.Width,
+                                          viewport.Height));
+
+            Console.Out.Write(wrapped);
         }
 
-        public void WriteLine(object value)
-        {
-            Write(value);
-            Console.Out.WriteLine();
-        }
-
-        protected virtual string Format(FormattableString value)
-        {
-            var formatProvider = (IFormatProvider)this;
-
-            return ((IFormattable)value).ToString("", formatProvider);
-        }
+        protected virtual string Format(FormattableString value) =>
+            ((IFormattable)value).ToString("", this);
 
         public void WriteLine() => Console.Out.WriteLine();
 

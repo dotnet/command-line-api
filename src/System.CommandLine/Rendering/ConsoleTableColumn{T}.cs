@@ -11,7 +11,7 @@ namespace System.CommandLine.Rendering
         public ConsoleTableColumn(
             FormattableString header,
             Func<T, object> renderCell,
-            IConsoleWriter consoleWriter)
+            ConsoleWriter consoleWriter)
         {
             RenderCell = renderCell ?? throw new ArgumentNullException(nameof(renderCell));
             ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
@@ -24,7 +24,7 @@ namespace System.CommandLine.Rendering
 
         public void FlushRow(
             int index,
-            IConsoleWriter consoleWriter)
+            ConsoleWriter consoleWriter)
         {
             if (_writers == null)
             {
@@ -33,10 +33,19 @@ namespace System.CommandLine.Rendering
 
             var columnWriter = _writers[index];
 
-            consoleWriter.Write(columnWriter.ToString());
+            consoleWriter.WriteToRegion(
+                columnWriter.ToString(),
+                new Region(Height,
+                             Width,
+                             0,
+                             0));
         }
 
-        public void Render(IReadOnlyList<T> items)
+        private int Width { get; set; } = 80;
+
+        private int Height { get; set; } = 1;
+
+        public void PrerenderAndCalculateWidth(IReadOnlyList<T> items)
         {
             _writers = new Dictionary<int, StringWriter>();
 
@@ -53,17 +62,19 @@ namespace System.CommandLine.Rendering
                 _writers[i + 1].Write(ConsoleWriter.Format(value));
             }
 
-            var longest = _writers.Values.Max(v => v.GetStringBuilder().Length);
-            var gutterEnd = longest + ColumnGutter;
+            var widest = _writers.Values.Max(v => v.GetStringBuilder().Length);
+
+            var gutterEnd = widest + ColumnGutter;
 
             foreach (var writer in _writers.Values)
             {
-                writer.Write(new string(' ', gutterEnd - writer.GetStringBuilder().Length));
+                var whitespace = new string(' ', gutterEnd - writer.GetStringBuilder().Length);
+                writer.Write(whitespace);
             }
         }
 
         public int ColumnGutter { get; } = 3;
 
-        public IConsoleWriter ConsoleWriter { get; }
+        public ConsoleWriter ConsoleWriter { get; }
     }
 }

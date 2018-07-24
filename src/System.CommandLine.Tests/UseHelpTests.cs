@@ -12,7 +12,7 @@ namespace System.CommandLine.Tests
     public class UseHelpTests
     {
         private readonly TestConsole _console = new TestConsole {
-            WindowWidth = 80,
+            Width = 80,
         };
 
         [Fact]

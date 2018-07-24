@@ -20,7 +20,7 @@ namespace System.CommandLine
               (""(?<token>[^""]*)"")               # tokens surrounded by spaces, ex: ""c:\path with\spaces""
               |
               (?<token>\S+)                        # tokens containing no quotes or spaces
-              ",                   
+              ",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace
         );
 
@@ -42,6 +42,7 @@ namespace System.CommandLine
                     return option.Substring(prefix.Length);
                 }
             }
+
             return option;
         }
 
@@ -158,7 +159,7 @@ namespace System.CommandLine
                     {
                         // when a subcommand is encountered, re-scope which tokens are valid
                         currentSymbol = (currentSymbol?.Symbols ??
-                                          configuration.Symbols)[arg];
+                                         configuration.Symbols)[arg];
                         knownTokens = currentSymbol.ValidTokens();
                         tokenList.Add(Command(arg));
                     }
@@ -302,8 +303,6 @@ namespace System.CommandLine
             }
         }
 
-        internal static string NotWhitespace(this string value) => string.IsNullOrWhiteSpace(value) ? null : value;
-
         private static HashSet<Token> ValidTokens(this Symbol symbol) =>
             new HashSet<Token>(
                 symbol.RawAliases
@@ -312,10 +311,80 @@ namespace System.CommandLine
                           symbol.Symbols
                                 .SelectMany(
                                     s => s.RawAliases
-                                         .Select(a => new Token(
-                                                     a,
-                                                     s is Command
-                                                         ? TokenType.Command
-                                                         : TokenType.Option)))));
+                                          .Select(a => new Token(
+                                                      a,
+                                                      s is Command
+                                                          ? TokenType.Command
+                                                          : TokenType.Option)))));
+
+        public static IEnumerable<string> Wrap(
+            this string text,
+            int width,
+            int? maxHeight = null)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                yield return text;
+                yield break;
+            }
+
+            if (text.Length <= width)
+            {
+                yield return text;
+                yield break;
+            }
+
+            var builder = new StringBuilder();
+
+            var lineCount = 0;
+
+            foreach (var word in text.Split(new char[0], StringSplitOptions.RemoveEmptyEntries))
+            {
+                var lengthWithCurrentWord = word.Length + builder.Length;
+
+                if (lengthWithCurrentWord > width)
+                {
+                    lineCount++;
+
+                    if (word.Length > width)
+                    {
+                        yield return word.Substring(0, width);
+                    }
+                    else
+                    {
+                        var line = builder.ToString().TrimEnd();
+
+                        var paddedLine = line.Pad(width);
+
+                        yield return paddedLine;
+                    }
+
+                    if (lineCount == maxHeight)
+                    {
+                        yield break;
+                    }
+
+                    builder.Clear();
+                }
+
+                builder.Append(word);
+
+                builder.Append(" ");
+            }
+
+            yield return builder.ToString().TrimEnd();
+        }
+
+        internal static string Pad(this string value, int width)
+        {
+            if (value.Length >= width)
+            {
+                return value;
+            }
+
+            var padding = new string(' ', width - value.Length);
+
+            return $"{value}{padding}";
+        }
     }
 }

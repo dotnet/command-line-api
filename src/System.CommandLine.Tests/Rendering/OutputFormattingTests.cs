@@ -18,7 +18,7 @@ namespace System.CommandLine.Tests.Rendering
             _output = output;
 
             _console = new TestConsole {
-                WindowWidth = 150
+                Width = 150
             };
 
             _consoleWriter = new ConsoleWriter(_console);
@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests.Rendering
         {
             _consoleWriter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
-            View<TimeSpan>().Render(21.Seconds());
+            new ConsoleView<TimeSpan>(_consoleWriter).Render(21.Seconds());
 
             _console.Out.ToString().Should().Be("21 seconds");
         }
@@ -37,14 +37,7 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void Type_formatters_apply_to_table_cells()
         {
-            var view = View<IEnumerable<ProcessInfo>>((processes, writer) => {
-                writer.RenderTable(
-                    items: processes,
-                    table => {
-                        table.RenderColumn("COMMAND", p => p.Command);
-                        table.RenderColumn("TIME", p => p.ExecutionTime);
-                    });
-            });
+            var view = new ProcessTimesView(_consoleWriter);
 
             _consoleWriter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
@@ -53,29 +46,23 @@ namespace System.CommandLine.Tests.Rendering
             _output.WriteLine(_console.Out.ToString());
 
             _console.Out.ToString().Should().Contain("42.82 seconds");
+        }
+    }
 
-
-            
-
-            // COMMAND        TIME               
-            // Terminal       00:00:42.8200000   
-            // WindowServer   20:04:23           
-            // top            00:00:07.9500000   
-            // kernel_task    17:05:49           
-            // mds_stores     00:54:45.1500000   
-            // mdworker       00:00:17.7200000   
-            // hidd           00:53:33.1200000   
-            // coreaudiod     00:58:14.2600000   
-
+    public class ProcessTimesView : ConsoleView<IEnumerable<ProcessInfo>>
+    {
+        public ProcessTimesView(ConsoleWriter writer, Region region = null) : base(writer, region)
+        {
         }
 
-        private AnonymousView<T> View<T>(Action<T, IConsoleWriter> render = null)
+        public override void Render(IEnumerable<ProcessInfo> processes)
         {
-            render = render ?? ((value, writer) => writer.Write(value));
-
-            return new AnonymousView<T>(
-                _consoleWriter,
-                render);
+            ConsoleWriter.RenderTable(
+                items: processes,
+                table => {
+                    table.RenderColumn("COMMAND", p => p.Command);
+                    table.RenderColumn("TIME", p => p.ExecutionTime);
+                });
         }
     }
 }

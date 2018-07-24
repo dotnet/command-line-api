@@ -469,7 +469,7 @@ namespace System.CommandLine
         {
             try
             {
-                return _console.WindowWidth;
+                return _console.GetRegion().Width;
             }
             catch (Exception exception) when (exception is ArgumentOutOfRangeException || exception is IOException)
             {

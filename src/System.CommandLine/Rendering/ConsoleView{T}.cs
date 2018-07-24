@@ -1,16 +1,35 @@
-using System.Linq;
-
 namespace System.CommandLine.Rendering
 {
-    public abstract class ConsoleView<T> : IConsoleView<T>
+    public class ConsoleView<T> : IConsoleView<T>
     {
-        protected ConsoleView(IConsoleWriter writer)
+        public ConsoleView(
+            ConsoleWriter writer,
+            Region region = null)
         {
             ConsoleWriter = writer ?? throw new ArgumentNullException(nameof(writer));
+            Region = region ?? writer.Console.GetRegion();
         }
 
-        public abstract void Render(T value);
+        protected ConsoleWriter ConsoleWriter { get; }
 
-        public IConsoleWriter ConsoleWriter { get; }
+        public Region Region { get; }
+
+        public virtual void Render(T value)
+        {
+            Write(value);
+        }
+
+        public void Write(object value)
+        {
+            var formatted = ConsoleWriter.Format(value);
+
+            ConsoleWriter.WriteToRegion(formatted, Region);
+        }
+
+        public void WriteLine(object value)
+        {
+            Write(value);
+            ConsoleWriter.Console.Out.WriteLine();
+        }
     }
 }

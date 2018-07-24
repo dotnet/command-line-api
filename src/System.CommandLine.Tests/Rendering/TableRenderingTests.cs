@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests.Rendering
             _output = output;
 
             _console = new TestConsole {
-                WindowWidth = 150
+                Width = 150
             };
 
             _consoleWriter = new ConsoleWriter(_console);
@@ -61,8 +61,8 @@ namespace System.CommandLine.Tests.Rendering
             _output.WriteLine(_console.Out.ToString());
 
             var lines = _console.Out
-                               .ToString()
-                               .Split(NewLine);
+                                .ToString()
+                                .Split(NewLine);
 
             lines[1].IndexOf("an option")
                     .Should()
@@ -72,7 +72,7 @@ namespace System.CommandLine.Tests.Rendering
 
     public class OptionsHelpView : ConsoleView<IEnumerable<Option>>
     {
-        public OptionsHelpView(IConsoleWriter writer) : base(writer)
+        public OptionsHelpView(ConsoleWriter writer) : base(writer)
         {
         }
 
