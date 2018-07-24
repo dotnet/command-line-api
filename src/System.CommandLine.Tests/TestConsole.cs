@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Rendering;
 using System.IO;
 
 namespace System.CommandLine.Tests
@@ -19,10 +20,18 @@ namespace System.CommandLine.Tests
 
         public virtual ConsoleColor ForegroundColor { get; set; }
 
-        public int WindowWidth { get; set; } = 100;
+        public int Height { get; set; } = 100;
+
+        public int Width { get; set; } = 100;
 
         public virtual void ResetColor()
         {
         }
+
+        public Region GetRegion() =>
+            new Region(Height,
+                         Width,
+                         0,
+                         0);
     }
 }

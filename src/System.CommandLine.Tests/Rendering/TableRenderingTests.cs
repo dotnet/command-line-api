@@ -19,15 +19,12 @@ namespace System.CommandLine.Tests.Rendering
             _output = output;
 
             _console = new TestConsole {
-                WindowWidth = 150
+                Width = 150
             };
 
             _consoleWriter = new ConsoleWriter(_console);
         }
 
-
-        
-        
         [Fact]
         public void A_row_is_written_for_each_item_and_a_header_for_each_column()
         {
@@ -64,75 +61,18 @@ namespace System.CommandLine.Tests.Rendering
             _output.WriteLine(_console.Out.ToString());
 
             var lines = _console.Out
-                               .ToString()
-                               .Split(NewLine);
+                                .ToString()
+                                .Split(NewLine);
 
             lines[1].IndexOf("an option")
                     .Should()
                     .Be(lines[2].IndexOf("an option"));
         }
-
-
-
-        // __________________________________
-        // | A     | .......                 |
-        // | B     | .............           |
-        // | C     | .......                 |
-        // | D     | ....                    |
-
-        // ___________________________
-        // | A B C | The quick brown |
-        // |       | fox jumps over  |
-        // |       | the lazy dog    |
-        // |       |                 | 
-
-
-
-        [Fact]
-        public void Text_can_be_wrapped_within_the_console_window()
-        {
-            var text = "The quick brown fox jumps over the lazy dog";
-            _console.WindowWidth = 14;
-            var view = new AnonymousView<string>(_consoleWriter, (arg, writer) => writer.Write(arg));
-            view.Render(text);
-            _output.WriteLine(_console.Out.ToString());
-
-            var lines = _console.Out.ToString();
-
-            lines.Should().Be($"The quick{NewLine}" +
-                              $"brown fox{NewLine}" +
-                              $"jumps over the{NewLine}" +
-                              $"lazy dog");
-        }
-
-        [Fact]
-        public void Text_wraps_exactly_to_the_window_width()
-        {
-            var text = "a a a a a";
-            _console.WindowWidth = 5;
-            var view = new AnonymousView<string>(_consoleWriter, (arg, writer) => writer.Write(arg));
-            view.Render(text);
-            _output.WriteLine(_console.Out.ToString());
-
-            var lines = _console.Out.ToString();
-
-            lines.Should().Be($"a a a{NewLine}" +
-                              $"a a");
-        }
-    }
-
-    internal class MutilineView : ConsoleView<string>
-    {
-        public MutilineView(IConsoleWriter writer, int height, int width) : base(writer)
-        {
-        }
-
-        public override void Render(string value) => ConsoleWriter.Write(value);
     }
 
     public class OptionsHelpView : ConsoleView<IEnumerable<Option>>
     {
-        public OptionsHelpView(IConsoleWriter writer) : base(writer)
+        public OptionsHelpView(ConsoleWriter writer) : base(writer)
         {
         }
 

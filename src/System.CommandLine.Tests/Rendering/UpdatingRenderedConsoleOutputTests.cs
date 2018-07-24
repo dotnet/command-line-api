@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests.Rendering
 
             outputStep1
                 .Should()
-                .Match($"Progress: [ Starting                     ] 0kb / 1000000kb{Environment.NewLine}");
+                .Match($"Progress: [ Starting                     ] 0kb / 1000000kb*");
 
             stage.OnNext(Stage.Downloading);
             downloaded.OnNext(100_000);
@@ -53,13 +53,13 @@ namespace System.CommandLine.Tests.Rendering
 
             outputStep2
                 .Should()
-                .Match($"Progress: [ Downloading ==>                 ] 100000kb / 1000000kb");
+                .Match($"Progress: [ Downloading ==>                 ] 100000kb / 1000000kb*");
         }
     }
 
     internal class ProgressItemView : ConsoleView<ProgressItemViewModel>
     {
-        public ProgressItemView(IConsoleWriter writer) : base(writer)
+        public ProgressItemView(ConsoleWriter writer) : base(writer)
         {
         }
 
@@ -68,16 +68,16 @@ namespace System.CommandLine.Tests.Rendering
             value.Stage
                  .Zip(value.DownloadedKb, (stage, downloaded) => (stage, downloaded))
                  .Subscribe(tuple => {
-
                      var percentage = 20 * tuple.downloaded / value.TotalKb;
 
-                     var progressBar = new string('=', percentage) + (percentage > 0 ? ">" : " ");
+                     var progressBar = new string('=', percentage) + (percentage > 0
+                                                                          ? ">"
+                                                                          : " ");
 
                      var blankSpace = new string(' ', 20 - percentage - 1);
 
-                     ConsoleWriter.WriteLine(
+                     WriteLine(
                          $"{value.Label}: [ {tuple.stage} {progressBar}{blankSpace}] {tuple.downloaded}kb / {value.TotalKb}kb");
-
                  });
         }
     }

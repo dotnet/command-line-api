@@ -6,10 +6,9 @@ namespace System.CommandLine.Rendering
     public static class ConsoleWriterExtensions
     {
         public static void RenderTable<TItem>(
-            this IConsoleWriter formatProvider,
+            this ConsoleWriter formatProvider,
             IEnumerable<TItem> items,
             Action<ConsoleTable<TItem>> table)
-
         {
             if (items == null)
             {
@@ -27,7 +26,7 @@ namespace System.CommandLine.Rendering
 
             foreach (var column in tableView.Columns)
             {
-                column.Render(items.ToList());
+                column.PrerenderAndCalculateWidth(items.ToList());
             }
 
             for (var rowIndex = 0; rowIndex <= items.Count(); rowIndex++)

@@ -59,7 +59,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
             _output = output;
 
             _console = new TestConsole {
-                WindowWidth = 150
+                Width = 150
             };
 
             _consoleWriter = new ConsoleWriter(_console);
@@ -157,7 +157,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
     public class ProcessesTableView : ConsoleView<IReadOnlyCollection<ProcessInfo>>
     {
-        public ProcessesTableView(IConsoleWriter writer) : base(writer)
+        public ProcessesTableView(ConsoleWriter writer) : base(writer)
         {
         }
 
@@ -194,7 +194,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
     public class ProcessesSummaryView : ConsoleView<IEnumerable<ProcessInfo>>
     {
-        public ProcessesSummaryView(IConsoleWriter writer) : base(writer)
+        public ProcessesSummaryView(ConsoleWriter writer) : base(writer)
         {
         }
 
@@ -205,7 +205,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
             var sleeping = processes.Count(v => v.State == "sleeping");
             var threads = processes.Sum(v => v.NumberOfThreads);
 
-            ConsoleWriter.WriteLine($@"
+            WriteLine($@"
 Processes: {total} total, {running} running, {sleeping} sleeping, {threads} threads                                                                                    22:27:52
 Load Avg: 1.80, 1.92, 2.06  CPU usage: 6.47% user, 3.76% sys, 89.75% idle  SharedLibs: 147M resident, 49M data, 32M linkedit.
 MemRegions: 109904 total, 2311M resident, 68M private, 793M shared. PhysMem: 8102M used (2150M wired), 89M unused.

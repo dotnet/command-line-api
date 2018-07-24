@@ -2,6 +2,6 @@ namespace System.CommandLine.Rendering
 {
     public interface IConsoleView
     {
-        IConsoleWriter ConsoleWriter { get; }
+        Region Region { get; }
     }
 }

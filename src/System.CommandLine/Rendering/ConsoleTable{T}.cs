@@ -4,9 +4,9 @@ namespace System.CommandLine.Rendering
 {
     public class ConsoleTable<T>
     {
-        public IConsoleWriter ConsoleWriter { get; }
+        public ConsoleWriter ConsoleWriter { get; }
 
-        public ConsoleTable(IConsoleWriter consoleWriter)
+        public ConsoleTable(ConsoleWriter consoleWriter)
         {
             ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
         }
