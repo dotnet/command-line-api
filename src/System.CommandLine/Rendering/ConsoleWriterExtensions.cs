@@ -6,7 +6,7 @@ namespace System.CommandLine.Rendering
     public static class ConsoleWriterExtensions
     {
         public static void RenderTable<TItem>(
-            this ConsoleWriter formatProvider,
+            this ConsoleWriter writer,
             IEnumerable<TItem> items,
             Action<ConsoleTable<TItem>> table)
         {
@@ -20,7 +20,7 @@ namespace System.CommandLine.Rendering
                 throw new ArgumentNullException(nameof(table));
             }
 
-            var tableView = new ConsoleTable<TItem>(formatProvider);
+            var tableView = new ConsoleTable<TItem>(writer);
 
             table(tableView);
 
@@ -33,10 +33,10 @@ namespace System.CommandLine.Rendering
             {
                 foreach (var column in tableView.Columns)
                 {
-                    column.FlushRow(rowIndex, formatProvider);
+                    column.FlushRow(rowIndex, writer);
                 }
 
-                formatProvider.WriteLine();
+                writer.Console.Out.WriteLine();
             }
         }
     }

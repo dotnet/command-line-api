@@ -33,7 +33,7 @@ namespace System.CommandLine.Rendering
 
             var columnWriter = _writers[index];
 
-            consoleWriter.WriteToRegion(
+            consoleWriter.WriteRawToRegion(
                 columnWriter.ToString(),
                 new Region(Height,
                              Width,

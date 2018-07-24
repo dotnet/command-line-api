@@ -16,22 +16,31 @@ namespace System.CommandLine.Rendering
 
         public IConsole Console { get; }
 
-        public virtual void WriteToRegion(
-            string formatted,
-            Region viewport)
+        public void FormatAndWriteToRegion(object value, Region region)
+        {
+            var formatted = Format(value);
+
+            WriteRawToRegion(formatted, region);
+        }
+
+        public void FormatAndWriteToRegion(FormattableString value, Region region)
+        {
+            var formatted = Format(value);
+
+            WriteRawToRegion(formatted, region);
+        }
+
+        public virtual void WriteRawToRegion(
+            string raw,
+            Region region)
         {
             var wrapped = string.Join(NewLine,
-                                      formatted.Wrap(
-                                          viewport.Width,
-                                          viewport.Height));
+                                      raw.Wrap(
+                                          region.Width,
+                                          region.Height));
 
             Console.Out.Write(wrapped);
         }
-
-        protected virtual string Format(FormattableString value) =>
-            ((IFormattable)value).ToString("", this);
-
-        public void WriteLine() => Console.Out.WriteLine();
 
         string ICustomFormatter.Format(
             string format,
@@ -51,7 +60,7 @@ namespace System.CommandLine.Rendering
         public void AddFormatter<T>(Func<T, string> format)
         {
             _formatters.Add(typeof(T),
-                            t => format((T)t));
+                            t => format((T)t) ?? "");
         }
 
         public string Format(object value)
@@ -59,6 +68,10 @@ namespace System.CommandLine.Rendering
             if (_formatters.TryGetValue(value.GetType(), out var formatter))
             {
                 return formatter(value);
+            }
+            else if (value is FormattableString formattable)
+            {
+                return ((IFormattable)formattable).ToString("", this);
             }
             else
             {
