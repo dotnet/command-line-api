@@ -317,79 +317,9 @@ namespace System.CommandLine
                                                           ? TokenType.Command
                                                           : TokenType.Option)))));
 
-        public static IEnumerable<string> Wrap(
-            this string text,
-            int width,
-            int? maxHeight = null)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                yield return text;
-                yield break;
-            }
-
-            if (text.Length <= width)
-            {
-                yield return text;
-                yield break;
-            }
-
-            var builder = new StringBuilder();
-
-            var lineCount = 0;
-
-            foreach (var word in text.SplitForWrapping())
-            {
-                var lengthWithCurrentWord = word.Length + builder.Length;
-
-                if (lengthWithCurrentWord > width)
-                {
-                    lineCount++;
-
-                    if (word.Length > width)
-                    {
-                        yield return word.Substring(0, width);
-                    }
-                    else
-                    {
-                        var line = builder.ToString().TrimEnd();
-
-                        var paddedLine = line.Pad(width);
-
-                        yield return paddedLine;
-                    }
-
-                    if (lineCount == maxHeight)
-                    {
-                        yield break;
-                    }
-
-                    builder.Clear();
-                }
-
-                builder.Append(word);
-
-                builder.Append(" ");
-            }
-
-            yield return builder.ToString().TrimEnd();
-        }
-
         internal static IEnumerable<string> SplitForWrapping(this string text)
         {
             return text.Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
-        }
-
-        internal static string Pad(this string value, int width)
-        {
-            if (value.Length >= width)
-            {
-                return value;
-            }
-
-            var padding = new string(' ', width - value.Length);
-
-            return $"{value}{padding}";
         }
     }
 }

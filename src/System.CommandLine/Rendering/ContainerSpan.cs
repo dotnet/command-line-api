@@ -1,17 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace System.CommandLine.Rendering
 {
     public class ContainerSpan : Span, IReadOnlyCollection<Span>
     {
-        private readonly ReadOnlyCollection<Span> _children;
+        private readonly List<Span> _children;
 
         public ContainerSpan(params Span[] children)
         {
-            _children = new ReadOnlyCollection<Span>(children);
+            if (children == null)
+            {
+                throw new ArgumentNullException(nameof(children));
+            }
+
+            _children = new List<Span>(children);
         }
 
         public override int ContentLength => _children.Sum(span => span.ContentLength);

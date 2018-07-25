@@ -2,7 +2,7 @@ using System.Text;
 
 namespace System.CommandLine.Rendering
 {
-    public class ContentRenderingSpanVisitor : SpanVisitor
+    internal class ContentRenderingSpanVisitor : SpanVisitor
     {
         private readonly ConsoleWriter _consoleWriter;
         private readonly Region _region;
@@ -19,7 +19,16 @@ namespace System.CommandLine.Rendering
 
         public override void VisitContentSpan(ContentSpan contentSpan)
         {
-            foreach (var word in contentSpan.ToString().SplitForWrapping())
+            var text = contentSpan.ToString();
+
+            if (text.Length <= _region.Width)
+            {
+                _buffer.Append(text);
+                FlushLine();
+                return;
+            }
+
+            foreach (var word in text.SplitForWrapping())
             {
                 if (_linesWritten >= _region.Height)
                 {
@@ -33,7 +42,7 @@ namespace System.CommandLine.Rendering
                     MoveToNewLine();
                 }
 
-                if (lengthWithCurrentWord > RemainingWidth())
+                if (lengthWithCurrentWord > _region.Width)
                 {
                     if (word.Length > _region.Width)
                     {
@@ -68,6 +77,11 @@ namespace System.CommandLine.Rendering
                     FlushLine();
                 }
             }
+
+            if (_buffer.Length > 0)
+            {
+                FlushLine();
+            }
         }
 
         private int RemainingWidth() => _region.Width - _buffer.Length;
@@ -79,15 +93,20 @@ namespace System.CommandLine.Rendering
 
         private void FlushLine()
         {
-            if (RemainingWidth() > 0)
-            {
-                _buffer.Append(' ', RemainingWidth());
-            }
+            PadLine();
 
             _consoleWriter.Console.Out.Write(
                 _buffer.ToString().Substring(0, _region.Width));
             _buffer.Clear();
             _linesWritten++;
+        }
+
+        private void PadLine()
+        {
+            if (RemainingWidth() > 0)
+            {
+                _buffer.Append(' ', RemainingWidth());
+            }
         }
     }
 }

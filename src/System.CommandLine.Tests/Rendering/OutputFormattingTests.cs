@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests.Rendering
 
             new ConsoleView<TimeSpan>(_consoleWriter).Render(21.Seconds());
 
-            _console.Out.ToString().Should().Be("21 seconds");
+            _console.Out.ToString().TrimEnd().Should().Be("21 seconds");
         }
 
         [Fact]

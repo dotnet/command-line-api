@@ -1,20 +1,31 @@
 using System.Collections.Generic;
-using static System.Environment;
 
 namespace System.CommandLine.Rendering
 {
+    public enum OutputMode
+    {
+        NonAnsi,
+        Ansi,
+        File
+    }
+
     public class ConsoleWriter :
         ICustomFormatter,
         IFormatProvider
     {
-        private readonly Dictionary<Type, Func<object, string>> _formatters = new Dictionary<Type, Func<object, string>>();
+        private readonly Dictionary<Type, Func<object, Span>> _formatters = new Dictionary<Type, Func<object, Span>>();
 
-        public ConsoleWriter(IConsole console)
+        public ConsoleWriter(
+            IConsole console,
+            OutputMode mode = OutputMode.NonAnsi)
         {
             Console = console ?? throw new ArgumentNullException(nameof(console));
+            Mode = mode;
         }
 
         public IConsole Console { get; }
+
+        public OutputMode Mode { get; }
 
         public void RenderToRegion(
             object value,
@@ -22,7 +33,7 @@ namespace System.CommandLine.Rendering
         {
             var formatted = Format(value);
 
-            WriteRawToRegion(formatted, region);
+            RenderToRegion(formatted, region);
         }
 
         public void RenderToRegion(
@@ -31,7 +42,7 @@ namespace System.CommandLine.Rendering
         {
             var formatted = Format(value);
 
-            WriteRawToRegion(formatted, region);
+            RenderToRegion(formatted, region);
         }
 
         public void RenderToRegion(
@@ -47,12 +58,7 @@ namespace System.CommandLine.Rendering
             string raw,
             Region region)
         {
-            var wrapped = string.Join(NewLine,
-                                      raw.Wrap(
-                                          region.Width,
-                                          region.Height));
-
-            Console.Out.Write(wrapped);
+            Console.Out.Write(raw);
         }
 
         string ICustomFormatter.Format(
@@ -65,7 +71,7 @@ namespace System.CommandLine.Rendering
                 return "";
             }
 
-            return Format(arg);
+            return Format(arg).ToString();
         }
 
         object IFormatProvider.GetFormat(Type formatType) => this;
@@ -73,10 +79,25 @@ namespace System.CommandLine.Rendering
         public void AddFormatter<T>(Func<T, string> format)
         {
             _formatters.Add(typeof(T),
-                            t => format((T)t) ?? "");
+                            t => {
+                                var formatted = format((T)t);
+
+                                if (formatted == null)
+                                {
+                                    return Span.Empty;
+                                }
+
+                                return new ContentSpan(formatted);
+                            });
         }
 
-        public string Format(object value)
+        public void AddFormatter<T>(Func<T, Span> format)
+        {
+            _formatters.Add(typeof(T),
+                            t => format((T)t));
+        }
+
+        public Span Format(object value)
         {
             if (_formatters.TryGetValue(value.GetType(), out var formatter))
             {
@@ -84,11 +105,13 @@ namespace System.CommandLine.Rendering
             }
             else if (value is FormattableString formattable)
             {
-                return ((IFormattable)formattable).ToString("", this);
+                var formatted = ((IFormattable)formattable).ToString("", this);
+
+                return new ContentSpan(formatted);
             }
             else
             {
-                return value.ToString();
+                return new ContentSpan(value.ToString());
             }
         }
     }
