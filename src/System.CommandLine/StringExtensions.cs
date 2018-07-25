@@ -338,7 +338,7 @@ namespace System.CommandLine
 
             var lineCount = 0;
 
-            foreach (var word in text.Split(new char[0], StringSplitOptions.RemoveEmptyEntries))
+            foreach (var word in text.SplitForWrapping())
             {
                 var lengthWithCurrentWord = word.Length + builder.Length;
 
@@ -373,6 +373,11 @@ namespace System.CommandLine
             }
 
             yield return builder.ToString().TrimEnd();
+        }
+
+        internal static IEnumerable<string> SplitForWrapping(this string text)
+        {
+            return text.Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
         }
 
         internal static string Pad(this string value, int width)

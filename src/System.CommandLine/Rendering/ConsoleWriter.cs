@@ -16,18 +16,31 @@ namespace System.CommandLine.Rendering
 
         public IConsole Console { get; }
 
-        public void FormatAndWriteToRegion(object value, Region region)
+        public void RenderToRegion(
+            object value,
+            Region region)
         {
             var formatted = Format(value);
 
             WriteRawToRegion(formatted, region);
         }
 
-        public void FormatAndWriteToRegion(FormattableString value, Region region)
+        public void RenderToRegion(
+            FormattableString value,
+            Region region)
         {
             var formatted = Format(value);
 
             WriteRawToRegion(formatted, region);
+        }
+
+        public void RenderToRegion(
+            Span span,
+            Region region)
+        {
+            var visitor = new ContentRenderingSpanVisitor(this, region);
+
+            visitor.Visit(span);
         }
 
         public virtual void WriteRawToRegion(

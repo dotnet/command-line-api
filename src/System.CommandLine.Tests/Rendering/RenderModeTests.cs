@@ -25,15 +25,15 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.AddFormatter<AnsiControlCode>(code => null);
 
-            writer.FormatAndWriteToRegion(
+            writer.RenderToRegion(
                 Ansi.Color.Foreground.Red,
                 _console.GetRegion());
 
-            writer.FormatAndWriteToRegion(
+            writer.RenderToRegion(
                 "normal",
                 _console.GetRegion());
 
-            writer.FormatAndWriteToRegion(
+            writer.RenderToRegion(
                 Ansi.Color.Foreground.Default,
                 _console.GetRegion());
 
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.AddFormatter<AnsiControlCode>(code => null);
 
-            writer.FormatAndWriteToRegion(
+            writer.RenderToRegion(
                 $"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}",
                 _console.GetRegion());
 

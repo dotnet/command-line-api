@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
 using FluentAssertions;
+using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.DragonFruit.Tests
@@ -35,7 +35,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
             lines.First()
                  .Should()
-                 .BeEquivalentTo("looo");
+                 .Be("looo");
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
             lines.First()
                  .Should()
-                 .BeEquivalentTo("short         ");
+                 .Be("short         ");
         }
 
         [Fact]
@@ -60,8 +60,12 @@ namespace System.CommandLine.DragonFruit.Tests
             var lines = input.Wrap(6, 2);
 
             lines.Should()
-                 .BeEquivalentTo("The   ",
-                                 "quick ");
+                 .BeEquivalentTo(
+                     new[] {
+                         "The   ",
+                         "quick "
+                     },
+                     options => options.WithStrictOrdering());
         }
     }
 }
