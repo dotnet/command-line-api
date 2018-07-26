@@ -2,14 +2,21 @@ using System.Text;
 
 namespace System.CommandLine.Rendering
 {
-    internal class ContentRenderingSpanVisitor : SpanVisitor
+    internal class AnsiRenderingSpanVisitor : RenderingSpanVisitor
+    {
+        public AnsiRenderingSpanVisitor(ConsoleWriter consoleWriter, Region region) : base(consoleWriter, region)
+        {
+        }
+    }
+
+    internal class RenderingSpanVisitor : SpanVisitor
     {
         private readonly ConsoleWriter _consoleWriter;
         private readonly Region _region;
         private readonly StringBuilder _buffer = new StringBuilder();
         private int _linesWritten;
 
-        public ContentRenderingSpanVisitor(
+        public RenderingSpanVisitor(
             ConsoleWriter consoleWriter,
             Region region)
         {
@@ -86,12 +93,12 @@ namespace System.CommandLine.Rendering
 
         private int RemainingWidth() => _region.Width - _buffer.Length;
 
-        private void MoveToNewLine()
+        protected virtual void MoveToNewLine()
         {
             _consoleWriter.Console.Out.WriteLine();
         }
 
-        private void FlushLine()
+        protected virtual void FlushLine()
         {
             PadLine();
 
@@ -101,7 +108,7 @@ namespace System.CommandLine.Rendering
             _linesWritten++;
         }
 
-        private void PadLine()
+        protected virtual void PadLine()
         {
             if (RemainingWidth() > 0)
             {

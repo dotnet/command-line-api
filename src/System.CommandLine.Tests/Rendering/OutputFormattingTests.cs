@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void Output_can_be_formatted_based_on_type_specific_formatters()
         {
-            _consoleWriter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
+            _consoleWriter.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
             new ConsoleView<TimeSpan>(_consoleWriter).Render(21.Seconds());
 
@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests.Rendering
         {
             var view = new ProcessTimesView(_consoleWriter);
 
-            _consoleWriter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
+            _consoleWriter.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
             view.Render(Example_TOP.Processes);
 

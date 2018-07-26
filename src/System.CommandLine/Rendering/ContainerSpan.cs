@@ -25,5 +25,7 @@ namespace System.CommandLine.Rendering
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public int Count => _children.Count;
+
+        public override string ToString() => string.Join("", _children);
     }
 }

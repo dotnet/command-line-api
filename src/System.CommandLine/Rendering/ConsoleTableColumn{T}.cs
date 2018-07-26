@@ -49,17 +49,17 @@ namespace System.CommandLine.Rendering
         {
             _writers = new Dictionary<int, StringWriter>();
 
-            _writers[0] = new StringWriter(ConsoleWriter);
+            _writers[0] = new StringWriter(ConsoleWriter.Formatter);
 
             _writers[0].Write(Header);
 
             for (var i = 0; i < items.Count; i++)
             {
-                _writers[i + 1] = new StringWriter(ConsoleWriter);
+                _writers[i + 1] = new StringWriter(ConsoleWriter.Formatter);
 
                 var value = RenderCell(items[i]);
 
-                _writers[i + 1].Write(ConsoleWriter.Format(value));
+                _writers[i + 1].Write(ConsoleWriter.Formatter.Format(value));
             }
 
             var widest = _writers.Values.Max(v => v.GetStringBuilder().Length);

@@ -97,13 +97,9 @@ namespace System.CommandLine.Rendering
 
             public static AnsiControlCode Show { get; } = $"{Esc}[?25h";
 
-            public static AnsiControlCode SavePositionAndAttributes { get; } = $"{Esc}7";
+            public static AnsiControlCode SavePosition { get; } = $"{Esc}7";
 
-            public static AnsiControlCode SavePosition { get; } = $"{Esc}[s";
-
-            public static AnsiControlCode RestorePositionAndAttributes { get; } = $"{Esc}8";
-
-            public static AnsiControlCode RestorePosition { get; } = $"{Esc}[u";
+            public static AnsiControlCode RestorePosition { get; } = $"{Esc}8";
         }
 
         public static class Clear

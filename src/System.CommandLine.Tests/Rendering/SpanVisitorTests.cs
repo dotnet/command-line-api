@@ -12,29 +12,29 @@ namespace System.CommandLine.Tests.Rendering
         public void SpanVisitor_visits_child_spans_in_depth_first_order()
         {
             var outerContainer = new ContainerSpan(
-                Cursor.SavePositionAndAttributes,
+                Cursor.SavePosition,
                 new ContainerSpan(
                     Color.Foreground.Red,
                     new ContentSpan("the content"),
                     Color.Foreground.Default),
-                Cursor.RestorePositionAndAttributes);
+                Cursor.RestorePosition);
 
             var visitor = new SpanVisitor();
 
             visitor.Visit(outerContainer);
 
             visitor.VisitedSpans
-                   .Select(s => s.ToString())
+                   .Select(s => s.GetType())
                    .Should()
                    .BeEquivalentTo(
                        expectation: new[] {
-                           typeof(ContainerSpan).ToString(),
-                           Cursor.SavePositionAndAttributes.ToString(),
-                           typeof(ContainerSpan).ToString(),
-                           Color.Foreground.Red.ToString(),
-                           "the content",
-                           Color.Foreground.Default.ToString(),
-                           Cursor.RestorePositionAndAttributes.ToString()
+                           typeof(ContainerSpan),
+                           typeof(AnsiControlCode),
+                           typeof(ContainerSpan),
+                           typeof(AnsiControlCode),
+                           typeof(ContentSpan),
+                           typeof(AnsiControlCode),
+                           typeof(AnsiControlCode),
                        },
                        config: options => options.WithStrictOrdering()
                    );

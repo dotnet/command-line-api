@@ -1,20 +1,7 @@
-using System.Collections.Generic;
-
 namespace System.CommandLine.Rendering
 {
-    public enum OutputMode
+    public class ConsoleWriter
     {
-        NonAnsi,
-        Ansi,
-        File
-    }
-
-    public class ConsoleWriter :
-        ICustomFormatter,
-        IFormatProvider
-    {
-        private readonly Dictionary<Type, Func<object, Span>> _formatters = new Dictionary<Type, Func<object, Span>>();
-
         public ConsoleWriter(
             IConsole console,
             OutputMode mode = OutputMode.NonAnsi)
@@ -25,13 +12,15 @@ namespace System.CommandLine.Rendering
 
         public IConsole Console { get; }
 
+        public SpanFormatter Formatter { get; } = new SpanFormatter();
+
         public OutputMode Mode { get; }
 
         public void RenderToRegion(
             object value,
             Region region)
         {
-            var formatted = Format(value);
+            var formatted = Formatter.Format(value);
 
             RenderToRegion(formatted, region);
         }
@@ -40,7 +29,7 @@ namespace System.CommandLine.Rendering
             FormattableString value,
             Region region)
         {
-            var formatted = Format(value);
+            var formatted = Formatter.Format(value);
 
             RenderToRegion(formatted, region);
         }
@@ -49,7 +38,7 @@ namespace System.CommandLine.Rendering
             Span span,
             Region region)
         {
-            var visitor = new ContentRenderingSpanVisitor(this, region);
+            var visitor = new RenderingSpanVisitor(this, region);
 
             visitor.Visit(span);
         }
@@ -59,60 +48,6 @@ namespace System.CommandLine.Rendering
             Region region)
         {
             Console.Out.Write(raw);
-        }
-
-        string ICustomFormatter.Format(
-            string format,
-            object arg,
-            IFormatProvider formatProvider)
-        {
-            if (arg == null)
-            {
-                return "";
-            }
-
-            return Format(arg).ToString();
-        }
-
-        object IFormatProvider.GetFormat(Type formatType) => this;
-
-        public void AddFormatter<T>(Func<T, string> format)
-        {
-            _formatters.Add(typeof(T),
-                            t => {
-                                var formatted = format((T)t);
-
-                                if (formatted == null)
-                                {
-                                    return Span.Empty;
-                                }
-
-                                return new ContentSpan(formatted);
-                            });
-        }
-
-        public void AddFormatter<T>(Func<T, Span> format)
-        {
-            _formatters.Add(typeof(T),
-                            t => format((T)t));
-        }
-
-        public Span Format(object value)
-        {
-            if (_formatters.TryGetValue(value.GetType(), out var formatter))
-            {
-                return formatter(value);
-            }
-            else if (value is FormattableString formattable)
-            {
-                var formatted = ((IFormattable)formattable).ToString("", this);
-
-                return new ContentSpan(formatted);
-            }
-            else
-            {
-                return new ContentSpan(value.ToString());
-            }
         }
     }
 }

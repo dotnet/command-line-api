@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests.Rendering
 
         [Theory]
         [MemberData(nameof(QuickBrownFoxVariants))]
-        public void In_content_only_mode_wrap_does_not_wrap_span_to_more_lines_than_specified(Span span)
+        public void In_non_ansi_mode_wrap_does_not_wrap_span_to_more_lines_than_specified(Span span)
         {
             _console.Height = 4;
             _console.Width = 6;
@@ -41,7 +41,7 @@ namespace System.CommandLine.Tests.Rendering
 
         [Theory]
         [MemberData(nameof(QuickBrownFoxVariants))]
-        public void In_content_only_mode_wrap_chops_words_that_are_wider_than_the_region(Span span)
+        public void In_non_ansi_mode_wrap_chops_words_that_are_wider_than_the_region(Span span)
         {
             _console.Height = 4;
             _console.Width = 3;
@@ -62,9 +62,14 @@ namespace System.CommandLine.Tests.Rendering
 
         public static IEnumerable<object[]> QuickBrownFoxVariants()
         {
+            var formatter = new SpanFormatter();
+
             var spans =
                 new[] {
-                    new ContentSpan("The quick brown fox jumps over the lazy dog.")
+                    new ContentSpan("The quick brown fox jumps over the lazy dog."),
+                    formatter.ParseToSpan($"{Ansi.Clear.ToEndOfLine}The quick brown fox jumps over the lazy dog."),
+                    formatter.ParseToSpan($"The quick brown fox jumps over the lazy dog.{Ansi.Clear.ToEndOfLine}"),
+                    formatter.ParseToSpan($"The quick {Ansi.Cursor.SavePosition}{Ansi.Color.Foreground.Rgb(139,69,19)}brown{Ansi.Color.Foreground.Default} fox jumps over the lazy dog."),
                 };
 
             foreach (var span in spans)
