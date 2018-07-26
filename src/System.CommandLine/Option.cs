@@ -10,15 +10,17 @@ namespace System.CommandLine
         public Option(
             IReadOnlyCollection<string> aliases,
             string description,
-            Argument argument = null)
-            : base(aliases, description, argument)
+            Argument argument = null,
+            HelpDetail help = null)
+            : base(aliases, description, argument, help)
         { }
 
         public Option(
             string alias,
             string description,
-            Argument argument = null)
-            : base(new [] {alias}, description, argument)
+            Argument argument = null,
+            HelpDetail help = null)
+            : base(new [] {alias}, description, argument, help)
         { }
     }
 }

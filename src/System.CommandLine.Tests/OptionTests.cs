@@ -252,5 +252,42 @@ namespace System.CommandLine.Tests
             result.ValueForOption(prefix + "c").Should().Be("value-for-c");
             result.HasOption(prefix + "b").Should().BeFalse();
         }
+
+        [Fact]
+        public void When_option_not_provide_help_use_default_help()
+        {
+            var option = new Option(
+                new[] { "-o", "--option" }, "desc");
+
+            option.Help.Name.Should().Be("option");
+            option.Help.Description.Should().Be("desc");
+            option.Help.IsHidden.Should().BeFalse();
+        }
+
+        [Fact]
+        public void When_option_provide_help_from_ctor_the_exposed_help_is_correct()
+        {
+            var option = new Option(
+                new[] { "-o", "--option" },
+                "desc",
+                null,
+                new HelpDetail("helpName", "helpDesc", true));
+
+            option.Help.Name.Should().Be("helpName");
+            option.Help.Description.Should().Be("helpDesc");
+            option.Help.IsHidden.Should().BeTrue();
+        }
+
+        [Fact]
+        public void When_option_provide_help_from_with_help_the_exposed_help_is_correct()
+        {
+            var option = new Option(
+                new[] { "-o", "--option" },
+                "desc").WithHelp("helpName", "helpDesc", true);
+
+            option.Help.Name.Should().Be("helpName");
+            option.Help.Description.Should().Be("helpDesc");
+            option.Help.IsHidden.Should().BeTrue();
+        }
     }
 }
