@@ -4,7 +4,9 @@ namespace System.CommandLine.Rendering
 {
     internal class AnsiRenderingSpanVisitor : RenderingSpanVisitor
     {
-        public AnsiRenderingSpanVisitor(ConsoleWriter consoleWriter, Region region) : base(consoleWriter, region)
+        public AnsiRenderingSpanVisitor(
+            ConsoleWriter consoleWriter,
+            Region region) : base(consoleWriter, region)
         {
         }
     }
@@ -27,13 +29,6 @@ namespace System.CommandLine.Rendering
         public override void VisitContentSpan(ContentSpan contentSpan)
         {
             var text = contentSpan.ToString();
-
-            if (text.Length <= _region.Width)
-            {
-                _buffer.Append(text);
-                FlushLine();
-                return;
-            }
 
             foreach (var word in text.SplitForWrapping())
             {

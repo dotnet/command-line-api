@@ -119,9 +119,9 @@ namespace System.CommandLine.Tests.Rendering
 
         public static IEnumerable<object[]> FormattableStringsWithFormatStrings()
         {
-            var date = new DateTime();
+            var date = DateTime.Now;
 
-            yield return Create($"{{ {date:hh:mm:ss}", 2);
+            yield return Create($"{{ {date:dd/MM/yyyy}", 2);
             yield return Create($"some text and a {date:s}", 2);
 
             object[] Create(FormattableString fs, int expectedCount) =>

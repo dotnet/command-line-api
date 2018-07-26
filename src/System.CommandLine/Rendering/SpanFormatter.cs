@@ -9,10 +9,14 @@ namespace System.CommandLine.Rendering
         IFormatProvider
     {
         private static readonly Regex _formattableStringParser =
-            new Regex(@"(?<token> \{ [0-9] [^\}]* \} ) 
-                        |
-                        (?<text> [^\{\}]* )",
-                      RegexOptions.ExplicitCapture |
+            new Regex(@"
+(\s*{{\s*)
+	|
+(\s*}}\s*)
+	|
+(?<token> \{ [0-9]+ [^\}]* \} )
+	|
+(?<text> [^\{\}]* )",
                       RegexOptions.Compiled |
                       RegexOptions.IgnorePatternWhitespace);
 

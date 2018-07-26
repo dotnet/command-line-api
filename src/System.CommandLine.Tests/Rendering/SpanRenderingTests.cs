@@ -9,12 +9,12 @@ namespace System.CommandLine.Tests.Rendering
 {
     public class SpanRenderingTests
     {
-        private readonly ITestOutputHelper output;
+        private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
 
         public SpanRenderingTests(ITestOutputHelper output)
         {
-            this.output = output;
+            _output = output;
             _console = new TestConsole();
         }
 
@@ -29,6 +29,8 @@ namespace System.CommandLine.Tests.Rendering
                 .RenderToRegion(
                     span,
                     _console.GetRegion());
+
+            _output.WriteLine(span.ToString());
 
             _console.Out
                     .ToString()
@@ -51,6 +53,8 @@ namespace System.CommandLine.Tests.Rendering
                     span,
                     _console.GetRegion());
 
+            _output.WriteLine(span.ToString());
+
             _console.Out
                     .ToString()
                     .Should()
@@ -66,10 +70,11 @@ namespace System.CommandLine.Tests.Rendering
 
             var spans =
                 new[] {
-                    new ContentSpan("The quick brown fox jumps over the lazy dog."),
+                    formatter.ParseToSpan($"The quick brown fox jumps over the lazy dog."),
                     formatter.ParseToSpan($"{Ansi.Clear.ToEndOfLine}The quick brown fox jumps over the lazy dog."),
                     formatter.ParseToSpan($"The quick brown fox jumps over the lazy dog.{Ansi.Clear.ToEndOfLine}"),
-                    formatter.ParseToSpan($"The quick {Ansi.Cursor.SavePosition}{Ansi.Color.Foreground.Rgb(139,69,19)}brown{Ansi.Color.Foreground.Default} fox jumps over the lazy dog."),
+                    formatter.ParseToSpan(
+                        $"The quick {Ansi.Cursor.SavePosition}{Ansi.Color.Foreground.Rgb(139, 69, 19)}brown{Ansi.Color.Foreground.Default} fox jumps over the lazy dog."),
                 };
 
             foreach (var span in spans)
