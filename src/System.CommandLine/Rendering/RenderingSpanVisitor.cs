@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -30,7 +29,7 @@ namespace System.CommandLine.Rendering
 
             foreach (var word in text.SplitIntoWordsForWrapping())
             {
-                if (WroteMoreLinesThanRegionHeight())
+                if (WroteMoreLinesThanRegionHeight)
                 {
                     return;
                 }
@@ -40,19 +39,16 @@ namespace System.CommandLine.Rendering
 
             if (_buffer.Length > 0)
             {
-                if (contentSpan.End == contentSpan.Root.End)
-                {
-                    FlushLine();
-                }
-                else
-
-                {
-                    Flush();
-                }
+                Flush();
             }
         }
 
-        private bool WroteMoreLinesThanRegionHeight() => LinesWritten >= Region.Height;
+        protected override void Stop(Span span)
+        {
+            FlushLine();
+        }
+
+        private bool WroteMoreLinesThanRegionHeight => LinesWritten >= Region.Height;
 
         protected int RemainingWidthOnLine => Region.Width - _positionOnLine;
 
@@ -74,16 +70,11 @@ namespace System.CommandLine.Rendering
         {
             var remainingWidthOnLine = RemainingWidthOnLine;
 
-            if (_buffer.Length > 0 &&
+            if (_positionOnLine > 0 &&
                 remainingWidthOnLine > 0)
             {
                 _buffer.Append(new string(' ', remainingWidthOnLine));
                 _positionOnLine += remainingWidthOnLine;
-
-                if (_positionOnLine != Region.Width)
-                {
-                    throw new Exception("WAT");
-                }
             }
         }
 
