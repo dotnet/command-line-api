@@ -59,6 +59,8 @@ namespace System.CommandLine.Rendering
             Flush();
 
             LinesWritten++;
+
+            _positionOnLine = 0;
         }
 
         protected virtual void StartNewLine()
@@ -96,7 +98,6 @@ namespace System.CommandLine.Rendering
             if (LinesWritten > 0 &&
                 _buffer.Length == 0)
             {
-                _positionOnLine = 0;
                 StartNewLine();
             }
 
@@ -109,15 +110,14 @@ namespace System.CommandLine.Rendering
 
             if (value.Length > RemainingWidthOnLine)
             {
-                if (value.TrimEnd().Length > RemainingWidthOnLine)
+                if (WillFitIfEndIsTrimmed())
                 {
-                    FlushLine();
-                    StartNewLine();
-                    _positionOnLine = 0;
+                    value = value.TrimEnd();
                 }
                 else
                 {
-                    value = value.TrimEnd();
+                    FlushLine();
+                    StartNewLine();
                 }
             }
 
@@ -127,7 +127,11 @@ namespace System.CommandLine.Rendering
             if (RemainingWidthOnLine <= 0)
             {
                 FlushLine();
-                _positionOnLine = 0;
+            }
+
+            bool WillFitIfEndIsTrimmed()
+            {
+                return value.TrimEnd().Length <= RemainingWidthOnLine;
             }
         }
     }
