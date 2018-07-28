@@ -2,17 +2,16 @@ using System.CommandLine.Rendering;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
-using static System.Environment;
 
 namespace System.CommandLine.Tests.Rendering
 {
-    public class ViewTestWrappingTests
+    public class ViewWrappingTests
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
         private readonly ConsoleWriter _consoleWriter;
 
-        public ViewTestWrappingTests(ITestOutputHelper output)
+        public ViewWrappingTests(ITestOutputHelper output)
         {
             _output = output;
 
@@ -39,9 +38,9 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"The quick     {NewLine}" +
-                        $"brown fox     {NewLine}" +
-                        $"jumps over the{NewLine}" +
+                    .Be($"The quick     {Environment.NewLine}" +
+                        $"brown fox     {Environment.NewLine}" +
+                        $"jumps over the{Environment.NewLine}" +
                         $"lazy dog      ");
         }
 
@@ -61,7 +60,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"1 1 1{NewLine}" +
+                    .Be($"1 1 1{Environment.NewLine}" +
                         $"2 2  ");
         }
     }

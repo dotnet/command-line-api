@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests.Rendering
                     .Be("normal");
         }
 
-        [Fact(Skip="WIP")]
+        [Fact(Skip = "WIP")]
         public void Control_codes_are_rendered_when_virtual_terminal_is_enabled()
         {
             var writer = new ConsoleWriter(
@@ -54,11 +54,9 @@ namespace System.CommandLine.Tests.Rendering
             writer.RenderToRegion(
                 Ansi.Color.Foreground.Red,
                 _console.GetRegion());
-
             writer.RenderToRegion(
                 "normal",
                 _console.GetRegion());
-
             writer.RenderToRegion(
                 Ansi.Color.Foreground.Default,
                 _console.GetRegion());
@@ -67,10 +65,10 @@ namespace System.CommandLine.Tests.Rendering
                     .ToString()
                     .TrimEnd()
                     .Should()
-                    .Be($"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}");
+                    .Contain($"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}");
         }
 
-        [Fact(Skip = "WIP")]
+        [Fact]
         public void Control_codes_within_FormattableStrings_are_not_rendered_when_virtual_terminal_is_disabled()
         {
             var writer = new ConsoleWriter(
@@ -87,6 +85,25 @@ namespace System.CommandLine.Tests.Rendering
                     .TrimEnd()
                     .Should()
                     .Be("normal");
+        }
+
+        [Fact(Skip = "WIP")]
+        public void Control_codes_within_FormattableStrings_are_rendered_when_virtual_terminal_is_enabled()
+        {
+            var writer = new ConsoleWriter(
+                _console,
+                OutputMode.Ansi
+            );
+
+            writer.RenderToRegion(
+                $"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}",
+                _console.GetRegion());
+
+            _console.Out
+                    .ToString()
+                    .TrimEnd()
+                    .Should()
+                    .Contain($"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}");
         }
     }
 }

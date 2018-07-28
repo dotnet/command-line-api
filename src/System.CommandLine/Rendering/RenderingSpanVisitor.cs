@@ -1,113 +1,142 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace System.CommandLine.Rendering
 {
-    internal class AnsiRenderingSpanVisitor : RenderingSpanVisitor
-    {
-        public AnsiRenderingSpanVisitor(
-            ConsoleWriter consoleWriter,
-            Region region) : base(consoleWriter, region)
-        {
-        }
-    }
-
     internal class RenderingSpanVisitor : SpanVisitor
     {
-        private readonly ConsoleWriter _consoleWriter;
-        private readonly Region _region;
         private readonly StringBuilder _buffer = new StringBuilder();
-        private int _linesWritten;
+
+        private int _positionOnLine;
 
         public RenderingSpanVisitor(
             ConsoleWriter consoleWriter,
             Region region)
         {
-            _consoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
-            _region = region ?? throw new ArgumentNullException(nameof(region));
+            ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
+            Region = region ?? throw new ArgumentNullException(nameof(region));
         }
+
+        protected ConsoleWriter ConsoleWriter { get; }
+
+        protected int LinesWritten { get; private set; }
+
+        protected Region Region { get; }
 
         public override void VisitContentSpan(ContentSpan contentSpan)
         {
             var text = contentSpan.ToString();
 
-            foreach (var word in text.SplitForWrapping())
+            foreach (var word in text.SplitIntoWordsForWrapping())
             {
-                if (_linesWritten >= _region.Height)
+                if (WroteMoreLinesThanRegionHeight())
                 {
                     return;
                 }
 
-                var lengthWithCurrentWord = word.Length + _buffer.Length;
-
-                if (_linesWritten > 0 && _buffer.Length == 0)
-                {
-                    MoveToNewLine();
-                }
-
-                if (lengthWithCurrentWord > _region.Width)
-                {
-                    if (word.Length > _region.Width)
-                    {
-                        // the word won't fit on a line by itself, so chop
-                        _buffer.Append(
-                            word.Substring(0,
-                                           RemainingWidth()));
-                    }
-                    else
-                    {
-                        FlushLine();
-
-                        if (_linesWritten >= _region.Height)
-                        {
-                            return;
-                        }
-
-                        MoveToNewLine();
-
-                        _buffer.Append(word);
-                        _buffer.Append(" ");
-                    }
-                }
-                else
-                {
-                    _buffer.Append(word);
-                    _buffer.Append(" ");
-                }
-
-                if (RemainingWidth() <= 0)
-                {
-                    FlushLine();
-                }
+                AppendWord(word);
             }
 
             if (_buffer.Length > 0)
             {
-                FlushLine();
+                if (contentSpan.End == contentSpan.Root.End)
+                {
+                    FlushLine();
+                }
+                else
+
+                {
+                    Flush();
+                }
             }
         }
 
-        private int RemainingWidth() => _region.Width - _buffer.Length;
+        private bool WroteMoreLinesThanRegionHeight() => LinesWritten >= Region.Height;
 
-        protected virtual void MoveToNewLine()
-        {
-            _consoleWriter.Console.Out.WriteLine();
-        }
+        protected int RemainingWidthOnLine => Region.Width - _positionOnLine;
 
         protected virtual void FlushLine()
         {
-            PadLine();
+            PadRemainderOfLineWithWhitespace();
 
-            _consoleWriter.Console.Out.Write(
-                _buffer.ToString().Substring(0, _region.Width));
-            _buffer.Clear();
-            _linesWritten++;
+            Flush();
+
+            LinesWritten++;
         }
 
-        protected virtual void PadLine()
+        protected virtual void StartNewLine()
         {
-            if (RemainingWidth() > 0)
+            ConsoleWriter.Console.Out.WriteLine();
+        }
+
+        private void PadRemainderOfLineWithWhitespace()
+        {
+            var remainingWidthOnLine = RemainingWidthOnLine;
+
+            if (_buffer.Length > 0 &&
+                remainingWidthOnLine > 0)
             {
-                _buffer.Append(' ', RemainingWidth());
+                _buffer.Append(new string(' ', remainingWidthOnLine));
+                _positionOnLine += remainingWidthOnLine;
+
+                if (_positionOnLine != Region.Width)
+                {
+                    throw new Exception("WAT");
+                }
+            }
+        }
+
+        protected virtual void Flush()
+        {
+            ConsoleWriter.Console.Out.Write(_buffer.ToString());
+
+            _buffer.Clear();
+        }
+
+        private void AppendWord(string value)
+        {
+            if (_positionOnLine == 0 &&
+                string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+            if (LinesWritten > 0 &&
+                _buffer.Length == 0)
+            {
+                _positionOnLine = 0;
+                StartNewLine();
+            }
+
+            var mustTruncate = value.Length > Region.Width;
+
+            if (mustTruncate)
+            {
+                value = value.Substring(0, Math.Min(value.Length, RemainingWidthOnLine));
+            }
+
+            if (value.Length > RemainingWidthOnLine)
+            {
+                if (value.TrimEnd().Length > RemainingWidthOnLine)
+                {
+                    FlushLine();
+                    StartNewLine();
+                    _positionOnLine = 0;
+                }
+                else
+                {
+                    value = value.TrimEnd();
+                }
+            }
+
+            _buffer.Append(value);
+            _positionOnLine += value.Length;
+
+            if (RemainingWidthOnLine <= 0)
+            {
+                FlushLine();
+                _positionOnLine = 0;
             }
         }
     }

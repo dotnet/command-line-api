@@ -9,6 +9,32 @@ namespace System.CommandLine.Tests.Rendering
     public class SpanVisitorTests
     {
         [Fact]
+        public void Initialize_is_only_called_once()
+        {
+            var span = new ContainerSpan(
+                new ContainerSpan(
+                    new ContainerSpan()),
+                new ContentSpan("hello")
+            );
+
+            var visitor = new TestVisitor();
+
+            visitor.Visit(span);
+
+            visitor.InitializeCount.Should().Be(1);
+        }
+
+        public class TestVisitor : SpanVisitor
+        {
+            public int InitializeCount { get; set; }
+
+            protected override void Start(Span span)
+            {
+                InitializeCount++;
+            }
+        }
+
+        [Fact]
         public void SpanVisitor_visits_child_spans_in_depth_first_order()
         {
             var outerContainer = new ContainerSpan(

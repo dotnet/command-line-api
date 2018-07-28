@@ -37,5 +37,7 @@ namespace System.CommandLine.Rendering
         public int Top { get; }
 
         public int Left { get; }
+
+        public override string ToString() => $"{Height}h × {Width}w @ top {Top}, left {Left}";
     }
 }

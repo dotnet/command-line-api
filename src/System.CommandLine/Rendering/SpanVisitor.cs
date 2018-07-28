@@ -6,6 +6,15 @@ namespace System.CommandLine.Rendering
     {
         public void Visit(Span span)
         {
+            Start(span);
+
+            VisitInternal(span);
+
+            Stop(span);
+        }
+
+        private void VisitInternal(Span span)
+        {
             switch (span)
             {
                 case ContentSpan contentSpan:
@@ -26,6 +35,14 @@ namespace System.CommandLine.Rendering
             }
         }
 
+        protected virtual void Start(Span span)
+        {
+        }
+
+        protected virtual void Stop(Span span)
+        {
+        }
+
         public virtual void VisitUnknownSpan(Span span)
         {
             RecordVisit(span);
@@ -42,7 +59,7 @@ namespace System.CommandLine.Rendering
 
             foreach (var span in containerSpan)
             {
-                Visit(span);
+                VisitInternal(span);
             }
         }
 

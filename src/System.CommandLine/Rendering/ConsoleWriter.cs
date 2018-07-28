@@ -3,10 +3,10 @@ namespace System.CommandLine.Rendering
     public class ConsoleWriter
     {
         public ConsoleWriter(
-            IConsole console,
+            IConsole console = null,
             OutputMode mode = OutputMode.NonAnsi)
         {
-            Console = console ?? throw new ArgumentNullException(nameof(console));
+            Console = console ?? Invocation.Console.Instance;
             Mode = mode;
         }
 
@@ -29,8 +29,7 @@ namespace System.CommandLine.Rendering
             FormattableString value,
             Region region)
         {
-            var formatted = Formatter.Format(value);
-
+            var formatted = Formatter.ParseToSpan(value);
             RenderToRegion(formatted, region);
         }
 
@@ -38,7 +37,19 @@ namespace System.CommandLine.Rendering
             Span span,
             Region region)
         {
-            var visitor = new RenderingSpanVisitor(this, region);
+            RenderingSpanVisitor visitor;
+
+            switch (Mode)
+            {
+                case OutputMode.NonAnsi:
+                    visitor = new RenderingSpanVisitor(this, region);
+                    break;
+                case OutputMode.Ansi:
+                    visitor = new AnsiRenderingSpanVisitor(this, region);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
 
             visitor.Visit(span);
         }

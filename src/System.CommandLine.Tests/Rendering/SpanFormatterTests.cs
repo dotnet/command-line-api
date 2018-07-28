@@ -40,14 +40,15 @@ namespace System.CommandLine.Tests.Rendering
             containerSpan
                 .Should()
                 .BeEquivalentTo(
-                    new Span[] {
+                    new ContainerSpan(
                         new ContentSpan("some "),
                         Ansi.Text.BlinkOn,
                         new ContentSpan("blinking"),
                         Ansi.Text.BlinkOff,
                         new ContentSpan(" text")
-                    },
+                    ),
                     options => options.WithStrictOrdering()
+                                      .IgnoringCyclicReferences()
                 );
         }
 

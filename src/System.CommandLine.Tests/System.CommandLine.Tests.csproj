@@ -9,6 +9,9 @@
     <None Remove="TestResults\**" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\System.CommandLine\Rendering\WrappingExtensions.cs" Link="Rendering\WrappingExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
   <ItemGroup>

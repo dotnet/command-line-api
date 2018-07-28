@@ -26,7 +26,7 @@ namespace System.CommandLine.Rendering
         {
             if (value == null)
             {
-                return Span.Empty;
+                return new ContentSpan("");
             }
             else if (value is Span span)
             {
@@ -56,7 +56,7 @@ namespace System.CommandLine.Rendering
 
                                 if (formatted == null)
                                 {
-                                    return Span.Empty;
+                                    return new ContentSpan("");
                                 }
 
                                 return new ContentSpan(formatted);

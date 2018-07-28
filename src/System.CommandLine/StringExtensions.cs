@@ -82,7 +82,7 @@ namespace System.CommandLine
                     arg.StartsWith("@"))
                 {
                     var filePath = arg.Substring(1);
-                    if (!string.IsNullOrWhiteSpace(filePath))
+                    if (!String.IsNullOrWhiteSpace(filePath))
                     {
                         try
                         {
@@ -176,7 +176,7 @@ namespace System.CommandLine
 
         public static string ToKebabCase(this string value)
         {
-            if (string.IsNullOrEmpty(value))
+            if (String.IsNullOrEmpty(value))
             {
                 return value;
             }
@@ -188,10 +188,10 @@ namespace System.CommandLine
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
-                if (char.IsLetterOrDigit(ch))
+                if (Char.IsLetterOrDigit(ch))
                 {
-                    addDash = !char.IsUpper(ch);
-                    sb.Append(char.ToLowerInvariant(ch));
+                    addDash = !Char.IsUpper(ch);
+                    sb.Append(Char.ToLowerInvariant(ch));
                     i++;
                     break;
                 }
@@ -200,7 +200,7 @@ namespace System.CommandLine
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
-                if (char.IsUpper(ch))
+                if (Char.IsUpper(ch))
                 {
                     if (addDash)
                     {
@@ -208,9 +208,9 @@ namespace System.CommandLine
                         sb.Append('-');
                     }
 
-                    sb.Append(char.ToLowerInvariant(ch));
+                    sb.Append(Char.ToLowerInvariant(ch));
                 }
-                else if (char.IsLetterOrDigit(ch))
+                else if (Char.IsLetterOrDigit(ch))
                 {
                     addDash = true;
                     sb.Append(ch);
@@ -317,9 +317,6 @@ namespace System.CommandLine
                                                           ? TokenType.Command
                                                           : TokenType.Option)))));
 
-        internal static IEnumerable<string> SplitForWrapping(this string text)
-        {
-            return text.Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
-        }
+       
     }
 }
