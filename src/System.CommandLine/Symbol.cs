@@ -61,7 +61,7 @@ namespace System.CommandLine
 
         public string Description { get; }
 
-        public HelpDetail Help { get; internal set; }
+        public HelpDetail Help { get; }
 
         public string Name { get; }
 

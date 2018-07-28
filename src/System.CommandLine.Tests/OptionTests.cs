@@ -254,7 +254,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_option_not_provide_help_use_default_help()
+        public void When_option_not_explicitly_provide_help_will_use_default_help()
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "desc");
@@ -279,11 +279,13 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_option_provide_help_from_with_help_the_exposed_help_is_correct()
+        public void When_option_provide_help_from_OptionBuilder_the_exposed_help_is_correct()
         {
-            var option = new Option(
-                new[] { "-o", "--option" },
-                "desc").WithHelp("helpName", "helpDesc", true);
+            var optionBuilder = new OptionBuilder(
+                new [] { "-o", "--option" },
+                new CommandBuilder("optionCommand"));
+            optionBuilder.Description = "desc";
+            var option = optionBuilder.BuildOption(new HelpDetail("helpName", "helpDesc", true));
 
             option.Help.Name.Should().Be("helpName");
             option.Help.Description.Should().Be("helpDesc");
