@@ -16,9 +16,11 @@ namespace System.CommandLine.Builder
 
         public List<string> Aliases { get; } = new List<string>();
 
-        public Option BuildOption(HelpDetail help = null)
+        internal HelpDetail Help { get; set; }
+
+        public Option BuildOption()
         {
-            return new Option(Aliases, Description, BuildArguments(), help);
+            return new Option(Aliases, Description, BuildArguments(), Help);
         }
     }
 }

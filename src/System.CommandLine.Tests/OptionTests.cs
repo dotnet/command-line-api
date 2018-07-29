@@ -279,13 +279,13 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_option_provide_help_from_OptionBuilder_the_exposed_help_is_correct()
+        public void When_option_provide_help_from_WithHelp_the_exposed_help_is_correct()
         {
             var optionBuilder = new OptionBuilder(
                 new [] { "-o", "--option" },
                 new CommandBuilder("optionCommand"));
             optionBuilder.Description = "desc";
-            var option = optionBuilder.BuildOption(new HelpDetail("helpName", "helpDesc", true));
+            var option = optionBuilder.WithHelp(new HelpDetail("helpName", "helpDesc", true)).BuildOption();
 
             option.Help.Name.Should().Be("helpName");
             option.Help.Description.Should().Be("helpDesc");
