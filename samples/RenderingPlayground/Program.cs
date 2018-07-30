@@ -1,13 +1,12 @@
 using System;
 using System.CommandLine.Rendering;
-using System.Threading.Tasks;
 using static System.CommandLine.Rendering.Ansi;
 
 namespace RenderingPlayground
 {
     public static class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             ConsoleWriter writer;
 
