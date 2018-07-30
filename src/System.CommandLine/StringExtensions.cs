@@ -82,7 +82,7 @@ namespace System.CommandLine
                     arg.StartsWith("@"))
                 {
                     var filePath = arg.Substring(1);
-                    if (!string.IsNullOrWhiteSpace(filePath))
+                    if (!String.IsNullOrWhiteSpace(filePath))
                     {
                         try
                         {
@@ -176,7 +176,7 @@ namespace System.CommandLine
 
         public static string ToKebabCase(this string value)
         {
-            if (string.IsNullOrEmpty(value))
+            if (String.IsNullOrEmpty(value))
             {
                 return value;
             }
@@ -188,10 +188,10 @@ namespace System.CommandLine
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
-                if (char.IsLetterOrDigit(ch))
+                if (Char.IsLetterOrDigit(ch))
                 {
-                    addDash = !char.IsUpper(ch);
-                    sb.Append(char.ToLowerInvariant(ch));
+                    addDash = !Char.IsUpper(ch);
+                    sb.Append(Char.ToLowerInvariant(ch));
                     i++;
                     break;
                 }
@@ -200,7 +200,7 @@ namespace System.CommandLine
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
-                if (char.IsUpper(ch))
+                if (Char.IsUpper(ch))
                 {
                     if (addDash)
                     {
@@ -208,9 +208,9 @@ namespace System.CommandLine
                         sb.Append('-');
                     }
 
-                    sb.Append(char.ToLowerInvariant(ch));
+                    sb.Append(Char.ToLowerInvariant(ch));
                 }
-                else if (char.IsLetterOrDigit(ch))
+                else if (Char.IsLetterOrDigit(ch))
                 {
                     addDash = true;
                     sb.Append(ch);
@@ -317,74 +317,6 @@ namespace System.CommandLine
                                                           ? TokenType.Command
                                                           : TokenType.Option)))));
 
-        public static IEnumerable<string> Wrap(
-            this string text,
-            int width,
-            int? maxHeight = null)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                yield return text;
-                yield break;
-            }
-
-            if (text.Length <= width)
-            {
-                yield return text;
-                yield break;
-            }
-
-            var builder = new StringBuilder();
-
-            var lineCount = 0;
-
-            foreach (var word in text.Split(new char[0], StringSplitOptions.RemoveEmptyEntries))
-            {
-                var lengthWithCurrentWord = word.Length + builder.Length;
-
-                if (lengthWithCurrentWord > width)
-                {
-                    lineCount++;
-
-                    if (word.Length > width)
-                    {
-                        yield return word.Substring(0, width);
-                    }
-                    else
-                    {
-                        var line = builder.ToString().TrimEnd();
-
-                        var paddedLine = line.Pad(width);
-
-                        yield return paddedLine;
-                    }
-
-                    if (lineCount == maxHeight)
-                    {
-                        yield break;
-                    }
-
-                    builder.Clear();
-                }
-
-                builder.Append(word);
-
-                builder.Append(" ");
-            }
-
-            yield return builder.ToString().TrimEnd();
-        }
-
-        internal static string Pad(this string value, int width)
-        {
-            if (value.Length >= width)
-            {
-                return value;
-            }
-
-            var padding = new string(' ', width - value.Length);
-
-            return $"{value}{padding}";
-        }
+       
     }
 }

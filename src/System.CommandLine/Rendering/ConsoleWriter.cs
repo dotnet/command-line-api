@@ -1,69 +1,64 @@
-using System.Collections.Generic;
-using static System.Environment;
-
 namespace System.CommandLine.Rendering
 {
-    public class ConsoleWriter :
-        ICustomFormatter,
-        IFormatProvider
+    public class ConsoleWriter
     {
-        private readonly Dictionary<Type, Func<object, string>> _formatters = new Dictionary<Type, Func<object, string>>();
-
-        public ConsoleWriter(IConsole console)
+        public ConsoleWriter(
+            IConsole console = null,
+            OutputMode mode = OutputMode.NonAnsi)
         {
-            Console = console ?? throw new ArgumentNullException(nameof(console));
+            Console = console ?? Invocation.Console.Instance;
+            Mode = mode;
         }
 
         public IConsole Console { get; }
 
-        public virtual void WriteToRegion(
-            string formatted,
-            Region viewport)
-        {
-            var wrapped = string.Join(NewLine,
-                                      formatted.Wrap(
-                                          viewport.Width,
-                                          viewport.Height));
+        public SpanFormatter Formatter { get; } = new SpanFormatter();
 
-            Console.Out.Write(wrapped);
+        public OutputMode Mode { get; }
+
+        public void RenderToRegion(
+            object value,
+            Region region)
+        {
+            var formatted = Formatter.Format(value);
+
+            RenderToRegion(formatted, region);
         }
 
-        protected virtual string Format(FormattableString value) =>
-            ((IFormattable)value).ToString("", this);
-
-        public void WriteLine() => Console.Out.WriteLine();
-
-        string ICustomFormatter.Format(
-            string format,
-            object arg,
-            IFormatProvider formatProvider)
+        public void RenderToRegion(
+            FormattableString value,
+            Region region)
         {
-            if (arg == null)
-            {
-                return "";
-            }
-
-            return Format(arg);
+            var formatted = Formatter.ParseToSpan(value);
+            RenderToRegion(formatted, region);
         }
 
-        object IFormatProvider.GetFormat(Type formatType) => this;
-
-        public void AddFormatter<T>(Func<T, string> format)
+        public void RenderToRegion(
+            Span span,
+            Region region)
         {
-            _formatters.Add(typeof(T),
-                            t => format((T)t));
+            RenderingSpanVisitor visitor;
+
+            switch (Mode)
+            {
+                case OutputMode.NonAnsi:
+                    visitor = new RenderingSpanVisitor(this, region);
+                    break;
+                case OutputMode.Ansi:
+                    visitor = new AnsiRenderingSpanVisitor(this, region);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            visitor.Visit(span);
         }
 
-        public string Format(object value)
+        public virtual void WriteRawToRegion(
+            string raw,
+            Region region)
         {
-            if (_formatters.TryGetValue(value.GetType(), out var formatter))
-            {
-                return formatter(value);
-            }
-            else
-            {
-                return value.ToString();
-            }
+            Console.Out.Write(raw);
         }
     }
 }

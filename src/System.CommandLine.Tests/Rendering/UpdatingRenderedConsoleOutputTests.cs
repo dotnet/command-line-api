@@ -16,7 +16,6 @@ namespace System.CommandLine.Tests.Rendering
         public UpdatingRenderedConsoleOutputTests(ITestOutputHelper output)
         {
             _output = output;
-
             _console = new TestConsole();
             _consoleWriter = new ConsoleWriter(_console);
         }
@@ -40,7 +39,7 @@ namespace System.CommandLine.Tests.Rendering
 
             outputStep1
                 .Should()
-                .Match($"Progress: [ Starting                     ] 0kb / 1000000kb*");
+                .Match($"Progress: [ Starting*] 0kb / 1000000kb*");
 
             stage.OnNext(Stage.Downloading);
             downloaded.OnNext(100_000);
@@ -53,7 +52,7 @@ namespace System.CommandLine.Tests.Rendering
 
             outputStep2
                 .Should()
-                .Match($"Progress: [ Downloading ==>                 ] 100000kb / 1000000kb*");
+                .Match($"Progress: [ Downloading ==>*] 100000kb / 1000000kb*");
         }
     }
 

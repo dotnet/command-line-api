@@ -6,13 +6,13 @@ using static System.Environment;
 
 namespace System.CommandLine.Tests.Rendering
 {
-    public class LayoutTests
+    public class ViewWrappingTests
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
         private readonly ConsoleWriter _consoleWriter;
 
-        public LayoutTests(ITestOutputHelper output)
+        public ViewWrappingTests(ITestOutputHelper output)
         {
             _output = output;
 
@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests.Rendering
         }
 
         [Fact]
-        public void Text_can_be_wrapped_within_the_console_window()
+        public void Text_wraps_within_the_console_window_when_region_is_not_specified()
         {
             var text = "The quick brown fox jumps over the lazy dog";
 
@@ -42,11 +42,11 @@ namespace System.CommandLine.Tests.Rendering
                     .Be($"The quick     {NewLine}" +
                         $"brown fox     {NewLine}" +
                         $"jumps over the{NewLine}" +
-                        $"lazy dog");
+                        $"lazy dog      ");
         }
 
         [Fact]
-        public void Text_wraps_exactly_to_the_window_width()
+        public void Text_wraps_within_the_specified_region()
         {
             var text = "1 1 1 2 2";
 
@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests.Rendering
                     .ToString()
                     .Should()
                     .Be($"1 1 1{NewLine}" +
-                        $"2 2");
+                        $"2 2  ");
         }
     }
 }

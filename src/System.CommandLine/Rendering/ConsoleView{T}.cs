@@ -21,9 +21,7 @@ namespace System.CommandLine.Rendering
 
         public void Write(object value)
         {
-            var formatted = ConsoleWriter.Format(value);
-
-            ConsoleWriter.WriteToRegion(formatted, Region);
+            ConsoleWriter.RenderToRegion(value, Region);
         }
 
         public void WriteLine(object value)
