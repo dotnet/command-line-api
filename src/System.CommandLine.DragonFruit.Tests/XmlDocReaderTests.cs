@@ -3,6 +3,7 @@
 
 using System.IO;
 using FluentAssertions;
+using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.DragonFruit.Tests
@@ -11,7 +12,9 @@ namespace System.CommandLine.DragonFruit.Tests
     {
         private class Program
         {
-            public static void Main(bool verbose, string flavor, int count) { }
+            public static void Main(bool verbose = false, string flavor = null, int? count = 0)
+            {
+            }
         }
 
         [Fact]
@@ -23,7 +26,7 @@ namespace System.CommandLine.DragonFruit.Tests
         <name>DragonFruit</name>
     </assembly>
     <members>
-        <member name=""M:System.CommandLine.DragonFruit.Tests." + nameof(XmlDocReaderTests) + @".Program.Main(System.Boolean,System.String,System.Int32)"">
+        <member name=""M:System.CommandLine.DragonFruit.Tests." + nameof(XmlDocReaderTests) + @".Program.Main(System.Boolean,System.String,System.Nullable{System.Int32})"">
             <summary>
             Hello
             </summary>
@@ -34,9 +37,10 @@ namespace System.CommandLine.DragonFruit.Tests
     </members>
 </doc>
 ";
-            Action<bool, string, int> action = Program.Main;
+            Action<bool, string, int?> action = Program.Main;
             var reader = new StringReader(xml);
             XmlDocReader.TryLoad(reader, out var docReader).Should().BeTrue();
+
             docReader.TryGetMethodDescription(action.Method, out var helpMetadata).Should().BeTrue();
             helpMetadata.Description.Should().Be("Hello");
             helpMetadata.ParameterDescriptions["verbose"].Should().Be("Show verbose output");

@@ -3,21 +3,21 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Xml.Linq;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Xml.Linq;
 
 namespace System.CommandLine.DragonFruit
 {
     public class XmlDocReader
     {
-        private readonly IEnumerable<XElement> _members;
-
         private XmlDocReader(XDocument document)
         {
-            _members = document.Descendants("members");
+            Members = document.Descendants("members");
         }
+
+        public IEnumerable<XElement> Members { get; }
 
         public static bool TryLoad(string filePath, out XmlDocReader xmlDocReader)
         {
@@ -54,8 +54,8 @@ namespace System.CommandLine.DragonFruit
             sb.Append("M:");
             AppendTypeName(sb, info.DeclaringType);
             sb.Append(".")
-                .Append(info.Name)
-                .Append("(");
+              .Append(info.Name)
+              .Append("(");
 
             bool first = true;
             foreach (ParameterInfo param in info.GetParameters())
@@ -76,8 +76,8 @@ namespace System.CommandLine.DragonFruit
 
             string name = sb.ToString();
 
-            XElement member = _members.Elements("member")
-                .FirstOrDefault(m => string.Equals(m.Attribute("name")?.Value, name));
+            XElement member = Members.Elements("member")
+                                     .FirstOrDefault(m => string.Equals(m.Attribute("name")?.Value, name));
 
             if (member == null)
             {
@@ -108,10 +108,26 @@ namespace System.CommandLine.DragonFruit
             {
                 AppendTypeName(sb, type.DeclaringType);
                 sb.Append(".").Append(type.Name);
-                return;
             }
+            else if (type.IsGenericType)
+            {
+                var typeDefName = type.GetGenericTypeDefinition().FullName;
 
-            sb.Append(type.FullName);
+                sb.Append(typeDefName.Substring(0, typeDefName.IndexOf("`")));
+
+                sb.Append("{");
+
+                foreach (var genericArgument in type.GetGenericArguments())
+                {
+                    AppendTypeName(sb, genericArgument);
+                }
+
+                sb.Append("}");
+            }
+            else
+            {
+                sb.Append(type.FullName);
+            }
         }
     }
 }
