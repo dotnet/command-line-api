@@ -163,7 +163,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
         public override void Render(IReadOnlyCollection<ProcessInfo> processes)
         {
-            ConsoleWriter.RenderTable(
+            RenderTable(
                 items: processes,
                 table: table => {
                     table.RenderColumn("PID", p => p.ProcessId);

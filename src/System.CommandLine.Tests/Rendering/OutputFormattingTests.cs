@@ -57,7 +57,7 @@ namespace System.CommandLine.Tests.Rendering
 
         public override void Render(IEnumerable<ProcessInfo> processes)
         {
-            ConsoleWriter.RenderTable(
+            RenderTable(
                 items: processes,
                 table => {
                     table.RenderColumn("COMMAND", p => p.Command);

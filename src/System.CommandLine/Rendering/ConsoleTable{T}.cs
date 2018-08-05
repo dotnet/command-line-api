@@ -12,11 +12,28 @@ namespace System.CommandLine.Rendering
         }
 
         public void RenderColumn(
-            string header,
-            Func<T, object> cell)
-        {
-            Columns.Add(new ConsoleTableColumn<T>($"{header}", cell, ConsoleWriter));
-        }
+            FormattableString header,
+            Func<T, object> cell) =>
+            Columns.Add(new ConsoleTableColumn<T>(
+                            ConsoleWriter.Formatter.ParseToSpan(header),
+                            value => ConsoleWriter.Formatter.Format(cell(value)),
+                            ConsoleWriter));
+
+        public void RenderColumn(
+            Span header,
+            Func<T, object> cell) =>
+            Columns.Add(new ConsoleTableColumn<T>(
+                            header,
+                            value => ConsoleWriter.Formatter.Format(cell(value)),
+                            ConsoleWriter));
+
+        public void RenderColumn(
+            object header,
+            Func<T, object> cell) =>
+            Columns.Add(new ConsoleTableColumn<T>(
+                            ConsoleWriter.Formatter.Format(header),
+                            value => ConsoleWriter.Formatter.Format(cell(value)),
+                            ConsoleWriter));
 
         internal IList<ConsoleTableColumn<T>> Columns { get; } = new List<ConsoleTableColumn<T>>();
     }

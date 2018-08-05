@@ -78,11 +78,12 @@ namespace System.CommandLine.Tests.Rendering
 
         public override void Render(IEnumerable<Option> options)
         {
-            ConsoleWriter.RenderTable(options.ToArray(),
-                                      table => {
-                                          table.RenderColumn("Option", o => string.Join(", ", o.RawAliases));
-                                          table.RenderColumn("", o => o.Description);
-                                      });
+            RenderTable(
+                options.ToArray(),
+                table => {
+                    table.RenderColumn("Option", o => string.Join(", ", o.RawAliases));
+                    table.RenderColumn("", o => o.Description);
+                });
         }
     }
 }

@@ -37,15 +37,15 @@ namespace System.CommandLine.Rendering
             Span span,
             Region region)
         {
-            RenderingSpanVisitor visitor;
+            ContentRenderingSpanVisitor visitor;
 
             switch (Mode)
             {
                 case OutputMode.NonAnsi:
-                    visitor = new RenderingSpanVisitor(this, region);
+                    visitor = new ContentRenderingSpanVisitor(Console.Out, region);
                     break;
                 case OutputMode.Ansi:
-                    visitor = new AnsiRenderingSpanVisitor(this, region);
+                    visitor = new AnsiRenderingSpanVisitor(Console.Out, region);
                     break;
                 default:
                     throw new NotSupportedException();

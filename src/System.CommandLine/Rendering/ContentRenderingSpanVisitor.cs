@@ -1,23 +1,23 @@
-using System.Linq;
+using System.IO;
 using System.Text;
 
 namespace System.CommandLine.Rendering
 {
-    internal class RenderingSpanVisitor : SpanVisitor
+    internal class ContentRenderingSpanVisitor : SpanVisitor
     {
         private readonly StringBuilder _buffer = new StringBuilder();
 
         private int _positionOnLine;
 
-        public RenderingSpanVisitor(
-            ConsoleWriter consoleWriter,
+        public ContentRenderingSpanVisitor(
+            TextWriter writer,
             Region region)
         {
-            ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
+            Writer = writer ?? throw new ArgumentNullException(nameof(writer));
             Region = region ?? throw new ArgumentNullException(nameof(region));
         }
 
-        protected ConsoleWriter ConsoleWriter { get; }
+        protected TextWriter Writer { get; }
 
         protected int LinesWritten { get; private set; }
 
@@ -29,12 +29,10 @@ namespace System.CommandLine.Rendering
 
             foreach (var word in text.SplitIntoWordsForWrapping())
             {
-                if (WroteMoreLinesThanRegionHeight)
+                if (!TryAppendWord(word))
                 {
-                    return;
+                    break;
                 }
-
-                AppendWord(word);
             }
 
             if (_buffer.Length > 0)
@@ -65,7 +63,7 @@ namespace System.CommandLine.Rendering
 
         protected virtual void StartNewLine()
         {
-            ConsoleWriter.Console.Out.WriteLine();
+            Writer.WriteLine();
         }
 
         private void PadRemainderOfLineWithWhitespace()
@@ -82,17 +80,17 @@ namespace System.CommandLine.Rendering
 
         protected virtual void Flush()
         {
-            ConsoleWriter.Console.Out.Write(_buffer.ToString());
+            Writer.Write(_buffer.ToString());
 
             _buffer.Clear();
         }
 
-        private void AppendWord(string value)
+        private bool TryAppendWord(string value)
         {
             if (_positionOnLine == 0 &&
                 string.IsNullOrWhiteSpace(value))
             {
-                return;
+                return true;
             }
 
             if (LinesWritten > 0 &&
@@ -117,6 +115,12 @@ namespace System.CommandLine.Rendering
                 else
                 {
                     FlushLine();
+
+                    if (WroteMoreLinesThanRegionHeight)
+                    {
+                        return false;
+                    }
+
                     StartNewLine();
                 }
             }
@@ -128,6 +132,8 @@ namespace System.CommandLine.Rendering
             {
                 FlushLine();
             }
+
+            return !WroteMoreLinesThanRegionHeight;
 
             bool WillFitIfEndIsTrimmed()
             {
