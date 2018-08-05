@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests.Rendering
         [MemberData(nameof(TestCases))]
         public void In_ansi_mode_word_wrap_wraps_correctly(RenderingTestCase @case)
         {
-            new ConsoleWriter(
+            new ConsoleRenderer(
                     _console,
                     OutputMode.Ansi)
                 .RenderToRegion(

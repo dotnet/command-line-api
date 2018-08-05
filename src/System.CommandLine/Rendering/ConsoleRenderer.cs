@@ -1,8 +1,8 @@
 namespace System.CommandLine.Rendering
 {
-    public class ConsoleWriter
+    public class ConsoleRenderer
     {
-        public ConsoleWriter(
+        public ConsoleRenderer(
             IConsole console = null,
             OutputMode mode = OutputMode.NonAnsi)
         {

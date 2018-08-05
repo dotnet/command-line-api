@@ -11,13 +11,13 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleWriter _consoleWriter;
+        private readonly ConsoleRenderer consoleRenderer;
 
         public UpdatingRenderedConsoleOutputTests(ITestOutputHelper output)
         {
             _output = output;
             _console = new TestConsole();
-            _consoleWriter = new ConsoleWriter(_console);
+            consoleRenderer = new ConsoleRenderer(_console);
         }
 
         [Fact]
@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests.Rendering
                 1_000_000,
                 stage);
 
-            var view = new ProgressItemView(_consoleWriter);
+            var view = new ProgressItemView(consoleRenderer);
             view.Render(model);
 
             var outputStep1 = _console.Out.ToString();
@@ -58,7 +58,7 @@ namespace System.CommandLine.Tests.Rendering
 
     internal class ProgressItemView : ConsoleView<ProgressItemViewModel>
     {
-        public ProgressItemView(ConsoleWriter writer) : base(writer)
+        public ProgressItemView(ConsoleRenderer renderer) : base(renderer)
         {
         }
 

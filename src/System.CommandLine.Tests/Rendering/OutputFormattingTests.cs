@@ -11,7 +11,7 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleWriter _consoleWriter;
+        private readonly ConsoleRenderer consoleRenderer;
 
         public OutputFormattingTests(ITestOutputHelper output)
         {
@@ -21,15 +21,15 @@ namespace System.CommandLine.Tests.Rendering
                 Width = 150
             };
 
-            _consoleWriter = new ConsoleWriter(_console);
+            consoleRenderer = new ConsoleRenderer(_console);
         }
 
         [Fact]
         public void Output_can_be_formatted_based_on_type_specific_formatters()
         {
-            _consoleWriter.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
+            consoleRenderer.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
-            new ConsoleView<TimeSpan>(_consoleWriter).Render(21.Seconds());
+            new ConsoleView<TimeSpan>(consoleRenderer).Render(21.Seconds());
 
             _console.Out.ToString().TrimEnd().Should().Be("21 seconds");
         }
@@ -37,9 +37,9 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void Type_formatters_apply_to_table_cells()
         {
-            var view = new ProcessTimesView(_consoleWriter);
+            var view = new ProcessTimesView(consoleRenderer);
 
-            _consoleWriter.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
+            consoleRenderer.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
             view.Render(Example_TOP.Processes);
 
@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests.Rendering
 
     public class ProcessTimesView : ConsoleView<IEnumerable<ProcessInfo>>
     {
-        public ProcessTimesView(ConsoleWriter writer, Region region = null) : base(writer, region)
+        public ProcessTimesView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
         {
         }
 

@@ -11,7 +11,7 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleWriter _consoleWriter;
+        private readonly ConsoleRenderer consoleRenderer;
 
         #region command line data and sample for "top" 
 
@@ -62,15 +62,15 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
                 Width = 150
             };
 
-            _consoleWriter = new ConsoleWriter(_console);
+            consoleRenderer = new ConsoleRenderer(_console);
         }
 
         [Fact]
         public void EXAMPLE_Table_view_emulating_top()
         {
-            _consoleWriter.Formatter.AddFormatter<TimeSpan>(t => t.ToString(@"hh\:mm\:ss"));
+            consoleRenderer.Formatter.AddFormatter<TimeSpan>(t => t.ToString(@"hh\:mm\:ss"));
 
-            var view = new ProcessesTableView(_consoleWriter);
+            var view = new ProcessesTableView(consoleRenderer);
 
             view.Render(Processes);
             
@@ -157,7 +157,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
     public class ProcessesTableView : ConsoleView<IReadOnlyCollection<ProcessInfo>>
     {
-        public ProcessesTableView(ConsoleWriter writer) : base(writer)
+        public ProcessesTableView(ConsoleRenderer renderer) : base(renderer)
         {
         }
 
@@ -194,7 +194,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
     public class ProcessesSummaryView : ConsoleView<IEnumerable<ProcessInfo>>
     {
-        public ProcessesSummaryView(ConsoleWriter writer) : base(writer)
+        public ProcessesSummaryView(ConsoleRenderer renderer) : base(renderer)
         {
         }
 

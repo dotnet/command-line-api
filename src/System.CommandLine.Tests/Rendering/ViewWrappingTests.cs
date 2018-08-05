@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleWriter _consoleWriter;
+        private readonly ConsoleRenderer consoleRenderer;
 
         public ViewWrappingTests(ITestOutputHelper output)
         {
@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests.Rendering
                 Width = 150
             };
 
-            _consoleWriter = new ConsoleWriter(_console);
+            consoleRenderer = new ConsoleRenderer(_console);
         }
 
         [Fact]
@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests.Rendering
 
             _console.Width = 14;
 
-            var view = new ConsoleView<string>(_consoleWriter);
+            var view = new ConsoleView<string>(consoleRenderer);
 
             view.Render(text);
 
@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests.Rendering
             var text = "1 1 1 2 2";
 
             var view = new ConsoleView<string>(
-                _consoleWriter,
+                consoleRenderer,
                 new Region(2, 5, 0, 0));
 
             view.Render(text);

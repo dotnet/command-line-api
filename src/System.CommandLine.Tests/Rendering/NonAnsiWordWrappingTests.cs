@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests.Rendering
         public void In_non_ansi_mode_word_wrap_wraps_correctly(
             RenderingTestCase @case)
         {
-            new ConsoleWriter(
+            new ConsoleRenderer(
                     _console,
                     OutputMode.NonAnsi)
                 .RenderToRegion(

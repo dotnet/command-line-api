@@ -10,10 +10,10 @@ namespace System.CommandLine.Rendering
         public ConsoleTableColumn(
             Span header,
             Func<T, Span> renderCell,
-            ConsoleWriter consoleWriter)
+            ConsoleRenderer consoleRenderer)
         {
             RenderCell = renderCell ?? throw new ArgumentNullException(nameof(renderCell));
-            ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
+            ConsoleRenderer = consoleRenderer ?? throw new ArgumentNullException(nameof(consoleRenderer));
             Header = header;
         }
 
@@ -23,7 +23,7 @@ namespace System.CommandLine.Rendering
 
         public void FlushRow(
             int rowIndex,
-            ConsoleWriter consoleWriter)
+            ConsoleRenderer consoleRenderer)
         {
             if (_spans == null)
             {
@@ -32,7 +32,7 @@ namespace System.CommandLine.Rendering
 
             var span = _spans[rowIndex];
 
-            consoleWriter.RenderToRegion(span,
+            consoleRenderer.RenderToRegion(span,
                                          new Region(
                                              width: Width,
                                              height: 1,
@@ -58,7 +58,7 @@ namespace System.CommandLine.Rendering
 
         public int Gutter { get; set; } = 2;
 
-        public ConsoleWriter ConsoleWriter { get; }
+        public ConsoleRenderer ConsoleRenderer { get; }
 
         public int Left { get; internal set; }
     }

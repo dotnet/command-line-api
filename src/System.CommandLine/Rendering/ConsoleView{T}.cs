@@ -6,14 +6,14 @@ namespace System.CommandLine.Rendering
     public class ConsoleView<T> : IConsoleView<T>
     {
         public ConsoleView(
-            ConsoleWriter writer,
+            ConsoleRenderer renderer,
             Region region = null)
         {
-            ConsoleWriter = writer ?? throw new ArgumentNullException(nameof(writer));
-            Region = region ?? writer.Console.GetRegion();
+            ConsoleRenderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
+            Region = region ?? renderer.Console.GetRegion();
         }
 
-        protected ConsoleWriter ConsoleWriter { get; }
+        protected ConsoleRenderer ConsoleRenderer { get; }
 
         public Region Region { get; }
 
@@ -37,7 +37,7 @@ namespace System.CommandLine.Rendering
                 throw new ArgumentNullException(nameof(table));
             }
 
-            var tableView = new ConsoleTable<TItem>(ConsoleWriter);
+            var tableView = new ConsoleTable<TItem>(ConsoleRenderer);
 
             table(tableView);
 
@@ -53,7 +53,7 @@ namespace System.CommandLine.Rendering
             {
                 foreach (var column in tableView.Columns)
                 {
-                    column.FlushRow(rowIndex, ConsoleWriter);
+                    column.FlushRow(rowIndex, ConsoleRenderer);
                 }
 
                 WriteLine();
@@ -62,12 +62,12 @@ namespace System.CommandLine.Rendering
 
         public void WriteLine()
         {
-            ConsoleWriter.WriteLine();
+            ConsoleRenderer.WriteLine();
         }
 
         public void Write(object value)
         {
-            ConsoleWriter.RenderToRegion(value, Region);
+            ConsoleRenderer.RenderToRegion(value, Region);
         }
 
         public void WriteLine(object value)

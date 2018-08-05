@@ -9,12 +9,12 @@ using static System.Environment;
 
 namespace System.CommandLine.Tests.Rendering
 {
-    public class RenderModeTests
+    public class ConsoleRendererTests
     {
         private readonly TestConsole _console = new TestConsole();
         private readonly ITestOutputHelper _output;
 
-        public RenderModeTests(ITestOutputHelper output)
+        public ConsoleRendererTests(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void When_in_NonAnsi_mode_control_codes_within_FormattableStrings_are_not_rendered()
         {
-            var writer = new ConsoleWriter(
+            var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.NonAnsi
             );
@@ -41,7 +41,7 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void When_in_NonAnsi_mode_control_codes_within_tables_are_not_rendered()
         {
-            var writer = new ConsoleWriter(
+            var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.NonAnsi
             );
@@ -57,7 +57,7 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void When_in_Ansi_mode_control_codes_within_FormattableStrings_are_rendered()
         {
-            var writer = new ConsoleWriter(
+            var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.Ansi
             );
@@ -76,15 +76,15 @@ namespace System.CommandLine.Tests.Rendering
         [Theory]
         [InlineData(ZeroThroughThirty, 10, 1, 0, 0)]
         [InlineData(ZeroThroughThirty, 1, 10, 0, 0)]
-        [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_is_not_rendered_beyond_the_width_of_the_specified_region) 
-        public void When_in_NonAnsi_mode_text_is_not_rendered_beyond_the_width_of_the_specified_region(
+        [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region) 
+        public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region(
             string text,
             int height,
             int width,
             int top,
             int left)
         {
-            var writer = new ConsoleWriter(
+            var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.NonAnsi);
 
@@ -99,7 +99,7 @@ namespace System.CommandLine.Tests.Rendering
 
             var lines = _console.Out.ToString().Split(NewLine);
 
-                var expectedWidth = width + left;
+            var expectedWidth = width + left;
 
             lines.Should().OnlyContain(line => line.Length == expectedWidth);
         }
@@ -107,15 +107,15 @@ namespace System.CommandLine.Tests.Rendering
         [Theory]
         [InlineData(ZeroThroughThirty, 10, 1, 0, 0)]
         [InlineData(ZeroThroughThirty, 1, 10, 0, 0)]
-        [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_is_not_rendered_beyond_the_height_of_the_specified_region) 
-        public void When_in_NonAnsi_mode_text_is_not_rendered_beyond_the_height_of_the_specified_region(
+        [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region) 
+        public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region(
             string text,
             int height,
             int width,
             int top,
             int left)
         {
-            var writer = new ConsoleWriter(
+            var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.NonAnsi);
 
@@ -133,28 +133,29 @@ namespace System.CommandLine.Tests.Rendering
             lines.Length.Should().Be(height);
         }
 
-        [Fact(Skip="WIP")]
-        public void When_in_Ansi_mode_text_is_not_rendered_beyond_the_height_of_the_specified_region()
+        [Fact(Skip = "WIP")]
+        public void When_in_Ansi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region()
         {
             // FIX (When_in_Ansi_mode_text_is_not_rendered_outside_the_specified_region_y_axis) write test
             throw new NotImplementedException();
         }
 
-        [Fact(Skip="WIP")]
-        public void When_in_Ansi_mode_text_is_not_rendered_beyond_the_width_of_the_specified_region()
+        [Fact(Skip = "WIP")]
+        public void When_in_Ansi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region()
         {
             // FIX (When_in_Ansi_mode_text_is_not_rendered_outside_the_specified_region_y_axis) write test
             throw new NotImplementedException();
         }
-        
+
         private const string ZeroThroughThirty =
             "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine thirty";
 
         public class DirectoryView : ConsoleView<DirectoryInfo>
         {
-            public DirectoryView(ConsoleWriter writer, Region region = null) : base(writer, region)
+            public DirectoryView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
             {
-                writer.Formatter.AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray}{d:t}{Color.Foreground.Default}");
+                renderer.Formatter
+                        .AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray}{d:t}{Color.Foreground.Default}");
             }
 
             public override void Render(DirectoryInfo directory)
@@ -176,18 +177,18 @@ namespace System.CommandLine.Tests.Rendering
                     directoryContents,
                     table => {
                         table.RenderColumn(
-                            $"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}",
+                            Span($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}"),
                             f =>
                                 f is DirectoryInfo
-                                    ? $"{Color.Foreground.LightGreen}{f.Name}{Color.Foreground.Default}"
-                                    : $"{Color.Foreground.White}{f.Name}{Color.Foreground.Default}");
+                                    ? Span($"{Color.Foreground.LightGreen}{f.Name}{Color.Foreground.Default}")
+                                    : Span($"{Color.Foreground.White}{f.Name}{Color.Foreground.Default}"));
 
                         table.RenderColumn(
-                            $"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}",
+                            Span($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}"),
                             f => f.CreationTime);
 
                         table.RenderColumn(
-                            $"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}",
+                            Span($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}"),
                             f => f.LastWriteTime);
                     }
                 );

@@ -4,36 +4,34 @@ namespace System.CommandLine.Rendering
 {
     public class ConsoleTable<T>
     {
-        public ConsoleWriter ConsoleWriter { get; }
+        public ConsoleRenderer ConsoleRenderer { get; }
 
-        public ConsoleTable(ConsoleWriter consoleWriter)
+        public ConsoleTable(ConsoleRenderer consoleRenderer)
         {
-            ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
+            ConsoleRenderer = consoleRenderer ?? throw new ArgumentNullException(nameof(consoleRenderer));
         }
 
         public void RenderColumn(
             FormattableString header,
             Func<T, object> cell) =>
-            Columns.Add(new ConsoleTableColumn<T>(
-                            ConsoleWriter.Formatter.ParseToSpan(header),
-                            value => ConsoleWriter.Formatter.Format(cell(value)),
-                            ConsoleWriter));
+            RenderColumn(
+                ConsoleRenderer.Formatter.ParseToSpan(header),
+                cell);
 
         public void RenderColumn(
             Span header,
             Func<T, object> cell) =>
             Columns.Add(new ConsoleTableColumn<T>(
                             header,
-                            value => ConsoleWriter.Formatter.Format(cell(value)),
-                            ConsoleWriter));
+                            value => ConsoleRenderer.Formatter.Format(cell(value)),
+                            ConsoleRenderer));
 
         public void RenderColumn(
             object header,
             Func<T, object> cell) =>
-            Columns.Add(new ConsoleTableColumn<T>(
-                            ConsoleWriter.Formatter.Format(header),
-                            value => ConsoleWriter.Formatter.Format(cell(value)),
-                            ConsoleWriter));
+            RenderColumn(
+                ConsoleRenderer.Formatter.Format(header),
+                cell);
 
         internal IList<ConsoleTableColumn<T>> Columns { get; } = new List<ConsoleTableColumn<T>>();
     }
