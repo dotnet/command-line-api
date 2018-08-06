@@ -4,6 +4,7 @@
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -75,23 +76,24 @@ namespace System.CommandLine.DragonFruit
             var metadata = new CommandHelpMetadata();
             if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
             {
-                xmlDocs.TryGetMethodDescription(method, out metadata);
+                builder.Description = metadata.Description;
 
-                if (metadata.Description != null)
+                if (xmlDocs.TryGetMethodDescription(method, out metadata) &&
+                    metadata.Description != null)
                 {
                     var options = builder.Options;
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
                     {
-                        if (options[parameterDescription.Key] is OptionBuilder option)
+                        if (options[parameterDescription.Key.ToKebabCase()] is OptionBuilder option)
                         {
                             option.Description = parameterDescription.Value;
                         }
                     }
+
+                    metadata.Name = assembly.GetName().Name;
                 }
             }
-
-            metadata.Name = assembly.GetName().Name;
         }
     }
 }

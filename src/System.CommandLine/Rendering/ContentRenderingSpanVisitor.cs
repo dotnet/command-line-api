@@ -1,23 +1,23 @@
-using System.Linq;
+using System.IO;
 using System.Text;
 
 namespace System.CommandLine.Rendering
 {
-    internal class RenderingSpanVisitor : SpanVisitor
+    internal class ContentRenderingSpanVisitor : SpanVisitor
     {
         private readonly StringBuilder _buffer = new StringBuilder();
 
         private int _positionOnLine;
 
-        public RenderingSpanVisitor(
-            ConsoleWriter consoleWriter,
+        public ContentRenderingSpanVisitor(
+            TextWriter writer,
             Region region)
         {
-            ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
+            Writer = writer ?? throw new ArgumentNullException(nameof(writer));
             Region = region ?? throw new ArgumentNullException(nameof(region));
         }
 
-        protected ConsoleWriter ConsoleWriter { get; }
+        protected TextWriter Writer { get; }
 
         protected int LinesWritten { get; private set; }
 
@@ -27,14 +27,12 @@ namespace System.CommandLine.Rendering
         {
             var text = contentSpan.ToString();
 
-            foreach (var word in text.SplitIntoWordsForWrapping())
+            foreach (var word in text.SplitForWrapping())
             {
-                if (WroteMoreLinesThanRegionHeight)
+                if (!TryAppendWord(word))
                 {
-                    return;
+                    break;
                 }
-
-                AppendWord(word);
             }
 
             if (_buffer.Length > 0)
@@ -45,14 +43,27 @@ namespace System.CommandLine.Rendering
 
         protected override void Stop(Span span)
         {
-            FlushLine();
+            if (_positionOnLine > 0 ||
+                span.ContentLength == 0)
+            {
+                FlushLine();
+            }
+
+            if (Region.IsOverwrittenOnRender)
+            {
+                while (!FilledRegionHeight)
+                {
+                    StartNewLine();
+                    FlushLine();
+                }
+            }
         }
 
-        private bool WroteMoreLinesThanRegionHeight => LinesWritten >= Region.Height;
+        private bool FilledRegionHeight => LinesWritten >= Region.Height;
 
-        protected int RemainingWidthOnLine => Region.Width - _positionOnLine;
+        private int RemainingWidthOnLine => Region.Width - _positionOnLine;
 
-        protected virtual void FlushLine()
+        private void FlushLine()
         {
             PadRemainderOfLineWithWhitespace();
 
@@ -65,34 +76,39 @@ namespace System.CommandLine.Rendering
 
         protected virtual void StartNewLine()
         {
-            ConsoleWriter.Console.Out.WriteLine();
+            Writer.WriteLine();
         }
 
         private void PadRemainderOfLineWithWhitespace()
         {
             var remainingWidthOnLine = RemainingWidthOnLine;
 
-            if (_positionOnLine > 0 &&
-                remainingWidthOnLine > 0)
+            if (remainingWidthOnLine > 0)
             {
                 _buffer.Append(new string(' ', remainingWidthOnLine));
                 _positionOnLine += remainingWidthOnLine;
             }
         }
 
-        protected virtual void Flush()
+        private void Flush()
         {
-            ConsoleWriter.Console.Out.Write(_buffer.ToString());
+            Writer.Write(_buffer.ToString());
 
             _buffer.Clear();
         }
 
-        private void AppendWord(string value)
+        private bool TryAppendWord(string value)
         {
+            if (value == "\r\n" || value == "\n")
+            {
+                FlushLine();
+                return !FilledRegionHeight;
+            }
+
             if (_positionOnLine == 0 &&
                 string.IsNullOrWhiteSpace(value))
             {
-                return;
+                return true;
             }
 
             if (LinesWritten > 0 &&
@@ -117,6 +133,12 @@ namespace System.CommandLine.Rendering
                 else
                 {
                     FlushLine();
+
+                    if (FilledRegionHeight)
+                    {
+                        return false;
+                    }
+
                     StartNewLine();
                 }
             }
@@ -128,6 +150,8 @@ namespace System.CommandLine.Rendering
             {
                 FlushLine();
             }
+
+            return !FilledRegionHeight;
 
             bool WillFitIfEndIsTrimmed()
             {

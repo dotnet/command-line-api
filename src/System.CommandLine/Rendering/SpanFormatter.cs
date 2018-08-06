@@ -48,18 +48,25 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public void AddFormatter<T>(Func<T, string> format)
+        public void AddFormatter<T>(Func<T, Span> format)
         {
             _formatters.Add(typeof(T),
                             t => {
-                                var formatted = format((T)t);
+                                var span = format((T)t);
 
-                                if (formatted == null)
-                                {
-                                    return new ContentSpan("");
-                                }
+                                return span ?? new ContentSpan("");
+                            });
+        }
 
-                                return new ContentSpan(formatted);
+        public void AddFormatter<T>(Func<T, FormattableString> format)
+        {
+            _formatters.Add(typeof(T),
+                            t => {
+                                var formattableString = format((T)t);
+
+                                return formattableString == null
+                                           ? new ContentSpan("")
+                                           : ParseToSpan(formattableString);
                             });
         }
 
@@ -84,7 +91,7 @@ namespace System.CommandLine.Rendering
 
             var formatted = ((IFormattable)formattableString).ToString("", formatProvider);
 
-            if (formatProvider.Parts.Count == 0)
+            if (formatProvider.Args.Count == 0)
             {
                 return Format(formatted);
             }
@@ -104,7 +111,19 @@ namespace System.CommandLine.Rendering
                         if (match.Value.StartsWith("{") &&
                             match.Value.EndsWith("}"))
                         {
-                            yield return Format(formatProvider.Parts[partIndex++]);
+                            var arg = formatProvider.Args[partIndex++];
+
+                            if (match.Value.Contains(":"))
+                            {
+                                var formatString = match.Value.Split(new[] { '{', ':', '}' }, 4)[2];
+
+                                yield return new ContentSpan(
+                                    string.Format("{0:" + formatString + "}", arg));
+                            }
+                            else
+                            {
+                                yield return Format(arg);
+                            }
                         }
                         else
                         {
@@ -126,12 +145,12 @@ namespace System.CommandLine.Rendering
                 object arg,
                 IFormatProvider formatProvider)
             {
-                Parts.Add(arg);
+                Args.Add(arg);
 
                 return "";
             }
 
-            public List<object> Parts { get; } = new List<object>();
+            public List<object> Args { get; } = new List<object>();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleWriter _consoleWriter;
+        private readonly ConsoleRenderer consoleRenderer;
 
         public ViewWrappingTests(ITestOutputHelper output)
         {
@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests.Rendering
                 Width = 150
             };
 
-            _consoleWriter = new ConsoleWriter(_console);
+            consoleRenderer = new ConsoleRenderer(_console);
         }
 
         [Fact]
@@ -29,8 +29,9 @@ namespace System.CommandLine.Tests.Rendering
             var text = "The quick brown fox jumps over the lazy dog";
 
             _console.Width = 14;
+            _console.Height = 4;
 
-            var view = new ConsoleView<string>(_consoleWriter);
+            var view = new ConsoleView<string>(consoleRenderer);
 
             view.Render(text);
 
@@ -51,8 +52,8 @@ namespace System.CommandLine.Tests.Rendering
             var text = "1 1 1 2 2";
 
             var view = new ConsoleView<string>(
-                _consoleWriter,
-                new Region(2, 5, 0, 0));
+                consoleRenderer,
+                new Region(5, 2, 0, 0));
 
             view.Render(text);
 

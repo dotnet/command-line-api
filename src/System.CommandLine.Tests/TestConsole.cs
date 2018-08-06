@@ -29,9 +29,9 @@ namespace System.CommandLine.Tests
         }
 
         public Region GetRegion() =>
-            new Region(Height,
-                         Width,
-                         0,
-                         0);
+            new Region(Width,
+                       Height,
+                       0,
+                       0);
     }
 }

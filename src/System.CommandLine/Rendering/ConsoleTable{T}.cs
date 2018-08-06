@@ -4,19 +4,26 @@ namespace System.CommandLine.Rendering
 {
     public class ConsoleTable<T>
     {
-        public ConsoleWriter ConsoleWriter { get; }
+        public ConsoleRenderer ConsoleRenderer { get; }
 
-        public ConsoleTable(ConsoleWriter consoleWriter)
+        public ConsoleTable(ConsoleRenderer consoleRenderer)
         {
-            ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
+            ConsoleRenderer = consoleRenderer ?? throw new ArgumentNullException(nameof(consoleRenderer));
         }
 
         public void RenderColumn(
-            string header,
-            Func<T, object> cell)
-        {
-            Columns.Add(new ConsoleTableColumn<T>($"{header}", cell, ConsoleWriter));
-        }
+            Span header,
+            Func<T, Span> cell) =>
+            Columns.Add(new ConsoleTableColumn<T>(
+                            header,
+                            cell));
+
+        public void RenderColumn(
+            object header,
+            Func<T, object> cell) =>
+            Columns.Add(new ConsoleTableColumn<T>(
+                            ConsoleRenderer.Formatter.Format(header),
+                            value => ConsoleRenderer.Formatter.Format(cell(value))));
 
         internal IList<ConsoleTableColumn<T>> Columns { get; } = new List<ConsoleTableColumn<T>>();
     }

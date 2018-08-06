@@ -1,80 +1,62 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Rendering
 {
     internal class ConsoleTableColumn<T>
     {
-        private Dictionary<int, StringWriter> _writers;
+        private Dictionary<int, Span> _spans;
 
         public ConsoleTableColumn(
-            FormattableString header,
-            Func<T, object> renderCell,
-            ConsoleWriter consoleWriter)
+            Span header,
+            Func<T, Span> renderCell)
         {
             RenderCell = renderCell ?? throw new ArgumentNullException(nameof(renderCell));
-            ConsoleWriter = consoleWriter ?? throw new ArgumentNullException(nameof(consoleWriter));
             Header = header;
         }
 
-        public Func<T, object> RenderCell { get; }
+        public Func<T, Span> RenderCell { get; }
 
-        public FormattableString Header { get; }
+        public Span Header { get; }
 
         public void FlushRow(
-            int index,
-            ConsoleWriter consoleWriter)
+            int rowIndex,
+            ConsoleRenderer consoleRenderer)
         {
-            if (_writers == null)
+            if (_spans == null)
             {
                 return;
             }
 
-            var columnWriter = _writers[index];
+            var span = _spans[rowIndex];
 
-            consoleWriter.WriteRawToRegion(
-                columnWriter.ToString(),
-                new Region(Height,
-                             Width,
-                             0,
-                             0));
+            var region = new Region(
+                width: Width,
+                height: 1,
+                left: Left,
+                top: rowIndex);
+
+            consoleRenderer.RenderToRegion(span, region);
         }
 
-        private int Width { get; set; } = 80;
+        public int Width { get; private set; }
 
-        private int Height { get; set; } = 1;
-
-        public void PrerenderAndCalculateWidth(IReadOnlyList<T> items)
+        public void CalculateSpans(IReadOnlyList<T> items)
         {
-            _writers = new Dictionary<int, StringWriter>();
+            _spans = new Dictionary<int, Span>();
 
-            _writers[0] = new StringWriter(ConsoleWriter.Formatter);
-
-            _writers[0].Write(Header);
+            _spans[0] = Header;
 
             for (var i = 0; i < items.Count; i++)
             {
-                _writers[i + 1] = new StringWriter(ConsoleWriter.Formatter);
-
-                var value = RenderCell(items[i]);
-
-                _writers[i + 1].Write(ConsoleWriter.Formatter.Format(value));
+                _spans[i + 1] = RenderCell(items[i]);
             }
 
-            var widest = _writers.Values.Max(v => v.GetStringBuilder().Length);
-
-            var gutterEnd = widest + ColumnGutter;
-
-            foreach (var writer in _writers.Values)
-            {
-                var whitespace = new string(' ', gutterEnd - writer.GetStringBuilder().Length);
-                writer.Write(whitespace);
-            }
+            Width = _spans.Values.Max(s => s.ContentLength) + Gutter;
         }
 
-        public int ColumnGutter { get; } = 3;
+        public int Gutter { get; set; } = 2;
 
-        public ConsoleWriter ConsoleWriter { get; }
+        public int Left { get; internal set; }
     }
 }

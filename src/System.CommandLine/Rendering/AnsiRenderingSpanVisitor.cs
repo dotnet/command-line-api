@@ -1,18 +1,19 @@
+using System.IO;
 using static System.CommandLine.Rendering.Ansi;
 
 namespace System.CommandLine.Rendering
 {
-    internal class AnsiRenderingSpanVisitor : RenderingSpanVisitor
+    internal class AnsiRenderingSpanVisitor : ContentRenderingSpanVisitor
     {
         public AnsiRenderingSpanVisitor(
-            ConsoleWriter consoleWriter,
-            Region region) : base(consoleWriter, region)
+            TextWriter writer,
+            Region region) : base(writer, region)
         {
         }
 
         protected override void Start(Span span)
         {
-            ConsoleWriter.Console.Out.Write(
+            Writer.Write(
                 Cursor.Move.ToLocation(
                     line: Region.Top + 1,
                     column: Region.Left + 1));
@@ -20,12 +21,12 @@ namespace System.CommandLine.Rendering
 
         public override void VisitAnsiControlCode(AnsiControlCode controlCode)
         {
-            ConsoleWriter.Console.Out.Write(controlCode);
+            Writer.Write(controlCode);
         }
 
         protected override void StartNewLine()
         {
-            ConsoleWriter.Console.Out.Write(
+            Writer.Write(
                 Cursor.Move.ToLocation(
                     line: Region.Top + 1 + LinesWritten,
                     column: Region.Left + 1));

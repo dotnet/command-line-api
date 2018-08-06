@@ -1,10 +1,13 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace System.CommandLine.Rendering
 {
+    [DebuggerStepThrough]
     public static class Ansi
     {
+        [DebuggerStepThrough]
         public static class Text
         {
             public static AnsiControlCode BlinkOff { get; } = $"{Esc}[25m";
@@ -20,10 +23,12 @@ namespace System.CommandLine.Rendering
             public static AnsiControlCode UnderlinedOn { get; } = $"{Esc}[4m";
         }
 
+        [DebuggerStepThrough]
         public static class Color
         {
             public static AnsiControlCode Off { get; } = $"{Esc}[0m";
 
+            [DebuggerStepThrough]
             public class Background
             {
                 public static AnsiControlCode Default => $"{Esc}[49m";
@@ -48,6 +53,7 @@ namespace System.CommandLine.Rendering
                 public static AnsiControlCode Rgb(byte r, byte g, byte b) => $"{Esc}[48;2;{r};{g};{b}m";
             }
 
+            [DebuggerStepThrough]
             public static class Foreground
             {
                 public static AnsiControlCode Default => $"{Esc}[39m";
@@ -73,19 +79,22 @@ namespace System.CommandLine.Rendering
             }
         }
 
+        [DebuggerStepThrough]
         public static class Cursor
         {
+            [DebuggerStepThrough]
             public static class Move
             {
-                public static AnsiControlCode Up(int lines) => $"{Esc}[{lines}A";
-                public static AnsiControlCode Down(int lines) => $"{Esc}[{lines}B";
-                public static AnsiControlCode Right(int columns) => $"{Esc}[{columns}C";
-                public static AnsiControlCode Left(int columns) => $"{Esc}[{columns}D";
-                public static AnsiControlCode NextLine(int columns) => $"{Esc}E";
+                public static AnsiControlCode Up(int lines = 1) => $"{Esc}[{lines}A";
+                public static AnsiControlCode Down(int lines = 1) => $"{Esc}[{lines}B";
+                public static AnsiControlCode Right(int columns = 1) => $"{Esc}[{columns}C";
+                public static AnsiControlCode Left(int columns = 1) => $"{Esc}[{columns}D";
+                public static AnsiControlCode NextLine(int line = 1) => $"{Esc}{line}E";
                 public static AnsiControlCode ToUpperLeftCorner { get; } = $"{Esc}[H";
                 public static AnsiControlCode ToLocation(int? line = null, int? column = null) => $"{Esc}[{line};{column}H";
             }
 
+            [DebuggerStepThrough]
             public class Scroll
             {
                 public static AnsiControlCode UpOne { get; } = $"{Esc}D";
@@ -102,6 +111,7 @@ namespace System.CommandLine.Rendering
             public static AnsiControlCode RestorePosition { get; } = $"{Esc}8";
         }
 
+        [DebuggerStepThrough]
         public static class Clear
         {
             public static AnsiControlCode EntireScreen { get; } = $"{Esc}[2J";

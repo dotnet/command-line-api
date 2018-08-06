@@ -14,17 +14,18 @@ namespace System.CommandLine.DragonFruit
         public static MethodInfo FindStaticEntryMethod(Assembly assembly)
         {
             var candidates = new List<MethodInfo>();
-            foreach (TypeInfo type in assembly.DefinedTypes.Where(t =>
-                !t.IsAbstract && string.Equals("Program", t.Name, StringComparison.OrdinalIgnoreCase)))
+            foreach (var type in assembly
+                                 .DefinedTypes
+                                 .Where(t =>
+                                            string.Equals("Program", t.Name, StringComparison.OrdinalIgnoreCase))
+                                 .Where(t => t.GetCustomAttribute<CompilerGeneratedAttribute>() == null))
             {
-                if (type.GetCustomAttribute<CompilerGeneratedAttribute>() != null)
-                {
-                    continue;
-                }
-
-                foreach (MethodInfo method in type.GetMethods(BindingFlags.Static | BindingFlags.Public |
-                                                              BindingFlags.NonPublic).Where(m =>
-                    string.Equals("Main", m.Name, StringComparison.OrdinalIgnoreCase)))
+                foreach (var method in type
+                                       .GetMethods(BindingFlags.Static |
+                                                   BindingFlags.Public |
+                                                   BindingFlags.NonPublic)
+                                       .Where(m =>
+                                                  string.Equals("Main", m.Name, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (method.ReturnType == typeof(void)
                         || method.ReturnType == typeof(int)

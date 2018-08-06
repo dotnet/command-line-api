@@ -12,7 +12,7 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleWriter _consoleWriter;
+        private readonly ConsoleRenderer consoleRenderer;
 
         public TableRenderingTests(ITestOutputHelper output)
         {
@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests.Rendering
                 Width = 150
             };
 
-            _consoleWriter = new ConsoleWriter(_console);
+            consoleRenderer = new ConsoleRenderer(_console);
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests.Rendering
                 new Option("--very-long", "a long option")
             };
 
-            var view = new OptionsHelpView(_consoleWriter);
+            var view = new OptionsHelpView(consoleRenderer);
 
             view.Render(options);
 
@@ -54,7 +54,7 @@ namespace System.CommandLine.Tests.Rendering
                 new Option("--very-long", "an option")
             };
 
-            var view = new OptionsHelpView(_consoleWriter);
+            var view = new OptionsHelpView(consoleRenderer);
 
             view.Render(options);
 
@@ -72,17 +72,18 @@ namespace System.CommandLine.Tests.Rendering
 
     public class OptionsHelpView : ConsoleView<IEnumerable<Option>>
     {
-        public OptionsHelpView(ConsoleWriter writer) : base(writer)
+        public OptionsHelpView(ConsoleRenderer renderer) : base(renderer)
         {
         }
 
         public override void Render(IEnumerable<Option> options)
         {
-            ConsoleWriter.RenderTable(options.ToArray(),
-                                      table => {
-                                          table.RenderColumn("Option", o => string.Join(", ", o.RawAliases));
-                                          table.RenderColumn("", o => o.Description);
-                                      });
+            RenderTable(
+                options.ToArray(),
+                table => {
+                    table.RenderColumn("Option", o => string.Join(", ", o.RawAliases));
+                    table.RenderColumn("", o => o.Description);
+                });
         }
     }
 }

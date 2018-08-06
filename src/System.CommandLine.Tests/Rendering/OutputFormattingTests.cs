@@ -4,6 +4,7 @@ using FluentAssertions;
 using FluentAssertions.Extensions;
 using Xunit;
 using Xunit.Abstractions;
+using static System.CommandLine.Rendering.Ansi;
 
 namespace System.CommandLine.Tests.Rendering
 {
@@ -11,7 +12,7 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleWriter _consoleWriter;
+        private readonly ConsoleRenderer _renderer;
 
         public OutputFormattingTests(ITestOutputHelper output)
         {
@@ -21,15 +22,15 @@ namespace System.CommandLine.Tests.Rendering
                 Width = 150
             };
 
-            _consoleWriter = new ConsoleWriter(_console);
+            _renderer = new ConsoleRenderer(_console);
         }
 
         [Fact]
         public void Output_can_be_formatted_based_on_type_specific_formatters()
         {
-            _consoleWriter.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
+            _renderer.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
-            new ConsoleView<TimeSpan>(_consoleWriter).Render(21.Seconds());
+            new ConsoleView<TimeSpan>(_renderer).Render(21.Seconds());
 
             _console.Out.ToString().TrimEnd().Should().Be("21 seconds");
         }
@@ -37,9 +38,9 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void Type_formatters_apply_to_table_cells()
         {
-            var view = new ProcessTimesView(_consoleWriter);
+            var view = new ProcessTimesView(_renderer);
 
-            _consoleWriter.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
+            _renderer.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
             view.Render(Example_TOP.Processes);
 
@@ -47,17 +48,30 @@ namespace System.CommandLine.Tests.Rendering
 
             _console.Out.ToString().Should().Contain("42.82 seconds");
         }
+
+        [Fact]
+        public void FormattableString_can_contain_format_strings_that_reformat_the_input_value()
+        {
+            _renderer.Formatter
+                     .AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray}{d:t}{Color.Foreground.Default}");
+
+            var dateTime = DateTime.Parse("8/2/2018 6pm");
+
+            var span = _renderer.Formatter.Format(dateTime);
+
+            span.ToString().Should().Be($"{dateTime:d} {Color.Foreground.DarkGray}{dateTime:t}{Color.Foreground.Default}");
+        }
     }
 
     public class ProcessTimesView : ConsoleView<IEnumerable<ProcessInfo>>
     {
-        public ProcessTimesView(ConsoleWriter writer, Region region = null) : base(writer, region)
+        public ProcessTimesView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
         {
         }
 
         public override void Render(IEnumerable<ProcessInfo> processes)
         {
-            ConsoleWriter.RenderTable(
+            RenderTable(
                 items: processes,
                 table => {
                     table.RenderColumn("COMMAND", p => p.Command);

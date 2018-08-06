@@ -2,7 +2,16 @@ namespace System.CommandLine.Rendering
 {
     public class Region
     {
-        public Region(int height, int width, int top, int left)
+        protected Region()
+        {
+        }
+
+        public Region(
+            int width,
+            int height,
+            int left,
+            int top,
+            bool isOverwrittenOnRender = true)
         {
             if (height <= 0)
             {
@@ -28,15 +37,19 @@ namespace System.CommandLine.Rendering
             Width = width;
             Top = top;
             Left = left;
+
+            IsOverwrittenOnRender = isOverwrittenOnRender;
         }
 
-        public int Height { get; }
+        public virtual int Height { get; }
 
-        public int Width { get; }
+        public virtual int Width { get; }
 
-        public int Top { get; }
+        public virtual int Top { get; }
 
-        public int Left { get; }
+        public virtual int Left { get; }
+
+        public bool IsOverwrittenOnRender { get; }
 
         public override string ToString() => $"{Height}h × {Width}w @ top {Top}, left {Left}";
     }

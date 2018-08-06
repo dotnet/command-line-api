@@ -63,13 +63,12 @@ namespace System.CommandLine.Builder
             ParameterInfo parameter)
             where TBuilder : CommandBuilder
         {
-            string paramName = parameter.Name.ToKebabCase();
+            var alias = parameter.Name.Length > 1
+                            ? $"--{parameter.Name.ToKebabCase()}"
+                            : $"-{parameter.Name}";
 
             builder.AddOption(
-                new[] {
-                    "-" + paramName[0],
-                    "--" + paramName,
-                },
+                alias,
                 parameter.Name,
                 args => {
                     args.ParseArgumentsAs(parameter.ParameterType);

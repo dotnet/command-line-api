@@ -56,16 +56,29 @@ namespace System.CommandLine.Tests
                            .BeEquivalentTo(expected);
         }
 
+        [Fact]
+        public async Task Single_parameter_arguments_generate_aliases_that_accept_a_single_dash_prefix()
+        {
+            var builder = new CommandLineBuilder()
+                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_with_single_letter_parameters)), this)
+                          .Build();
+
+            await builder.InvokeAsync("-x 123 -y 456", _testConsole);
+
+            _receivedValues.Should()
+                           .BeEquivalentTo(new[] { 123, 456 });
+        }
+
         internal void Method_taking_bool(bool value = false)
         {
             _receivedValues = new object[] { value };
         }
 
-        internal void Method_taking_int_and_bool(
-            int intValue = 41,
-            bool boolValue = false)
+        internal void Method_with_single_letter_parameters(
+            int x,
+            int y)
         {
-            _receivedValues = new object[] { intValue, boolValue };
+            _receivedValues = new object[] { x, y };
         }
 
         private MethodInfo GetMethodInfo(string name)
