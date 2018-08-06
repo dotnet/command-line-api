@@ -91,7 +91,7 @@ namespace System.CommandLine.Rendering
 
             var formatted = ((IFormattable)formattableString).ToString("", formatProvider);
 
-            if (formatProvider.Parts.Count == 0)
+            if (formatProvider.Args.Count == 0)
             {
                 return Format(formatted);
             }
@@ -111,18 +111,18 @@ namespace System.CommandLine.Rendering
                         if (match.Value.StartsWith("{") &&
                             match.Value.EndsWith("}"))
                         {
-                            var part = formatProvider.Parts[partIndex++];
+                            var arg = formatProvider.Args[partIndex++];
 
                             if (match.Value.Contains(":"))
                             {
                                 var formatString = match.Value.Split(new[] { '{', ':', '}' }, 4)[2];
 
                                 yield return new ContentSpan(
-                                    string.Format("{0:" + formatString + "}", part));
+                                    string.Format("{0:" + formatString + "}", arg));
                             }
                             else
                             {
-                                yield return Format(part);
+                                yield return Format(arg);
                             }
                         }
                         else
@@ -145,12 +145,12 @@ namespace System.CommandLine.Rendering
                 object arg,
                 IFormatProvider formatProvider)
             {
-                Parts.Add(arg);
+                Args.Add(arg);
 
                 return "";
             }
 
-            public List<object> Parts { get; } = new List<object>();
+            public List<object> Args { get; } = new List<object>();
         }
     }
 }
