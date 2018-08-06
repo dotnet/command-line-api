@@ -1,4 +1,6 @@
+using System;
 using System.CommandLine.Rendering;
+using static System.Console;
 
 namespace System.CommandLine.Invocation
 {
@@ -6,16 +8,16 @@ namespace System.CommandLine.Invocation
     {
         public static EntireConsoleRegion Instance { get; } = new EntireConsoleRegion();
 
-        private EntireConsoleRegion() : base(0, 0, 0, 0, false)
+        private EntireConsoleRegion() : base(WindowWidth, WindowHeight, 0, 0, false)
         {
         }
 
-        public override int Height => System.Console.WindowHeight;
+        public override int Height => WindowHeight;
 
-        public override int Width => System.Console.WindowWidth;
+        public override int Width => WindowWidth;
 
-        public override int Top => System.Console.WindowTop;
+        public override int Top => WindowTop;
 
-        public override int Left => System.Console.WindowLeft;
+        public override int Left => WindowLeft;
     }
 }
