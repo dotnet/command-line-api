@@ -11,16 +11,16 @@ namespace RenderingPlayground
         /// <summary>
         /// Demonstrates various rendering capabilities.
         /// </summary>
-        /// <param name="showSample">Renders a specied sample</param>
+        /// <param name="sample">&lt;colors|dir&gt; Renders a specified sample</param>
         /// <param name="height">The height of the rendering area</param>
         /// <param name="width">The width of the rendering area</param>
         /// <param name="top">The top position of the render area</param>
         /// <param name="left">The left position of the render area</param>
         /// <param name="virtualTerminalMode">Enable virtual terminal mode</param>
         /// <param name="text">The text to render</param>
-        /// <param name="outputMode">Sets the output mode</param>
+        /// <param name="outputMode">&lt;Ansi|NonAnsi|File&gt; Sets the output mode</param>
         public static void Main(
-            string showSample = "",
+            string sample = "",
             int? height = null,
             int? width = null,
             int top = 0,
@@ -57,7 +57,7 @@ namespace RenderingPlayground
                     }
                 }
 
-                switch (showSample)
+                switch (sample)
                 {
                     case "colors":
                         new ColorsView(writer, region).Render(text);
