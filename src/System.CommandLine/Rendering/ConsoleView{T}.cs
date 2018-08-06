@@ -76,5 +76,11 @@ namespace System.CommandLine.Rendering
             Write(value);
             WriteLine();
         }
+
+        protected Span Span(FormattableString formattable) =>
+            ConsoleRenderer.Formatter.ParseToSpan(formattable);
+
+        protected Span Span(object value) =>
+            ConsoleRenderer.Formatter.Format(value);
     }
 }

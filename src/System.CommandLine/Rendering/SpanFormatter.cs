@@ -48,18 +48,25 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public void AddFormatter<T>(Func<T, string> format)
+        public void AddFormatter<T>(Func<T, Span> format)
         {
             _formatters.Add(typeof(T),
                             t => {
-                                var formatted = format((T)t);
+                                var span = format((T)t);
 
-                                if (formatted == null)
-                                {
-                                    return new ContentSpan("");
-                                }
+                                return span ?? new ContentSpan("");
+                            });
+        }
 
-                                return new ContentSpan(formatted);
+        public void AddFormatter<T>(Func<T, FormattableString> format)
+        {
+            _formatters.Add(typeof(T),
+                            t => {
+                                var formattableString = format((T)t);
+
+                                return formattableString == null
+                                           ? new ContentSpan("")
+                                           : ParseToSpan(formattableString);
                             });
         }
 
@@ -104,7 +111,19 @@ namespace System.CommandLine.Rendering
                         if (match.Value.StartsWith("{") &&
                             match.Value.EndsWith("}"))
                         {
-                            yield return Format(formatProvider.Parts[partIndex++]);
+                            var part = formatProvider.Parts[partIndex++];
+
+                            if (match.Value.Contains(":"))
+                            {
+                                var formatString = match.Value.Split(new[] { '{', ':', '}' }, 4)[2];
+
+                                yield return new ContentSpan(
+                                    string.Format("{0:" + formatString + "}", part));
+                            }
+                            else
+                            {
+                                yield return Format(part);
+                            }
                         }
                         else
                         {
