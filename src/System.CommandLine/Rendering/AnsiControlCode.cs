@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 namespace System.CommandLine.Rendering
 {
+    [DebuggerStepThrough]
     public class AnsiControlCode : Span
     {
         private readonly string _sequence;
