@@ -1,4 +1,3 @@
-using System.Linq;
 
 namespace System.CommandLine.Rendering
 {
