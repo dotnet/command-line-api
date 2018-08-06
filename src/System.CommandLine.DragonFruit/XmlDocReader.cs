@@ -12,12 +12,12 @@ namespace System.CommandLine.DragonFruit
 {
     public class XmlDocReader
     {
+        private IEnumerable<XElement> _members { get; }
+
         private XmlDocReader(XDocument document)
         {
-            Members = document.Descendants("members");
+            _members = document.Descendants("members");
         }
-
-        public IEnumerable<XElement> Members { get; }
 
         public static bool TryLoad(string filePath, out XmlDocReader xmlDocReader)
         {
@@ -76,7 +76,7 @@ namespace System.CommandLine.DragonFruit
 
             string name = sb.ToString();
 
-            XElement member = Members.Elements("member")
+            XElement member = _members.Elements("member")
                                      .FirstOrDefault(m => string.Equals(m.Attribute("name")?.Value, name));
 
             if (member == null)
