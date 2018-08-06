@@ -30,6 +30,7 @@ namespace System.CommandLine.Rendering
             Region region)
         {
             var formatted = Formatter.ParseToSpan(value);
+
             RenderToRegion(formatted, region);
         }
 
@@ -54,11 +55,21 @@ namespace System.CommandLine.Rendering
             visitor.Visit(span);
         }
 
-        public virtual void WriteRawToRegion(
-            string raw,
-            Region region)
+        protected void WriteLine()
         {
-            Console.Out.Write(raw);
+            switch (Mode)
+            {
+                case OutputMode.NonAnsi:
+                    Console.Out.WriteLine();
+                    break;
+                case OutputMode.Ansi:
+                    Console.Out.Write(Ansi.Cursor.Move.Down());
+                    Console.Out.Write(Ansi.Cursor.Move.NextLine(1));
+                    break;
+                case OutputMode.File:
+                    Console.Out.WriteLine();
+                    break;
+            }
         }
     }
 }

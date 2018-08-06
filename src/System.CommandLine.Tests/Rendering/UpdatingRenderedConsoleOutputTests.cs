@@ -17,6 +17,7 @@ namespace System.CommandLine.Tests.Rendering
         {
             _output = output;
             _console = new TestConsole();
+            _console.Height = 1;
             consoleRenderer = new ConsoleRenderer(_console);
         }
 

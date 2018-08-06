@@ -5,7 +5,7 @@ namespace System.CommandLine.Rendering
 {
     internal static class WrappingExtensions
     {
-        public static IEnumerable<string> SplitIntoWordsForWrapping(this string text)
+        public static IEnumerable<string> SplitForWrapping(this string text)
         {
             var sb = new StringBuilder();
 
@@ -17,9 +17,38 @@ namespace System.CommandLine.Rendering
 
                 if (char.IsWhiteSpace(c))
                 {
-                    sb.Append(c);
+                    if (c == '\n')
+                    {
+                        if (sb.Length > 0)
+                        {
+                            foundWhitespace = false;
+                            yield return sb.ToString();
+                            sb.Clear();
+                        }
 
-                    foundWhitespace = true;
+                        yield return c.ToString();
+                    }
+                    else if (c == '\r' &&
+                             text.Length > i &&
+                             text[i + 1] == '\n')
+                    {
+                        if (sb.Length > 0)
+                        {
+                            foundWhitespace = false;
+                            yield return sb.ToString();
+                            sb.Clear();
+                        }
+
+                        yield return "\r\n";
+
+                        i++;
+                    }
+                    else
+                    {
+                        sb.Append(c);
+
+                        foundWhitespace = true;
+                    }
                 }
                 else
                 {

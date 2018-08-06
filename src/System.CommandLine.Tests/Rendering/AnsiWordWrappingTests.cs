@@ -30,6 +30,8 @@ namespace System.CommandLine.Tests.Rendering
                     @case.InputSpan,
                     @case.Region);
 
+            _output.WriteLine(_console.Out.ToString());
+
             _console.Out
                     .ToString()
                     .Should()

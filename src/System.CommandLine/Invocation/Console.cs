@@ -24,20 +24,8 @@ namespace System.CommandLine.Invocation
             set => System.Console.ForegroundColor = value;
         }
 
-        public int Height
-        {
-            get => System.Console.WindowHeight;
-            set => System.Console.WindowHeight = value;
-        }
-
-        public int Width
-        {
-            get => System.Console.WindowWidth;
-            set => System.Console.WindowWidth = value;
-        }
-
         public void ResetColor() => System.Console.ResetColor();
 
-        public Region GetRegion() => new Region(Height, Width, 0, 0);
+        public Region GetRegion() => EntireConsoleRegion.Instance;
     }
 }

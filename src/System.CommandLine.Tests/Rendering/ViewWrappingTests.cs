@@ -29,6 +29,7 @@ namespace System.CommandLine.Tests.Rendering
             var text = "The quick brown fox jumps over the lazy dog";
 
             _console.Width = 14;
+            _console.Height = 4;
 
             var view = new ConsoleView<string>(consoleRenderer);
 

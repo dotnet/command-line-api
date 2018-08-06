@@ -9,11 +9,9 @@ namespace System.CommandLine.Rendering
 
         public ConsoleTableColumn(
             Span header,
-            Func<T, Span> renderCell,
-            ConsoleRenderer consoleRenderer)
+            Func<T, Span> renderCell)
         {
             RenderCell = renderCell ?? throw new ArgumentNullException(nameof(renderCell));
-            ConsoleRenderer = consoleRenderer ?? throw new ArgumentNullException(nameof(consoleRenderer));
             Header = header;
         }
 
@@ -32,12 +30,13 @@ namespace System.CommandLine.Rendering
 
             var span = _spans[rowIndex];
 
-            consoleRenderer.RenderToRegion(span,
-                                         new Region(
-                                             width: Width,
-                                             height: 1,
-                                             top: rowIndex,
-                                             left: Left));
+            var region = new Region(
+                width: Width,
+                height: 1,
+                top: rowIndex,
+                left: Left);
+
+            consoleRenderer.RenderToRegion(span, region);
         }
 
         public int Width { get; private set; }
@@ -57,8 +56,6 @@ namespace System.CommandLine.Rendering
         }
 
         public int Gutter { get; set; } = 2;
-
-        public ConsoleRenderer ConsoleRenderer { get; }
 
         public int Left { get; internal set; }
     }

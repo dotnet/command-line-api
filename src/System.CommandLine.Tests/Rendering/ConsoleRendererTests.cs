@@ -76,6 +76,8 @@ namespace System.CommandLine.Tests.Rendering
         [Theory]
         [InlineData(ZeroThroughThirty, 10, 1, 0, 0)]
         [InlineData(ZeroThroughThirty, 1, 10, 0, 0)]
+        [InlineData("one two", 4, 4, 0, 0)] 
+        [InlineData("", 4, 4, 0, 0)] 
         [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region) 
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region(
             string text,
@@ -104,9 +106,59 @@ namespace System.CommandLine.Tests.Rendering
             lines.Should().OnlyContain(line => line.Length == expectedWidth);
         }
 
+        [Fact]
+        public void When_in_NonAnsi_mode_text_following_newline_within_an_unindented_region_appears_at_the_correct_left_position()
+        {
+            var writer = new ConsoleRenderer(
+                _console,
+                OutputMode.NonAnsi);
+
+            var region = new Region(2, 5, 0, 0);
+
+            writer.RenderToRegion($"{NewLine}*", region);
+
+            _console.Out.ToString().Should().Be($"     {NewLine}*    ");
+        }
+
+        [Fact(Skip="WIP")]
+        public void When_in_Ansi_mode_text_following_newline_within_an_unindented_region_appears_at_the_correct_left_position()
+        {
+            var writer = new ConsoleRenderer(
+                _console,
+                OutputMode.Ansi);
+
+            var region = new Region(2, 5, 0, 0);
+
+            writer.RenderToRegion($"{NewLine}*", region);
+
+            _console.Out.ToString().Should().Be($"     {Cursor.Move.ToLocation(2, 1)}*    ");
+        }
+
+        [Fact(Skip="WIP")]
+        public void When_in_NonAnsi_mode_text_following_newline_within_an_indented_region_appears_at_the_correct_left_position()
+        {
+            var writer = new ConsoleRenderer(
+                _console,
+                OutputMode.NonAnsi);
+
+            throw new NotImplementedException();
+        }
+
+        [Fact(Skip="WIP")]
+        public void When_in_Ansi_mode_text_following_newline_within_an_indented_region_appears_at_the_correct_left_position()
+        {
+            var writer = new ConsoleRenderer(
+                _console,
+                OutputMode.Ansi);
+
+            throw new NotImplementedException();
+        }
+
         [Theory]
         [InlineData(ZeroThroughThirty, 10, 1, 0, 0)]
         [InlineData(ZeroThroughThirty, 1, 10, 0, 0)]
+        [InlineData("one two", 4, 4, 0, 0)] 
+        [InlineData("", 4, 4, 0, 0)] 
         [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region) 
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region(
             string text,
@@ -136,14 +188,12 @@ namespace System.CommandLine.Tests.Rendering
         [Fact(Skip = "WIP")]
         public void When_in_Ansi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region()
         {
-            // FIX (When_in_Ansi_mode_text_is_not_rendered_outside_the_specified_region_y_axis) write test
             throw new NotImplementedException();
         }
 
         [Fact(Skip = "WIP")]
         public void When_in_Ansi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region()
         {
-            // FIX (When_in_Ansi_mode_text_is_not_rendered_outside_the_specified_region_y_axis) write test
             throw new NotImplementedException();
         }
 

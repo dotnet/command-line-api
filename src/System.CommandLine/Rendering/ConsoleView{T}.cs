@@ -47,6 +47,7 @@ namespace System.CommandLine.Rendering
             {
                 column.Left = left;
                 column.CalculateSpans(items.ToList());
+                left += column.Width;
             }
 
             for (var rowIndex = 0; rowIndex <= items.Count(); rowIndex++)
@@ -62,7 +63,7 @@ namespace System.CommandLine.Rendering
 
         public void WriteLine()
         {
-            ConsoleRenderer.WriteLine();
+            ConsoleRenderer.Console.Out.WriteLine();
         }
 
         public void Write(object value)
