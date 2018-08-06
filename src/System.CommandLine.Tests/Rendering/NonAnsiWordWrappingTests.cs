@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests.Rendering
                  yield return new RenderingTestCase(
                      name: $"{nameof(ContentSpan)} only",
                      rendering: $"The quick brown fox jumps over the lazy dog.",
-                     inRegion: new Region(4, 3, 0, 0),
+                     inRegion: new Region(3, 4, 0, 0),
                      expectOutput: $"The{NewLine}" +
                                    $"qui{NewLine}" +
                                    $"bro{NewLine}" +
@@ -57,7 +57,7 @@ namespace System.CommandLine.Tests.Rendering
                  yield return new RenderingTestCase(
                      name: $"{nameof(AnsiControlCode)} at start of {nameof(ContentSpan)}",
                      rendering: $"{Ansi.Clear.ToEndOfLine}The quick brown fox jumps over the lazy dog.",
-                     inRegion: new Region(4, 3, 0, 0),
+                     inRegion: new Region(3, 4, 0, 0),
                      expectOutput: $"The{NewLine}" +
                                    $"qui{NewLine}" +
                                    $"bro{NewLine}" +
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests.Rendering
                  yield return new RenderingTestCase(
                      name: $"{nameof(AnsiControlCode)} at end of {nameof(ContentSpan)}",
                      rendering: $"The quick brown fox jumps over the lazy dog.{Ansi.Clear.ToEndOfLine}",
-                     inRegion: new Region(4, 3, 0, 0),
+                     inRegion: new Region(3, 4, 0, 0),
                      expectOutput: $"The{NewLine}" +
                                    $"qui{NewLine}" +
                                    $"bro{NewLine}" +
@@ -75,7 +75,7 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: $"{nameof(AnsiControlCode)}s around a word inside a {nameof(ContentSpan)}",
                     rendering: $"The quick {Ansi.Color.Foreground.Rgb(139, 69, 19)}brown{Ansi.Color.Foreground.Default} fox jumps over the lazy dog.",
-                    inRegion: new Region(4, 3, 0, 0),
+                    inRegion: new Region(3, 4, 0, 0),
                     expectOutput: $"The{NewLine}" +
                                   $"qui{NewLine}" +
                                   $"bro{NewLine}" +

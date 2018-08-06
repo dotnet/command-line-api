@@ -30,10 +30,10 @@ namespace RenderingPlayground
             OutputMode outputMode = OutputMode.Ansi)
         {
             var region = new Region(
-                height ?? Console.WindowHeight,
                 width ?? Console.WindowWidth,
-                top,
+                height ?? Console.WindowHeight,
                 left,
+                top,
                 true);
 
             VirtualTerminalMode vt = null;

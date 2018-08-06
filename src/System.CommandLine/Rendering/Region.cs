@@ -7,10 +7,10 @@ namespace System.CommandLine.Rendering
         }
 
         public Region(
-            int height,
             int width,
-            int top,
+            int height,
             int left,
+            int top,
             bool isOverwrittenOnRender = true)
         {
             if (height <= 0)

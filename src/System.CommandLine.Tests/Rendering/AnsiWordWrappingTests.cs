@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick brown fox jumps over the lazy dog.",
-                    inRegion: new Region(4, 3, 0, 0),
+                    inRegion: new Region(3, 4, 0, 0),
                     expectOutput: $"{Cursor.Move.ToLocation(1, 1)}The" +
                                   $"{Cursor.Move.ToLocation(2, 1)}qui" +
                                   $"{Cursor.Move.ToLocation(3, 1)}bro" +
@@ -58,7 +58,7 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick brown fox jumps over the lazy dog.",
-                    inRegion: new Region(4, 3, 12, 12),
+                    inRegion: new Region(3, 4, 12, 12),
                     expectOutput: $"{Cursor.Move.ToLocation(13, 13)}The" +
                                   $"{Cursor.Move.ToLocation(14, 13)}qui" +
                                   $"{Cursor.Move.ToLocation(15, 13)}bro" +
@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"{Color.Foreground.Red}The quick brown fox jumps over the lazy dog.",
-                    inRegion: new Region(4, 3, 0, 0),
+                    inRegion: new Region(3, 4, 0, 0),
                     expectOutput: $"{Cursor.Move.ToLocation(1, 1)}{Color.Foreground.Red}The" +
                                   $"{Cursor.Move.ToLocation(2, 1)}qui" +
                                   $"{Cursor.Move.ToLocation(3, 1)}bro" +
@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"{Color.Foreground.Red}The quick brown fox jumps over the lazy dog.",
-                    inRegion: new Region(4, 3, 12, 12),
+                    inRegion: new Region(3, 4, 12, 12),
                     expectOutput: $"{Cursor.Move.ToLocation(13, 13)}{Color.Foreground.Red}The" +
                                   $"{Cursor.Move.ToLocation(14, 13)}qui" +
                                   $"{Cursor.Move.ToLocation(15, 13)}bro" +
@@ -89,7 +89,7 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick brown fox jumps over the lazy dog.{Color.Foreground.Default}",
-                    inRegion: new Region(4, 3, 0, 0),
+                    inRegion: new Region(3, 4, 0, 0),
                     expectOutput: $"{Cursor.Move.ToLocation(1, 1)}The" +
                                   $"{Cursor.Move.ToLocation(2, 1)}qui" +
                                   $"{Cursor.Move.ToLocation(3, 1)}bro" +
@@ -98,7 +98,7 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick brown fox jumps over the lazy dog.{Color.Foreground.Default}",
-                    inRegion: new Region(4, 3, 12, 12),
+                    inRegion: new Region(3, 4, 12, 12),
                     expectOutput: $"{Cursor.Move.ToLocation(13, 13)}The" +
                                   $"{Cursor.Move.ToLocation(14, 13)}qui" +
                                   $"{Cursor.Move.ToLocation(15, 13)}bro" +
@@ -109,7 +109,7 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick {Color.Foreground.Rgb(139, 69, 19)}brown{Color.Foreground.Default} fox jumps over the lazy dog.",
-                    inRegion: new Region(4, 3, 0, 0),
+                    inRegion: new Region(3, 4, 0, 0),
                     expectOutput: $"{Cursor.Move.ToLocation(1, 1)}The" +
                                   $"{Cursor.Move.ToLocation(2, 1)}qui{Color.Foreground.Rgb(139, 69, 19)}" +
                                   $"{Cursor.Move.ToLocation(3, 1)}bro{Color.Foreground.Default}" +
@@ -118,7 +118,7 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick {Color.Foreground.Rgb(139, 69, 19)}brown{Color.Foreground.Default} fox jumps over the lazy dog.",
-                    inRegion: new Region(4, 3, 12, 12),
+                    inRegion: new Region(3, 4, 12, 12),
                     expectOutput: $"{Cursor.Move.ToLocation(13, 13)}The" +
                                   $"{Cursor.Move.ToLocation(14, 13)}qui{Color.Foreground.Rgb(139, 69, 19)}" +
                                   $"{Cursor.Move.ToLocation(15, 13)}bro{Color.Foreground.Default}" +
@@ -129,13 +129,13 @@ namespace System.CommandLine.Tests.Rendering
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick {Color.Foreground.Rgb(139, 69, 19)}brown{Color.Foreground.Default} fox jumps over the lazy dog.",
-                    inRegion: new Region(1, "The quick brown fox jumps over the lazy dog.".Length, 0, 0),
+                    inRegion: new Region("The quick brown fox jumps over the lazy dog.".Length, 1, 0, 0),
                     expectOutput: $"{Cursor.Move.ToLocation(1, 1)}The quick {Color.Foreground.Rgb(139, 69, 19)}brown{Color.Foreground.Default} fox jumps over the lazy dog.");
          
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick {Color.Foreground.Rgb(139, 69, 19)}brown{Color.Foreground.Default} fox jumps over the lazy dog.",
-                    inRegion: new Region(1, "The quick brown fox jumps over the lazy dog.".Length, 12, 12),
+                    inRegion: new Region("The quick brown fox jumps over the lazy dog.".Length, 1, 12, 12),
                     expectOutput: $"{Cursor.Move.ToLocation(13, 13)}The quick {Color.Foreground.Rgb(139, 69, 19)}brown{Color.Foreground.Default} fox jumps over the lazy dog.");
             }
         }

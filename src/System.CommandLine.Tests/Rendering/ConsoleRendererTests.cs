@@ -81,19 +81,19 @@ namespace System.CommandLine.Tests.Rendering
         [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region) 
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region(
             string text,
-            int height,
             int width,
-            int top,
-            int left)
+            int height,
+            int left,
+            int top)
         {
             var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(height,
-                                    width,
-                                    top,
-                                    left);
+            var region = new Region(width,
+                                    height,
+                                    left,
+                                    top);
 
             writer.RenderToRegion(text, region);
 
@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(2, 5, 0, 0);
+            var region = new Region(5, 2, 0, 0);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.Ansi);
 
-            var region = new Region(2, 5, 0, 0);
+            var region = new Region(5, 2, 0, 0);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -162,19 +162,19 @@ namespace System.CommandLine.Tests.Rendering
         [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region) 
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region(
             string text,
-            int height,
             int width,
-            int top,
-            int left)
+            int height,
+            int left,
+            int top)
         {
             var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(height,
-                                    width,
-                                    top,
-                                    left);
+            var region = new Region(width,
+                                    height,
+                                    left,
+                                    top);
 
             writer.RenderToRegion(text, region);
 

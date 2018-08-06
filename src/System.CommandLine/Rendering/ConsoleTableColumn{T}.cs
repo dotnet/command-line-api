@@ -33,8 +33,8 @@ namespace System.CommandLine.Rendering
             var region = new Region(
                 width: Width,
                 height: 1,
-                top: rowIndex,
-                left: Left);
+                left: Left,
+                top: rowIndex);
 
             consoleRenderer.RenderToRegion(span, region);
         }
