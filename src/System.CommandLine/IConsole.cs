@@ -12,10 +12,22 @@ namespace System.CommandLine
 
         TextWriter Error { get; }
 
+        Region GetRegion();
+
         ConsoleColor ForegroundColor { get; set; }
 
         void ResetColor();
 
-        Region GetRegion();
+        int CursorLeft { get; set; }
+
+        int CursorTop { get; set; }
+
+        void SetCursorPosition(int left, int top);
+
+        bool IsOutputRedirected { get; }
+
+        bool IsErrorRedirected { get; }
+
+        bool IsInputRedirected { get; }
     }
 }
