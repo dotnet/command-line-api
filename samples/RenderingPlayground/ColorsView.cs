@@ -29,10 +29,10 @@ namespace RenderingPlayground
                 }
 
                 var subregion = new Region(
-                    1,
-                    1,
                     Region.Left + x,
-                    Region.Top + y);
+                    Region.Top + y,
+                    1,
+                    1);
 
                 ConsoleRenderer.RenderToRegion(
                     $"{Ansi.Color.Foreground.Rgb(r += 2, g += 3, b += 5)}{text[i]}{Ansi.Color.Foreground.Default}",

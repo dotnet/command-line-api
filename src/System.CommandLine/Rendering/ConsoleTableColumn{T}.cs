@@ -31,10 +31,10 @@ namespace System.CommandLine.Rendering
             var span = _spans[rowIndex];
 
             var region = new Region(
-                width: Width,
-                height: 1,
                 left: Left,
-                top: rowIndex);
+                top: rowIndex,
+                width: Width, 
+                height: 1);
 
             consoleRenderer.RenderToRegion(span, region);
         }

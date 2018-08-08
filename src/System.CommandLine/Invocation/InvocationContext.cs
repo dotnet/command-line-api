@@ -12,7 +12,7 @@ namespace System.CommandLine.Invocation
         {
             ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
-            Console = console ?? Invocation.Console.Instance;
+            Console = console ?? Invocation.SystemConsole.Instance;
         }
 
         public Parser Parser { get; }

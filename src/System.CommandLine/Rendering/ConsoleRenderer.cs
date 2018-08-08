@@ -6,7 +6,7 @@ namespace System.CommandLine.Rendering
             IConsole console = null,
             OutputMode mode = OutputMode.NonAnsi)
         {
-            Console = console ?? Invocation.Console.Instance;
+            Console = console ?? Invocation.SystemConsole.Instance;
             Mode = mode;
         }
 
