@@ -2,7 +2,7 @@ using System.CommandLine.Rendering;
 
 namespace System.CommandLine.Tests
 {
-    public class SystemConsoleTests : ConsoleTests
+    internal class SystemConsoleTests : ConsoleTests
     {
         protected override IConsole GetConsole()
         {
