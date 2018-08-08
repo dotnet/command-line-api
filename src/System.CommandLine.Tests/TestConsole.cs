@@ -34,10 +34,10 @@ namespace System.CommandLine.Tests
         }
 
         public Region GetRegion() =>
-            new Region(Width,
-                       Height,
+            new Region(0,
                        0,
-                       0);
+                       Width,
+                       Height);
 
         public int CursorLeft
         {

@@ -53,7 +53,7 @@ namespace System.CommandLine.Tests.Rendering
 
             var view = new ConsoleView<string>(
                 consoleRenderer,
-                new Region(5, 2, 0, 0));
+                new Region(0, 0, 5, 2));
 
             view.Render(text);
 

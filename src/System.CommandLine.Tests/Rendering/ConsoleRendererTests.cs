@@ -74,26 +74,26 @@ namespace System.CommandLine.Tests.Rendering
         }
 
         [Theory]
-        [InlineData(ZeroThroughThirty, 10, 1, 0, 0)]
-        [InlineData(ZeroThroughThirty, 1, 10, 0, 0)]
-        [InlineData("one two", 4, 4, 0, 0)] 
-        [InlineData("", 4, 4, 0, 0)] 
+        [InlineData(ZeroThroughThirty, 0, 0, 10, 1)]
+        [InlineData(ZeroThroughThirty, 0, 0, 1, 10)]
+        [InlineData("one two", 0, 0, 4, 4)] 
+        [InlineData("", 0, 0, 4, 4)] 
         [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region) 
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region(
             string text,
-            int width,
-            int height,
             int left,
-            int top)
+            int top,
+            int width,
+            int height)
         {
             var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(width,
-                                    height,
-                                    left,
-                                    top);
+            var region = new Region(left,
+                                    top,
+                                    width,
+                                    height);
 
             writer.RenderToRegion(text, region);
 
@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(5, 2, 0, 0);
+            var region = new Region(0, 0, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.Ansi);
 
-            var region = new Region(5, 2, 0, 0);
+            var region = new Region(0, 0, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -155,26 +155,26 @@ namespace System.CommandLine.Tests.Rendering
         }
 
         [Theory]
-        [InlineData(ZeroThroughThirty, 10, 1, 0, 0)]
-        [InlineData(ZeroThroughThirty, 1, 10, 0, 0)]
-        [InlineData("one two", 4, 4, 0, 0)] 
-        [InlineData("", 4, 4, 0, 0)] 
+        [InlineData(ZeroThroughThirty, 0, 0, 10, 1)]
+        [InlineData(ZeroThroughThirty, 0, 0, 1, 10)]
+        [InlineData("one two", 0, 0, 4, 4)] 
+        [InlineData("", 0, 0, 4, 4)] 
         [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region) 
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region(
             string text,
-            int width,
-            int height,
             int left,
-            int top)
+            int top,
+            int width,
+            int height)
         {
             var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(width,
-                                    height,
-                                    left,
-                                    top);
+            var region = new Region(left,
+                                    top,
+                                    width,
+                                    height);
 
             writer.RenderToRegion(text, region);
 

@@ -29,12 +29,10 @@ namespace RenderingPlayground
             string text = null,
             OutputMode outputMode = OutputMode.Ansi)
         {
-            var region = new Region(
-                width ?? Console.WindowWidth,
-                height ?? Console.WindowHeight,
-                left,
-                top,
-                true);
+            var region = new Region(left,
+                                    top,
+                                    width ?? Console.WindowWidth,
+                                    height ?? Console.WindowHeight, true);
 
             VirtualTerminalMode vt = null;
 

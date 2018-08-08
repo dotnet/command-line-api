@@ -8,7 +8,7 @@ namespace System.CommandLine.Invocation
     {
         public static EntireConsoleRegion Instance { get; } = new EntireConsoleRegion();
 
-        private EntireConsoleRegion() : base(WindowWidth, WindowHeight, 0, 0, false)
+        private EntireConsoleRegion() : base(0, 0, WindowWidth, WindowHeight, false)
         {
         }
 
