@@ -42,9 +42,10 @@ namespace System.CommandLine.Tests.Rendering
                 .BeEquivalentTo(
                     new ContainerSpan(
                         new ContentSpan("some "),
-                        Ansi.Text.BlinkOn,
+                        StyleSpan.BlinkOn,
                         new ContentSpan("blinking"),
-                        Ansi.Text.BlinkOff,
+
+                        StyleSpan.BlinkOff,
                         new ContentSpan(" text")
                     ),
                     options => options.WithStrictOrdering()

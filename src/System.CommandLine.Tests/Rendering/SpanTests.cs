@@ -19,9 +19,9 @@ namespace System.CommandLine.Tests.Rendering
         public void When_spans_are_nested_then_content_length_can_be_calculated()
         {
             var span = new ContainerSpan(
-                Ansi.Color.Foreground.Red,
+                ForegroundColorSpan.Red,
                 new ContentSpan("content"),
-                Ansi.Color.Foreground.Default);
+                ForegroundColorSpan.Reset);
 
             span.ContentLength.Should().Be("content".Length);
         }
@@ -47,11 +47,11 @@ namespace System.CommandLine.Tests.Rendering
         public void Spans_have_a_start_relative_to_the_parent_span()
         {
             var span = new ContainerSpan(
-                Ansi.Color.Foreground.Red,
+                ForegroundColorSpan.Red,
                 new ContentSpan("first"),
-                Ansi.Color.Foreground.Blue,
+                ForegroundColorSpan.Blue,
                 new ContentSpan("second"),
-                Ansi.Color.Foreground.Default);
+                ForegroundColorSpan.Reset);
 
             span[0].Start.Should().Be(0);
             span[1].Start.Should().Be(0);
@@ -64,11 +64,11 @@ namespace System.CommandLine.Tests.Rendering
         public void Span_starts_update_when_parent_is_added_to_another_parent_span()
         {
             var innerContainerSpan = new ContainerSpan(
-                Ansi.Color.Foreground.Red,
+                ForegroundColorSpan.Red,
                 new ContentSpan("second"),
-                Ansi.Color.Foreground.Blue,
+                ForegroundColorSpan.Blue,
                 new ContentSpan("third"),
-                Ansi.Color.Foreground.Default);
+                ForegroundColorSpan.Reset);
 
             var outerContainer = new ContainerSpan(
                 new ContentSpan("first"),

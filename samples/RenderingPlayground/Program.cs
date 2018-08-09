@@ -2,7 +2,6 @@ using System;
 using System.CommandLine.Rendering;
 using System.IO;
 using System.Linq;
-using static System.CommandLine.Rendering.Ansi;
 
 namespace RenderingPlayground
 {
@@ -26,7 +25,7 @@ namespace RenderingPlayground
             int top = 0,
             int left = 0,
             bool virtualTerminalMode = true,
-            string text = null,
+            string text = "HELLO WORLD!",
             OutputMode outputMode = OutputMode.Ansi)
         {
             var region = new Region(left,
@@ -47,7 +46,7 @@ namespace RenderingPlayground
                     // TODO: (Main) implement this in the core
                     if (vt.IsEnabled)
                     {
-                        writer.Console.Out.WriteLine(Clear.EntireScreen);
+                        writer.Console.Out.WriteLine(Ansi.Clear.EntireScreen);
                     }
                     else
                     {
@@ -76,7 +75,7 @@ namespace RenderingPlayground
                         else
                         {
                             writer.RenderToRegion(
-                                $"The quick {Color.Foreground.Rgb(139, 69, 19)}brown{Color.Foreground.Default} fox jumps over the lazy dog.",
+                                $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
                                 region);
                         }
 

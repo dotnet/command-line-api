@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace System.CommandLine.Rendering
 {
     public class SpanVisitor
@@ -21,12 +19,20 @@ namespace System.CommandLine.Rendering
                     VisitContentSpan(contentSpan);
                     break;
 
-                case AnsiControlCode ansiCode:
-                    VisitAnsiControlCode(ansiCode);
-                    break;
-
                 case ContainerSpan containerSpan:
                     VisitContainerSpan(containerSpan);
+                    break;
+
+                case ForegroundColorSpan foregroundColorSpan:
+                    VisitForegroundColorSpan(foregroundColorSpan);
+                    break;
+
+                case BackgroundColorSpan backgroundColorSpan:
+                    VisitBackgroundColorSpan(backgroundColorSpan);
+                    break;
+
+                case StyleSpan styleSpan:
+                    VisitStyleSpan(styleSpan);
                     break;
 
                 default:
@@ -45,18 +51,10 @@ namespace System.CommandLine.Rendering
 
         public virtual void VisitUnknownSpan(Span span)
         {
-            RecordVisit(span);
-        }
-
-        protected void RecordVisit(Span span)
-        {
-            VisitedSpans.Add(span);
         }
 
         public virtual void VisitContainerSpan(ContainerSpan containerSpan)
         {
-            RecordVisit(containerSpan);
-
             foreach (var span in containerSpan)
             {
                 VisitInternal(span);
@@ -65,14 +63,18 @@ namespace System.CommandLine.Rendering
 
         public virtual void VisitContentSpan(ContentSpan contentSpan)
         {
-            RecordVisit(contentSpan);
         }
 
-        public virtual void VisitAnsiControlCode(AnsiControlCode controlCode)
+        public virtual void VisitForegroundColorSpan(ForegroundColorSpan span)
         {
-            RecordVisit(controlCode);
         }
 
-        public IList<Span> VisitedSpans { get; } = new List<Span>();
+        public virtual void VisitBackgroundColorSpan(BackgroundColorSpan span)
+        {
+        }
+
+        public virtual void VisitStyleSpan(StyleSpan span)
+        {
+        }
     }
 }

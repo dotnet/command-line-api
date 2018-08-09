@@ -3,25 +3,23 @@ using System.Diagnostics;
 namespace System.CommandLine.Rendering
 {
     [DebuggerStepThrough]
-    public class AnsiControlCode : Span
+    public class AnsiControlCode
     {
-        private readonly string _sequence;
+        public string EscapeSequence { get; }
 
-        public AnsiControlCode(string sequence)
+        public AnsiControlCode(string escapeSequence)
         {
-            if (string.IsNullOrWhiteSpace(sequence))
+            if (string.IsNullOrWhiteSpace(escapeSequence))
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(sequence));
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(escapeSequence));
             }
 
-            _sequence = sequence;
+            EscapeSequence = escapeSequence;
         }
 
-        public override string ToString() => _sequence;
+        public override string ToString() => "";
 
-        public override int ContentLength => 0;
-
-        protected bool Equals(AnsiControlCode other) => string.Equals(_sequence, other._sequence);
+        protected bool Equals(AnsiControlCode other) => string.Equals(EscapeSequence, other.EscapeSequence);
 
         public override bool Equals(object obj)
         {
@@ -39,7 +37,7 @@ namespace System.CommandLine.Rendering
                    Equals((AnsiControlCode)obj);
         }
 
-        public override int GetHashCode() => _sequence.GetHashCode();
+        public override int GetHashCode() => EscapeSequence.GetHashCode();
 
         public static implicit operator AnsiControlCode(string sequence)
         {

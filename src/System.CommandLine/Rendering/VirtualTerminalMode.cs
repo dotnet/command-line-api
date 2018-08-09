@@ -76,8 +76,8 @@ namespace System.CommandLine.Rendering
                 return new VirtualTerminalMode(false, GetLastError());
             }
 
-            var requestedInputMode = originalInputMode |
-                                     ENABLE_VIRTUAL_TERMINAL_INPUT;
+            // var requestedInputMode = originalInputMode |
+            //                          ENABLE_VIRTUAL_TERMINAL_INPUT;
 
             var requestedOutputMode = originalOutputMode |
                                       ENABLE_VIRTUAL_TERMINAL_PROCESSING |
@@ -88,10 +88,10 @@ namespace System.CommandLine.Rendering
                 return new VirtualTerminalMode(false, GetLastError());
             }
 
-            if (!SetConsoleMode(stdInHandle, requestedInputMode))
-            {
-                return new VirtualTerminalMode(false, GetLastError());
-            }
+            // if (!SetConsoleMode(stdInHandle, requestedInputMode))
+            // {
+            //     return new VirtualTerminalMode(false, GetLastError());
+            // }
 
             return new VirtualTerminalMode(stdOutHandle,
                                            originalOutputMode,
@@ -104,7 +104,7 @@ namespace System.CommandLine.Rendering
             if (IsEnabled)
             {
                 SetConsoleMode(_stdOutHandle, _originalOutputMode);
-                SetConsoleMode(_stdInHandle, _originalInputMode);
+                // SetConsoleMode(_stdInHandle, _originalInputMode);
             }
         }
     }
