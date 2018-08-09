@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.IO;
 
 namespace System.CommandLine.Rendering
 {
@@ -31,9 +30,10 @@ namespace System.CommandLine.Rendering
             [DebuggerStepThrough]
             public class Background
             {
-                public static AnsiControlCode Default => $"{Esc}[49m";
+                public static AnsiControlCode Default { get; } = $"{Esc}[49m";
 
-                public static AnsiControlCode Black { get; } = $"{Esc}[40m";
+                public static AnsiControlCode Black => $"{Esc}[40m";
+
                 public static AnsiControlCode Red { get; } = $"{Esc}[41m";
                 public static AnsiControlCode Green { get; } = $"{Esc}[42m";
                 public static AnsiControlCode Yellow { get; } = $"{Esc}[43m";
@@ -123,20 +123,5 @@ namespace System.CommandLine.Rendering
         }
 
         public static AnsiControlCode Esc { get; } = "\x1b";
-
-        public static void WriteAt(
-            this TextWriter writer,
-            string value,
-            int? line = null,
-            int? column = null)
-        {
-            writer.Write(Cursor.SavePosition);
-
-            writer.Write(Cursor.Move.ToLocation(line, column));
-
-            writer.Write(value);
-
-            writer.Write(Cursor.RestorePosition);
-        }
     }
 }

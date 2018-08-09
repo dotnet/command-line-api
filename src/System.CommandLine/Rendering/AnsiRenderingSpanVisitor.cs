@@ -19,7 +19,7 @@ namespace System.CommandLine.Rendering
                     column: Region.Left + 1));
         }
 
-        public override void VisitAnsiControlCode(AnsiControlCode controlCode)
+        public override void VisitFormatSpan(FormatSpan controlCode)
         {
             Writer.Write(controlCode);
         }

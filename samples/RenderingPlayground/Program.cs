@@ -26,7 +26,7 @@ namespace RenderingPlayground
             int top = 0,
             int left = 0,
             bool virtualTerminalMode = true,
-            string text = null,
+            string text = "HELLO WORLD!",
             OutputMode outputMode = OutputMode.Ansi)
         {
             var region = new Region(left,
@@ -38,9 +38,14 @@ namespace RenderingPlayground
 
             try
             {
+                if (Console.IsOutputRedirected)
+                {
+                    outputMode = OutputMode.File;
+                }
+
                 var writer = new ConsoleRenderer(mode: outputMode);
 
-                if (virtualTerminalMode)
+                if (virtualTerminalMode && !Console.IsOutputRedirected)
                 {
                     vt = VirtualTerminalMode.TryEnable();
 

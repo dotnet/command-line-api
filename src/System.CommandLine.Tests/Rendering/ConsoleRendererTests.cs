@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .NotContain(Esc.ToString());
+                    .NotContain(Esc.EscapeSequence);
         }
 
         [Fact]

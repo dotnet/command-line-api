@@ -21,8 +21,8 @@ namespace System.CommandLine.Rendering
                     VisitContentSpan(contentSpan);
                     break;
 
-                case AnsiControlCode ansiCode:
-                    VisitAnsiControlCode(ansiCode);
+                case FormatSpan ansiCode:
+                    VisitFormatSpan(ansiCode);
                     break;
 
                 case ContainerSpan containerSpan:
@@ -68,7 +68,7 @@ namespace System.CommandLine.Rendering
             RecordVisit(contentSpan);
         }
 
-        public virtual void VisitAnsiControlCode(AnsiControlCode controlCode)
+        public virtual void VisitFormatSpan(FormatSpan controlCode)
         {
             RecordVisit(controlCode);
         }

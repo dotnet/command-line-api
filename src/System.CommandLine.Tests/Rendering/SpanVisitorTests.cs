@@ -38,12 +38,12 @@ namespace System.CommandLine.Tests.Rendering
         public void SpanVisitor_visits_child_spans_in_depth_first_order()
         {
             var outerContainer = new ContainerSpan(
-                Cursor.SavePosition,
+                BackgroundColorSpan.Green,
                 new ContainerSpan(
-                    Color.Foreground.Red,
+                    ForegroundColorSpan.Red,
                     new ContentSpan("the content"),
-                    Color.Foreground.Default),
-                Cursor.RestorePosition);
+                    ForegroundColorSpan.Reset),
+                BackgroundColorSpan.Reset);
 
             var visitor = new SpanVisitor();
 
@@ -55,12 +55,12 @@ namespace System.CommandLine.Tests.Rendering
                    .BeEquivalentTo(
                        expectation: new[] {
                            typeof(ContainerSpan),
-                           typeof(AnsiControlCode),
+                           typeof(BackgroundColorSpan),
                            typeof(ContainerSpan),
-                           typeof(AnsiControlCode),
+                           typeof(ForegroundColorSpan),
                            typeof(ContentSpan),
-                           typeof(AnsiControlCode),
-                           typeof(AnsiControlCode),
+                           typeof(ForegroundColorSpan),
+                           typeof(BackgroundColorSpan),
                        },
                        config: options => options.WithStrictOrdering()
                    );

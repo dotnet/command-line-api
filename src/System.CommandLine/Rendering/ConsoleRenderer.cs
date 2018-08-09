@@ -40,14 +40,31 @@ namespace System.CommandLine.Rendering
         {
             ContentRenderingSpanVisitor visitor;
 
+            if (Mode == OutputMode.Auto)
+            {
+                
+            }
+
             switch (Mode)
             {
                 case OutputMode.NonAnsi:
-                    visitor = new ContentRenderingSpanVisitor(Console.Out, region);
+                    visitor = new ContentRenderingSpanVisitor(
+                        Console.Out,
+                        region);
                     break;
+
                 case OutputMode.Ansi:
-                    visitor = new AnsiRenderingSpanVisitor(Console.Out, region);
+                    visitor = new AnsiRenderingSpanVisitor(
+                        Console.Out,
+                        region);
                     break;
+
+                case OutputMode.File:
+                    visitor = new FileRenderingSpanVisitor(
+                        Console.Out,
+                        region);
+                    break;
+
                 default:
                     throw new NotSupportedException();
             }
