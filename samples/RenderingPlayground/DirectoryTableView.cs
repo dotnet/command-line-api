@@ -2,7 +2,6 @@ using System;
 using System.CommandLine.Rendering;
 using System.IO;
 using System.Linq;
-using static System.CommandLine.Rendering.Ansi;
 
 namespace RenderingPlayground
 {
@@ -11,7 +10,7 @@ namespace RenderingPlayground
         public DirectoryTableView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
         {
             renderer.Formatter
-                    .AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray}{d:t}{Color.Foreground.Default}");
+                    .AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray}{d:t}{ForegroundColorSpan.Reset}");
         }
 
         public override void Render(DirectoryInfo directory)
@@ -35,8 +34,8 @@ namespace RenderingPlayground
                     table.RenderColumn(
                         "Name".Underline(),
                         f => f is DirectoryInfo
-                                 ? Span($"{Color.Foreground.LightGreen}{f.Name}{Color.Foreground.Default}")
-                                 : Span($"{Color.Foreground.White}{f.Name}{Color.Foreground.Default}"));
+                                 ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset}")
+                                 : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset}"));
 
                     table.RenderColumn(
                         "Created".Underline(),

@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .NotContain(Esc.EscapeSequence);
+                    .NotContain(Esc);
         }
 
         [Fact]
@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(1, 1)}     {Cursor.Move.ToLocation(2, 1)}*    ");
+                    .Be($"{Cursor.Move.ToLocation(1, 1).EscapeSequence}     {Cursor.Move.ToLocation(2, 1).EscapeSequence}*    ");
         }
 
         [Fact(Skip = "WIP")]
@@ -160,7 +160,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(14, 6)}     {Cursor.Move.ToLocation(15, 6)}*    ");
+                    .Be($"{Cursor.Move.ToLocation(14, 6).EscapeSequence}     {Cursor.Move.ToLocation(15, 6).EscapeSequence}*    ");
         }
 
         [Theory]

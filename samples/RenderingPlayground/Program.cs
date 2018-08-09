@@ -2,7 +2,6 @@ using System;
 using System.CommandLine.Rendering;
 using System.IO;
 using System.Linq;
-using static System.CommandLine.Rendering.Ansi;
 
 namespace RenderingPlayground
 {
@@ -38,21 +37,16 @@ namespace RenderingPlayground
 
             try
             {
-                if (Console.IsOutputRedirected)
-                {
-                    outputMode = OutputMode.File;
-                }
-
                 var writer = new ConsoleRenderer(mode: outputMode);
 
-                if (virtualTerminalMode && !Console.IsOutputRedirected)
+                if (virtualTerminalMode)
                 {
                     vt = VirtualTerminalMode.TryEnable();
 
                     // TODO: (Main) implement this in the core
                     if (vt.IsEnabled)
                     {
-                        writer.Console.Out.WriteLine(Clear.EntireScreen);
+                        writer.Console.Out.WriteLine(Ansi.Clear.EntireScreen);
                     }
                     else
                     {
@@ -81,7 +75,7 @@ namespace RenderingPlayground
                         else
                         {
                             writer.RenderToRegion(
-                                $"The quick {Color.Foreground.Rgb(139, 69, 19)}brown{Color.Foreground.Default} fox jumps over the lazy dog.",
+                                $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
                                 region);
                         }
 
