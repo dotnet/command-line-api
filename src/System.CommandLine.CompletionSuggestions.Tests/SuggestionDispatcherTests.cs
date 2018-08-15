@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using Xunit;
 
@@ -12,6 +13,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 {
     internal class TestSuggestionFileProvider : ISuggestionFileProvider
     {
+        private readonly IReadOnlyCollection<string> _allRegLine;
         private readonly string _regLine;
 
         public TestSuggestionFileProvider() : this("C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete")
@@ -23,10 +25,17 @@ namespace System.CommandLine.CompletionSuggestions.Tests
             _regLine = regLine;
         }
 
+        public TestSuggestionFileProvider(IReadOnlyCollection<string> allRegLine, string suggestLine)
+        {
+            _allRegLine = allRegLine;
+            _regLine = suggestLine;
+        }
+
         public IReadOnlyCollection<string> RegistrationConfigurationFilePaths => new string[] { };
         public void AddRegistrationConfigurationFilePath(string configFilePath) => throw new NotImplementedException();
 
         public string FindRegistration(FileInfo soughtExecutable) => _regLine;
+        public IReadOnlyCollection<string> FindAllRegistration() => _allRegLine ?? new string[] {_regLine};
     }
 
     public class SuggestionDispatcherTests
@@ -100,9 +109,42 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public void GetCompletionSuggestions_UseProcessThatRemainsOpen_ReturnsEmptyString()
         {
             SuggestionDispatcher.GetSuggestions(
-                "dotnet"
-                , suggestionTargetArguments: $"{Assembly.GetExecutingAssembly().Location}", millisecondsTimeout: 1)
+                    "dotnet"
+                    , suggestionTargetArguments: $"{Assembly.GetExecutingAssembly().Location}", millisecondsTimeout: 1)
                 .Should().BeEmpty();
+        }
+
+        [Fact]
+        public void GetCompletionAvailableCommands_get_all_executable_name()
+        {
+            TestSuggestionFileProvider testSuggestionProvider;
+            if (RuntimeInformation
+                .IsOSPlatform(OSPlatform.Windows))
+            {
+                testSuggestionProvider = new TestSuggestionFileProvider(
+                    new[] {
+                        @"C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete",
+                        @"C:\\Program Files\\himalayan-berry.exe=himalayan-berry spread"
+                    },
+                    @"C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete");
+            }
+            else
+            {
+                testSuggestionProvider = new TestSuggestionFileProvider(
+                    new[] {
+                        @"/bin/dotnet=dotnet complete",
+                        @"/bin/himalayan-berry=himalayan-berry spread"
+                    },
+                    @"/bin/dotnet=dotnet complete");
+            }
+
+            var args = @"list"
+                .Tokenize()
+                .ToArray();
+
+            SuggestionDispatcher.Dispatch(args,
+                    testSuggestionProvider, 20000)
+                .Should().Be("dotnet himalayan-berry");
         }
     }
 }

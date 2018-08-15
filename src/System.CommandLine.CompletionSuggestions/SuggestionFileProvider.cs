@@ -53,5 +53,25 @@ namespace System.CommandLine.CompletionSuggestions
             // Completion provider not found!
             return null;
         }
+
+        public IReadOnlyCollection<string> FindAllRegistration()
+        {
+            var allRegistration = new List<string>();
+            foreach (string configFilePath in RegistrationConfigurationFilePaths)
+            {
+                if (!File.Exists(configFilePath))
+                {
+                    continue;
+                }
+
+                allRegistration
+                    .AddRange(File
+                        .ReadAllLines(configFilePath)
+                        .Select(l => l.Trim())
+                        .Where(l => l.Any()));
+            }
+
+            return allRegistration;
+        }
     }
 }
