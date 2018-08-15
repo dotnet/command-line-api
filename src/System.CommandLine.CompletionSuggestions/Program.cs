@@ -8,10 +8,10 @@ namespace System.CommandLine.CompletionSuggestions
 {
     class Program
     {
-        static async Task<int> Main(string[] args)
+        static void Main(string[] args)
         {
-            return await SuggestionDispatcher.Parser
-                                             .InvokeAsync(args);
+            Console.WriteLine(SuggestionDispatcher.Dispatch(args,
+                new SuggestionFileProvider(), 20000));
         }
     }
 }
