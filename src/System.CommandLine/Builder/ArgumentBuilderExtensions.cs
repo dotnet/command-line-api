@@ -89,6 +89,16 @@ namespace System.CommandLine.Builder
                     try
                     {
                         var fileInfo = new FileInfo(arg);
+
+                        // corefx no longer check invalid charactor
+                        // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
+
+                        var invalidCharactorsIndex = arg.IndexOfAny(Path.GetInvalidPathChars());
+                        if (invalidCharactorsIndex >= 0)
+                        {
+                            throw new ArgumentException(arg[invalidCharactorsIndex] + " is invalid charactor in path {arg}");
+                        }
+
                     }
                     catch (NotSupportedException ex)
                     {
