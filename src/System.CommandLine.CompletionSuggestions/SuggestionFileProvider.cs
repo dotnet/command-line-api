@@ -54,7 +54,7 @@ namespace System.CommandLine.CompletionSuggestions
             return null;
         }
 
-        public IReadOnlyCollection<string> FindAllRegistration()
+        public IReadOnlyCollection<string> FindAllRegistrations()
         {
             var allRegistration = new List<string>();
             foreach (string configFilePath in RegistrationConfigurationFilePaths)

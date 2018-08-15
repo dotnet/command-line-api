@@ -48,7 +48,7 @@ namespace System.CommandLine.CompletionSuggestions
         {
             if (parseResult.CommandResult.Name == CompletionAvailableCommands)
             {
-                var allFileNames = suggestionFileProvider.FindAllRegistration()
+                var allFileNames = suggestionFileProvider.FindAllRegistrations()
                     .Select(r => ParseOutPathToCompletionTargetExeFromConfigFileLine(r)[0])
                     .Select(Path.GetFileNameWithoutExtension);
 

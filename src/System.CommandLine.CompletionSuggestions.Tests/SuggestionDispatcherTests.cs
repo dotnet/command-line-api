@@ -35,7 +35,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public void AddRegistrationConfigurationFilePath(string configFilePath) => throw new NotImplementedException();
 
         public string FindRegistration(FileInfo soughtExecutable) => _regLine;
-        public IReadOnlyCollection<string> FindAllRegistration() => _allRegLine ?? new string[] {_regLine};
+        public IReadOnlyCollection<string> FindAllRegistrations() => _allRegLine ?? new string[] {_regLine};
     }
 
     public class SuggestionDispatcherTests
@@ -115,7 +115,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         }
 
         [Fact]
-        public void GetCompletionAvailableCommands_get_all_executable_name()
+        public void GetCompletionAvailableCommands_GetsAllExecutableNames()
         {
             TestSuggestionFileProvider testSuggestionProvider;
             if (RuntimeInformation
@@ -138,11 +138,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
                     @"/bin/dotnet=dotnet complete");
             }
 
-            var args = @"list"
-                .Tokenize()
-                .ToArray();
-
-            SuggestionDispatcher.Dispatch(args,
+            SuggestionDispatcher.Dispatch(new[] {"list"},
                     testSuggestionProvider, 20000)
                 .Should().Be("dotnet himalayan-berry");
         }
