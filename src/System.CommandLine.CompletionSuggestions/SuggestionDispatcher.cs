@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.CompletionSuggestions
 {
@@ -22,12 +23,19 @@ namespace System.CommandLine.CompletionSuggestions
             new CommandLineBuilder()
                 .AddCommand(CompletionAvailableCommands,
                     "list all completions available commands with space separated list",
+                    cmd => cmd.OnExecute<IConsole>(c =>
+                        c.Out.WriteLine(GetCompletionAvailableCommands(new SuggestionFileProvider()))),
                     arguments: argument => argument.None())
                 .AddOption(Position, "the current character position on the command line",
-                           position => position.ExactlyOne())
-                .AddOption(ExeName, "The executible to ask for argument resolution", argument => argument
-                                                                                                 .LegalFilePathsOnly()
-                                                                                                 .ExactlyOne())
+                    position => position.ParseArgumentsAs<string>())
+                .AddOption(ExeName, "The executable to ask for argument resolution", argument => argument
+                    .LegalFilePathsOnly()
+                    .ParseArgumentsAs<string>())
+                .OnExecute<ParseResult, IConsole>(
+                    (parseResult, console) =>
+                        console.Out.WriteLine(Dispatch(parseResult,
+                            new SuggestionFileProvider(),
+                            TimeoutMilliseconds)))
                 .TreatUnmatchedTokensAsErrors(false)
                 .Build();
 
@@ -46,15 +54,6 @@ namespace System.CommandLine.CompletionSuggestions
             ISuggestionFileProvider suggestionFileProvider,
             int timeoutMilliseconds)
         {
-            if (parseResult.CommandResult.Name == CompletionAvailableCommands)
-            {
-                var allFileNames = suggestionFileProvider.FindAllRegistrations()
-                    .Select(r => ParseOutPathToCompletionTargetExeFromConfigFileLine(r)[0])
-                    .Select(Path.GetFileNameWithoutExtension);
-
-                return string.Join(" ", allFileNames);
-            }
-
             var exePath = parseResult.ValueForOption<FileInfo>(ExeName);
 
             string suggestionRegistration =
@@ -73,6 +72,15 @@ namespace System.CommandLine.CompletionSuggestions
             string targetArgs = FormatSuggestionArguments(parseResult, targetCommands);
 
             return GetSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
+        }
+
+        public static string GetCompletionAvailableCommands(ISuggestionFileProvider suggestionFileProvider)
+        {
+            var allFileNames = suggestionFileProvider.FindAllRegistrations()
+                                .Select(r => ParseOutPathToCompletionTargetExeFromConfigFileLine(r)[0])
+                                .Select(Path.GetFileNameWithoutExtension);
+
+            return string.Join(" ", allFileNames);
         }
 
         private static string[] ParseOutPathToCompletionTargetExeFromConfigFileLine(string suggestionRegistration)

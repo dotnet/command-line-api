@@ -13,8 +13,8 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 {
     internal class TestSuggestionFileProvider : ISuggestionFileProvider
     {
-        private readonly IReadOnlyCollection<string> _allRegLine;
-        private readonly string _regLine;
+        private readonly IReadOnlyCollection<string> _findAllRegistrations;
+        private readonly string _findRegistration;
 
         public TestSuggestionFileProvider() : this("C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete")
         {
@@ -22,20 +22,20 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 
         public TestSuggestionFileProvider(string regLine)
         {
-            _regLine = regLine;
+            _findRegistration = regLine;
         }
 
-        public TestSuggestionFileProvider(IReadOnlyCollection<string> allRegLine, string suggestLine)
+        public TestSuggestionFileProvider(IReadOnlyCollection<string> findAllRegistrations, string findRegistration)
         {
-            _allRegLine = allRegLine;
-            _regLine = suggestLine;
+            _findAllRegistrations = findAllRegistrations;
+            _findRegistration = findRegistration;
         }
 
         public IReadOnlyCollection<string> RegistrationConfigurationFilePaths => new string[] { };
         public void AddRegistrationConfigurationFilePath(string configFilePath) => throw new NotImplementedException();
 
-        public string FindRegistration(FileInfo soughtExecutable) => _regLine;
-        public IReadOnlyCollection<string> FindAllRegistrations() => _allRegLine ?? new string[] {_regLine};
+        public string FindRegistration(FileInfo soughtExecutable) => _findRegistration;
+        public IReadOnlyCollection<string> FindAllRegistrations() => _findAllRegistrations ?? new string[] {_findRegistration};
     }
 
     public class SuggestionDispatcherTests
@@ -138,8 +138,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
                     @"/bin/dotnet=dotnet complete");
             }
 
-            SuggestionDispatcher.Dispatch(new[] {"list"},
-                    testSuggestionProvider, 20000)
+            SuggestionDispatcher.GetCompletionAvailableCommands(testSuggestionProvider)
                 .Should().Be("dotnet himalayan-berry");
         }
     }
