@@ -17,7 +17,7 @@ namespace System.CommandLine.Rendering
 
         public Region Region { get; }
 
-        // FIX: (ConsoleView) name Write vs Render sensically
+        // TODO: (ConsoleView) name Write vs Render sensically
         public virtual void Render(T value)
         {
             Write(value);

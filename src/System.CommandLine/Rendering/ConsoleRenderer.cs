@@ -40,11 +40,6 @@ namespace System.CommandLine.Rendering
         {
             ContentRenderingSpanVisitor visitor;
 
-            if (Mode == OutputMode.Auto)
-            {
-                
-            }
-
             switch (Mode)
             {
                 case OutputMode.NonAnsi:
@@ -70,23 +65,6 @@ namespace System.CommandLine.Rendering
             }
 
             visitor.Visit(span);
-        }
-
-        protected void WriteLine()
-        {
-            switch (Mode)
-            {
-                case OutputMode.NonAnsi:
-                    Console.Out.WriteLine();
-                    break;
-                case OutputMode.Ansi:
-                    Console.Out.Write(Ansi.Cursor.Move.Down());
-                    Console.Out.Write(Ansi.Cursor.Move.NextLine(1));
-                    break;
-                case OutputMode.File:
-                    Console.Out.WriteLine();
-                    break;
-            }
         }
     }
 }

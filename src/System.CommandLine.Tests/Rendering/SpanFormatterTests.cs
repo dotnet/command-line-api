@@ -44,12 +44,12 @@ namespace System.CommandLine.Tests.Rendering
                         new ContentSpan("some "),
                         StyleSpan.BlinkOn,
                         new ContentSpan("blinking"),
-
                         StyleSpan.BlinkOff,
                         new ContentSpan(" text")
                     ),
                     options => options.WithStrictOrdering()
-                                      .IgnoringCyclicReferences()
+                                      .Excluding(s => s.Parent)
+                                      .Excluding(s => s.Root)
                 );
         }
 

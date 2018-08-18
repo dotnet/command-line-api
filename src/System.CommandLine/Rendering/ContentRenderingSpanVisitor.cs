@@ -107,6 +107,7 @@ namespace System.CommandLine.Rendering
             if (_positionOnLine == 0 &&
                 string.IsNullOrWhiteSpace(value))
             {
+                // omit the whitespace if it's at the beginning of the line
                 return true;
             }
 

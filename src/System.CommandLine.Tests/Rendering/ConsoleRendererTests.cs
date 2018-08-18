@@ -194,18 +194,6 @@ namespace System.CommandLine.Tests.Rendering
             lines.Length.Should().Be(height);
         }
 
-        [Fact(Skip = "WIP")]
-        public void When_in_Ansi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region()
-        {
-            throw new NotImplementedException();
-        }
-
-        [Fact(Skip = "WIP")]
-        public void When_in_Ansi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region()
-        {
-            throw new NotImplementedException();
-        }
-
         private const string ZeroThroughThirty =
             "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine thirty";
 
