@@ -53,13 +53,13 @@ namespace System.CommandLine.Tests.Rendering
         public void FormattableString_can_contain_format_strings_that_reformat_the_input_value()
         {
             _renderer.Formatter
-                     .AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray}{d:t}{Color.Foreground.Default}");
+                     .AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray.EscapeSequence}{d:t}{Color.Foreground.Default.EscapeSequence}");
 
             var dateTime = DateTime.Parse("8/2/2018 6pm");
 
             var span = _renderer.Formatter.Format(dateTime);
 
-            span.ToString().Should().Be($"{dateTime:d} {Color.Foreground.DarkGray}{dateTime:t}{Color.Foreground.Default}");
+            span.ToString().Should().Be($"{dateTime:d} {Color.Foreground.DarkGray.EscapeSequence}{dateTime:t}{Color.Foreground.Default.EscapeSequence}");
         }
     }
 

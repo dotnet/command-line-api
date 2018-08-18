@@ -22,32 +22,6 @@ namespace System.CommandLine.Rendering
 
         private readonly Dictionary<Type, Func<object, Span>> _formatters = new Dictionary<Type, Func<object, Span>>();
 
-        public Span Format(object value)
-        {
-            if (value == null)
-            {
-                return new ContentSpan("");
-            }
-            else if (value is Span span)
-            {
-                return span;
-            }
-            else if (_formatters.TryGetValue(value.GetType(), out var formatter))
-            {
-                return formatter(value);
-            }
-            else if (value is FormattableString formattable)
-            {
-                var formatted = ((IFormattable)formattable).ToString("", this);
-
-                return new ContentSpan(formatted);
-            }
-            else
-            {
-                return new ContentSpan(value.ToString());
-            }
-        }
-
         public void AddFormatter<T>(Func<T, Span> format)
         {
             _formatters.Add(typeof(T),
@@ -56,6 +30,44 @@ namespace System.CommandLine.Rendering
 
                                 return span ?? new ContentSpan("");
                             });
+        }
+
+        public Span Format(object value)
+        {
+            if (value == null)
+            {
+                return new EmptySpan();
+            }
+
+            if (value is Span span)
+            {
+                return span;
+            }
+
+            string content;
+
+            if (_formatters.TryGetValue(value.GetType(), out var formatter))
+            {
+                return formatter(value);
+            }
+
+            if (value is FormattableString formattable)
+            {
+                content = ((IFormattable)formattable).ToString("", this);
+            }
+            else
+            {
+                content = value.ToString();
+            }
+
+            if (string.IsNullOrEmpty(content))
+            {
+                return new EmptySpan();
+            }
+            else
+            {
+                return new ContentSpan(content);
+            }
         }
 
         public void AddFormatter<T>(Func<T, FormattableString> format)
@@ -117,7 +129,7 @@ namespace System.CommandLine.Rendering
                             {
                                 var formatString = match.Value.Split(new[] { '{', ':', '}' }, 4)[2];
 
-                                yield return new ContentSpan(
+                                yield return Format(
                                     string.Format("{0:" + formatString + "}", arg));
                             }
                             else
@@ -127,7 +139,7 @@ namespace System.CommandLine.Rendering
                         }
                         else
                         {
-                            yield return new ContentSpan(match.Value);
+                            yield return Format(match.Value);
                         }
                     }
                 }
