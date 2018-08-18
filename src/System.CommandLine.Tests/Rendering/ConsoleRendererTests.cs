@@ -1,4 +1,5 @@
 using System.CommandLine.Rendering;
+using System.Drawing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace System.CommandLine.Tests.Rendering
             );
 
             writer.RenderToRegion(
-                $"{Color.Foreground.Red}normal{Color.Foreground.Default}",
+                $"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}",
                 _console.GetRegion());
 
             _console.Out
@@ -63,14 +64,14 @@ namespace System.CommandLine.Tests.Rendering
             );
 
             writer.RenderToRegion(
-                $"{Color.Foreground.Red}normal{Color.Foreground.Default}",
+                $"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}",
                 _console.GetRegion());
 
             _console.Out
                     .ToString()
                     .TrimEnd()
                     .Should()
-                    .Contain($"{Color.Foreground.Red}normal{Color.Foreground.Default}");
+                    .Contain($"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}");
         }
 
         [Theory]
@@ -140,10 +141,25 @@ namespace System.CommandLine.Tests.Rendering
                     .Be($"{Cursor.Move.ToLocation(1, 1).EscapeSequence}     {Cursor.Move.ToLocation(2, 1).EscapeSequence}*    ");
         }
 
-        [Fact(Skip = "WIP")]
+        [Fact]
         public void When_in_NonAnsi_mode_text_following_newline_within_an_indented_region_appears_at_the_correct_left_position()
         {
-            throw new NotImplementedException();
+            var writer = new ConsoleRenderer(
+                _console,
+                OutputMode.NonAnsi);
+
+            var region = new Region(13, 17, 5, 2);
+
+            writer.RenderToRegion($"{NewLine}*", region);
+
+            _console.CursorPositions
+                    .Should()
+                    .BeEquivalentTo(
+                        new[] {
+                            new Point(13, 17),
+                            new Point(13, 18)
+                        },
+                        options => options.WithStrictOrdering());
         }
 
         [Fact]
@@ -202,7 +218,7 @@ namespace System.CommandLine.Tests.Rendering
             public DirectoryView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
             {
                 renderer.Formatter
-                        .AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray}{d:t}{Color.Foreground.Default}");
+                        .AddFormatter<DateTime>(d => $"{d:d} {Ansi.Color.Foreground.DarkGray}{d:t}{Ansi.Color.Foreground.Default}");
             }
 
             public override void Render(DirectoryInfo directory)
@@ -227,8 +243,8 @@ namespace System.CommandLine.Tests.Rendering
                             Span($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}"),
                             f =>
                                 f is DirectoryInfo
-                                    ? Span($"{Color.Foreground.LightGreen}{f.Name}{Color.Foreground.Default}")
-                                    : Span($"{Color.Foreground.White}{f.Name}{Color.Foreground.Default}"));
+                                    ? Span($"{Ansi.Color.Foreground.LightGreen}{f.Name}{Ansi.Color.Foreground.Default}")
+                                    : Span($"{Ansi.Color.Foreground.White}{f.Name}{Ansi.Color.Foreground.Default}"));
 
                         table.RenderColumn(
                             Span($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}"),

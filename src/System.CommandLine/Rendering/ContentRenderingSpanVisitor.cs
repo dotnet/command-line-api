@@ -25,12 +25,23 @@ namespace System.CommandLine.Rendering
 
         protected Region Region { get; }
 
-        public override void VisitContentSpan(ContentSpan contentSpan)
+        public override void VisitContentSpan(ContentSpan span)
         {
-            var text = contentSpan.ToString();
+            var text = span.ToString();
+
+            var truncate = !_lastSpanEndedWithWhitespace
+                           && _positionOnLine == 0
+                           && LinesWritten > 0
+                           && !text.StartsWithWhitespace();
 
             foreach (var word in text.SplitForWrapping())
             {
+                if (truncate)
+                {
+                    truncate = false;
+                    continue;
+                }
+
                 if (!TryAppendWord(word))
                 {
                     break;
@@ -41,6 +52,8 @@ namespace System.CommandLine.Rendering
             {
                 Flush();
             }
+
+            _lastSpanEndedWithWhitespace = text.EndsWithWhitespace();
         }
 
         protected override void Stop(Span span)
@@ -111,12 +124,6 @@ namespace System.CommandLine.Rendering
                 return true;
             }
 
-            if (LinesWritten > 0 &&
-                _buffer.Length == 0)
-            {
-                StartNewLine();
-            }
-
             var mustTruncate = value.Length > Region.Width;
 
             if (mustTruncate)
@@ -139,6 +146,19 @@ namespace System.CommandLine.Rendering
                         return false;
                     }
 
+                    StartNewLine();
+                }
+            }
+            else
+            {
+                if (FilledRegionHeight)
+                {
+                    return false;
+                }
+
+                if (LinesWritten > 0 &&
+                    _positionOnLine == 0)
+                {
                     StartNewLine();
                 }
             }
