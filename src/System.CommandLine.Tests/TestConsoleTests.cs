@@ -1,7 +1,7 @@
 using System.CommandLine.Rendering;
 using System.Drawing;
-using System.Linq;
 using FluentAssertions;
+using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -53,10 +53,10 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData(OutputMode.Ansi, "\n\n", Skip = "WIP")]
-        [InlineData(OutputMode.Ansi, "\r\n\r\n", Skip = "WIP")]
-        [InlineData(OutputMode.Ansi, "one\ntwo\nthree", Skip = "WIP")]
-        [InlineData(OutputMode.Ansi, "one\r\ntwo\r\nthree", Skip = "WIP")]
+        [InlineData(OutputMode.Ansi, "\n\n")]
+        [InlineData(OutputMode.Ansi, "\r\n\r\n")]
+        [InlineData(OutputMode.Ansi, "one\ntwo\nthree")]
+        [InlineData(OutputMode.Ansi, "one\r\ntwo\r\nthree")]
         [InlineData(OutputMode.NonAnsi, "\n\n")]
         [InlineData(OutputMode.NonAnsi, "\r\n\r\n")]
         [InlineData(OutputMode.NonAnsi, "one\ntwo\nthree")]
@@ -82,18 +82,21 @@ namespace System.CommandLine.Tests
                    });
         }
 
-        [Fact]
-        public void Timeline_allows_replay_of_render()
+        [Theory]
+        [InlineData(OutputMode.Ansi)]
+        [InlineData(OutputMode.NonAnsi)]
+        public void Timeline_allows_replay_of_content_rendering_and_cursor_positions(OutputMode outputMode)
         {
             var console = new TestConsole();
 
-            var renderer = new ConsoleRenderer(console, OutputMode.NonAnsi);
+            var renderer = new ConsoleRenderer(console, outputMode);
 
             var region = new Region(1, 3, 11, 2);
 
             renderer.RenderToRegion("first line\nsecond line", region);
 
             console.Events
+                   .Where(e => !(e is TestConsole.AnsiControlCodeWritten))
                    .Should()
                    .BeEquivalentTo(new object[] {
                        new TestConsole.CursorPositionChanged(new Point(1, 3)),
@@ -101,6 +104,23 @@ namespace System.CommandLine.Tests
                        new TestConsole.CursorPositionChanged(new Point(1, 4)),
                        new TestConsole.ContentWritten("second line"),
                    }, options => options.WithStrictOrdering());
+        }
+
+        [Fact]
+        public void ContentWritten_events_do_not_include_escape_sequences()
+        {
+            var console = new TestConsole();
+
+            var renderer = new ConsoleRenderer(console, OutputMode.Ansi);
+
+            var region = new Region(0, 0, 4, 1);
+
+            renderer.RenderToRegion($"{ForegroundColorSpan.Red}text{ForegroundColorSpan.Reset}", region);
+
+            console.Events
+                   .Should()
+                   .Contain(e => e is TestConsole.ContentWritten &&
+                                 ((TestConsole.ContentWritten)e).Content == "text");
         }
     }
 }

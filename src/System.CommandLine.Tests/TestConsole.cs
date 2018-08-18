@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.CommandLine.Rendering;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace System.CommandLine.Tests
 {
@@ -17,15 +17,51 @@ namespace System.CommandLine.Tests
         private readonly RecordingWriter _error;
         private readonly RecordingWriter _out;
         private readonly List<ConsoleEvent> _events = new List<ConsoleEvent>();
-        private readonly StringBuilder _outCharsWritten = new StringBuilder();
+        private readonly StringBuilder _outBuffer = new StringBuilder();
+        private readonly StringBuilder _ansiCodeBuffer = new StringBuilder();
 
         public TestConsole()
         {
             _out = new RecordingWriter();
 
-            _out.CharWritten += value => _outCharsWritten.Append(value);
+            _out.CharWritten += OutOnCharWritten;
 
             _error = new RecordingWriter();
+        }
+
+        private void OutOnCharWritten(char c)
+        {
+            if (_ansiCodeBuffer.Length == 0 &&
+                c != Ansi.Esc[0])
+            {
+                _outBuffer.Append(c);
+            }
+            else
+            {
+                _ansiCodeBuffer.Append(c);
+
+                if (char.IsLetter(c))
+                {
+                    // terminate the in-progress ANSI sequence
+                    _ansiCodeBuffer.Append(c);
+
+                    RecordEvent(
+                        new AnsiControlCodeWritten(
+                            new AnsiControlCode(
+                                _ansiCodeBuffer.ToString())));
+                    _ansiCodeBuffer.Clear();
+                }
+            }
+        }
+
+        public class AnsiControlCodeWritten : ConsoleEvent
+        {
+            public AnsiControlCodeWritten(AnsiControlCode ansiControlCode)
+            {
+                Code = ansiControlCode ?? throw new ArgumentNullException(nameof(ansiControlCode));
+            }
+
+            public AnsiControlCode Code { get; }
         }
 
         public TextWriter Error => _error;
@@ -69,9 +105,11 @@ namespace System.CommandLine.Tests
                     yield return e;
                 }
 
-                if (_outCharsWritten.Length > 0)
+                var unflushedOutput = UnflushedOutput;
+
+                if (unflushedOutput.Length > 0)
                 {
-                    yield return new ContentWritten(_outCharsWritten.ToString());
+                    yield return new ContentWritten(unflushedOutput);
                 }
             }
         }
@@ -109,17 +147,35 @@ namespace System.CommandLine.Tests
 
             TryFlushTextWrittenEvent();
 
+            if (@event is AnsiControlCodeWritten controlCodeWritten)
+            {
+                var escapeSequence = controlCodeWritten.Code.EscapeSequence;
+
+                if (escapeSequence.EndsWith("H"))
+                {
+                    var positionFinder = new Regex(@"\x1b\[(?<line>[0-9]*);(?<column>[0-9]*)H");
+                    var match = positionFinder.Match(escapeSequence);
+                    var column = int.Parse(match.Groups["column"].Value);
+                    var line = int.Parse(match.Groups["line"].Value);
+                    RecordEvent(new CursorPositionChanged(new Point(column - 1, line - 1)));
+                }
+            }
+
             _events.Add(@event);
         }
 
         private void TryFlushTextWrittenEvent()
         {
-            if (_outCharsWritten.Length > 0)
+            var unflushedOutput = UnflushedOutput;
+
+            if (unflushedOutput.Length > 0)
             {
-                _events.Add(new ContentWritten(_outCharsWritten.ToString()));
-                _outCharsWritten.Clear();
+                _events.Add(new ContentWritten(unflushedOutput));
+                _outBuffer.Clear();
             }
         }
+
+        private string UnflushedOutput => _outBuffer.ToString();
 
         public bool IsOutputRedirected { get; }
 
@@ -145,17 +201,17 @@ namespace System.CommandLine.Tests
         {
             public ContentWritten(string text)
             {
-                Text = text;
+                Content = text ?? throw new ArgumentNullException(nameof(text));
             }
 
-            public string Text { get; }
+            public string Content { get; }
         }
 
         private class RecordingWriter : TextWriter
         {
             private readonly StringBuilder _stringBuilder = new StringBuilder();
 
-            public event Action<Char> CharWritten;
+            public event Action<char> CharWritten;
 
             public override void Write(char value)
             {
