@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -82,32 +83,37 @@ namespace System.CommandLine.Builder
         public static ArgumentBuilder LegalFilePathsOnly(
             this ArgumentBuilder builder)
         {
-            builder.AddValidator(symbol =>
-            {
+            builder.AddValidator(symbol => {
+                var errorMessage = new List<(string, string)>();
                 foreach (var arg in symbol.Arguments)
                 {
                     try
                     {
                         var fileInfo = new FileInfo(arg);
-
-                        // corefx no longer check invalid charactor
-                        // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
-
-                        var invalidCharactorsIndex = arg.IndexOfAny(Path.GetInvalidPathChars());
-                        if (invalidCharactorsIndex >= 0)
-                        {
-                            throw new ArgumentException(arg[invalidCharactorsIndex] + " is invalid charactor in path {arg}");
-                        }
-
                     }
                     catch (NotSupportedException ex)
                     {
-                        return ex.Message;
+                        errorMessage.Add((arg, ex.Message));
                     }
                     catch (ArgumentException ex)
                     {
-                        return ex.Message;
+                        errorMessage.Add((arg, ex.Message));
                     }
+
+                    // File class no longer check invalid charactor
+                    // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
+                    var invalidCharactorsIndex = arg.IndexOfAny(Path.GetInvalidPathChars());
+                    if (invalidCharactorsIndex >= 0)
+                    {
+                        errorMessage.Add((arg, arg[invalidCharactorsIndex] + " is invalid charactor in path {arg}"));
+                    }
+                }
+
+                if (errorMessage.Any())
+                {
+                    return errorMessage
+                        .Select(e => $"Arguement {e.Item1} failed validation due to {e.Item2}")
+                        .Aggregate((current, next) => current + Environment.NewLine + next);
                 }
 
                 return null;
