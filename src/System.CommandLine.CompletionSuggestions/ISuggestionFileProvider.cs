@@ -8,5 +8,6 @@ namespace System.CommandLine.CompletionSuggestions
         IReadOnlyCollection<string> RegistrationConfigurationFilePaths { get; }
         void AddRegistrationConfigurationFilePath(string configFilePath);
         string FindRegistration(FileInfo soughtExecutable);
+        IReadOnlyCollection<string> FindAllRegistrations();
     }
 }

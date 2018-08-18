@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using Xunit;
 
@@ -12,7 +13,8 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 {
     internal class TestSuggestionFileProvider : ISuggestionFileProvider
     {
-        private readonly string _regLine;
+        private readonly IReadOnlyCollection<string> _findAllRegistrations;
+        private readonly string _findRegistration;
 
         public TestSuggestionFileProvider() : this("C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete")
         {
@@ -20,13 +22,20 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 
         public TestSuggestionFileProvider(string regLine)
         {
-            _regLine = regLine;
+            _findRegistration = regLine;
+        }
+
+        public TestSuggestionFileProvider(IReadOnlyCollection<string> findAllRegistrations, string findRegistration)
+        {
+            _findAllRegistrations = findAllRegistrations;
+            _findRegistration = findRegistration;
         }
 
         public IReadOnlyCollection<string> RegistrationConfigurationFilePaths => new string[] { };
         public void AddRegistrationConfigurationFilePath(string configFilePath) => throw new NotImplementedException();
 
-        public string FindRegistration(FileInfo soughtExecutable) => _regLine;
+        public string FindRegistration(FileInfo soughtExecutable) => _findRegistration;
+        public IReadOnlyCollection<string> FindAllRegistrations() => _findAllRegistrations ?? new string[] {_findRegistration};
     }
 
     public class SuggestionDispatcherTests
@@ -35,7 +44,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
             .ToArray();
 
         [Fact]
-        public void Dispatch_executes_dotnet_complete() => SuggestionDispatcher.Dispatch(_args,
+        public void Dispatch_executes_dotnet_complete() => Dispatch(_args,
                 new TestSuggestionFileProvider(), 20000)
             .Should()
             .Contain("-h")
@@ -46,7 +55,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public void Dispatch_with_badly_formatted_completion_provider_throws()
         {
-            Action action = () => SuggestionDispatcher.Dispatch(_args, new TestSuggestionFileProvider("foo^^bar"));
+            Action action = () => Dispatch(_args, new TestSuggestionFileProvider("foo^^bar"));
             action
                 .Should()
                 .Throw<FormatException>()
@@ -57,7 +66,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public void Dispatch_with_missing_position_arg_throws()
         {
             Action action = () =>
-                SuggestionDispatcher.Dispatch(
+                Dispatch(
                     @"-e ""C:\Program Files\dotnet\dotnet.exe"" ""dotnet add"" -p".Tokenize().ToArray(),
                     new TestSuggestionFileProvider());
             action
@@ -67,9 +76,9 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         }
 
         [Fact]
-        public void Dispatch_with_unknown_completion_provider_returns_empty_string() => SuggestionDispatcher.Dispatch(
+        public void Dispatch_with_unknown_completion_provider_returns_empty_string() => Dispatch(
                 _args,
-                new TestSuggestionFileProvider(string.Empty))
+                new TestSuggestionFileProvider(String.Empty))
             .Should()
             .BeEmpty();
 
@@ -100,9 +109,47 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public void GetCompletionSuggestions_UseProcessThatRemainsOpen_ReturnsEmptyString()
         {
             SuggestionDispatcher.GetSuggestions(
-                "dotnet"
-                , suggestionTargetArguments: $"{Assembly.GetExecutingAssembly().Location}", millisecondsTimeout: 1)
+                    "dotnet"
+                    , suggestionTargetArguments: $"{Assembly.GetExecutingAssembly().Location}", millisecondsTimeout: 1)
                 .Should().BeEmpty();
+        }
+
+        [Fact]
+        public void GetCompletionAvailableCommands_GetsAllExecutableNames()
+        {
+            TestSuggestionFileProvider testSuggestionProvider;
+            if (RuntimeInformation
+                .IsOSPlatform(OSPlatform.Windows))
+            {
+                testSuggestionProvider = new TestSuggestionFileProvider(
+                    new[] {
+                        @"C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete",
+                        @"C:\\Program Files\\himalayan-berry.exe=himalayan-berry spread"
+                    },
+                    @"C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete");
+            }
+            else
+            {
+                testSuggestionProvider = new TestSuggestionFileProvider(
+                    new[] {
+                        @"/bin/dotnet=dotnet complete",
+                        @"/bin/himalayan-berry=himalayan-berry spread"
+                    },
+                    @"/bin/dotnet=dotnet complete");
+            }
+
+            SuggestionDispatcher.GetCompletionAvailableCommands(testSuggestionProvider)
+                .Should().Be("dotnet himalayan-berry");
+        }
+
+        private static string Dispatch(
+            string[] args,
+            ISuggestionFileProvider suggestionFileProvider,
+            int timeoutMilliseconds = 2000)
+        {
+            ParseResult parseResult = SuggestionDispatcher.Parser.Parse(args);
+
+            return SuggestionDispatcher.Dispatch(parseResult, suggestionFileProvider, timeoutMilliseconds);
         }
     }
 }

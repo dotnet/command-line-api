@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.CompletionSuggestions
 {
@@ -16,28 +17,29 @@ namespace System.CommandLine.CompletionSuggestions
         private const int TimeoutMilliseconds = 5000;
         private const string Position = "-p";
         private const string ExeName = "-e";
+        private const string CompletionAvailableCommands = "list";
 
         public static Parser Parser { get; } =
             new CommandLineBuilder()
+                .AddCommand(CompletionAvailableCommands,
+                    "list all completions available commands with space separated list",
+                    cmd => cmd.OnExecute<IConsole>(c =>
+                        c.Out.WriteLine(GetCompletionAvailableCommands(new SuggestionFileProvider()))),
+                    arguments: argument => argument.None())
                 .AddOption(Position, "the current character position on the command line",
-                           position => position.ExactlyOne())
-                .AddOption(ExeName, "The executible to ask for argument resolution", argument => argument
-                                                                                                 .LegalFilePathsOnly()
-                                                                                                 .ExactlyOne())
+                    position => position.ParseArgumentsAs<string>())
+                .AddOption(ExeName, "The executable to ask for argument resolution", argument => argument
+                    .LegalFilePathsOnly()
+                    .ParseArgumentsAs<string>())
+                .OnExecute<ParseResult, IConsole>(
+                    (parseResult, console) =>
+                        console.Out.WriteLine(Dispatch(parseResult,
+                            new SuggestionFileProvider(),
+                            TimeoutMilliseconds)))
                 .TreatUnmatchedTokensAsErrors(false)
                 .Build();
 
         public static string Dispatch(
-            string[] args,
-            ISuggestionFileProvider suggestionFileProvider,
-            int timeoutMilliseconds = TimeoutMilliseconds)
-        {
-            ParseResult parseResult = Parser.Parse(args);
-
-            return Dispatch(parseResult, suggestionFileProvider, timeoutMilliseconds);
-        }
-
-        internal static string Dispatch(
             ParseResult parseResult,
             ISuggestionFileProvider suggestionFileProvider,
             int timeoutMilliseconds)
@@ -53,19 +55,34 @@ namespace System.CommandLine.CompletionSuggestions
                 return string.Empty;
             }
 
-            // Parse out path to completion target exe from config file line
-            string[] keyValuePair = suggestionRegistration.Split(new[] { '=' }, 2);
-            if (keyValuePair.Length < 2)
-            {
-                throw new FormatException(
-                    $"Syntax for configuration of '{suggestionRegistration}' is not of the format '<command>=<value>'");
-            }
+            string[] keyValuePair = ParseOutPathToCompletionTargetExeFromConfigFileLine(suggestionRegistration);
 
             List<string> targetCommands = keyValuePair[1].Tokenize().ToList();
 
             string targetArgs = FormatSuggestionArguments(parseResult, targetCommands);
 
             return GetSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
+        }
+
+        public static string GetCompletionAvailableCommands(ISuggestionFileProvider suggestionFileProvider)
+        {
+            var allFileNames = suggestionFileProvider.FindAllRegistrations()
+                                .Select(r => ParseOutPathToCompletionTargetExeFromConfigFileLine(r)[0])
+                                .Select(Path.GetFileNameWithoutExtension);
+
+            return string.Join(" ", allFileNames);
+        }
+
+        private static string[] ParseOutPathToCompletionTargetExeFromConfigFileLine(string suggestionRegistration)
+        {
+            string[] keyValuePair = suggestionRegistration.Split(new[] {'='}, 2);
+            if (keyValuePair.Length < 2)
+            {
+                throw new FormatException(
+                    $"Syntax for configuration of '{suggestionRegistration}' is not of the format '<command>=<value>'");
+            }
+
+            return keyValuePair;
         }
 
         private static string FormatSuggestionArguments(ParseResult parseResult, List<string> targetCommands)
