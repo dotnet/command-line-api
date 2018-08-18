@@ -111,16 +111,12 @@ namespace System.CommandLine.Rendering
 
         private bool TryAppendWord(string value)
         {
-            if (value == "\r\n" || value == "\n")
-            {
-                FlushLine();
-                return !FilledRegionHeight;
-            }
-
             if (_positionOnLine == 0 &&
+                value != "\n" &&
+                value != "\r\n" &&
                 string.IsNullOrWhiteSpace(value))
             {
-                // omit the whitespace if it's at the beginning of the line
+                // omit whitespace if it's at the beginning of the line
                 return true;
             }
 
@@ -163,8 +159,15 @@ namespace System.CommandLine.Rendering
                 }
             }
 
-            _buffer.Append(value);
-            _positionOnLine += value.Length;
+            if (value == "\r\n" || value == "\n")
+            {
+                FlushLine();
+            }
+            else
+            {
+                _buffer.Append(value);
+                _positionOnLine += value.Length;
+            }
 
             if (RemainingWidthOnLine <= 0)
             {

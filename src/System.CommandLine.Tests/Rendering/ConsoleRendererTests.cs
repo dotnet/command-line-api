@@ -152,7 +152,9 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion($"{NewLine}*", region);
 
-            _console.CursorPositions
+            _console.Events
+                    .OfType<TestConsole.CursorPositionChanged>()
+                    .Select(e => e.Point)
                     .Should()
                     .BeEquivalentTo(
                         new[] {

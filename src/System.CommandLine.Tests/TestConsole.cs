@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.CommandLine.Rendering;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace System.CommandLine.Tests
 {
@@ -12,16 +14,23 @@ namespace System.CommandLine.Tests
     {
         private int _cursorLeft;
         private int _cursorTop;
+        private readonly RecordingWriter _error;
+        private readonly RecordingWriter _out;
+        private readonly List<ConsoleEvent> _events = new List<ConsoleEvent>();
+        private readonly StringBuilder _outCharsWritten = new StringBuilder();
 
         public TestConsole()
         {
-            Error = new StringWriter();
-            Out = new StringWriter();
+            _out = new RecordingWriter();
+
+            _out.CharWritten += value => _outCharsWritten.Append(value);
+
+            _error = new RecordingWriter();
         }
 
-        public TextWriter Error { get; }
+        public TextWriter Error => _error;
 
-        public TextWriter Out { get; }
+        public TextWriter Out => _out;
 
         public virtual ConsoleColor ForegroundColor { get; set; }
 
@@ -42,45 +51,121 @@ namespace System.CommandLine.Tests
         public int CursorLeft
         {
             get => _cursorLeft;
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentOutOfRangeException(
-                        "left",
-                        value,
-                        "The value must be greater than or equal to zero and less than the console's buffer size in that dimension.");
-                }
-
-                _cursorLeft = value;
-            }
+            set => SetCursorPosition(value, _cursorTop);
         }
 
         public int CursorTop
         {
             get => _cursorTop;
-            set
+            set => SetCursorPosition(_cursorLeft, value);
+        }
+
+        public IEnumerable<ConsoleEvent> Events
+        {
+            get
             {
-                if (value < 0)
+                foreach (var e in _events)
                 {
-                    throw new ArgumentOutOfRangeException(
-                        "top",
-                        value,
-                        "The value must be greater than or equal to zero and less than the console's buffer size in that dimension.");
+                    yield return e;
                 }
 
-                _cursorTop = value;
+                if (_outCharsWritten.Length > 0)
+                {
+                    yield return new TextWritten(_outCharsWritten.ToString());
+                }
             }
         }
 
-        public List<Point> CursorMovements { get; } = new List<Point>();
+        public void SetCursorPosition(int left, int top)
+        {
+            if (left < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(left),
+                    left,
+                    "The value must be greater than or equal to zero and less than the console's buffer size in that dimension.");
+            }
 
-        public void SetCursorPosition(int left, int top) => CursorMovements.Add(new Point(left, top));
+            if (top < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(top),
+                    top,
+                    "The value must be greater than or equal to zero and less than the console's buffer size in that dimension.");
+            }
+
+            _cursorLeft = left;
+            _cursorTop = top;
+
+            RecordEvent(new CursorPositionChanged(new Point(_cursorLeft, _cursorTop)));
+        }
+
+        private void RecordEvent(ConsoleEvent @event)
+        {
+            if (@event is TextWritten)
+            {
+                throw new ArgumentException($"{nameof(TextWritten)} events should be recorded by calling {nameof(TryFlushTextWrittenEvent)}");
+            }
+
+            TryFlushTextWrittenEvent();
+
+            _events.Add(@event);
+        }
+
+        private void TryFlushTextWrittenEvent()
+        {
+            if (_outCharsWritten.Length > 0)
+            {
+                _events.Add(new TextWritten(_outCharsWritten.ToString()));
+                _outCharsWritten.Clear();
+            }
+        }
 
         public bool IsOutputRedirected { get; }
 
         public bool IsErrorRedirected { get; }
 
         public bool IsInputRedirected { get; }
+
+        public abstract class ConsoleEvent
+        {
+        }
+
+        public class CursorPositionChanged : ConsoleEvent
+        {
+            public CursorPositionChanged(Point point)
+            {
+                Point = point;
+            }
+
+            public Point Point { get; }
+        }
+
+        public class TextWritten : ConsoleEvent
+        {
+            public TextWritten(string text)
+            {
+                Text = text;
+            }
+
+            public string Text { get; }
+        }
+
+        private class RecordingWriter : TextWriter
+        {
+            private readonly StringBuilder _stringBuilder = new StringBuilder();
+
+            public event Action<Char> CharWritten;
+
+            public override void Write(char value)
+            {
+                _stringBuilder.Append(value);
+                CharWritten?.Invoke(value);
+            }
+
+            public override Encoding Encoding { get; } = Encoding.Unicode;
+
+            public override string ToString() => _stringBuilder.ToString();
+        }
     }
 }
