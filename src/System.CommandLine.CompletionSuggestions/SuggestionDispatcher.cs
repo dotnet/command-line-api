@@ -40,16 +40,6 @@ namespace System.CommandLine.CompletionSuggestions
                 .Build();
 
         public static string Dispatch(
-            string[] args,
-            ISuggestionFileProvider suggestionFileProvider,
-            int timeoutMilliseconds = TimeoutMilliseconds)
-        {
-            ParseResult parseResult = Parser.Parse(args);
-
-            return Dispatch(parseResult, suggestionFileProvider, timeoutMilliseconds);
-        }
-
-        internal static string Dispatch(
             ParseResult parseResult,
             ISuggestionFileProvider suggestionFileProvider,
             int timeoutMilliseconds)

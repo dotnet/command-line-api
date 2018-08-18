@@ -44,7 +44,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
             .ToArray();
 
         [Fact]
-        public void Dispatch_executes_dotnet_complete() => SuggestionDispatcher.Dispatch(_args,
+        public void Dispatch_executes_dotnet_complete() => Dispatch(_args,
                 new TestSuggestionFileProvider(), 20000)
             .Should()
             .Contain("-h")
@@ -55,7 +55,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public void Dispatch_with_badly_formatted_completion_provider_throws()
         {
-            Action action = () => SuggestionDispatcher.Dispatch(_args, new TestSuggestionFileProvider("foo^^bar"));
+            Action action = () => Dispatch(_args, new TestSuggestionFileProvider("foo^^bar"));
             action
                 .Should()
                 .Throw<FormatException>()
@@ -66,7 +66,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public void Dispatch_with_missing_position_arg_throws()
         {
             Action action = () =>
-                SuggestionDispatcher.Dispatch(
+                Dispatch(
                     @"-e ""C:\Program Files\dotnet\dotnet.exe"" ""dotnet add"" -p".Tokenize().ToArray(),
                     new TestSuggestionFileProvider());
             action
@@ -76,9 +76,9 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         }
 
         [Fact]
-        public void Dispatch_with_unknown_completion_provider_returns_empty_string() => SuggestionDispatcher.Dispatch(
+        public void Dispatch_with_unknown_completion_provider_returns_empty_string() => Dispatch(
                 _args,
-                new TestSuggestionFileProvider(string.Empty))
+                new TestSuggestionFileProvider(String.Empty))
             .Should()
             .BeEmpty();
 
@@ -140,6 +140,16 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 
             SuggestionDispatcher.GetCompletionAvailableCommands(testSuggestionProvider)
                 .Should().Be("dotnet himalayan-berry");
+        }
+
+        private static string Dispatch(
+            string[] args,
+            ISuggestionFileProvider suggestionFileProvider,
+            int timeoutMilliseconds = 2000)
+        {
+            ParseResult parseResult = SuggestionDispatcher.Parser.Parse(args);
+
+            return SuggestionDispatcher.Dispatch(parseResult, suggestionFileProvider, timeoutMilliseconds);
         }
     }
 }
