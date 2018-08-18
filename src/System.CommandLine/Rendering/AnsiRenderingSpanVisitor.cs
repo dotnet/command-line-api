@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using static System.CommandLine.Rendering.Ansi;
 
 namespace System.CommandLine.Rendering
@@ -7,8 +6,8 @@ namespace System.CommandLine.Rendering
     internal class AnsiRenderingSpanVisitor : ContentRenderingSpanVisitor
     {
         public AnsiRenderingSpanVisitor(
-            TextWriter writer,
-            Region region) : base(writer, region)
+            IConsole console,
+            Region region) : base(console.Out, region)
         {
         }
 

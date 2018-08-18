@@ -1,15 +1,17 @@
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace System.CommandLine.Rendering
 {
-    internal class ContentRenderingSpanVisitor : SpanVisitor
+    internal abstract class ContentRenderingSpanVisitor : SpanVisitor
     {
         private readonly StringBuilder _buffer = new StringBuilder();
 
         private int _positionOnLine;
+        private bool _lastSpanEndedWithWhitespace;
 
-        public ContentRenderingSpanVisitor(
+        protected ContentRenderingSpanVisitor(
             TextWriter writer,
             Region region)
         {
@@ -59,7 +61,7 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        private bool FilledRegionHeight => LinesWritten >= Region.Height;
+        protected bool FilledRegionHeight => LinesWritten >= Region.Height;
 
         private int RemainingWidthOnLine => Region.Width - _positionOnLine;
 
@@ -74,10 +76,7 @@ namespace System.CommandLine.Rendering
             _positionOnLine = 0;
         }
 
-        protected virtual void StartNewLine()
-        {
-            Writer.WriteLine();
-        }
+        protected abstract void StartNewLine();
 
         private void PadRemainderOfLineWithWhitespace()
         {

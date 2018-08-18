@@ -48,14 +48,14 @@ namespace System.CommandLine.Rendering
             switch (Mode)
             {
                 case OutputMode.NonAnsi:
-                    visitor = new ContentRenderingSpanVisitor(
-                        Console.Out,
+                    visitor = new NonAnsiRenderingSpanVisitor(
+                        Console,
                         region);
                     break;
 
                 case OutputMode.Ansi:
                     visitor = new AnsiRenderingSpanVisitor(
-                        Console.Out,
+                        Console,
                         region);
                     break;
 
