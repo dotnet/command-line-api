@@ -97,9 +97,9 @@ namespace System.CommandLine.Tests
                    .Should()
                    .BeEquivalentTo(new object[] {
                        new TestConsole.CursorPositionChanged(new Point(1, 3)),
-                       new TestConsole.TextWritten("first line "),
+                       new TestConsole.ContentWritten("first line "),
                        new TestConsole.CursorPositionChanged(new Point(1, 4)),
-                       new TestConsole.TextWritten("second line"),
+                       new TestConsole.ContentWritten("second line"),
                    }, options => options.WithStrictOrdering());
         }
     }

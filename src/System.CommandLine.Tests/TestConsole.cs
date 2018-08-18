@@ -71,7 +71,7 @@ namespace System.CommandLine.Tests
 
                 if (_outCharsWritten.Length > 0)
                 {
-                    yield return new TextWritten(_outCharsWritten.ToString());
+                    yield return new ContentWritten(_outCharsWritten.ToString());
                 }
             }
         }
@@ -102,9 +102,9 @@ namespace System.CommandLine.Tests
 
         private void RecordEvent(ConsoleEvent @event)
         {
-            if (@event is TextWritten)
+            if (@event is ContentWritten)
             {
-                throw new ArgumentException($"{nameof(TextWritten)} events should be recorded by calling {nameof(TryFlushTextWrittenEvent)}");
+                throw new ArgumentException($"{nameof(ContentWritten)} events should be recorded by calling {nameof(TryFlushTextWrittenEvent)}");
             }
 
             TryFlushTextWrittenEvent();
@@ -116,7 +116,7 @@ namespace System.CommandLine.Tests
         {
             if (_outCharsWritten.Length > 0)
             {
-                _events.Add(new TextWritten(_outCharsWritten.ToString()));
+                _events.Add(new ContentWritten(_outCharsWritten.ToString()));
                 _outCharsWritten.Clear();
             }
         }
@@ -141,9 +141,9 @@ namespace System.CommandLine.Tests
             public Point Point { get; }
         }
 
-        public class TextWritten : ConsoleEvent
+        public class ContentWritten : ConsoleEvent
         {
-            public TextWritten(string text)
+            public ContentWritten(string text)
             {
                 Text = text;
             }
