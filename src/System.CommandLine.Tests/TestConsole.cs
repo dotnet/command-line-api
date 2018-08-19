@@ -24,12 +24,12 @@ namespace System.CommandLine.Tests
         {
             _out = new RecordingWriter();
 
-            _out.CharWritten += OutOnCharWritten;
+            _out.CharWritten += OnCharWrittenToOut;
 
             _error = new RecordingWriter();
         }
 
-        private void OutOnCharWritten(char c)
+        private void OnCharWrittenToOut(char c)
         {
             if (_ansiCodeBuffer.Length == 0 &&
                 c != Ansi.Esc[0])
@@ -43,13 +43,15 @@ namespace System.CommandLine.Tests
                 if (char.IsLetter(c))
                 {
                     // terminate the in-progress ANSI sequence
-                    _ansiCodeBuffer.Append(c);
+
+                    var escapeSequence = _ansiCodeBuffer.ToString();
+
+                    _ansiCodeBuffer.Clear();
 
                     RecordEvent(
                         new AnsiControlCodeWritten(
                             new AnsiControlCode(
-                                _ansiCodeBuffer.ToString())));
-                    _ansiCodeBuffer.Clear();
+                                escapeSequence)));
                 }
             }
         }
@@ -157,7 +159,10 @@ namespace System.CommandLine.Tests
                     var match = positionFinder.Match(escapeSequence);
                     var column = int.Parse(match.Groups["column"].Value);
                     var line = int.Parse(match.Groups["line"].Value);
-                    RecordEvent(new CursorPositionChanged(new Point(column - 1, line - 1)));
+                    RecordEvent(
+                        new CursorPositionChanged(
+                            new Point(column - 1, line - 1)));
+                    return;
                 }
             }
 
@@ -170,7 +175,8 @@ namespace System.CommandLine.Tests
 
             if (unflushedOutput.Length > 0)
             {
-                _events.Add(new ContentWritten(unflushedOutput));
+                var contentWritten = new ContentWritten(unflushedOutput);
+                _events.Add(contentWritten);
                 _outBuffer.Clear();
             }
         }
@@ -182,6 +188,42 @@ namespace System.CommandLine.Tests
         public bool IsErrorRedirected { get; }
 
         public bool IsInputRedirected { get; }
+
+        public IEnumerable<TextRendered> OutputLines()
+        {
+            var buffer = new StringBuilder();
+
+            var position = new Point(CursorLeft, CursorTop);
+
+            foreach (var @event in Events)
+            {
+                switch (@event)
+                {
+                    case AnsiControlCodeWritten ansiControlCodeWritten:
+                        buffer.Append(ansiControlCodeWritten.Code.EscapeSequence);
+                        break;
+                    case ContentWritten contentWritten:
+                        buffer.Append(contentWritten.Content);
+                        break;
+                    case CursorPositionChanged cursorPositionChanged:
+
+                        if (buffer.Length > 0)
+                        {
+                            yield return new TextRendered(buffer.ToString(), position);
+                            buffer.Clear();
+                        }
+
+                        position = cursorPositionChanged.Point;
+
+                        break;
+                }
+            }
+
+            if (buffer.Length > 0)
+            {
+                yield return new TextRendered(buffer.ToString(), position);
+            }
+        }
 
         public abstract class ConsoleEvent
         {
@@ -223,5 +265,18 @@ namespace System.CommandLine.Tests
 
             public override string ToString() => _stringBuilder.ToString();
         }
+    }
+
+    public class TextRendered
+    {
+        public TextRendered(string text, Point position)
+        {
+            Text = text;
+            Position = position;
+        }
+
+        public string Text { get; }
+
+        public Point Position { get; }
     }
 }

@@ -1,8 +1,8 @@
 using System.CommandLine.Rendering;
 using FluentAssertions;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static System.Environment;
 
 namespace System.CommandLine.Tests.Rendering
 {
@@ -35,15 +35,17 @@ namespace System.CommandLine.Tests.Rendering
 
             view.Render(text);
 
-            _output.WriteLine(_console.Out.ToString());
-
-            _console.Out
-                    .ToString()
+            _console.OutputLines()
+                    .Select(l => l.Text)
                     .Should()
-                    .Be($"The quick     {NewLine}" +
-                        $"brown fox     {NewLine}" +
-                        $"jumps over the{NewLine}" +
-                        $"lazy dog      ");
+                    .BeEquivalentTo(
+                        new[] {
+                            "The quick     ",
+                            "brown fox     ",
+                            "jumps over the",
+                            "lazy dog      "
+                        },
+                        options => options.WithStrictOrdering());
         }
 
         [Fact]
@@ -57,13 +59,15 @@ namespace System.CommandLine.Tests.Rendering
 
             view.Render(text);
 
-            _output.WriteLine(_console.Out.ToString());
-
-            _console.Out
-                    .ToString()
+            _console.OutputLines()
+                    .Select(l => l.Text)
                     .Should()
-                    .Be($"1 1 1{NewLine}" +
-                        $"2 2  ");
+                    .BeEquivalentTo(
+                        new[] {
+                            "1 1 1",
+                            "2 2  "
+                        },
+                        options => options.WithStrictOrdering());
         }
     }
 }

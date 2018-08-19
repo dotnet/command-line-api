@@ -13,6 +13,7 @@ namespace System.CommandLine.Tests.Rendering
     public class ConsoleRendererTests
     {
         private readonly TestConsole _console = new TestConsole();
+
         private readonly ITestOutputHelper _output;
 
         public ConsoleRendererTests(ITestOutputHelper output)
@@ -79,7 +80,10 @@ namespace System.CommandLine.Tests.Rendering
         [InlineData(ZeroThroughThirty, 0, 0, 1, 10)]
         [InlineData("one two", 0, 0, 4, 4)]
         [InlineData("", 0, 0, 4, 4)]
-        [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region) 
+        [InlineData(ZeroThroughThirty, 4, 4, 10, 1)]
+        [InlineData(ZeroThroughThirty, 4, 4, 1, 10)]
+        [InlineData("one two", 4, 4, 4, 4)]
+        [InlineData("", 4, 4, 4, 4)]
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region(
             string text,
             int left,
@@ -98,13 +102,9 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion(text, region);
 
-            _output.WriteLine(_console.Out.ToString());
-
-            var lines = _console.Out.ToString().Split(NewLine);
-
-            var expectedWidth = width + left;
-
-            lines.Should().OnlyContain(line => line.Length == expectedWidth);
+            _console.OutputLines()
+                    .Should()
+                    .OnlyContain(line => line.Text.Length == width);
         }
 
         [Fact]
@@ -118,10 +118,15 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion($"{NewLine}*", region);
 
-            _console.Out
-                    .ToString()
+            _console.OutputLines()
+                    .Select(l => l.Text)
                     .Should()
-                    .Be($"     {NewLine}*    ");
+                    .BeEquivalentTo(
+                        new[] {
+                            $"     ",
+                            $"*    "
+                        },
+                        options => options.WithStrictOrdering());
         }
 
         [Fact]
@@ -186,7 +191,10 @@ namespace System.CommandLine.Tests.Rendering
         [InlineData(ZeroThroughThirty, 0, 0, 1, 10)]
         [InlineData("one two", 0, 0, 4, 4)]
         [InlineData("", 0, 0, 4, 4)]
-        [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region) 
+        [InlineData(ZeroThroughThirty, 4, 4, 10, 1)]
+        [InlineData(ZeroThroughThirty, 4, 4, 1, 10)]
+        [InlineData("one two", 4, 4, 4, 4)]
+        [InlineData("", 4, 4, 4, 4)]
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region(
             string text,
             int left,
@@ -205,11 +213,9 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion(text, region);
 
-            _output.WriteLine(_console.Out.ToString());
+            _output.WriteLine(string.Join(NewLine, _console.OutputLines()));
 
-            var lines = _console.Out.ToString().Split(NewLine);
-
-            lines.Length.Should().Be(height);
+            _console.OutputLines().Should().HaveCount(height);
         }
 
         private const string ZeroThroughThirty =

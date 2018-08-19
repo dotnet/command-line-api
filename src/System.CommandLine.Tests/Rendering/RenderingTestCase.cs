@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests.Rendering
             string name,
             FormattableString rendering,
             Region inRegion,
-            string expectOutput)
+            params TextRendered[] expectOutput)
         {
             if (rendering == null)
             {
@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests.Rendering
 
         public Region Region { get; }
 
-        public string ExpectedOutput { get; }
+        public TextRendered[] ExpectedOutput { get; }
 
         public override string ToString() => $"{Name} (in {Region})";
     }

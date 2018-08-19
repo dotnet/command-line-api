@@ -1,24 +1,15 @@
 using System.Collections.Generic;
 using System.CommandLine.Rendering;
+using System.Drawing;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
-using static System.CommandLine.Rendering.Ansi;
-using static System.CommandLine.Rendering.Ansi.Cursor;
 
 namespace System.CommandLine.Tests.Rendering
 {
     public class AnsiWordWrappingTests
     {
-        private readonly ITestOutputHelper _output;
-        private readonly TestConsole _console;
-
-        public AnsiWordWrappingTests(ITestOutputHelper output)
-        {
-            _output = output;
-            _console = new TestConsole();
-        }
+        private readonly TestConsole _console = new TestConsole();
 
         [Theory]
         [MemberData(nameof(TestCases))]
@@ -31,12 +22,11 @@ namespace System.CommandLine.Tests.Rendering
                     @case.InputSpan,
                     @case.Region);
 
-            _output.WriteLine(_console.Out.ToString());
-
-            _console.Out
-                    .ToString()
+            _console.OutputLines()
                     .Should()
-                    .Be(@case.ExpectedOutput);
+                    .BeEquivalentTo(
+                        @case.ExpectedOutput,
+                        options => options.WithStrictOrdering());
         }
 
         [Theory]
@@ -94,19 +84,19 @@ namespace System.CommandLine.Tests.Rendering
                     name: testCaseName,
                     rendering: $"The quick brown fox jumps over the lazy dog.",
                     inRegion: new Region(0, 0, 3, 4),
-                    expectOutput: $"{Move.ToLocation(1, 1).EscapeSequence}The" +
-                                  $"{Move.ToLocation(2, 1).EscapeSequence}qui" +
-                                  $"{Move.ToLocation(3, 1).EscapeSequence}bro" +
-                                  $"{Move.ToLocation(4, 1).EscapeSequence}fox");
+                    Line(0, 0, "The"),
+                    Line(0, 1, "qui"),
+                    Line(0, 2, "bro"),
+                    Line(0, 3, "fox"));
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick brown fox jumps over the lazy dog.",
                     inRegion: new Region(12, 12, 3, 4),
-                    expectOutput: $"{Move.ToLocation(13, 13).EscapeSequence}The" +
-                                  $"{Move.ToLocation(14, 13).EscapeSequence}qui" +
-                                  $"{Move.ToLocation(15, 13).EscapeSequence}bro" +
-                                  $"{Move.ToLocation(16, 13).EscapeSequence}fox");
+                    Line(12, 12, "The"),
+                    Line(12, 13, "qui"),
+                    Line(12, 14, "bro"),
+                    Line(12, 15, "fox"));
 
                 testCaseName = $"{nameof(FormatSpan)} at start of {nameof(ContentSpan)}";
 
@@ -114,19 +104,19 @@ namespace System.CommandLine.Tests.Rendering
                     name: testCaseName,
                     rendering: $"{ForegroundColorSpan.Red}The quick brown fox jumps over the lazy dog.",
                     inRegion: new Region(0, 0, 3, 4),
-                    expectOutput: $"{Move.ToLocation(1, 1).EscapeSequence}{Color.Foreground.Red.EscapeSequence}The" +
-                                  $"{Move.ToLocation(2, 1).EscapeSequence}qui" +
-                                  $"{Move.ToLocation(3, 1).EscapeSequence}bro" +
-                                  $"{Move.ToLocation(4, 1).EscapeSequence}fox");
+                    Line(0, 0, $"{Ansi.Color.Foreground.Red.EscapeSequence}The"),
+                    Line(0, 1, $"qui"),
+                    Line(0, 2, $"bro"),
+                    Line(0, 3, $"fox"));
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"{ForegroundColorSpan.Red}The quick brown fox jumps over the lazy dog.",
                     inRegion: new Region(12, 12, 3, 4),
-                    expectOutput: $"{Move.ToLocation(13, 13).EscapeSequence}{Color.Foreground.Red.EscapeSequence}The" +
-                                  $"{Move.ToLocation(14, 13).EscapeSequence}qui" +
-                                  $"{Move.ToLocation(15, 13).EscapeSequence}bro" +
-                                  $"{Move.ToLocation(16, 13).EscapeSequence}fox");
+                    Line(12, 12, $"{Ansi.Color.Foreground.Red.EscapeSequence}The"),
+                    Line(12, 13, $"qui"),
+                    Line(12, 14, $"bro"),
+                    Line(12, 15, $"fox"));
 
                 testCaseName = $"{nameof(FormatSpan)} at end of {nameof(ContentSpan)}";
 
@@ -134,19 +124,19 @@ namespace System.CommandLine.Tests.Rendering
                     name: testCaseName,
                     rendering: $"The quick brown fox jumps over the lazy dog.{ForegroundColorSpan.Reset}",
                     inRegion: new Region(0, 0, 3, 4),
-                    expectOutput: $"{Move.ToLocation(1, 1).EscapeSequence}The" +
-                                  $"{Move.ToLocation(2, 1).EscapeSequence}qui" +
-                                  $"{Move.ToLocation(3, 1).EscapeSequence}bro" +
-                                  $"{Move.ToLocation(4, 1).EscapeSequence}fox{Color.Foreground.Default.EscapeSequence}");
+                    Line(0, 0, $"The"),
+                    Line(0, 1, $"qui"),
+                    Line(0, 2, $"bro"),
+                    Line(0, 3, $"fox{Ansi.Color.Foreground.Default.EscapeSequence}"));
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick brown fox jumps over the lazy dog.{ForegroundColorSpan.Reset}",
                     inRegion: new Region(12, 12, 3, 4),
-                    expectOutput: $"{Move.ToLocation(13, 13).EscapeSequence}The" +
-                                  $"{Move.ToLocation(14, 13).EscapeSequence}qui" +
-                                  $"{Move.ToLocation(15, 13).EscapeSequence}bro" +
-                                  $"{Move.ToLocation(16, 13).EscapeSequence}fox{Color.Foreground.Default.EscapeSequence}");
+                    Line(12, 12, $"The"),
+                    Line(12, 13, $"qui"),
+                    Line(12, 14, $"bro"),
+                    Line(12, 15, $"fox{Ansi.Color.Foreground.Default.EscapeSequence}"));
 
                 testCaseName = $"{nameof(FormatSpan)}s around a word inside a {nameof(ContentSpan)}";
 
@@ -154,19 +144,19 @@ namespace System.CommandLine.Tests.Rendering
                     name: testCaseName,
                     rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
                     inRegion: new Region(0, 0, 3, 4),
-                    expectOutput: $"{Move.ToLocation(1, 1).EscapeSequence}The" +
-                                  $"{Move.ToLocation(2, 1).EscapeSequence}qui{Color.Foreground.Rgb(139, 69, 19).EscapeSequence}" +
-                                  $"{Move.ToLocation(3, 1).EscapeSequence}bro{Color.Foreground.Default.EscapeSequence}" +
-                                  $"{Move.ToLocation(4, 1).EscapeSequence}fox");
+                    Line(0, 0, $"The"),
+                    Line(0, 1, $"qui{Ansi.Color.Foreground.Rgb(139, 69, 19).EscapeSequence}"),
+                    Line(0, 2, $"bro{Ansi.Color.Foreground.Default.EscapeSequence}"),
+                    Line(0, 3, $"fox"));
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
                     inRegion: new Region(12, 12, 3, 4),
-                    expectOutput: $"{Move.ToLocation(13, 13).EscapeSequence}The" +
-                                  $"{Move.ToLocation(14, 13).EscapeSequence}qui{Color.Foreground.Rgb(139, 69, 19).EscapeSequence}" +
-                                  $"{Move.ToLocation(15, 13).EscapeSequence}bro{Color.Foreground.Default.EscapeSequence}" +
-                                  $"{Move.ToLocation(16, 13).EscapeSequence}fox");
+                    Line(12, 12, $"The"),
+                    Line(12, 13, $"qui{Ansi.Color.Foreground.Rgb(139, 69, 19).EscapeSequence}"),
+                    Line(12, 14, $"bro{Ansi.Color.Foreground.Default.EscapeSequence}"),
+                    Line(12, 15, $"fox"));
 
                 testCaseName = $"{nameof(FormatSpan)}s around a word inside a {nameof(ContentSpan)}";
 
@@ -175,14 +165,19 @@ namespace System.CommandLine.Tests.Rendering
                     rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
                     inRegion: new Region(0, 0, "The quick brown fox jumps over the lazy dog.".Length, 1),
                     expectOutput:
-                    $"{Move.ToLocation(1, 1).EscapeSequence}The quick {Color.Foreground.Rgb(139, 69, 19).EscapeSequence}brown{Color.Foreground.Default.EscapeSequence} fox jumps over the lazy dog.");
+                    Line(0, 0,
+                         $"The quick {Ansi.Color.Foreground.Rgb(139, 69, 19).EscapeSequence}brown{Ansi.Color.Foreground.Default.EscapeSequence} fox jumps over the lazy dog."));
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
                     rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
                     inRegion: new Region(12, 12, "The quick brown fox jumps over the lazy dog.".Length, 1),
                     expectOutput:
-                    $"{Move.ToLocation(13, 13).EscapeSequence}The quick {Color.Foreground.Rgb(139, 69, 19).EscapeSequence}brown{Color.Foreground.Default.EscapeSequence} fox jumps over the lazy dog.");
+                    Line(12, 12,
+                         $"The quick {Ansi.Color.Foreground.Rgb(139, 69, 19).EscapeSequence}brown{Ansi.Color.Foreground.Default.EscapeSequence} fox jumps over the lazy dog."));
+
+                TextRendered Line(int left, int top, string text) =>
+                    new TextRendered(text, new Point(left, top));
             }
         }
     }
