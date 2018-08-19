@@ -266,17 +266,4 @@ namespace System.CommandLine.Tests
             public override string ToString() => _stringBuilder.ToString();
         }
     }
-
-    public class TextRendered
-    {
-        public TextRendered(string text, Point position)
-        {
-            Text = text;
-            Position = position;
-        }
-
-        public string Text { get; }
-
-        public Point Position { get; }
-    }
 }

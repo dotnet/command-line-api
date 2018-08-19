@@ -229,7 +229,7 @@ namespace System.CommandLine.Tests.Rendering
                         .AddFormatter<DateTime>(d => $"{d:d} {Ansi.Color.Foreground.DarkGray}{d:t}{Ansi.Color.Foreground.Default}");
             }
 
-            public override void Render(DirectoryInfo directory)
+            protected override void OnRender(DirectoryInfo directory)
             {
                 WriteLine();
                 WriteLine();

@@ -161,7 +161,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         {
         }
 
-        public override void Render(IReadOnlyCollection<ProcessInfo> processes)
+        protected override void OnRender(IReadOnlyCollection<ProcessInfo> processes)
         {
             RenderTable(
                 items: processes,
@@ -198,7 +198,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         {
         }
 
-        public override void Render(IEnumerable<ProcessInfo> processes)
+        protected override void OnRender(IEnumerable<ProcessInfo> processes)
         {
             var total = processes.Count();
             var running = processes.Count(v => v.State == "running");

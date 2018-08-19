@@ -8,7 +8,7 @@ namespace RenderingPlayground
         {
         }
 
-        public override void Render(string text)
+        protected override void OnRender(string text)
         {
             byte r = 0;
             byte g = 0;

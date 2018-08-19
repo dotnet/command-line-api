@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests.Rendering
             consoleRenderer = new ConsoleRenderer(_console);
         }
 
-        [Fact]
+        [Fact(Skip = "WIP")]
         public void Observables_can_be_used_to_trigger_appending_of_additional_output()
         {
             var downloaded = new BehaviorSubject<int>(0);
@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests.Rendering
         {
         }
 
-        public override void Render(ProgressItemViewModel value)
+        protected override void OnRender(ProgressItemViewModel value)
         {
             value.Stage
                  .Zip(value.DownloadedKb, (stage, downloaded) => (stage, downloaded))

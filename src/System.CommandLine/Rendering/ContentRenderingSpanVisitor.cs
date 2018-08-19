@@ -111,16 +111,17 @@ namespace System.CommandLine.Rendering
 
         private bool TryAppendWord(string value)
         {
+            var isNewline = value.IsNewLine();
+
             if (_positionOnLine == 0 &&
-                value != "\n" &&
-                value != "\r\n" &&
+                !isNewline &&
                 string.IsNullOrWhiteSpace(value))
             {
                 // omit whitespace if it's at the beginning of the line
                 return true;
             }
 
-            var mustTruncate = value.Length > Region.Width;
+            var mustTruncate = !isNewline && value.Length > Region.Width;
 
             if (mustTruncate)
             {
@@ -159,7 +160,7 @@ namespace System.CommandLine.Rendering
                 }
             }
 
-            if (value == "\r\n" || value == "\n")
+            if (isNewline)
             {
                 FlushLine();
             }

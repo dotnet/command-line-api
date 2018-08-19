@@ -21,6 +21,7 @@ namespace System.CommandLine.Rendering
 
         public void FlushRow(
             int rowIndex,
+            int verticalOffset,
             ConsoleRenderer consoleRenderer)
         {
             if (_spans == null)
@@ -32,7 +33,7 @@ namespace System.CommandLine.Rendering
 
             var region = new Region(
                 left: Left,
-                top: rowIndex,
+                top: rowIndex + verticalOffset,
                 width: Width, 
                 height: 1);
 

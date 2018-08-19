@@ -3,9 +3,12 @@ using System.Linq;
 
 namespace System.CommandLine.Rendering
 {
-    public class ConsoleView<T> : IConsoleView<T>
+    public abstract class ConsoleView<T> : IConsoleView<T>
     {
-        public ConsoleView(
+        private Region _effectiveRegion;
+        private int _verticalOffset;
+
+        protected ConsoleView(
             ConsoleRenderer renderer,
             Region region = null)
         {
@@ -17,11 +20,21 @@ namespace System.CommandLine.Rendering
 
         public Region Region { get; }
 
-        // TODO: (ConsoleView) name Write vs Render sensically
         public virtual void Render(T value)
         {
-            Write(value);
+            _effectiveRegion = new Region(
+                Region.Left,
+                Region.Top,
+                Region.Width,
+                Region.Height,
+                false);
+
+            _verticalOffset = 0;
+
+            OnRender(value);
         }
+
+        protected abstract void OnRender(T value);
 
         public void RenderTable<TItem>(
             IEnumerable<TItem> items,
@@ -54,21 +67,31 @@ namespace System.CommandLine.Rendering
             {
                 foreach (var column in tableView.Columns)
                 {
-                    column.FlushRow(rowIndex, ConsoleRenderer);
+                    column.FlushRow(rowIndex, _verticalOffset, ConsoleRenderer);
                 }
-
-                WriteLine();
             }
         }
 
         public void WriteLine()
         {
-            ConsoleRenderer.Console.Out.WriteLine();
+            if (_effectiveRegion.Height <= 1)
+            {
+                return;
+            }
+
+            _verticalOffset++;
+
+            _effectiveRegion = new Region(
+                _effectiveRegion.Left,
+                _effectiveRegion.Top + 1,
+                _effectiveRegion.Width,
+                _effectiveRegion.Height - 1,
+                false);
         }
 
         public void Write(object value)
         {
-            ConsoleRenderer.RenderToRegion(value, Region);
+            ConsoleRenderer.RenderToRegion(value, _effectiveRegion);
         }
 
         public void WriteLine(object value)

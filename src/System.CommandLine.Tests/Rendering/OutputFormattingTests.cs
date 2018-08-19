@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests.Rendering
         {
             _renderer.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
-            new ConsoleView<TimeSpan>(_renderer).Render(21.Seconds());
+            new TimeSpanView(_renderer).Render(21.Seconds());
 
             _console.Out.ToString().TrimEnd().Should().Be("21 seconds");
         }
@@ -61,22 +61,34 @@ namespace System.CommandLine.Tests.Rendering
 
             span.ToString().Should().Be($"{dateTime:d} {Color.Foreground.DarkGray.EscapeSequence}{dateTime:t}{Color.Foreground.Default.EscapeSequence}");
         }
-    }
 
-    public class ProcessTimesView : ConsoleView<IEnumerable<ProcessInfo>>
-    {
-        public ProcessTimesView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+        private class TimeSpanView : ConsoleView<TimeSpan>
         {
+            public TimeSpanView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+            {
+            }
+
+            protected override void OnRender(TimeSpan value)
+            {
+                Write(value);
+            }
         }
 
-        public override void Render(IEnumerable<ProcessInfo> processes)
+        private class ProcessTimesView : ConsoleView<IEnumerable<ProcessInfo>>
         {
-            RenderTable(
-                items: processes,
-                table => {
-                    table.RenderColumn("COMMAND", p => p.Command);
-                    table.RenderColumn("TIME", p => p.ExecutionTime);
-                });
+            public ProcessTimesView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+            {
+            }
+
+            protected override void OnRender(IEnumerable<ProcessInfo> processes)
+            {
+                RenderTable(
+                    items: processes,
+                    table => {
+                        table.RenderColumn("COMMAND", p => p.Command);
+                        table.RenderColumn("TIME", p => p.ExecutionTime);
+                    });
+            }
         }
     }
 }
