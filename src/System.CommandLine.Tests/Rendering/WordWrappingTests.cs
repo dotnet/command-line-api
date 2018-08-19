@@ -7,7 +7,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests.Rendering
 {
-    public class AnsiWordWrappingTests
+    public class WordWrappingTests
     {
         private readonly TestConsole _console = new TestConsole();
 
