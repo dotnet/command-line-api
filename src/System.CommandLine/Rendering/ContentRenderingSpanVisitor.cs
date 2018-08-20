@@ -42,7 +42,14 @@ namespace System.CommandLine.Rendering
                     continue;
                 }
 
-                if (!TryAppendWord(word))
+                if (word.IsNewLine())
+                {
+                    if (TryStartNewLine())
+                    {
+                        FlushLine();
+                    }
+                }
+                else if (!TryAppendWord(word))
                 {
                     break;
                 }
@@ -66,9 +73,8 @@ namespace System.CommandLine.Rendering
 
             if (Region.IsOverwrittenOnRender)
             {
-                while (!FilledRegionHeight)
+                while (TryStartNewLine())
                 {
-                    StartNewLine();
                     FlushLine();
                 }
             }
@@ -111,17 +117,14 @@ namespace System.CommandLine.Rendering
 
         private bool TryAppendWord(string value)
         {
-            var isNewline = value.IsNewLine();
-
             if (_positionOnLine == 0 &&
-                !isNewline &&
                 string.IsNullOrWhiteSpace(value))
             {
                 // omit whitespace if it's at the beginning of the line
                 return true;
             }
 
-            var mustTruncate = !isNewline && value.Length > Region.Width;
+            var mustTruncate = value.Length > Region.Width;
 
             if (mustTruncate)
             {
@@ -137,38 +140,16 @@ namespace System.CommandLine.Rendering
                 else
                 {
                     FlushLine();
-
-                    if (FilledRegionHeight)
-                    {
-                        return false;
-                    }
-
-                    StartNewLine();
-                }
-            }
-            else
-            {
-                if (FilledRegionHeight)
-                {
-                    return false;
-                }
-
-                if (LinesWritten > 0 &&
-                    _positionOnLine == 0)
-                {
-                    StartNewLine();
                 }
             }
 
-            if (isNewline)
+            if (!TryStartNewLine())
             {
-                FlushLine();
+                return false;
             }
-            else
-            {
-                _buffer.Append(value);
-                _positionOnLine += value.Length;
-            }
+
+            _buffer.Append(value);
+            _positionOnLine += value.Length;
 
             if (RemainingWidthOnLine <= 0)
             {
@@ -181,6 +162,22 @@ namespace System.CommandLine.Rendering
             {
                 return value.TrimEnd().Length <= RemainingWidthOnLine;
             }
+        }
+
+        protected virtual bool TryStartNewLine()
+        {
+            if (FilledRegionHeight)
+            {
+                return false;
+            }
+
+            if (LinesWritten > 0 &&
+                _positionOnLine == 0)
+            {
+                StartNewLine();
+            }
+
+            return true;
         }
     }
 }

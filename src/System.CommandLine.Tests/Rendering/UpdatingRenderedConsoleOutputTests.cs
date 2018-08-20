@@ -11,14 +11,14 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleRenderer consoleRenderer;
+        private readonly ConsoleRenderer _consoleRenderer;
 
         public UpdatingRenderedConsoleOutputTests(ITestOutputHelper output)
         {
             _output = output;
             _console = new TestConsole();
             _console.Height = 1;
-            consoleRenderer = new ConsoleRenderer(_console);
+            _consoleRenderer = new ConsoleRenderer(_console);
         }
 
         [Fact(Skip = "WIP")]
@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests.Rendering
                 1_000_000,
                 stage);
 
-            var view = new ProgressItemView(consoleRenderer);
+            var view = new ProgressItemView(_consoleRenderer);
             view.Render(model);
 
             var outputStep1 = _console.Out.ToString();

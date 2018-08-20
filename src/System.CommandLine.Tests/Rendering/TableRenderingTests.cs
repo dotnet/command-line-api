@@ -5,7 +5,6 @@ using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static System.Environment;
 
 namespace System.CommandLine.Tests.Rendering
 {
