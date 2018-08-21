@@ -38,7 +38,7 @@ namespace System.CommandLine.Builder
                 new CommandLineConfiguration(
                     new[] { rootCommand },
                     prefixes: Prefixes,
-                    allowUnbundling: EnablePosixBundling,
+                    enablePosixBundling: EnablePosixBundling,
                     enablePositionalOptions: EnablePositionalOptions,
                     validationMessages: ValidationMessages.Instance,
                     responseFileHandling: ResponseFileHandling,

@@ -13,7 +13,7 @@ namespace System.CommandLine
             IReadOnlyCollection<Symbol> symbols,
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
-            bool allowUnbundling = true,
+            bool enablePosixBundling = true,
             bool enablePositionalOptions = false,
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = default(ResponseFileHandling),
@@ -60,7 +60,7 @@ namespace System.CommandLine
 
             Symbols.Add(RootCommand);
 
-            AllowUnbundling = allowUnbundling;
+            EnablePosixBundling = enablePosixBundling;
             EnablePositionalOptions = enablePositionalOptions;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
@@ -93,7 +93,7 @@ namespace System.CommandLine
 
         public bool EnablePositionalOptions { get; private set; }
 
-        public bool AllowUnbundling { get; }
+        public bool EnablePosixBundling { get; }
 
         public ValidationMessages ValidationMessages { get; }
 
