@@ -77,6 +77,7 @@ namespace System.CommandLine
                     {
                         allSymbolResults.Add(symbolForToken);
                         added = true;
+
                         if (symbolForToken is CommandResult command)
                         {
                             ProcessImplicitTokens();
@@ -127,6 +128,11 @@ namespace System.CommandLine
 
             void ProcessImplicitTokens()
             {
+                if (!Configuration.EnablePositionalOptions)
+                {
+                    return;
+                }
+
                 var currentCommand = innermostCommand ?? rootCommand;
                 if (currentCommand == null) return;
 
