@@ -91,7 +91,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
-        public bool EnablePositionalOptions { get; private set; }
+        public bool EnablePositionalOptions { get; }
 
         public bool EnablePosixBundling { get; }
 
