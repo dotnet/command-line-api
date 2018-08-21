@@ -67,14 +67,23 @@ namespace System.CommandLine
             switch (_result)
             {
                 case FailedArgumentArityResult arityFailure:
+
                     return new ParseError(arityFailure.ErrorMessage,
                                           this,
                                           true);
+
                 case FailedArgumentTypeConversionResult conversionFailure:
+
+                    var canTokenBeRetried = Symbol.Argument
+                                                  .ArgumentArity
+                                                  .MinimumNumberOfArguments == 0;
+
                     return new ParseError(conversionFailure.ErrorMessage,
                                           this,
-                                          false);
+                                          canTokenBeRetried);
+
                 case FailedArgumentParseResult general:
+
                     return new ParseError(general.ErrorMessage,
                                           this,
                                           false);

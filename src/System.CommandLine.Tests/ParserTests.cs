@@ -1093,5 +1093,20 @@ namespace System.CommandLine.Tests
             parseResult["out"].Should().NotBeNull();
             parseResult["output"].Should().NotBeNull();
         }
+
+        [Fact]
+        public void Boolean_options_with_no_argument_specified_do_not_match_subsequent_arguments()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption("-v", "", builder => builder.ParseArgumentsAs<bool>())
+                         .AddArguments(builder => builder.OneOrMore())
+                         .Build();
+
+            var result = parser.Parse("-v an-argument");
+
+            _output.WriteLine(result.ToString());
+
+            result.ValueForOption("v").Should().Be(true);
+        }
     }
 }
