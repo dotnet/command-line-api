@@ -139,9 +139,10 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_option_argument_is_provided_without_option_name_argument_position_is_assumed()
+        public void When_option_argument_is_provided_without_option_name_then_argument_position_is_assumed()
         {
             var result = new CommandLineBuilder()
+                .EnablePositionalOptions()
                 .AddOption("-a", "", a => a.ExactlyOne())
                 .Build()
                 .Parse("value-for-a");
@@ -150,9 +151,10 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_multiple_option_arguments_are_provided_without_option_name_argument_positions_are_assumed()
+        public void When_multiple_option_arguments_are_provided_without_option_name_then_argument_positions_are_assumed()
         {
             var result = new CommandLineBuilder()
+                .EnablePositionalOptions()
                 .AddOption("-a", "", a => a.ExactlyOne())
                 .AddOption("-b", "")
                 .AddOption("-c", "", a => a.ExactlyOne())
@@ -165,9 +167,10 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_multiple_option_arguments_are_provided_with_first_option_name_argument_positions_are_assumed()
+        public void When_multiple_option_arguments_are_provided_with_first_option_name_then_argument_positions_are_assumed()
         {
             var result = new CommandLineBuilder()
+                .EnablePositionalOptions()
                 .AddOption("-a", "", a => a.ExactlyOne())
                 .AddOption("-b", "")
                 .AddOption("-c", "", a => a.ExactlyOne())
@@ -201,6 +204,7 @@ namespace System.CommandLine.Tests
         public void When_multiple_option_arguments_are_provided_with_second_option_is_first_positions_are_assumed()
         {
             var result = new CommandLineBuilder()
+                .EnablePositionalOptions()
                 .AddOption("-a", "", a => a.ExactlyOne())
                 .AddOption("-b", "")
                 .AddOption("-c", "", a => a.ExactlyOne())

@@ -110,6 +110,14 @@ namespace System.CommandLine.Builder
             return builder.AddOption(new[] { name }, description, arguments);
         }
 
+        public static CommandLineBuilder EnablePositionalOptions(
+            this CommandLineBuilder builder,
+            bool value = true)
+        {
+            builder.EnablePositionalOptions = value;
+            return builder;
+        }
+
         public static CommandLineBuilder EnablePosixBundling(
             this CommandLineBuilder builder,
             bool value = true)

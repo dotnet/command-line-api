@@ -135,7 +135,7 @@ namespace System.CommandLine
                         tokenList.Add(Argument(arg));
                     }
                 }
-                else if (configuration.AllowUnbundling && arg.CanBeUnbundled(knownTokens))
+                else if (configuration.EnablePosixBundling && arg.CanBeUnbundled(knownTokens))
                 {
                     foreach (var character in arg.Skip(1))
                     {

@@ -11,20 +11,24 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_then_a_given_positional_value_should_overriden()
         {
-            var parser = new Parser(
-                new Option(
-                    "-x",
-                    "",
-                    new ArgumentBuilder()
-                        .WithDefaultValue(() => "123")
-                        .ParseArgumentsAs<int>()),
-                new Option(
-                    "-y",
-                    "",
-                    new ArgumentBuilder()
-                        .WithDefaultValue(() => "456")
-                        .ParseArgumentsAs<int>())
-            );
+            var configuration = new CommandLineConfiguration(
+                new[] {
+                    new Option(
+                        "-x",
+                        "",
+                        new ArgumentBuilder()
+                            .WithDefaultValue(() => "123")
+                            .ParseArgumentsAs<int>()),
+                    new Option(
+                        "-y",
+                        "",
+                        new ArgumentBuilder()
+                            .WithDefaultValue(() => "456")
+                            .ParseArgumentsAs<int>())
+                },
+                enablePositionalOptions: true);
+
+            var parser = new Parser(configuration);
 
             var result = parser.Parse("42");
 
@@ -36,20 +40,24 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_then_a_given_positional_value_should_override_with_other_specified()
         {
-            var parser = new Parser(
-                new Option(
-                    "-x",
-                    "",
-                    new ArgumentBuilder()
-                        .WithDefaultValue(() => "123")
-                        .ParseArgumentsAs<int>()),
-                new Option(
-                    "-y",
-                    "",
-                    new ArgumentBuilder()
-                        .WithDefaultValue(() => "456")
-                        .ParseArgumentsAs<int>())
-            );
+            var configuration = new CommandLineConfiguration(
+                new[] {
+                    new Option(
+                        "-x",
+                        "",
+                        new ArgumentBuilder()
+                            .WithDefaultValue(() => "123")
+                            .ParseArgumentsAs<int>()),
+                    new Option(
+                        "-y",
+                        "",
+                        new ArgumentBuilder()
+                            .WithDefaultValue(() => "456")
+                            .ParseArgumentsAs<int>())
+                },
+                enablePositionalOptions: true);
+
+            var parser = new Parser(configuration);
 
             var result = parser.Parse("-y 23 42");
 
@@ -62,6 +70,7 @@ namespace System.CommandLine.Tests
         public void When_a_sibling_commands_have_options_with_the_same_name_it_matches_based_on_command()
         {
             var parser = new CommandLineBuilder()
+                         .EnablePositionalOptions()
                          .AddCommand("command1", symbols: b =>
                                          b.AddOption("-anon", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
                          )
@@ -86,6 +95,7 @@ namespace System.CommandLine.Tests
             int subcommand2Options)
         {
             var parser = new CommandLineBuilder()
+                         .EnablePositionalOptions()
                          .AddCommand("subcommand1", symbols: b => {
                              foreach (int optionIndex in Enumerable.Range(1, subcommand1Options))
                              {
@@ -136,6 +146,7 @@ namespace System.CommandLine.Tests
         public void When_a_subcommand_has_options_they_can_be_positional()
         {
             var parser = new CommandLineBuilder()
+                         .EnablePositionalOptions()
                          .AddCommand("subcommand", symbols: b =>
                                          b.AddOption("-anon1", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
                                           .AddOption("-anon2", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())

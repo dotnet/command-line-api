@@ -22,6 +22,8 @@ namespace System.CommandLine.Builder
 
         public static string ExeName { get; } = executableName.Value;
 
+        public bool EnablePositionalOptions { get; set; } = false;
+
         public bool EnablePosixBundling { get; set; } = true;
 
         public IReadOnlyCollection<string> Prefixes { get; set; }
@@ -36,7 +38,8 @@ namespace System.CommandLine.Builder
                 new CommandLineConfiguration(
                     new[] { rootCommand },
                     prefixes: Prefixes,
-                    allowUnbundling: EnablePosixBundling,
+                    enablePosixBundling: EnablePosixBundling,
+                    enablePositionalOptions: EnablePositionalOptions,
                     validationMessages: ValidationMessages.Instance,
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList?.OrderBy(m => m.order)

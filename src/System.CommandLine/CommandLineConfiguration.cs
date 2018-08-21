@@ -13,7 +13,8 @@ namespace System.CommandLine
             IReadOnlyCollection<Symbol> symbols,
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
-            bool allowUnbundling = true,
+            bool enablePosixBundling = true,
+            bool enablePositionalOptions = false,
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = default(ResponseFileHandling),
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null)
@@ -59,7 +60,8 @@ namespace System.CommandLine
 
             Symbols.Add(RootCommand);
 
-            AllowUnbundling = allowUnbundling;
+            EnablePosixBundling = enablePosixBundling;
+            EnablePositionalOptions = enablePositionalOptions;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
             _middlewarePipeline = middlewarePipeline;
@@ -89,7 +91,9 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
-        public bool AllowUnbundling { get; }
+        public bool EnablePositionalOptions { get; }
+
+        public bool EnablePosixBundling { get; }
 
         public ValidationMessages ValidationMessages { get; }
 
