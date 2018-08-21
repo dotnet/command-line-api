@@ -92,7 +92,7 @@ namespace System.CommandLine.CompletionSuggestions
                 targetCommands[1],
                 "--position",
                 parseResult.ValueForOption<string>(Position),
-                $"\"{string.Join(' ', parseResult.UnmatchedTokens)}\"");
+                $"{string.Join(' ', parseResult.UnmatchedTokens)}");
         }
 
         public static string GetSuggestions(string exeFileName,
@@ -118,6 +118,7 @@ namespace System.CommandLine.CompletionSuggestions
                 {
                     process.Start();
 
+                    File.AppendAllText(@"E:\input.txt", suggestionTargetArguments);
                     Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
 
                     readToEndTask.Wait(millisecondsTimeout);
@@ -125,6 +126,7 @@ namespace System.CommandLine.CompletionSuggestions
                     if (readToEndTask.IsCompleted)
                     {
                         result = readToEndTask.Result;
+                        File.AppendAllText(@"E:\input.txt", result);
                     }
                     else
                     {
