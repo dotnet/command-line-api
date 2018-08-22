@@ -63,7 +63,7 @@ namespace System.CommandLine.CompletionSuggestions
 
             string targetArgs = FormatSuggestionArguments(parseResult, targetCommands);
 
-            return GetSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
+            return getSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
         }
 
         public static string GetCompletionAvailableCommands(ISuggestionFileProvider suggestionFileProvider)
