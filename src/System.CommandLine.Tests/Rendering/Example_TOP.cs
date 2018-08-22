@@ -62,7 +62,9 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
                 Width = 150
             };
 
-            consoleRenderer = new ConsoleRenderer(_console);
+            consoleRenderer = new ConsoleRenderer(
+                _console,
+                OutputMode.File);
         }
 
         [Fact]
@@ -74,13 +76,13 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
             view.Render(Processes);
 
-            _output.WriteLine("REAL top output:\n");
-
-            _output.WriteLine(_topSampleOutput);
-
             _output.WriteLine("\n\nVIEW emulating top output:\n");
 
             _output.WriteLine(_console.Out.ToString());
+
+            _output.WriteLine("REAL top output:\n");
+
+            _output.WriteLine(_topSampleOutput);
         }
     }
 

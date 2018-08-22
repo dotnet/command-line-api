@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="system.reactive.core" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\System.CommandLine.DragonFruit\System.CommandLine.DragonFruit.csproj" />
   </ItemGroup>
 
