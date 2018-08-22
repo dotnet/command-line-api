@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests.Rendering
 
             view.Render(text);
 
-            _console.OutputLines()
+            _console.RenderOperations()
                     .Select(l => l.Text)
                     .Should()
                     .BeEquivalentTo(
@@ -55,7 +55,7 @@ namespace System.CommandLine.Tests.Rendering
 
             view.Render(text);
 
-            _console.OutputLines()
+            _console.RenderOperations()
                     .Select(l => l.Text)
                     .Should()
                     .BeEquivalentTo(

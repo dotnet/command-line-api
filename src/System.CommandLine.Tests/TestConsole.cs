@@ -189,7 +189,7 @@ namespace System.CommandLine.Tests
 
         public bool IsInputRedirected { get; }
 
-        public IEnumerable<TextRendered> OutputLines()
+        public IEnumerable<TextRendered> RenderOperations()
         {
             var buffer = new StringBuilder();
 

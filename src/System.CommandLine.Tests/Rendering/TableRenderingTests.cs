@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests.Rendering
 
             view.Render(options);
 
-            var lines = _console.OutputLines();
+            var lines = _console.RenderOperations();
 
             lines
                 .Should()
@@ -65,7 +65,7 @@ namespace System.CommandLine.Tests.Rendering
 
             _output.WriteLine(_console.Out.ToString());
 
-            var lines = _console.OutputLines()
+            var lines = _console.RenderOperations()
                                 .Select(l => l.Text)
                                 .ToArray();
 

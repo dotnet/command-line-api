@@ -102,7 +102,7 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion(text, region);
 
-            _console.OutputLines()
+            _console.RenderOperations()
                     .Should()
                     .OnlyContain(line => line.Text.Length == width);
         }
@@ -118,7 +118,7 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion($"{NewLine}*", region);
 
-            _console.OutputLines()
+            _console.RenderOperations()
                     .Select(l => l.Text)
                     .Should()
                     .BeEquivalentTo(
@@ -213,9 +213,9 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion(text, region);
 
-            _output.WriteLine(string.Join(NewLine, _console.OutputLines()));
+            _output.WriteLine(string.Join(NewLine, _console.RenderOperations()));
 
-            _console.OutputLines().Should().HaveCount(height);
+            _console.RenderOperations().Should().HaveCount(height);
         }
 
         private const string ZeroThroughThirty =

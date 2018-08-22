@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests.Rendering
                 "3"
             });
 
-            _console.OutputLines()
+            _console.RenderOperations()
                     .Should()
                     .BeEquivalentTo(new[] {
                         new TextRendered("1", new Point(3, 5)),
@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests.Rendering
                 "3"
             });
 
-            var lines = _console.OutputLines();
+            var lines = _console.RenderOperations();
 
             lines
                 .Should()

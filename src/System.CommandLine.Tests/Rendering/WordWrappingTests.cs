@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests.Rendering
                     @case.InputSpan,
                     @case.Region);
 
-            var output = _console.OutputLines();
+            var output = _console.RenderOperations();
 
             output
                 .Should()
