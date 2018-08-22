@@ -20,6 +20,10 @@ namespace System.CommandLine.Builder
         {
         }
 
+        public CommandLineBuilder(string rootCommandName) : base(rootCommandName)
+        {
+        }
+
         public static string ExeName { get; } = executableName.Value;
 
         public bool EnablePosixBundling { get; set; } = true;

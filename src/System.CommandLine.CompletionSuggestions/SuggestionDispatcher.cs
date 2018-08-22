@@ -35,6 +35,7 @@ namespace System.CommandLine.CompletionSuggestions
                     (parseResult, console) =>
                         console.Out.WriteLine(Dispatch(parseResult,
                             new SuggestionFileProvider(),
+                            GetSuggestions,
                             TimeoutMilliseconds)))
                 .TreatUnmatchedTokensAsErrors(false)
                 .Build();
@@ -42,6 +43,7 @@ namespace System.CommandLine.CompletionSuggestions
         public static string Dispatch(
             ParseResult parseResult,
             ISuggestionFileProvider suggestionFileProvider,
+            Func<string, string, int, string> getSuggestions,
             int timeoutMilliseconds)
         {
             var exePath = parseResult.ValueForOption<FileInfo>(ExeName);
@@ -118,7 +120,6 @@ namespace System.CommandLine.CompletionSuggestions
                 {
                     process.Start();
 
-                    File.AppendAllText(@"E:\input.txt", suggestionTargetArguments);
                     Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
 
                     readToEndTask.Wait(millisecondsTimeout);
@@ -126,7 +127,6 @@ namespace System.CommandLine.CompletionSuggestions
                     if (readToEndTask.IsCompleted)
                     {
                         result = readToEndTask.Result;
-                        File.AppendAllText(@"E:\input.txt", result);
                     }
                     else
                     {
