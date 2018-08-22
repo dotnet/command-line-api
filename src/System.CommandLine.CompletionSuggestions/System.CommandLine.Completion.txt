@@ -1,2 +1,1 @@
 C:\Program Files\dotnet\dotnet.exe=dotnet complete
-C:\Users\wul\.dotnet\tools\t-rex.exe=t-rex !suggest
