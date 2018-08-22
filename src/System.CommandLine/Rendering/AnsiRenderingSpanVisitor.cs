@@ -15,9 +15,7 @@ namespace System.CommandLine.Rendering
         {
             Writer.Write(
                 Cursor.Move
-                      .ToLocation(
-                          line: top + 1,
-                          column: left + 1)
+                      .ToLocation(left: left + 1, top: top + 1)
                       .EscapeSequence);
         }
 

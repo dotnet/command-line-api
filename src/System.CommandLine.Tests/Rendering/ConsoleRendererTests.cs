@@ -143,7 +143,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(1, 1).EscapeSequence}     {Cursor.Move.ToLocation(2, 1).EscapeSequence}*    ");
+                    .Be($"{Cursor.Move.ToLocation(left: 1, top: 1).EscapeSequence}     {Cursor.Move.ToLocation(left: 1, top: 2).EscapeSequence}*    ");
         }
 
         [Fact]
@@ -183,7 +183,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(14, 6).EscapeSequence}     {Cursor.Move.ToLocation(15, 6).EscapeSequence}*    ");
+                    .Be($"{Cursor.Move.ToLocation(left: 6, top: 14).EscapeSequence}     {Cursor.Move.ToLocation(left: 6, top: 15).EscapeSequence}*    ");
         }
 
         [Theory]
