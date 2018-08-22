@@ -159,7 +159,7 @@ namespace System.CommandLine.Tests.Rendering
 
             _console.Events
                     .OfType<TestConsole.CursorPositionChanged>()
-                    .Select(e => e.Point)
+                    .Select(e => e.Position)
                     .Should()
                     .BeEquivalentTo(
                         new[] {

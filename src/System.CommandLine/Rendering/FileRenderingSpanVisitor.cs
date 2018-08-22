@@ -10,9 +10,11 @@ namespace System.CommandLine.Rendering
         {
         }
 
-        protected override void StartNewLine()
+        protected override void SetCursorPosition(int left, int top)
         {
             Writer.WriteLine();
+
+            Writer.Write(new string(' ', left));
         }
     }
 }

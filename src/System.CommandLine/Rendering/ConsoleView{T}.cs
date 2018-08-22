@@ -63,11 +63,19 @@ namespace System.CommandLine.Rendering
                 left += column.Width;
             }
 
+            var columnCount = tableView.Columns.Count;
+
             for (var rowIndex = 0; rowIndex <= items.Count(); rowIndex++)
             {
-                foreach (var column in tableView.Columns)
+                for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
                 {
-                    column.FlushRow(rowIndex, _verticalOffset, ConsoleRenderer);
+                    var column = tableView.Columns[columnIndex];
+
+                    column.FlushRow(
+                        rowIndex,
+                        _verticalOffset,
+                        columnIndex == columnCount - 1,
+                        ConsoleRenderer);
                 }
             }
         }

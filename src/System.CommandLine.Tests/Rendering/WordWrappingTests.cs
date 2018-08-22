@@ -22,11 +22,13 @@ namespace System.CommandLine.Tests.Rendering
                     @case.InputSpan,
                     @case.Region);
 
-            _console.OutputLines()
-                    .Should()
-                    .BeEquivalentTo(
-                        @case.ExpectedOutput,
-                        options => options.WithStrictOrdering());
+            var output = _console.OutputLines();
+
+            output
+                .Should()
+                .BeEquivalentTo(
+                    @case.ExpectedOutput,
+                    options => options.WithStrictOrdering());
         }
 
         [Theory]
@@ -175,10 +177,10 @@ namespace System.CommandLine.Tests.Rendering
                     expectOutput:
                     Line(12, 12,
                          $"The quick {Ansi.Color.Foreground.Rgb(139, 69, 19).EscapeSequence}brown{Ansi.Color.Foreground.Default.EscapeSequence} fox jumps over the lazy dog."));
-
-                TextRendered Line(int left, int top, string text) =>
-                    new TextRendered(text, new Point(left, top));
             }
         }
+
+        private static TextRendered Line(int left, int top, string text) =>
+            new TextRendered(text, new Point(left, top));
     }
 }

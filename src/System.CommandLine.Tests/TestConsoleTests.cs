@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
 
             console.Events
                    .OfType<TestConsole.CursorPositionChanged>()
-                   .Select(e => e.Point)
+                   .Select(e => e.Position)
                    .Should()
                    .BeEquivalentTo(new Point(19, 0));
         }
@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests
 
             console.Events
                    .OfType<TestConsole.CursorPositionChanged>()
-                   .Select(e => e.Point)
+                   .Select(e => e.Position)
                    .Should()
                    .BeEquivalentTo(new Point(0, 12));
         }
@@ -47,7 +47,7 @@ namespace System.CommandLine.Tests
 
             console.Events
                    .OfType<TestConsole.CursorPositionChanged>()
-                   .Select(e => e.Point)
+                   .Select(e => e.Position)
                    .Should()
                    .BeEquivalentTo(new Point(3, 5));
         }
@@ -73,7 +73,7 @@ namespace System.CommandLine.Tests
 
             console.Events
                    .OfType<TestConsole.CursorPositionChanged>()
-                   .Select(e => e.Point)
+                   .Select(e => e.Position)
                    .Should()
                    .BeEquivalentTo(new[] {
                        new Point(2, 5),

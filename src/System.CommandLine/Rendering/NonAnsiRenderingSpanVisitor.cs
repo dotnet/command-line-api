@@ -11,14 +11,9 @@ namespace System.CommandLine.Rendering
             Console = console ?? throw new ArgumentNullException(nameof(console));
         }
 
-        protected override void Start(Span span)
+        protected override void SetCursorPosition(int left, int top)
         {
-            Console.SetCursorPosition(Region.Left, Region.Top);
-        }
-
-        protected override void StartNewLine()
-        {
-            Console.SetCursorPosition(Region.Left, Region.Top + LinesWritten);
+            Console.SetCursorPosition(left, top);
         }
     }
 }

@@ -1,5 +1,4 @@
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace System.CommandLine.Rendering
@@ -10,6 +9,8 @@ namespace System.CommandLine.Rendering
 
         private int _positionOnLine;
         private bool _lastSpanEndedWithWhitespace;
+        private int _cursorLeft = -1;
+        private int _cursorTop = -1;
 
         protected ContentRenderingSpanVisitor(
             TextWriter writer,
@@ -24,21 +25,27 @@ namespace System.CommandLine.Rendering
         protected int LinesWritten { get; private set; }
 
         protected Region Region { get; }
+        
+        protected override void Start(Span span)
+        {
+            TrySetCursorPosition(Region.Left, Region.Top);
+        }
 
         public override void VisitContentSpan(ContentSpan span)
         {
             var text = span.ToString();
 
-            var truncate = !_lastSpanEndedWithWhitespace
+            // if text from the previous line was not truncated because the word was separated by an ANSI code, it should be truncated
+            var skipWordRemainderFromPreviousLine = !_lastSpanEndedWithWhitespace
                            && _positionOnLine == 0
                            && LinesWritten > 0
                            && !text.StartsWithWhitespace();
 
             foreach (var word in text.SplitForWrapping())
             {
-                if (truncate)
+                if (skipWordRemainderFromPreviousLine)
                 {
-                    truncate = false;
+                    skipWordRemainderFromPreviousLine = false;
                     continue;
                 }
 
@@ -95,7 +102,6 @@ namespace System.CommandLine.Rendering
             _positionOnLine = 0;
         }
 
-        protected abstract void StartNewLine();
 
         private void PadRemainderOfLineWithWhitespace()
         {
@@ -171,13 +177,25 @@ namespace System.CommandLine.Rendering
                 return false;
             }
 
-            if (LinesWritten > 0 &&
-                _positionOnLine == 0)
-            {
-                StartNewLine();
-            }
+            TrySetCursorPosition(Region.Left, Region.Top + LinesWritten);
 
             return true;
         }
+
+        private void TrySetCursorPosition(int left, int top)
+        {
+            if (left == _cursorLeft &&
+                top == _cursorTop)
+            {
+                return;
+            }
+
+            _cursorLeft = left;
+            _cursorTop = top;
+
+            SetCursorPosition(_cursorLeft, _cursorTop);
+        }
+
+        protected abstract void SetCursorPosition(int left, int top);
     }
 }

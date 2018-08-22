@@ -202,19 +202,22 @@ namespace System.CommandLine.Tests
                     case AnsiControlCodeWritten ansiControlCodeWritten:
                         buffer.Append(ansiControlCodeWritten.Code.EscapeSequence);
                         break;
+
                     case ContentWritten contentWritten:
                         buffer.Append(contentWritten.Content);
                         break;
+
                     case CursorPositionChanged cursorPositionChanged:
-
-                        if (buffer.Length > 0)
+                        if (position != cursorPositionChanged.Position)
                         {
-                            yield return new TextRendered(buffer.ToString(), position);
-                            buffer.Clear();
+                            if (buffer.Length > 0)
+                            {
+                                yield return new TextRendered(buffer.ToString(), position);
+                                buffer.Clear();
+                            }
+
+                            position = cursorPositionChanged.Position;
                         }
-
-                        position = cursorPositionChanged.Point;
-
                         break;
                 }
             }
@@ -231,12 +234,12 @@ namespace System.CommandLine.Tests
 
         public class CursorPositionChanged : ConsoleEvent
         {
-            public CursorPositionChanged(Point point)
+            public CursorPositionChanged(Point position)
             {
-                Point = point;
+                Position = position;
             }
 
-            public Point Point { get; }
+            public Point Position { get; }
         }
 
         public class ContentWritten : ConsoleEvent

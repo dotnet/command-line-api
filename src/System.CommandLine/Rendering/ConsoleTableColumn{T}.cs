@@ -22,6 +22,7 @@ namespace System.CommandLine.Rendering
         public void FlushRow(
             int rowIndex,
             int verticalOffset,
+            bool isLastColumn,
             ConsoleRenderer consoleRenderer)
         {
             if (_spans == null)
@@ -34,10 +35,23 @@ namespace System.CommandLine.Rendering
             var region = new Region(
                 left: Left,
                 top: rowIndex + verticalOffset,
-                width: Width, 
+                width: Width,
                 height: 1);
 
-            consoleRenderer.RenderToRegion(span, region);
+            if (isLastColumn)
+            {
+                consoleRenderer.RenderToRegion(
+                    new ContainerSpan(
+                        span,
+                        new ContentSpan(Environment.NewLine)),
+                    region);
+            }
+            else
+            {
+                consoleRenderer.RenderToRegion(
+                    span,
+                    region);
+            }
         }
 
         public int Width { get; private set; }
