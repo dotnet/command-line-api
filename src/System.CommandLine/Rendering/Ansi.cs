@@ -122,6 +122,6 @@ namespace System.CommandLine.Rendering
             public static AnsiControlCode ToEndOfScreen { get; } = $"{Esc}[J";
         }
 
-        public static string Esc { get; } = "\x1b";
+        public static string Esc { get; } = "\u001b"; 
     }
 }
