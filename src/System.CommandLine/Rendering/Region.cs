@@ -2,10 +2,6 @@ namespace System.CommandLine.Rendering
 {
     public class Region
     {
-        protected Region()
-        {
-        }
-
         public Region(
             int left,
             int top,
@@ -51,6 +47,6 @@ namespace System.CommandLine.Rendering
 
         public bool IsOverwrittenOnRender { get; }
 
-        public override string ToString() => $"{Height}h × {Width}w @ top {Top}, left {Left}";
+        public override string ToString() => $" {Width}w × {Height}h @ {Left}x, {Top}y";
     }
 }

@@ -65,7 +65,7 @@ namespace System.CommandLine
 
         public string Name { get; }
 
-        // FIX: (Parent) make this immutable
+        // TODO: (Parent) make this immutable
         public Command Parent { get; protected internal set; }
 
         public SymbolSet Symbols { get; } = new SymbolSet();

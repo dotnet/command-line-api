@@ -1,4 +1,5 @@
 using System.CommandLine.Rendering;
+using System.Drawing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace System.CommandLine.Tests.Rendering
     public class ConsoleRendererTests
     {
         private readonly TestConsole _console = new TestConsole();
+
         private readonly ITestOutputHelper _output;
 
         public ConsoleRendererTests(ITestOutputHelper output)
@@ -28,7 +30,7 @@ namespace System.CommandLine.Tests.Rendering
             );
 
             writer.RenderToRegion(
-                $"{Color.Foreground.Red}normal{Color.Foreground.Default}",
+                $"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}",
                 _console.GetRegion());
 
             _console.Out
@@ -63,14 +65,14 @@ namespace System.CommandLine.Tests.Rendering
             );
 
             writer.RenderToRegion(
-                $"{Color.Foreground.Red}normal{Color.Foreground.Default}",
+                $"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}",
                 _console.GetRegion());
 
             _console.Out
                     .ToString()
                     .TrimEnd()
                     .Should()
-                    .Contain($"{Color.Foreground.Red}normal{Color.Foreground.Default}");
+                    .Contain($"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}");
         }
 
         [Theory]
@@ -78,7 +80,10 @@ namespace System.CommandLine.Tests.Rendering
         [InlineData(ZeroThroughThirty, 0, 0, 1, 10)]
         [InlineData("one two", 0, 0, 4, 4)]
         [InlineData("", 0, 0, 4, 4)]
-        [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region) 
+        [InlineData(ZeroThroughThirty, 4, 4, 10, 1)]
+        [InlineData(ZeroThroughThirty, 4, 4, 1, 10)]
+        [InlineData("one two", 4, 4, 4, 4)]
+        [InlineData("", 4, 4, 4, 4)]
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region(
             string text,
             int left,
@@ -97,13 +102,9 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion(text, region);
 
-            _output.WriteLine(_console.Out.ToString());
-
-            var lines = _console.Out.ToString().Split(NewLine);
-
-            var expectedWidth = width + left;
-
-            lines.Should().OnlyContain(line => line.Length == expectedWidth);
+            _console.RenderOperations()
+                    .Should()
+                    .OnlyContain(line => line.Text.Length == width);
         }
 
         [Fact]
@@ -117,10 +118,15 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion($"{NewLine}*", region);
 
-            _console.Out
-                    .ToString()
+            _console.RenderOperations()
+                    .Select(l => l.Text)
                     .Should()
-                    .Be($"     {NewLine}*    ");
+                    .BeEquivalentTo(
+                        new[] {
+                            $"     ",
+                            $"*    "
+                        },
+                        options => options.WithStrictOrdering());
         }
 
         [Fact]
@@ -137,13 +143,30 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(1, 1).EscapeSequence}     {Cursor.Move.ToLocation(2, 1).EscapeSequence}*    ");
+                    .Be($"{Cursor.Move.ToLocation(left: 1, top: 1).EscapeSequence}     {Cursor.Move.ToLocation(left: 1, top: 2).EscapeSequence}*    ");
         }
 
-        [Fact(Skip = "WIP")]
+        [Fact]
         public void When_in_NonAnsi_mode_text_following_newline_within_an_indented_region_appears_at_the_correct_left_position()
         {
-            throw new NotImplementedException();
+            var writer = new ConsoleRenderer(
+                _console,
+                OutputMode.NonAnsi);
+
+            var region = new Region(13, 17, 5, 2);
+
+            writer.RenderToRegion($"{NewLine}*", region);
+
+            _console.Events
+                    .OfType<TestConsole.CursorPositionChanged>()
+                    .Select(e => e.Position)
+                    .Should()
+                    .BeEquivalentTo(
+                        new[] {
+                            new Point(13, 17),
+                            new Point(13, 18)
+                        },
+                        options => options.WithStrictOrdering());
         }
 
         [Fact]
@@ -160,7 +183,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(14, 6).EscapeSequence}     {Cursor.Move.ToLocation(15, 6).EscapeSequence}*    ");
+                    .Be($"{Cursor.Move.ToLocation(left: 6, top: 14).EscapeSequence}     {Cursor.Move.ToLocation(left: 6, top: 15).EscapeSequence}*    ");
         }
 
         [Theory]
@@ -168,7 +191,10 @@ namespace System.CommandLine.Tests.Rendering
         [InlineData(ZeroThroughThirty, 0, 0, 1, 10)]
         [InlineData("one two", 0, 0, 4, 4)]
         [InlineData("", 0, 0, 4, 4)]
-        [InlineData(ZeroThroughThirty, 4, 4, 4, 4, Skip = "Issue #168")] // TODO: (When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region) 
+        [InlineData(ZeroThroughThirty, 4, 4, 10, 1)]
+        [InlineData(ZeroThroughThirty, 4, 4, 1, 10)]
+        [InlineData("one two", 4, 4, 4, 4)]
+        [InlineData("", 4, 4, 4, 4)]
         public void When_in_NonAnsi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region(
             string text,
             int left,
@@ -187,23 +213,9 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion(text, region);
 
-            _output.WriteLine(_console.Out.ToString());
+            _output.WriteLine(string.Join(NewLine, _console.RenderOperations()));
 
-            var lines = _console.Out.ToString().Split(NewLine);
-
-            lines.Length.Should().Be(height);
-        }
-
-        [Fact(Skip = "WIP")]
-        public void When_in_Ansi_mode_text_fills_and_does_not_go_beyond_the_height_of_the_specified_region()
-        {
-            throw new NotImplementedException();
-        }
-
-        [Fact(Skip = "WIP")]
-        public void When_in_Ansi_mode_text_fills_and_does_not_go_beyond_the_width_of_the_specified_region()
-        {
-            throw new NotImplementedException();
+            _console.RenderOperations().Should().HaveCount(height);
         }
 
         private const string ZeroThroughThirty =
@@ -214,10 +226,10 @@ namespace System.CommandLine.Tests.Rendering
             public DirectoryView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
             {
                 renderer.Formatter
-                        .AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray}{d:t}{Color.Foreground.Default}");
+                        .AddFormatter<DateTime>(d => $"{d:d} {Ansi.Color.Foreground.DarkGray}{d:t}{Ansi.Color.Foreground.Default}");
             }
 
-            public override void Render(DirectoryInfo directory)
+            protected override void OnRender(DirectoryInfo directory)
             {
                 WriteLine();
                 WriteLine();
@@ -239,8 +251,8 @@ namespace System.CommandLine.Tests.Rendering
                             Span($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}"),
                             f =>
                                 f is DirectoryInfo
-                                    ? Span($"{Color.Foreground.LightGreen}{f.Name}{Color.Foreground.Default}")
-                                    : Span($"{Color.Foreground.White}{f.Name}{Color.Foreground.Default}"));
+                                    ? Span($"{Ansi.Color.Foreground.LightGreen}{f.Name}{Ansi.Color.Foreground.Default}")
+                                    : Span($"{Ansi.Color.Foreground.White}{f.Name}{Ansi.Color.Foreground.Default}"));
 
                         table.RenderColumn(
                             Span($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}"),

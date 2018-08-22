@@ -13,7 +13,7 @@ namespace RenderingPlayground
                     .AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray}{d:t}{ForegroundColorSpan.Reset}");
         }
 
-        public override void Render(DirectoryInfo directory)
+        protected override void OnRender(DirectoryInfo directory)
         {
             WriteLine();
             WriteLine();

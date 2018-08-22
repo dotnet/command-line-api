@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.CommandLine.Rendering;
+using System.Drawing;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static System.Environment;
 
 namespace System.CommandLine.Tests.Rendering
 {
@@ -37,14 +37,19 @@ namespace System.CommandLine.Tests.Rendering
 
             view.Render(options);
 
-            _output.WriteLine(_console.Out.ToString());
+            var lines = _console.RenderOperations();
 
-            var lines = _console.Out.ToString().Split(NewLine);
-
-            lines[0].Should().Contain("Option");
-            lines[1].Should().Contain("-s");
-            lines[2].Should().Contain("--very-long");
+            lines
+                .Should()
+                .BeEquivalentTo(
+                    new[] {
+                        Cell("Option       ", 0, 0), Cell("                ", 13, 0),
+                        Cell("-s           ", 0, 1), Cell("a short option  ", 13, 1),
+                        Cell("--very-long  ", 0, 2), Cell("a long option   ", 13, 2),
+                    }, o => o.WithStrictOrdering());
         }
+
+        private TextRendered Cell(string text, int left, int top) => new TextRendered(text, new Point(left, top));
 
         [Fact]
         public void Column_widths_are_aligned_to_the_longest_cell()
@@ -60,9 +65,9 @@ namespace System.CommandLine.Tests.Rendering
 
             _output.WriteLine(_console.Out.ToString());
 
-            var lines = _console.Out
-                                .ToString()
-                                .Split(NewLine);
+            var lines = _console.RenderOperations()
+                                .Select(l => l.Text)
+                                .ToArray();
 
             lines[1].IndexOf("an option")
                     .Should()
@@ -76,7 +81,7 @@ namespace System.CommandLine.Tests.Rendering
         {
         }
 
-        public override void Render(IEnumerable<Option> options)
+        protected override void OnRender(IEnumerable<Option> options)
         {
             RenderTable(
                 options.ToArray(),

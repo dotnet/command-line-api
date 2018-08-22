@@ -1,3 +1,5 @@
+using System.CommandLine.Invocation;
+
 namespace System.CommandLine.Rendering
 {
     public class ConsoleRenderer
@@ -6,7 +8,7 @@ namespace System.CommandLine.Rendering
             IConsole console = null,
             OutputMode mode = OutputMode.NonAnsi)
         {
-            Console = console ?? Invocation.SystemConsole.Instance;
+            Console = console ?? SystemConsole.Instance;
             Mode = mode;
         }
 
@@ -38,31 +40,30 @@ namespace System.CommandLine.Rendering
             Span span,
             Region region)
         {
-            ContentRenderingSpanVisitor visitor;
-
-            if (Mode == OutputMode.Auto)
-            {
-                
-            }
+            SpanVisitor visitor;
 
             switch (Mode)
             {
                 case OutputMode.NonAnsi:
-                    visitor = new ContentRenderingSpanVisitor(
-                        Console.Out,
+                    visitor = new NonAnsiRenderingSpanVisitor(
+                        Console,
                         region);
                     break;
 
                 case OutputMode.Ansi:
                     visitor = new AnsiRenderingSpanVisitor(
-                        Console.Out,
+                        Console,
                         region);
                     break;
 
                 case OutputMode.File:
                     visitor = new FileRenderingSpanVisitor(
                         Console.Out,
-                        region);
+                        new Region(region.Left,
+                                   region.Top,
+                                   region.Width,
+                                   region.Height,
+                                   false));
                     break;
 
                 default:
@@ -70,23 +71,6 @@ namespace System.CommandLine.Rendering
             }
 
             visitor.Visit(span);
-        }
-
-        protected void WriteLine()
-        {
-            switch (Mode)
-            {
-                case OutputMode.NonAnsi:
-                    Console.Out.WriteLine();
-                    break;
-                case OutputMode.Ansi:
-                    Console.Out.Write(Ansi.Cursor.Move.Down());
-                    Console.Out.Write(Ansi.Cursor.Move.NextLine(1));
-                    break;
-                case OutputMode.File:
-                    Console.Out.WriteLine();
-                    break;
-            }
         }
     }
 }

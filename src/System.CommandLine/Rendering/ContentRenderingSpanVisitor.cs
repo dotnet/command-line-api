@@ -3,13 +3,16 @@ using System.Text;
 
 namespace System.CommandLine.Rendering
 {
-    internal class ContentRenderingSpanVisitor : SpanVisitor
+    internal abstract class ContentRenderingSpanVisitor : SpanVisitor
     {
         private readonly StringBuilder _buffer = new StringBuilder();
 
         private int _positionOnLine;
+        private bool _lastSpanEndedWithWhitespace;
+        private int _cursorLeft = -1;
+        private int _cursorTop = -1;
 
-        public ContentRenderingSpanVisitor(
+        protected ContentRenderingSpanVisitor(
             TextWriter writer,
             Region region)
         {
@@ -22,14 +25,38 @@ namespace System.CommandLine.Rendering
         protected int LinesWritten { get; private set; }
 
         protected Region Region { get; }
-
-        public override void VisitContentSpan(ContentSpan contentSpan)
+        
+        protected override void Start(Span span)
         {
-            var text = contentSpan.ToString();
+            TrySetCursorPosition(Region.Left, Region.Top);
+        }
+
+        public override void VisitContentSpan(ContentSpan span)
+        {
+            var text = span.ToString();
+
+            // if text from the previous line was not truncated because the word was separated by an ANSI code, it should be truncated
+            var skipWordRemainderFromPreviousLine = !_lastSpanEndedWithWhitespace
+                           && _positionOnLine == 0
+                           && LinesWritten > 0
+                           && !text.StartsWithWhitespace();
 
             foreach (var word in text.SplitForWrapping())
             {
-                if (!TryAppendWord(word))
+                if (skipWordRemainderFromPreviousLine)
+                {
+                    skipWordRemainderFromPreviousLine = false;
+                    continue;
+                }
+
+                if (word.IsNewLine())
+                {
+                    if (TryStartNewLine())
+                    {
+                        FlushLine();
+                    }
+                }
+                else if (!TryAppendWord(word))
                 {
                     break;
                 }
@@ -39,6 +66,8 @@ namespace System.CommandLine.Rendering
             {
                 Flush();
             }
+
+            _lastSpanEndedWithWhitespace = text.EndsWithWhitespace();
         }
 
         protected override void Stop(Span span)
@@ -51,15 +80,14 @@ namespace System.CommandLine.Rendering
 
             if (Region.IsOverwrittenOnRender)
             {
-                while (!FilledRegionHeight)
+                while (TryStartNewLine())
                 {
-                    StartNewLine();
                     FlushLine();
                 }
             }
         }
 
-        private bool FilledRegionHeight => LinesWritten >= Region.Height;
+        protected bool FilledRegionHeight => LinesWritten >= Region.Height;
 
         private int RemainingWidthOnLine => Region.Width - _positionOnLine;
 
@@ -74,10 +102,6 @@ namespace System.CommandLine.Rendering
             _positionOnLine = 0;
         }
 
-        protected virtual void StartNewLine()
-        {
-            Writer.WriteLine();
-        }
 
         private void PadRemainderOfLineWithWhitespace()
         {
@@ -99,22 +123,11 @@ namespace System.CommandLine.Rendering
 
         private bool TryAppendWord(string value)
         {
-            if (value == "\r\n" || value == "\n")
-            {
-                FlushLine();
-                return !FilledRegionHeight;
-            }
-
             if (_positionOnLine == 0 &&
                 string.IsNullOrWhiteSpace(value))
             {
+                // omit whitespace if it's at the beginning of the line
                 return true;
-            }
-
-            if (LinesWritten > 0 &&
-                _buffer.Length == 0)
-            {
-                StartNewLine();
             }
 
             var mustTruncate = value.Length > Region.Width;
@@ -133,14 +146,12 @@ namespace System.CommandLine.Rendering
                 else
                 {
                     FlushLine();
-
-                    if (FilledRegionHeight)
-                    {
-                        return false;
-                    }
-
-                    StartNewLine();
                 }
+            }
+
+            if (!TryStartNewLine())
+            {
+                return false;
             }
 
             _buffer.Append(value);
@@ -158,5 +169,33 @@ namespace System.CommandLine.Rendering
                 return value.TrimEnd().Length <= RemainingWidthOnLine;
             }
         }
+
+        protected virtual bool TryStartNewLine()
+        {
+            if (FilledRegionHeight)
+            {
+                return false;
+            }
+
+            TrySetCursorPosition(Region.Left, Region.Top + LinesWritten);
+
+            return true;
+        }
+
+        private void TrySetCursorPosition(int left, int top)
+        {
+            if (left == _cursorLeft &&
+                top == _cursorTop)
+            {
+                return;
+            }
+
+            _cursorLeft = left;
+            _cursorTop = top;
+
+            SetCursorPosition(_cursorLeft, _cursorTop);
+        }
+
+        protected abstract void SetCursorPosition(int left, int top);
     }
 }

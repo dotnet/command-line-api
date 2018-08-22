@@ -91,7 +91,7 @@ namespace System.CommandLine.Rendering
                 public static AnsiControlCode Left(int columns = 1) => $"{Esc}[{columns}D";
                 public static AnsiControlCode NextLine(int line = 1) => $"{Esc}{line}E";
                 public static AnsiControlCode ToUpperLeftCorner { get; } = $"{Esc}[H";
-                public static AnsiControlCode ToLocation(int? line = null, int? column = null) => $"{Esc}[{line};{column}H";
+                public static AnsiControlCode ToLocation(int? left = null, int? top = null) => $"{Esc}[{top};{left}H";
             }
 
             [DebuggerStepThrough]
@@ -122,6 +122,6 @@ namespace System.CommandLine.Rendering
             public static AnsiControlCode ToEndOfScreen { get; } = $"{Esc}[J";
         }
 
-        public static string Esc { get; } = "\x1b";
+        public static string Esc { get; } = "\u001b"; 
     }
 }

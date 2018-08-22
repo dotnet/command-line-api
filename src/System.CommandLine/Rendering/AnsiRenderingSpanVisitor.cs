@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using static System.CommandLine.Rendering.Ansi;
 
 namespace System.CommandLine.Rendering
@@ -7,18 +6,16 @@ namespace System.CommandLine.Rendering
     internal class AnsiRenderingSpanVisitor : ContentRenderingSpanVisitor
     {
         public AnsiRenderingSpanVisitor(
-            TextWriter writer,
-            Region region) : base(writer, region)
+            IConsole console,
+            Region region) : base(console.Out, region)
         {
         }
 
-        protected override void Start(Span span)
+        protected override void SetCursorPosition(int left, int top)
         {
             Writer.Write(
                 Cursor.Move
-                      .ToLocation(
-                          line: Region.Top + 1,
-                          column: Region.Left + 1)
+                      .ToLocation(left: left + 1, top: top + 1)
                       .EscapeSequence);
         }
 
@@ -60,16 +57,6 @@ namespace System.CommandLine.Rendering
             {
                 Writer.Write(controlCode.EscapeSequence);
             }
-        }
-
-        protected override void StartNewLine()
-        {
-            Writer.Write(
-                Cursor.Move
-                      .ToLocation(
-                          line: Region.Top + 1 + LinesWritten,
-                          column: Region.Left + 1)
-                      .EscapeSequence);
         }
 
         private static readonly Dictionary<ForegroundColorSpan, AnsiControlCode> _foregroundColorControlCodeMappings =

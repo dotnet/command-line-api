@@ -11,17 +11,17 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleRenderer consoleRenderer;
+        private readonly ConsoleRenderer _consoleRenderer;
 
         public UpdatingRenderedConsoleOutputTests(ITestOutputHelper output)
         {
             _output = output;
             _console = new TestConsole();
             _console.Height = 1;
-            consoleRenderer = new ConsoleRenderer(_console);
+            _consoleRenderer = new ConsoleRenderer(_console);
         }
 
-        [Fact]
+        [Fact(Skip = "WIP")]
         public void Observables_can_be_used_to_trigger_appending_of_additional_output()
         {
             var downloaded = new BehaviorSubject<int>(0);
@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests.Rendering
                 1_000_000,
                 stage);
 
-            var view = new ProgressItemView(consoleRenderer);
+            var view = new ProgressItemView(_consoleRenderer);
             view.Render(model);
 
             var outputStep1 = _console.Out.ToString();
@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests.Rendering
         {
         }
 
-        public override void Render(ProgressItemViewModel value)
+        protected override void OnRender(ProgressItemViewModel value)
         {
             value.Stage
                  .Zip(value.DownloadedKb, (stage, downloaded) => (stage, downloaded))

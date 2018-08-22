@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Rendering;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -31,7 +32,7 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void A_formattable_string_containing_ansi_codes_can_be_converted_to_a_ContainerSpan()
         {
-            var span = new SpanFormatter().ParseToSpan($"some {Ansi.Text.BlinkOn}blinking{Ansi.Text.BlinkOff} text");
+            var span = new SpanFormatter().ParseToSpan($"some {StyleSpan.BlinkOn}blinking{StyleSpan.BlinkOff} text");
 
             var containerSpan = span.Should()
                                     .BeOfType<ContainerSpan>()
@@ -44,12 +45,38 @@ namespace System.CommandLine.Tests.Rendering
                         new ContentSpan("some "),
                         StyleSpan.BlinkOn,
                         new ContentSpan("blinking"),
-
                         StyleSpan.BlinkOff,
                         new ContentSpan(" text")
                     ),
                     options => options.WithStrictOrdering()
-                                      .IgnoringCyclicReferences()
+                                      .Excluding(s => s.Parent)
+                                      .Excluding(s => s.Root)
+                );
+        }
+
+        [Fact]
+        public void Empty_strings_are_returned_as_empty_spans()
+        {
+            var formatter = new SpanFormatter();
+
+            var span = formatter
+                .ParseToSpan($"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default:a}");
+
+            var containerSpan = span.Should()
+                                    .BeOfType<ContainerSpan>()
+                                    .Subject;
+
+            containerSpan
+                .Should()
+                .BeEquivalentTo(
+                    new ContainerSpan(
+                        new EmptySpan(),
+                        new ContentSpan("normal"),
+                        new EmptySpan()
+                    ),
+                    options => options.WithStrictOrdering()
+                                      .Excluding(s => s.Parent)
+                                      .Excluding(s => s.Root)
                 );
         }
 

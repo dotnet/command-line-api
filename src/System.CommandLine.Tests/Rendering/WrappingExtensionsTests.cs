@@ -1,7 +1,6 @@
 using System.CommandLine.Rendering;
 using FluentAssertions;
 using Xunit;
-using static System.Environment;
 
 namespace System.CommandLine.Tests.Rendering
 {

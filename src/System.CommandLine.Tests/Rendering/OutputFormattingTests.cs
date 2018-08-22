@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests.Rendering
         {
             _renderer.Formatter.AddFormatter<TimeSpan>(ts => $"{ts.TotalSeconds} seconds");
 
-            new ConsoleView<TimeSpan>(_renderer).Render(21.Seconds());
+            new TimeSpanView(_renderer).Render(21.Seconds());
 
             _console.Out.ToString().TrimEnd().Should().Be("21 seconds");
         }
@@ -53,30 +53,42 @@ namespace System.CommandLine.Tests.Rendering
         public void FormattableString_can_contain_format_strings_that_reformat_the_input_value()
         {
             _renderer.Formatter
-                     .AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray}{d:t}{Color.Foreground.Default}");
+                     .AddFormatter<DateTime>(d => $"{d:d} {Color.Foreground.DarkGray.EscapeSequence}{d:t}{Color.Foreground.Default.EscapeSequence}");
 
             var dateTime = DateTime.Parse("8/2/2018 6pm");
 
             var span = _renderer.Formatter.Format(dateTime);
 
-            span.ToString().Should().Be($"{dateTime:d} {Color.Foreground.DarkGray}{dateTime:t}{Color.Foreground.Default}");
-        }
-    }
-
-    public class ProcessTimesView : ConsoleView<IEnumerable<ProcessInfo>>
-    {
-        public ProcessTimesView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
-        {
+            span.ToString().Should().Be($"{dateTime:d} {Color.Foreground.DarkGray.EscapeSequence}{dateTime:t}{Color.Foreground.Default.EscapeSequence}");
         }
 
-        public override void Render(IEnumerable<ProcessInfo> processes)
+        private class TimeSpanView : ConsoleView<TimeSpan>
         {
-            RenderTable(
-                items: processes,
-                table => {
-                    table.RenderColumn("COMMAND", p => p.Command);
-                    table.RenderColumn("TIME", p => p.ExecutionTime);
-                });
+            public TimeSpanView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+            {
+            }
+
+            protected override void OnRender(TimeSpan value)
+            {
+                Write(value);
+            }
+        }
+
+        private class ProcessTimesView : ConsoleView<IEnumerable<ProcessInfo>>
+        {
+            public ProcessTimesView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+            {
+            }
+
+            protected override void OnRender(IEnumerable<ProcessInfo> processes)
+            {
+                RenderTable(
+                    items: processes,
+                    table => {
+                        table.RenderColumn("COMMAND", p => p.Command);
+                        table.RenderColumn("TIME", p => p.ExecutionTime);
+                    });
+            }
         }
     }
 }
