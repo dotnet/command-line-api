@@ -14,6 +14,8 @@ namespace System.CommandLine.Rendering
         {
             ConsoleRenderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
             Region = region ?? renderer.Console.GetRegion();
+
+            SetEffectiveRegion();
         }
 
         protected ConsoleRenderer ConsoleRenderer { get; }
@@ -22,12 +24,7 @@ namespace System.CommandLine.Rendering
 
         public virtual void Render(T value)
         {
-            _effectiveRegion = new Region(
-                Region.Left,
-                Region.Top,
-                Region.Width,
-                Region.Height,
-                false);
+            SetEffectiveRegion();
 
             _verticalOffset = 0;
 
@@ -113,5 +110,15 @@ namespace System.CommandLine.Rendering
 
         protected Span Span(object value) =>
             ConsoleRenderer.Formatter.Format(value);
+
+        private void SetEffectiveRegion()
+        {
+            _effectiveRegion = new Region(
+                Region.Left,
+                Region.Top,
+                Region.Width,
+                Region.Height,
+                false);
+        }
     }
 }

@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace System.CommandLine.Rendering
 {
-    [DebuggerDisplay("{Name}")]
+    [DebuggerDisplay("{" + nameof(Name) + "}")]
     public abstract class FormatSpan : Span
     {
         protected FormatSpan(string name)

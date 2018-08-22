@@ -28,17 +28,12 @@ namespace System.CommandLine.Rendering
                             t => {
                                 var span = format((T)t);
 
-                                return span ?? new ContentSpan("");
+                                return span ?? new EmptySpan();
                             });
         }
 
         public Span Format(object value)
         {
-            if (value == null)
-            {
-                return new EmptySpan();
-            }
-
             if (value is Span span)
             {
                 return span;
@@ -77,7 +72,7 @@ namespace System.CommandLine.Rendering
                                 var formattableString = format((T)t);
 
                                 return formattableString == null
-                                           ? new ContentSpan("")
+                                           ? new EmptySpan()
                                            : ParseToSpan(formattableString);
                             });
         }
@@ -89,10 +84,6 @@ namespace System.CommandLine.Rendering
             object arg,
             IFormatProvider formatProvider)
         {
-            if (arg == null)
-            {
-                return "";
-            }
 
             return Format(arg).ToString();
         }
