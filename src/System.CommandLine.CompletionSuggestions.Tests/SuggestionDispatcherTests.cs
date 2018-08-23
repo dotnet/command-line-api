@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -47,9 +48,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public void Dispatch_executes_dotnet_complete() => Dispatch(_args,
                 new TestSuggestionFileProvider(), 20000)
             .Should()
-            .Contain("-h")
-            .And.Contain("--help")
-            .And.Contain("package")
+            .Contain("package")
             .And.Contain("reference");
 
         [Fact]
@@ -149,7 +148,32 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         {
             ParseResult parseResult = SuggestionDispatcher.Parser.Parse(args);
 
-            return SuggestionDispatcher.Dispatch(parseResult, suggestionFileProvider, timeoutMilliseconds);
+            return SuggestionDispatcher.Dispatch(parseResult,
+                                                suggestionFileProvider,
+                                                GetSuggestionsSimulator,
+                                                timeoutMilliseconds);
+        }
+
+        private static string GetSuggestionsSimulator(string exeFileName,
+                                            string suggestionTargetArguments,
+                                            int millisecondsTimeout = 5000)
+        {
+            var parser = new CommandLineBuilder("dotnet")
+                            .AddCommand("add", "add description",
+                                    symbols: s => s.AddCommand("package", "package description")
+                                                   .AddCommand("reference", "reference description"))
+                           .AddCommand("complete",
+                                    symbols: a => a.AddOption(new[] { "-p", "--position" },
+                                    arguments: ar => ar.ParseArgumentsAs<int>()))
+                            .TreatUnmatchedTokensAsErrors(false)
+                            .Build();
+
+            var parseResult = parser.Parse(suggestionTargetArguments);
+            var position = parseResult.ValueForOption<int>("position");
+            var suggested = parser.Parse(parseResult.UnmatchedTokens).Suggestions();
+            return string.Join(
+                    Environment.NewLine,
+                    suggested);
         }
     }
 }

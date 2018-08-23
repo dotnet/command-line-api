@@ -35,6 +35,7 @@ namespace System.CommandLine.CompletionSuggestions
                     (parseResult, console) =>
                         console.Out.WriteLine(Dispatch(parseResult,
                             new SuggestionFileProvider(),
+                            GetSuggestions,
                             TimeoutMilliseconds)))
                 .TreatUnmatchedTokensAsErrors(false)
                 .Build();
@@ -42,6 +43,7 @@ namespace System.CommandLine.CompletionSuggestions
         public static string Dispatch(
             ParseResult parseResult,
             ISuggestionFileProvider suggestionFileProvider,
+            Func<string, string, int, string> getSuggestions,
             int timeoutMilliseconds)
         {
             var exePath = parseResult.ValueForOption<FileInfo>(ExeName);
@@ -61,7 +63,7 @@ namespace System.CommandLine.CompletionSuggestions
 
             string targetArgs = FormatSuggestionArguments(parseResult, targetCommands);
 
-            return GetSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
+            return getSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
         }
 
         public static string GetCompletionAvailableCommands(ISuggestionFileProvider suggestionFileProvider)
@@ -92,7 +94,7 @@ namespace System.CommandLine.CompletionSuggestions
                 targetCommands[1],
                 "--position",
                 parseResult.ValueForOption<string>(Position),
-                $"\"{string.Join(' ', parseResult.UnmatchedTokens)}\"");
+                $"{string.Join(' ', parseResult.UnmatchedTokens)}");
         }
 
         public static string GetSuggestions(string exeFileName,

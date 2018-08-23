@@ -1,6 +1,9 @@
-Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock {
-     param($commandName, $wordToComplete, $cursorPosition)
-         C:\dev\CommandLine\dotnet\bin\Debug\dotnet.exe complete --position $cursorPosition "$wordToComplete" | ForEach-Object {
-            [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
-         }
- }
+$availableToComplete = (dotnet-suggest list) | Out-String
+$availableToCompleteArray = $availableToComplete.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries) |  ForEach-Object {$_.Trim() }
+
+Register-ArgumentCompleter -Native -CommandName $availableToCompleteArray -ScriptBlock {
+    param($commandName, $wordToComplete, $cursorPosition)
+    $fullpath = (Get-Command $wordToComplete.CommandElements[0]).Source
+    $suggestionArray = ((dotnet-suggest -p $cursorPosition -e $fullpath $wordToComplete.CommandElements) | Out-String).Split([Environment]::NewLine, [System.StringSplitOptions]::RemoveEmptyEntries)
+    $suggestionArray | ForEach-Object { [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_) }
+}
