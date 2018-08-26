@@ -40,7 +40,7 @@ namespace System.CommandLine.DragonFruit
             if (candidates.Count > 1)
             {
                 throw new AmbiguousMatchException(
-                    "Ambiguous entry point. Found muliple static functions named 'Program.Main'. Could not identify which method is the main entry point for this function.");
+                    "Ambiguous entry point. Found multiple static functions named 'Program.Main'. Could not identify which method is the main entry point for this function.");
             }
 
             if (candidates.Count == 0)
