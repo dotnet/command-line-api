@@ -53,11 +53,11 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
 
-            void Execute(string name, int age)
+            void Execute(string name, string age)
             {
                 wasCalled = true;
                 name.Should().Be("Gandalf");
-                age.Should().Be(425);
+                age.Should().Be("425");
             }
 
             var parser =
@@ -65,9 +65,9 @@ namespace System.CommandLine.Tests
                     .AddCommand(
                         "command", "",
                         cmd => {
-                            cmd.AddOption("--name", "", a => a.ExactlyOne())
-                               .OnExecute<string, int>(Execute)
-                               .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
+                            cmd.AddOption("--name", "", a => a.ParseArgumentsAs<string>())
+                               .OnExecute<string, string>(Execute)
+                               .AddOption("--age", "", a => a.ParseArgumentsAs<string>());
                         })
                     .Build();
 

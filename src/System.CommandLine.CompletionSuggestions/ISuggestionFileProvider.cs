@@ -3,11 +3,10 @@ using System.IO;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    public interface ISuggestionFileProvider
+    public interface ISuggestionProvider
     {
-        IReadOnlyCollection<string> RegistrationConfigurationFilePaths { get; }
-        void AddRegistrationConfigurationFilePath(string configFilePath);
-        string FindRegistration(FileInfo soughtExecutable);
-        IReadOnlyCollection<string> FindAllRegistrations();
+        bool AddSuggestionRegistration(SuggestionRegistration registration);
+        SuggestionRegistration FindRegistration(FileInfo soughtExecutable);
+        IReadOnlyCollection<SuggestionRegistration> FindAllRegistrations();
     }
 }

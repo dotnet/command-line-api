@@ -8,9 +8,9 @@ using System.Reflection;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    public class SuggestionFileProvider : ISuggestionFileProvider
+    public class SuggestionFileProvider : ISuggestionProvider
     {
-        readonly List<string> _registrationConfigFilePaths = new List<string>
+        private readonly List<string> _registrationConfigFilePaths = new List<string>
              {
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                     "System.CommandLine.Completion.txt")
@@ -27,7 +27,7 @@ namespace System.CommandLine.CompletionSuggestions
             _registrationConfigFilePaths.Add(configFilePath);
         }
 
-        public string FindRegistration(FileInfo soughtExecutable)
+        public SuggestionRegistration FindRegistration(FileInfo soughtExecutable)
         {
             if (soughtExecutable == null)
             {
@@ -46,7 +46,7 @@ namespace System.CommandLine.CompletionSuggestions
 
                 if (completionTarget != null)
                 {
-                    return completionTarget;
+                    return new SuggestionRegistration(completionTarget);
                 }
             }
 
@@ -54,9 +54,9 @@ namespace System.CommandLine.CompletionSuggestions
             return null;
         }
 
-        public IReadOnlyCollection<string> FindAllRegistrations()
+        public IReadOnlyCollection<SuggestionRegistration> FindAllRegistrations()
         {
-            var allRegistration = new List<string>();
+            var allRegistration = new List<SuggestionRegistration>();
             foreach (string configFilePath in RegistrationConfigurationFilePaths)
             {
                 if (!File.Exists(configFilePath))
@@ -68,10 +68,23 @@ namespace System.CommandLine.CompletionSuggestions
                     .AddRange(File
                         .ReadAllLines(configFilePath)
                         .Select(l => l.Trim())
-                        .Where(l => l.Any()));
+                        .Where(l => l.Any())
+                        .Select(item => new SuggestionRegistration(item))
+                    );
             }
 
             return allRegistration;
+        }
+
+        public bool AddSuggestionRegistration(SuggestionRegistration registration)
+        {
+            // TODO: Handle multiple files
+            string filePath = RegistrationConfigurationFilePaths.First();
+            using (var writer = new StreamWriter(filePath, true))
+            {
+                writer.WriteLine($"{registration.CommandPath}={registration.SuggestionCommand}");
+            }
+            return true;
         }
     }
 }

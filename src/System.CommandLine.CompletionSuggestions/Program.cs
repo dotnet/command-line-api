@@ -6,12 +6,13 @@ using System.CommandLine.Invocation;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    class Program
+    public class Program
     {
-        static async Task<int> Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            return await SuggestionDispatcher.Parser
-                                             .InvokeAsync(args);
+            var provider = new SuggestionFileProvider();
+            var dispatcher = new SuggestionDispatcher(provider);
+            return await dispatcher.Invoke(args);
         }
     }
 }

@@ -12,79 +12,88 @@ using System.CommandLine.Invocation;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    public static class SuggestionDispatcher
+    public class SuggestionDispatcher
     {
         private const int TimeoutMilliseconds = 5000;
+
         private const string Position = "-p";
-        private const string ExeName = "-e";
+        private const string ExecutingCommandOptionName = "-e";
         private const string CompletionAvailableCommands = "list";
 
-        public static Parser Parser { get; } =
-            new CommandLineBuilder()
+        private readonly ISuggestionProvider _suggestionProvider;
+
+        public SuggestionDispatcher(ISuggestionProvider suggestionProvider)
+        {
+            _suggestionProvider = suggestionProvider ?? throw new ArgumentNullException(nameof(suggestionProvider));
+
+            Parser = new CommandLineBuilder()
                 .AddCommand(CompletionAvailableCommands,
                     "list all completions available commands with space separated list",
                     cmd => cmd.OnExecute<IConsole>(c =>
-                        c.Out.WriteLine(GetCompletionAvailableCommands(new SuggestionFileProvider()))),
+                        c.Out.WriteLine(GetCompletionAvailableCommands(_suggestionProvider))),
                     arguments: argument => argument.None())
                 .AddOption(Position, "the current character position on the command line",
                     position => position.ParseArgumentsAs<string>())
-                .AddOption(ExeName, "The executable to ask for argument resolution", argument => argument
+                .AddOption(ExecutingCommandOptionName, "The executable to ask for argument resolution", argument => argument
                     .LegalFilePathsOnly()
                     .ParseArgumentsAs<string>())
                 .OnExecute<ParseResult, IConsole>(
                     (parseResult, console) =>
                         console.Out.WriteLine(Dispatch(parseResult,
-                            new SuggestionFileProvider(),
+                            _suggestionProvider,
                             GetSuggestions,
                             TimeoutMilliseconds)))
+                .AddCommand("register", "Register a suggestion command",
+                    cmd => {
+                        cmd.AddOption("-commandPath", "The path to the command for which to register suggestions",
+                                a => a.ParseArgumentsAs<string>())
+                            .AddOption("-suggestionCommand", "The command to invoke to retrieve suggestions",
+                                a => a.ParseArgumentsAs<string>())
+                            .OnExecute<string, string>(RegisterCommand);
+                    })
                 .TreatUnmatchedTokensAsErrors(false)
                 .Build();
+        }
+
+        public Task<int> Invoke(string[] args) => Parser.InvokeAsync(args);
+
+        public Parser Parser { get; }
+        
+        private void RegisterCommand(string commandPath, string suggestionCommand)
+        {
+            _suggestionProvider.AddSuggestionRegistration(new SuggestionRegistration(commandPath, suggestionCommand));
+        }
 
         public static string Dispatch(
             ParseResult parseResult,
-            ISuggestionFileProvider suggestionFileProvider,
+            ISuggestionProvider suggestionFileProvider,
             Func<string, string, int, string> getSuggestions,
             int timeoutMilliseconds)
         {
-            var exePath = parseResult.ValueForOption<FileInfo>(ExeName);
+            var commandPath = parseResult.ValueForOption<FileInfo>(ExecutingCommandOptionName);
 
-            string suggestionRegistration =
-                suggestionFileProvider.FindRegistration(exePath);
+            SuggestionRegistration suggestionRegistration =
+                suggestionFileProvider.FindRegistration(commandPath);
 
-            if (string.IsNullOrWhiteSpace(suggestionRegistration))
+            if (suggestionRegistration == null)
             {
                 // Can't find a completion exe to call
                 return string.Empty;
             }
 
-            string[] keyValuePair = ParseOutPathToCompletionTargetExeFromConfigFileLine(suggestionRegistration);
 
-            List<string> targetCommands = keyValuePair[1].Tokenize().ToList();
+            string targetArgs = FormatSuggestionArguments(parseResult, suggestionRegistration.SuggestionCommand.Tokenize().ToList());
 
-            string targetArgs = FormatSuggestionArguments(parseResult, targetCommands);
-
-            return getSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
+            return getSuggestions(suggestionRegistration.CommandPath, targetArgs, timeoutMilliseconds);
         }
 
-        public static string GetCompletionAvailableCommands(ISuggestionFileProvider suggestionFileProvider)
+        public static string GetCompletionAvailableCommands(ISuggestionProvider suggestionFileProvider)
         {
             var allFileNames = suggestionFileProvider.FindAllRegistrations()
-                                .Select(r => ParseOutPathToCompletionTargetExeFromConfigFileLine(r)[0])
+                                .Select(suggestionRegistration => suggestionRegistration.CommandPath)
                                 .Select(Path.GetFileNameWithoutExtension);
 
             return string.Join(" ", allFileNames);
-        }
-
-        private static string[] ParseOutPathToCompletionTargetExeFromConfigFileLine(string suggestionRegistration)
-        {
-            string[] keyValuePair = suggestionRegistration.Split(new[] {'='}, 2);
-            if (keyValuePair.Length < 2)
-            {
-                throw new FormatException(
-                    $"Syntax for configuration of '{suggestionRegistration}' is not of the format '<command>=<value>'");
-            }
-
-            return keyValuePair;
         }
 
         private static string FormatSuggestionArguments(ParseResult parseResult, List<string> targetCommands)
@@ -149,3 +158,4 @@ namespace System.CommandLine.CompletionSuggestions
         }
     }
 }
+
