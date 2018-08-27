@@ -40,7 +40,7 @@ namespace System.CommandLine
                     {
                         if (alias.Contains(delimiter))
                         {
-                            throw new SymbolCannotContainDelimiterException(delimiter);
+                            throw new SymbolCannotContainDelimiterArgumentException(delimiter);
                         }
                     }
                 }

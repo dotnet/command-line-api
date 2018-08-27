@@ -131,13 +131,13 @@ namespace System.CommandLine.Tests
                     commandWithDelimiter, "",
                     new ArgumentBuilder().ExactlyOne()));
 
-            create.Should().Throw<CommandLineConfiguration.SymbolCannotContainDelimiterException>();
+            create.Should().Throw<SymbolCannotContainDelimiterArgumentException>();
         }
 
         [Fact]
         public void When_a_command_name_contains_a_delimiter_then_the_error_is_informative()
         {
-            var subject = new CommandLineConfiguration.SymbolCannotContainDelimiterException('ツ');
+            var subject = new SymbolCannotContainDelimiterArgumentException('ツ');
             subject.Message.Should()
                 .Be(@"Symbol cannot contain delimiter: ""ツ""");
         }

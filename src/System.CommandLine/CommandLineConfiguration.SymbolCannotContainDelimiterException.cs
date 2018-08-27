@@ -1,18 +1,15 @@
 namespace System.CommandLine
 {
-    public partial class CommandLineConfiguration
+    public class SymbolCannotContainDelimiterArgumentException : ArgumentException
     {
-        public class SymbolCannotContainDelimiterException : ArgumentException
+        public SymbolCannotContainDelimiterArgumentException(char delimiter)
+
         {
-            public SymbolCannotContainDelimiterException(char delimiter)
-
-            {
-                Delimiter = delimiter;
-            }
-
-            public char Delimiter { get; }
-
-            public override string Message => $"Symbol cannot contain delimiter: \"{Delimiter}\"";
+            Delimiter = delimiter;
         }
+
+        public char Delimiter { get; }
+
+        public override string Message => $"Symbol cannot contain delimiter: \"{Delimiter}\"";
     }
 }
