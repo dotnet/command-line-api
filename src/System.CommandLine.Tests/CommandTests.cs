@@ -114,22 +114,21 @@ namespace System.CommandLine.Tests
         }
              
         [Theory]
-        [InlineData(":", "aa{0}")]
-        [InlineData("=", "aa{0}")]
-        [InlineData(" ", "aa{0}")]
-        [InlineData(":", "{0}aa")]
-        [InlineData("=", "{0}aa")]
-        [InlineData(" ", "{0}aa")]
-        [InlineData(":", "aa{0}aa")]
-        [InlineData("=", "aa{0}aa")]
-        [InlineData(" ", "aa{0}aa")]
+        [InlineData("aa:")]
+        [InlineData("aa=")]
+        [InlineData("aa ")]
+        [InlineData(":aa")]
+        [InlineData("=aa")]
+        [InlineData(" aa")]
+        [InlineData("aa:aa")]
+        [InlineData("aa=aa")]
+        [InlineData("aa aa")]
         public void When_a_command_name_contains_a_delimiter_then_an_error_is_returned(
-            string delimiter, 
-            string template)
+            string commandWithDelimiter)
         {
             Action create = () => new Parser(
                 new Command(
-                    string.Format(template, delimiter), "",
+                    commandWithDelimiter, "",
                     new ArgumentBuilder().ExactlyOne()));
 
             create.Should().Throw<CommandLineConfiguration.SymbolCannotContainDelimiterException>();
