@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace System.CommandLine
 {
-    public class CommandLineConfiguration
+    public partial class CommandLineConfiguration
     {
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
 
@@ -39,7 +40,7 @@ namespace System.CommandLine
                     {
                         if (alias.Contains(delimiter))
                         {
-                            throw new ArgumentException($"Symbol cannot contain delimiter: \"{delimiter}\"");
+                            throw new SymbolCannotContainDelimiterException(delimiter);
                         }
                     }
                 }
