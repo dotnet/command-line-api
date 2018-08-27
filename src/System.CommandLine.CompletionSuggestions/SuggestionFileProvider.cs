@@ -76,7 +76,7 @@ namespace System.CommandLine.CompletionSuggestions
             return allRegistration;
         }
 
-        public bool AddSuggestionRegistration(SuggestionRegistration registration)
+        public void AddSuggestionRegistration(SuggestionRegistration registration)
         {
             // TODO: Handle multiple files
             string filePath = RegistrationConfigurationFilePaths.First();
@@ -84,7 +84,6 @@ namespace System.CommandLine.CompletionSuggestions
             {
                 writer.WriteLine($"{registration.CommandPath}={registration.SuggestionCommand}");
             }
-            return true;
         }
     }
 }

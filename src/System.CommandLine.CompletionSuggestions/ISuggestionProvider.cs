@@ -5,7 +5,7 @@ namespace System.CommandLine.CompletionSuggestions
 {
     public interface ISuggestionProvider
     {
-        bool AddSuggestionRegistration(SuggestionRegistration registration);
+        void AddSuggestionRegistration(SuggestionRegistration registration);
         SuggestionRegistration FindRegistration(FileInfo soughtExecutable);
         IReadOnlyCollection<SuggestionRegistration> FindAllRegistrations();
     }

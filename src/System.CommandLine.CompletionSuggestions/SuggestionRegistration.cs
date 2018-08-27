@@ -4,8 +4,8 @@ namespace System.CommandLine.CompletionSuggestions
     {
         public SuggestionRegistration(string commandPath, string suggestionCommand)
         {
-            CommandPath = commandPath;
-            SuggestionCommand = suggestionCommand;
+            CommandPath = commandPath ?? throw new ArgumentNullException(nameof(commandPath));
+            SuggestionCommand = suggestionCommand ?? throw new ArgumentNullException(nameof(suggestionCommand));
         }
 
         public SuggestionRegistration(string suggestionCompletionLine)

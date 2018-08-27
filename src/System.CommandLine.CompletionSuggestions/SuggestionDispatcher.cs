@@ -45,9 +45,9 @@ namespace System.CommandLine.CompletionSuggestions
                             TimeoutMilliseconds)))
                 .AddCommand("register", "Register a suggestion command",
                     cmd => {
-                        cmd.AddOption("-commandPath", "The path to the command for which to register suggestions",
+                        cmd.AddOption("--command-path", "The path to the command for which to register suggestions",
                                 a => a.ParseArgumentsAs<string>())
-                            .AddOption("-suggestionCommand", "The command to invoke to retrieve suggestions",
+                            .AddOption("--suggestion-command", "The command to invoke to retrieve suggestions",
                                 a => a.ParseArgumentsAs<string>())
                             .OnExecute<string, string>(RegisterCommand);
                     })

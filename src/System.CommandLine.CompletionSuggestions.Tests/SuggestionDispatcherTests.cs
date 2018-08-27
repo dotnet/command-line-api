@@ -37,10 +37,9 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public IReadOnlyCollection<SuggestionRegistration> FindAllRegistrations() => _findAllRegistrations ?? new SuggestionRegistration[] { _findRegistration };
 
         public List<SuggestionRegistration> AddedRegistrations { get; } = new List<SuggestionRegistration>();
-        public bool AddSuggestionRegistration(SuggestionRegistration registration)
+        public void AddSuggestionRegistration(SuggestionRegistration registration)
         {
             AddedRegistrations.Add(registration);
-            return true;
         }
     }
 
@@ -142,7 +141,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
             var provider = new TestSuggestionProvider();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            await dispatcher.Invoke("register -commandPath \"C:\\Windows\\System32\\net.exe\" -suggestionCommand \"net-suggestions complete\"".Tokenize().ToArray());
+            await dispatcher.Invoke("register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray());
 
             SuggestionRegistration addedRegistration = provider.AddedRegistrations.Single();
             addedRegistration.CommandPath.Should().Be(@"C:\Windows\System32\net.exe");
