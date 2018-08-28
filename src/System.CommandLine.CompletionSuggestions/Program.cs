@@ -12,7 +12,7 @@ namespace System.CommandLine.CompletionSuggestions
         {
             var provider = new SuggestionFileProvider();
             var dispatcher = new SuggestionDispatcher(provider);
-            return await dispatcher.Invoke(args);
+            return await dispatcher.InvokeAsync(args);
         }
     }
 }
