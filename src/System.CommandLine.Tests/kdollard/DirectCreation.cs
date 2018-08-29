@@ -48,7 +48,9 @@ namespace kdollard
 
             var result = parser2.Parse(argString);
 
-            var exitCode = parser2.Invoke(result);
+            var exitCode = result.Command.Invocation();
+
+            //var exitCode = parser2.Invoke(result);
 
             switch (result.Command.Name)
             {
