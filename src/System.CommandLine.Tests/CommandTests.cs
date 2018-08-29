@@ -114,26 +114,32 @@ namespace System.CommandLine.Tests
         }
              
         [Theory]
-        [InlineData(":", "aa{0}")]
-        [InlineData("=", "aa{0}")]
-        [InlineData(" ", "aa{0}")]
-        [InlineData(":", "{0}aa")]
-        [InlineData("=", "{0}aa")]
-        [InlineData(" ", "{0}aa")]
-        [InlineData(":", "aa{0}aa")]
-        [InlineData("=", "aa{0}aa")]
-        [InlineData(" ", "aa{0}aa")]
-        public void When_a_command_name_contains_a_delimiter_then_an_informative_error_is_returned(
-            string delimiter, 
-            string template)
+        [InlineData("aa:")]
+        [InlineData("aa=")]
+        [InlineData("aa ")]
+        [InlineData(":aa")]
+        [InlineData("=aa")]
+        [InlineData(" aa")]
+        [InlineData("aa:aa")]
+        [InlineData("aa=aa")]
+        [InlineData("aa aa")]
+        public void When_a_command_name_contains_a_delimiter_then_an_error_is_returned(
+            string commandWithDelimiter)
         {
             Action create = () => new Parser(
                 new Command(
-                    string.Format(template, delimiter), "",
+                    commandWithDelimiter, "",
                     new ArgumentBuilder().ExactlyOne()));
 
-            create.Should().Throw<ArgumentException>().Which.Message.Should()
-                  .Be($"Symbol cannot contain delimiter: \"{delimiter}\"");
+            create.Should().Throw<SymbolCannotContainDelimiterArgumentException>();
+        }
+
+        [Fact]
+        public void When_a_command_name_contains_a_delimiter_then_the_error_is_informative()
+        {
+            var subject = new SymbolCannotContainDelimiterArgumentException('ツ');
+            subject.Message.Should()
+                .Be(@"Symbol cannot contain delimiter: ""ツ""");
         }
 
         [Theory]
