@@ -7,6 +7,7 @@ namespace System.CommandLine.Tests.kdollard.ClassDef
     [Command]
     public class Dotnet
     {
+            
     }
 
     [Command]
