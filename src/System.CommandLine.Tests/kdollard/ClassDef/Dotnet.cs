@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.CommandLine.Builder;
 using System.Text;
 
-namespace kdollard
+namespace System.CommandLine.Tests.kdollard.ClassDef
 {
-    public class DirectCreation
+    [Command]
+    public class Dotnet
     {
-        public void Noodle()
-        {
-            var parser2 = new CommandLine("dotnet" )
+    }
+
+    [Command]
+    [CommandDefault]
+    public class Project
+    { }
+    new CommandLine("dotnet" )
                     .AddCommand("project", isDefault: true,
                        subCommands: new Command[] {
                             new Command(
@@ -22,7 +26,7 @@ namespace kdollard
                                     .AddCommand("reference", argument: new Argument<string>("project2projectPath", Arity.ExactlyOne)),
                             new Command("list")
                                 })
-                   .AddCommand("tool",
+                   .AddCommand("tool", isDefault: true,
                        subCommands: new Command[] {
                             new Command("install")
                                     .AddOption("global","g")
@@ -41,31 +45,5 @@ namespace kdollard
                            new Command("list")
                                     .AddOption("global", "g")
                                     .AddOption("tool-path", argument: new Argument<string>("toolPath", Arity.ExactlyOne)),
-                                });
-            //new Command("subcommand2",
-            //    new Command("subSubCommand", "",
-            //          new Option("option1", "", { 'o', '1' })));
-
-            var result = parser2.Parse(argString);
-
-            var exitCode = parser2.Invoke(result);
-
-            switch (result.Command.Name)
-            {
-                case "subcommand":
-                case "subcommand2":
-                    break;
-                case "subSubCommand":
-                    switch (result.Command.Parent.Name)
-                    {
-                        case "subcommand":
-                        case "subcommand2":
-                            break;
-                    }
-                    break;
-            }
-
-
-        }
-    }
+                                });  }
 }
