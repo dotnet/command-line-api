@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests.kdollard
        
     }
 
-    [Help]
+    [Help, Alias] // alias at least for CLI evolution, backwards compat
     class FileCommand : DotNetCommand
     {
         public FileCommand(string fileName, IEnumerable<string> otherNames)
@@ -49,25 +49,20 @@ namespace System.CommandLine.Tests.kdollard
 
 
         // Decide whether to use three attributes or a single attribute
-        [Option(abbrev)]
+        [Option(alias)] // o is "alias' for output
         [help]
         [nullAllowed]
         string FileName { get; }
 
-        [Option(abbrev, help, emptyAllowed)]
+        [Option(alias, help, emptyAllowed)]
         IEnumerable<string> OtherNames {  get; }
-
 
         public void Invoke()
         {
             if (IO.File.Exists(FileName))
             {
-                DoTheThing();
+                DoTheThing(FileName, SomethignUpTheTree);
             }
         }
-    }
-    class Meeting
-    {
-
     }
 }
