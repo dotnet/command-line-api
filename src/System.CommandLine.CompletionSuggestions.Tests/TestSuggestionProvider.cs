@@ -1,38 +1,39 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace System.CommandLine.CompletionSuggestions.Tests
 {
     internal class TestSuggestionProvider : ISuggestionProvider
     {
-        private readonly IReadOnlyCollection<SuggestionRegistration> _findAllRegistrations;
-        private readonly SuggestionRegistration _findRegistration;
+        private readonly List<SuggestionRegistration> _suggestionRegistrations;
 
-        public TestSuggestionProvider() : this(
-            new SuggestionRegistration("C:\\Program Files\\dotnet\\dotnet.exe", "dotnet complete"))
-        { }
+        //public TestSuggestionProvider() : this(
+        //    new SuggestionRegistration("C:\\Program Files\\dotnet\\dotnet.exe", "dotnet complete"))
+        //{ }
 
-        public TestSuggestionProvider(SuggestionRegistration suggestionRegistration)
+        public TestSuggestionProvider(params SuggestionRegistration[] suggestionRegistrations)
         {
-            _findRegistration = suggestionRegistration;
+            _suggestionRegistrations = new List<SuggestionRegistration>();
+
+            foreach (SuggestionRegistration suggestionRegistration in suggestionRegistrations)
+            {
+                AddSuggestionRegistration(suggestionRegistration);
+            }
         }
 
-        public TestSuggestionProvider(IReadOnlyCollection<SuggestionRegistration> findAllRegistrations, SuggestionRegistration findRegistration)
-        {
-            _findAllRegistrations = findAllRegistrations;
-            _findRegistration = findRegistration;
-        }
+        public SuggestionRegistration FindRegistration(FileInfo soughtExecutable)
+            => _suggestionRegistrations.FirstOrDefault(x => x.CommandPath.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase));
 
-        public SuggestionRegistration FindRegistration(FileInfo soughtExecutable) => _findRegistration;
-        public IReadOnlyCollection<SuggestionRegistration> FindAllRegistrations() => _findAllRegistrations ?? new SuggestionRegistration[] { _findRegistration };
+        public IReadOnlyCollection<SuggestionRegistration> FindAllRegistrations()
+            => _suggestionRegistrations.AsReadOnly();
 
-        public List<SuggestionRegistration> AddedRegistrations { get; } = new List<SuggestionRegistration>();
         public void AddSuggestionRegistration(SuggestionRegistration registration)
         {
-            AddedRegistrations.Add(registration);
+            _suggestionRegistrations.Add(registration);
         }
     }
 }

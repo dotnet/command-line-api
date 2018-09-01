@@ -20,7 +20,7 @@ namespace System.CommandLine.CompletionSuggestions
 
         private readonly ISuggestionProvider _suggestionProvider;
 
-        private Parser Parser { get; }
+        private readonly Parser _parser;
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
@@ -28,7 +28,7 @@ namespace System.CommandLine.CompletionSuggestions
         {
             _suggestionProvider = suggestionProvider ?? throw new ArgumentNullException(nameof(suggestionProvider));
 
-            Parser = new CommandLineBuilder()
+            _parser = new CommandLineBuilder()
                 .AddCommand(CompletionAvailableCommands,
                     "list all completions available commands with space separated list",
                     cmd => cmd.OnExecute<IConsole>(c =>
@@ -53,7 +53,7 @@ namespace System.CommandLine.CompletionSuggestions
         }
 
         public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
-            Parser.InvokeAsync(args, console);
+            _parser.InvokeAsync(args, console);
 
         private void RegisterCommand(string commandPath, string suggestionCommand)
         {

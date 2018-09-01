@@ -10,7 +10,7 @@ namespace System.CommandLine.CompletionSuggestions
     {
         public static async Task<int> Main(string[] args)
         {
-            var provider = new SuggestionFileProvider();
+            var provider = new FileSuggestionProvider();
             var dispatcher = new SuggestionDispatcher(provider);
             return await dispatcher.InvokeAsync(args);
         }

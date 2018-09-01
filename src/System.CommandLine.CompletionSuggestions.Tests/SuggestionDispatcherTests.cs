@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Tests;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -16,22 +17,32 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         private readonly string[] _args = @"-p 12 -e ""C:\Program Files\dotnet\dotnet.exe"" ""dotnet add""".Tokenize()
             .ToArray();
 
-        [Fact]
-        public async Task Dispatch_executes_dotnet_complete()
+        private static SuggestionRegistration GetDotnetSuggestionRegistration()
+            => new SuggestionRegistration(GetDotnetPath(), "dotnet complete");
+
+        private static string GetDotnetPath()
         {
-            (await InvokeAsync(_args, new TestSuggestionProvider(), 20000))
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+                @"C:\Program Files\dotnet\dotnet.exe" :
+                @"/bin/dotnet";
+        }
+
+        [Fact]
+        public async Task InvokeAsync_executes_dotnet_complete()
+        {
+            (await InvokeAsync(_args, new TestSuggestionProvider(GetDotnetSuggestionRegistration())))
                     .Should()
                     .Contain("package")
                     .And.Contain("reference");
         }
 
         [Fact]
-        public void Dispatch_with_missing_position_arg_throws()
+        public void InvokeAsync_with_missing_position_arg_throws()
         {
             Func<Task> action = async () =>
                 await InvokeAsync(
-                    @"-e ""C:\Program Files\dotnet\dotnet.exe"" ""dotnet add"" -p".Tokenize().ToArray(),
-                    new TestSuggestionProvider());
+                    $@"-e ""{GetDotnetPath()}"" ""dotnet add"" -p".Tokenize().ToArray(),
+                    new TestSuggestionProvider(GetDotnetSuggestionRegistration()));
             action
                .Should()
                .Throw<TargetInvocationException>()
@@ -43,19 +54,19 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         }
 
         [Fact]
-        public async Task Dispatch_with_unknown_completion_provider_returns_empty_string()
+        public async Task InvokeAsync_with_unknown_completion_provider_returns_empty_string()
         {
-            (await InvokeAsync(_args, new TestSuggestionProvider(null)))
+            (await InvokeAsync(_args, new TestSuggestionProvider()))
                 .Should()
                 .BeEmpty();
         }
 
         [Fact]
-        public void Command_suggestions_with_bogus_filename_throws_exception()
+        public void Command_suggestions_filename_that_does_not_exist_throws_exception()
         {
-            string exeFileName = "bogus file name";
+            string exeFileName = Path.GetFullPath("file_that_does_not_exist_name");
 
-            var provider = new TestSuggestionProvider(new SuggestionRegistration(exeFileName, "missing commplete command"));
+            var provider = new TestSuggestionProvider(new SuggestionRegistration(exeFileName, "missing complete command"));
             var dispatcher = new SuggestionDispatcher(provider);
 
             var args = $@"-p 12 -e ""{exeFileName}"" ""dotnet add""".Tokenize().ToArray();
@@ -73,14 +84,14 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
         {
-            var provider = new TestSuggestionProvider(new SuggestionRegistration("dotnet", $"dotnet {Assembly.GetExecutingAssembly().Location}"));
+            var provider = new TestSuggestionProvider(new SuggestionRegistration(GetDotnetPath(), $"dotnet {Assembly.GetExecutingAssembly().Location}"));
             var dispatcher = new SuggestionDispatcher(provider);
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
 
             var args = $@"-p 0 -e ""dotnet"" ""dotnet add""".Tokenize().ToArray();
 
-            await dispatcher.InvokeAsync(_args, testConsole);
+            await dispatcher.InvokeAsync(args, testConsole);
 
             testConsole.Out.ToString().Should().BeEmpty();
         }
@@ -93,20 +104,14 @@ namespace System.CommandLine.CompletionSuggestions.Tests
                 .IsOSPlatform(OSPlatform.Windows))
             {
                 testSuggestionProvider = new TestSuggestionProvider(
-                    new[] {
-                        new SuggestionRegistration(@"C:\Program Files\dotnet\dotnet.exe","dotnet complete"),
-                        new SuggestionRegistration(@"C:\Program Files\himalayan-berry.exe","himalayan-berry spread")
-                    },
-                    new SuggestionRegistration(@"C:\Program Files\dotnet\dotnet.exe", "dotnet complete"));
+                    new SuggestionRegistration(@"C:\Program Files\dotnet\dotnet.exe","dotnet complete"),
+                    new SuggestionRegistration(@"C:\Program Files\himalayan-berry.exe","himalayan-berry spread"));
             }
             else
             {
                 testSuggestionProvider = new TestSuggestionProvider(
-                    new[] {
-                        new SuggestionRegistration(@"/bin/dotnet", "dotnet complete"),
-                        new SuggestionRegistration(@"/bin/himalayan-berry", "himalayan-berry spread")
-                    },
-                    new SuggestionRegistration(@"/bin/dotnet", "dotnet complete"));
+                    new SuggestionRegistration(@"/bin/dotnet", "dotnet complete"),
+                    new SuggestionRegistration(@"/bin/himalayan-berry", "himalayan-berry spread"));
             }
             
             var dispatcher = new SuggestionDispatcher(testSuggestionProvider);
@@ -125,15 +130,14 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 
             await dispatcher.InvokeAsync("register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray());
 
-            SuggestionRegistration addedRegistration = provider.AddedRegistrations.Single();
+            SuggestionRegistration addedRegistration = provider.FindAllRegistrations().Single();
             addedRegistration.CommandPath.Should().Be(@"C:\Windows\System32\net.exe");
             addedRegistration.SuggestionCommand.Should().Be("net-suggestions complete");
         }
 
         private static async Task<string> InvokeAsync(
             string[] args,
-            ISuggestionProvider suggestionProvider,
-            int timeoutMilliseconds = 2000)
+            ISuggestionProvider suggestionProvider)
         {
             var dispatcher = new SuggestionDispatcher(suggestionProvider);
             var testConsole = new TestConsole();
