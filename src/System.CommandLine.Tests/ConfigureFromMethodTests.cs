@@ -69,6 +69,42 @@ namespace System.CommandLine.Tests
                            .BeEquivalentTo(new[] { 123, 456 });
         }
 
+        [Fact]
+        public async Task When_method_returns_void_then_return_code_is_0()
+        {
+            var builder = new CommandLineBuilder()
+                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_returning_void)), this)
+                          .Build();
+
+            var result = await builder.InvokeAsync("", _testConsole);
+
+            result.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task When_method_returns_int_then_return_code_is_set_to_return_value()
+        {
+            var builder = new CommandLineBuilder()
+                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_returning_int)), this)
+                          .Build();
+
+            var result = await builder.InvokeAsync("-i 123", _testConsole);
+
+            result.Should().Be(123);
+        }
+
+        [Fact]
+        public async Task When_method_returns_Task_of_int_then_return_code_is_set_to_return_value()
+        {
+            var builder = new CommandLineBuilder()
+                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_returning_Task_of_int)), this)
+                          .Build();
+
+            var result = await builder.InvokeAsync("-i 123", _testConsole);
+
+            result.Should().Be(123);
+        }
+
         internal void Method_taking_bool(bool value = false)
         {
             _receivedValues = new object[] { value };
@@ -79,6 +115,21 @@ namespace System.CommandLine.Tests
             int y)
         {
             _receivedValues = new object[] { x, y };
+        }
+
+        internal void Method_returning_void()
+        {
+        }
+
+        internal int Method_returning_int(int i)
+        {
+            return i;
+        }
+
+        internal async Task<int> Method_returning_Task_of_int(int i)
+        {
+            await Task.Yield();
+            return i;
         }
 
         private MethodInfo GetMethodInfo(string name)
