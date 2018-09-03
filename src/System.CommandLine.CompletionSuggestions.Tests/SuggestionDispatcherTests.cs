@@ -14,9 +14,6 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 {
     public class SuggestionDispatcherTests
     {
-        private readonly string[] _args = @"-p 12 -e ""C:\Program Files\dotnet\dotnet.exe"" ""dotnet add""".Tokenize()
-            .ToArray();
-
         private static SuggestionRegistration GetDotnetSuggestionRegistration()
             => new SuggestionRegistration(GetDotnetPath(), "dotnet complete");
 
@@ -28,9 +25,11 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         }
 
         [Fact]
-        public async Task InvokeAsync_executes_dotnet_complete()
+        public async Task InvokeAsync_executes_completion_command_for_executable()
         {
-            (await InvokeAsync(_args, new TestSuggestionProvider(GetDotnetSuggestionRegistration())))
+            string[] args = $@"-p 12 -e ""{GetDotnetPath()}"" ""dotnet add""".Tokenize().ToArray();
+
+            (await InvokeAsync(args, new TestSuggestionProvider(GetDotnetSuggestionRegistration())))
                     .Should()
                     .Contain("package")
                     .And.Contain("reference");
@@ -54,9 +53,10 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         }
 
         [Fact]
-        public async Task InvokeAsync_with_unknown_completion_provider_returns_empty_string()
+        public async Task InvokeAsync_with_unknown_suggestion_provider_returns_empty_string()
         {
-            (await InvokeAsync(_args, new TestSuggestionProvider()))
+            string[] args = @"-p 10 -e ""testcli.exe"" ""command op""".Tokenize().ToArray();
+            (await InvokeAsync(args, new TestSuggestionProvider()))
                 .Should()
                 .BeEmpty();
         }

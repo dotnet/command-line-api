@@ -11,10 +11,6 @@ namespace System.CommandLine.CompletionSuggestions.Tests
     {
         private readonly List<SuggestionRegistration> _suggestionRegistrations;
 
-        //public TestSuggestionProvider() : this(
-        //    new SuggestionRegistration("C:\\Program Files\\dotnet\\dotnet.exe", "dotnet complete"))
-        //{ }
-
         public TestSuggestionProvider(params SuggestionRegistration[] suggestionRegistrations)
         {
             _suggestionRegistrations = new List<SuggestionRegistration>();
