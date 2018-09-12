@@ -17,12 +17,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         private static SuggestionRegistration GetDotnetSuggestionRegistration()
             => new SuggestionRegistration(GetDotnetPath(), "dotnet complete");
 
-        private static string GetDotnetPath()
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-                @"C:\Program Files\dotnet\dotnet.exe" :
-                @"/bin/dotnet";
-        }
+        private static string GetDotnetPath() => DotnetMuxer.Path.FullName;
 
         [Fact]
         public async Task InvokeAsync_executes_completion_command_for_executable()
