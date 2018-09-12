@@ -1,179 +1,143 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.CommandLine.Builder;
+using System.CommandLine.Tests;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.CompletionSuggestions.Tests
 {
-    internal class TestSuggestionFileProvider : ISuggestionFileProvider
-    {
-        private readonly IReadOnlyCollection<string> _findAllRegistrations;
-        private readonly string _findRegistration;
-
-        public TestSuggestionFileProvider() : this("C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete")
-        {
-        }
-
-        public TestSuggestionFileProvider(string regLine)
-        {
-            _findRegistration = regLine;
-        }
-
-        public TestSuggestionFileProvider(IReadOnlyCollection<string> findAllRegistrations, string findRegistration)
-        {
-            _findAllRegistrations = findAllRegistrations;
-            _findRegistration = findRegistration;
-        }
-
-        public IReadOnlyCollection<string> RegistrationConfigurationFilePaths => new string[] { };
-        public void AddRegistrationConfigurationFilePath(string configFilePath) => throw new NotImplementedException();
-
-        public string FindRegistration(FileInfo soughtExecutable) => _findRegistration;
-        public IReadOnlyCollection<string> FindAllRegistrations() => _findAllRegistrations ?? new string[] {_findRegistration};
-    }
-
     public class SuggestionDispatcherTests
     {
-        private readonly string[] _args = @"-p 12 -e ""C:\Program Files\dotnet\dotnet.exe"" ""dotnet add""".Tokenize()
-            .ToArray();
+        private static SuggestionRegistration GetDotnetSuggestionRegistration()
+            => new SuggestionRegistration(GetDotnetPath(), "dotnet complete");
+
+        private static string GetDotnetPath() => DotnetMuxer.Path.FullName;
 
         [Fact]
-        public void Dispatch_executes_dotnet_complete() => Dispatch(_args,
-                new TestSuggestionFileProvider(), 20000)
-            .Should()
-            .Contain("package")
-            .And.Contain("reference");
-
-        [Fact]
-        public void Dispatch_with_badly_formatted_completion_provider_throws()
+        public async Task InvokeAsync_executes_completion_command_for_executable()
         {
-            Action action = () => Dispatch(_args, new TestSuggestionFileProvider("foo^^bar"));
-            action
-                .Should()
-                .Throw<FormatException>()
-                .WithMessage("Syntax for configuration of 'foo^^bar' is not of the format '<command>=<value>'");
+            string[] args = $@"-p 12 -e ""{GetDotnetPath()}"" ""dotnet add""".Tokenize().ToArray();
+
+            (await InvokeAsync(args, new TestSuggestionProvider(GetDotnetSuggestionRegistration())))
+                    .Should()
+                    .Contain("package")
+                    .And.Contain("reference");
         }
 
         [Fact]
-        public void Dispatch_with_missing_position_arg_throws()
+        public void InvokeAsync_with_missing_position_arg_throws()
         {
-            Action action = () =>
-                Dispatch(
-                    @"-e ""C:\Program Files\dotnet\dotnet.exe"" ""dotnet add"" -p".Tokenize().ToArray(),
-                    new TestSuggestionFileProvider());
+            Func<Task> action = async () =>
+                await InvokeAsync(
+                    $@"-e ""{GetDotnetPath()}"" ""dotnet add"" -p".Tokenize().ToArray(),
+                    new TestSuggestionProvider(GetDotnetSuggestionRegistration()));
             action
-                .Should()
-                .Throw<InvalidOperationException>()
-                .WithMessage("Required argument missing for option: -p");
+               .Should()
+               .Throw<TargetInvocationException>()
+               .Which
+               .InnerException
+               .Message
+               .Should()
+               .Be("Required argument missing for option: -p");
         }
 
         [Fact]
-        public void Dispatch_with_unknown_completion_provider_returns_empty_string() => Dispatch(
-                _args,
-                new TestSuggestionFileProvider(String.Empty))
-            .Should()
-            .BeEmpty();
-
-        [Fact]
-        public void GetCompletionSuggestions_executes_dotnet_complete() =>
-            SuggestionDispatcher
-                .GetSuggestions("dotnet", "complete --position 12 \"dotnet add\"", 20000)
-                .Should()
-                .Contain("-h")
-                .And.Contain("--help")
-                .And.Contain("package")
-                .And.Contain("reference");
-
-        [Fact]
-        public void GetCompletionSuggestions_withbogusfilename_throws_FileNotFound()
+        public async Task InvokeAsync_with_unknown_suggestion_provider_returns_empty_string()
         {
-            string exeFileName = "Bogus file name";
-            Action action = () =>
-                SuggestionDispatcher.GetSuggestions(exeFileName, "");
+            string[] args = @"-p 10 -e ""testcli.exe"" ""command op""".Tokenize().ToArray();
+            (await InvokeAsync(args, new TestSuggestionProvider()))
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Command_suggestions_filename_that_does_not_exist_throws_exception()
+        {
+            string exeFileName = Path.GetFullPath("file_that_does_not_exist_name");
+
+            var provider = new TestSuggestionProvider(new SuggestionRegistration(exeFileName, "missing complete command"));
+            var dispatcher = new SuggestionDispatcher(provider);
+
+            var args = $@"-p 12 -e ""{exeFileName}"" ""dotnet add""".Tokenize().ToArray();
+
+            Func<Task> action = async () => await dispatcher.InvokeAsync(args);
+            
             action
                 .Should()
-                .Throw<ArgumentException>("System.Diagnostics.Process is nuts.")
+                .Throw<TargetInvocationException>()
+                .WithInnerException<ArgumentException>("System.Diagnostics.Process is nuts.")
                 .Where(exception => exception.Message.Contains(
                     $"Unable to find the file '{ exeFileName }'"));
         }
 
         [Fact]
-        public void GetCompletionSuggestions_UseProcessThatRemainsOpen_ReturnsEmptyString()
+        public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
         {
-            SuggestionDispatcher.GetSuggestions(
-                    "dotnet"
-                    , suggestionTargetArguments: $"{Assembly.GetExecutingAssembly().Location}", millisecondsTimeout: 1)
-                .Should().BeEmpty();
+            var provider = new TestSuggestionProvider(new SuggestionRegistration(GetDotnetPath(), $"dotnet {Assembly.GetExecutingAssembly().Location}"));
+            var dispatcher = new SuggestionDispatcher(provider);
+            dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
+            var testConsole = new TestConsole();
+
+            var args = $@"-p 0 -e ""dotnet"" ""dotnet add""".Tokenize().ToArray();
+
+            await dispatcher.InvokeAsync(args, testConsole);
+
+            testConsole.Out.ToString().Should().BeEmpty();
         }
 
         [Fact]
-        public void GetCompletionAvailableCommands_GetsAllExecutableNames()
+        public async Task List_command_gets_all_executable_names()
         {
-            TestSuggestionFileProvider testSuggestionProvider;
+            TestSuggestionProvider testSuggestionProvider;
             if (RuntimeInformation
                 .IsOSPlatform(OSPlatform.Windows))
             {
-                testSuggestionProvider = new TestSuggestionFileProvider(
-                    new[] {
-                        @"C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete",
-                        @"C:\\Program Files\\himalayan-berry.exe=himalayan-berry spread"
-                    },
-                    @"C:\\Program Files\\dotnet\\dotnet.exe=dotnet complete");
+                testSuggestionProvider = new TestSuggestionProvider(
+                    new SuggestionRegistration(@"C:\Program Files\dotnet\dotnet.exe","dotnet complete"),
+                    new SuggestionRegistration(@"C:\Program Files\himalayan-berry.exe","himalayan-berry spread"));
             }
             else
             {
-                testSuggestionProvider = new TestSuggestionFileProvider(
-                    new[] {
-                        @"/bin/dotnet=dotnet complete",
-                        @"/bin/himalayan-berry=himalayan-berry spread"
-                    },
-                    @"/bin/dotnet=dotnet complete");
+                testSuggestionProvider = new TestSuggestionProvider(
+                    new SuggestionRegistration(@"/bin/dotnet", "dotnet complete"),
+                    new SuggestionRegistration(@"/bin/himalayan-berry", "himalayan-berry spread"));
             }
+            
+            var dispatcher = new SuggestionDispatcher(testSuggestionProvider);
+            var testConsole = new TestConsole();
 
-            SuggestionDispatcher.GetCompletionAvailableCommands(testSuggestionProvider)
-                .Should().Be("dotnet himalayan-berry");
+            await dispatcher.InvokeAsync(new[] {"list"}, testConsole);
+
+            testConsole.Out.ToString().Should().Be($"dotnet himalayan-berry{Environment.NewLine}");
         }
 
-        private static string Dispatch(
+        [Fact]
+        public async Task Register_command_adds_new_suggestion_entry()
+        {
+            var provider = new TestSuggestionProvider();
+            var dispatcher = new SuggestionDispatcher(provider);
+
+            await dispatcher.InvokeAsync("register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray());
+
+            SuggestionRegistration addedRegistration = provider.FindAllRegistrations().Single();
+            addedRegistration.CommandPath.Should().Be(@"C:\Windows\System32\net.exe");
+            addedRegistration.SuggestionCommand.Should().Be("net-suggestions complete");
+        }
+
+        private static async Task<string> InvokeAsync(
             string[] args,
-            ISuggestionFileProvider suggestionFileProvider,
-            int timeoutMilliseconds = 2000)
+            ISuggestionProvider suggestionProvider)
         {
-            ParseResult parseResult = SuggestionDispatcher.Parser.Parse(args);
-
-            return SuggestionDispatcher.Dispatch(parseResult,
-                                                suggestionFileProvider,
-                                                GetSuggestionsSimulator,
-                                                timeoutMilliseconds);
-        }
-
-        private static string GetSuggestionsSimulator(string exeFileName,
-                                            string suggestionTargetArguments,
-                                            int millisecondsTimeout = 5000)
-        {
-            var parser = new CommandLineBuilder("dotnet")
-                            .AddCommand("add", "add description",
-                                    symbols: s => s.AddCommand("package", "package description")
-                                                   .AddCommand("reference", "reference description"))
-                           .AddCommand("complete",
-                                    symbols: a => a.AddOption(new[] { "-p", "--position" },
-                                    arguments: ar => ar.ParseArgumentsAs<int>()))
-                            .TreatUnmatchedTokensAsErrors(false)
-                            .Build();
-
-            var parseResult = parser.Parse(suggestionTargetArguments);
-            var position = parseResult.ValueForOption<int>("position");
-            var suggested = parser.Parse(parseResult.UnmatchedTokens).Suggestions();
-            return string.Join(
-                    Environment.NewLine,
-                    suggested);
+            var dispatcher = new SuggestionDispatcher(suggestionProvider);
+            var testConsole = new TestConsole();
+            await dispatcher.InvokeAsync(args, testConsole);
+            return testConsole.Out.ToString();
         }
     }
 }

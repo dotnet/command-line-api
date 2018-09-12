@@ -12,79 +12,83 @@ using System.CommandLine.Invocation;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    public static class SuggestionDispatcher
+    public class SuggestionDispatcher
     {
-        private const int TimeoutMilliseconds = 5000;
         private const string Position = "-p";
-        private const string ExeName = "-e";
+        private const string ExecutingCommandOptionName = "-e";
         private const string CompletionAvailableCommands = "list";
 
-        public static Parser Parser { get; } =
-            new CommandLineBuilder()
+        private readonly ISuggestionProvider _suggestionProvider;
+
+        private readonly Parser _parser;
+
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
+
+        public SuggestionDispatcher(ISuggestionProvider suggestionProvider)
+        {
+            _suggestionProvider = suggestionProvider ?? throw new ArgumentNullException(nameof(suggestionProvider));
+
+            _parser = new CommandLineBuilder()
                 .AddCommand(CompletionAvailableCommands,
                     "list all completions available commands with space separated list",
                     cmd => cmd.OnExecute<IConsole>(c =>
-                        c.Out.WriteLine(GetCompletionAvailableCommands(new SuggestionFileProvider()))),
+                        c.Out.WriteLine(GetCompletionAvailableCommands(_suggestionProvider))),
                     arguments: argument => argument.None())
                 .AddOption(Position, "the current character position on the command line",
                     position => position.ParseArgumentsAs<string>())
-                .AddOption(ExeName, "The executable to ask for argument resolution", argument => argument
+                .AddOption(ExecutingCommandOptionName, "The executable to ask for argument resolution", argument => argument
                     .LegalFilePathsOnly()
                     .ParseArgumentsAs<string>())
-                .OnExecute<ParseResult, IConsole>(
-                    (parseResult, console) =>
-                        console.Out.WriteLine(Dispatch(parseResult,
-                            new SuggestionFileProvider(),
-                            GetSuggestions,
-                            TimeoutMilliseconds)))
+                .OnExecute<ParseResult, IConsole>(GetSuggestions)
+                .AddCommand("register", "Register a suggestion command",
+                    cmd => {
+                        cmd.AddOption("--command-path", "The path to the command for which to register suggestions",
+                                a => a.ParseArgumentsAs<string>())
+                            .AddOption("--suggestion-command", "The command to invoke to retrieve suggestions",
+                                a => a.ParseArgumentsAs<string>())
+                            .OnExecute<string, string>(RegisterCommand);
+                    })
                 .TreatUnmatchedTokensAsErrors(false)
                 .Build();
-
-        public static string Dispatch(
-            ParseResult parseResult,
-            ISuggestionFileProvider suggestionFileProvider,
-            Func<string, string, int, string> getSuggestions,
-            int timeoutMilliseconds)
-        {
-            var exePath = parseResult.ValueForOption<FileInfo>(ExeName);
-
-            string suggestionRegistration =
-                suggestionFileProvider.FindRegistration(exePath);
-
-            if (string.IsNullOrWhiteSpace(suggestionRegistration))
-            {
-                // Can't find a completion exe to call
-                return string.Empty;
-            }
-
-            string[] keyValuePair = ParseOutPathToCompletionTargetExeFromConfigFileLine(suggestionRegistration);
-
-            List<string> targetCommands = keyValuePair[1].Tokenize().ToList();
-
-            string targetArgs = FormatSuggestionArguments(parseResult, targetCommands);
-
-            return getSuggestions(targetCommands.First(), targetArgs, timeoutMilliseconds);
         }
 
-        public static string GetCompletionAvailableCommands(ISuggestionFileProvider suggestionFileProvider)
+        public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
+            _parser.InvokeAsync(args, console);
+
+        private void RegisterCommand(string commandPath, string suggestionCommand)
         {
-            var allFileNames = suggestionFileProvider.FindAllRegistrations()
-                                .Select(r => ParseOutPathToCompletionTargetExeFromConfigFileLine(r)[0])
+            _suggestionProvider.AddSuggestionRegistration(new SuggestionRegistration(commandPath, suggestionCommand));
+        }
+
+        private void GetSuggestions(ParseResult parseResult, IConsole console)
+        {
+            var commandPath = parseResult.ValueForOption<FileInfo>(ExecutingCommandOptionName);
+
+            SuggestionRegistration suggestionRegistration =
+                _suggestionProvider.FindRegistration(commandPath);
+
+            if (suggestionRegistration == null)
+            {
+                // Can't find a completion exe to call
+                return;
+            }
+
+            string targetArgs = FormatSuggestionArguments(parseResult, suggestionRegistration.SuggestionCommand.Tokenize().ToList());
+
+            string suggestions = GetSuggestions(suggestionRegistration.CommandPath, targetArgs);
+            if (!string.IsNullOrWhiteSpace(suggestions))
+            {
+                console.Out.WriteLine(suggestions);
+            }
+        }
+
+        private static string GetCompletionAvailableCommands(ISuggestionProvider suggestionProvider)
+        {
+            IEnumerable<string> allFileNames = suggestionProvider.FindAllRegistrations()
+                                .Select(suggestionRegistration => suggestionRegistration.CommandPath)
                                 .Select(Path.GetFileNameWithoutExtension);
 
             return string.Join(" ", allFileNames);
-        }
-
-        private static string[] ParseOutPathToCompletionTargetExeFromConfigFileLine(string suggestionRegistration)
-        {
-            string[] keyValuePair = suggestionRegistration.Split(new[] {'='}, 2);
-            if (keyValuePair.Length < 2)
-            {
-                throw new FormatException(
-                    $"Syntax for configuration of '{suggestionRegistration}' is not of the format '<command>=<value>'");
-            }
-
-            return keyValuePair;
         }
 
         private static string FormatSuggestionArguments(ParseResult parseResult, List<string> targetCommands)
@@ -94,25 +98,18 @@ namespace System.CommandLine.CompletionSuggestions
                 targetCommands[1],
                 "--position",
                 parseResult.ValueForOption<string>(Position),
-                $"{string.Join(' ', parseResult.UnmatchedTokens)}");
+                $"\"{string.Join(' ', parseResult.UnmatchedTokens)}\"");
         }
 
-        public static string GetSuggestions(string exeFileName,
-                                            string suggestionTargetArguments,
-                                            int millisecondsTimeout = TimeoutMilliseconds)
+        private string GetSuggestions(string exeFileName, string suggestionTargetArguments)
         {
-            if (suggestionTargetArguments == null)
-            {
-                suggestionTargetArguments = "";
-            }
-
             string result = "";
 
             try
             {
                 // Invoke target with args
                 using (var process = new Process {
-                    StartInfo = new ProcessStartInfo(exeFileName, suggestionTargetArguments) {
+                    StartInfo = new ProcessStartInfo(exeFileName, suggestionTargetArguments ?? "") {
                         UseShellExecute = false,
                         RedirectStandardOutput = true
                     }
@@ -122,9 +119,7 @@ namespace System.CommandLine.CompletionSuggestions
 
                     Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
 
-                    readToEndTask.Wait(millisecondsTimeout);
-
-                    if (readToEndTask.IsCompleted)
+                    if (readToEndTask.Wait(Timeout))
                     {
                         result = readToEndTask.Result;
                     }
@@ -143,9 +138,9 @@ namespace System.CommandLine.CompletionSuggestions
                     throw new ArgumentException(
                         $"Unable to find the file '{exeFileName}'", nameof(exeFileName), exception);
                 }
-
             }
             return result;
         }
     }
 }
+
