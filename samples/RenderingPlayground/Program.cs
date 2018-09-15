@@ -27,7 +27,7 @@ namespace RenderingPlayground
             int left = 0,
             bool virtualTerminalMode = true,
             string text = null,
-            OutputMode outputMode = OutputMode.Ansi,
+            OutputMode outputMode = OutputMode.Auto,
             bool overwrite = true)
         {
             VirtualTerminalMode vt = null;
