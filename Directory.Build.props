@@ -26,6 +26,11 @@
 
     <RepositoryUrl>https://github.com/dotnet/System.CommandLine</RepositoryUrl>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>portable</DebugType>
+    <!-- Show full paths in errors in VSCode so links are clickable in the terminal. -->
+    <GenerateFullPaths Condition="'$(VSCODE_PID)' != ''">true</GenerateFullPaths>
   </PropertyGroup>
 
 </Project>

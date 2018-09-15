@@ -2,40 +2,46 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq;
-using static System.CommandLine.ArgumentArity;
 
 namespace System.CommandLine
 {
-    public class ArgumentParser
+    internal class ArgumentParser
     {
         public ArgumentParser(
-            ArgumentArity argumentArity,
+            ArgumentArityValidator arityValidator,
             ConvertArgument convert = null)
         {
-            ArgumentArity = argumentArity;
+            ArityValidator = arityValidator ?? throw new ArgumentNullException(nameof(arityValidator));
             ConvertArguments = convert;
         }
 
-        public ArgumentArity ArgumentArity { get; }
+        public ArgumentArityValidator ArityValidator { get; }
 
         internal ConvertArgument ConvertArguments { get; }
 
-        public ArgumentParseResult Parse(Symbol symbol)
+        public ArgumentParseResult Parse(SymbolResult symbolResult)
         {
-            if (ConvertArguments != null)
+            var error = ArityValidator.Validate(symbolResult);
+            if (!string.IsNullOrWhiteSpace(error))
             {
-                return ConvertArguments(symbol);
+                return new FailedArgumentArityResult(error);
             }
 
-            switch (ArgumentArity)
+            if (ConvertArguments != null)
             {
-                case Zero:
-                    return ArgumentParseResult.Success((string) null);
-                case One:
-                    return ArgumentParseResult.Success(symbol.Arguments.SingleOrDefault());
-                case Many:
+                return ConvertArguments(symbolResult);
+            }
+
+            switch (ArityValidator.MaximumNumberOfArguments)
+            {
+                case 0:
+                    return ArgumentParseResult.Success((string)null);
+
+                case 1:
+                    return ArgumentParseResult.Success(symbolResult.Arguments.SingleOrDefault());
+
                 default:
-                    return ArgumentParseResult.Success(symbol.Arguments);
+                    return ArgumentParseResult.Success(symbolResult.Arguments);
             }
         }
     }

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+
+    <StartupObject>System.CommandLine.CompletionSuggestions.Tests.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="TestResults\**" />
+    <EmbeddedResource Remove="TestResults\**" />
+    <None Remove="TestResults\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+    <PackageReference Include="xunit" Version="2.3.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0" />
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine.CompletionSuggestions\System.CommandLine.CompletionSuggestions.csproj" />
+    <ProjectReference Include="..\System.CommandLine.Tests\System.CommandLine.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

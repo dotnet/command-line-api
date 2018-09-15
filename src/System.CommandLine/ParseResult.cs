@@ -2,50 +2,43 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using static System.CommandLine.ValidationMessages;
 
 namespace System.CommandLine
 {
-    [DebuggerDisplay("{" + nameof(ToString) + "()}")]
     public class ParseResult
     {
-        private readonly ParserConfiguration configuration;
-        private readonly List<ParseError> errors = new List<ParseError>();
-        private CommandDefinition _commandDefinition;
+        private readonly List<ParseError> _errors = new List<ParseError>();
 
         internal ParseResult(
+            CommandResult rootCommandResult,
+            CommandResult commandResult,
             IReadOnlyCollection<string> tokens,
-            SymbolSet symbols,
-            ParserConfiguration configuration,
-            IReadOnlyCollection<string> unparsedTokens = null,
-            IReadOnlyCollection<string> unmatchedTokens = null,
-            IReadOnlyCollection<ParseError> errors = null,
-            string rawInput = null)
+            IReadOnlyCollection<string> unparsedTokens,
+            IReadOnlyCollection<string> unmatchedTokens,
+            IReadOnlyCollection<ParseError> errors,
+            string rawInput)
         {
-            Tokens = tokens ??
-                     throw new ArgumentNullException(nameof(tokens));
-            Symbols = symbols ??
-                            throw new ArgumentNullException(nameof(symbols));
-            this.configuration = configuration ??
-                                 throw new ArgumentNullException(nameof(configuration));
-
+            RootCommandResult = rootCommandResult;
+            CommandResult = commandResult;
+            Tokens = tokens;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
             RawInput = rawInput;
 
             if (errors != null)
             {
-                this.errors.AddRange(errors);
+                _errors.AddRange(errors);
             }
 
-            CheckForErrors();
+            AddImplicitOptionsAndCheckForErrors();
         }
 
-        public SymbolSet Symbols { get; }
+        public CommandResult CommandResult { get; }
 
-        public IReadOnlyCollection<ParseError> Errors => errors;
+        public CommandResult RootCommandResult { get; }
+
+        public IReadOnlyCollection<ParseError> Errors => _errors;
 
         public IReadOnlyCollection<string> Tokens { get; }
 
@@ -55,36 +48,54 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public CommandDefinition SpecifiedCommandDefinition() =>
-            _commandDefinition ??
-            (_commandDefinition = configuration.RootCommandIsImplicit
-                           ? configuration.SymbolDefinitions.OfType<CommandDefinition>().Single()
-                           : Symbols.CommandDefinition());
-
-        private void CheckForErrors()
+        private void AddImplicitOptionsAndCheckForErrors()
         {
-            foreach (var option in Symbols.FlattenBreadthFirst())
+            foreach (var result in RootCommandResult.AllSymbolResults().ToArray())
             {
-                var error = option.Validate();
+                if (result is CommandResult command)
+                {
+                    foreach (var symbol in command.Command.Symbols)
+                    {
+                        if (symbol.Argument.HasDefaultValue &&
+                            command.Children[symbol.Name] == null)
+                        {
+                            switch (symbol)
+                            {
+                                case Option option:
+                                    command.AddImplicitOption(option);
+                                    break;
+                            }
+                        }
+                    }
+
+                    if (command.Command.Argument.HasDefaultValue &&
+                        command.Arguments.Count == 0)
+                    {
+                        switch (command.Command.Argument.GetDefaultValue())
+                        {
+                            case string arg:
+                                command.TryTakeToken(new Token(arg, TokenType.Argument));
+                                break;
+                        }
+                    }
+                }
+
+                var error = result.Validate();
 
                 if (error != null)
                 {
-                    errors.Add(error);
+                    _errors.Add(error);
                 }
             }
 
-            var commandDefinition = SpecifiedCommandDefinition();
-
-            if (commandDefinition != null &&
-                commandDefinition.SymbolDefinitions.OfType<CommandDefinition>().Any())
+            if (CommandResult.Command?.Symbols.OfType<Command>().Any() == true)
             {
-                errors.Insert(0, new ParseError(
-                                  RequiredCommandWasNotProvided(),
-                                  this.SpecifiedCommand()));
+                _errors.Insert(0,
+                               new ParseError(
+                                   CommandResult.ValidationMessages.RequiredCommandWasNotProvided(),
+                                   CommandResult));
             }
         }
-
-        public override string ToString() => this.Diagram();
 
         public object ValueForOption(
             string alias) =>
@@ -98,9 +109,11 @@ namespace System.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return Symbols[alias].GetValueOrDefault<T>();
+            return this[alias].GetValueOrDefault<T>();
         }
 
-        public Symbol this[string alias] => Symbols[alias]; 
+        public SymbolResult this[string alias] => CommandResult.Children[alias];
+
+        public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
     }
 }

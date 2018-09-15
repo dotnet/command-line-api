@@ -4,6 +4,7 @@
         "certificate": "Microsoft402",
         "strongName": "MsSharedLib72",
         "values": [
+          "bin/System.CommandLine/*/System.CommandLine.dll"
       ]
     },
     {

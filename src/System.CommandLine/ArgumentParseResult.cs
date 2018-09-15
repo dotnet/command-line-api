@@ -5,7 +5,9 @@ namespace System.CommandLine
 {
     public abstract class ArgumentParseResult
     {
-        public abstract bool IsSuccessful { get; }
+        internal ArgumentParseResult()
+        {
+        }
 
         public static FailedArgumentParseResult Failure(string error) => new FailedArgumentParseResult(error);
 

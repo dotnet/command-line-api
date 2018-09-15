@@ -9,28 +9,29 @@ namespace System.CommandLine
 {
     public class Parser
     {
-        private readonly ParserConfiguration _configuration;
+        public Parser(CommandLineConfiguration configuration)
+        {
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
-        public Parser(params SymbolDefinition[] symbolDefinitions) : this(new ParserConfiguration(symbolDefinitions))
+        public Parser(params Symbol[] symbol) : this(new CommandLineConfiguration(symbol))
         {
         }
 
-        public Parser(ParserConfiguration configuration)
-        {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        }
+        internal CommandLineConfiguration Configuration { get; }
 
-        public SymbolDefinitionSet SymbolDefinitions => _configuration.SymbolDefinitions;
-
-        public virtual ParseResult Parse(IReadOnlyCollection<string> rawTokens, string rawInput = null)
+        public virtual ParseResult Parse(IReadOnlyCollection<string> arguments, string rawInput = null)
         {
-            var unparsedTokens = new Queue<Token>(
-                NormalizeRootCommand(rawTokens)
-                    .Lex(_configuration));
-            var rootSymbols = new SymbolSet();
-            var allSymbols = new List<Symbol>();
-            var errors = new List<ParseError>();
-            var unmatchedTokens = new List<string>();
+            var rawTokens = arguments;  // allow a more user-friendly name for callers of Parse
+            var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
+            var unparsedTokens = new Queue<Token>(lexResult.Tokens);
+            var allSymbolResults = new List<SymbolResult>();
+            var errors = new List<ParseError>(lexResult.Errors);
+            var unmatchedTokens = new List<Token>();
+            CommandResult rootCommand = null;   
+            CommandResult innermostCommand = null;
+
+            IList<Option> optionQueue = GatherOptions(Configuration.Symbols);
 
             while (unparsedTokens.Any())
             {
@@ -44,22 +45,23 @@ namespace System.CommandLine
 
                 if (token.Type != TokenType.Argument)
                 {
-                    var definedOption =
-                        SymbolDefinitions.SingleOrDefault(o => o.HasAlias(token.Value));
+                    var symbol =
+                        Configuration.Symbols
+                                     .SingleOrDefault(o => o.HasAlias(token.Value));
 
-                    if (definedOption != null)
+                    if (symbol != null)
                     {
-                        var parsedOption = allSymbols
+                        var result = allSymbolResults
                             .LastOrDefault(o => o.HasAlias(token.Value));
 
-                        if (parsedOption == null)
+                        if (result == null)
                         {
-                            parsedOption = Symbol.Create(definedOption, token.Value);
+                            result = SymbolResult.Create(symbol, token.Value, validationMessages: Configuration.ValidationMessages);
 
-                            rootSymbols.Add(parsedOption);
+                            rootCommand = (CommandResult) result;
                         }
 
-                        allSymbols.Add(parsedOption);
+                        allSymbolResults.Add(result);
 
                         continue;
                     }
@@ -67,19 +69,35 @@ namespace System.CommandLine
 
                 var added = false;
 
-                foreach (var parsedOption in Enumerable.Reverse(allSymbols))
+                foreach (var topLevelSymbol in Enumerable.Reverse(allSymbolResults))
                 {
-                    var option = parsedOption.TryTakeToken(token);
+                    var symbolForToken = topLevelSymbol.TryTakeToken(token);
 
-                    if (option != null)
+                    if (symbolForToken != null)
                     {
-                        allSymbols.Add(option);
+                        allSymbolResults.Add(symbolForToken);
                         added = true;
+
+                        if (symbolForToken is CommandResult command)
+                        {
+                            ProcessImplicitTokens();
+                            innermostCommand = command;
+                        }
+
+                        if (token.Type == TokenType.Option)
+                        {
+                            var existing = optionQueue.FirstOrDefault(symdef => symdef.Name == symbolForToken.Name);
+                            if (existing != null)
+                            {
+                                // we've used this option - don't use it again
+                                optionQueue.Remove(existing);
+                            }
+                        }
                         break;
                     }
 
                     if (token.Type == TokenType.Argument &&
-                        parsedOption.SymbolDefinition is CommandDefinition)
+                        topLevelSymbol.Symbol is Command)
                     {
                         break;
                     }
@@ -87,56 +105,97 @@ namespace System.CommandLine
 
                 if (!added)
                 {
-                    unmatchedTokens.Add(token.Value);
+                    unmatchedTokens.Add(token);
                 }
             }
 
-            if (rootSymbols.CommandDefinition()?.TreatUnmatchedTokensAsErrors == true)
+            ProcessImplicitTokens();
+
+            if (Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
                 errors.AddRange(
-                    unmatchedTokens.Select(token => UnrecognizedArg(token)));
-            }
-
-            if (_configuration.RootCommandIsImplicit)
-            {
-                rawTokens = rawTokens.Skip(1).ToArray();
-                var parsedOptions = rootSymbols
-                                     .SelectMany(o => o.Children)
-                                     .ToArray();
-                rootSymbols = new SymbolSet(parsedOptions);
+                    unmatchedTokens.Select(token => new ParseError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value))));
             }
 
             return new ParseResult(
+                rootCommand,
+                innermostCommand ?? rootCommand,
                 rawTokens,
-                rootSymbols,
-                _configuration,
                 unparsedTokens.Select(t => t.Value).ToArray(),
-                unmatchedTokens,
+                unmatchedTokens.Select(t => t.Value).ToArray(),
                 errors,
                 rawInput);
+
+            void ProcessImplicitTokens()
+            {
+                if (!Configuration.EnablePositionalOptions)
+                {
+                    return;
+                }
+
+                var currentCommand = innermostCommand ?? rootCommand;
+                if (currentCommand == null) return;
+
+                Token[] tokensToAttemptByPosition =
+                    Enumerable.Reverse(unmatchedTokens)
+                    .TakeWhile(x => x.Type != TokenType.Command)
+                    .Reverse()
+                    .ToArray();
+
+                foreach (Token token in tokensToAttemptByPosition)
+                {
+                    var optionSymdef = optionQueue.FirstOrDefault();
+                    if (optionSymdef != null)
+                    {
+                        var newToken = new Token(optionSymdef.RawAliases.First(), TokenType.Option);
+                        var optionResult = currentCommand.TryTakeToken(newToken);
+                        var optionArgument = optionResult?.TryTakeToken(token);
+                        if (optionArgument != null)
+                        {
+                            optionQueue.RemoveAt(0);
+                            allSymbolResults.Add(optionResult);
+                            if (optionResult != optionArgument)
+                            {
+                                allSymbolResults.Add(optionArgument);
+                            }
+                            unmatchedTokens.Remove(token);
+                        }
+                        else if (optionResult != null)
+                        {
+                            currentCommand.Children.Remove(optionResult);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static IList<Option> GatherOptions(SymbolSet symbols)
+        {
+            var optionList = new List<Option>();
+            foreach (var symbol in symbols)
+            {
+                if (symbol is Option optionDefinition)
+                {
+                    var validator = optionDefinition.Argument.Parser.ArityValidator;
+                    if (validator?.MaximumNumberOfArguments == 1 &&
+                        validator.MinimumNumberOfArguments == 1)    // Exactly One
+                    {
+                        optionList.Add(optionDefinition);
+                    }
+                }
+
+                optionList.AddRange(GatherOptions(symbol.Symbols));
+            }
+            return optionList;
         }
 
         internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {
-            if (_configuration.RootCommandIsImplicit)
-            {
-                args = new[] { _configuration.RootCommandDefinition.Name }.Concat(args).ToArray();
-            }
-
             var firstArg = args.FirstOrDefault();
 
-            if (SymbolDefinitions.Count != 1)
-            {
-                return args;
-            }
+            var commandName = Configuration.RootCommand.Name;
 
-            var commandName = SymbolDefinitions
-                              .OfType<CommandDefinition>()
-                              .SingleOrDefault()
-                              ?.Name;
-
-            if (commandName == null ||
-                string.Equals(firstArg, commandName, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(firstArg, commandName, StringComparison.OrdinalIgnoreCase))
             {
                 return args;
             }
@@ -155,8 +214,5 @@ namespace System.CommandLine
 
             return args;
         }
-
-        private static ParseError UnrecognizedArg(string arg) =>
-            new ParseError(ValidationMessages.UnrecognizedCommandOrArgument(arg));
     }
 }

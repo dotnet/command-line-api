@@ -3,18 +3,25 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace System.CommandLine
 {
     public static class StringExtensions
     {
-        private static readonly char[] _optionPrefixCharacters = { '-' };
+        private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
 
         private static readonly Regex _tokenizer = new Regex(
-            @"(""(?<token>[^""]*)"")|(?<token>\S+)",
-            RegexOptions.Compiled | RegexOptions.ExplicitCapture
+            @"((?<opt>[^""\s]+)""(?<arg>[^""]+)"") # token + quoted argument with non-space argument delimiter, ex: --opt:""c:\path with\spaces""
+              |                                
+              (""(?<token>[^""]*)"")               # tokens surrounded by spaces, ex: ""c:\path with\spaces""
+              |
+              (?<token>\S+)                        # tokens containing no quotes or spaces
+              ",
+            RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace
         );
 
         internal static bool ContainsCaseInsensitive(
@@ -26,84 +33,196 @@ namespace System.CommandLine
                                 value ?? "",
                                 CompareOptions.OrdinalIgnoreCase) >= 0;
 
-        internal static string RemovePrefix(this string option) =>
-            option.TrimStart(_optionPrefixCharacters);
-
-        internal static IEnumerable<Token> Lex(
-            this IEnumerable<string> args,
-            ParserConfiguration configuration)
+        internal static string RemovePrefix(this string option)
         {
-            SymbolDefinition currentSymbol = null;
-            bool foundEndOfArguments = false;
+            foreach (var prefix in _optionPrefixStrings)
+            {
+                if (option.StartsWith(prefix))
+                {
+                    return option.Substring(prefix.Length);
+                }
+            }
+
+            return option;
+        }
+
+        internal static LexResult Lex(
+            this IEnumerable<string> args,
+            CommandLineConfiguration configuration)
+        {
+            var tokenList = new List<Token>();
+            var errorList = new List<ParseError>();
+
+            Symbol currentSymbol = null;
+            var foundEndOfArguments = false;
+            var argList = args.ToList();
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
-            var knownTokens = new HashSet<Token>(configuration.SymbolDefinitions.SelectMany(ValidTokens));
+            var knownTokens = new HashSet<Token>(configuration.Symbols.SelectMany(ValidTokens));
 
-            foreach (var arg in args)
+            for (var i = 0; i < argList.Count; i++)
             {
+                var arg = argList[i];
+
                 if (foundEndOfArguments)
                 {
-                    yield return Operand(arg);
+                    tokenList.Add(Operand(arg));
                     continue;
                 }
-                else if (arg == "--")
+
+                if (arg == "--")
                 {
-                    yield return EndOfArguments();
+                    tokenList.Add(EndOfArguments());
                     foundEndOfArguments = true;
                     continue;
                 }
 
+                if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
+                    arg.StartsWith("@"))
+                {
+                    var filePath = arg.Substring(1);
+                    if (!String.IsNullOrWhiteSpace(filePath))
+                    {
+                        try
+                        {
+                            var next = i + 1;
+                            foreach (var newArg in ParseResponseFile(
+                                filePath,
+                                configuration.ResponseFileHandling))
+                            {
+                                argList.Insert(next, newArg);
+                                next += 1;
+                            }
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            errorList.Add(new ParseError(configuration.ValidationMessages.ResponseFileNotFound(filePath),
+                                                         null,
+                                                         false));
+                        }
+                        catch (IOException e)
+                        {
+                            errorList.Add(new ParseError(
+                                              configuration.ValidationMessages.ErrorReadingResponseFile(filePath, e),
+                                              null,
+                                              false));
+                        }
+
+                        continue;
+                    }
+                }
+
                 var argHasPrefix = HasPrefix(arg);
 
-                if (argHasPrefix && HasDelimiter(arg))
+                if (argHasPrefix &&
+                    SplitTokenByArgumentDelimiter(arg, argumentDelimiters) is string[] subtokens &&
+                    subtokens.Length > 1)
                 {
-                    var parts = arg.Split(argumentDelimiters, 2);
-
-                    if (knownTokens.Any(t => t.Value == parts.First()))
+                    if (knownTokens.Any(t => t.Value == subtokens.First()))
                     {
-                        yield return Option(parts[0]);
+                        tokenList.Add(Option(subtokens[0]));
 
-                        if (parts.Length > 1)
+                        if (subtokens.Length > 1)
                         {
-                            yield return Argument(parts[1]);
+                            // trim outer quotes in case of, e.g., -x="why"
+                            var secondPartWithOuterQuotesRemoved = subtokens[1].Trim('"');
+                            tokenList.Add(Argument(secondPartWithOuterQuotesRemoved));
                         }
                     }
                     else
                     {
-                        yield return Argument(arg);
+                        tokenList.Add(Argument(arg));
                     }
                 }
-                else if (configuration.AllowUnbundling && arg.CanBeUnbundled(knownTokens))
+                else if (configuration.EnablePosixBundling && arg.CanBeUnbundled(knownTokens))
                 {
                     foreach (var character in arg.Skip(1))
                     {
                         // unbundle e.g. -xyz into -x -y -z
-                        yield return Option($"-{character}");
+                        tokenList.Add(Option($"-{character}"));
                     }
                 }
                 else if (knownTokens.All(t => t.Value != arg) ||
-                         // if token matches the current commandDefinition name, consider it an argument
+                         // if token matches the current command name, consider it an argument
                          currentSymbol?.Name == arg)
                 {
-                    yield return Argument(arg);
+                    tokenList.Add(Argument(arg));
                 }
                 else
                 {
                     if (argHasPrefix)
                     {
-                        yield return Option(arg);
+                        tokenList.Add(Option(arg));
                     }
                     else
                     {
                         // when a subcommand is encountered, re-scope which tokens are valid
-                        currentSymbol = (currentSymbol?.SymbolDefinitions ??
-                                          configuration.SymbolDefinitions)[arg];
+                        currentSymbol = (currentSymbol?.Symbols ??
+                                         configuration.Symbols)[arg];
                         knownTokens = currentSymbol.ValidTokens();
-                        yield return Command(arg);
+                        tokenList.Add(Command(arg));
                     }
                 }
             }
+
+            return new LexResult {
+                Tokens = tokenList,
+                Errors = errorList
+            };
+        }
+
+        internal static string[] SplitTokenByArgumentDelimiter(string arg, char[] argumentDelimiters) => arg.Split(argumentDelimiters, 2);
+
+        public static string ToKebabCase(this string value)
+        {
+            if (String.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            var sb = new StringBuilder();
+            int i = 0;
+            bool addDash = false;
+
+            for (; i < value.Length; i++)
+            {
+                char ch = value[i];
+                if (Char.IsLetterOrDigit(ch))
+                {
+                    addDash = !Char.IsUpper(ch);
+                    sb.Append(Char.ToLowerInvariant(ch));
+                    i++;
+                    break;
+                }
+            }
+
+            for (; i < value.Length; i++)
+            {
+                char ch = value[i];
+                if (Char.IsUpper(ch))
+                {
+                    if (addDash)
+                    {
+                        addDash = false;
+                        sb.Append('-');
+                    }
+
+                    sb.Append(Char.ToLowerInvariant(ch));
+                }
+                else if (Char.IsLetterOrDigit(ch))
+                {
+                    addDash = true;
+                    sb.Append(ch);
+                }
+                else
+                {
+                    addDash = false;
+                    sb.Append('-');
+                }
+            }
+
+            return sb.ToString();
         }
 
         private static Token Argument(string value) => new Token(value, TokenType.Argument);
@@ -118,54 +237,86 @@ namespace System.CommandLine
 
         private static bool CanBeUnbundled(
             this string arg,
-            IReadOnlyCollection<Token> knownTokens) =>
-            arg.StartsWith("-") &&
-            !arg.StartsWith("--") &&
-            arg.RemovePrefix()
-               .All(c => knownTokens
-                        .Where(t => t.Type == TokenType.Option)
-                        .Select(t => t.Value.RemovePrefix())
-                        .Contains(c.ToString()));
-
-        private static bool HasDelimiter(string arg) =>
-            arg.Contains("=") ||
-            arg.Contains(":");
-
-        private static bool HasPrefix(string arg) =>
-            arg != string.Empty &&
-            _optionPrefixCharacters.Contains(arg[0]);
-
-        public static IEnumerable<string> Tokenize(this string s)
+            IReadOnlyCollection<Token> knownTokens)
         {
-            var matches = _tokenizer.Matches(s);
+            return arg.StartsWith("-") &&
+                   !arg.StartsWith("--") &&
+                   arg.RemovePrefix()
+                      .All(CharacterIsValidOptionAlias);
+
+            bool CharacterIsValidOptionAlias(char c) =>
+                knownTokens.Where(t => t.Type == TokenType.Option)
+                           .Select(t => t.Value.RemovePrefix())
+                           .Contains(c.ToString());
+        }
+
+        private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
+
+        public static IEnumerable<string> Tokenize(this string commandLine)
+        {
+            var matches = _tokenizer.Matches(commandLine);
 
             foreach (Match match in matches)
             {
-                foreach (var capture in match.Groups["token"].Captures)
+                if (match.Groups["arg"].Captures.Count > 0)
                 {
-                    yield return capture.ToString();
+                    var opt = match.Groups["opt"];
+                    var arg = match.Groups["arg"];
+                    yield return $"{opt}{arg}";
+                }
+                else
+                {
+                    foreach (var capture in match.Groups["token"].Captures)
+                    {
+                        yield return capture.ToString();
+                    }
                 }
             }
         }
 
-        internal static string NotWhitespace(this string value) =>
-            string.IsNullOrWhiteSpace(value) ? null : value;
+        private static IEnumerable<string> ParseResponseFile(
+            string filePath,
+            ResponseFileHandling responseFileHandling)
+        {
+            foreach (var line in File.ReadAllLines(filePath))
+            {
+                var arg = line.Trim();
 
-        private static HashSet<Token> ValidTokens(this SymbolDefinition symbolDefinition) =>
+                if (arg.Length == 0 || arg.StartsWith("#"))
+                {
+                    continue;
+                }
+
+                switch (responseFileHandling)
+                {
+                    case ResponseFileHandling.ParseArgsAsLineSeparated:
+                        yield return line;
+                        break;
+                    case ResponseFileHandling.ParseArgsAsSpaceSeparated:
+                        foreach (var word in Tokenize(arg))
+                        {
+                            yield return word;
+                        }
+
+                        break;
+                }
+            }
+        }
+
+        private static HashSet<Token> ValidTokens(this Symbol symbol) =>
             new HashSet<Token>(
-                symbolDefinition.RawAliases
+                symbol.RawAliases
                       .Select(Command)
                       .Concat(
-                          symbolDefinition.SymbolDefinitions
+                          symbol.Symbols
                                 .SelectMany(
-                                    s =>
-                                        s.RawAliases
-                                         .Select(
-                                             a =>
-                                                 new Token(
-                                                     a,
-                                                     s is CommandDefinition
-                                                         ? TokenType.Command
-                                                         : TokenType.Option)))));
+                                    s => s.RawAliases
+                                          .Select(a => new Token(
+                                                      a,
+                                                      s is Command
+                                                          ? TokenType.Command
+                                                          : TokenType.Option)))));
+
+       
     }
 }

@@ -1,25 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="TestResults\**" />
     <EmbeddedResource Remove="TestResults\**" />
     <None Remove="TestResults\**" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Compile Include="..\System.CommandLine\Rendering\WrappingExtensions.cs" Link="Rendering\WrappingExtensions.cs" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="fluentassertions" Version="5.3.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="FluentAssertions" Version="5.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="system.reactive.core" Version="4.0.0" />
     <PackageReference Include="xunit" Version="2.3.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0" />
-    <PackageReference Include="newtonsoft.json" Version="10.0.3" />
   </ItemGroup>
-
 </Project>

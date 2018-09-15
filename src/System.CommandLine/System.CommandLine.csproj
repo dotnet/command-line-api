@@ -1,7 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>System.CommandLine.Experimental</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+   
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <ItemGroup>

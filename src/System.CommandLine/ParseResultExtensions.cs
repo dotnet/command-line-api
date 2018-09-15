@@ -39,41 +39,18 @@ namespace System.CommandLine
 
             return textBeforeCursor.Split(' ').LastOrDefault() +
                    textAfterCursor.Split(' ').FirstOrDefault();
-        } 
-
-        public static Command SpecifiedCommand(this ParseResult result)
-        {
-            var commandPath = result
-                              .SpecifiedCommandDefinition()
-                              .RecurseWhileNotNull(c => c.Parent)
-                              .Select(c => c.Name)
-                              .Reverse()
-                              .ToArray();
-
-            var symbol = result.Symbols[commandPath.First()];
-
-            foreach (var commandName in commandPath.Skip(1))
-            {
-                symbol = symbol.Children[commandName];
-            }
-
-            return (Command) symbol;
         }
 
-        internal static Symbol CurrentSymbol(this ParseResult result) =>
-            result.Symbols
-                  .LastOrDefault()
-                  .AllSymbols()
+        internal static SymbolResult CurrentSymbol(this ParseResult result) =>
+            result.CommandResult
+                  .AllSymbolResults()
                   .LastOrDefault();
 
         public static string Diagram(this ParseResult result)
         {
             var builder = new StringBuilder();
 
-            foreach (var o in result.Symbols)
-            {
-                builder.Diagram(o);
-            }
+            builder.Diagram(result.RootCommandResult, result);
 
             if (result.UnmatchedTokens.Any())
             {
@@ -89,28 +66,75 @@ namespace System.CommandLine
             return builder.ToString();
         }
 
-        internal static void Diagram(
+        private static void Diagram(
             this StringBuilder builder,
-            Symbol symbol)
+            SymbolResult symbolResult,
+            ParseResult parseResult)
         {
-            builder.Append("[ ");
-
-            builder.Append(symbol.SymbolDefinition);
-
-            foreach (var child in symbol.Children)
+            if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult))
             {
-                builder.Append(" ");
-                builder.Diagram(child);
+                builder.Append("!");
+            }
+            
+            if (symbolResult is OptionResult option &&
+                option.IsImplicit)
+            {
+                builder.Append("*");
             }
 
-            foreach (var arg in symbol.Arguments)
+            builder.Append("[ ");
+
+            builder.Append(symbolResult.Token);
+
+            foreach (var child in symbolResult.Children)
             {
-                builder.Append(" <");
-                builder.Append(arg);
-                builder.Append(">");
+                builder.Append(" ");
+                builder.Diagram(child, parseResult);
+            }
+
+            if (symbolResult.Arguments.Count > 0)
+            {
+                foreach (var arg in symbolResult.Arguments)
+                {
+                    builder.Append(" <");
+                    builder.Append(arg);
+                    builder.Append(">");
+                }
+            }
+            else
+            {
+                var result = symbolResult.Result;
+                if (result is SuccessfulArgumentParseResult _)
+                {
+                    var value = symbolResult.GetValueOrDefault();
+                    
+                    switch (value)
+                    {
+                        case null:
+                        case IReadOnlyCollection<string> a when a.Count == 0:
+                            break;
+                        default:
+                            builder.Append(" <");
+                            builder.Append(value);
+                            builder.Append(">");
+                            break;
+                    }
+                }
             }
 
             builder.Append(" ]");
+        }
+
+        public static bool HasOption(
+            this ParseResult parseResult,
+            Option option)
+        {
+            if (parseResult == null)
+            {
+                throw new ArgumentNullException(nameof(parseResult));
+            }
+
+            return parseResult.CommandResult.Children.Any(s => s.Symbol == option);
         }
 
         public static bool HasOption(
@@ -122,32 +146,27 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            var specifiedCommand = parseResult.SpecifiedCommand();
-
-            if (specifiedCommand != null)
-            {
-                return specifiedCommand.Children.Contains(alias);
-            }
-            else
-            {
-                return parseResult.Symbols.Contains(alias);
-            }
+            return parseResult.CommandResult.Children.Contains(alias);
         }
 
-        internal static int? ImplicitCursorPosition(this ParseResult parseResult)
+        public static IEnumerable<string> Suggestions(
+            this ParseResult parseResult,
+            int? position = null)
         {
-            if (parseResult.RawInput != null)
-            {
-                return parseResult.RawInput.Length;
-            }
+            var currentSymbol = parseResult?.CurrentSymbol().Symbol;
 
-            return string.Join(" ", parseResult.Tokens).Length;
+            var currentSymbolSuggestions = currentSymbol
+                                               ?.Suggest(parseResult, position)
+                                           ?? Array.Empty<string>();
+
+            var command = currentSymbol?.Parent;
+
+            var parentSymbolSuggestions = command?.Suggest(parseResult, position)
+                                          ?? Array.Empty<string>();
+
+            return parentSymbolSuggestions
+                   .Concat(currentSymbolSuggestions)
+                   .ToArray();
         }
-
-        public static IEnumerable<string> Suggestions(this ParseResult parseResult, int? position = null) =>
-            parseResult?.CurrentSymbol()
-                       ?.SymbolDefinition
-                       ?.Suggest(parseResult, position ) ??
-            Array.Empty<string>();
     }
 }

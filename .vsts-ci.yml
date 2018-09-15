@@ -1,0 +1,68 @@
+resources:
+- repo: self
+  clean: true
+queue:
+  name: VSEng-MicroBuildVS2017
+  demands: Cmd
+variables:
+  BuildConfiguration: Release
+  TeamName: Roslyn
+
+steps:
+- task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
+  displayName: Install Signing Plugin
+  inputs:
+    signType: real
+    esrpSigning: true
+  condition: and(succeeded(), eq(variables['PB_SignType'], 'real'))
+
+- task: BatchScript@1
+  displayName: Build
+  inputs:
+    filename: 'build\cibuild.cmd'
+    arguments: '-configuration $(BuildConfiguration) /p:PB_PublishBlobFeedKey=$(PB_PublishBlobFeedKey)'
+
+- task: PublishTestResults@2
+  displayName: Publish Test Results
+  inputs:
+    testRunner: XUnit
+    testResultsFiles: 'artifacts/$(BuildConfiguration)/TestResults/*.xml'
+    mergeTestResults: true
+    testRunTitle: 'Unit Tests'
+  condition: and(succeededOrFailed(), ne(variables['PB_SkipTests'], 'true'))
+
+- task: NuGetCommand@2
+  displayName: Publish NuGet Packages to MyGet
+  inputs:
+    command: push
+    packagesToPush: 'artifacts\$(BuildConfiguration)\packages\*.nupkg'
+    nuGetFeedType: external
+    publishFeedCredentials: 'dotnet.myget.org/system-commandline'
+  condition: and(succeeded(), not(contains(variables['PB_PublishType'], 'blob')))
+
+- task: CopyPublishBuildArtifacts@1
+  displayName: Publish Artifacts
+  inputs:
+    CopyRoot: '$(Build.SourcesDirectory)'
+    Contents: |
+     artifacts\$(BuildConfiguration)\bin
+     artifacts\$(BuildConfiguration)\log
+     artifacts\$(BuildConfiguration)\TestResults
+     artifacts\$(BuildConfiguration)\packages
+    ArtifactName: '$(Build.BuildNumber)'
+    ArtifactType: FilePath
+    TargetPath: '$(DropRoot)\$(TeamName)\$(Build.DefinitionName)'
+  condition: and(succeededOrFailed(), not(contains(variables['PB_PublishType'], 'blob')))
+
+- task: ms-vseng.MicroBuildTasks.521a94ea-9e68-468a-8167-6dcf361ea776.MicroBuildCleanup@1
+  displayName: Cleanup
+  condition: succeededOrFailed()
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish MicroBuild Artifacts
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)\MicroBuild\Output'
+    ArtifactName: '$(Build.BuildNumber)'
+    publishLocation: FilePath
+    TargetPath: '$(DropRoot)\$(TeamName)\$(Build.DefinitionName)'
+  condition: and(succeededOrFailed(), not(contains(variables['PB_PublishType'], 'blob')))
