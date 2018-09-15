@@ -78,22 +78,16 @@ namespace System.CommandLine.Rendering
                 FlushLine();
             }
 
-            if (Region.IsOverwrittenOnRender)
-            {
-                while (TryStartNewLine())
-                {
-                    FlushLine();
-                }
-            }
+            ClearRemainingHeight();
         }
 
         protected bool FilledRegionHeight => LinesWritten >= Region.Height;
 
-        private int RemainingWidthOnLine => Region.Width - _positionOnLine;
+        private int RemainingWidthInRegion => Region.Width - _positionOnLine;
 
         private void FlushLine()
         {
-            PadRemainderOfLineWithWhitespace();
+            ClearRemainingWidth();
 
             Flush();
 
@@ -102,15 +96,32 @@ namespace System.CommandLine.Rendering
             _positionOnLine = 0;
         }
 
-
-        private void PadRemainderOfLineWithWhitespace()
+        protected virtual void ClearRemainingWidth()
         {
-            var remainingWidthOnLine = RemainingWidthOnLine;
+            if (!Region.IsOverwrittenOnRender)
+            {
+                return;
+            }
+
+            var remainingWidthOnLine = RemainingWidthInRegion;
 
             if (remainingWidthOnLine > 0)
             {
                 _buffer.Append(new string(' ', remainingWidthOnLine));
                 _positionOnLine += remainingWidthOnLine;
+            }
+        }
+
+        protected virtual void ClearRemainingHeight()
+        {
+            if (!Region.IsOverwrittenOnRender)
+            {
+                return;
+            }
+
+            while (TryStartNewLine())
+            {
+                FlushLine();
             }
         }
 
@@ -134,10 +145,10 @@ namespace System.CommandLine.Rendering
 
             if (mustTruncate)
             {
-                value = value.Substring(0, Math.Min(value.Length, RemainingWidthOnLine));
+                value = value.Substring(0, Math.Min(value.Length, RemainingWidthInRegion));
             }
 
-            if (value.Length > RemainingWidthOnLine)
+            if (value.Length > RemainingWidthInRegion)
             {
                 if (WillFitIfEndIsTrimmed())
                 {
@@ -157,7 +168,7 @@ namespace System.CommandLine.Rendering
             _buffer.Append(value);
             _positionOnLine += value.Length;
 
-            if (RemainingWidthOnLine <= 0)
+            if (RemainingWidthInRegion <= 0)
             {
                 FlushLine();
             }
@@ -166,7 +177,7 @@ namespace System.CommandLine.Rendering
 
             bool WillFitIfEndIsTrimmed()
             {
-                return value.TrimEnd().Length <= RemainingWidthOnLine;
+                return value.TrimEnd().Length <= RemainingWidthInRegion;
             }
         }
 

@@ -33,11 +33,11 @@ namespace System.CommandLine.Tests.Rendering
                 $"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}",
                 _console.GetRegion());
 
-            _console.Out
-                    .ToString()
-                    .TrimEnd()
-                    .Should()
-                    .Be("normal");
+            var output = _console.Out.ToString().TrimEnd();
+
+            _output.WriteLine(output);
+
+            output.Should().Be("normal");
         }
 
         [Fact]
@@ -46,6 +46,41 @@ namespace System.CommandLine.Tests.Rendering
             var writer = new ConsoleRenderer(
                 _console,
                 OutputMode.NonAnsi
+            );
+
+            new DirectoryView(writer).Render(new DirectoryInfo(Directory.GetCurrentDirectory()));
+
+            _console.Out
+                    .ToString()
+                    .Should()
+                    .NotContain(Esc);
+        }
+
+        [Fact]
+        public void When_in_File_mode_control_codes_within_FormattableStrings_are_not_rendered()
+        {
+            var writer = new ConsoleRenderer(
+                _console,
+                OutputMode.File
+            );
+
+            writer.RenderToRegion(
+                $"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}",
+                _console.GetRegion());
+
+            var output = _console.Out.ToString();
+
+            _output.WriteLine(output);
+
+            output.Should().Be($"normal");
+        }
+
+        [Fact]
+        public void When_in_File_mode_control_codes_within_tables_are_not_rendered()
+        {
+            var writer = new ConsoleRenderer(
+                _console,
+                OutputMode.File
             );
 
             new DirectoryView(writer).Render(new DirectoryInfo(Directory.GetCurrentDirectory()));

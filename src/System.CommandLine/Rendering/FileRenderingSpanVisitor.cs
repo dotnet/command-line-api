@@ -12,9 +12,10 @@ namespace System.CommandLine.Rendering
 
         protected override void SetCursorPosition(int left, int top)
         {
-            Writer.WriteLine();
-
-            Writer.Write(new string(' ', left));
+            if (top > 0)
+            {
+                Writer.WriteLine();
+            }
         }
     }
 }
