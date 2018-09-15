@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests
         private int _cursorLeft;
         private int _cursorTop;
         private readonly RecordingWriter _error;
-        private readonly RecordingWriter _out;
+        private RecordingWriter _out;
         private readonly List<ConsoleEvent> _events = new List<ConsoleEvent>();
         private readonly StringBuilder _outBuffer = new StringBuilder();
         private readonly StringBuilder _ansiCodeBuffer = new StringBuilder();
@@ -64,6 +64,12 @@ namespace System.CommandLine.Tests
             }
 
             public AnsiControlCode Code { get; }
+        }
+
+        public void SetOut(RecordingWriter writer)
+        {
+            _out = writer ?? throw new ArgumentException(nameof(writer));
+            IsOutputRedirected = true;
         }
 
         public TextWriter Error => _error;
@@ -183,7 +189,7 @@ namespace System.CommandLine.Tests
 
         private string UnflushedOutput => _outBuffer.ToString();
 
-        public bool IsOutputRedirected { get; }
+        public bool IsOutputRedirected { get; private set; }
 
         public bool IsErrorRedirected { get; }
 
@@ -250,23 +256,6 @@ namespace System.CommandLine.Tests
             }
 
             public string Content { get; }
-        }
-
-        private class RecordingWriter : TextWriter
-        {
-            private readonly StringBuilder _stringBuilder = new StringBuilder();
-
-            public event Action<char> CharWritten;
-
-            public override void Write(char value)
-            {
-                _stringBuilder.Append(value);
-                CharWritten?.Invoke(value);
-            }
-
-            public override Encoding Encoding { get; } = Encoding.Unicode;
-
-            public override string ToString() => _stringBuilder.ToString();
         }
     }
 }
