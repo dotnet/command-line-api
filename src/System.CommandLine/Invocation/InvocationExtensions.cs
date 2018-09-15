@@ -49,7 +49,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
-                if (context.ParseResult.Tokens.FirstOrDefault() == "!parse")
+                if (context.ParseResult.Tokens.FirstOrDefault() == "[parse]")
                 {
                     context.InvocationResult = new ParseDirectiveResult();
                 }
