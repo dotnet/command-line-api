@@ -66,7 +66,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
-                if (context.ParseResult.Tokens.FirstOrDefault() == "!suggest")
+                if (context.ParseResult.Tokens.FirstOrDefault() == "[suggest]")
                 {
                     context.InvocationResult = new SuggestDirectiveResult();
                 }
