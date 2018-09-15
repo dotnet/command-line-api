@@ -26,8 +26,6 @@ namespace System.CommandLine.Rendering
         {
             SetEffectiveRegion();
 
-            _verticalOffset = 0;
-
             OnRender(value);
         }
 
@@ -91,7 +89,7 @@ namespace System.CommandLine.Rendering
                 _effectiveRegion.Top + 1,
                 _effectiveRegion.Width,
                 _effectiveRegion.Height - 1,
-                false);
+                Region.IsOverwrittenOnRender);
         }
 
         public void Write(object value)
@@ -118,7 +116,7 @@ namespace System.CommandLine.Rendering
                 Region.Top,
                 Region.Width,
                 Region.Height,
-                false);
+                Region.IsOverwrittenOnRender);
         }
     }
 }
