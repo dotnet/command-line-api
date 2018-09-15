@@ -63,48 +63,60 @@ namespace System.CommandLine.Rendering
 
         public static VirtualTerminalMode TryEnable()
         {
-            var stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-            var stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
-
-            if (!GetConsoleMode(stdOutHandle, out var originalOutputMode))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new VirtualTerminalMode(false, GetLastError());
+                var stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+                var stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
+
+                if (!GetConsoleMode(stdOutHandle, out var originalOutputMode))
+                {
+                    return new VirtualTerminalMode(false, GetLastError());
+                }
+
+                if (!GetConsoleMode(stdInHandle, out var originalInputMode))
+                {
+                    return new VirtualTerminalMode(false, GetLastError());
+                }
+
+                // var requestedInputMode = originalInputMode |
+                //                          ENABLE_VIRTUAL_TERMINAL_INPUT;
+
+                var requestedOutputMode = originalOutputMode |
+                                          ENABLE_VIRTUAL_TERMINAL_PROCESSING |
+                                          DISABLE_NEWLINE_AUTO_RETURN;
+
+                if (!SetConsoleMode(stdOutHandle, requestedOutputMode))
+                {
+                    return new VirtualTerminalMode(false, GetLastError());
+                }
+
+                // if (!SetConsoleMode(stdInHandle, requestedInputMode))
+                // {
+                //     return new VirtualTerminalMode(false, GetLastError());
+                // }
+
+                return new VirtualTerminalMode(stdOutHandle,
+                                               originalOutputMode,
+                                               stdInHandle,
+                                               originalInputMode);
             }
 
-            if (!GetConsoleMode(stdInHandle, out var originalInputMode))
-            {
-                return new VirtualTerminalMode(false, GetLastError());
-            }
-
-            // var requestedInputMode = originalInputMode |
-            //                          ENABLE_VIRTUAL_TERMINAL_INPUT;
-
-            var requestedOutputMode = originalOutputMode |
-                                      ENABLE_VIRTUAL_TERMINAL_PROCESSING |
-                                      DISABLE_NEWLINE_AUTO_RETURN;
-
-            if (!SetConsoleMode(stdOutHandle, requestedOutputMode))
-            {
-                return new VirtualTerminalMode(false, GetLastError());
-            }
-
-            // if (!SetConsoleMode(stdInHandle, requestedInputMode))
-            // {
-            //     return new VirtualTerminalMode(false, GetLastError());
-            // }
-
-            return new VirtualTerminalMode(stdOutHandle,
-                                           originalOutputMode,
-                                           stdInHandle,
-                                           originalInputMode);
+            // TODO: Is this a reasonable default?
+            return new VirtualTerminalMode(true);
         }
 
         public void Dispose()
         {
             if (IsEnabled)
             {
-                SetConsoleMode(_stdOutHandle, _originalOutputMode);
-                // SetConsoleMode(_stdInHandle, _originalInputMode);
+                if (_stdOutHandle != IntPtr.Zero)
+                {
+                    SetConsoleMode(_stdOutHandle, _originalOutputMode);
+                }
+                // if (_stdInHandle != IntPtr.Zero)
+                // {
+                //    SetConsoleMode(_stdInHandle, _originalInputMode);
+                // }
             }
         }
     }
