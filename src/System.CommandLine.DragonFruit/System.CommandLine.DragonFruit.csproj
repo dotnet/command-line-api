@@ -4,5 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+    <Content Include="targets\*" PackagePath="build\$(TargetFramework)\" />
   </ItemGroup>
 </Project>

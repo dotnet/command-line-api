@@ -1,7 +1,7 @@
 using System.CommandLine.Builder;
 using System.IO;
-using FluentAssertions;
 using System.Linq;
+using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,14 +17,15 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
+        public void
+            When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var builder = new ArgumentDefinitionBuilder();
+            var builder = new ArgumentBuilder();
             var parser = new Parser(
-                new OptionDefinition(
+                new Option(
                     "-x",
                     "",
-                    argumentDefinition: builder.FromAmong("this", "that", "the-other-thing").ExactlyOne()));
+                    builder.FromAmong("this", "that", "the-other-thing").ExactlyOne()));
 
             var result = parser.Parse("-x none-of-those");
 
@@ -36,30 +37,30 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var option = new OptionDefinition(
+            var builder = new ArgumentBuilder();
+            var option = new Option(
                 "-x",
                 "",
-                argumentDefinition: builder.FromAmong("this", "that").ExactlyOne());
+                builder.FromAmong("this", "that").ExactlyOne());
 
             var parser = new Parser(option);
 
             var result = parser.Parse("-x something_else");
 
             result.Errors
-                  .Where(e => e.Symbol != null)
+                  .Where(e => e.SymbolResult != null)
                   .Should()
-                  .Contain(e => e.Symbol.Name == option.Name);
+                  .Contain(e => e.SymbolResult.Name == option.Name);
         }
 
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var parser = new Parser(new OptionDefinition(
-                                              "-x",
-                                              "",
-                                              argumentDefinition: builder.ExactlyOne()));
+            var builder = new ArgumentBuilder();
+            var parser = new Parser(new Option(
+                                        "-x",
+                                        "",
+                                        builder.ExactlyOne()));
 
             var result = parser.Parse("-x");
 
@@ -71,11 +72,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(new CommandDefinition("the-command", "", new[] {
-                new OptionDefinition(
-                    "-x",
-                    "",
-                    argumentDefinition: ArgumentDefinition.None)
+            var parser = new Parser(new Command("the-command", "", new[] {
+                new Option("-x", "")
             }));
 
             var result = parser.Parse("the-command -x some-arg");
@@ -91,9 +89,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            builder.AddValidator(symbol =>
-            {
+            var builder = new ArgumentBuilder();
+            builder.AddValidator(symbol => {
                 if (symbol.Children.Contains("one") &&
                     symbol.Children.Contains("two"))
                 {
@@ -103,13 +100,10 @@ namespace System.CommandLine.Tests
                 return null;
             });
 
-            var command = new CommandDefinition("the-command", "", new[] { new OptionDefinition(
-                "--one",
-                "",
-                argumentDefinition: null), (SymbolDefinition) new OptionDefinition(
-                "--two",
-                "",
-                argumentDefinition: null) }, builder.ExactlyOne());
+            var command = new Command("the-command", "", new[] {
+                new Option("--one", ""),
+                new Option("--two", "")
+            }, builder.ExactlyOne());
 
             var result = command.Parse("the-command --one --two");
 
@@ -123,13 +117,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var command = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.LegalFilePathsOnly().ZeroOrMore());
+            var builder = new ArgumentBuilder();
+            var command = new Command("the-command", "", builder.LegalFilePathsOnly().ZeroOrMore());
 
             var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
 
             // Convert to ushort so the xUnit XML writer doesn't complain about invalid characters
-            _output.WriteLine(string.Join("\n", Path.GetInvalidPathChars().Select((c) => (ushort)(c))));
+            _output.WriteLine(string.Join("\n", Path.GetInvalidPathChars().Select(c => (ushort)c)));
 
             var result = command.Parse($"the-command {invalidCharacters}");
 
@@ -141,8 +135,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_accepts_arguments_containing_valid_path_characters()
         {
-            var builder = new ArgumentDefinitionBuilder();
-            var command = new CommandDefinition("the-command", "", symbolDefinitions: null, argumentDefinition: builder.LegalFilePathsOnly().ZeroOrMore());
+            var builder = new ArgumentBuilder();
+            var command = new Command("the-command", "", builder.LegalFilePathsOnly().ZeroOrMore());
 
             var validPathName = Directory.GetCurrentDirectory();
             var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
@@ -155,16 +149,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_file_existence()
         {
-            var command = new CommandDefinition("move", "", new[] { (SymbolDefinition) new OptionDefinition(
-                "--to",
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne());
+            var command = new CommandBuilder("move")
+                          .AddOption("--to", "",
+                                     args => args.ExactlyOne())
+                          .AddArguments(args => args.ExistingFilesOnly()
+                                                    .ExactlyOne())
+                          .BuildCommand();
 
-            var result = command.Parse($@"move ""{Guid.NewGuid()}.txt"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+            var result =
+                command.Parse(
+                    $@"move ""{Guid.NewGuid()}.txt"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
             _output.WriteLine(result.Diagram());
 
-            result.SpecifiedCommand()
+            result.CommandResult
                   .Arguments
                   .Should()
                   .BeEmpty();
@@ -173,48 +171,56 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_directory_existence()
         {
-            var command = new CommandDefinition("move", "", new[] { (SymbolDefinition) new OptionDefinition(
-                "--to",
-                "",
-                argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()) }, new ArgumentDefinitionBuilder().ExistingFilesOnly().ExactlyOne());
+            var parser = new CommandLineBuilder()
+                         .AddCommand("move", "",
+                                     toArgs => toArgs.AddOption("--to", "", args => args.ExactlyOne()),
+                                     moveArgs => moveArgs.ExistingFilesOnly()
+                                                         .ExactlyOne())
+                         .Build();
 
-            var result = command.Parse($@"move ""{Directory.GetCurrentDirectory()}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var trash = Path.Combine(currentDirectory, ".trash");
+
+            var commandLine = $@"move ""{currentDirectory}"" --to ""{trash}""";
+
+            _output.WriteLine(commandLine);
+
+            var result = parser.Parse(commandLine);
 
             _output.WriteLine(result.Diagram());
 
-            result.SpecifiedCommand()
+            result.CommandResult
                   .Arguments
                   .Should()
-                  .BeEquivalentTo(Directory.GetCurrentDirectory());
+                  .BeEquivalentTo(currentDirectory);
         }
 
         [Fact]
         public void When_there_are_subcommands_and_options_then_a_subcommand_must_be_provided()
         {
-            var command = new CommandDefinition("outer", "", new[] {
-                new CommandDefinition("inner", "", new[] { (SymbolDefinition) new CommandDefinition("three", "", ArgumentDefinition.None) }, new ArgumentDefinitionBuilder().OneOrMore())
-            });
+            var command = new CommandBuilder("outer")
+                          .AddCommand("inner", "",
+                                      inner => inner.AddCommand("inner-er", ""))
+                          .BuildCommand();
 
             var result = command.Parse("outer inner arg");
-
-            _output.WriteLine("ParseResult:" + result.Diagram());
-            _output.WriteLine("Errors: " + string.Join('\n', result.Errors));
 
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals(ValidationMessages.Current.RequiredCommandWasNotProvided()) &&
-                           e.Symbol.Name.Equals("inner"));
+                      e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
+                           e.SymbolResult.Name.Equals("inner"));
         }
 
         [Fact]
-        public void When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
+        public void
+            When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
         {
             var parser = new Parser(
-                new OptionDefinition(
+                new Option(
                     "-x",
                     "",
-                    argumentDefinition: new ArgumentDefinitionBuilder().ExactlyOne()));
+                    new ArgumentBuilder().ExactlyOne()));
 
             var result = parser.Parse("-x 1 -x 2");
 
@@ -222,6 +228,84 @@ namespace System.CommandLine.Tests
                   .Select(e => e.Message)
                   .Should()
                   .Contain("Option '-x' cannot be specified more than once.");
+        }
+
+        [Fact]
+        public void ParseArgumentsAs_with_arity_of_One_validates_against_extra_arguments()
+        {
+            var parser = new Parser(
+                new Option(
+                    "-x",
+                    "",
+                    new ArgumentBuilder().ParseArgumentsAs<int>()));
+
+            var result = parser.Parse("-x 1 -x 2");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("Option '-x' cannot be specified more than once.");
+        }
+
+        [Fact]
+        public void When_an_option_has_a_default_value_it_is_not_valid_to_specify_the_option_without_an_argument()
+        {
+            var parser = new Parser(
+                new Option(
+                    "-x", "",
+                    new ArgumentBuilder()
+                        .WithDefaultValue(() => "123")
+                        .ParseArgumentsAs<int>()));
+
+            var result = parser.Parse("-x");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("Required argument missing for option: -x");
+        }
+
+        [Fact]
+        public void When_an_option_has_a_default_value_then_the_default_should_apply_if_not_specified()
+        {
+            var parser = new Parser(
+                new Option(
+                    "-x",
+                    "",
+                    new ArgumentBuilder()
+                        .WithDefaultValue(() => "123")
+                        .ParseArgumentsAs<int>()),
+                new Option(
+                    "-y",
+                    "",
+                    new ArgumentBuilder()
+                        .WithDefaultValue(() => "456")
+                        .ParseArgumentsAs<int>())
+            );
+
+            var result = parser.Parse("");
+
+            result.Errors.Should().BeEmpty();
+            result.RootCommandResult.ValueForOption("-x").Should().Be(123);
+            result.RootCommandResult.ValueForOption("-y").Should().Be(456);
+        }
+
+        [Fact]
+        public void When_a_command_line_has_unmatched_tokens_they_are_not_applied_to_subsequent_options()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption("-x", "",
+                                    argument => argument.ExactlyOne())
+                         .AddOption("-y", "",
+                                    argument => argument.ExactlyOne())
+                         .TreatUnmatchedTokensAsErrors(false)
+                         .Build();
+
+            var result = parser.Parse("-x 23 unmatched-token -y 42");
+
+            result.ValueForOption("-x").Should().Be("23");
+            result.ValueForOption("-y").Should().Be("42");
+            result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
         }
     }
 }

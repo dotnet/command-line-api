@@ -3,15 +3,15 @@
 
 namespace System.CommandLine
 {
-    public class SuccessfulArgumentParseResult<T> : ArgumentParseResult
+    public class SuccessfulArgumentParseResult<T> : SuccessfulArgumentParseResult
     {
-        public SuccessfulArgumentParseResult(T value = default(T))
+        public SuccessfulArgumentParseResult(T value)
         {
             Value = value;
         }
 
-        public T Value { get; }
+        internal override bool HasValue => true;
 
-        public override bool IsSuccessful { get; } = true;
+        public T Value { get; }
     }
 }

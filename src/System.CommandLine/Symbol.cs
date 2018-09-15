@@ -6,156 +6,100 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public abstract class Symbol
+    public abstract class Symbol : ISuggestionSource
     {
-        private readonly Lazy<string> _defaultValue;
-        private readonly List<string> _arguments = new List<string>();
-        private ArgumentParseResult _result;
+        private readonly HashSet<string> _aliases = new HashSet<string>();
 
-        private bool considerAcceptingAnotherArgument = true;
+        private readonly HashSet<string> _rawAliases;
 
-        protected internal Symbol(SymbolDefinition symbolDefinition, string token, Command parent = null)
+        protected internal Symbol(
+            IReadOnlyCollection<string> aliases,
+            string description,
+            Argument argument = null,
+            HelpDetail help = null)
         {
-            if (string.IsNullOrWhiteSpace(token))
+            if (aliases == null)
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
+                throw new ArgumentNullException(nameof(aliases));
             }
 
-            SymbolDefinition = symbolDefinition ?? throw new ArgumentNullException(nameof(symbolDefinition));
-
-            Token = token;
-
-            Parent = parent;
-
-            _defaultValue = new Lazy<string>(SymbolDefinition.ArgumentDefinition.GetDefaultValue);
-        }
-
-        public IReadOnlyCollection<string> Arguments
-        {
-            get
+            if (!aliases.Any())
             {
-                if (!_arguments.Any() &&
-                    _defaultValue.Value != null)
+                throw new ArgumentException("An option must have at least one alias.");
+            }
+
+            _rawAliases = new HashSet<string>(aliases);
+
+            foreach (var alias in aliases)
+            {
+                var cleanedAlias = alias?.RemovePrefix();
+                if (string.IsNullOrWhiteSpace(cleanedAlias))
                 {
-                    return new[] { _defaultValue.Value };
+                    throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
                 }
 
-                return _arguments;
+                _aliases.Add(cleanedAlias);
             }
+
+            Description = description;
+
+            Name = aliases
+                   .Select(a => a.RemovePrefix())
+                   .OrderBy(a => a.Length)
+                   .Last();
+
+            Argument = argument ?? Argument.None;
+
+            Help = help ?? new HelpDetail(Name, Description, false);
         }
 
-        public SymbolSet Children { get; } = new SymbolSet();
+        public IReadOnlyCollection<string> Aliases => _aliases;
 
-        public string Name => SymbolDefinition.Name;
+        public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
-        public Command Parent { get; }
+        protected internal Argument Argument { get; protected set; }
 
-        public SymbolDefinition SymbolDefinition { get; }
+        public string Description { get; }
 
-        public string Token { get; }
+        public HelpDetail Help { get; }
 
-        public IReadOnlyCollection<string> Aliases => SymbolDefinition.Aliases;
+        public string Name { get; }
 
-        public bool HasAlias(string alias) => SymbolDefinition.HasAlias(alias);
+        // TODO: (Parent) make this immutable
+        public Command Parent { get; protected internal set; }
 
-        protected internal virtual ParseError Validate()
+        public SymbolSet Symbols { get; } = new SymbolSet();
+
+        internal void AddAlias(string alias) => _rawAliases.Add(alias);
+
+        public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
+
+        public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
+
+        protected internal bool HasArguments => Argument != null && Argument != Argument.None;
+
+        protected internal bool HasHelp => Argument != null && Argument.HasHelp;
+
+        internal string Token() => _rawAliases.First(alias => alias.RemovePrefix() == Name);
+
+        public virtual IEnumerable<string> Suggest(
+            ParseResult parseResult,
+            int? position = null)
         {
-            foreach (var symbolValidator in SymbolDefinition.ArgumentDefinition.SymbolValidators)
-            {
-                var errorMessage = symbolValidator(this);
+            var symbolAliases = Symbols
+                                .Where(symbol => !symbol.IsHidden())
+                                .SelectMany(symbol => symbol.RawAliases);
 
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    return new ParseError(errorMessage, this);
-                }
-            }
+            var argumentSuggestions = Argument
+                                      .SuggestionSource
+                                      .Suggest(parseResult, position);
 
-            _result = SymbolDefinition.ArgumentDefinition.Parser.Parse(this);
-
-            if (_result is FailedArgumentParseResult failed)
-            {
-                return new ParseError(failed.ErrorMessage, this, false);
-            }
-
-            return null;
+            return symbolAliases.Concat(argumentSuggestions)
+                                .Distinct()
+                                .OrderBy(symbol => symbol)
+                                .Containing(parseResult.TextToMatch());
         }
 
-        internal void OptionWasRespecified()
-        {
-            considerAcceptingAnotherArgument = true;
-        }
-
-        public abstract Symbol TryTakeToken(Token token);
-
-        protected Symbol TryTakeArgument(Token token)
-        {
-            if (token.Type != TokenType.Argument)
-            {
-                return null;
-            }
-
-            if (!considerAcceptingAnotherArgument &&
-                !(SymbolDefinition is CommandDefinition))
-            {
-                // Options must be respecified in order to accept additional arguments. This is
-                // not the case for commandDefinitions.
-                return null;
-            }
-
-            foreach (var child in Children)
-            {
-                var a = child.TryTakeToken(token);
-                if (a != null)
-                {
-                    return a;
-                }
-            }
-
-            _arguments.Add(token.Value);
-
-            var parseError = Validate();
-            if (parseError == null)
-            {
-                considerAcceptingAnotherArgument = false;
-                return this;
-            }
-
-            if (!parseError.CanTokenBeRetried)
-            {
-                return this;
-            }
-
-            _arguments.RemoveAt(_arguments.Count - 1);
-            return null;
-        }
-
-        public override string ToString() => this.Diagram();
-
-        internal static Symbol Create(SymbolDefinition symbolDefinition, string token, Command parent = null)
-        {
-            switch (symbolDefinition)
-            {
-                case CommandDefinition command:
-                    return new Command(command, parent);
-
-                case OptionDefinition option:
-                    return new Option(option, token, parent);
-
-                default:
-                    throw new ArgumentException($"Unrecognized symbolDefinition type: {symbolDefinition.GetType()}");
-            }
-        }
-
-        public ArgumentParseResult Result
-        {
-            get
-            {
-                if (_result == null)
-                {
-                    Validate();
-                }
-                return _result;
-            }
-        }
+        public override string ToString() => $"{GetType().Name}: {Name}";
     }
 }
