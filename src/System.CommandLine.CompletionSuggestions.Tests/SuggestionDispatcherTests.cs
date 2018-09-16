@@ -19,7 +19,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         private static SuggestionRegistration GetDotnetSuggestionRegistration()
             => new SuggestionRegistration(GetDotnetPath(), "testdotnet [suggest]");
 
-        private static string GetDotnetPath() => "c:\\testdotnet.exe";
+        private static string GetDotnetPath() => Path.GetFullPath("testdotnet");
 
         [Fact]
         public async Task InvokeAsync_executes_completion_command_for_executable()
@@ -82,7 +82,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
         {
             var provider = new TestSuggestionRegistration(new SuggestionRegistration(GetDotnetPath(), $"testdotnet {Assembly.GetExecutingAssembly().Location}"));
-            var dispatcher = new SuggestionDispatcher(provider);
+            var dispatcher = new SuggestionDispatcher(provider, new TestSuggestionStore());
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
 
@@ -146,6 +146,10 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         {
             public string GetSuggestions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
             {
+                if (timeout <= TimeSpan.FromMilliseconds(100))
+                {
+                    return "";
+                }
                 var parser = new CommandLineBuilder("testdotnet")
                             .AddCommand("add", "add description",
                                     symbols: s => s.AddCommand("package", "package description")
