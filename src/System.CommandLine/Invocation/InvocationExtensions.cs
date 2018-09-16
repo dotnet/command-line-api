@@ -208,6 +208,33 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
+        public static CommandLineBuilder RegisterWithDotnetSuggest(
+            this CommandLineBuilder builder)
+        {
+            builder.AddMiddleware(async (context, next) => {
+                var sentinelFile = Path.Combine(Path.GetTempPath(), "system.commandline-sentinel-files", Assembly.GetEntryAssembly().FullName);
+                Process process = Process.GetCurrentProcess();
+                var processPath = process.MainModule.FileName;
+                Directory.CreateDirectory(Path.GetDirectoryName(sentinelFile));
+                if (!File.Exists(sentinelFile))
+                {
+                    try 
+                    {
+                        var processInfo = RegistrationProcessInfoMaker.GetProcessStartInfoForRegistration(processPath);
+                        Process.Start(processInfo).WaitForExit();
+                    }
+                    catch (Win32Exception)
+                    {}
+                    finally
+                    { 
+                        File.Create(sentinelFile);
+                    }
+                }
+                 await next(context);
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            return builder;
+        }
+
         public static TBuilder OnExecute<TBuilder>(
             this TBuilder builder,
             MethodInfo method,
