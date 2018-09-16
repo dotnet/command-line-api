@@ -5,14 +5,14 @@ using Xunit;
 
 namespace System.CommandLine.CompletionSuggestions.Tests
 {
-    public abstract class SuggestionProviderTests
+    public abstract class SuggestionRegistrationTest
     {
-        protected abstract ISuggestionProvider GetSuggestionProvider();
+        protected abstract ISuggestionRegistration GetSuggestionRegistration();
 
         [Fact]
         public void Added_suggestions_can_be_retrieved()
         {
-            ISuggestionProvider suggestionProvider = GetSuggestionProvider();
+            ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
 
             var suggestion1 = new SuggestionRegistration("commandPath1", "suggestionCommand1");
             var suggestion2 = new SuggestionRegistration("commandPath2", "suggestionCommand2");
@@ -35,7 +35,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public void Suggestion_command_path_is_not_case_sensitive()
         {
-            ISuggestionProvider suggestionProvider = GetSuggestionProvider();
+            ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
 
             suggestionProvider.AddSuggestionRegistration(
                 new SuggestionRegistration(Path.GetFullPath("commandPath"), "suggestionCommand"));
@@ -49,7 +49,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public void When_duplicate_suggestions_are_registered_the_last_one_is_used()
         {
-            ISuggestionProvider suggestionProvider = GetSuggestionProvider();
+            ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
 
             suggestionProvider.AddSuggestionRegistration(
                 new SuggestionRegistration(Path.GetFullPath("commandPath"), "suggestionCommand2"));

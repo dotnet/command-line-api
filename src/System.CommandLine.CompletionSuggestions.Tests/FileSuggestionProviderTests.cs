@@ -2,9 +2,9 @@
 
 namespace System.CommandLine.CompletionSuggestions.Tests
 {
-    public class FileSuggestionProviderTests : SuggestionProviderTests, IDisposable
+    public class FileSuggestionProviderTests : SuggestionRegistrationTest, IDisposable
     {
-        protected override ISuggestionProvider GetSuggestionProvider() => new FileSuggestionProvider(_filePath);
+        protected override ISuggestionRegistration GetSuggestionRegistration() => new FileSuggestionRegistration(_filePath);
 
         private readonly string _filePath;
 

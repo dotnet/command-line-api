@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.CommandLine.Tests;
 using System.IO;
 using System.Linq;
@@ -15,16 +17,16 @@ namespace System.CommandLine.CompletionSuggestions.Tests
     public class SuggestionDispatcherTests
     {
         private static SuggestionRegistration GetDotnetSuggestionRegistration()
-            => new SuggestionRegistration(GetDotnetPath(), "dotnet complete");
+            => new SuggestionRegistration(GetDotnetPath(), "testdotnet [suggest]");
 
-        private static string GetDotnetPath() => DotnetMuxer.Path.FullName;
+        private static string GetDotnetPath() => Path.GetFullPath("testdotnet");
 
         [Fact]
         public async Task InvokeAsync_executes_completion_command_for_executable()
         {
-            string[] args = $@"-p 12 -e ""{GetDotnetPath()}"" ""dotnet add""".Tokenize().ToArray();
+            string[] args = $@"-p 12 -e ""{GetDotnetPath()}"" ""testdotnet add""".Tokenize().ToArray();
 
-            (await InvokeAsync(args, new TestSuggestionProvider(GetDotnetSuggestionRegistration())))
+            (await InvokeAsync(args, new TestSuggestionRegistration(GetDotnetSuggestionRegistration())))
                     .Should()
                     .Contain("package")
                     .And.Contain("reference");
@@ -35,8 +37,8 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         {
             Func<Task> action = async () =>
                 await InvokeAsync(
-                    $@"-e ""{GetDotnetPath()}"" ""dotnet add"" -p".Tokenize().ToArray(),
-                    new TestSuggestionProvider(GetDotnetSuggestionRegistration()));
+                    $@"-e ""{GetDotnetPath()}"" ""testdotnet add"" -p".Tokenize().ToArray(),
+                    new TestSuggestionRegistration(GetDotnetSuggestionRegistration()));
             action
                .Should()
                .Throw<TargetInvocationException>()
@@ -51,7 +53,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public async Task InvokeAsync_with_unknown_suggestion_provider_returns_empty_string()
         {
             string[] args = @"-p 10 -e ""testcli.exe"" ""command op""".Tokenize().ToArray();
-            (await InvokeAsync(args, new TestSuggestionProvider()))
+            (await InvokeAsync(args, new TestSuggestionRegistration()))
                 .Should()
                 .BeEmpty();
         }
@@ -61,13 +63,13 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         {
             string exeFileName = Path.GetFullPath("file_that_does_not_exist_name");
 
-            var provider = new TestSuggestionProvider(new SuggestionRegistration(exeFileName, "missing complete command"));
+            var provider = new TestSuggestionRegistration(new SuggestionRegistration(exeFileName, "missing complete command"));
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = $@"-p 12 -e ""{exeFileName}"" ""dotnet add""".Tokenize().ToArray();
+            var args = $@"-p 12 -e ""{exeFileName}"" ""testdotnet add""".Tokenize().ToArray();
 
             Func<Task> action = async () => await dispatcher.InvokeAsync(args);
-            
+
             action
                 .Should()
                 .Throw<TargetInvocationException>()
@@ -79,12 +81,12 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
         {
-            var provider = new TestSuggestionProvider(new SuggestionRegistration(GetDotnetPath(), $"dotnet {Assembly.GetExecutingAssembly().Location}"));
-            var dispatcher = new SuggestionDispatcher(provider);
+            var provider = new TestSuggestionRegistration(new SuggestionRegistration(GetDotnetPath(), $"testdotnet {Assembly.GetExecutingAssembly().Location}"));
+            var dispatcher = new SuggestionDispatcher(provider, new TestSuggestionStore());
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
 
-            var args = $@"-p 0 -e ""dotnet"" ""dotnet add""".Tokenize().ToArray();
+            var args = $@"-p 0 -e ""testdotnet"" ""testdotnet add""".Tokenize().ToArray();
 
             await dispatcher.InvokeAsync(args, testConsole);
 
@@ -94,21 +96,21 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public async Task List_command_gets_all_executable_names()
         {
-            TestSuggestionProvider testSuggestionProvider;
+            TestSuggestionRegistration testSuggestionProvider;
             if (RuntimeInformation
                 .IsOSPlatform(OSPlatform.Windows))
             {
-                testSuggestionProvider = new TestSuggestionProvider(
+                testSuggestionProvider = new TestSuggestionRegistration(
                     new SuggestionRegistration(@"C:\Program Files\dotnet\dotnet.exe","dotnet complete"),
                     new SuggestionRegistration(@"C:\Program Files\himalayan-berry.exe","himalayan-berry spread"));
             }
             else
             {
-                testSuggestionProvider = new TestSuggestionProvider(
+                testSuggestionProvider = new TestSuggestionRegistration(
                     new SuggestionRegistration(@"/bin/dotnet", "dotnet complete"),
                     new SuggestionRegistration(@"/bin/himalayan-berry", "himalayan-berry spread"));
             }
-            
+
             var dispatcher = new SuggestionDispatcher(testSuggestionProvider);
             var testConsole = new TestConsole();
 
@@ -120,7 +122,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public async Task Register_command_adds_new_suggestion_entry()
         {
-            var provider = new TestSuggestionProvider();
+            var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
             await dispatcher.InvokeAsync("register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray());
@@ -132,12 +134,38 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 
         private static async Task<string> InvokeAsync(
             string[] args,
-            ISuggestionProvider suggestionProvider)
+            ISuggestionRegistration suggestionProvider)
         {
-            var dispatcher = new SuggestionDispatcher(suggestionProvider);
+            var dispatcher = new SuggestionDispatcher(suggestionProvider, new TestSuggestionStore());
             var testConsole = new TestConsole();
             await dispatcher.InvokeAsync(args, testConsole);
             return testConsole.Out.ToString();
+        }
+
+        private class TestSuggestionStore : ISuggestionStore
+        {
+            public string GetSuggestions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
+            {
+                if (timeout <= TimeSpan.FromMilliseconds(100))
+                {
+                    return "";
+                }
+                var parser = new CommandLineBuilder("testdotnet")
+                            .AddCommand("add", "add description",
+                                    symbols: s => s.AddCommand("package", "package description")
+                                                   .AddCommand("reference", "reference description"))
+                           .AddCommand("[suggest]",
+                                    symbols: a => a.AddOption(new[] { "-p", "--position" },
+                                    arguments: ar => ar.ParseArgumentsAs<int>()))
+                            .TreatUnmatchedTokensAsErrors(false)
+                            .Build();
+                var parseResult = parser.Parse(suggestionTargetArguments);
+                var position = parseResult.ValueForOption<int>("position");
+                var suggested = parser.Parse(parseResult.UnmatchedTokens).Suggestions();
+                return string.Join(
+                        Environment.NewLine,
+                        suggested);
+            }
         }
     }
 }

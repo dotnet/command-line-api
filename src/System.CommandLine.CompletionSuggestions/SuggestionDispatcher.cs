@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,21 +17,22 @@ namespace System.CommandLine.CompletionSuggestions
         private const string ExecutingCommandOptionName = "-e";
         private const string CompletionAvailableCommands = "list";
 
-        private readonly ISuggestionProvider _suggestionProvider;
-
+        private readonly ISuggestionRegistration _suggestionRegistration;
+        private readonly ISuggestionStore _suggestionStore;
         private readonly Parser _parser;
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
-        public SuggestionDispatcher(ISuggestionProvider suggestionProvider)
+        public SuggestionDispatcher(ISuggestionRegistration suggestionRegistration, ISuggestionStore suggestionStore = null)
         {
-            _suggestionProvider = suggestionProvider ?? throw new ArgumentNullException(nameof(suggestionProvider));
+            _suggestionRegistration = suggestionRegistration ?? throw new ArgumentNullException(nameof(suggestionRegistration));
+            _suggestionStore = suggestionStore ?? new SuggestionStore();
 
             _parser = new CommandLineBuilder()
                 .AddCommand(CompletionAvailableCommands,
                     "list all completions available commands with space separated list",
                     cmd => cmd.OnExecute<IConsole>(c =>
-                        c.Out.WriteLine(GetCompletionAvailableCommands(_suggestionProvider))),
+                        c.Out.WriteLine(GetCompletionAvailableCommands(_suggestionRegistration))),
                     arguments: argument => argument.None())
                 .AddOption(Position, "the current character position on the command line",
                     position => position.ParseArgumentsAs<string>())
@@ -57,7 +57,7 @@ namespace System.CommandLine.CompletionSuggestions
 
         private void RegisterCommand(string commandPath, string suggestionCommand)
         {
-            _suggestionProvider.AddSuggestionRegistration(new SuggestionRegistration(commandPath, suggestionCommand));
+            _suggestionRegistration.AddSuggestionRegistration(new SuggestionRegistration(commandPath, suggestionCommand));
         }
 
         private void GetSuggestions(ParseResult parseResult, IConsole console)
@@ -65,7 +65,7 @@ namespace System.CommandLine.CompletionSuggestions
             var commandPath = parseResult.ValueForOption<FileInfo>(ExecutingCommandOptionName);
 
             SuggestionRegistration suggestionRegistration =
-                _suggestionProvider.FindRegistration(commandPath);
+                _suggestionRegistration.FindRegistration(commandPath);
 
             if (suggestionRegistration == null)
             {
@@ -75,14 +75,14 @@ namespace System.CommandLine.CompletionSuggestions
 
             string targetArgs = FormatSuggestionArguments(parseResult, suggestionRegistration.SuggestionCommand.Tokenize().ToList());
 
-            string suggestions = GetSuggestions(suggestionRegistration.CommandPath, targetArgs);
+            string suggestions = _suggestionStore.GetSuggestions(suggestionRegistration.CommandPath, targetArgs, Timeout);
             if (!string.IsNullOrWhiteSpace(suggestions))
             {
                 console.Out.WriteLine(suggestions);
             }
         }
 
-        private static string GetCompletionAvailableCommands(ISuggestionProvider suggestionProvider)
+        private static string GetCompletionAvailableCommands(ISuggestionRegistration suggestionProvider)
         {
             IEnumerable<string> allFileNames = suggestionProvider.FindAllRegistrations()
                                 .Select(suggestionRegistration => suggestionRegistration.CommandPath)
@@ -93,53 +93,12 @@ namespace System.CommandLine.CompletionSuggestions
 
         private static string FormatSuggestionArguments(ParseResult parseResult, List<string> targetCommands)
         {
-            //TODO: don't just assume the callee has a "--position" argument
-            return string.Join(' ',
-                targetCommands[1],
+            var args = new List<string>() { targetCommands[1],
                 "--position",
-                parseResult.ValueForOption<string>(Position),
-                $"\"{string.Join(' ', parseResult.UnmatchedTokens)}\"");
-        }
+                parseResult.ValueForOption<string>(Position)};
+            args.AddRange(parseResult.UnmatchedTokens);
 
-        private string GetSuggestions(string exeFileName, string suggestionTargetArguments)
-        {
-            string result = "";
-
-            try
-            {
-                // Invoke target with args
-                using (var process = new Process {
-                    StartInfo = new ProcessStartInfo(exeFileName, suggestionTargetArguments ?? "") {
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true
-                    }
-                })
-                {
-                    process.Start();
-
-                    Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
-
-                    if (readToEndTask.Wait(Timeout))
-                    {
-                        result = readToEndTask.Result;
-                    }
-                    else
-                    {
-                        process.Kill();
-                    }
-                }
-            }
-            catch (Win32Exception exception)
-            {
-                // We don't check for the existence of exeFileName until the exception in case
-                // it is a command that start process can resolve to a file name.
-                if (!File.Exists(exeFileName))
-                {
-                    throw new ArgumentException(
-                        $"Unable to find the file '{exeFileName}'", nameof(exeFileName), exception);
-                }
-            }
-            return result;
+            return string.Join(' ', args);
         }
     }
 }

@@ -8,11 +8,11 @@ using System.Reflection;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    public class FileSuggestionProvider : ISuggestionProvider
+    public class FileSuggestionRegistration : ISuggestionRegistration
     {
         private readonly string _registrationConfigurationFilePath;
 
-        public FileSuggestionProvider(string registrationsConfigurationFilePath = null)
+        public FileSuggestionRegistration(string registrationsConfigurationFilePath = null)
         {
             if (string.IsNullOrWhiteSpace(registrationsConfigurationFilePath))
             {

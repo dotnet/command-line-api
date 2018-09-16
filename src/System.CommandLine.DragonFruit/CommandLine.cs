@@ -56,8 +56,9 @@ namespace System.CommandLine.DragonFruit
                           .UseParseErrorReporting()
                           .UseParseDirective()
                           .UseHelp()
-                          .UseSuggestDirective()
-                          .UseExceptionHandler();
+                          .RegisterWithDotnetSuggest()
+                          .UseExceptionHandler()
+                          .RegisterDirective();
 
             SetHelpMetadata(method, builder);
 
