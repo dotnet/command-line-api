@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.CommandLine.Rendering;
-using System.CommandLine.Rendering.Models;
 using System.Drawing;
 using FluentAssertions;
 using Xunit;

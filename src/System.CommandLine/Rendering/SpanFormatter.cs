@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.CommandLine.Rendering.Spans;
 using System.Linq;
 using System.Text.RegularExpressions;
 

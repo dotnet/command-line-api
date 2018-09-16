@@ -1,5 +1,3 @@
-using System.CommandLine.Rendering.Spans;
-
 namespace System.CommandLine.Rendering
 {
     public class SpanVisitor

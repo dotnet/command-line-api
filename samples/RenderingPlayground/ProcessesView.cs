@@ -1,6 +1,5 @@
 using System;
 using System.CommandLine.Rendering;
-using System.CommandLine.Rendering.Spans;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Linq;

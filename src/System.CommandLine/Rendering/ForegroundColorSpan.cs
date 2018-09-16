@@ -1,6 +1,4 @@
-using System.CommandLine.Rendering.Models;
-
-namespace System.CommandLine.Rendering.Spans
+namespace System.CommandLine.Rendering
 {
     public class ForegroundColorSpan : ColorSpan
     {

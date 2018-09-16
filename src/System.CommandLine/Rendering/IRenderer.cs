@@ -1,6 +1,3 @@
-using System.CommandLine.Rendering.Models;
-using System.CommandLine.Rendering.Spans;
-
 namespace System.CommandLine.Rendering
 {
     public interface IRenderer

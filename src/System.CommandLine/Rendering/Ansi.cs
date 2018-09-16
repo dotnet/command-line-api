@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace System.CommandLine.Rendering.Models
+namespace System.CommandLine.Rendering
 {
     [DebuggerStepThrough]
     public static class Ansi

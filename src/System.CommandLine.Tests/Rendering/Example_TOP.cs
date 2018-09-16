@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine.Rendering;
-using System.CommandLine.Rendering.Models;
-using System.CommandLine.Rendering.Spans;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;

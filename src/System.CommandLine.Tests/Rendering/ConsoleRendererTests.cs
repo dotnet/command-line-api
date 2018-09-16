@@ -1,12 +1,11 @@
 using System.CommandLine.Rendering;
-using System.CommandLine.Rendering.Models;
 using System.Drawing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static System.CommandLine.Rendering.Models.Ansi;
+using static System.CommandLine.Rendering.Ansi;
 using static System.Environment;
 
 namespace System.CommandLine.Tests.Rendering

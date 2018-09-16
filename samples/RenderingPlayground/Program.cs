@@ -1,8 +1,6 @@
 ﻿using System;
 using System.CommandLine;
 using System.CommandLine.Rendering;
-using System.CommandLine.Rendering.Models;
-using System.CommandLine.Rendering.Spans;
 using System.CommandLine.Rendering.Views;
 using System.Diagnostics;
 using System.IO;

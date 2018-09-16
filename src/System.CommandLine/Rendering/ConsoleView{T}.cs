@@ -1,8 +1,3 @@
-using System.Collections.Generic;
-using System.CommandLine.Rendering.Spans;
-using System.CommandLine.Rendering.Views;
-using System.Linq;
-
 namespace System.CommandLine.Rendering
 {
     public abstract class ConsoleView<T> : IConsoleView<T>

@@ -1,5 +1,3 @@
-using System.CommandLine.Rendering.Extensions;
-using System.CommandLine.Rendering.Spans;
 using System.IO;
 using System.Text;
 

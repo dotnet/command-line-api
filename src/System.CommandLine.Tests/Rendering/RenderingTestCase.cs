@@ -1,5 +1,4 @@
 using System.CommandLine.Rendering;
-using System.CommandLine.Rendering.Spans;
 
 namespace System.CommandLine.Tests.Rendering
 {

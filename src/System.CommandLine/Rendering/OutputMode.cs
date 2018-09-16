@@ -1,4 +1,4 @@
-namespace System.CommandLine.Rendering.Models
+namespace System.CommandLine.Rendering
 {
     public enum OutputMode
     {

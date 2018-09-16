@@ -1,4 +1,3 @@
-using System.CommandLine.Rendering.Extensions;
 using FluentAssertions;
 using Xunit;
 

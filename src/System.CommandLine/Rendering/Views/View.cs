@@ -1,5 +1,3 @@
-using System.CommandLine.Rendering.Models;
-
 namespace System.CommandLine.Rendering.Views
 {
     public abstract class View

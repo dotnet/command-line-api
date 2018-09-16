@@ -1,5 +1,4 @@
 using System.CommandLine.Rendering;
-using System.CommandLine.Rendering.Spans;
 using FluentAssertions;
 using Xunit;
 

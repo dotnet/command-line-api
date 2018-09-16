@@ -1,6 +1,3 @@
-using System.CommandLine.Rendering.Extensions;
-using System.CommandLine.Rendering.Spans;
-
 namespace System.CommandLine.Rendering
 {
     internal sealed class SpanMeasuringVisitor : SpanVisitor

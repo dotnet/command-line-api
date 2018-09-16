@@ -1,4 +1,3 @@
-using System.CommandLine.Rendering.Models;
 using System.Linq;
 
 namespace System.CommandLine.Rendering.Views

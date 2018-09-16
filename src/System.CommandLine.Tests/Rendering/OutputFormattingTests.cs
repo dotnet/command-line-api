@@ -4,7 +4,7 @@ using FluentAssertions;
 using FluentAssertions.Extensions;
 using Xunit;
 using Xunit.Abstractions;
-using static System.CommandLine.Rendering.Models.Ansi;
+using static System.CommandLine.Rendering.Ansi;
 
 namespace System.CommandLine.Tests.Rendering
 {

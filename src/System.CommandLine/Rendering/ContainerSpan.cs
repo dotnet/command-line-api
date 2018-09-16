@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace System.CommandLine.Rendering.Spans
+namespace System.CommandLine.Rendering
 {
     public class ContainerSpan : Span, IReadOnlyList<Span>
     {

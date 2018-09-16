@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace System.CommandLine.Rendering.Spans
+namespace System.CommandLine.Rendering
 {
     [DebuggerDisplay("{" + nameof(Name) + "}")]
     public abstract class FormatSpan : Span
