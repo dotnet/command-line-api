@@ -33,50 +33,6 @@ namespace System.CommandLine.Rendering
 
         protected abstract void OnRender(T value);
 
-        public void RenderTable<TItem>(
-            IEnumerable<TItem> items,
-            Action<ConsoleTable<TItem>> table)
-        {
-            if (items == null)
-            {
-                throw new ArgumentNullException(nameof(items));
-            }
-
-            if (table == null)
-            {
-                throw new ArgumentNullException(nameof(table));
-            }
-
-            var tableView = new ConsoleTable<TItem>();
-
-            table(tableView);
-
-            var left = 0;
-
-            foreach (var column in tableView.Columns)
-            {
-                column.Left = left;
-                column.CalculateSpans(items.ToList());
-                left += column.Width;
-            }
-
-            var columnCount = tableView.Columns.Count;
-
-            for (var rowIndex = 0; rowIndex <= items.Count(); rowIndex++)
-            {
-                for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
-                {
-                    var column = tableView.Columns[columnIndex];
-
-                    column.FlushRow(
-                        rowIndex,
-                        _verticalOffset,
-                        columnIndex == columnCount - 1,
-                        ConsoleRenderer);
-                }
-            }
-        }
-
         public void WriteLine()
         {
             if (_effectiveRegion.Height <= 1)

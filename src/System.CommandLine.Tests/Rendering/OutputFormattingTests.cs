@@ -4,7 +4,7 @@ using FluentAssertions;
 using FluentAssertions.Extensions;
 using Xunit;
 using Xunit.Abstractions;
-using static System.CommandLine.Rendering.Ansi;
+using static System.CommandLine.Rendering.Models.Ansi;
 
 namespace System.CommandLine.Tests.Rendering
 {
@@ -82,12 +82,12 @@ namespace System.CommandLine.Tests.Rendering
 
             protected override void OnRender(IEnumerable<ProcessInfo> processes)
             {
-                RenderTable(
-                    items: processes,
-                    table => {
-                        table.RenderColumn("COMMAND", p => p.Command);
-                        table.RenderColumn("TIME", p => p.ExecutionTime);
-                    });
+                //RenderTable(
+                //    items: processes,
+                //    table => {
+                //        table.RenderColumn("COMMAND", p => p.Command);
+                //        table.RenderColumn("TIME", p => p.ExecutionTime);
+                //    });
             }
         }
     }

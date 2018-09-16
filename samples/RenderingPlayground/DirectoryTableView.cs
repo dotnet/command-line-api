@@ -1,5 +1,6 @@
 using System;
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Spans;
 using System.IO;
 using System.Linq;
 
@@ -28,23 +29,23 @@ namespace RenderingPlayground
                                                                ? 0
                                                                : 1);
 
-            RenderTable(
-                directoryContents,
-                table => {
-                    table.RenderColumn(
-                        "Name".Underline(),
-                        f => f is DirectoryInfo
-                                 ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset}")
-                                 : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset}"));
+            //RenderTable(
+            //    directoryContents,
+            //    table => {
+            //        table.RenderColumn(
+            //            "Name".Underline(),
+            //            f => f is DirectoryInfo
+            //                     ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset}")
+            //                     : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset}"));
 
-                    table.RenderColumn(
-                        "Created".Underline(),
-                        f => Span(f.CreationTime));
+            //        table.RenderColumn(
+            //            "Created".Underline(),
+            //            f => Span(f.CreationTime));
 
-                    table.RenderColumn(
-                        "Modified".Underline(),
-                        f => Span(f.LastWriteTime));
-                });
+            //        table.RenderColumn(
+            //            "Modified".Underline(),
+            //            f => Span(f.LastWriteTime));
+            //    });
         }
     }
 }

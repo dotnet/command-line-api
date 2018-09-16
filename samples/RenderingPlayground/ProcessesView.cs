@@ -1,5 +1,6 @@
 using System;
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Spans;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Linq;
@@ -23,41 +24,41 @@ namespace RenderingPlayground
 
             WriteLine();
 
-            RenderTable(processes.OrderByDescending(p => p.PrivateMemorySize64).Take(50),
-                        table => {
-                            table.RenderColumn("PID".Underline(),
-                                               p => p.Id);
+//            RenderTable(processes.OrderByDescending(p => p.PrivateMemorySize64).Take(50),
+//                        table => {
+//                            table.RenderColumn("PID".Underline(),
+//                                               p => p.Id);
 
-                            table.RenderColumn("COMMAND".Underline(),
-                                               p => Name(p));
+//                            table.RenderColumn("COMMAND".Underline(),
+//                                               p => Name(p));
 
-                            table.RenderColumn("TIME".Underline(),
-                                               p => p.PrivilegedProcessorTime);
+//                            table.RenderColumn("TIME".Underline(),
+//                                               p => p.PrivilegedProcessorTime);
 
-                            table.RenderColumn("#TH".Underline(),
-                                               p => p.Threads.Count);
+//                            table.RenderColumn("#TH".Underline(),
+//                                               p => p.Threads.Count);
 
-                            table.RenderColumn("MEM".Underline(),
-                                               p => p.PrivateMemorySize64.Abbreviate());
+//                            table.RenderColumn("MEM".Underline(),
+//                                               p => p.PrivateMemorySize64.Abbreviate());
 
-                            table.RenderColumn("CPU".Underline(),
-                                               p => {
-#pragma warning disable CS0618 // Type or member is obsolete
-                                                   var usage = p.TrackCpuUsage().First();
-#pragma warning restore CS0618 // Type or member is obsolete
-                                                   return $"{usage.UsageTotal:P}";
-                                               });
-                        });
+//                            table.RenderColumn("CPU".Underline(),
+//                                               p => {
+//#pragma warning disable CS0618 // Type or member is obsolete
+//                                                   var usage = p.TrackCpuUsage().First();
+//#pragma warning restore CS0618 // Type or member is obsolete
+//                                                   return $"{usage.UsageTotal:P}";
+//                                               });
+//                        });
 
-            FormattableString Name(Process p)
-            {
-                if (!p.Responding)
-                {
-                    return $"{ForegroundColorSpan.Rgb(180, 0, 0)}{p.ProcessName}{ForegroundColorSpan.Reset}";
-                }
+            //FormattableString Name(Process p)
+            //{
+            //    if (!p.Responding)
+            //    {
+            //        return $"{ForegroundColorSpan.Rgb(180, 0, 0)}{p.ProcessName}{ForegroundColorSpan.Reset}";
+            //    }
 
-                return $"{p.ProcessName}";
-            }
+            //    return $"{p.ProcessName}";
+            //}
         }
     }
 

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -9,7 +9,7 @@
     <None Remove="TestResults\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\System.CommandLine\Rendering\WrappingExtensions.cs" Link="Rendering\WrappingExtensions.cs" />
+    <Compile Include="..\System.CommandLine\Rendering\Extensions\WrappingExtensions.cs" Link="Rendering\WrappingExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />

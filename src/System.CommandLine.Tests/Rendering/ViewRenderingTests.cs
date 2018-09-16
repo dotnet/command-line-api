@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Models;
 using System.Drawing;
 using FluentAssertions;
 using Xunit;
@@ -17,7 +18,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var view = new StringsView(renderer, new Region(3, 5, 1, 3));
+            var view = new StringsView(renderer, new CommandLine.Rendering.Region(3, 5, 1, 3));
 
             view.Render(new[] {
                 "1",
@@ -41,7 +42,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.Ansi);
 
-            var view = new StringsView(renderer, new Region(3, 5, 1, 3));
+            var view = new StringsView(renderer, new CommandLine.Rendering.Region(3, 5, 1, 3));
 
             view.Render(new[] {
                 "1",
@@ -60,7 +61,7 @@ namespace System.CommandLine.Tests.Rendering
 
         private class StringsView : ConsoleView<IEnumerable<string>>
         {
-            public StringsView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+            public StringsView(ConsoleRenderer renderer, CommandLine.Rendering.Region region = null) : base(renderer, region)
             {
             }
 

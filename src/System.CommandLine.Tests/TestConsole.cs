@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Models;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -87,8 +87,8 @@ namespace System.CommandLine.Tests
         {
         }
 
-        public Region GetRegion() =>
-            new Region(0,
+        public CommandLine.Rendering.Region GetRegion() =>
+            new CommandLine.Rendering.Region(0,
                        0,
                        Width,
                        Height);

@@ -9,13 +9,15 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugType>portable</DebugType>
   </PropertyGroup>
-
+   
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
+    <Compile Remove="Rendering\Views\TableColumnCell{T}.cs" />
+    <Compile Remove="Rendering\Views\TableColumnView{T}.cs" />
+    <Compile Remove="Rendering\Views\TableView{T}.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Rendering\Views\View_old.bs" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
   </ItemGroup>
 
 </Project>

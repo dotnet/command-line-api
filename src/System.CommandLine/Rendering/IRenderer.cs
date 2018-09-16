@@ -1,3 +1,4 @@
+using System.CommandLine.Rendering.Models;
 using System.CommandLine.Rendering.Spans;
 
 namespace System.CommandLine.Rendering
@@ -9,5 +10,7 @@ namespace System.CommandLine.Rendering
         void RenderToRegion(FormattableString value, Region region);
 
         void RenderToRegion(Span span, Region region);
+
+        Size MeasureSpan(Span span, Size maxSize);
     }
 }

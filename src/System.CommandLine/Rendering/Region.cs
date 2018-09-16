@@ -1,3 +1,5 @@
+using System.CommandLine.Rendering.Models;
+
 namespace System.CommandLine.Rendering
 {
     public class Region
@@ -35,6 +37,11 @@ namespace System.CommandLine.Rendering
             Left = left;
 
             IsOverwrittenOnRender = isOverwrittenOnRender;
+        }
+
+        public Region(int left, int top, Size size)
+            : this(left, top, size.Width, size.Height)
+        {
         }
 
         public virtual int Height { get; }

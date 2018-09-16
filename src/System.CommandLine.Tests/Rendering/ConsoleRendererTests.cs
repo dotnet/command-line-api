@@ -1,11 +1,12 @@
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Models;
 using System.Drawing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static System.CommandLine.Rendering.Ansi;
+using static System.CommandLine.Rendering.Models.Ansi;
 using static System.Environment;
 
 namespace System.CommandLine.Tests.Rendering
@@ -130,7 +131,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(left,
+            var region = new CommandLine.Rendering.Region(left,
                                     top,
                                     width,
                                     height);
@@ -149,7 +150,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(0, 0, 5, 2);
+            var region = new CommandLine.Rendering.Region(0, 0, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -171,14 +172,14 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.Ansi);
 
-            var region = new Region(0, 0, 5, 2);
+            var region = new CommandLine.Rendering.Region(0, 0, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(left: 1, top: 1).EscapeSequence}     {Cursor.Move.ToLocation(left: 1, top: 2).EscapeSequence}*    ");
+                    .Be($"{Ansi.Cursor.Move.ToLocation(left: 1, top: 1).EscapeSequence}     {Ansi.Cursor.Move.ToLocation(left: 1, top: 2).EscapeSequence}*    ");
         }
 
         [Fact]
@@ -188,7 +189,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(13, 17, 5, 2);
+            var region = new CommandLine.Rendering.Region(13, 17, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -211,14 +212,14 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.Ansi);
 
-            var region = new Region(5, 13, 5, 2);
+            var region = new CommandLine.Rendering.Region(5, 13, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(left: 6, top: 14).EscapeSequence}     {Cursor.Move.ToLocation(left: 6, top: 15).EscapeSequence}*    ");
+                    .Be($"{Ansi.Cursor.Move.ToLocation(left: 6, top: 14).EscapeSequence}     {Ansi.Cursor.Move.ToLocation(left: 6, top: 15).EscapeSequence}*    ");
         }
 
         [Theory]
@@ -241,7 +242,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new Region(left,
+            var region = new CommandLine.Rendering.Region(left,
                                     top,
                                     width,
                                     height);
@@ -258,7 +259,7 @@ namespace System.CommandLine.Tests.Rendering
 
         public class DirectoryView : ConsoleView<DirectoryInfo>
         {
-            public DirectoryView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+            public DirectoryView(ConsoleRenderer renderer, CommandLine.Rendering.Region region = null) : base(renderer, region)
             {
                 renderer.Formatter
                         .AddFormatter<DateTime>(d => $"{d:d} {Ansi.Color.Foreground.DarkGray}{d:t}{Ansi.Color.Foreground.Default}");
@@ -279,25 +280,25 @@ namespace System.CommandLine.Tests.Rendering
                                                                    ? 0
                                                                    : 1);
 
-                RenderTable(
-                    directoryContents,
-                    table => {
-                        table.RenderColumn(
-                            Span($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}"),
-                            f =>
-                                f is DirectoryInfo
-                                    ? Span($"{Ansi.Color.Foreground.LightGreen}{f.Name}{Ansi.Color.Foreground.Default}")
-                                    : Span($"{Ansi.Color.Foreground.White}{f.Name}{Ansi.Color.Foreground.Default}"));
+                //RenderTable(
+                //    directoryContents,
+                //    table => {
+                //        table.RenderColumn(
+                //            Span($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}"),
+                //            f =>
+                //                f is DirectoryInfo
+                //                    ? Span($"{Ansi.Color.Foreground.LightGreen}{f.Name}{Ansi.Color.Foreground.Default}")
+                //                    : Span($"{Ansi.Color.Foreground.White}{f.Name}{Ansi.Color.Foreground.Default}"));
 
-                        table.RenderColumn(
-                            Span($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}"),
-                            f => f.CreationTime);
+                //        table.RenderColumn(
+                //            Span($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}"),
+                //            f => f.CreationTime);
 
-                        table.RenderColumn(
-                            Span($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}"),
-                            f => f.LastWriteTime);
-                    }
-                );
+                //        table.RenderColumn(
+                //            Span($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}"),
+                //            f => f.LastWriteTime);
+                //    }
+                //);
             }
         }
     }

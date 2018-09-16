@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Models;
+using System.CommandLine.Rendering.Spans;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -165,32 +167,32 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
         protected override void OnRender(IReadOnlyCollection<ProcessInfo> processes)
         {
-            RenderTable(
-                items: processes,
-                table: table => {
-                    table.RenderColumn("PID", p => p.ProcessId);
-                    table.RenderColumn("COMMAND", p => p.Command);
-                    table.RenderColumn("%CPU", p => p.CpuPercentage);
-                    table.RenderColumn("TIME", p => p.ExecutionTime);
-                    table.RenderColumn("#TH", p => p.NumberOfThreads);
-                    table.RenderColumn("#WQ", p => p.WorkQueue);
-                    table.RenderColumn("#PORT", p => p.Port);
-                    table.RenderColumn("MEM", p => p.InternalMemorySize);
-                    table.RenderColumn("PURG", p => p.PurgeableMemorySize);
-                    table.RenderColumn("CMPRS", p => p.CompressedDataBytes);
-                    table.RenderColumn("PGRP", p => p.ProcessGroupId);
-                    table.RenderColumn("PPID", p => p.ParentProcessID);
-                    table.RenderColumn("STATE", p => p.State);
-                    table.RenderColumn("BOOSTS", Boosts);
-                    table.RenderColumn("%CPU_ME", p => p.CpuMe);
-                    table.RenderColumn("%CPU_OTHRS", p => p.CpuOthers);
-                    table.RenderColumn("UID", p => p.Uid);
-                    table.RenderColumn("FAULTS", p => p.Faults);
-                    table.RenderColumn("COW", p => p.CopyOnWriteFaults);
-                });
+            //RenderTable(
+            //    items: processes,
+            //    table: table => {
+            //        table.RenderColumn("PID", p => p.ProcessId);
+            //        table.RenderColumn("COMMAND", p => p.Command);
+            //        table.RenderColumn("%CPU", p => p.CpuPercentage);
+            //        table.RenderColumn("TIME", p => p.ExecutionTime);
+            //        table.RenderColumn("#TH", p => p.NumberOfThreads);
+            //        table.RenderColumn("#WQ", p => p.WorkQueue);
+            //        table.RenderColumn("#PORT", p => p.Port);
+            //        table.RenderColumn("MEM", p => p.InternalMemorySize);
+            //        table.RenderColumn("PURG", p => p.PurgeableMemorySize);
+            //        table.RenderColumn("CMPRS", p => p.CompressedDataBytes);
+            //        table.RenderColumn("PGRP", p => p.ProcessGroupId);
+            //        table.RenderColumn("PPID", p => p.ParentProcessID);
+            //        table.RenderColumn("STATE", p => p.State);
+            //        table.RenderColumn("BOOSTS", Boosts);
+            //        table.RenderColumn("%CPU_ME", p => p.CpuMe);
+            //        table.RenderColumn("%CPU_OTHRS", p => p.CpuOthers);
+            //        table.RenderColumn("UID", p => p.Uid);
+            //        table.RenderColumn("FAULTS", p => p.Faults);
+            //        table.RenderColumn("COW", p => p.CopyOnWriteFaults);
+            //    });
 
-            FormattableString Boosts(ProcessInfo p) =>
-                $"{(p.ProcessWasAbleToSendBoosts ? "*" : "")}{p.NumberOfBoosts}[{p.NumberOfBoostTransitions}]";
+            //FormattableString Boosts(ProcessInfo p) =>
+            //    $"{(p.ProcessWasAbleToSendBoosts ? "*" : "")}{p.NumberOfBoosts}[{p.NumberOfBoostTransitions}]";
         }
     }
 

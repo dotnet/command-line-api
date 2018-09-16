@@ -7,14 +7,6 @@ namespace System.CommandLine.Rendering.Views
     {
         public IList<T> Children { get; } = new List<T>();
 
-        public override void Render(Region region, IRenderer renderer)
-        {
-            foreach (var child in Children)
-            {
-                child.Render(region, renderer);
-            }
-        }
-
         public virtual void AddChild(T child)
         {
             Children.Add(child);

@@ -1,4 +1,4 @@
-using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Extensions;
 using FluentAssertions;
 using Xunit;
 

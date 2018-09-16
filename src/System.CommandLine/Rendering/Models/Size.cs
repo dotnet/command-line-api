@@ -1,17 +1,20 @@
+using System.Diagnostics;
+
 namespace System.CommandLine.Rendering.Models
 {
+    [DebuggerDisplay("{Width}x{Height}")]
     public class Size
     {
         public const int MaxValue = -1;
 
-        public Size(int width = MaxValue, int height = MaxValue)
+        public Size(int width, int height)
         {
             Width = width;
             Height = height;
         }
 
-        public int Width { get; set; }
+        public int Width { get; }
 
-        public int Height { get; set; }
+        public int Height { get; }
     }
 }

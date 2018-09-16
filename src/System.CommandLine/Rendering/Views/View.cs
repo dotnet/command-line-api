@@ -10,7 +10,7 @@ namespace System.CommandLine.Rendering.Views
 
         public abstract Size GetContentSize();
 
-        public abstract Size GetAdjustedSize(Size maxSize);
+        public abstract Size GetAdjustedSize(IRenderer renderer, Size maxSize);
 
         protected void OnUpdated()
         {

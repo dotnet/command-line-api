@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine.Rendering;
-using System.Linq;
+using System.CommandLine.Rendering.Models;
+using System.CommandLine.Rendering.Spans;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;

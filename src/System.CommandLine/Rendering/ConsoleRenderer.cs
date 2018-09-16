@@ -41,6 +41,13 @@ namespace System.CommandLine.Rendering
             RenderToRegion(formatted, region);
         }
 
+        public Size MeasureSpan(Span span, Size maxSize)
+        {
+            var measurer = new SpanMeasuringVisitor(new Region(0, 0, maxSize.Width, maxSize.Height));
+            measurer.Visit(span);
+            return new Size(measurer.Width, measurer.Height);
+        }
+
         public void RenderToRegion(
             Span span,
             Region region)

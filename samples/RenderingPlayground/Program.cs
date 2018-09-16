@@ -3,6 +3,7 @@ using System.CommandLine;
 using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Models;
 using System.CommandLine.Rendering.Spans;
+using System.CommandLine.Rendering.Views;
 using System.Diagnostics;
 using System.IO;
 using Region = System.CommandLine.Rendering.Region;
@@ -92,7 +93,42 @@ namespace RenderingPlayground
                             region);
                     }
 
-                    break;
+                    case "processes":
+                        new ProcessesView(writer, region)
+                            .Render(Process.GetProcesses());
+                        break;
+
+                    default:
+                        if (!string.IsNullOrWhiteSpace(text))
+                        {
+                            writer.RenderToRegion(
+                                text,
+                                region);
+                        }
+                        else
+                        {
+                            //writer.RenderToRegion(
+                            //    $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
+                            //    region);
+                            var screen = new ScreenView();
+                            var stackLayout = new StackedLayoutView();
+                            var content1 = new ContentView("Hello World!");
+                            var content2 = new ContentView("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum for Kevin.");
+                            stackLayout.AddChild(content2);
+                            stackLayout.AddChild(content1);
+                            stackLayout.AddChild(content2);
+                            screen.Child = stackLayout;
+                            screen.Render(new Region(0, 0, 50, 15), writer);
+                            //screen.Render(writer);
+                        }
+
+                        break;
+                }
+
+                if (!Console.IsOutputRedirected)
+                {
+                    Console.ReadKey();
+                }
             }
 
             if (!Console.IsOutputRedirected)
