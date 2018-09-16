@@ -134,7 +134,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 
         private static async Task<string> InvokeAsync(
             string[] args,
-            ISuggestionProvider suggestionProvider)
+            ISuggestionRegistration suggestionProvider)
         {
             var dispatcher = new SuggestionDispatcher(suggestionProvider, new TestSuggestionStore());
             var testConsole = new TestConsole();

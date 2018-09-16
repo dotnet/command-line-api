@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace System.CommandLine.CompletionSuggestions.Tests
 {
-    internal class TestSuggestionProvider : ISuggestionProvider
+    internal class TestSuggestionRegistration : ISuggestionRegistration
     {
         private readonly List<SuggestionRegistration> _suggestionRegistrations;
 
-        public TestSuggestionProvider(params SuggestionRegistration[] suggestionRegistrations)
+        public TestSuggestionRegistration(params SuggestionRegistration[] suggestionRegistrations)
         {
             _suggestionRegistrations = new List<SuggestionRegistration>();
 

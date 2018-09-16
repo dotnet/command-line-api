@@ -3,7 +3,7 @@ using System.IO;
 
 namespace System.CommandLine.CompletionSuggestions
 {
-    public interface ISuggestionProvider
+    public interface ISuggestionRegistration
     {
         void AddSuggestionRegistration(SuggestionRegistration registration);
         SuggestionRegistration FindRegistration(FileInfo soughtExecutable);
