@@ -94,11 +94,12 @@ namespace System.CommandLine.CompletionSuggestions
         private static string FormatSuggestionArguments(ParseResult parseResult, List<string> targetCommands)
         {
             //TODO: don't just assume the callee has a "--position" argument
-            return string.Join(' ',
-                targetCommands[1],
+            var args = new List<string>() { targetCommands[1],
                 "--position",
-                parseResult.ValueForOption<string>(Position),
-                $"\"{string.Join(' ', parseResult.UnmatchedTokens)}\"");
+                parseResult.ValueForOption<string>(Position)};
+            args.AddRange(parseResult.UnmatchedTokens);
+
+            return string.Join(' ', args);
         }
 
         private string GetSuggestions(string exeFileName, string suggestionTargetArguments)
