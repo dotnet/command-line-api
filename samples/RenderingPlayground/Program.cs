@@ -1,4 +1,5 @@
 using System;
+using System.CommandLine;
 using System.CommandLine.Rendering;
 using System.Diagnostics;
 using System.IO;
@@ -28,45 +29,33 @@ namespace RenderingPlayground
             bool virtualTerminalMode = true,
             string text = null,
             OutputMode outputMode = OutputMode.Auto,
-            bool overwrite = true)
+            bool overwrite = true,
+#pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
+            IConsole console = null)
+#pragma warning restore CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
         {
             VirtualTerminalMode vt = null;
 
             try
             {
-                if (outputMode == OutputMode.Auto &&
-                    Console.IsOutputRedirected)
-                {
-                    overwrite = false;
-                    outputMode = OutputMode.File;
-                }
-
                 var region = new Region(left,
                                         top,
                                         width ?? Console.WindowWidth,
                                         height ?? Console.WindowHeight,
                                         overwrite);
 
-                var writer = new ConsoleRenderer(mode: outputMode);
-
-                if (virtualTerminalMode &&
-                    outputMode != OutputMode.File)
+                if (virtualTerminalMode)
                 {
-                    vt = VirtualTerminalMode.TryEnable();
+                    console.TryEnableVirtualTerminal();
 
                     // TODO: (Main) implement this in the core
-                    if (overwrite)
+                    if (overwrite && !console.IsOutputRedirected)
                     {
-                        if (vt.IsEnabled)
-                        {
-                            writer.Console.Out.WriteLine(Ansi.Clear.EntireScreen);
-                        }
-                        else
-                        {
-                            Console.Clear();
-                        }
+                        console.Clear();
                     }
                 }
+
+                var writer = new ConsoleRenderer(mode: outputMode);
 
                 switch (sample)
                 {

@@ -9,7 +9,10 @@ namespace System.CommandLine.Rendering
             OutputMode mode = OutputMode.NonAnsi)
         {
             Console = console ?? SystemConsole.Instance;
-            Mode = mode == OutputMode.Auto ? Console.DetectOutputMode() : mode;
+
+            Mode = mode == OutputMode.Auto
+                       ? Console.DetectOutputMode()
+                       : mode;
         }
 
         public IConsole Console { get; }

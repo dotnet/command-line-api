@@ -15,16 +15,17 @@ namespace System.CommandLine.Tests
         private int _cursorLeft;
         private int _cursorTop;
         private readonly RecordingWriter _error;
-        private RecordingWriter _out;
         private readonly List<ConsoleEvent> _events = new List<ConsoleEvent>();
         private readonly StringBuilder _outBuffer = new StringBuilder();
         private readonly StringBuilder _ansiCodeBuffer = new StringBuilder();
+        private bool _isVirtualTerminal;
 
         public TestConsole()
         {
-            _out = new RecordingWriter();
+            var @out = new RecordingWriter();
+            @out.CharWritten += OnCharWrittenToOut;
 
-            _out.CharWritten += OnCharWrittenToOut;
+            Out = @out;
 
             _error = new RecordingWriter();
         }
@@ -66,15 +67,15 @@ namespace System.CommandLine.Tests
             public AnsiControlCode Code { get; }
         }
 
-        public void SetOut(RecordingWriter writer)
+        public void SetOut(TextWriter writer)
         {
-            _out = writer ?? throw new ArgumentException(nameof(writer));
+            Out = writer ?? throw new ArgumentNullException(nameof(writer));
             IsOutputRedirected = true;
         }
 
         public TextWriter Error => _error;
 
-        public TextWriter Out => _out;
+        public TextWriter Out { get; private set; }
 
         public virtual ConsoleColor ForegroundColor { get; set; }
 
@@ -195,6 +196,10 @@ namespace System.CommandLine.Tests
 
         public bool IsInputRedirected { get; }
 
+        public bool IsVirtualTerminal() => _isVirtualTerminal;
+
+        public void TryEnableVirtualTerminal() => _isVirtualTerminal = !IsOutputRedirected;
+
         public IEnumerable<TextRendered> RenderOperations()
         {
             var buffer = new StringBuilder();
@@ -256,6 +261,11 @@ namespace System.CommandLine.Tests
             }
 
             public string Content { get; }
+        }
+
+        public void Dispose()
+        {
+
         }
     }
 }

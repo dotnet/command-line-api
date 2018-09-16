@@ -8,44 +8,76 @@ namespace System.CommandLine.Invocation
 {
     internal class SystemConsole : IConsole
     {
+        private VirtualTerminalMode _virtualTerminalMode;
+
         private SystemConsole()
         {
         }
 
         public static IConsole Instance { get; } = new SystemConsole();
 
-        public TextWriter Error => System.Console.Error;
+        public void SetOut(TextWriter writer) => Console.SetOut(writer);
 
-        public TextWriter Out => System.Console.Out;
+        public TextWriter Error => Console.Error;
+
+        public TextWriter Out => Console.Out;
 
         public ConsoleColor ForegroundColor
         {
-            get => System.Console.ForegroundColor;
-            set => System.Console.ForegroundColor = value;
+            get => Console.ForegroundColor;
+            set => Console.ForegroundColor = value;
         }
 
-        public void ResetColor() => System.Console.ResetColor();
+        public void ResetColor() => Console.ResetColor();
 
         public Region GetRegion() => EntireConsoleRegion.Instance;
 
         public int CursorLeft
         {
-            get => System.Console.CursorLeft;
-            set => System.Console.CursorLeft = value;
+            get => Console.CursorLeft;
+            set => Console.CursorLeft = value;
         }
 
         public int CursorTop
         {
-            get => System.Console.CursorTop;
-            set => System.Console.CursorTop = value;
+            get => Console.CursorTop;
+            set => Console.CursorTop = value;
         }
 
-        public void SetCursorPosition(int left, int top) => System.Console.SetCursorPosition(left, top);
+        public void SetCursorPosition(int left, int top) => Console.SetCursorPosition(left, top);
 
-        public bool IsOutputRedirected => System.Console.IsOutputRedirected; 
+        public bool IsOutputRedirected => Console.IsOutputRedirected;
 
-        public bool IsErrorRedirected => System.Console.IsErrorRedirected; 
+        public bool IsErrorRedirected => Console.IsErrorRedirected;
 
-        public bool IsInputRedirected => System.Console.IsInputRedirected; 
+        public bool IsInputRedirected => Console.IsInputRedirected;
+
+        public bool IsVirtualTerminal()
+        {
+            if (_virtualTerminalMode != null)
+            {
+                return _virtualTerminalMode.IsEnabled;
+            }
+
+            var terminalName = Environment.GetEnvironmentVariable("TERM");
+
+            return !string.IsNullOrEmpty(terminalName)
+                   && terminalName.StartsWith("xterm", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public void TryEnableVirtualTerminal()
+        {
+            if (IsOutputRedirected)
+            {
+                return;
+            }
+
+            _virtualTerminalMode = VirtualTerminalMode.TryEnable();
+        }
+
+        public void Dispose()
+        {
+            _virtualTerminalMode?.Dispose();
+        }
     }
 }

@@ -6,9 +6,11 @@ using System.IO;
 
 namespace System.CommandLine
 {
-    public interface IConsole
+    public interface IConsole : IDisposable
     {
         TextWriter Out { get; }
+
+        void SetOut(TextWriter writer);
 
         TextWriter Error { get; }
 
@@ -29,5 +31,9 @@ namespace System.CommandLine
         bool IsErrorRedirected { get; }
 
         bool IsInputRedirected { get; }
+
+        bool IsVirtualTerminal();
+
+        void TryEnableVirtualTerminal();
     }
 }

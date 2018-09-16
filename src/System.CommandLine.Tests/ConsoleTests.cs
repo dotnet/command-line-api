@@ -29,5 +29,16 @@ namespace System.CommandLine.Tests
                    .WithMessage($"The value must be greater than or equal to zero and less than the console's buffer size in that dimension.{Environment.NewLine}Parameter name: top{Environment.NewLine}Actual value was -1.");
         }
 
+        [Fact]
+        public void Virtual_terminal_mode_cannot_be_enabled_when_output_is_redirected()
+        {
+            var console = GetConsole();
+
+            console.SetOut(console.Out);
+
+            console.TryEnableVirtualTerminal();
+
+            console.IsVirtualTerminal().Should().BeFalse();
+        }
     }
 }
