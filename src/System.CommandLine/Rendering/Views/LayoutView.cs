@@ -9,12 +9,20 @@ namespace System.CommandLine.Rendering.Views
 
         public virtual void AddChild(T child)
         {
+            if (child == null)
+            {
+                throw new ArgumentNullException(nameof(child));
+            }
+
             Children.Add(child);
-            child.Updated += HandleChildUpdate;
+            
+            child.Updated -= OnChildUpdated;
+            child.Updated += OnChildUpdated;
         }
 
-        protected virtual void HandleChildUpdate(object sender, EventArgs e)
+        protected virtual void OnChildUpdated(object sender, EventArgs e)
         {
+            OnUpdated();
         }
     }
 }

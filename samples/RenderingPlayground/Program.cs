@@ -4,6 +4,8 @@ using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive.Subjects;
+using System.Security.Cryptography.X509Certificates;
 using Region = System.CommandLine.Rendering.Region;
 
 namespace RenderingPlayground
@@ -92,14 +94,32 @@ namespace RenderingPlayground
                     }
 
                     case "processes":
-                        new ProcessesView(writer, region)
+                        new ProcessesView(consoleRenderer, region)
                             .Render(Process.GetProcesses());
                         break;
-
+                    case "clock":
+                    {
+                        var screen = new ScreenView(renderer:consoleRenderer);
+                        var lastTime = DateTime.Now;
+                        var clockObservable = new BehaviorSubject<DateTime>(lastTime);
+                        var clockView = ContentView.FromObservable(clockObservable, x => $"{x:T}");
+                        screen.Child = clockView;
+                        screen.Render();
+                        
+                        while (!Console.KeyAvailable)
+                        {
+                            if (DateTime.Now - lastTime > TimeSpan.FromSeconds(1))
+                            {
+                                lastTime = DateTime.Now;
+                                clockObservable.OnNext(lastTime);
+                            }
+                        }
+                    }
+                    break;
                     default:
                         if (!string.IsNullOrWhiteSpace(text))
                         {
-                            writer.RenderToRegion(
+                            consoleRenderer.RenderToRegion(
                                 text,
                                 region);
                         }
@@ -108,7 +128,7 @@ namespace RenderingPlayground
                             //writer.RenderToRegion(
                             //    $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
                             //    region);
-                            var screen = new ScreenView();
+                            var screen = new ScreenView(renderer:consoleRenderer);
                             var stackLayout = new StackedLayoutView();
                             var content1 = new ContentView("Hello World!");
                             var content2 = new ContentView("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum for Kevin.");
@@ -116,7 +136,7 @@ namespace RenderingPlayground
                             stackLayout.AddChild(content1);
                             stackLayout.AddChild(content2);
                             screen.Child = stackLayout;
-                            screen.Render(new Region(0, 0, 50, 15), writer);
+                            screen.Render(new Region(0, 0, 50, 15));
                             //screen.Render(writer);
                         }
 

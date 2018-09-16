@@ -4,23 +4,45 @@ namespace System.CommandLine.Rendering.Views
 {
     public class ScreenView
     {
-        public ScreenView(IConsole console = null)
+        private View _child;
+
+        public ScreenView(IConsole console = null, IRenderer renderer = null, OutputMode outputMode = OutputMode.Ansi)
         {
             Console = console ?? SystemConsole.Instance;
+            Renderer = renderer ?? new ConsoleRenderer(Console, outputMode);
         }
 
         private IConsole Console { get; }
-        public View Child { get; set; }
+        private IRenderer Renderer { get; }
 
-        // may not want this?
-        public void Render(Region region, IRenderer renderer)
+        public View Child
         {
-            Child?.Render(region, renderer);
+            get => _child;
+            set
+            {
+                if (_child != null)
+                {
+                    _child.Updated -= ChildUpdated;
+                }
+                _child = value;
+                if (value != null)
+                {
+                    value.Updated += ChildUpdated;
+                }
+            }
         }
 
-        public void Render(IRenderer renderer)
+        private void ChildUpdated(object sender, EventArgs e) => Render();
+
+        // may not want this?
+        public void Render(Region region)
         {
-            Render(Console.GetRegion(), renderer);
+            Child?.Render(region, Renderer);
+        }
+
+        public void Render()
+        {
+            Render(Console.GetRegion());
         }
     }
 }
