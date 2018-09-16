@@ -50,6 +50,10 @@ namespace System.CommandLine.Rendering
 
         public virtual int Left { get; }
 
+        public int Bottom => Top + Height - 1;
+
+        public int Right => Left + Width - 1;
+
         public bool IsOverwrittenOnRender { get; }
 
         public override string ToString() => $" {Width}w × {Height}h @ {Left}x, {Top}y";

@@ -25,7 +25,7 @@ namespace RenderingPlayground
         /// <param name="outputMode">&lt;Ansi|NonAnsi|File&gt; Sets the output mode</param>
         /// <param name="overwrite">Overwrite the specified region. (If not, scroll.)</param>
         public static void Main(
-            string sample = "",
+            string sample = "clock",
             int? height = null,
             int? width = null,
             int top = 0,
@@ -99,13 +99,13 @@ namespace RenderingPlayground
                         break;
                     case "clock":
                     {
-                        var screen = new ScreenView(renderer:consoleRenderer);
+                        var screen = new ScreenView(renderer: consoleRenderer);
                         var lastTime = DateTime.Now;
                         var clockObservable = new BehaviorSubject<DateTime>(lastTime);
                         var clockView = ContentView.FromObservable(clockObservable, x => $"{x:T}");
                         screen.Child = clockView;
                         screen.Render();
-                        
+
                         while (!Console.KeyAvailable)
                         {
                             if (DateTime.Now - lastTime > TimeSpan.FromSeconds(1))
@@ -114,6 +114,31 @@ namespace RenderingPlayground
                                 clockObservable.OnNext(lastTime);
                             }
                         }
+                    }
+                    break;
+                    case "gridLayout":
+                    {
+                        var screen = new ScreenView(renderer: consoleRenderer);
+                        var content = new ContentView("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum for Kevin.");
+
+                        var gridView = new GridView();
+                        gridView.SetColumns(
+                            new GridView.ColumnDefinition(0.5),
+                            new GridView.ColumnDefinition(1),
+                            new GridView.ColumnDefinition(0.5)
+                            );
+                        gridView.SetRows(
+                            new GridView.RowDefinition(0.5),
+                            new GridView.RowDefinition(0.5)
+                        );
+
+                        gridView.AddChild(content, 0, 0);
+                        gridView.AddChild(content, 1, 1);
+                        gridView.AddChild(content, 2, 0);
+
+                        screen.Child = gridView;
+
+                        screen.Render();
                     }
                     break;
                     default:
@@ -128,7 +153,7 @@ namespace RenderingPlayground
                             //writer.RenderToRegion(
                             //    $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
                             //    region);
-                            var screen = new ScreenView(renderer:consoleRenderer);
+                            var screen = new ScreenView(renderer: consoleRenderer);
                             var stackLayout = new StackedLayoutView();
                             var content1 = new ContentView("Hello World!");
                             var content2 = new ContentView("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum for Kevin.");
@@ -136,7 +161,7 @@ namespace RenderingPlayground
                             stackLayout.AddChild(content1);
                             stackLayout.AddChild(content2);
                             screen.Child = stackLayout;
-                            screen.Render(new Region(0, 0, 50, 15));
+                            screen.Render(new Region(0, 0, 50, Size.MaxValue));
                             //screen.Render(writer);
                         }
 
