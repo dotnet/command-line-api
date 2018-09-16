@@ -4,7 +4,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
 {
     public class FileSuggestionProviderTests : SuggestionRegistrationTest, IDisposable
     {
-        protected override ISuggestionRegistration GetSuggestionRegistration() => new FileSuggestionProvider(_filePath);
+        protected override ISuggestionRegistration GetSuggestionRegistration() => new FileSuggestionRegistration(_filePath);
 
         private readonly string _filePath;
 

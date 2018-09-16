@@ -26,7 +26,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         {
             string[] args = $@"-p 12 -e ""{GetDotnetPath()}"" ""testdotnet add""".Tokenize().ToArray();
 
-            (await InvokeAsync(args, new TestSuggestionProvider(GetDotnetSuggestionRegistration())))
+            (await InvokeAsync(args, new TestSuggestionRegistration(GetDotnetSuggestionRegistration())))
                     .Should()
                     .Contain("package")
                     .And.Contain("reference");
@@ -38,7 +38,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
             Func<Task> action = async () =>
                 await InvokeAsync(
                     $@"-e ""{GetDotnetPath()}"" ""testdotnet add"" -p".Tokenize().ToArray(),
-                    new TestSuggestionProvider(GetDotnetSuggestionRegistration()));
+                    new TestSuggestionRegistration(GetDotnetSuggestionRegistration()));
             action
                .Should()
                .Throw<TargetInvocationException>()
@@ -53,7 +53,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         public async Task InvokeAsync_with_unknown_suggestion_provider_returns_empty_string()
         {
             string[] args = @"-p 10 -e ""testcli.exe"" ""command op""".Tokenize().ToArray();
-            (await InvokeAsync(args, new TestSuggestionProvider()))
+            (await InvokeAsync(args, new TestSuggestionRegistration()))
                 .Should()
                 .BeEmpty();
         }
@@ -63,7 +63,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         {
             string exeFileName = Path.GetFullPath("file_that_does_not_exist_name");
 
-            var provider = new TestSuggestionProvider(new SuggestionRegistration(exeFileName, "missing complete command"));
+            var provider = new TestSuggestionRegistration(new SuggestionRegistration(exeFileName, "missing complete command"));
             var dispatcher = new SuggestionDispatcher(provider);
 
             var args = $@"-p 12 -e ""{exeFileName}"" ""testdotnet add""".Tokenize().ToArray();
@@ -81,7 +81,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
         {
-            var provider = new TestSuggestionProvider(new SuggestionRegistration(GetDotnetPath(), $"testdotnet {Assembly.GetExecutingAssembly().Location}"));
+            var provider = new TestSuggestionRegistration(new SuggestionRegistration(GetDotnetPath(), $"testdotnet {Assembly.GetExecutingAssembly().Location}"));
             var dispatcher = new SuggestionDispatcher(provider);
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
@@ -96,17 +96,17 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public async Task List_command_gets_all_executable_names()
         {
-            TestSuggestionProvider testSuggestionProvider;
+            TestSuggestionRegistration testSuggestionProvider;
             if (RuntimeInformation
                 .IsOSPlatform(OSPlatform.Windows))
             {
-                testSuggestionProvider = new TestSuggestionProvider(
+                testSuggestionProvider = new TestSuggestionRegistration(
                     new SuggestionRegistration(@"C:\Program Files\dotnet\dotnet.exe","dotnet complete"),
                     new SuggestionRegistration(@"C:\Program Files\himalayan-berry.exe","himalayan-berry spread"));
             }
             else
             {
-                testSuggestionProvider = new TestSuggestionProvider(
+                testSuggestionProvider = new TestSuggestionRegistration(
                     new SuggestionRegistration(@"/bin/dotnet", "dotnet complete"),
                     new SuggestionRegistration(@"/bin/himalayan-berry", "himalayan-berry spread"));
             }
@@ -122,7 +122,7 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         [Fact]
         public async Task Register_command_adds_new_suggestion_entry()
         {
-            var provider = new TestSuggestionProvider();
+            var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
             await dispatcher.InvokeAsync("register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray());
