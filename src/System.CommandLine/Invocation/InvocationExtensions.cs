@@ -3,8 +3,12 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
@@ -160,6 +164,41 @@ namespace System.CommandLine.Invocation
                 }
             }, CommandLineBuilder.MiddlewareOrder.AfterPreprocessing);
             return builder;
+        }
+
+        public static CommandLineBuilder UseAutoRegisterSuggest(
+            this CommandLineBuilder builder)
+        {
+            builder.AddMiddleware(async (context, next) => {
+                var sentinelFile = Path.Combine(Path.GetTempPath(), "system.commandline-sentinel-files", Assembly.GetEntryAssembly().FullName);
+                Process process = Process.GetCurrentProcess();
+                var processPath = process.MainModule.FileName;
+                Directory.CreateDirectory(Path.GetDirectoryName(sentinelFile));
+                if (!File.Exists(sentinelFile))
+                {
+                    var processInfo = RegistrationProcessInfoMaker.GetProcessStartInfoForRegistration(processPath);
+                    Process.Start(processInfo).WaitForExit();
+                    File.Create(sentinelFile);
+                }
+
+                await next(context);
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            return builder;
+        }
+
+        public static string ToETag(this string value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+            var inputBytes = Encoding.ASCII.GetBytes(value);
+            byte[] hash;
+            using (var md5 = new MD5CryptoServiceProvider())
+            {
+                hash = md5.ComputeHash(inputBytes);
+            }
+            return System.Convert.ToBase64String(hash);
         }
 
         public static TBuilder OnExecute<TBuilder>(
