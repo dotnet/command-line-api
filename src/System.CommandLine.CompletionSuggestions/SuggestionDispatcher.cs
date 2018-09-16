@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,14 +18,15 @@ namespace System.CommandLine.CompletionSuggestions
         private const string CompletionAvailableCommands = "list";
 
         private readonly ISuggestionProvider _suggestionProvider;
-
+        private readonly ISuggestionStore _suggestionStore;
         private readonly Parser _parser;
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
-        public SuggestionDispatcher(ISuggestionProvider suggestionProvider)
+        public SuggestionDispatcher(ISuggestionProvider suggestionProvider, ISuggestionStore suggestionStore = null)
         {
             _suggestionProvider = suggestionProvider ?? throw new ArgumentNullException(nameof(suggestionProvider));
+            _suggestionStore = suggestionStore ?? new SuggestionStore();
 
             _parser = new CommandLineBuilder()
                 .AddCommand(CompletionAvailableCommands,
@@ -75,7 +75,7 @@ namespace System.CommandLine.CompletionSuggestions
 
             string targetArgs = FormatSuggestionArguments(parseResult, suggestionRegistration.SuggestionCommand.Tokenize().ToList());
 
-            string suggestions = GetSuggestions(suggestionRegistration.CommandPath, targetArgs);
+            string suggestions = _suggestionStore.GetSuggestions(suggestionRegistration.CommandPath, targetArgs, Timeout);
             if (!string.IsNullOrWhiteSpace(suggestions))
             {
                 console.Out.WriteLine(suggestions);
@@ -93,54 +93,12 @@ namespace System.CommandLine.CompletionSuggestions
 
         private static string FormatSuggestionArguments(ParseResult parseResult, List<string> targetCommands)
         {
-            //TODO: don't just assume the callee has a "--position" argument
             var args = new List<string>() { targetCommands[1],
                 "--position",
                 parseResult.ValueForOption<string>(Position)};
             args.AddRange(parseResult.UnmatchedTokens);
 
             return string.Join(' ', args);
-        }
-
-        private string GetSuggestions(string exeFileName, string suggestionTargetArguments)
-        {
-            string result = "";
-
-            try
-            {
-                // Invoke target with args
-                using (var process = new Process {
-                    StartInfo = new ProcessStartInfo(exeFileName, suggestionTargetArguments ?? "") {
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true
-                    }
-                })
-                {
-                    process.Start();
-
-                    Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
-
-                    if (readToEndTask.Wait(Timeout))
-                    {
-                        result = readToEndTask.Result;
-                    }
-                    else
-                    {
-                        process.Kill();
-                    }
-                }
-            }
-            catch (Win32Exception exception)
-            {
-                // We don't check for the existence of exeFileName until the exception in case
-                // it is a command that start process can resolve to a file name.
-                if (!File.Exists(exeFileName))
-                {
-                    throw new ArgumentException(
-                        $"Unable to find the file '{exeFileName}'", nameof(exeFileName), exception);
-                }
-            }
-            return result;
         }
     }
 }
