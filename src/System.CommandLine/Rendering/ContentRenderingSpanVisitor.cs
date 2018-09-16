@@ -1,3 +1,5 @@
+using System.CommandLine.Rendering.Extensions;
+using System.CommandLine.Rendering.Spans;
 using System.IO;
 using System.Text;
 
@@ -25,7 +27,7 @@ namespace System.CommandLine.Rendering
         protected int LinesWritten { get; private set; }
 
         protected Region Region { get; }
-        
+
         protected override void Start(Span span)
         {
             TrySetCursorPosition(Region.Left, Region.Top);

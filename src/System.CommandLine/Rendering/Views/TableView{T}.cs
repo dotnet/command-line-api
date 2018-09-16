@@ -1,22 +1,19 @@
 using System.Collections.Generic;
+using System.CommandLine.Rendering.Spans;
 
-namespace System.CommandLine.Rendering
+namespace System.CommandLine.Rendering.Views
 {
-    public class ConsoleTable<T>
+    public class TableView<T> : LayoutView<TableColumnView<T>>
     {
-        public ConsoleRenderer ConsoleRenderer { get; }
-
-        public ConsoleTable(ConsoleRenderer consoleRenderer)
+        public override void Render(Region region, IRenderer renderer)
         {
-            ConsoleRenderer = consoleRenderer ?? throw new ArgumentNullException(nameof(consoleRenderer));
+
         }
 
         public void RenderColumn(
             Span header,
             Func<T, Span> cell) =>
-            Columns.Add(new ConsoleTableColumn<T>(
-                            header,
-                            cell));
+            Columns.Add(new ConsoleTableColumn<T>(header, cell));
 
         public void RenderColumn(
             object header,

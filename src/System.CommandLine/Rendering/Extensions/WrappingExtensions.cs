@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace System.CommandLine.Rendering
+namespace System.CommandLine.Rendering.Extensions
 {
     internal static class WrappingExtensions
     {

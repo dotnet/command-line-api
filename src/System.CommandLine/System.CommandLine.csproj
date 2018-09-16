@@ -14,4 +14,8 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="Rendering\Views\View_old.bs" />
+  </ItemGroup>
+
 </Project>

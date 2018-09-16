@@ -1,5 +1,7 @@
 using System.Collections.Generic;
-using static System.CommandLine.Rendering.Ansi;
+using System.CommandLine.Rendering.Models;
+using System.CommandLine.Rendering.Spans;
+using static System.CommandLine.Rendering.Models.Ansi;
 
 namespace System.CommandLine.Rendering
 {

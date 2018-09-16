@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace System.CommandLine.Rendering
+namespace System.CommandLine.Rendering.Models
 {
     [DebuggerStepThrough]
     public class AnsiControlCode

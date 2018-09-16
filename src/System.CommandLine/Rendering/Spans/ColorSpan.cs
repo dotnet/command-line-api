@@ -1,4 +1,6 @@
-namespace System.CommandLine.Rendering
+using System.CommandLine.Rendering.Models;
+
+namespace System.CommandLine.Rendering.Spans
 {
     public abstract class ColorSpan : FormatSpan
     {

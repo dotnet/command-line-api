@@ -1,0 +1,82 @@
+using System.Runtime.Serialization;
+
+namespace System.CommandLine.Rendering
+{
+    public abstract class Layout
+    {
+
+        public Layout[] items { get; set; }
+
+        public Layout()
+        {
+            foreach (var item in items)
+            {
+                item.OnValueChanged(() => this.render);
+            }
+        }
+
+        public void Render(ConsoleRenderer renderer, int maxHeight, int maxWidth)
+        {
+            var maxDimensions = new Dimensions(maxHeight, maxWidth);
+
+            foreach (var item in items)
+            {
+                var itemDimensions = item.GetDimensions(maxDimensions);
+            }
+
+            var newDimensions = CalculateNewMaxDimensions(object[], maxDimensions);
+
+            foreach (var item in items)
+            {
+                var region = new Region(top, left, newDimensions);
+                renderer.RenderToRegion(item, region);
+            }
+        }
+    }
+
+    public class Renderer
+    {
+        public void RenderToRegion(View view, Region region)
+        {
+            view.Render(this, region);
+        }
+
+        public void RenderToRegion(Content content, Region region)
+        {
+
+        }
+    }
+
+    public class Content
+    {
+        private object Value { get; }
+        private Span _span;
+        private Formatter Formatter { get; }
+
+        public Content(object value, Formatter formatter)
+        {
+            Formatter = formatter;
+            _span = Formatter(value);
+
+            value.OnChange((newValue) => {
+                _span = Formatter(newValue);
+                return this.OnValueChanged.emit(_span);
+            });
+        }
+
+        public Event<Span> OnValueChanged()
+        {
+            return new Event<Span>(_span);
+        }
+
+        public Dimensions GetDimensions(int availableWidth)
+        {
+            return Math.Min(span.Length, availableWidth);
+        }
+
+        public FooContent GetContent(Region region)
+        {
+            return _span;
+        }
+    }
+}

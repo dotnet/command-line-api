@@ -1,4 +1,4 @@
-namespace System.CommandLine.Rendering
+namespace System.CommandLine.Rendering.Models
 {
     public class RgbColor
     {

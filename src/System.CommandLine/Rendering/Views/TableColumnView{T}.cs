@@ -1,11 +1,17 @@
 using System.Collections.Generic;
+using System.CommandLine.Rendering.Spans;
 using System.Linq;
 
-namespace System.CommandLine.Rendering
+namespace System.CommandLine.Rendering.Views
 {
-    internal class ConsoleTableColumn<T>
+    public class TableColumnView<T> : LayoutView<TableCellContentView<T>>
     {
         private Dictionary<int, Span> _spans;
+
+        public override void Render(Region region, IRenderer renderer)
+        {
+
+        }
 
         public ConsoleTableColumn(
             Span header,
@@ -14,8 +20,6 @@ namespace System.CommandLine.Rendering
             RenderCell = renderCell ?? throw new ArgumentNullException(nameof(renderCell));
             Header = header;
         }
-
-        public Func<T, Span> RenderCell { get; }
 
         public Span Header { get; }
 

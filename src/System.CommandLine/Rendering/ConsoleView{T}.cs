@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.CommandLine.Rendering.Spans;
+using System.CommandLine.Rendering.Views;
 using System.Linq;
 
 namespace System.CommandLine.Rendering
@@ -45,7 +47,7 @@ namespace System.CommandLine.Rendering
                 throw new ArgumentNullException(nameof(table));
             }
 
-            var tableView = new ConsoleTable<TItem>(ConsoleRenderer);
+            var tableView = new ConsoleTable<TItem>();
 
             table(tableView);
 

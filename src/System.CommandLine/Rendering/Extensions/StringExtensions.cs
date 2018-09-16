@@ -1,4 +1,4 @@
-namespace System.CommandLine.Rendering
+namespace System.CommandLine.Rendering.Extensions
 {
     internal static class StringExtensions
     {
