@@ -58,7 +58,7 @@ namespace System.CommandLine.DragonFruit
                           .UseHelp()
                           .UseSuggestDirective()
                           .UseExceptionHandler()
-                          .UseAutoRegisterSuggest();
+                          .RegisterDirective();
 
             SetHelpMetadata(method, builder);
 

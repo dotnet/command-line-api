@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -166,39 +167,45 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandLineBuilder UseAutoRegisterSuggest(
-            this CommandLineBuilder builder)
+        public static CommandLineBuilder RegisterDirective(
+            this CommandLineBuilder builder, Func<ProcessStartInfo, int> ProcessStart = null)
         {
-            builder.AddMiddleware(async (context, next) => {
-                var sentinelFile = Path.Combine(Path.GetTempPath(), "system.commandline-sentinel-files", Assembly.GetEntryAssembly().FullName);
-                Process process = Process.GetCurrentProcess();
-                var processPath = process.MainModule.FileName;
-                Directory.CreateDirectory(Path.GetDirectoryName(sentinelFile));
-                if (!File.Exists(sentinelFile))
+            if (ProcessStart == null)
+            {
+                ProcessStart = (p) => 
+                { 
+                    var process = Process.Start(p);
+                    process.WaitForExit();
+                    return process.ExitCode; 
+                };
+            }
+
+            builder.AddMiddleware(async (context, next) =>
+            {
+                if (context.ParseResult.Tokens.FirstOrDefault() == "[register]")
                 {
-                    var processInfo = RegistrationProcessInfoMaker.GetProcessStartInfoForRegistration(processPath);
-                    Process.Start(processInfo).WaitForExit();
-                    File.Create(sentinelFile);
+                    Process process = Process.GetCurrentProcess();
+                    var processPath = process.MainModule.FileName;
+                    try
+                    {
+                        var processInfo = RegistrationProcessInfoMaker.GetProcessStartInfoForRegistration(processPath);
+                        var exitCode = ProcessStart(processInfo);
+                        if (exitCode != 0)
+                        {
+                            context.Console.Error.WriteLine($"Failed to register with dotnet-suggest. Return code {exitCode}. For location {processPath}");
+                            context.ResultCode = 1;
+                        }
+                    }
+                    catch (Win32Exception e)
+                    {
+                        context.Console.Error.WriteLine($"Unable to register dotnet-suggest. It may not be installed. Exception: {e.ToString()}");
+                        context.ResultCode = 1;
+                    }
                 }
 
                 await next(context);
             }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
             return builder;
-        }
-
-        public static string ToETag(this string value)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-            var inputBytes = Encoding.ASCII.GetBytes(value);
-            byte[] hash;
-            using (var md5 = new MD5CryptoServiceProvider())
-            {
-                hash = md5.ComputeHash(inputBytes);
-            }
-            return System.Convert.ToBase64String(hash);
         }
 
         public static TBuilder OnExecute<TBuilder>(
