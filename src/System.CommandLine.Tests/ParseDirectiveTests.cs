@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
                          .UseParseDirective()
                          .Build();
 
-            var result = parser.Parse("!parse the-command -c 34 --nonexistent wat");
+            var result = parser.Parse("[parse] the-command -c 34 --nonexistent wat");
 
             output.WriteLine(result.Diagram());
 

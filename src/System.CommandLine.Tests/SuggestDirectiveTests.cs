@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
                          .UseSuggestDirective()
                          .Build();
 
-            var result = parser.Parse("!suggest eat --fruit ");
+            var result = parser.Parse("[suggest] eat --fruit ");
             
             var console = new TestConsole();
 
