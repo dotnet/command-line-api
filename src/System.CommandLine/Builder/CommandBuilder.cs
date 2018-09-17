@@ -22,7 +22,7 @@ namespace System.CommandLine.Builder
 
         public bool? TreatUnmatchedTokensAsErrors { get; set; }
 
-        internal MethodBinder ExecutionHandler { get; set; }
+        internal IBinderInvoker ExecutionHandler { get; set; }
 
         public string Name { get; }
 

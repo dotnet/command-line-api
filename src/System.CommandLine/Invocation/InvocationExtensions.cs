@@ -241,7 +241,18 @@ namespace System.CommandLine.Invocation
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
-   
+
+        public static TBuilder OnExecute<TBuilder>(
+           this TBuilder builder,
+           ConstructorInfo constructor,
+           MethodInfo method)
+           where TBuilder : CommandBuilder
+        {
+            var methodBinder = new ConstructorBinder(constructor, method);
+            builder.ExecutionHandler = methodBinder;
+            return builder;
+        }
+
         public static TBuilder OnExecute<TBuilder>(
             this TBuilder builder,
             Action action)

@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
+using System.Linq.Expressions;
+using System.Linq;
 using System.Reflection;
 
 namespace System.CommandLine.Builder
@@ -57,6 +59,59 @@ namespace System.CommandLine.Builder
 
             return builder;
         }
+
+        public static TBuilder ConfigureFromType<TBuilder, TType>(
+            this TBuilder builder,
+            MethodInfo onExecuteMethod)
+            where TType : class
+            where TBuilder : CommandBuilder
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            // TODO: Clean up to consider multiple constructors
+            ConstructorInfo constructorInfo = typeof(TType).GetConstructors().Single();
+
+            foreach (PropertyInfo property in typeof(TType).GetProperties())
+            {
+                builder.AddOptionFromProperty(property);
+
+            }
+
+            builder.OnExecute(constructorInfo, onExecuteMethod);
+
+            return builder;
+        }
+
+
+        public static TBuilder AddOptionFromProperty<TBuilder>(
+            this TBuilder builder,
+            PropertyInfo property)
+            where TBuilder : CommandBuilder
+        {
+            var alias = property.Name.Length > 1
+                            ? $"--{property.Name.ToKebabCase()}"
+                            : $"-{property.Name}";
+
+            if(!property.CanWrite)
+            {
+                throw new ArgumentException(ValidationMessages.Instance.ArgumentPropertyHasNoSetter(property.Name), nameof(property));
+            }
+
+            builder.AddOption(
+                alias,
+                property.Name,
+                args => {
+                    args.ParseArgumentsAs(property.PropertyType);
+
+                    // TODO: Consider adding a default value
+                });
+
+            return builder;
+        }
+
 
         public static TBuilder AddOptionFromParameter<TBuilder>(
             this TBuilder builder,

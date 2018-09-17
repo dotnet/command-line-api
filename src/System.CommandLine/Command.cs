@@ -30,7 +30,7 @@ namespace System.CommandLine
             IReadOnlyCollection<ISymbol> symbols = null,
             Argument argument = null,
             bool treatUnmatchedTokensAsErrors = true,
-            MethodBinder executionHandler = null,
+            IBinderInvoker executionHandler = null,
             IHelpBuilder helpBuilder = null) :
             base(new[] { name }, description)
         {
@@ -73,8 +73,8 @@ namespace System.CommandLine
 
         public bool TreatUnmatchedTokensAsErrors { get; }
 
-        internal MethodBinder ExecutionHandler { get; }
-
+        internal IBinderInvoker ExecutionHandler { get; }
+        
         public void WriteHelp(IConsole console)
         {
             IHelpBuilder helpBuilder = _helpBuilder ?? new HelpBuilder(console);
