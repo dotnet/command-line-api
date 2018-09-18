@@ -119,19 +119,23 @@ namespace RenderingPlayground
                     {
                         var screen = new ScreenView(renderer: consoleRenderer);
                         var content = new ContentView("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum for Kevin.");
+                        var smallContent = new ContentView("Kevin Bost");
+                        var longContent = new ContentView("Hacking on System.CommandLine");
 
                         var gridView = new GridView();
                         gridView.SetColumns(
-                            new GridView.ColumnDefinition(0.5),
-                            new GridView.ColumnDefinition(1),
-                            new GridView.ColumnDefinition(0.5)
+                            ColumnDefinition.SizeToContent(),
+                            ColumnDefinition.Star(1),
+                            ColumnDefinition.Star(0.5)
                             );
                         gridView.SetRows(
-                            new GridView.RowDefinition(0.5),
-                            new GridView.RowDefinition(0.5)
+                            RowDefinition.Star(0.5),
+                            RowDefinition.Star(0.5)
                         );
 
-                        gridView.AddChild(content, 0, 0);
+                        gridView.AddChild(smallContent, 0 , 0);
+                        gridView.AddChild(longContent, 0, 1);
+                        //gridView.AddChild(content, 0, 0);
                         gridView.AddChild(content, 1, 1);
                         gridView.AddChild(content, 2, 0);
 
