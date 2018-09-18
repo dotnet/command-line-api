@@ -14,7 +14,7 @@ namespace System.CommandLine.Rendering.Views
         {
             //1 column 1 row
             Columns.Add(ColumnDefinition.Star(1));
-            Rows.Add(new RowDefinition(1));
+            Rows.Add(RowDefinition.Star(1));
 
             ChildLocations = new View[1, 1];
         }
@@ -110,7 +110,7 @@ namespace System.CommandLine.Rendering.Views
         private Size[,] GetGridSizes(IRenderer renderer, Size maxSize)
         {
             double totalColumnStarSize = Columns.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);
-            double totalRowStarSize = Rows.Sum(x => x.StarSize);
+            double totalRowStarSize = Rows.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);
 
             int?[] measuredColumns = new int?[Columns.Count];
             int?[] measuredRows = new int?[Rows.Count];
@@ -121,7 +121,7 @@ namespace System.CommandLine.Rendering.Views
                 int availableWidth = maxSize.Width;
                 int? totalWidthForStarSizing = null;
 
-                int maxRowHeight = (int)Math.Round(Rows[rowIndex].StarSize / totalRowStarSize * maxSize.Height);
+                int maxRowHeight = (int)Math.Round(Rows[rowIndex].Value / totalRowStarSize * maxSize.Height);
                 measuredRows[rowIndex] = maxRowHeight;
 
                 foreach (var (column, columnIndex) in Columns.OrderBy(x => GetProcessOrder(x.SizeMode)).Select((x, i) => (x, i)))

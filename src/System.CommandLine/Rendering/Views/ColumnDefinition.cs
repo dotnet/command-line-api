@@ -6,16 +6,30 @@ namespace System.CommandLine.Rendering.Views
 
         public double Value { get; }
 
-        public ColumnDefinition(SizeMode sizeMode, double value)
+        private ColumnDefinition(SizeMode sizeMode, double value)
         {
             //TODO: Validation
             SizeMode = sizeMode;
             Value = value;
         }
 
-        public static ColumnDefinition Fixed(int size) => new ColumnDefinition(SizeMode.Fixed, size);
+        public static ColumnDefinition Fixed(int size)
+        {
+            if (size < 0.0)
+            {
+                throw new ArgumentException("Fixed size cannot be negative", nameof(size));
+            }
+            return new ColumnDefinition(SizeMode.Fixed, size);
+        }
 
-        public static ColumnDefinition Star(double weight) => new ColumnDefinition(SizeMode.Star, weight);
+        public static ColumnDefinition Star(double weight)
+        {
+            if (weight < 0.0)
+            {
+                throw new ArgumentException("Weight cannot be negative", nameof(weight));
+            }
+            return new ColumnDefinition(SizeMode.Star, weight);
+        }
 
         public static ColumnDefinition SizeToContent() => new ColumnDefinition(SizeMode.SizeToContent, 0);
     }

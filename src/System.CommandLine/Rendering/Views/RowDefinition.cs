@@ -2,15 +2,33 @@ namespace System.CommandLine.Rendering.Views
 {
     public class RowDefinition
     {
+        public double Value { get; }
         public SizeMode SizeMode { get; }
 
-        public RowDefinition(double starSize)
+        private RowDefinition(SizeMode sizeMode, double value)
         {
-            StarSize = starSize;
+            //TODO: Validation
+            SizeMode = sizeMode;
+            Value = value;
+        }
+        public static RowDefinition Fixed(int size)
+        {
+            if (size < 0.0)
+            {
+                throw new ArgumentException("Fixed size cannot be negative", nameof(size));
+            }
+            return new RowDefinition(SizeMode.Fixed, size);
         }
 
-        public double StarSize { get; }
-
-        public static RowDefinition Star(double weight) => new RowDefinition(weight);
+        public static RowDefinition Star(double weight)
+        {
+            if (weight < 0.0)
+            {
+                throw new ArgumentException("Weight cannot be negative", nameof(weight));
+            }
+            return new RowDefinition(SizeMode.Star, weight);
+        }
+        
+        public static RowDefinition SizeToContent() => new RowDefinition(SizeMode.SizeToContent, 0);
     }
 }
