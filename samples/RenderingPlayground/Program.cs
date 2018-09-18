@@ -5,7 +5,6 @@ using System.CommandLine.Rendering.Views;
 using System.Diagnostics;
 using System.IO;
 using System.Reactive.Subjects;
-using System.Security.Cryptography.X509Certificates;
 using Region = System.CommandLine.Rendering.Region;
 
 namespace RenderingPlayground
@@ -25,7 +24,7 @@ namespace RenderingPlayground
         /// <param name="outputMode">&lt;Ansi|NonAnsi|File&gt; Sets the output mode</param>
         /// <param name="overwrite">Overwrite the specified region. (If not, scroll.)</param>
         public static void Main(
-            string sample = "clock",
+            string sample = "gridLayout",
             int? height = null,
             int? width = null,
             int top = 0,

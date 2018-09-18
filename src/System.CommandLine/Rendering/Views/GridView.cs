@@ -8,10 +8,7 @@ namespace System.CommandLine.Rendering.Views
         private List<ColumnDefinition> Columns { get; } = new List<ColumnDefinition>();
         private List<RowDefinition> Rows { get; } = new List<RowDefinition>();
 
-        //private Dictionary<View, (int column, int row)> ChildLocations { get; } = new Dictionary<View, (int column, int row)>();
-
         private View[,] ChildLocations { get; set; }
-
 
         public GridView()
         {
@@ -49,32 +46,6 @@ namespace System.CommandLine.Rendering.Views
             Rows.Clear();
             Rows.AddRange(rows);
             ChildLocations = new View[Columns.Count, Rows.Count];
-        }
-
-        public override Size GetContentSize()
-        {
-            int width = 0;
-            int height = 0;
-
-            for (int row = 0; row < Rows.Count; row++)
-            {
-                int rowWidth = 0;
-                int rowHeight = 0;
-                for (int column = 0; column < Columns.Count; column++)
-                {
-                    if (ChildLocations[column, row] is View child)
-                    {
-                        Size childSize = child.GetContentSize();
-                        rowWidth += childSize.Width;
-                        rowHeight = Math.Max(rowHeight, childSize.Height);
-                    }
-                }
-
-                height += rowHeight;
-                width = Math.Max(width, rowWidth);
-            }
-
-            return new Size(width, height);
         }
 
         public override Size GetAdjustedSize(IRenderer renderer, Size maxSize)

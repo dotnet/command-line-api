@@ -16,31 +16,6 @@ namespace System.CommandLine.Rendering.Views
 
         public Orientation Orientation { get; set; }
 
-        public override Size GetContentSize()
-        {
-            var width = 0;
-            var height = 0;
-            foreach (var child in Children)
-            {
-                var childSize = child.GetContentSize();
-                switch (Orientation)
-                {
-                    case Orientation.Vertical:
-                        width = Math.Max(width, childSize.Width);
-                        height += childSize.Height;
-                        break;
-                    case Orientation.Horizontal:
-                        height = Math.Max(height, childSize.Height);
-                        width += childSize.Width;
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Orientation {Orientation} is not implemented");
-                }
-            }
-
-            return new Size(width, height);
-        }
-
         public override void Render(Region region, IRenderer renderer)
         {
             switch (Orientation)
@@ -56,15 +31,6 @@ namespace System.CommandLine.Rendering.Views
 
         private void RenderVertical(Region region, IRenderer renderer)
         {
-            var maxWidth = 0;
-
-            foreach (var child in Children)
-            {
-                var size = child.GetContentSize();
-                maxWidth = Math.Max(maxWidth, size.Width);
-            }
-
-            var maxSize = new Size(Math.Min(region.Width, maxWidth), region.Height);
             var left = region.Left;
             var top = region.Top;
             var height = region.Height;
@@ -75,7 +41,7 @@ namespace System.CommandLine.Rendering.Views
                 {
                     break;
                 }
-                var size = child.GetAdjustedSize(renderer, maxSize);
+                var size = child.GetAdjustedSize(renderer, new Size(region.Width, height));
                 var r = new Region(left, top, size.Width, height);
                 child.Render(r, renderer);
                 top += size.Height;
@@ -85,15 +51,6 @@ namespace System.CommandLine.Rendering.Views
 
         private void RenderHorizontal(Region region, IRenderer renderer)
         {
-            var maxHeight = 0;
-
-            foreach (var child in Children)
-            {
-                var size = child.GetContentSize();
-                maxHeight = Math.Max(maxHeight, size.Height);
-            }
-
-            var maxSize = new Size(region.Width, Math.Min(region.Height, maxHeight));
             var left = region.Left;
             var top = region.Top;
             var width = region.Width;
@@ -104,7 +61,7 @@ namespace System.CommandLine.Rendering.Views
                 {
                     break;
                 }
-                var size = child.GetAdjustedSize(renderer, maxSize);
+                var size = child.GetAdjustedSize(renderer, new Size(width, region.Height));
                 var r = new Region(left, top, width, size.Height);
                 child.Render(r, renderer);
                 left += size.Width;
