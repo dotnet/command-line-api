@@ -1,20 +1,18 @@
-using System.Linq;
-
 namespace System.CommandLine.Rendering.Views
 {
-    public class StackedLayoutView : LayoutView<View>
+    public class StackLayoutView : LayoutView<View>
     {
-        public StackedLayoutView()
+        public StackLayoutView()
                 : this(Orientation.Vertical)
         {
         }
 
-        public StackedLayoutView(Orientation orientation)
+        public StackLayoutView(Orientation orientation)
         {
             Orientation = orientation;
         }
 
-        public Orientation Orientation { get; set; }
+        public Orientation Orientation { get; }
 
         public override void Render(Region region, IRenderer renderer)
         {
@@ -42,10 +40,11 @@ namespace System.CommandLine.Rendering.Views
                     break;
                 }
                 var size = child.Measure(renderer, new Size(region.Width, height));
-                var r = new Region(left, top, size.Width, height);
+                int renderHeight = Math.Min(height, size.Height);
+                var r = new Region(left, top, size.Width, renderHeight);
                 child.Render(r, renderer);
                 top += size.Height;
-                height -= size.Height;
+                height -= renderHeight;
             }
         }
 
