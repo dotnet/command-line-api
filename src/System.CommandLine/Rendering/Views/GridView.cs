@@ -58,7 +58,7 @@ namespace System.CommandLine.Rendering.Views
             ChildLocations = new View[Columns.Count, Rows.Count];
         }
 
-        public override Size GetAdjustedSize(IRenderer renderer, Size maxSize)
+        public override Size Measure(IRenderer renderer, Size maxSize)
         {
             int width = 0;
             int height = 0;
@@ -140,7 +140,7 @@ namespace System.CommandLine.Rendering.Views
                         {
                             if (ChildLocations[columnIndex, rowIndex] is View child)
                             {
-                                Size childSize = child.GetAdjustedSize(renderer, new Size(availableWidth, availableHeight));
+                                Size childSize = child.Measure(renderer, new Size(availableWidth, availableHeight));
                                 measuredColumns[columnIndex] = Math.Max(measuredColumns[columnIndex] ?? 0, childSize.Width);
                             }
                         }

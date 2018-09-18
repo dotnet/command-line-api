@@ -41,7 +41,7 @@ namespace System.CommandLine.Rendering.Views
                 {
                     break;
                 }
-                var size = child.GetAdjustedSize(renderer, new Size(region.Width, height));
+                var size = child.Measure(renderer, new Size(region.Width, height));
                 var r = new Region(left, top, size.Width, height);
                 child.Render(r, renderer);
                 top += size.Height;
@@ -61,7 +61,7 @@ namespace System.CommandLine.Rendering.Views
                 {
                     break;
                 }
-                var size = child.GetAdjustedSize(renderer, new Size(width, region.Height));
+                var size = child.Measure(renderer, new Size(width, region.Height));
                 var r = new Region(left, top, width, size.Height);
                 child.Render(r, renderer);
                 left += size.Width;
@@ -69,7 +69,7 @@ namespace System.CommandLine.Rendering.Views
             }
         }
 
-        public override Size GetAdjustedSize(IRenderer renderer, Size maxSize)
+        public override Size Measure(IRenderer renderer, Size maxSize)
         {
             switch (Orientation)
             {
@@ -95,7 +95,7 @@ namespace System.CommandLine.Rendering.Views
                 {
                     break;
                 }
-                var size = child.GetAdjustedSize(renderer, maxSize);
+                var size = child.Measure(renderer, maxSize);
                 height -= size.Height;
                 totHeight += size.Height;
                 maxWidth = Math.Max(maxWidth, size.Width);
@@ -117,7 +117,7 @@ namespace System.CommandLine.Rendering.Views
                 {
                     break;
                 }
-                var size = child.GetAdjustedSize(renderer, maxSize);
+                var size = child.Measure(renderer, maxSize);
                 width -= size.Width;
                 totWidth += size.Width;
                 maxHeight = Math.Max(maxHeight, size.Height);

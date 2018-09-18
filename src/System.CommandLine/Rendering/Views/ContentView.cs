@@ -17,7 +17,7 @@ namespace System.CommandLine.Rendering.Views
             renderer.RenderToRegion(Span, region);
         }
 
-        public override Size GetAdjustedSize(IRenderer renderer, Size maxSize)
+        public override Size Measure(IRenderer renderer, Size maxSize)
         {
             return renderer.MeasureSpan(Span, maxSize);
         }

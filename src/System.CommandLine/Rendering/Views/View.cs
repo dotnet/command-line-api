@@ -6,7 +6,7 @@ namespace System.CommandLine.Rendering.Views
 
         public abstract void Render(Region region, IRenderer renderer);
 
-        public abstract Size GetAdjustedSize(IRenderer renderer, Size maxSize);
+        public abstract Size Measure(IRenderer renderer, Size maxSize);
 
         protected void OnUpdated() => Updated?.Invoke(this, EventArgs.Empty);
     }
