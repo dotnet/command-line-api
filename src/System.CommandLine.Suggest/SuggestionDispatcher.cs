@@ -75,7 +75,6 @@ namespace System.CommandLine.Suggest
         {
             var commandPath = parseResult.ValueForOption<FileInfo>("-e");
 
-
             var suggestionRegistration =
                 _suggestionRegistration.FindRegistration(commandPath);
 

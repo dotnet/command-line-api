@@ -44,10 +44,11 @@ namespace System.CommandLine.Suggest
 
             if (completionTarget == null)
             {
+                // Completion provider not found!
                 return null;
             }
 
-            return new SuggestionRegistration(completionTarget);
+            return new RegistrationPair(completionTarget);
         }
 
         public IReadOnlyCollection<RegistrationPair> FindAllRegistrations()
