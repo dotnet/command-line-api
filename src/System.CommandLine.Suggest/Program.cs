@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using System.CommandLine.Invocation;
 
-namespace System.CommandLine.CompletionSuggestions
+namespace System.CommandLine.Suggest
 {
     public class Program
     {

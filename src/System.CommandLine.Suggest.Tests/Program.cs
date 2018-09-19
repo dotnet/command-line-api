@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace System.CommandLine.CompletionSuggestions.Tests
+namespace System.CommandLine.Suggest.Tests
 {
     public class Program
     {

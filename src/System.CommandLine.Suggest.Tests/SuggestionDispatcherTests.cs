@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
-namespace System.CommandLine.CompletionSuggestions.Tests
+namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionDispatcherTests
     {

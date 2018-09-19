@@ -1,4 +1,4 @@
-namespace System.CommandLine.CompletionSuggestions.Tests
+namespace System.CommandLine.Suggest.Tests
 {
     public class TestSuggestionRegistrationTests : SuggestionRegistrationTest
     {

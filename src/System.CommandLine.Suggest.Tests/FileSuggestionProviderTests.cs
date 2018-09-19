@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace System.CommandLine.CompletionSuggestions.Tests
+namespace System.CommandLine.Suggest.Tests
 {
     public class FileSuggestionProviderTests : SuggestionRegistrationTest, IDisposable
     {
