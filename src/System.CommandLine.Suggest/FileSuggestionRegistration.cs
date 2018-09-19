@@ -18,7 +18,7 @@ namespace System.CommandLine.Suggest
             {
                 _registrationConfigurationFilePath = Path.Combine(
                     Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                    "System.CommandLine.Completion.txt");
+                    "Registration.txt");
             }
             else
             {
