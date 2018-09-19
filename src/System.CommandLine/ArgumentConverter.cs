@@ -1,6 +1,7 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace System.CommandLine
 {
     internal static class ArgumentConverter
     {
-        private static readonly Dictionary<Type, ConvertString> _stringConverters = new Dictionary<Type, ConvertString>();
+        private static readonly ConcurrentDictionary<Type, ConvertString> _stringConverters = new ConcurrentDictionary<Type, ConvertString>();
 
         public static ArgumentParseResult Parse(Type type, string value)
         {
@@ -35,7 +36,8 @@ namespace System.CommandLine
             }
 
             var singleStringConstructor = type.GetConstructors()
-                                              .Where(c => {
+                                              .Where(c =>
+                                              {
                                                   var parameters = c.GetParameters();
                                                   return c.IsPublic &&
                                                          parameters.Length == 1 &&
@@ -45,12 +47,13 @@ namespace System.CommandLine
 
             if (singleStringConstructor != null)
             {
-                convert = argument => {
-                    var instance = singleStringConstructor.Invoke(new object[] { argument });
-                    return Success(instance);
-                };
-
-                _stringConverters.Add(type, convert);
+                convert = _stringConverters.GetOrAdd(
+                    type,
+                    _ => arg =>
+                    {
+                        var inst = singleStringConstructor.Invoke(new object[] { arg });
+                        return Success(inst);
+                    });
 
                 return convert(value);
             }
