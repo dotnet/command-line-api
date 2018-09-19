@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.CommandLine.Invocation;
 
-namespace System.CommandLine.CompletionSuggestions
+namespace System.CommandLine.Suggest
 {
     public class SuggestionDispatcher
     {
@@ -29,6 +29,7 @@ namespace System.CommandLine.CompletionSuggestions
 
             _parser = new CommandLineBuilder()
                 .UseHelp()
+                .UseExceptionHandler()
                 .AddCommand(CompletionAvailableCommands,
                     "list all completions available commands with space separated list",
                     cmd => cmd.OnExecute<IConsole>(c =>

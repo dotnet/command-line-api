@@ -1,4 +1,4 @@
-namespace System.CommandLine.CompletionSuggestions
+namespace System.CommandLine.Suggest
 {
     public class SuggestionRegistration
     {

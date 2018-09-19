@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace System.CommandLine.CompletionSuggestions
+namespace System.CommandLine.Suggest
 {
     public interface ISuggestionRegistration
     {

@@ -5,7 +5,7 @@
 
     <IsPackable>false</IsPackable>
 
-    <StartupObject>System.CommandLine.CompletionSuggestions.Tests.Program</StartupObject>
+    <StartupObject>System.CommandLine.Suggest.Tests.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\System.CommandLine.CompletionSuggestions\dotnet-suggest.csproj" />
+    <ProjectReference Include="..\System.CommandLine.Suggest\dotnet-suggest.csproj" />
     <ProjectReference Include="..\System.CommandLine.Tests\System.CommandLine.Tests.csproj" />
   </ItemGroup>
 

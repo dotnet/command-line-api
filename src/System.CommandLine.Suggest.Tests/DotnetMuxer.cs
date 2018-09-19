@@ -5,7 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace System.CommandLine.CompletionSuggestions.Tests
+namespace System.CommandLine.Suggest.Tests
 {
     public static class DotnetMuxer
     {

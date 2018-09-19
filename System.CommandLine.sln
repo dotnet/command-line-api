@@ -51,9 +51,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.DragonFr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.DragonFruit.Tests", "src\System.CommandLine.DragonFruit.Tests\System.CommandLine.DragonFruit.Tests.csproj", "{1F4B2074-F651-4A02-A860-7DDA74B2CC5F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-suggest", "src\System.CommandLine.CompletionSuggestions\dotnet-suggest.csproj", "{E23C760E-B826-4B4F-BE76-916D86BAD2DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-suggest", "src\System.CommandLine.Suggest\dotnet-suggest.csproj", "{E23C760E-B826-4B4F-BE76-916D86BAD2DB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-suggest.Tests", "src\System.CommandLine.CompletionSuggestions.Tests\dotnet-suggest.Tests.csproj", "{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-suggest.Tests", "src\System.CommandLine.Suggest.Tests\dotnet-suggest.Tests.csproj", "{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RenderingPlayground", "samples\RenderingPlayground\RenderingPlayground.csproj", "{8D9A8DCB-DC74-4B3A-B1C6-046C9C4F458E}"
 EndProject

@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
-namespace System.CommandLine.CompletionSuggestions.Tests
+namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionDispatcherTests
     {
@@ -33,49 +33,12 @@ namespace System.CommandLine.CompletionSuggestions.Tests
         }
 
         [Fact]
-        public void InvokeAsync_with_missing_position_arg_throws()
-        {
-            Func<Task> action = async () =>
-                await InvokeAsync(
-                    $@"-e ""{GetDotnetPath()}"" ""testdotnet add"" -p".Tokenize().ToArray(),
-                    new TestSuggestionRegistration(GetDotnetSuggestionRegistration()));
-            action
-               .Should()
-               .Throw<TargetInvocationException>()
-               .Which
-               .InnerException
-               .Message
-               .Should()
-               .Be("Required argument missing for option: -p");
-        }
-
-        [Fact]
         public async Task InvokeAsync_with_unknown_suggestion_provider_returns_empty_string()
         {
             string[] args = @"-p 10 -e ""testcli.exe"" ""command op""".Tokenize().ToArray();
             (await InvokeAsync(args, new TestSuggestionRegistration()))
                 .Should()
                 .BeEmpty();
-        }
-
-        [Fact]
-        public void Command_suggestions_filename_that_does_not_exist_throws_exception()
-        {
-            string exeFileName = Path.GetFullPath("file_that_does_not_exist_name");
-
-            var provider = new TestSuggestionRegistration(new SuggestionRegistration(exeFileName, "missing complete command"));
-            var dispatcher = new SuggestionDispatcher(provider);
-
-            var args = $@"-p 12 -e ""{exeFileName}"" ""testdotnet add""".Tokenize().ToArray();
-
-            Func<Task> action = async () => await dispatcher.InvokeAsync(args);
-
-            action
-                .Should()
-                .Throw<TargetInvocationException>()
-                .WithInnerException<ArgumentException>("System.Diagnostics.Process is nuts.")
-                .Where(exception => exception.Message.Contains(
-                    $"Unable to find the file '{ exeFileName }'"));
         }
 
         [Fact]

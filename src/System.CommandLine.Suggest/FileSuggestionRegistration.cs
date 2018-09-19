@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace System.CommandLine.CompletionSuggestions
+namespace System.CommandLine.Suggest
 {
     public class FileSuggestionRegistration : ISuggestionRegistration
     {
@@ -18,7 +18,7 @@ namespace System.CommandLine.CompletionSuggestions
             {
                 _registrationConfigurationFilePath = Path.Combine(
                     Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                    "System.CommandLine.Completion.txt");
+                    "Registration.txt");
             }
             else
             {

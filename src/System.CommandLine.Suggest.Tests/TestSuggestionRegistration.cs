@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace System.CommandLine.CompletionSuggestions.Tests
+namespace System.CommandLine.Suggest.Tests
 {
     internal class TestSuggestionRegistration : ISuggestionRegistration
     {
