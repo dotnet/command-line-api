@@ -15,8 +15,8 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionDispatcherTests
     {
-        private static SuggestionRegistration GetDotnetSuggestionRegistration()
-            => new SuggestionRegistration(GetDotnetPath(), "testdotnet [suggest]");
+        private static RegistrationPair GetDotnetSuggestionRegistration()
+            => new RegistrationPair(GetDotnetPath(), "testdotnet [suggest]");
 
         private static string GetDotnetPath() => Path.GetFullPath("testdotnet");
 
@@ -43,7 +43,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
         {
-            var provider = new TestSuggestionRegistration(new SuggestionRegistration(GetDotnetPath(), $"testdotnet {Assembly.GetExecutingAssembly().Location}"));
+            var provider = new TestSuggestionRegistration(new RegistrationPair(GetDotnetPath(), $"testdotnet {Assembly.GetExecutingAssembly().Location}"));
             var dispatcher = new SuggestionDispatcher(provider, new TestSuggestionStore());
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
@@ -63,14 +63,14 @@ namespace System.CommandLine.Suggest.Tests
                 .IsOSPlatform(OSPlatform.Windows))
             {
                 testSuggestionProvider = new TestSuggestionRegistration(
-                    new SuggestionRegistration(@"C:\Program Files\dotnet\dotnet.exe","dotnet complete"),
-                    new SuggestionRegistration(@"C:\Program Files\himalayan-berry.exe","himalayan-berry spread"));
+                    new RegistrationPair(@"C:\Program Files\dotnet\dotnet.exe","dotnet complete"),
+                    new RegistrationPair(@"C:\Program Files\himalayan-berry.exe","himalayan-berry spread"));
             }
             else
             {
                 testSuggestionProvider = new TestSuggestionRegistration(
-                    new SuggestionRegistration(@"/bin/dotnet", "dotnet complete"),
-                    new SuggestionRegistration(@"/bin/himalayan-berry", "himalayan-berry spread"));
+                    new RegistrationPair(@"/bin/dotnet", "dotnet complete"),
+                    new RegistrationPair(@"/bin/himalayan-berry", "himalayan-berry spread"));
             }
 
             var dispatcher = new SuggestionDispatcher(testSuggestionProvider);
@@ -89,7 +89,7 @@ namespace System.CommandLine.Suggest.Tests
 
             await dispatcher.InvokeAsync("register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray());
 
-            SuggestionRegistration addedRegistration = provider.FindAllRegistrations().Single();
+            RegistrationPair addedRegistration = provider.FindAllRegistrations().Single();
             addedRegistration.CommandPath.Should().Be(@"C:\Windows\System32\net.exe");
             addedRegistration.SuggestionCommand.Should().Be("net-suggestions complete");
         }

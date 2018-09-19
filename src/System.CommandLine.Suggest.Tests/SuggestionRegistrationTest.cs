@@ -14,13 +14,13 @@ namespace System.CommandLine.Suggest.Tests
         {
             ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
 
-            var suggestion1 = new SuggestionRegistration("commandPath1", "suggestionCommand1");
-            var suggestion2 = new SuggestionRegistration("commandPath2", "suggestionCommand2");
+            var suggestion1 = new RegistrationPair("commandPath1", "suggestionCommand1");
+            var suggestion2 = new RegistrationPair("commandPath2", "suggestionCommand2");
 
             suggestionProvider.AddSuggestionRegistration(suggestion1);
             suggestionProvider.AddSuggestionRegistration(suggestion2);
 
-            IReadOnlyCollection<SuggestionRegistration> allRegistrations = suggestionProvider.FindAllRegistrations();
+            IReadOnlyCollection<RegistrationPair> allRegistrations = suggestionProvider.FindAllRegistrations();
             allRegistrations
                 .Should()
                 .HaveCount(2)
@@ -38,9 +38,9 @@ namespace System.CommandLine.Suggest.Tests
             ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
 
             suggestionProvider.AddSuggestionRegistration(
-                new SuggestionRegistration(Path.GetFullPath("commandPath"), "suggestionCommand"));
+                new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand"));
 
-            SuggestionRegistration registration = suggestionProvider.FindRegistration(new FileInfo("COMMANDPATH"));
+            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("COMMANDPATH"));
 
             registration.CommandPath.Should().Be(Path.GetFullPath("commandPath"));
             registration.SuggestionCommand.Should().Be("suggestionCommand");
@@ -52,12 +52,12 @@ namespace System.CommandLine.Suggest.Tests
             ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
 
             suggestionProvider.AddSuggestionRegistration(
-                new SuggestionRegistration(Path.GetFullPath("commandPath"), "suggestionCommand2"));
+                new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand2"));
 
             suggestionProvider.AddSuggestionRegistration(
-                new SuggestionRegistration(Path.GetFullPath("commandPath"), "suggestionCommand2"));
+                new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand2"));
 
-            SuggestionRegistration registration = suggestionProvider.FindRegistration(new FileInfo("commandPath"));
+            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("commandPath"));
 
             registration.CommandPath.Should().Be(Path.GetFullPath("commandPath"));
             registration.SuggestionCommand.Should().Be("suggestionCommand2");

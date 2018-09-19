@@ -66,7 +66,7 @@ namespace System.CommandLine.Suggest
             string suggestionCommand, 
             IConsole console)
         {
-            _suggestionRegistration.AddSuggestionRegistration(new SuggestionRegistration(commandPath, suggestionCommand));
+            _suggestionRegistration.AddSuggestionRegistration(new RegistrationPair(commandPath, suggestionCommand));
 
             console.Out.WriteLine($"Registered {commandPath} --> {suggestionCommand}");
         }
@@ -74,6 +74,7 @@ namespace System.CommandLine.Suggest
         private void GetSuggestions(ParseResult parseResult, IConsole console)
         {
             var commandPath = parseResult.ValueForOption<FileInfo>("-e");
+
 
             var suggestionRegistration =
                 _suggestionRegistration.FindRegistration(commandPath);

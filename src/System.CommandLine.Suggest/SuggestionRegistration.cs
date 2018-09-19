@@ -1,14 +1,14 @@
 namespace System.CommandLine.Suggest
 {
-    public class SuggestionRegistration
+    public class RegistrationPair
     {
-        public SuggestionRegistration(string commandPath, string suggestionCommand)
+        public RegistrationPair(string commandPath, string suggestionCommand)
         {
             CommandPath = commandPath ?? throw new ArgumentNullException(nameof(commandPath));
             SuggestionCommand = suggestionCommand ?? throw new ArgumentNullException(nameof(suggestionCommand));
         }
 
-        public SuggestionRegistration(string suggestionCompletionLine)
+        public RegistrationPair(string suggestionCompletionLine)
         {
             string[] keyValuePair = suggestionCompletionLine.Split(new[] { '=' }, 2);
             if (keyValuePair.Length < 2)
