@@ -49,6 +49,7 @@ namespace System.CommandLine.Suggest
                                 a => a.ParseArgumentsAs<string>())
                             .OnExecute<string, string>(RegisterCommand);
                     })
+                .AddVersionOption()
                 .TreatUnmatchedTokensAsErrors(false)
                 .Build();
         }
