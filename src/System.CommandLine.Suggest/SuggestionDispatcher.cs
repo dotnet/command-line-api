@@ -30,6 +30,8 @@ namespace System.CommandLine.Suggest
             _parser = new CommandLineBuilder()
                 .UseHelp()
                 .UseExceptionHandler()
+                .UseParseDirective()
+                .UseParseErrorReporting()
                 .AddCommand(CompletionAvailableCommands,
                     "list all completions available commands with space separated list",
                     cmd => cmd.OnExecute<IConsole>(c =>

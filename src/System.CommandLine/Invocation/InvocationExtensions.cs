@@ -6,6 +6,7 @@ using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
@@ -193,15 +194,18 @@ namespace System.CommandLine.Invocation
 
                         var dotnetSuggest = "dotnet-suggest";
 
+                        var output = new StringBuilder();
+
                         var dotnetSuggestProcess = Process.StartProcess(
                             command: dotnetSuggest,
-                            args: $"register --command-path \"{currentProcessFileNameWithoutExtension}\" --suggestion-command \"{currentProcessFileNameWithoutExtension} [suggest]\"");
+                            args: $"register --command-path \"{currentProcessFileNameWithoutExtension}\" --suggestion-command \"{currentProcessFileNameWithoutExtension} [suggest]\"",
+                            stdOut:value => output.Append(value));
 
                         await dotnetSuggestProcess.CompleteAsync();
 
                         File.WriteAllText(
                             sentinelFile.FullName,
-                            $"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}{Environment.NewLine}");
+                            $"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}{Environment.NewLine}{output}");
                     }
                     catch (Exception exception)
                     {

@@ -14,6 +14,7 @@ namespace System.CommandLine.Suggest
 
         public FileSuggestionRegistration(string registrationsConfigurationFilePath = null)
         {
+
             if (string.IsNullOrWhiteSpace(registrationsConfigurationFilePath))
             {
                 _registrationConfigurationFilePath = Path.Combine(
@@ -24,10 +25,14 @@ namespace System.CommandLine.Suggest
             {
                 _registrationConfigurationFilePath = registrationsConfigurationFilePath;
             }
+
+            Console.WriteLine($"_registrationConfigurationFilePath: {_registrationConfigurationFilePath}");
         }
 
         public SuggestionRegistration FindRegistration(FileInfo soughtExecutable)
         {
+            Console.WriteLine($"soughtExecutable: {soughtExecutable}");
+
             if (soughtExecutable == null)
             {
                 return null;

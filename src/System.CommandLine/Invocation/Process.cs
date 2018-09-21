@@ -6,6 +6,21 @@ namespace System.CommandLine.Invocation
 {
     public static class Process
     {
+        public static async Task<int> ExecuteAsync(
+            string command,
+            string args,
+            string workingDir = null,
+            Action<string> stdOut = null,
+            Action<string> stdErr = null,
+            params (string key, string value)[] environmentVariables)
+        {
+            var process = StartProcess(command,
+                                       args,
+                                       workingDir, stdOut, stdErr, environmentVariables);
+
+            return await process.CompleteAsync();
+        }
+
         public static async Task<(int exitCode, string stdOut, string stdErr)> ExecuteAsync(
             string command,
             string args,

@@ -35,32 +35,32 @@
 
       <PropertyGroup>
         <TestAssetsPath>
-          $([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssetsPath
+          $([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssets
         </TestAssetsPath>
       </PropertyGroup>
 
       <MSBuild BuildInParallel="False" 
                Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj" 
                Targets="Restore" 
-               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;ForceRestoreToEvaluateSeparately=1">
+               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;ForceRestoreToEvaluateSeparately=1;Configuration=Release">
       </MSBuild>
 
       <MSBuild BuildInParallel="False" 
                Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj"
                Targets="Build;Publish"
-               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;PublishDir=$(TestAssetsPath)">
+               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;PublishDir=$(TestAssetsPath);Configuration=Release">
       </MSBuild>
       
       <MSBuild BuildInParallel="False" 
                Projects="EndToEndTestApp/EndToEndTestApp.csproj" 
                Targets="Restore" 
-               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;ForceRestoreToEvaluateSeparately=1">
+               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;ForceRestoreToEvaluateSeparately=1;Configuration=Release">
       </MSBuild>
 
       <MSBuild BuildInParallel="False" 
                Projects="EndToEndTestApp/EndToEndTestApp.csproj" 
                Targets="Build;Publish" 
-               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;PublishDir=$(TestAssetsPath)">
+               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;PublishDir=$(TestAssetsPath);Configuration=Release">
       </MSBuild>
   
     </Target>
