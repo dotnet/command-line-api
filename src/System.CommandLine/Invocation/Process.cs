@@ -6,9 +6,10 @@ namespace System.CommandLine.Invocation
 {
     public static class Process
     {
-        public static async Task<int> ExecuteAsync(
+        public static async Task<(int exitCode, string stdOut, string stdErr)> ExecuteAsync(
             string command,
             string args,
+            string workingDir = null,
             CancellationToken? cancellationToken = null)
         {
             args = args ?? "";
@@ -19,10 +20,15 @@ namespace System.CommandLine.Invocation
             using (var process = StartProcess(
                 command,
                 args,
+                workingDir,
                 stdOut: data => stdOut.AppendLine(data),
                 stdErr: data => stdErr.AppendLine(data)))
             {
-                return await process.CompleteAsync(cancellationToken);
+                return (
+                    await process.CompleteAsync(cancellationToken),
+                    stdOut.ToString(),
+                    stdErr.ToString()
+                );
             }
         }
 
@@ -39,6 +45,7 @@ namespace System.CommandLine.Invocation
         public static Diagnostics.Process StartProcess(
             string command,
             string args,
+            string workingDir = null,
             Action<string> stdOut = null,
             Action<string> stdErr = null,
             params (string key, string value)[] environmentVariables)
@@ -56,6 +63,11 @@ namespace System.CommandLine.Invocation
                     RedirectStandardInput = true
                 }
             };
+
+            if (!string.IsNullOrWhiteSpace(workingDir))
+            {
+                process.StartInfo.WorkingDirectory = workingDir;
+            }
 
             if (environmentVariables?.Length > 0)
             {

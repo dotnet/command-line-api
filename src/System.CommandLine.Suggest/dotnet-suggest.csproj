@@ -8,6 +8,12 @@
     <Version>1.0.1</Version>
     <ToolCommandName>dotnet-suggest</ToolCommandName>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <UseAppHost>true</UseAppHost>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
 
   <PropertyGroup>
     <LangVersion>latest</LangVersion>

@@ -2,9 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <StartupObject>System.CommandLine.Suggest.Tests.Program</StartupObject>
   </PropertyGroup>
 
@@ -12,9 +10,15 @@
     <Compile Remove="TestResults\**" />
     <EmbeddedResource Remove="TestResults\**" />
     <None Remove="TestResults\**" />
+    
+    <Compile Remove="EndToEndTestApp/**" />
+    <Content Remove="EndToEndTestApp/**" />
+    <EmbeddedResource Remove="EndToEndTestApp/**" />
+    <None Remove="EndToEndTestApp/**" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.NETCore.App" Version="2.1.2" />
     <PackageReference Include="FluentAssertions" Version="5.3.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
     <PackageReference Include="xunit" Version="2.3.0" />
@@ -26,5 +30,39 @@
     <ProjectReference Include="..\System.CommandLine.Suggest\dotnet-suggest.csproj" />
     <ProjectReference Include="..\System.CommandLine.Tests\System.CommandLine.Tests.csproj" />
   </ItemGroup>
+
+  <Target Name="DotnetSuggestIntegrationTestAssets" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
+
+      <PropertyGroup>
+        <TestAssetsPath>
+          $([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssetsPath
+        </TestAssetsPath>
+      </PropertyGroup>
+
+      <MSBuild BuildInParallel="False" 
+               Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj" 
+               Targets="Restore" 
+               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;ForceRestoreToEvaluateSeparately=1">
+      </MSBuild>
+
+      <MSBuild BuildInParallel="False" 
+               Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj"
+               Targets="Build;Publish"
+               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;PublishDir=$(TestAssetsPath)">
+      </MSBuild>
+      
+      <MSBuild BuildInParallel="False" 
+               Projects="EndToEndTestApp/EndToEndTestApp.csproj" 
+               Targets="Restore" 
+               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;ForceRestoreToEvaluateSeparately=1">
+      </MSBuild>
+
+      <MSBuild BuildInParallel="False" 
+               Projects="EndToEndTestApp/EndToEndTestApp.csproj" 
+               Targets="Build;Publish" 
+               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=win-x64;PublishDir=$(TestAssetsPath)">
+      </MSBuild>
+  
+    </Target>
 
 </Project>
