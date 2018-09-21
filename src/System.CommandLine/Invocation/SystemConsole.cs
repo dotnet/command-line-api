@@ -30,7 +30,10 @@ namespace System.CommandLine.Invocation
 
         public void ResetColor() => Console.ResetColor();
 
-        public Region GetRegion() => EntireConsoleRegion.Instance;
+        public Region GetRegion() => 
+            IsOutputRedirected 
+                ? new Region(0, 0, int.MaxValue, int.MaxValue, false)
+                : EntireConsoleRegion.Instance;
 
         public int CursorLeft
         {

@@ -53,7 +53,7 @@ namespace System.CommandLine.Suggest.Tests
 
             var (exitCode, stdOut, stdErr) = await Process.ExecuteAsync(
                                                  _dotnetSuggest.FullName,
-                                                 $"list -e EndToEndTestApp");
+                                                 $"-e \"{_endToEndTestApp.FullName}\" -p 0 a");
 
             stdOut.Should().Be($"--apple{Environment.NewLine}--banana{Environment.NewLine}--durian{Environment.NewLine}");
         }

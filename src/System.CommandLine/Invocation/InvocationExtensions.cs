@@ -198,7 +198,7 @@ namespace System.CommandLine.Invocation
 
                         var dotnetSuggestProcess = Process.StartProcess(
                             command: dotnetSuggest,
-                            args: $"register --command-path \"{currentProcessFileNameWithoutExtension}\" --suggestion-command \"{currentProcessFileNameWithoutExtension} [suggest]\"",
+                            args: $"register --command-path \"{currentProcessFullPath}\" --suggestion-command \"{currentProcessFileNameWithoutExtension} [suggest]\"",
                             stdOut:value => output.Append(value));
 
                         await dotnetSuggestProcess.CompleteAsync();
