@@ -222,7 +222,7 @@ namespace System.CommandLine.Invocation
                 }
 
                 await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            }, CommandLineBuilder.MiddlewareOrder.Configuration);
 
             return builder;
         }

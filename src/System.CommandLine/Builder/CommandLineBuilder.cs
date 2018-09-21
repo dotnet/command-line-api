@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -66,8 +66,9 @@ namespace System.CommandLine.Builder
         internal static class MiddlewareOrder
         {
             public const int ExceptionHandler = int.MinValue;
-            public const int Preprocessing = ExceptionHandler + 1;
-            public const int AfterPreprocessing = Preprocessing + 1;
+            public const int Configuration = ExceptionHandler + 100;
+            public const int Preprocessing = Configuration + 100;
+            public const int AfterPreprocessing = Preprocessing + 100;
             public const int Middle = 0;
         }
     }
