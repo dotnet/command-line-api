@@ -31,7 +31,6 @@ namespace System.CommandLine.Suggest
                 .UseHelp()
                 .UseExceptionHandler()
                 .UseParseDirective()
-                .UseParseErrorReporting()
                 .AddCommand(CompletionAvailableCommands,
                     "list all completions available commands with space separated list",
                     cmd => cmd.OnExecute<IConsole>(c =>
@@ -82,7 +81,7 @@ namespace System.CommandLine.Suggest
             string suggestions = _suggestionStore.GetSuggestions(suggestionRegistration.CommandPath, targetArgs, Timeout);
             if (!string.IsNullOrWhiteSpace(suggestions))
             {
-                console.Out.WriteLine(suggestions);
+                console.Out.Write(suggestions);
             }
         }
 
