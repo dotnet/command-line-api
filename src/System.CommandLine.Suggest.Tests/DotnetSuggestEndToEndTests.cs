@@ -26,7 +26,7 @@ namespace System.CommandLine.Suggest.Tests
             _output = output;
 
             // delete sentinel files for EndToEndTestApp in order to trigger registration when it's run
-            var sentinelsDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "dotnet-suggest-sentinel-files"));
+            var sentinelsDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "system-commandline-sentinel-files"));
 
             if (sentinelsDir.Exists)
             {

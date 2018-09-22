@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Environment;
 
 namespace System.CommandLine.Invocation
 {
@@ -164,62 +165,38 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        private static readonly Lazy<FileInfo> _dotnetSuggestRegistrationSentinel =
-            new Lazy<FileInfo>(() =>
-                                   new FileInfo(
-                                       Path.Combine(
-                                           Path.GetTempPath(),
-                                           "dotnet-suggest-sentinel-files",
-                                           Assembly.GetEntryAssembly().FullName)));
-
         public static CommandLineBuilder RegisterWithDotnetSuggest(
             this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                var sentinelFile = _dotnetSuggestRegistrationSentinel.Value;
+                var feature = new FeatureRegistration("dotnet-suggest-registration");
 
-                if (!sentinelFile.Exists)
+                await feature.EnsureRegistered(async () =>
                 {
-                    if (!sentinelFile.Directory.Exists)
-                    {
-                        sentinelFile.Directory.Create();
-                    }
-
                     try
                     {
-                        var currentProcess = Diagnostics.Process.GetCurrentProcess();
-                        var currentProcessFullPath = currentProcess.MainModule.FileName;
+                        var currentProcessFullPath = Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
                         var currentProcessFileNameWithoutExtension = Path.GetFileNameWithoutExtension(currentProcessFullPath);
 
-                        var dotnetSuggest = "dotnet-suggest";
-
-                        var output = new StringBuilder();
+                        var stdOut = new StringBuilder();
+                        var stdErr = new StringBuilder();
 
                         var dotnetSuggestProcess = Process.StartProcess(
-                            command: dotnetSuggest,
+                            command: "dotnet-suggest",
                             args: $"register --command-path \"{currentProcessFullPath}\" --suggestion-command \"{currentProcessFileNameWithoutExtension} [suggest]\"",
-                            stdOut:value => output.Append(value));
+                            stdOut: value => stdOut.Append(value),
+                            stdErr: value => stdOut.Append(value));
 
                         await dotnetSuggestProcess.CompleteAsync();
 
-                        File.WriteAllText(
-                            sentinelFile.FullName,
-                            $"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}{Environment.NewLine}{output}");
+                        return $"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}{NewLine}OUT:{stdOut}{NewLine}ERR:{stdErr}";
                     }
                     catch (Exception exception)
                     {
-                        try
-                        {
-                            File.WriteAllText(
-                                sentinelFile.FullName,
-                                $"Exception during registration:{Environment.NewLine}{exception}");
-                        }
-                        catch (Exception)
-                        {
-                        }
+                        return $"Exception during registration:{NewLine}{exception}";
                     }
-                }
+                });
 
                 await next(context);
             }, CommandLineBuilder.MiddlewareOrder.Configuration);
