@@ -19,6 +19,7 @@ namespace System.CommandLine.Suggest.Tests
         private readonly FileInfo _endToEndTestApp;
         private readonly FileInfo _dotnetSuggest;
         private readonly (string, string) _environmentVariables;
+        private readonly DirectoryInfo _dotnetHostDir = DotnetMuxer.Path.Directory;
 
         public DotnetSuggestEndToEndTests(ITestOutputHelper output)
         {
@@ -49,7 +50,9 @@ namespace System.CommandLine.Suggest.Tests
                              .GetFiles("dotnet-suggest".ExecutableName())
                              .SingleOrDefault();
 
-            _environmentVariables = ("DOTNET_ROOT", DotnetMuxer.Path.DirectoryName);
+            _output.WriteLine($"dotnetHostDir = {_dotnetHostDir.FullName}");
+
+            _environmentVariables = ("DOTNET_ROOT", _dotnetHostDir.FullName);
         }
 
         [ReleaseBuildOnlyFact]
