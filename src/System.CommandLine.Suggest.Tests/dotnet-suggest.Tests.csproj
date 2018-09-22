@@ -43,7 +43,7 @@
       </PropertyGroup>
 
       <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-        <Rid>linux-x64</Rid>
+        <Rid>ubuntu-x64</Rid>
       </PropertyGroup>
 
       <MSBuild BuildInParallel="False" 
