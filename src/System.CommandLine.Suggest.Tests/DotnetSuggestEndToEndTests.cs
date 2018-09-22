@@ -79,7 +79,8 @@ namespace System.CommandLine.Suggest.Tests
                 _endToEndTestApp.FullName,
                 "-h",
                 stdOut: s => _output.WriteLine(s),
-                stdErr: s => _output.WriteLine(s));
+                stdErr: s => _output.WriteLine(s),
+                environmentVariables: _environmentVariables);
 
             var stdOut = new StringBuilder();
             var stdErr = new StringBuilder();
