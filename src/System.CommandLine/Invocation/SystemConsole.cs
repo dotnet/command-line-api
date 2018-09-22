@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Rendering;
@@ -30,7 +30,10 @@ namespace System.CommandLine.Invocation
 
         public void ResetColor() => Console.ResetColor();
 
-        public Region GetRegion() => EntireConsoleRegion.Instance;
+        public Region GetRegion() => 
+            IsOutputRedirected 
+                ? new Region(0, 0, int.MaxValue, int.MaxValue, false)
+                : EntireConsoleRegion.Instance;
 
         public int CursorLeft
         {

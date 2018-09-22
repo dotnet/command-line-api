@@ -1,16 +1,14 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Environment;
 
 namespace System.CommandLine.Invocation
 {
@@ -167,71 +165,42 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
-        public static CommandLineBuilder RegisterDirective(
-            this CommandLineBuilder builder, Func<ProcessStartInfo, int> ProcessStart = null)
-        {
-            if (ProcessStart == null)
-            {
-                ProcessStart = (p) => 
-                { 
-                    var process = Process.Start(p);
-                    process.WaitForExit();
-                    return process.ExitCode; 
-                };
-            }
-
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Tokens.FirstOrDefault() == "[register]")
-                {
-                    Process process = Process.GetCurrentProcess();
-                    var processPath = process.MainModule.FileName;
-                    try
-                    {
-                        var processInfo = RegistrationProcessInfoMaker.GetProcessStartInfoForRegistration(processPath);
-                        var exitCode = ProcessStart(processInfo);
-                        if (exitCode != 0)
-                        {
-                            context.Console.Error.WriteLine($"Failed to register with dotnet-suggest. Return code {exitCode}. For location {processPath}");
-                            context.ResultCode = 1;
-                        }
-                    }
-                    catch (Win32Exception e)
-                    {
-                        context.Console.Error.WriteLine($"Unable to register dotnet-suggest. It may not be installed. Exception: {e.ToString()}");
-                        context.ResultCode = 1;
-                    }
-                }
-
-                await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
-            return builder;
-        }
-
         public static CommandLineBuilder RegisterWithDotnetSuggest(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) => {
-                var sentinelFile = Path.Combine(Path.GetTempPath(), "system.commandline-sentinel-files", Assembly.GetEntryAssembly().FullName);
-                Process process = Process.GetCurrentProcess();
-                var processPath = process.MainModule.FileName;
-                Directory.CreateDirectory(Path.GetDirectoryName(sentinelFile));
-                if (!File.Exists(sentinelFile))
+            builder.AddMiddleware(async (context, next) =>
+            {
+                var feature = new FeatureRegistration("dotnet-suggest-registration");
+
+                await feature.EnsureRegistered(async () =>
                 {
-                    try 
+                    try
                     {
-                        var processInfo = RegistrationProcessInfoMaker.GetProcessStartInfoForRegistration(processPath);
-                        Process.Start(processInfo).WaitForExit();
+                        var currentProcessFullPath = Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+                        var currentProcessFileNameWithoutExtension = Path.GetFileNameWithoutExtension(currentProcessFullPath);
+
+                        var stdOut = new StringBuilder();
+                        var stdErr = new StringBuilder();
+
+                        var dotnetSuggestProcess = Process.StartProcess(
+                            command: "dotnet-suggest",
+                            args: $"register --command-path \"{currentProcessFullPath}\" --suggestion-command \"{currentProcessFileNameWithoutExtension} [suggest]\"",
+                            stdOut: value => stdOut.Append(value),
+                            stdErr: value => stdOut.Append(value));
+
+                        await dotnetSuggestProcess.CompleteAsync();
+
+                        return $"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}{NewLine}OUT:{stdOut}{NewLine}ERR:{stdErr}";
                     }
-                    catch (Win32Exception)
-                    {}
-                    finally
-                    { 
-                        File.Create(sentinelFile);
+                    catch (Exception exception)
+                    {
+                        return $"Exception during registration:{NewLine}{exception}";
                     }
-                }
-                 await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+                });
+
+                await next(context);
+            }, CommandLineBuilder.MiddlewareOrder.Configuration);
+
             return builder;
         }
 

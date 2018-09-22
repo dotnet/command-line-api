@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -14,6 +14,7 @@ namespace System.CommandLine.Suggest
 
         public FileSuggestionRegistration(string registrationsConfigurationFilePath = null)
         {
+
             if (string.IsNullOrWhiteSpace(registrationsConfigurationFilePath))
             {
                 _registrationConfigurationFilePath = Path.Combine(
@@ -41,13 +42,13 @@ namespace System.CommandLine.Suggest
             string completionTarget = File.ReadAllLines(_registrationConfigurationFilePath).LastOrDefault(line =>
                 line.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase));
 
-            if (completionTarget != null)
+            if (completionTarget == null)
             {
-                return new SuggestionRegistration(completionTarget);
+                // Completion provider not found!
+                return null;
             }
 
-            // Completion provider not found!
-            return null;
+            return new SuggestionRegistration(completionTarget);
         }
 
         public IReadOnlyCollection<SuggestionRegistration> FindAllRegistrations()

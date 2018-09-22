@@ -8,7 +8,7 @@
     <Version>1.0.1</Version>
     <ToolCommandName>dotnet-suggest</ToolCommandName>
   </PropertyGroup>
-
+  
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
