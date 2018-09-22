@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,35 +18,12 @@ namespace System.CommandLine.Invocation
         {
             var process = StartProcess(command,
                                        args,
-                                       workingDir, stdOut, stdErr, environmentVariables);
+                                       workingDir,
+                                       stdOut,
+                                       stdErr,
+                                       environmentVariables);
 
             return await process.CompleteAsync();
-        }
-
-        public static async Task<(int exitCode, string stdOut, string stdErr)> ExecuteAsync(
-            string command,
-            string args,
-            string workingDir = null,
-            CancellationToken? cancellationToken = null)
-        {
-            args = args ?? "";
-
-            var stdOut = new StringBuilder();
-            var stdErr = new StringBuilder();
-
-            using (var process = StartProcess(
-                command,
-                args,
-                workingDir,
-                stdOut: data => stdOut.AppendLine(data),
-                stdErr: data => stdErr.AppendLine(data)))
-            {
-                return (
-                    await process.CompleteAsync(cancellationToken),
-                    stdOut.ToString(),
-                    stdErr.ToString()
-                );
-            }
         }
 
         public static async Task<int> CompleteAsync(

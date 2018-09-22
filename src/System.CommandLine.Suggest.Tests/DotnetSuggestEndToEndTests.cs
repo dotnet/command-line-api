@@ -6,6 +6,7 @@ using System.CommandLine.Tests;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
@@ -16,6 +17,7 @@ namespace System.CommandLine.Suggest.Tests
         private readonly ITestOutputHelper _output;
         private readonly FileInfo _endToEndTestApp;
         private readonly FileInfo _dotnetSuggest;
+        private readonly (string, string) _environmentVariables;
 
         public DotnetSuggestEndToEndTests(ITestOutputHelper output)
         {
@@ -39,16 +41,24 @@ namespace System.CommandLine.Suggest.Tests
             _dotnetSuggest = new DirectoryInfo(currentDirectory)
                              .GetFiles("dotnet-suggest".ExecutableName())
                              .SingleOrDefault();
+
+            _environmentVariables = ("DOTNET_ROOT", DotnetMuxer.Path.DirectoryName);
         }
 
         [ReleaseBuildOnlyFact]
         public async Task Test_app_supplies_completions()
         {
-            var (exitCode, stdOut, stdErr) = await Process.ExecuteAsync(
-                                                 _endToEndTestApp.FullName,
-                                                 "[suggest] a");
+            var stdOut = new StringBuilder();
 
-            stdOut.Should().Be($"--apple{Environment.NewLine}--banana{Environment.NewLine}--durian{Environment.NewLine}");
+            await Process.ExecuteAsync(
+                _endToEndTestApp.FullName,
+                "[suggest] a",
+                stdOut: value => stdOut.AppendLine(value),
+                environmentVariables: _environmentVariables);
+
+            stdOut.ToString()
+                  .Should()
+                  .Be($"--apple{Environment.NewLine}--banana{Environment.NewLine}--durian{Environment.NewLine}");
         }
 
         [ReleaseBuildOnlyFact]
@@ -62,13 +72,22 @@ namespace System.CommandLine.Suggest.Tests
              stdErr: s => _output.WriteLine(s)
             );
 
-            var (exitCode, stdOut, stdErr) = await Process.ExecuteAsync(
-                                                 _dotnetSuggest.FullName,
-                                                 $"get -e \"{_endToEndTestApp.FullName}\" -p 0 -- a");
+            var stdOut = new StringBuilder();
+            var stdErr = new StringBuilder();
 
-            stdErr.Should().BeEmpty();
+            await Process.ExecuteAsync(
+                _dotnetSuggest.FullName,
+                $"get -e \"{_endToEndTestApp.FullName}\" -p 0 -- a",
+                stdOut: value => stdOut.AppendLine(value),
+                stdErr: value => stdErr.AppendLine(value),
+                environmentVariables: _environmentVariables);
 
-            stdOut.Should()
+            stdErr.ToString()
+                  .Should()
+                  .BeEmpty();
+
+            stdOut.ToString()
+                  .Should()
                   .Be($"--apple{Environment.NewLine}--banana{Environment.NewLine}--durian{Environment.NewLine}");
         }
     }
