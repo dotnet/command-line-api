@@ -22,7 +22,7 @@ namespace System.CommandLine.Suggest.Tests
             _output = output;
 
             // delete sentinel files for EndToEndTestApp in order to trigger registration when it's run
-            var sentinels = Directory.GetFiles(Path.GetTempPath(), "*EndToEndTestApp*");
+            var sentinels = Directory.GetFiles(Path.Combine(Path.GetTempPath(), "dotnet-suggest-sentinel-files"), "*EndToEndTestApp*");
             foreach (var sentinel in sentinels)
             {
                 File.Delete(sentinel);
@@ -64,9 +64,12 @@ namespace System.CommandLine.Suggest.Tests
 
             var (exitCode, stdOut, stdErr) = await Process.ExecuteAsync(
                                                  _dotnetSuggest.FullName,
-                                                 $"-e \"{_endToEndTestApp.FullName}\" -p 0 a");
+                                                 $"get -e \"{_endToEndTestApp.FullName}\" -p 0 -- a");
 
-            stdOut.Should().Be($"--apple{Environment.NewLine}--banana{Environment.NewLine}--durian{Environment.NewLine}");
+            stdErr.Should().BeEmpty();
+
+            stdOut.Should()
+                  .Be($"--apple{Environment.NewLine}--banana{Environment.NewLine}--durian{Environment.NewLine}");
         }
     }
 }

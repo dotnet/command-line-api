@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.Tests;
 using System.IO;
 using System.Linq;
@@ -24,7 +23,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task InvokeAsync_executes_completion_command_for_executable()
         {
-            string[] args = $@"-p 12 -e ""{GetDotnetPath()}"" ""testdotnet add""".Tokenize().ToArray();
+            string[] args = $@"get -p 12 -e ""{GetDotnetPath()}"" -- testdotnet add".Tokenize().ToArray();
 
             (await InvokeAsync(args, new TestSuggestionRegistration(GetDotnetSuggestionRegistration())))
                     .Should()
@@ -35,7 +34,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task InvokeAsync_with_unknown_suggestion_provider_returns_empty_string()
         {
-            string[] args = @"-p 10 -e ""testcli.exe"" ""command op""".Tokenize().ToArray();
+            string[] args = @"get -p 10 -e ""testcli.exe"" -- command op".Tokenize().ToArray();
             (await InvokeAsync(args, new TestSuggestionRegistration()))
                 .Should()
                 .BeEmpty();
@@ -49,7 +48,7 @@ namespace System.CommandLine.Suggest.Tests
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
 
-            var args = $@"-p 0 -e ""testdotnet"" ""testdotnet add""".Tokenize().ToArray();
+            var args = $@"get -p 0 -e ""testdotnet"" -- testdotnet add".Tokenize().ToArray();
 
             await dispatcher.InvokeAsync(args, testConsole);
 
