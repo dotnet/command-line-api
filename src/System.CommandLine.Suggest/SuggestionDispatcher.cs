@@ -52,7 +52,7 @@ namespace System.CommandLine.Suggest
                                                     a => a.ParseArgumentsAs<string>())
                                          .AddOption("--suggestion-command", "The command to invoke to retrieve suggestions",
                                                     a => a.ParseArgumentsAs<string>())
-                                         .OnExecute<string, string>(RegisterCommand);
+                                         .OnExecute<string, string, IConsole>(RegisterCommand);
                                   })
                       .AddVersionOption()
                       .Build();
@@ -61,9 +61,14 @@ namespace System.CommandLine.Suggest
         public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
             _parser.InvokeAsync(args, console);
 
-        private void RegisterCommand(string commandPath, string suggestionCommand)
+        private void RegisterCommand(
+            string commandPath, 
+            string suggestionCommand, 
+            IConsole console)
         {
             _suggestionRegistration.AddSuggestionRegistration(new SuggestionRegistration(commandPath, suggestionCommand));
+
+            console.Out.WriteLine($"Registered {commandPath} --> {suggestionCommand}");
         }
 
         private void GetSuggestions(ParseResult parseResult, IConsole console)
