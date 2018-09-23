@@ -190,7 +190,7 @@ namespace System.CommandLine.Invocation
 
                         await dotnetSuggestProcess.CompleteAsync();
 
-                        return $"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}{NewLine}OUT:{stdOut}{NewLine}ERR:{stdErr}";
+                        return $"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}{NewLine}OUT:{NewLine}{stdOut}{NewLine}ERR:{NewLine}{stdErr}";
                     }
                     catch (Exception exception)
                     {
