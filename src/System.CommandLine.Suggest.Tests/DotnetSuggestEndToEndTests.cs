@@ -50,8 +50,6 @@ namespace System.CommandLine.Suggest.Tests
                              .GetFiles("dotnet-suggest".ExecutableName())
                              .SingleOrDefault();
 
-            _output.WriteLine($"dotnetHostDir = {_dotnetHostDir.FullName}");
-
             _environmentVariables = ("DOTNET_ROOT", _dotnetHostDir.FullName);
         }
 
