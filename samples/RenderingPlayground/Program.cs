@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.CommandLine;
 using System.CommandLine.Rendering;
 using System.Diagnostics;
@@ -34,76 +34,67 @@ namespace RenderingPlayground
             IConsole console = null)
 #pragma warning restore CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
         {
-            VirtualTerminalMode vt = null;
+            var region = new Region(left,
+                                    top,
+                                    width ?? Console.WindowWidth,
+                                    height ?? Console.WindowHeight,
+                                    overwrite);
 
-            try
+            if (virtualTerminalMode)
             {
-                var region = new Region(left,
-                                        top,
-                                        width ?? Console.WindowWidth,
-                                        height ?? Console.WindowHeight,
-                                        overwrite);
+                console.TryEnableVirtualTerminal();
 
-                if (virtualTerminalMode)
+                // TODO: (Main) implement this in the core
+                if (overwrite && !console.IsOutputRedirected)
                 {
-                    console.TryEnableVirtualTerminal();
-
-                    // TODO: (Main) implement this in the core
-                    if (overwrite && !console.IsOutputRedirected)
-                    {
-                        console.Clear();
-                    }
-                }
-
-                var writer = new ConsoleRenderer(mode: outputMode);
-
-                switch (sample)
-                {
-                    case "colors":
-                        new ColorsView(writer, region).Render(text ?? "*");
-                        break;
-
-                    case "dir":
-                        new DirectoryTableView(writer, region)
-                            .Render(new DirectoryInfo(Directory.GetCurrentDirectory()));
-                        break;
-
-                    case "moby":
-                        writer.RenderToRegion(
-                            $"Call me {StyleSpan.BoldOn}{StyleSpan.UnderlinedOn}Ishmael{StyleSpan.UnderlinedOff}{StyleSpan.BoldOff}. Some years ago -- never mind how long precisely -- having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and {ForegroundColorSpan.Rgb(60, 0, 0)}methodically{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(90, 0, 0)}knocking{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(120, 0, 0)}people's{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(160, 0, 0)}hats{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(220, 0, 0)}off{ForegroundColorSpan.Reset} then, I account it high time to get to sea as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the ship. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the ocean with me.",
-                            region);
-                        break;
-
-                    case "processes":
-                        new ProcessesView(writer, region)
-                            .Render(Process.GetProcesses());
-                        break;
-
-                    default:
-                        if (!string.IsNullOrWhiteSpace(text))
-                        {
-                            writer.RenderToRegion(
-                                text,
-                                region);
-                        }
-                        else
-                        {
-                            writer.RenderToRegion(
-                                $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
-                                region);
-                        }
-
-                        break;
-                }
-
-                if (!Console.IsOutputRedirected)
-                {
-                    Console.ReadKey();
+                    console.Clear();
                 }
             }
-            finally
+
+            var writer = new ConsoleRenderer(mode: outputMode);
+
+            switch (sample)
             {
-                vt?.Dispose();
+                case "colors":
+                    new ColorsView(writer, region).Render(text ?? "*");
+                    break;
+
+                case "dir":
+                    new DirectoryTableView(writer, region)
+                        .Render(new DirectoryInfo(Directory.GetCurrentDirectory()));
+                    break;
+
+                case "moby":
+                    writer.RenderToRegion(
+                        $"Call me {StyleSpan.BoldOn}{StyleSpan.UnderlinedOn}Ishmael{StyleSpan.UnderlinedOff}{StyleSpan.BoldOff}. Some years ago -- never mind how long precisely -- having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and {ForegroundColorSpan.Rgb(60, 0, 0)}methodically{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(90, 0, 0)}knocking{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(120, 0, 0)}people's{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(160, 0, 0)}hats{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(220, 0, 0)}off{ForegroundColorSpan.Reset} then, I account it high time to get to sea as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the ship. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the ocean with me.",
+                        region);
+                    break;
+
+                case "processes":
+                    new ProcessesView(writer, region)
+                        .Render(Process.GetProcesses());
+                    break;
+
+                default:
+                    if (!string.IsNullOrWhiteSpace(text))
+                    {
+                        writer.RenderToRegion(
+                            text,
+                            region);
+                    }
+                    else
+                    {
+                        writer.RenderToRegion(
+                            $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
+                            region);
+                    }
+
+                    break;
+            }
+
+            if (!Console.IsOutputRedirected)
+            {
+                Console.ReadKey();
             }
         }
     }
