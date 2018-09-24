@@ -4,7 +4,7 @@ namespace System.CommandLine.Rendering.Views
     {
         public event EventHandler Updated;
 
-        public abstract void Render(Region region, IRenderer renderer);
+        public abstract void Render(IRenderer renderer, Region region);
 
         public abstract Size Measure(IRenderer renderer, Size maxSize);
 

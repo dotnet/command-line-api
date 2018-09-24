@@ -14,7 +14,7 @@ namespace System.CommandLine.Rendering.Views
 
         public Orientation Orientation { get; }
 
-        public override void Render(Region region, IRenderer renderer)
+        public override void Render(IRenderer renderer, Region region)
         {
             switch (Orientation)
             {
@@ -42,7 +42,7 @@ namespace System.CommandLine.Rendering.Views
                 var size = child.Measure(renderer, new Size(region.Width, height));
                 int renderHeight = Math.Min(height, size.Height);
                 var r = new Region(left, top, size.Width, renderHeight);
-                child.Render(r, renderer);
+                child.Render(renderer, r);
                 top += size.Height;
                 height -= renderHeight;
             }
@@ -62,7 +62,7 @@ namespace System.CommandLine.Rendering.Views
                 }
                 var size = child.Measure(renderer, new Size(width, region.Height));
                 var r = new Region(left, top, width, size.Height);
-                child.Render(r, renderer);
+                child.Render(renderer, r);
                 left += size.Width;
                 width -= size.Width;
             }

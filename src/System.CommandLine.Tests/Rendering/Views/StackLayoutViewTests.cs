@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests.Rendering.Views
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
-            stackLayout.Render(new Region(0, 0, 10, 2), renderer);
+            stackLayout.Render(renderer, new Region(0, 0, 10, 2));
 
             console.Events.Should().BeEquivalentTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
@@ -41,7 +41,7 @@ namespace System.CommandLine.Tests.Rendering.Views
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
-            stackLayout.Render(new Region(0, 0, 10, 1), renderer);
+            stackLayout.Render(renderer, new Region(0, 0, 10, 1));
 
             console.Events.Should().BeEquivalentTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
@@ -60,7 +60,7 @@ namespace System.CommandLine.Tests.Rendering.Views
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
-            stackLayout.Render(new Region(0, 0, 5, 4), renderer);
+            stackLayout.Render(renderer, new Region(0, 0, 5, 4));
 
             console.Events.Should().BeEquivalentTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
@@ -86,7 +86,7 @@ namespace System.CommandLine.Tests.Rendering.Views
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
-            stackLayout.Render(new Region(0, 0, 18, 1), renderer);
+            stackLayout.Render(renderer, new Region(0, 0, 18, 1));
 
             console.Events.Should().BeEquivalentTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
@@ -107,7 +107,7 @@ namespace System.CommandLine.Tests.Rendering.Views
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
-            stackLayout.Render(new Region(0, 0, 16, 1), renderer);
+            stackLayout.Render(renderer, new Region(0, 0, 16, 1));
 
             console.Events.Should().BeEquivalentTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
@@ -128,7 +128,7 @@ namespace System.CommandLine.Tests.Rendering.Views
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
-            stackLayout.Render(new Region(0, 0, 14, 2), renderer);
+            stackLayout.Render(renderer, new Region(0, 0, 14, 2));
 
             console.Events.Should().BeEquivalentTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),

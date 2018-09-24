@@ -12,7 +12,7 @@ namespace System.CommandLine.Rendering.Views
 
         private Span Span { get; set; }
 
-        public override void Render(Region region, IRenderer renderer)
+        public override void Render(IRenderer renderer, Region region)
         {
             renderer.RenderToRegion(Span, region);
         }

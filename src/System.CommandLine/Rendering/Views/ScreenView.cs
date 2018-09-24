@@ -37,7 +37,7 @@ namespace System.CommandLine.Rendering.Views
         // may not want this?
         public void Render(Region region)
         {
-            Child?.Render(region, Renderer);
+            Child?.Render(Renderer, region);
         }
 
         public void Render()

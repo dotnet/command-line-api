@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests.Rendering.Views
 
         private class TestView : View
         {
-            public override void Render(Region region, IRenderer renderer) => throw new NotImplementedException();
+            public override void Render(IRenderer renderer, Region region) => throw new NotImplementedException();
 
             public override Size Measure(IRenderer renderer, Size maxSize) => throw new NotImplementedException();
 
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests.Rendering.Views
                 throw new NotImplementedException();
             }
 
-            public override void Render(Region region, IRenderer renderer)
+            public override void Render(IRenderer renderer, Region region)
             {
                 throw new NotImplementedException();
             }
