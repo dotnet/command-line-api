@@ -1,4 +1,4 @@
-namespace System.CommandLine.Rendering
+﻿namespace System.CommandLine.Rendering
 {
     public class ContentSpan : Span
     {
@@ -28,7 +28,7 @@ namespace System.CommandLine.Rendering
             }
 
             return obj.GetType() == GetType() &&
-                   Equals((AnsiControlCode)obj);
+                   Equals((ContentSpan)obj);
         }
 
         public override int GetHashCode() => Content?.GetHashCode() ?? 0;

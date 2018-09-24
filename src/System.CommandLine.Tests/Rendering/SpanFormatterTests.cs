@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine.Rendering;
 using System.Linq;
 using FluentAssertions;
@@ -70,9 +70,9 @@ namespace System.CommandLine.Tests.Rendering
                 .Should()
                 .BeEquivalentTo(
                     new ContainerSpan(
-                        new EmptySpan(),
+                        Span.Empty,
                         new ContentSpan("normal"),
-                        new EmptySpan()
+                        Span.Empty
                     ),
                     options => options.WithStrictOrdering()
                                       .Excluding(s => s.Parent)
@@ -144,6 +144,16 @@ namespace System.CommandLine.Tests.Rendering
             {
                 span.Should().BeOfType<ContentSpan>();
             }
+        }
+
+        [Fact]
+        public void  When_formatting_null_values_then_empty_span_is_returned()
+        {
+            var formatter = new SpanFormatter();
+
+            var span = formatter.Format(null);
+
+            span.Should().Be(Span.Empty);
         }
 
         public static IEnumerable<object[]> FormattableStringsWithFormatStrings()
