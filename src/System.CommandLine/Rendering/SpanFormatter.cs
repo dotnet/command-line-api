@@ -29,7 +29,7 @@ namespace System.CommandLine.Rendering
                             {
                                 var span = format((T)t);
 
-                                return span ?? Span.Empty;
+                                return span ?? Span.Empty();
                             });
         }
 
@@ -37,7 +37,7 @@ namespace System.CommandLine.Rendering
         {
             if (value is null)
             {
-                return Span.Empty;
+                return Span.Empty();
             }
 
             if (value is Span span)
@@ -63,7 +63,7 @@ namespace System.CommandLine.Rendering
 
             if (string.IsNullOrEmpty(content))
             {
-                return Span.Empty;
+                return Span.Empty();
             }
             else
             {
@@ -78,7 +78,7 @@ namespace System.CommandLine.Rendering
                                 var formattableString = format((T)t);
 
                                 return formattableString == null
-                                           ? Span.Empty
+                                           ? Span.Empty()
                                            : ParseToSpan(formattableString);
                             });
         }
