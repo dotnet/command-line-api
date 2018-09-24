@@ -54,7 +54,7 @@ namespace RenderingPlayground
                 }
             }
 
-            var writer = new ConsoleRenderer(mode: outputMode);
+                var consoleRenderer = new ConsoleRenderer(mode: outputMode);
 
             switch (sample)
             {
