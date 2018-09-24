@@ -1,8 +1,10 @@
-
+﻿
 namespace System.CommandLine.Rendering
 {
     public abstract class Span
     {
+        public static Span Empty => new ContentSpan("");
+
         private Span _root;
 
         public abstract int ContentLength { get; }

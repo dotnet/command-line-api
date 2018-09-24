@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -25,15 +25,21 @@ namespace System.CommandLine.Rendering
         public void AddFormatter<T>(Func<T, Span> format)
         {
             _formatters.Add(typeof(T),
-                            t => {
+                            t =>
+                            {
                                 var span = format((T)t);
 
-                                return span ?? new EmptySpan();
+                                return span ?? Span.Empty;
                             });
         }
 
         public Span Format(object value)
         {
+            if (value is null)
+            {
+                return Span.Empty;
+            }
+
             if (value is Span span)
             {
                 return span;
@@ -57,7 +63,7 @@ namespace System.CommandLine.Rendering
 
             if (string.IsNullOrEmpty(content))
             {
-                return new EmptySpan();
+                return Span.Empty;
             }
             else
             {
@@ -72,7 +78,7 @@ namespace System.CommandLine.Rendering
                                 var formattableString = format((T)t);
 
                                 return formattableString == null
-                                           ? new EmptySpan()
+                                           ? Span.Empty
                                            : ParseToSpan(formattableString);
                             });
         }
