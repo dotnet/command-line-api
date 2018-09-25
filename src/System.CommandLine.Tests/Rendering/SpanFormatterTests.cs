@@ -70,9 +70,9 @@ namespace System.CommandLine.Tests.Rendering
                 .Should()
                 .BeEquivalentTo(
                     new ContainerSpan(
-                        Span.Empty,
+                        Span.Empty(),
                         new ContentSpan("normal"),
-                        Span.Empty
+                        Span.Empty()
                     ),
                     options => options.WithStrictOrdering()
                                       .Excluding(s => s.Parent)
@@ -153,7 +153,7 @@ namespace System.CommandLine.Tests.Rendering
 
             var span = formatter.Format(null);
 
-            span.Should().Be(Span.Empty);
+            span.Should().Be(Span.Empty());
         }
 
         public static IEnumerable<object[]> FormattableStringsWithFormatStrings()
