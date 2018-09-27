@@ -26,6 +26,33 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
+        public static CommandLineBuilder UseDebugDirective(
+            this CommandLineBuilder builder)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                if (context.ParseResult.Tokens.Contains("[debug]"))
+                {
+                    var minusDirective = context.ParseResult
+                                                .Tokens
+                                                .Where(t => t != "[debug]")
+                                                .ToArray();
+
+                    context.ParseResult = context.Parser.Parse(minusDirective);
+
+                    var processId = Diagnostics.Process.GetCurrentProcess().Id;
+
+                    context.Console.Out.WriteLine($"Attach your debugger to process {processId} and then press any key.");
+
+                    Console.ReadKey();
+                }
+
+                await next(context);
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+
+            return builder;
+        }
+
         public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder)
         {
