@@ -4,6 +4,7 @@ using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reactive.Subjects;
 using Region = System.CommandLine.Rendering.Region;
 
@@ -24,7 +25,7 @@ namespace RenderingPlayground
         /// <param name="outputMode">&lt;Ansi|NonAnsi|File&gt; Sets the output mode</param>
         /// <param name="overwrite">Overwrite the specified region. (If not, scroll.)</param>
         public static void Main(
-            string sample = "gridLayout",
+            string sample = "tableView",
             int? height = null,
             int? width = null,
             int top = 0,
@@ -96,54 +97,67 @@ namespace RenderingPlayground
                         new ProcessesView(consoleRenderer, region)
                             .Render(Process.GetProcesses());
                         break;
-                    case "clock":
-                    {
-                        var screen = new ScreenView(renderer: consoleRenderer);
-                        var lastTime = DateTime.Now;
-                        var clockObservable = new BehaviorSubject<DateTime>(lastTime);
-                        var clockView = ContentView.FromObservable(clockObservable, x => $"{x:T}");
-                        screen.Child = clockView;
-                        screen.Render();
-
-                        while (!Console.KeyAvailable)
+                    case "tableView":
                         {
-                            if (DateTime.Now - lastTime > TimeSpan.FromSeconds(1))
+                            var table = new TableView<Process>
                             {
-                                lastTime = DateTime.Now;
-                                clockObservable.OnNext(lastTime);
+                                Items = Process.GetProcesses().Where(x => !string.IsNullOrEmpty(x.MainWindowTitle)).ToList()
+                            };
+                            table.AddColumn(new TableViewColumn<Process>(process => process.ProcessName, "Name"));
+                            table.AddColumn(new TableViewColumn<Process>(process => ContentView.FromObservable(process.TrackCpuUsage(), x => $"{x.UsageTotal:P}"), "CPU", ColumnDefinition.Star(1)));
+
+                            var screen = new ScreenView(renderer: consoleRenderer) { Child = table };
+                            screen.Render();
+                        }
+                        break;
+                    case "clock":
+                        {
+                            var screen = new ScreenView(renderer: consoleRenderer);
+                            var lastTime = DateTime.Now;
+                            var clockObservable = new BehaviorSubject<DateTime>(lastTime);
+                            var clockView = ContentView.FromObservable(clockObservable, x => $"{x:T}");
+                            screen.Child = clockView;
+                            screen.Render();
+
+                            while (!Console.KeyAvailable)
+                            {
+                                if (DateTime.Now - lastTime > TimeSpan.FromSeconds(1))
+                                {
+                                    lastTime = DateTime.Now;
+                                    clockObservable.OnNext(lastTime);
+                                }
                             }
                         }
-                    }
-                    break;
+                        break;
                     case "gridLayout":
-                    {
-                        var screen = new ScreenView(renderer: consoleRenderer);
-                        var content = new ContentView("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum for Kevin.");
-                        var smallContent = new ContentView("Kevin Bost");
-                        var longContent = new ContentView("Hacking on System.CommandLine");
+                        {
+                            var screen = new ScreenView(renderer: consoleRenderer);
+                            var content = new ContentView("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum for Kevin.");
+                            var smallContent = new ContentView("Kevin Bost");
+                            var longContent = new ContentView("Hacking on System.CommandLine");
 
-                        var gridView = new GridView();
-                        gridView.SetColumns(
-                            ColumnDefinition.SizeToContent(),
-                            ColumnDefinition.Star(1),
-                            ColumnDefinition.Star(0.5)
+                            var gridView = new GridView();
+                            gridView.SetColumns(
+                                ColumnDefinition.SizeToContent(),
+                                ColumnDefinition.Star(1),
+                                ColumnDefinition.Star(0.5)
+                                );
+                            gridView.SetRows(
+                                RowDefinition.Star(0.5),
+                                RowDefinition.Star(0.5)
                             );
-                        gridView.SetRows(
-                            RowDefinition.Star(0.5),
-                            RowDefinition.Star(0.5)
-                        );
 
-                        gridView.AddChild(smallContent, 0 , 0);
-                        gridView.AddChild(longContent, 0, 1);
-                        //gridView.AddChild(content, 0, 0);
-                        gridView.AddChild(content, 1, 1);
-                        gridView.AddChild(content, 2, 0);
+                            gridView.SetChild(smallContent, 0, 0);
+                            gridView.SetChild(longContent, 0, 1);
+                            //gridView.SetChild(content, 0, 0);
+                            gridView.SetChild(content, 1, 1);
+                            gridView.SetChild(content, 2, 0);
 
-                        screen.Child = gridView;
+                            screen.Child = gridView;
 
-                        screen.Render();
-                    }
-                    break;
+                            screen.Render();
+                        }
+                        break;
                     default:
                         if (!string.IsNullOrWhiteSpace(text))
                         {

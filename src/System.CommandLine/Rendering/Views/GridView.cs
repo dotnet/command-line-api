@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace System.CommandLine.Rendering.Views
@@ -19,14 +19,16 @@ namespace System.CommandLine.Rendering.Views
             ChildLocations = new View[1, 1];
         }
 
-        public void AddChild(View child, int column, int row)
+        //TODO: Consider indexer access to get/set children
+        //TODO: Should this be row, column or column, row?
+        public void SetChild(View child, int column, int row)
         {
             //TODO: Ensure row/column is in a valid range
             base.AddChild(child);
             ChildLocations[column, row] = child;
         }
 
-        public override void AddChild(View child) => throw new InvalidOperationException("Must call AddChild(View child, int column, int row) instead");
+        public override void AddChild(View child) => throw new InvalidOperationException("Must call SetChild(View child, int column, int row) instead");
 
         public void SetColumns(params ColumnDefinition[] columns)
         {
@@ -96,7 +98,9 @@ namespace System.CommandLine.Rendering.Views
                 int maxRowHeight = 0;
                 for (int column = 0; column < Columns.Count; column++)
                 {
-                    if (ChildLocations[column, row] is View child)
+                    if (ChildLocations[column, row] is View child && 
+                        sizes[column, row].Width > 0 &&
+                        sizes[column, row].Height > 0)
                     {
                         child.Render(renderer, new Region(left, top, sizes[column, row]));
                     }
@@ -134,6 +138,10 @@ namespace System.CommandLine.Rendering.Views
                             case SizeMode.Star:
                                 measuredRows[rowIndex] = (int)Math.Round(Rows[rowIndex].Value / totalRowStarSize * maxSize.Height);
                                 break;
+                            case SizeMode.SizeToContent:
+                                break;
+                            default:
+                                throw new InvalidOperationException($"Unknown row size mode {Rows[rowIndex].SizeMode}");
                         }
                     }
                     Size childSize = null;
@@ -171,7 +179,7 @@ namespace System.CommandLine.Rendering.Views
                             break;
                         }
                         default:
-                            throw new InvalidOperationException($"Unknown size mode {column.SizeMode}");
+                            throw new InvalidOperationException($"Unknown column size mode {column.SizeMode}");
                     }
 
                     if (Rows[rowIndex].SizeMode == SizeMode.SizeToContent)

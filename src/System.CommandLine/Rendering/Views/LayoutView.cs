@@ -1,7 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace System.CommandLine.Rendering.Views
 {
+    //TODO: consider IEnumerable<T> addition
     public abstract class LayoutView<T> : View
         where T : View
     {
@@ -19,6 +21,20 @@ namespace System.CommandLine.Rendering.Views
             
             child.Updated -= OnChildUpdated;
             child.Updated += OnChildUpdated;
+        }
+
+        public virtual void ClearChildren()
+        {
+            while (Children.Any())
+            {
+                RemoveChild(Children[0]);
+            }
+        }
+
+        public virtual bool RemoveChild(T child)
+        {
+            child.Updated -= OnChildUpdated;
+            return Children.Remove(child);
         }
 
         protected virtual void OnChildUpdated(object sender, EventArgs e)

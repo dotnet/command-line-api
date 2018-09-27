@@ -61,10 +61,10 @@ namespace System.CommandLine.Tests.Rendering.Views
             var grid = new GridView();
             grid.SetColumns(ColumnDefinition.Star(1), ColumnDefinition.Star(1));
             grid.SetRows(RowDefinition.Star(1), RowDefinition.Star(1));
-            grid.AddChild(new ContentView("The quick"), 0, 0);
-            grid.AddChild(new ContentView("brown fox"), 1, 0);
-            grid.AddChild(new ContentView("jumped"), 0, 1);
-            grid.AddChild(new ContentView("over"), 1, 1);
+            grid.SetChild(new ContentView("The quick"), 0, 0);
+            grid.SetChild(new ContentView("brown fox"), 1, 0);
+            grid.SetChild(new ContentView("jumped"), 0, 1);
+            grid.SetChild(new ContentView("over"), 1, 1);
 
 
             var console = new TestConsole();
@@ -96,10 +96,10 @@ namespace System.CommandLine.Tests.Rendering.Views
             var grid = new GridView();
             grid.SetColumns(ColumnDefinition.Fixed(6), ColumnDefinition.Fixed(4));
             grid.SetRows(RowDefinition.Fixed(1), RowDefinition.Fixed(2));
-            grid.AddChild(new ContentView("The quick"), 0, 0);
-            grid.AddChild(new ContentView("brown fox"), 1, 0);
-            grid.AddChild(new ContentView("jumped over"), 0, 1);
-            grid.AddChild(new ContentView("the sleepy"), 1, 1);
+            grid.SetChild(new ContentView("The quick"), 0, 0);
+            grid.SetChild(new ContentView("brown fox"), 1, 0);
+            grid.SetChild(new ContentView("jumped over"), 0, 1);
+            grid.SetChild(new ContentView("the sleepy"), 1, 1);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -126,10 +126,10 @@ namespace System.CommandLine.Tests.Rendering.Views
             var grid = new GridView();
             grid.SetColumns(ColumnDefinition.SizeToContent(), ColumnDefinition.SizeToContent());
             grid.SetRows(RowDefinition.SizeToContent(), RowDefinition.SizeToContent());
-            grid.AddChild(new ContentView("The quick"), 0, 0);
-            grid.AddChild(new ContentView("brown fox"), 1, 0);
-            grid.AddChild(new ContentView("jumped over"), 0, 1);
-            grid.AddChild(new ContentView("the sleepy"), 1, 1);
+            grid.SetChild(new ContentView("The quick"), 0, 0);
+            grid.SetChild(new ContentView("brown fox"), 1, 0);
+            grid.SetChild(new ContentView("jumped over"), 0, 1);
+            grid.SetChild(new ContentView("the sleepy"), 1, 1);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -152,10 +152,10 @@ namespace System.CommandLine.Tests.Rendering.Views
             var grid = new GridView();
             grid.SetColumns(ColumnDefinition.SizeToContent(), ColumnDefinition.SizeToContent());
             grid.SetRows(RowDefinition.SizeToContent(), RowDefinition.SizeToContent());
-            grid.AddChild(new ContentView("The quick"), 0, 0);
-            grid.AddChild(new ContentView("brown fox"), 1, 0);
-            grid.AddChild(new ContentView("jumped over"), 0, 1);
-            grid.AddChild(new ContentView("the sleepy"), 1, 1);
+            grid.SetChild(new ContentView("The quick"), 0, 0);
+            grid.SetChild(new ContentView("brown fox"), 1, 0);
+            grid.SetChild(new ContentView("jumped over"), 0, 1);
+            grid.SetChild(new ContentView("the sleepy"), 1, 1);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
