@@ -1,4 +1,5 @@
-using System.CommandLine.Rendering;
+﻿using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Views;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using FluentAssertions;
@@ -33,8 +34,8 @@ namespace System.CommandLine.Tests.Rendering
                 1_000_000,
                 stage);
 
-            var view = new ProgressItemView(_consoleRenderer);
-            view.Render(model);
+            var view = new ProgressItemView(model);
+            view.Render(_consoleRenderer, new Region(0, 0, 53, 1));
 
             var outputStep1 = _console.Out.ToString();
 
@@ -57,28 +58,25 @@ namespace System.CommandLine.Tests.Rendering
         }
     }
 
-    internal class ProgressItemView : ConsoleView<ProgressItemViewModel>
+    internal class ProgressItemView : ContentView
     {
-        public ProgressItemView(ConsoleRenderer renderer) : base(renderer)
+        public ProgressItemView(ProgressItemViewModel value)
         {
-        }
+            var observable = value.Stage
+                 .Zip(value.DownloadedKb, (stage, downloaded) => (stage, downloaded));
 
-        protected override void OnRender(ProgressItemViewModel value)
-        {
-            value.Stage
-                 .Zip(value.DownloadedKb, (stage, downloaded) => (stage, downloaded))
-                 .Subscribe(tuple => {
-                     var percentage = 20 * tuple.downloaded / value.TotalKb;
+            Observe(observable, tuple =>
+            {
+                var percentage = 20 * tuple.downloaded / value.TotalKb;
 
-                     var progressBar = new string('=', percentage) + (percentage > 0
-                                                                          ? ">"
-                                                                          : " ");
+                var progressBar = new string('=', percentage) + (percentage > 0
+                                                                     ? ">"
+                                                                     : " ");
+                var blankSpace = new string(' ', 20 - percentage - 1);
 
-                     var blankSpace = new string(' ', 20 - percentage - 1);
-
-                     WriteLine(
-                         $"{value.Label}: [ {tuple.stage} {progressBar}{blankSpace}] {tuple.downloaded}kb / {value.TotalKb}kb");
-                 });
+                return
+                    $"{value.Label}: [ {tuple.stage} {progressBar}{blankSpace}] {tuple.downloaded}kb / {value.TotalKb}kb";
+            });
         }
     }
 

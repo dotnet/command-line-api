@@ -1,14 +1,20 @@
-using System.CommandLine.Rendering;
+﻿using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Views;
 
 namespace RenderingPlayground
 {
-    internal class ColorsView : ConsoleView<string>
+    internal class ColorsView : View
     {
-        public ColorsView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+        public ColorsView(string text)
         {
+            Text = text;
         }
 
-        protected override void OnRender(string text)
+        private string Text { get; }
+
+        public override Size Measure(IRenderer renderer, Size maxSize) => maxSize;
+
+        public override void Render(IRenderer renderer, Region region)
         {
             byte r = 0;
             byte g = 0;
@@ -16,10 +22,10 @@ namespace RenderingPlayground
 
             var i = 0;
 
-            for (var x = 0; x < Region.Width; x++)
-            for (var y = 0; y < Region.Height; y++)
+            for (var x = 0; x < region.Width; x++)
+            for (var y = 0; y < region.Height; y++)
             {
-                if (i >= text.Length - 1)
+                if (i >= Text.Length - 1)
                 {
                     i = 0;
                 }
@@ -29,14 +35,17 @@ namespace RenderingPlayground
                 }
 
                 var subregion = new Region(
-                    Region.Left + x,
-                    Region.Top + y,
+                    region.Left + x,
+                    region.Top + y,
                     1,
                     1);
 
-                ConsoleRenderer.RenderToRegion(
-                    $"{ForegroundColorSpan.Rgb(r += 2, g += 3, b += 5)}{text[i]}{ForegroundColorSpan.Reset}",
-                    subregion);
+                unchecked
+                {
+                    renderer.RenderToRegion(
+                        $"{ForegroundColorSpan.Rgb(r += 2, g += 3, b += 5)}{Text[i]}{ForegroundColorSpan.Reset}",
+                        subregion);
+                }
             }
         }
     }

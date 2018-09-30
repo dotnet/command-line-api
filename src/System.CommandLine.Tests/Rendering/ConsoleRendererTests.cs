@@ -1,4 +1,4 @@
-using System.CommandLine.Rendering;
+﻿using System.CommandLine.Rendering;
 using System.Drawing;
 using System.IO;
 using FluentAssertions;
@@ -7,6 +7,7 @@ using Xunit;
 using Xunit.Abstractions;
 using static System.CommandLine.Rendering.Ansi;
 using static System.Environment;
+using System.CommandLine.Rendering.Views;
 
 namespace System.CommandLine.Tests.Rendering
 {
@@ -48,7 +49,7 @@ namespace System.CommandLine.Tests.Rendering
                 OutputMode.NonAnsi
             );
 
-            new DirectoryView(writer).Render(new DirectoryInfo(Directory.GetCurrentDirectory()));
+            new DirectoryView(new DirectoryInfo(Directory.GetCurrentDirectory())).Render(writer, new Region(0, 0, 100, 100));
 
             _console.Out
                     .ToString()
@@ -83,7 +84,7 @@ namespace System.CommandLine.Tests.Rendering
                 OutputMode.File
             );
 
-            new DirectoryView(writer).Render(new DirectoryInfo(Directory.GetCurrentDirectory()));
+            new DirectoryView(new DirectoryInfo(Directory.GetCurrentDirectory())).Render(writer, new Region(0,0,100, 100));
 
             _console.Out
                     .ToString()
@@ -130,7 +131,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new CommandLine.Rendering.Region(left,
+            var region = new Region(left,
                                     top,
                                     width,
                                     height);
@@ -149,7 +150,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new CommandLine.Rendering.Region(0, 0, 5, 2);
+            var region = new Region(0, 0, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -171,7 +172,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.Ansi);
 
-            var region = new CommandLine.Rendering.Region(0, 0, 5, 2);
+            var region = new Region(0, 0, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -188,7 +189,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new CommandLine.Rendering.Region(13, 17, 5, 2);
+            var region = new Region(13, 17, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -211,7 +212,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.Ansi);
 
-            var region = new CommandLine.Rendering.Region(5, 13, 5, 2);
+            var region = new Region(5, 13, 5, 2);
 
             writer.RenderToRegion($"{NewLine}*", region);
 
@@ -241,7 +242,7 @@ namespace System.CommandLine.Tests.Rendering
                 _console,
                 OutputMode.NonAnsi);
 
-            var region = new CommandLine.Rendering.Region(left,
+            var region = new Region(left,
                                     top,
                                     width,
                                     height);
@@ -256,48 +257,50 @@ namespace System.CommandLine.Tests.Rendering
         private const string ZeroThroughThirty =
             "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine thirty";
 
-        public class DirectoryView : ConsoleView<DirectoryInfo>
+        public class DirectoryView : StackLayoutView
         {
-            public DirectoryView(ConsoleRenderer renderer, CommandLine.Rendering.Region region = null) : base(renderer, region)
+            public DirectoryView(DirectoryInfo directory)
             {
-                renderer.Formatter
-                        .AddFormatter<DateTime>(d => $"{d:d} {Ansi.Color.Foreground.DarkGray}{d:t}{Ansi.Color.Foreground.Default}");
-            }
+                if (directory == null)
+                {
+                    throw new ArgumentNullException(nameof(directory));
+                }
 
-            protected override void OnRender(DirectoryInfo directory)
-            {
-                WriteLine();
-                WriteLine();
+                var formatter = new SpanFormatter();
+                formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray}{d:t}{ForegroundColorSpan.Reset} ");
 
-                Write($"Directory: {directory.FullName}");
 
-                WriteLine();
-                WriteLine();
+                AddChild(new ContentView(""));
+                AddChild(new ContentView(""));
+
+                AddChild(new ContentView($"Directory: {directory.FullName}"));
+
+                AddChild(new ContentView(""));
+                AddChild(new ContentView(""));
 
                 var directoryContents = directory.EnumerateFileSystemInfos()
                                                  .OrderBy(f => f is DirectoryInfo
                                                                    ? 0
-                                                                   : 1);
+                                                                   : 1).ToList();
 
-                //RenderTable(
-                //    directoryContents,
-                //    table => {
-                //        table.RenderColumn(
-                //            Span($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}"),
-                //            f =>
-                //                f is DirectoryInfo
-                //                    ? Span($"{Ansi.Color.Foreground.LightGreen}{f.Name}{Ansi.Color.Foreground.Default}")
-                //                    : Span($"{Ansi.Color.Foreground.White}{f.Name}{Ansi.Color.Foreground.Default}"));
+                var tableView = new TableView<FileSystemInfo>();
+                tableView.Items = directoryContents;
+                tableView.AddColumn(new TableViewColumn<FileSystemInfo>(f => f is DirectoryInfo
+                                     ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset} ")
+                                     : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset} "),
+                                     new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}"))));
 
-                //        table.RenderColumn(
-                //            Span($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}"),
-                //            f => f.CreationTime);
+                tableView.AddColumn(new TableViewColumn<FileSystemInfo>(f => formatter.Format(f.CreationTime), 
+                    new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}"))));
+                tableView.AddColumn(new TableViewColumn<FileSystemInfo>(f => formatter.Format(f.LastWriteTime), 
+                    new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}"))));
 
-                //        table.RenderColumn(
-                //            Span($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}"),
-                //            f => f.LastWriteTime);
-                //    }
-                //);
+                AddChild(tableView);
+
+                Span Span(FormattableString formatableString)
+                {
+                    return formatter.ParseToSpan(formatableString);
+                }
             }
         }
     }

@@ -25,7 +25,7 @@ namespace RenderingPlayground
         /// <param name="outputMode">&lt;Ansi|NonAnsi|File&gt; Sets the output mode</param>
         /// <param name="overwrite">Overwrite the specified region. (If not, scroll.)</param>
         public static void Main(
-            string sample = "tableView",
+            string sample = "dir",
             int? height = null,
             int? width = null,
             int top = 0,
@@ -57,16 +57,25 @@ namespace RenderingPlayground
 
                 var consoleRenderer = new ConsoleRenderer(mode: outputMode);
 
-            switch (sample)
-            {
-                case "colors":
-                    new ColorsView(writer, region).Render(text ?? "*");
-                    break;
+                switch (sample)
+                {
+                    case "colors":
+                        {
+                            var screen = new ScreenView(renderer: consoleRenderer);
+                            screen.Child = new ColorsView(text ?? "*");
 
-                case "dir":
-                    new DirectoryTableView(writer, region)
-                        .Render(new DirectoryInfo(Directory.GetCurrentDirectory()));
-                    break;
+                            screen.Render();
+                        }
+                        break;
+
+                    case "dir":
+                        {
+                            var screen = new ScreenView(renderer: consoleRenderer);
+                            screen.Child = new DirectoryTableView(new DirectoryInfo(Directory.GetCurrentDirectory()));
+                            screen.Render();
+                        }
+                        
+                        break;
 
                 case "moby":
                     writer.RenderToRegion(
@@ -94,8 +103,11 @@ namespace RenderingPlayground
                     }
 
                     case "processes":
-                        new ProcessesView(consoleRenderer, region)
-                            .Render(Process.GetProcesses());
+                        {
+                            var view = new ProcessesView(Process.GetProcesses());
+                            view.Render(consoleRenderer, region);
+                        }
+                        
                         break;
                     case "tableView":
                         {

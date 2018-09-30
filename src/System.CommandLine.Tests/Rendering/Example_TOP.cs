@@ -1,6 +1,6 @@
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Views;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -72,9 +72,9 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         {
             consoleRenderer.Formatter.AddFormatter<TimeSpan>(t => new ContentSpan(t.ToString(@"hh\:mm\:ss")));
 
-            var view = new ProcessesTableView(consoleRenderer);
+            var view = new ProcessesTableView(Processes);
 
-            view.Render(Processes);
+            view.Render(consoleRenderer, new Region(0, 0, 200, 16));
 
             _output.WriteLine("\n\nVIEW emulating top output:\n");
 
@@ -157,57 +157,47 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         public int CopyOnWriteFaults { get; } // COW
     }
 
-    public class ProcessesTableView : ConsoleView<IReadOnlyCollection<ProcessInfo>>
+    public class ProcessesTableView : TableView<ProcessInfo>
     {
-        public ProcessesTableView(ConsoleRenderer renderer) : base(renderer)
+        public ProcessesTableView(IReadOnlyList<ProcessInfo> processes)
         {
-        }
+            Items = processes;
 
-        protected override void OnRender(IReadOnlyCollection<ProcessInfo> processes)
-        {
-            //RenderTable(
-            //    items: processes,
-            //    table: table => {
-            //        table.RenderColumn("PID", p => p.ProcessId);
-            //        table.RenderColumn("COMMAND", p => p.Command);
-            //        table.RenderColumn("%CPU", p => p.CpuPercentage);
-            //        table.RenderColumn("TIME", p => p.ExecutionTime);
-            //        table.RenderColumn("#TH", p => p.NumberOfThreads);
-            //        table.RenderColumn("#WQ", p => p.WorkQueue);
-            //        table.RenderColumn("#PORT", p => p.Port);
-            //        table.RenderColumn("MEM", p => p.InternalMemorySize);
-            //        table.RenderColumn("PURG", p => p.PurgeableMemorySize);
-            //        table.RenderColumn("CMPRS", p => p.CompressedDataBytes);
-            //        table.RenderColumn("PGRP", p => p.ProcessGroupId);
-            //        table.RenderColumn("PPID", p => p.ParentProcessID);
-            //        table.RenderColumn("STATE", p => p.State);
-            //        table.RenderColumn("BOOSTS", Boosts);
-            //        table.RenderColumn("%CPU_ME", p => p.CpuMe);
-            //        table.RenderColumn("%CPU_OTHRS", p => p.CpuOthers);
-            //        table.RenderColumn("UID", p => p.Uid);
-            //        table.RenderColumn("FAULTS", p => p.Faults);
-            //        table.RenderColumn("COW", p => p.CopyOnWriteFaults);
-            //    });
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.ProcessId, "PID"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.Command, "COMMAND"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CpuPercentage, "%CPU"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.ExecutionTime, "TIME"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.NumberOfThreads, "#TH"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.WorkQueue, "#WQ"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.Port, "#PORT"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.InternalMemorySize, "MEM"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.PurgeableMemorySize, "PURG"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CompressedDataBytes, "CMPRS"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.ProcessGroupId, "PGRP"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.ParentProcessID, "PPID"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.State, "STATE"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => Boosts(p), "BOOSTS"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CpuMe, "%CPU_ME"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CpuOthers, "%CPU_Others"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.Uid, "UID"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.Faults, "FAULTS"));
+            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CopyOnWriteFaults, "COW"));
 
-            //FormattableString Boosts(ProcessInfo p) =>
-            //    $"{(p.ProcessWasAbleToSendBoosts ? "*" : "")}{p.NumberOfBoosts}[{p.NumberOfBoostTransitions}]";
+            FormattableString Boosts(ProcessInfo p) =>
+                $"{(p.ProcessWasAbleToSendBoosts ? "*" : "")}{p.NumberOfBoosts}[{p.NumberOfBoostTransitions}]";
         }
     }
 
-    public class ProcessesSummaryView : ConsoleView<IEnumerable<ProcessInfo>>
+    public class ProcessesSummaryView : ContentView
     {
-        public ProcessesSummaryView(ConsoleRenderer renderer) : base(renderer)
-        {
-        }
-
-        protected override void OnRender(IEnumerable<ProcessInfo> processes)
+        public ProcessesSummaryView(IEnumerable<ProcessInfo> processes)
         {
             var total = processes.Count();
             var running = processes.Count(v => v.State == "running");
             var sleeping = processes.Count(v => v.State == "sleeping");
             var threads = processes.Sum(v => v.NumberOfThreads);
 
-            WriteLine($@"
+            Span = new ContentSpan($@"
 Processes: {total} total, {running} running, {sleeping} sleeping, {threads} threads                                                                                    22:27:52
 Load Avg: 1.80, 1.92, 2.06  CPU usage: 6.47% user, 3.76% sys, 89.75% idle  SharedLibs: 147M resident, 49M data, 32M linkedit.
 MemRegions: 109904 total, 2311M resident, 68M private, 793M shared. PhysMem: 8102M used (2150M wired), 89M unused.

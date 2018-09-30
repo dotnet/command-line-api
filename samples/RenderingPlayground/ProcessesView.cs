@@ -1,62 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Views;
 using System.Diagnostics;
 using System.Reactive.Linq;
 
 namespace RenderingPlayground
 {
-    internal class ProcessesView : ConsoleView<Process[]>
+    internal class ProcessesView : StackLayoutView
     {
-        public ProcessesView(ConsoleRenderer writer, Region region) : base(writer, region)
+        public ProcessesView(Process[] processes)
         {
-            writer.Formatter
-                  .AddFormatter<TimeSpan>(t => new ContentSpan(t.ToString(@"hh\:mm\:ss")));
-        }
+            var formatter = new SpanFormatter();
+            formatter.AddFormatter<TimeSpan>(t => new ContentSpan(t.ToString(@"hh\:mm\:ss")));
 
-        protected override void OnRender(Process[] processes)
-        {
-            WriteLine();
+            AddChild(new ContentView(""));
+            AddChild(new ContentView("Processes"));
+            AddChild(new ContentView(""));
 
-            WriteLine("Processes");
+            var table = new TableView<Process>
+            {
+                Items = processes
+            };
+            table.AddColumn(new TableViewColumn<Process>(p => p.Id, new ContentView("PID".Underline())));
+            table.AddColumn(new TableViewColumn<Process>(p => Name(p), new ContentView("COMMAND".Underline())));
+            table.AddColumn(new TableViewColumn<Process>(p => p.PrivilegedProcessorTime, new ContentView("TIME".Underline())));
+            table.AddColumn(new TableViewColumn<Process>(p => p.Threads.Count, new ContentView("#TH".Underline())));
+            table.AddColumn(new TableViewColumn<Process>(p => p.PrivateMemorySize64.Abbreviate(), new ContentView("MEM".Underline())));
+            table.AddColumn(new TableViewColumn<Process>(p =>
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                var usage = p.TrackCpuUsage().First();
+#pragma warning restore CS0618 // Type or member is obsolete
+                return $"{usage.UsageTotal:P}";
+            }, new ContentView("CPU".Underline())));
 
-            WriteLine();
 
-            //            RenderTable(processes.OrderByDescending(p => p.PrivateMemorySize64).Take(50),
-            //                        table => {
-            //                            table.RenderColumn("PID".Underline(),
-            //                                               p => p.Id);
+            AddChild(table);
 
-            //                            table.RenderColumn("COMMAND".Underline(),
-            //                                               p => Name(p));
-
-            //                            table.RenderColumn("TIME".Underline(),
-            //                                               p => p.PrivilegedProcessorTime);
-
-            //                            table.RenderColumn("#TH".Underline(),
-            //                                               p => p.Threads.Count);
-
-            //                            table.RenderColumn("MEM".Underline(),
-            //                                               p => p.PrivateMemorySize64.Abbreviate());
-
-            //                            table.RenderColumn("CPU".Underline(),
-            //                                               p => {
-            //#pragma warning disable CS0618 // Type or member is obsolete
-            //                                                   var usage = p.TrackCpuUsage().First();
-            //#pragma warning restore CS0618 // Type or member is obsolete
-            //                                                   return $"{usage.UsageTotal:P}";
-            //                                               });
-            //                        });
-
-            //FormattableString Name(Process p)
-            //{
-            //    if (!p.Responding)
-            //    {
-            //        return $"{ForegroundColorSpan.Rgb(180, 0, 0)}{p.ProcessName}{ForegroundColorSpan.Reset}";
-            //    }
-
-            //    return $"{p.ProcessName}";
-            //}
+            FormattableString Name(Process p)
+            {
+                if (!p.Responding)
+                {
+                    return $"{ForegroundColorSpan.Rgb(180, 0, 0)}{p.ProcessName}{ForegroundColorSpan.Reset}";
+                }
+                return $"{p.ProcessName}";
+            }
         }
     }
 

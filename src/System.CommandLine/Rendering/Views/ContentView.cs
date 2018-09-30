@@ -4,6 +4,36 @@ using System.Reflection;
 
 namespace System.CommandLine.Rendering.Views
 {
+    public class ContentView<T> : ContentView
+    {
+        public ContentView(T value)
+        {
+            Value = value;
+        }
+
+        public T Value { get; }
+
+        public override Size Measure(IRenderer renderer, Size maxSize)
+        {
+            EnsureSpanCreated(renderer);
+            return base.Measure(renderer, maxSize);
+        }
+
+        public override void Render(IRenderer renderer, Region region)
+        {
+            EnsureSpanCreated(renderer);
+            base.Render(renderer, region);
+        }
+
+        private void EnsureSpanCreated(IRenderer renderer)
+        {
+            if (Span == null)
+            {
+                Span = renderer.Formatter.Format(Value);
+            }
+        }
+    }
+
     public class ContentView : View
     {
         public ContentView(string content)
@@ -11,14 +41,20 @@ namespace System.CommandLine.Rendering.Views
             Span = new ContentSpan(content);
         }
 
-        private ContentView()
+        public ContentView(Span span)
+        {
+            Span = span ?? throw new ArgumentNullException(nameof(span));
+        }
+
+        protected ContentView()
         { }
 
-        private Span Span { get; set; }
+        protected Span Span { get; set; }
 
         public override void Render(IRenderer renderer, Region region)
         {
             if (Span == null) return;
+
             renderer.RenderToRegion(Span, region);
         }
 
@@ -70,20 +106,21 @@ namespace System.CommandLine.Rendering.Views
             return Expression.Lambda<Func<object, ContentView>>(invokeMethod, parameter).Compile()(observable);
         }
 
-        internal static ContentView Create(object content)
+        internal static ContentView Create(object content, SpanFormatter formatter)
         {
             switch (content)
             {
                 //TODO: Empty span
                 case null: return new ContentView { Span = new EmptySpan() };
                 case string stringContent: return new ContentView(stringContent);
+                case Span span: return new ContentView(span);
                 default:
                     {
                         if (GetObservableType(content.GetType()) is Type observableType)
                         {
                             return FromObservable(observableType, content);
                         }
-                        return new ContentView(content.ToString());
+                        return new ContentView(formatter.Format(content));
                     }
             }
         }
