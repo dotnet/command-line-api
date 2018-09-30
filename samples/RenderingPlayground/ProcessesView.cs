@@ -1,10 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.CommandLine.Rendering;
 using System.Diagnostics;
 using System.Reactive.Linq;
-using System.Linq;
-using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
 
 namespace RenderingPlayground
 {
@@ -94,23 +92,25 @@ namespace RenderingPlayground
             var trackingStartedAt = process.TotalProcessorTime;
             var lastCheckedAt = DateTime.UtcNow;
             var previousCpuTime = new TimeSpan(0);
-            
-            return Observable.Start(() => 
+
+            return Observable.ToObservable(GetTime()).Delay(TimeSpan.FromSeconds(1)).Repeat();
+
+            IEnumerable<ProcessorTime> GetTime()
             {
                 var currentCpuTime = process.TotalProcessorTime - trackingStartedAt;
-            
+
                 var usageSinceLastCheck = (currentCpuTime - previousCpuTime).TotalSeconds /
                                           (processorCount * DateTime.UtcNow.Subtract(lastCheckedAt).TotalSeconds);
-            
+
                 var usageTotal = currentCpuTime.TotalSeconds /
                                  (processorCount * DateTime.UtcNow.Subtract(StartTime).TotalSeconds);
-            
+
                 lastCheckedAt = DateTime.UtcNow;
-            
+
                 previousCpuTime = currentCpuTime;
-                
-                return new ProcessorTime(usageSinceLastCheck, usageTotal);
-            }).Delay(TimeSpan.FromSeconds(1)).Repeat();
+
+                yield return new ProcessorTime(usageSinceLastCheck, usageTotal);
+            }
 
             //return Observable.Create<ProcessorTime>(observer =>
             //    {

@@ -101,9 +101,9 @@ namespace RenderingPlayground
                         {
                             var table = new TableView<Process>
                             {
-                                Items = Process.GetProcesses().Where(x => !string.IsNullOrEmpty(x.MainWindowTitle)).ToList()
+                                Items = Process.GetProcesses().Where(x => !string.IsNullOrEmpty(x.MainWindowTitle)).OrderBy(p => p.ProcessName).ToList()
                             };
-                            table.AddColumn(new TableViewColumn<Process>(process => process.ProcessName, "Name"));
+                            table.AddColumn(new TableViewColumn<Process>(process => $"{process.ProcessName} ", "Name"));
                             table.AddColumn(new TableViewColumn<Process>(process => ContentView.FromObservable(process.TrackCpuUsage(), x => $"{x.UsageTotal:P}"), "CPU", ColumnDefinition.Star(1)));
 
                             var screen = new ScreenView(renderer: consoleRenderer) { Child = table };
