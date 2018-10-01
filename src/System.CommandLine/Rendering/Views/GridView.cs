@@ -5,16 +5,16 @@ namespace System.CommandLine.Rendering.Views
 {
     public class GridView : LayoutView<View>
     {
-        private List<ColumnDefinition> Columns { get; } = new List<ColumnDefinition>();
-        private List<RowDefinition> Rows { get; } = new List<RowDefinition>();
+        private readonly List<ColumnDefinition> _columns = new List<ColumnDefinition>();
+        private readonly List<RowDefinition> _rows = new List<RowDefinition>();
 
         private View[,] ChildLocations { get; set; }
 
         public GridView()
         {
             //1 column 1 row
-            Columns.Add(ColumnDefinition.Star(1));
-            Rows.Add(RowDefinition.Star(1));
+            _columns.Add(ColumnDefinition.Star(1));
+            _rows.Add(RowDefinition.Star(1));
 
             ChildLocations = new View[1, 1];
         }
@@ -40,9 +40,9 @@ namespace System.CommandLine.Rendering.Views
             {
                 throw new ArgumentException("Must specify at least one column", nameof(columns));
             }
-            Columns.Clear();
-            Columns.AddRange(columns);
-            ChildLocations = new View[Columns.Count, Rows.Count];
+            _columns.Clear();
+            _columns.AddRange(columns);
+            ChildLocations = new View[_columns.Count, _rows.Count];
         }
 
         public void SetRows(params RowDefinition[] rows)
@@ -55,9 +55,9 @@ namespace System.CommandLine.Rendering.Views
             {
                 throw new ArgumentException("Must specify at least one row", nameof(rows));
             }
-            Rows.Clear();
-            Rows.AddRange(rows);
-            ChildLocations = new View[Columns.Count, Rows.Count];
+            _rows.Clear();
+            _rows.AddRange(rows);
+            ChildLocations = new View[_columns.Count, _rows.Count];
         }
 
         public override Size Measure(IRenderer renderer, Size maxSize)
@@ -67,11 +67,11 @@ namespace System.CommandLine.Rendering.Views
 
             Size[,] sizes = GetGridSizes(renderer, maxSize);
 
-            for (int column = 0; column < Columns.Count; column++)
+            for (int column = 0; column < _columns.Count; column++)
             {
                 width += sizes[column, 0].Width;
             }
-            for (int row = 0; row < Rows.Count; row++)
+            for (int row = 0; row < _rows.Count; row++)
             {
                 height += sizes[0, row].Height;
             }
@@ -92,11 +92,11 @@ namespace System.CommandLine.Rendering.Views
             Size[,] sizes = GetGridSizes(renderer, new Size(region.Width, region.Height));
 
             int top = region.Top;
-            for (int row = 0; row < Rows.Count; row++)
+            for (int row = 0; row < _rows.Count; row++)
             {
                 int left = region.Left;
                 int maxRowHeight = 0;
-                for (int column = 0; column < Columns.Count; column++)
+                for (int column = 0; column < _columns.Count; column++)
                 {
                     if (ChildLocations[column, row] is View child && 
                         sizes[column, row].Width > 0 &&
@@ -113,35 +113,35 @@ namespace System.CommandLine.Rendering.Views
 
         private Size[,] GetGridSizes(IRenderer renderer, Size maxSize)
         {
-            double totalColumnStarSize = Columns.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);
-            double totalRowStarSize = Rows.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);
+            double totalColumnStarSize = _columns.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);
+            double totalRowStarSize = _rows.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);
 
-            int?[] measuredColumns = new int?[Columns.Count];
-            int?[] measuredRows = new int?[Rows.Count];
+            int?[] measuredColumns = new int?[_columns.Count];
+            int?[] measuredRows = new int?[_rows.Count];
 
             int availableWidth = maxSize.Width;
             int? totalWidthForStarSizing = null;
 
-            foreach (var (column, columnIndex) in Columns.OrderBy(x => GetProcessOrder(x.SizeMode)).Select((x, i) => (x, i)))
+            foreach (var (column, columnIndex) in _columns.OrderBy(x => GetProcessOrder(x.SizeMode)).Select((x, i) => (x, i)))
             {
                 int availableHeight = maxSize.Height;
 
-                for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+                for (int rowIndex = 0; rowIndex < _rows.Count; rowIndex++)
                 {
                     if (measuredRows[rowIndex] == null)
                     {
-                        switch (Rows[rowIndex].SizeMode)
+                        switch (_rows[rowIndex].SizeMode)
                         {
                             case SizeMode.Fixed:
-                                measuredRows[rowIndex] = Math.Min((int)Rows[rowIndex].Value, availableHeight);
+                                measuredRows[rowIndex] = Math.Min((int)_rows[rowIndex].Value, availableHeight);
                                 break;
                             case SizeMode.Star:
-                                measuredRows[rowIndex] = (int)Math.Round(Rows[rowIndex].Value / totalRowStarSize * maxSize.Height);
+                                measuredRows[rowIndex] = (int)Math.Round(_rows[rowIndex].Value / totalRowStarSize * maxSize.Height);
                                 break;
                             case SizeMode.SizeToContent:
                                 break;
                             default:
-                                throw new InvalidOperationException($"Unknown row size mode {Rows[rowIndex].SizeMode}");
+                                throw new InvalidOperationException($"Unknown row size mode {_rows[rowIndex].SizeMode}");
                         }
                     }
                     Size childSize = null;
@@ -182,7 +182,7 @@ namespace System.CommandLine.Rendering.Views
                             throw new InvalidOperationException($"Unknown column size mode {column.SizeMode}");
                     }
 
-                    if (Rows[rowIndex].SizeMode == SizeMode.SizeToContent)
+                    if (_rows[rowIndex].SizeMode == SizeMode.SizeToContent)
                     {
                         if (childSize == null && ChildLocations[columnIndex, rowIndex] is View child)
                         {
@@ -197,10 +197,10 @@ namespace System.CommandLine.Rendering.Views
 
             }
 
-            var rv = new Size[Columns.Count, Rows.Count];
-            for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+            var rv = new Size[_columns.Count, _rows.Count];
+            for (int rowIndex = 0; rowIndex < _rows.Count; rowIndex++)
             {
-                for (int columnIndex = 0; columnIndex < Columns.Count; columnIndex++)
+                for (int columnIndex = 0; columnIndex < _columns.Count; columnIndex++)
                 {
                     rv[columnIndex, rowIndex] = new Size(measuredColumns[columnIndex].Value, measuredRows[rowIndex].Value);
                 }
