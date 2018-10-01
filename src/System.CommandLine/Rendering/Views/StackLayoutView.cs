@@ -1,4 +1,4 @@
-namespace System.CommandLine.Rendering.Views
+﻿namespace System.CommandLine.Rendering.Views
 {
     public class StackLayoutView : LayoutView<View>
     {
@@ -106,7 +106,7 @@ namespace System.CommandLine.Rendering.Views
         private Size GetAdjustedSizeHorizontal(IRenderer renderer, Size maxSize)
         {
             var maxHeight = 0;
-            var totWidth = 0;
+            var totalWidth = 0;
 
             var width = maxSize.Width;
 
@@ -118,11 +118,11 @@ namespace System.CommandLine.Rendering.Views
                 }
                 var size = child.Measure(renderer, maxSize);
                 width -= size.Width;
-                totWidth += size.Width;
+                totalWidth += size.Width;
                 maxHeight = Math.Max(maxHeight, size.Height);
             }
 
-            return new Size(totWidth, maxHeight);
+            return new Size(totalWidth, maxHeight);
         }
     }
 }
