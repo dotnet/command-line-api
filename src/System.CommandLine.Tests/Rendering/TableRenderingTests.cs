@@ -83,8 +83,8 @@ namespace System.CommandLine.Tests.Rendering
         {
             Items = options.ToList();
 
-            AddColumn(new TableViewColumn<Option>(o => string.Join(", ", o.RawAliases), "Option"));
-            AddColumn(new TableViewColumn<Option>(o => o.Description, ""));
+            AddColumn(o => string.Join(", ", o.RawAliases), "Option");
+            AddColumn(o => o.Description, "");
         }
     }
 }

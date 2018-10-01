@@ -22,18 +22,18 @@ namespace RenderingPlayground
             {
                 Items = processes
             };
-            table.AddColumn(new TableViewColumn<Process>(p => p.Id, new ContentView("PID".Underline())));
-            table.AddColumn(new TableViewColumn<Process>(p => Name(p), new ContentView("COMMAND".Underline())));
-            table.AddColumn(new TableViewColumn<Process>(p => p.PrivilegedProcessorTime, new ContentView("TIME".Underline())));
-            table.AddColumn(new TableViewColumn<Process>(p => p.Threads.Count, new ContentView("#TH".Underline())));
-            table.AddColumn(new TableViewColumn<Process>(p => p.PrivateMemorySize64.Abbreviate(), new ContentView("MEM".Underline())));
-            table.AddColumn(new TableViewColumn<Process>(p =>
+            table.AddColumn(p => p.Id, new ContentView("PID".Underline()));
+            table.AddColumn(p => Name(p), new ContentView("COMMAND".Underline()));
+            table.AddColumn(p => p.PrivilegedProcessorTime, new ContentView("TIME".Underline()));
+            table.AddColumn(p => p.Threads.Count, new ContentView("#TH".Underline()));
+            table.AddColumn(p => p.PrivateMemorySize64.Abbreviate(), new ContentView("MEM".Underline()));
+            table.AddColumn(p =>
             {
 #pragma warning disable CS0618 // Type or member is obsolete
                 var usage = p.TrackCpuUsage().First();
 #pragma warning restore CS0618 // Type or member is obsolete
                 return $"{usage.UsageTotal:P}";
-            }, new ContentView("CPU".Underline())));
+            }, new ContentView("CPU".Underline()));
 
 
             AddChild(table);

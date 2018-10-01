@@ -4,6 +4,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>System.CommandLine.Experimental</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
    
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

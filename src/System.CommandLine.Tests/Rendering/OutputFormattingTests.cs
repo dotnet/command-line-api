@@ -77,8 +77,8 @@ namespace System.CommandLine.Tests.Rendering
             {
                 Items = processes.ToList();
 
-                AddColumn(new TableViewColumn<ProcessInfo>(p => p.Command, "COMMAND"));
-                AddColumn(new TableViewColumn<ProcessInfo>(p => p.ExecutionTime, "TIME"));
+                AddColumn(p => p.Command, "COMMAND");
+                AddColumn(p => p.ExecutionTime, "TIME");
             }
         }
     }

@@ -19,9 +19,9 @@ namespace System.CommandLine.Rendering.Views
         private bool _gridInitialized;
 
         private GridView Layout { get; } = new GridView();
-        
-        private readonly List<TableViewColumn<TItem>> _columns = new List<TableViewColumn<TItem>>();
-        public IReadOnlyList<TableViewColumn<TItem>> Columns => _columns;
+
+        private readonly List<ITableViewColumn<TItem>> _columns = new List<ITableViewColumn<TItem>>();
+        public IReadOnlyList<ITableViewColumn<TItem>> Columns => _columns;
 
         public TableView()
         {
@@ -30,7 +30,13 @@ namespace System.CommandLine.Rendering.Views
 
         private void OnLayoutUpdated(object sender, EventArgs e) => OnUpdated();
 
-        public void AddColumn(TableViewColumn<TItem> column)
+        public void AddColumn<T>(Func<TItem, T> cellValue, string header, ColumnDefinition column = null) 
+            => AddColumn(cellValue, new ContentView(header), column);
+
+        public void AddColumn<T>(Func<TItem, T> cellValue, View header, ColumnDefinition column = null) 
+            => AddColumn(new TableViewColumn<T>(cellValue, header, column ?? ColumnDefinition.SizeToContent()));
+
+        public void AddColumn(ITableViewColumn<TItem> column)
         {
             _columns.Add(column);
             _gridInitialized = false;
@@ -78,6 +84,39 @@ namespace System.CommandLine.Rendering.Views
             }
 
             _gridInitialized = true;
+        }
+
+        private class TableViewColumn<T> : ITableViewColumn<TItem>
+        {
+            private readonly Func<TItem, T> _cellValue;
+
+            public View Header { get; }
+
+            public ColumnDefinition ColumnDefinition { get; }
+
+            public TableViewColumn(Func<TItem, T> cellValue, View header, ColumnDefinition columnDefinition)
+            {
+                Header = header;
+                ColumnDefinition = columnDefinition ?? throw new ArgumentNullException(nameof(columnDefinition));
+                _cellValue = cellValue ?? throw new ArgumentNullException(nameof(cellValue));
+            }
+
+            public View GetCell(TItem item, SpanFormatter formatter)
+            {
+                T value = _cellValue(item);
+
+                if (ReferenceEquals(value, null))
+                {
+                    return null;
+                }
+
+                if (value is View view)
+                {
+                    return view;
+                }
+
+                return ContentView.Create(value, formatter);
+            }
         }
     }
 }

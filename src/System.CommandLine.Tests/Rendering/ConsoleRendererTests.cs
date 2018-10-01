@@ -285,15 +285,15 @@ namespace System.CommandLine.Tests.Rendering
 
                 var tableView = new TableView<FileSystemInfo>();
                 tableView.Items = directoryContents;
-                tableView.AddColumn(new TableViewColumn<FileSystemInfo>(f => f is DirectoryInfo
+                tableView.AddColumn(f => f is DirectoryInfo
                                      ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset} ")
                                      : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset} "),
-                                     new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}"))));
+                                     new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}")));
 
-                tableView.AddColumn(new TableViewColumn<FileSystemInfo>(f => formatter.Format(f.CreationTime), 
-                    new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}"))));
-                tableView.AddColumn(new TableViewColumn<FileSystemInfo>(f => formatter.Format(f.LastWriteTime), 
-                    new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}"))));
+                tableView.AddColumn(f => formatter.Format(f.CreationTime), 
+                    new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}")));
+                tableView.AddColumn(f => formatter.Format(f.LastWriteTime), 
+                    new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}")));
 
                 AddChild(tableView);
 

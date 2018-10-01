@@ -34,13 +34,13 @@ namespace RenderingPlayground
 
             var tableView = new TableView<FileSystemInfo>();
             tableView.Items = directoryContents;
-            tableView.AddColumn(new TableViewColumn<FileSystemInfo>(f => f is DirectoryInfo
+            tableView.AddColumn(f => f is DirectoryInfo
                                  ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset} ")
                                  : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset} ") , 
-                                 new ContentView("Name".Underline())));
+                                 new ContentView("Name".Underline()));
             
-            tableView.AddColumn(new TableViewColumn<FileSystemInfo>(f => formatter.Format(f.CreationTime), new ContentView("Created".Underline())));
-            tableView.AddColumn(new TableViewColumn<FileSystemInfo>(f => formatter.Format(f.LastWriteTime), new ContentView("Modified".Underline())));
+            tableView.AddColumn(f => formatter.Format(f.CreationTime), new ContentView("Created".Underline()));
+            tableView.AddColumn(f => formatter.Format(f.LastWriteTime), new ContentView("Modified".Underline()));
 
             AddChild(tableView);
 

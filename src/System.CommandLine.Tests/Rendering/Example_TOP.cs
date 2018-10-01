@@ -163,25 +163,25 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
         {
             Items = processes;
 
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.ProcessId, "PID"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.Command, "COMMAND"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CpuPercentage, "%CPU"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.ExecutionTime, "TIME"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.NumberOfThreads, "#TH"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.WorkQueue, "#WQ"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.Port, "#PORT"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.InternalMemorySize, "MEM"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.PurgeableMemorySize, "PURG"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CompressedDataBytes, "CMPRS"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.ProcessGroupId, "PGRP"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.ParentProcessID, "PPID"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.State, "STATE"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => Boosts(p), "BOOSTS"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CpuMe, "%CPU_ME"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CpuOthers, "%CPU_Others"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.Uid, "UID"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.Faults, "FAULTS"));
-            AddColumn(new TableViewColumn<ProcessInfo>(p => p.CopyOnWriteFaults, "COW"));
+            AddColumn(p => p.ProcessId, "PID");
+            AddColumn(p => p.Command, "COMMAND");
+            AddColumn(p => p.CpuPercentage, "%CPU");
+            AddColumn(p => p.ExecutionTime, "TIME");
+            AddColumn(p => p.NumberOfThreads, "#TH");
+            AddColumn(p => p.WorkQueue, "#WQ");
+            AddColumn(p => p.Port, "#PORT");
+            AddColumn(p => p.InternalMemorySize, "MEM");
+            AddColumn(p => p.PurgeableMemorySize, "PURG");
+            AddColumn(p => p.CompressedDataBytes, "CMPRS");
+            AddColumn(p => p.ProcessGroupId, "PGRP");
+            AddColumn(p => p.ParentProcessID, "PPID");
+            AddColumn(p => p.State, "STATE");
+            AddColumn(p => Boosts(p), "BOOSTS");
+            AddColumn(p => p.CpuMe, "%CPU_ME");
+            AddColumn(p => p.CpuOthers, "%CPU_Others");
+            AddColumn(p => p.Uid, "UID");
+            AddColumn(p => p.Faults, "FAULTS");
+            AddColumn(p => p.CopyOnWriteFaults, "COW");
 
             FormattableString Boosts(ProcessInfo p) =>
                 $"{(p.ProcessWasAbleToSendBoosts ? "*" : "")}{p.NumberOfBoosts}[{p.NumberOfBoostTransitions}]";
