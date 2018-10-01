@@ -80,8 +80,7 @@ namespace System.CommandLine.Rendering.Views
         {
             switch (content)
             {
-                //TODO: Empty span
-                case null: return new ContentView { Span = new EmptySpan() };
+                case null: return new ContentView { Span = Span.Empty() };
                 case string stringContent: return new ContentView(stringContent);
                 case Span span: return new ContentView(span);
                 default:
