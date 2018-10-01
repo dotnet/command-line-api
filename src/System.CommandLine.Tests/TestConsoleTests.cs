@@ -1,4 +1,4 @@
-using System.CommandLine.Rendering;
+﻿using System.CommandLine.Rendering;
 using System.Drawing;
 using FluentAssertions;
 using System.Linq;
@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests
 
             var renderer = new ConsoleRenderer(console, outputMode);
 
-            renderer.RenderToRegion(threeLinesOfText, new CommandLine.Rendering.Region(2, 5, 13, 3));
+            renderer.RenderToRegion(threeLinesOfText, new Region(2, 5, 13, 3));
 
             console.Events
                    .OfType<TestConsole.CursorPositionChanged>()
@@ -91,7 +91,7 @@ namespace System.CommandLine.Tests
 
             var renderer = new ConsoleRenderer(console, outputMode);
 
-            var region = new CommandLine.Rendering.Region(1, 3, 11, 2);
+            var region = new Region(1, 3, 11, 2);
 
             renderer.RenderToRegion("first line\nsecond line", region);
 
@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests
 
             var renderer = new ConsoleRenderer(console, OutputMode.Ansi);
 
-            var region = new CommandLine.Rendering.Region(0, 0, 4, 1);
+            var region = new Region(0, 0, 4, 1);
 
             renderer.RenderToRegion($"{ForegroundColorSpan.Red}text{ForegroundColorSpan.Reset}", region);
 
