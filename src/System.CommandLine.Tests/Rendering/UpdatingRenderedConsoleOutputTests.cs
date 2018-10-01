@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests.Rendering
                 stage);
 
             var view = new ProgressItemView(model);
-            view.Render(_consoleRenderer, new Region(0, 0, 53, 1));
+            view.Render(_consoleRenderer, _console.GetRegion());
 
             var outputStep1 = _console.Out.ToString();
 
