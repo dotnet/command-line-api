@@ -19,9 +19,9 @@ namespace System.CommandLine.Rendering.Views
         private bool _gridInitialized;
 
         private GridView Layout { get; } = new GridView();
-
-        //TODO: Expose as read-only
-        public IList<TableViewColumn<TItem>> Columns { get; } = new List<TableViewColumn<TItem>>();
+        
+        private readonly List<TableViewColumn<TItem>> _columns = new List<TableViewColumn<TItem>>();
+        public IReadOnlyList<TableViewColumn<TItem>> Columns => _columns;
 
         public TableView()
         {
@@ -32,7 +32,7 @@ namespace System.CommandLine.Rendering.Views
 
         public void AddColumn(TableViewColumn<TItem> column)
         {
-            Columns.Add(column);
+            _columns.Add(column);
             _gridInitialized = false;
 
             OnUpdated();
