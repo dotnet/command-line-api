@@ -1,4 +1,3 @@
-using System;
 using System.CommandLine.Rendering;
 
 namespace RenderingPlayground

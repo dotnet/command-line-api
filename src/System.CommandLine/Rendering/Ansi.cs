@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 
 namespace System.CommandLine.Rendering
@@ -122,6 +121,6 @@ namespace System.CommandLine.Rendering
             public static AnsiControlCode ToEndOfScreen { get; } = $"{Esc}[J";
         }
 
-        public static string Esc { get; } = "\u001b"; 
+        public static string Esc { get; } = "\u001b";
     }
 }

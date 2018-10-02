@@ -2,7 +2,7 @@ using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Rendering
 {
-    public class ConsoleRenderer
+    public class ConsoleRenderer : IRenderer
     {
         public ConsoleRenderer(
             IConsole console = null,
@@ -74,6 +74,13 @@ namespace System.CommandLine.Rendering
             }
 
             visitor.Visit(span);
+        }
+
+        public Size MeasureSpan(Span span, Size maxSize)
+        {
+            var measuringVisitor = new SpanMeasuringVisitor(new Region(0, 0, maxSize.Width, maxSize.Height));
+            measuringVisitor.Visit(span);
+            return new Size(measuringVisitor.Width, measuringVisitor.Height);
         }
     }
 }

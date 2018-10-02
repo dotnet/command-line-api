@@ -87,8 +87,8 @@ namespace System.CommandLine.Tests
         {
         }
 
-        public Region GetRegion() =>
-            new Region(0,
+        public CommandLine.Rendering.Region GetRegion() =>
+            new CommandLine.Rendering.Region(0,
                        0,
                        Width,
                        Height);

@@ -1,53 +1,42 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Views;
 using System.Diagnostics;
 using System.Reactive.Linq;
-using System.Linq;
-using System.Reactive.Disposables;
 
 namespace RenderingPlayground
 {
-    internal class ProcessesView : ConsoleView<Process[]>
+    internal class ProcessesView : StackLayoutView
     {
-        public ProcessesView(ConsoleRenderer writer, Region region) : base(writer, region)
+        public ProcessesView(Process[] processes)
         {
-            writer.Formatter
-                  .AddFormatter<TimeSpan>(t => new ContentSpan(t.ToString(@"hh\:mm\:ss")));
-        }
+            var formatter = new SpanFormatter();
+            formatter.AddFormatter<TimeSpan>(t => new ContentSpan(t.ToString(@"hh\:mm\:ss")));
 
-        protected override void OnRender(Process[] processes)
-        {
-            WriteLine();
+            AddChild(new ContentView(""));
+            AddChild(new ContentView("Processes"));
+            AddChild(new ContentView(""));
 
-            WriteLine("Processes");
-
-            WriteLine();
-
-            RenderTable(processes.OrderByDescending(p => p.PrivateMemorySize64).Take(50),
-                        table => {
-                            table.RenderColumn("PID".Underline(),
-                                               p => p.Id);
-
-                            table.RenderColumn("COMMAND".Underline(),
-                                               p => Name(p));
-
-                            table.RenderColumn("TIME".Underline(),
-                                               p => p.PrivilegedProcessorTime);
-
-                            table.RenderColumn("#TH".Underline(),
-                                               p => p.Threads.Count);
-
-                            table.RenderColumn("MEM".Underline(),
-                                               p => p.PrivateMemorySize64.Abbreviate());
-
-                            table.RenderColumn("CPU".Underline(),
-                                               p => {
+            var table = new TableView<Process>
+            {
+                Items = processes
+            };
+            table.AddColumn(p => p.Id, new ContentView("PID".Underline()));
+            table.AddColumn(p => Name(p), new ContentView("COMMAND".Underline()));
+            table.AddColumn(p => p.PrivilegedProcessorTime, new ContentView("TIME".Underline()));
+            table.AddColumn(p => p.Threads.Count, new ContentView("#TH".Underline()));
+            table.AddColumn(p => p.PrivateMemorySize64.Abbreviate(), new ContentView("MEM".Underline()));
+            table.AddColumn(p =>
+            {
 #pragma warning disable CS0618 // Type or member is obsolete
-                                                   var usage = p.TrackCpuUsage().First();
+                var usage = p.TrackCpuUsage().First();
 #pragma warning restore CS0618 // Type or member is obsolete
-                                                   return $"{usage.UsageTotal:P}";
-                                               });
-                        });
+                return $"{usage.UsageTotal:P}";
+            }, new ContentView("CPU".Underline()));
+
+
+            AddChild(table);
 
             FormattableString Name(Process p)
             {
@@ -55,7 +44,6 @@ namespace RenderingPlayground
                 {
                     return $"{ForegroundColorSpan.Rgb(180, 0, 0)}{p.ProcessName}{ForegroundColorSpan.Reset}";
                 }
-
                 return $"{p.ProcessName}";
             }
         }
@@ -94,22 +82,45 @@ namespace RenderingPlayground
             var lastCheckedAt = DateTime.UtcNow;
             var previousCpuTime = new TimeSpan(0);
 
-            return Observable.Create<ProcessorTime>(observer => {
+            return Observable.ToObservable(GetTime()).Delay(TimeSpan.FromSeconds(1)).Repeat();
+
+            IEnumerable<ProcessorTime> GetTime()
+            {
                 var currentCpuTime = process.TotalProcessorTime - trackingStartedAt;
 
                 var usageSinceLastCheck = (currentCpuTime - previousCpuTime).TotalSeconds /
                                           (processorCount * DateTime.UtcNow.Subtract(lastCheckedAt).TotalSeconds);
 
-                var usageTotal = currentCpuTime.TotalSeconds / (processorCount * DateTime.UtcNow.Subtract(StartTime).TotalSeconds);
+                var usageTotal = currentCpuTime.TotalSeconds /
+                                 (processorCount * DateTime.UtcNow.Subtract(StartTime).TotalSeconds);
 
                 lastCheckedAt = DateTime.UtcNow;
 
                 previousCpuTime = currentCpuTime;
 
-                observer.OnNext(new ProcessorTime(usageSinceLastCheck, usageTotal));
+                yield return new ProcessorTime(usageSinceLastCheck, usageTotal);
+            }
 
-                return Disposable.Empty;
-            });
+            //return Observable.Create<ProcessorTime>(observer =>
+            //    {
+            //        var currentCpuTime = process.TotalProcessorTime - trackingStartedAt;
+            //
+            //        var usageSinceLastCheck = (currentCpuTime - previousCpuTime).TotalSeconds /
+            //                                  (processorCount * DateTime.UtcNow.Subtract(lastCheckedAt).TotalSeconds);
+            //
+            //        var usageTotal = currentCpuTime.TotalSeconds /
+            //                         (processorCount * DateTime.UtcNow.Subtract(StartTime).TotalSeconds);
+            //
+            //        lastCheckedAt = DateTime.UtcNow;
+            //
+            //        previousCpuTime = currentCpuTime;
+            //
+            //        observer.OnNext(new ProcessorTime(usageSinceLastCheck, usageTotal));
+            //
+            //        return Disposable.Empty;
+            //    })
+            //    .Concat(Observable.Empty<ProcessorTime>().Delay(TimeSpan.FromSeconds(1)))
+            //    .Repeat();
         }
     }
 

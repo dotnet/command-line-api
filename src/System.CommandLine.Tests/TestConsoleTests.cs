@@ -1,4 +1,4 @@
-using System.CommandLine.Rendering;
+﻿using System.CommandLine.Rendering;
 using System.Drawing;
 using FluentAssertions;
 using System.Linq;

@@ -1,4 +1,4 @@
-namespace System.CommandLine.Rendering
+﻿namespace System.CommandLine.Rendering
 {
     public class Region
     {
@@ -9,12 +9,12 @@ namespace System.CommandLine.Rendering
             int height,
             bool isOverwrittenOnRender = true)
         {
-            if (height <= 0)
+            if (height < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(height));
             }
 
-            if (width <= 0)
+            if (width < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(width));
             }
@@ -37,6 +37,11 @@ namespace System.CommandLine.Rendering
             IsOverwrittenOnRender = isOverwrittenOnRender;
         }
 
+        public Region(int left, int top, Size size)
+            : this(left, top, size.Width, size.Height)
+        {
+        }
+
         public virtual int Height { get; }
 
         public virtual int Width { get; }
@@ -44,6 +49,10 @@ namespace System.CommandLine.Rendering
         public virtual int Top { get; }
 
         public virtual int Left { get; }
+
+        public int Bottom => Top + Height - 1;
+
+        public int Right => Left + Width - 1;
 
         public bool IsOverwrittenOnRender { get; }
 

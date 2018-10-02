@@ -1,10 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine.Rendering;
 using System.Drawing;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
+using System.CommandLine.Rendering.Views;
 
 namespace System.CommandLine.Tests.Rendering
 {
@@ -12,17 +13,18 @@ namespace System.CommandLine.Tests.Rendering
     {
         private readonly ITestOutputHelper _output;
         private readonly TestConsole _console;
-        private readonly ConsoleRenderer consoleRenderer;
+        private readonly ConsoleRenderer _consoleRenderer;
 
         public TableRenderingTests(ITestOutputHelper output)
         {
             _output = output;
 
-            _console = new TestConsole {
+            _console = new TestConsole
+            {
                 Width = 150
             };
 
-            consoleRenderer = new ConsoleRenderer(_console);
+            _consoleRenderer = new ConsoleRenderer(_console);
         }
 
         [Fact]
@@ -33,9 +35,9 @@ namespace System.CommandLine.Tests.Rendering
                 new Option("--very-long", "a long option")
             };
 
-            var view = new OptionsHelpView(consoleRenderer);
+            var view = new OptionsHelpView(options);
 
-            view.Render(options);
+            view.Render(_consoleRenderer, new Region(0, 0, 30, 3));
 
             var lines = _console.RenderOperations();
 
@@ -43,9 +45,9 @@ namespace System.CommandLine.Tests.Rendering
                 .Should()
                 .BeEquivalentTo(
                     new[] {
-                        Cell("Option       ", 0, 0), Cell("                ", 13, 0),
-                        Cell("-s           ", 0, 1), Cell("a short option  ", 13, 1),
-                        Cell("--very-long  ", 0, 2), Cell("a long option   ", 13, 2),
+                        Cell("Option     ", 0, 0), Cell("              ", 11, 0),
+                        Cell("-s         ", 0, 1), Cell("a short option", 11, 1),
+                        Cell("--very-long", 0, 2), Cell("a long option ", 11, 2),
                     }, o => o.WithStrictOrdering());
         }
 
@@ -59,9 +61,9 @@ namespace System.CommandLine.Tests.Rendering
                 new Option("--very-long", "an option")
             };
 
-            var view = new OptionsHelpView(consoleRenderer);
+            var view = new OptionsHelpView(options);
 
-            view.Render(options);
+            view.Render(_consoleRenderer, new Region(0,0, 30, 3));
 
             _output.WriteLine(_console.Out.ToString());
 
@@ -75,20 +77,14 @@ namespace System.CommandLine.Tests.Rendering
         }
     }
 
-    public class OptionsHelpView : ConsoleView<IEnumerable<Option>>
+    public class OptionsHelpView : TableView<Option>
     {
-        public OptionsHelpView(ConsoleRenderer renderer) : base(renderer)
+        public OptionsHelpView(IEnumerable<Option> options)
         {
-        }
+            Items = options.ToList();
 
-        protected override void OnRender(IEnumerable<Option> options)
-        {
-            RenderTable(
-                options.ToArray(),
-                table => {
-                    table.RenderColumn("Option", o => string.Join(", ", o.RawAliases));
-                    table.RenderColumn("", o => o.Description);
-                });
+            AddColumn(o => string.Join(", ", o.RawAliases), "Option");
+            AddColumn(o => o.Description, "");
         }
     }
 }

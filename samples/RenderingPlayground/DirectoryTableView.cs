@@ -1,50 +1,53 @@
-using System;
+﻿using System;
 using System.CommandLine.Rendering;
+using System.CommandLine.Rendering.Views;
 using System.IO;
 using System.Linq;
 
 namespace RenderingPlayground
 {
-    internal class DirectoryTableView : ConsoleView<DirectoryInfo>
+    internal class DirectoryTableView : StackLayoutView
     {
-        public DirectoryTableView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+        public DirectoryTableView(DirectoryInfo directory)
         {
-            renderer.Formatter
-                    .AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray}{d:t}{ForegroundColorSpan.Reset}");
-        }
+            if (directory == null)
+            {
+                throw new ArgumentNullException(nameof(directory));
+            }
 
-        protected override void OnRender(DirectoryInfo directory)
-        {
-            WriteLine();
-            WriteLine();
+            var formatter = new SpanFormatter();
+            formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray}{d:t}{ForegroundColorSpan.Reset} ");
 
-            Write($"Directory: {directory.FullName}");
 
-            WriteLine();
-            WriteLine();
+            AddChild(new ContentView(""));
+            AddChild(new ContentView(""));
+
+            AddChild(new ContentView($"Directory: {directory.FullName}"));
+
+            AddChild(new ContentView(""));
+            AddChild(new ContentView(""));
 
             var directoryContents = directory.EnumerateFileSystemInfos()
                                              .OrderBy(f => f is DirectoryInfo
                                                                ? 0
-                                                               : 1);
+                                                               : 1).ToList();
 
-            RenderTable(
-                directoryContents,
-                table => {
-                    table.RenderColumn(
-                        "Name".Underline(),
-                        f => f is DirectoryInfo
-                                 ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset}")
-                                 : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset}"));
+            var tableView = new TableView<FileSystemInfo>();
+            tableView.Items = directoryContents;
+            tableView.AddColumn(f => f is DirectoryInfo
+                                 ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset} ")
+                                 : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset} ") , 
+                                 new ContentView("Name".Underline()));
+            
+            tableView.AddColumn(f => formatter.Format(f.CreationTime), new ContentView("Created".Underline()));
+            tableView.AddColumn(f => formatter.Format(f.LastWriteTime), new ContentView("Modified".Underline()));
 
-                    table.RenderColumn(
-                        "Created".Underline(),
-                        f => Span(f.CreationTime));
+            AddChild(tableView);
 
-                    table.RenderColumn(
-                        "Modified".Underline(),
-                        f => Span(f.LastWriteTime));
-                });
+            Span Span(FormattableString formatableString)
+            {
+                return formatter.ParseToSpan(formatableString);
+            }
         }
     }
 }

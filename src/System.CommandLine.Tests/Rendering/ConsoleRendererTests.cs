@@ -1,4 +1,4 @@
-using System.CommandLine.Rendering;
+﻿using System.CommandLine.Rendering;
 using System.Drawing;
 using System.IO;
 using FluentAssertions;
@@ -7,6 +7,7 @@ using Xunit;
 using Xunit.Abstractions;
 using static System.CommandLine.Rendering.Ansi;
 using static System.Environment;
+using System.CommandLine.Rendering.Views;
 
 namespace System.CommandLine.Tests.Rendering
 {
@@ -48,7 +49,7 @@ namespace System.CommandLine.Tests.Rendering
                 OutputMode.NonAnsi
             );
 
-            new DirectoryView(writer).Render(new DirectoryInfo(Directory.GetCurrentDirectory()));
+            new DirectoryView(new DirectoryInfo(Directory.GetCurrentDirectory())).Render(writer, new Region(0, 0, 100, 100));
 
             _console.Out
                     .ToString()
@@ -83,7 +84,7 @@ namespace System.CommandLine.Tests.Rendering
                 OutputMode.File
             );
 
-            new DirectoryView(writer).Render(new DirectoryInfo(Directory.GetCurrentDirectory()));
+            new DirectoryView(new DirectoryInfo(Directory.GetCurrentDirectory())).Render(writer, new Region(0,0,100, 100));
 
             _console.Out
                     .ToString()
@@ -178,7 +179,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(left: 1, top: 1).EscapeSequence}     {Cursor.Move.ToLocation(left: 1, top: 2).EscapeSequence}*    ");
+                    .Be($"{Ansi.Cursor.Move.ToLocation(left: 1, top: 1).EscapeSequence}     {Ansi.Cursor.Move.ToLocation(left: 1, top: 2).EscapeSequence}*    ");
         }
 
         [Fact]
@@ -218,7 +219,7 @@ namespace System.CommandLine.Tests.Rendering
             _console.Out
                     .ToString()
                     .Should()
-                    .Be($"{Cursor.Move.ToLocation(left: 6, top: 14).EscapeSequence}     {Cursor.Move.ToLocation(left: 6, top: 15).EscapeSequence}*    ");
+                    .Be($"{Ansi.Cursor.Move.ToLocation(left: 6, top: 14).EscapeSequence}     {Ansi.Cursor.Move.ToLocation(left: 6, top: 15).EscapeSequence}*    ");
         }
 
         [Theory]
@@ -256,48 +257,50 @@ namespace System.CommandLine.Tests.Rendering
         private const string ZeroThroughThirty =
             "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine thirty";
 
-        public class DirectoryView : ConsoleView<DirectoryInfo>
+        public class DirectoryView : StackLayoutView
         {
-            public DirectoryView(ConsoleRenderer renderer, Region region = null) : base(renderer, region)
+            public DirectoryView(DirectoryInfo directory)
             {
-                renderer.Formatter
-                        .AddFormatter<DateTime>(d => $"{d:d} {Ansi.Color.Foreground.DarkGray}{d:t}{Ansi.Color.Foreground.Default}");
-            }
+                if (directory == null)
+                {
+                    throw new ArgumentNullException(nameof(directory));
+                }
 
-            protected override void OnRender(DirectoryInfo directory)
-            {
-                WriteLine();
-                WriteLine();
+                var formatter = new SpanFormatter();
+                formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray}{d:t}{ForegroundColorSpan.Reset} ");
 
-                Write($"Directory: {directory.FullName}");
 
-                WriteLine();
-                WriteLine();
+                AddChild(new ContentView(""));
+                AddChild(new ContentView(""));
+
+                AddChild(new ContentView($"Directory: {directory.FullName}"));
+
+                AddChild(new ContentView(""));
+                AddChild(new ContentView(""));
 
                 var directoryContents = directory.EnumerateFileSystemInfos()
                                                  .OrderBy(f => f is DirectoryInfo
                                                                    ? 0
-                                                                   : 1);
+                                                                   : 1).ToList();
 
-                RenderTable(
-                    directoryContents,
-                    table => {
-                        table.RenderColumn(
-                            Span($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}"),
-                            f =>
-                                f is DirectoryInfo
-                                    ? Span($"{Ansi.Color.Foreground.LightGreen}{f.Name}{Ansi.Color.Foreground.Default}")
-                                    : Span($"{Ansi.Color.Foreground.White}{f.Name}{Ansi.Color.Foreground.Default}"));
+                var tableView = new TableView<FileSystemInfo>();
+                tableView.Items = directoryContents;
+                tableView.AddColumn(f => f is DirectoryInfo
+                                     ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset} ")
+                                     : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset} "),
+                                     new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}")));
 
-                        table.RenderColumn(
-                            Span($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}"),
-                            f => f.CreationTime);
+                tableView.AddColumn(f => formatter.Format(f.CreationTime), 
+                    new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Created{Ansi.Text.UnderlinedOff}")));
+                tableView.AddColumn(f => formatter.Format(f.LastWriteTime), 
+                    new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}")));
 
-                        table.RenderColumn(
-                            Span($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}"),
-                            f => f.LastWriteTime);
-                    }
-                );
+                AddChild(tableView);
+
+                Span Span(FormattableString formatableString)
+                {
+                    return formatter.ParseToSpan(formatableString);
+                }
             }
         }
     }
