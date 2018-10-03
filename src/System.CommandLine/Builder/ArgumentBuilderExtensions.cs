@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
@@ -126,31 +126,21 @@ namespace System.CommandLine.Builder
 
         #region type / return value
 
-        public static Argument ParseArgumentsAs<T>(
-            this ArgumentBuilder builder) =>
-            ParseArgumentsAs(
-                builder,
-                typeof(T));
-
-        public static Argument ParseArgumentsAs(
-            this ArgumentBuilder builder,
-            Type type) =>
-            ParseArgumentsAs(
-                builder,
-                type,
-                symbol => {
-                    switch (type.DefaultArity().MaximumNumberOfArguments)
-                    {
-                        case 1:
-                            return ArgumentConverter.Parse(type, symbol.Arguments.SingleOrDefault());
-                        default:
-                            return ArgumentConverter.ParseMany(type, symbol.Arguments);
-                    }
-                });
+        private static ConvertArgument DefaultConvertArgument(Type type) =>
+            symbol =>
+            {
+                switch (type.DefaultArity().MaximumNumberOfArguments)
+                {
+                    case 1:
+                        return ArgumentConverter.Parse(type, symbol.Arguments.SingleOrDefault());
+                    default:
+                        return ArgumentConverter.ParseMany(type, symbol.Arguments);
+                }
+            };
 
         public static Argument ParseArgumentsAs<T>(
             this ArgumentBuilder builder,
-            ConvertArgument convert,
+            ConvertArgument convert = null,
             ArgumentArityValidator arity = null) =>
             ParseArgumentsAs(
                 builder,
@@ -161,12 +151,12 @@ namespace System.CommandLine.Builder
         public static Argument ParseArgumentsAs(
             this ArgumentBuilder builder,
             Type type,
-            ConvertArgument convert,
+            ConvertArgument convert = null,
             ArgumentArityValidator arity = null)
         {
             if (convert == null)
             {
-                throw new ArgumentNullException(nameof(convert));
+                convert = DefaultConvertArgument(type);
             }
 
             arity = arity ?? type.DefaultArity();
@@ -185,7 +175,7 @@ namespace System.CommandLine.Builder
                     convert = symbol => {
                         if (symbol.Arguments.Count != 1)
                         {
-                            return ArgumentParseResult.Failure(symbol.ValidationMessages.ExpectsOneArgument(symbol));
+                            return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentProvided(symbol));
                         }
 
                         return originalConvert(symbol);

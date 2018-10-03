@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -19,6 +19,11 @@ namespace System.CommandLine
             symbolResult is CommandResult
                 ? $"Command '{symbolResult.Token}' expects a single argument but {symbolResult.Arguments.Count} were provided."
                 : $"Option '{symbolResult.Token}' expects a single argument but {symbolResult.Arguments.Count} were provided.";
+
+        public virtual string NoArgumentProvided(SymbolResult symbolResult) =>
+            symbolResult is CommandResult
+                ? $"No argument was provided for Command '{symbolResult.Token}'."
+                : $"No argument was provided for Option '{symbolResult.Token}'.";
 
         public virtual string ExpectsFewerArguments(SymbolResult symbolResult, int maximumNumberOfArguments) =>
             symbolResult is CommandResult
