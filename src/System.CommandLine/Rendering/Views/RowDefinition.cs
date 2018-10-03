@@ -1,4 +1,4 @@
-namespace System.CommandLine.Rendering.Views
+﻿namespace System.CommandLine.Rendering.Views
 {
     public class RowDefinition
     {
@@ -7,7 +7,6 @@ namespace System.CommandLine.Rendering.Views
 
         private RowDefinition(SizeMode sizeMode, double value)
         {
-            //TODO: Validation
             SizeMode = sizeMode;
             Value = value;
         }
