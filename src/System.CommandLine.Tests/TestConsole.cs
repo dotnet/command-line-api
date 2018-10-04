@@ -18,7 +18,7 @@ namespace System.CommandLine.Tests
         private readonly List<ConsoleEvent> _events = new List<ConsoleEvent>();
         private readonly StringBuilder _outBuffer = new StringBuilder();
         private readonly StringBuilder _ansiCodeBuffer = new StringBuilder();
-        private bool _isVirtualTerminal;
+        private ConsoleColor _backgroundColor = ConsoleColor.Black;
 
         public TestConsole()
         {
@@ -196,9 +196,9 @@ namespace System.CommandLine.Tests
 
         public bool IsInputRedirected { get; }
 
-        public bool IsVirtualTerminal() => _isVirtualTerminal;
+        public bool IsVirtualTerminal { get; private set; }
 
-        public void TryEnableVirtualTerminal() => _isVirtualTerminal = !IsOutputRedirected;
+        public void TryEnableVirtualTerminal() => IsVirtualTerminal = !IsOutputRedirected;
 
         public IEnumerable<TextRendered> RenderOperations()
         {

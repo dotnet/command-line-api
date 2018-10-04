@@ -6,7 +6,7 @@ namespace System.CommandLine.Rendering
     {
         public ConsoleRenderer(
             IConsole console = null,
-            OutputMode mode = OutputMode.NonAnsi)
+            OutputMode mode = OutputMode.Auto)
         {
             Console = console ?? SystemConsole.Instance;
 

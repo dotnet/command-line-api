@@ -32,7 +32,7 @@ namespace System.CommandLine
 
         bool IsInputRedirected { get; }
 
-        bool IsVirtualTerminal();
+        bool IsVirtualTerminal { get; }
 
         void TryEnableVirtualTerminal();
     }

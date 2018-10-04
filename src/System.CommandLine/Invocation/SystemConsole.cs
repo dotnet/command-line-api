@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Rendering;
@@ -55,17 +55,20 @@ namespace System.CommandLine.Invocation
 
         public bool IsInputRedirected => Console.IsInputRedirected;
 
-        public bool IsVirtualTerminal()
+        public bool IsVirtualTerminal
         {
-            if (_virtualTerminalMode != null)
+            get
             {
-                return _virtualTerminalMode.IsEnabled;
+                if (_virtualTerminalMode != null)
+                {
+                    return _virtualTerminalMode.IsEnabled;
             }
 
             var terminalName = Environment.GetEnvironmentVariable("TERM");
 
-            return !string.IsNullOrEmpty(terminalName)
-                   && terminalName.StartsWith("xterm", StringComparison.OrdinalIgnoreCase);
+                return !string.IsNullOrEmpty(terminalName)
+                       && terminalName.StartsWith("xterm", StringComparison.OrdinalIgnoreCase);
+            }
         }
 
         public void TryEnableVirtualTerminal()
