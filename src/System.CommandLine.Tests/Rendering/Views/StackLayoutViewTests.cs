@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             stackLayout.Render(renderer, new Region(0, 0, 10, 2));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The quick"),
                 new TestConsole.CursorPositionChanged(new Point(0, 1)),
@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             stackLayout.Render(renderer, new Region(0, 0, 10, 1));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The quick"));
         }
@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             stackLayout.Render(renderer, new Region(0, 0, 5, 4));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The  "),
                 new TestConsole.CursorPositionChanged(new Point(0, 1)),
@@ -89,7 +89,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             stackLayout.Render(renderer, new Region(0, 0, 18, 1));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The quick         "),
                 new TestConsole.CursorPositionChanged(new Point(9, 0)),
@@ -110,7 +110,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             stackLayout.Render(renderer, new Region(0, 0, 16, 1));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The quick       "),
                 new TestConsole.CursorPositionChanged(new Point(9, 0)),
@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             stackLayout.Render(renderer, new Region(0, 0, 14, 2));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The quick     "),
                 new TestConsole.CursorPositionChanged(new Point(9, 0)),

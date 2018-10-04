@@ -43,12 +43,10 @@ namespace System.CommandLine.Tests.Rendering
 
             lines
                 .Should()
-                .BeEquivalentTo(
-                    new[] {
-                        Cell("Option     ", 0, 0), Cell("              ", 11, 0),
-                        Cell("-s         ", 0, 1), Cell("a short option", 11, 1),
-                        Cell("--very-long", 0, 2), Cell("a long option ", 11, 2),
-                    }, o => o.WithStrictOrdering());
+                .BeEquivalentSequenceTo(
+                    Cell("Option     ", 0, 0), Cell("              ", 11, 0),
+                    Cell("-s         ", 0, 1), Cell("a short option", 11, 1),
+                    Cell("--very-long", 0, 2), Cell("a long option ", 11, 2));
         }
 
         private TextRendered Cell(string text, int left, int top) => new TextRendered(text, new Point(left, top));

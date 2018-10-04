@@ -197,12 +197,9 @@ namespace System.CommandLine.Tests.Rendering
                     .OfType<TestConsole.CursorPositionChanged>()
                     .Select(e => e.Position)
                     .Should()
-                    .BeEquivalentTo(
-                        new[] {
-                            new Point(13, 17),
-                            new Point(13, 18)
-                        },
-                        options => options.WithStrictOrdering());
+                    .BeEquivalentSequenceTo(
+                        new Point(13, 17),
+                        new Point(13, 18));
         }
 
         [Fact]

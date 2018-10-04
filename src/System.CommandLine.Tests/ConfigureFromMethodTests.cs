@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests
             await builder.InvokeAsync("-x 123 -y 456", _testConsole);
 
             _receivedValues.Should()
-                           .BeEquivalentTo(new[] { 123, 456 });
+                           .BeEquivalentSequenceTo(123, 456);
         }
 
         [Fact]

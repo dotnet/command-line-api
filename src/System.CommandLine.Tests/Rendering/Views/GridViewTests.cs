@@ -71,7 +71,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             grid.Render(renderer, new Region(0, 0, 10, 4));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The  "),
                 new TestConsole.CursorPositionChanged(new Point(0, 1)),
@@ -105,7 +105,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             grid.Render(renderer, new Region(0, 0, 10, 4));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The   "),
                 new TestConsole.CursorPositionChanged(new Point(6, 0)),
@@ -135,7 +135,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             grid.Render(renderer, new Region(0, 0, 25, 3));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The quick  "),
                 new TestConsole.CursorPositionChanged(new Point(11, 0)),
@@ -161,7 +161,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             grid.Render(renderer, new Region(0, 0, 18, 3));
 
-            console.Events.Should().BeEquivalentTo(
+            console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The quick  "),
                 new TestConsole.CursorPositionChanged(new Point(0, 1)),

@@ -17,7 +17,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             layout.AddChild(child1);
             layout.AddChild(child2);
 
-            layout.Children.Should().BeEquivalentTo(new[] {child1, child2});
+            layout.Children.Should().BeEquivalentSequenceTo(child1, child2);
         }
 
         [Fact]
