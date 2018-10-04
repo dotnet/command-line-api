@@ -46,7 +46,7 @@ namespace System.CommandLine.Tests.Rendering.Views
         public void Span_is_only_created_after_measure_is_called()
         {
             var view = new TestableContentView<int>(42);
-
+            
             view.IsSpanCreated.Should().BeFalse();
             view.Measure(_renderer, new Size(0, 0));
             view.IsSpanCreated.Should().BeTrue();
@@ -62,9 +62,35 @@ namespace System.CommandLine.Tests.Rendering.Views
             view.IsSpanCreated.Should().BeTrue();
         }
 
+        [Fact]
+        public void Span_is_only_created_once_on_calls_to_render()
+        {
+            var view = new TestableContentView<int>(42);
+
+            view.Render(_renderer, new Region(0, 0, 0, 0));
+            Span firstSpan = view.GetSpan();
+            view.Render(_renderer, new Region(0, 0, 0, 0));
+
+            ReferenceEquals(view.GetSpan(), firstSpan).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Span_is_only_created_once_on_calls_to_measure()
+        {
+            var view = new TestableContentView<int>(42);
+
+            view.Measure(_renderer, new Size(0, 0));
+            Span firstSpan = view.GetSpan();
+            view.Measure(_renderer, new Size(0, 0));
+
+            ReferenceEquals(view.GetSpan(), firstSpan).Should().BeTrue();
+        }
+
         private class TestableContentView<T> : ContentView<T>
         {
             public bool IsSpanCreated => Span != null;
+
+            public Span GetSpan() => Span;
 
             public TestableContentView(T value)
                 : base(value)
