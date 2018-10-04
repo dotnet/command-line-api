@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace System.CommandLine.Rendering.Views
+﻿namespace System.CommandLine.Rendering.Views
 {
     public class ContentView<T> : ContentView
     {

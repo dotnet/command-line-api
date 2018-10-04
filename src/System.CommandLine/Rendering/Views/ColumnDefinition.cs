@@ -1,4 +1,4 @@
-namespace System.CommandLine.Rendering.Views
+﻿namespace System.CommandLine.Rendering.Views
 {
     public class ColumnDefinition
     {
@@ -8,7 +8,6 @@ namespace System.CommandLine.Rendering.Views
 
         private ColumnDefinition(SizeMode sizeMode, double value)
         {
-            //TODO: Validation
             SizeMode = sizeMode;
             Value = value;
         }
@@ -30,8 +29,7 @@ namespace System.CommandLine.Rendering.Views
             }
             return new ColumnDefinition(SizeMode.Star, weight);
         }
-
-        //TODO: Consider renaming this to 'Auto' and and making it a readonly property.
+        
         public static ColumnDefinition SizeToContent() => new ColumnDefinition(SizeMode.SizeToContent, 0);
     }
 }
