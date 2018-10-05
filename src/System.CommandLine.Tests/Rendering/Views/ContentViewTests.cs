@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var contentView = new TestContentView("Four");
             var span = contentView.GetSpan();
             
-            span.Should().BeOfType<ContentSpan>();
+            span.Should().BeOfType<ContentSpan>().Which.Content.Contains("Four");
         }
 
         [Fact]
