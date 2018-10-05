@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CommandLine;
 using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
@@ -48,14 +48,15 @@ namespace RenderingPlayground
             {
                 console.TryEnableVirtualTerminal();
 
-                // TODO: (Main) implement this in the core
                 if (overwrite && !console.IsOutputRedirected)
                 {
                     console.Clear();
                 }
             }
 
-            var consoleRenderer = new ConsoleRenderer(mode: outputMode);
+            var consoleRenderer = new ConsoleRenderer(
+                console,
+                mode: outputMode);
 
             switch (sample)
             {

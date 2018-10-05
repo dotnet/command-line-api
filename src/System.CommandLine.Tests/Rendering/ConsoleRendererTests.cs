@@ -84,7 +84,7 @@ namespace System.CommandLine.Tests.Rendering
                 OutputMode.File
             );
 
-            new DirectoryView(new DirectoryInfo(Directory.GetCurrentDirectory())).Render(writer, new Region(0,0,100, 100));
+            new DirectoryView(new DirectoryInfo(Directory.GetCurrentDirectory())).Render(writer, new Region(0, 0, 100, 100));
 
             _console.Out
                     .ToString()
