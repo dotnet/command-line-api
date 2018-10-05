@@ -10,7 +10,7 @@ namespace System.CommandLine.Invocation
     {
         private VirtualTerminalMode _virtualTerminalMode;
 
-        private SystemConsole()
+        internal SystemConsole()
         {
         }
 
@@ -81,9 +81,23 @@ namespace System.CommandLine.Invocation
             _virtualTerminalMode = VirtualTerminalMode.TryEnable();
         }
 
-        public void Dispose()
+        private void ResetConsole()
         {
             _virtualTerminalMode?.Dispose();
+
+            Console.ForegroundColor = _initialForegroundColor;
+            Console.BackgroundColor = _initialBackgroundColor;
+        }
+
+        public void Dispose()
+        {
+            ResetConsole();
+            GC.SuppressFinalize(this);
+        }
+
+        ~SystemConsole()
+        {
+            ResetConsole();
         }
     }
 }
