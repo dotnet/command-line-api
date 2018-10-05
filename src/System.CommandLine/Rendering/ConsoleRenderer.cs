@@ -1,4 +1,4 @@
-using System.CommandLine.Invocation;
+﻿using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Rendering
 {

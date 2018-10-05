@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Rendering;
@@ -9,9 +9,13 @@ namespace System.CommandLine.Invocation
     internal class SystemConsole : IConsole
     {
         private VirtualTerminalMode _virtualTerminalMode;
+        private readonly ConsoleColor _initialForegroundColor;
+        private readonly ConsoleColor _initialBackgroundColor;
 
         internal SystemConsole()
         {
+            _initialForegroundColor = Console.ForegroundColor;
+            _initialBackgroundColor = Console.BackgroundColor;
         }
 
         public static IConsole Instance { get; } = new SystemConsole();
@@ -22,6 +26,12 @@ namespace System.CommandLine.Invocation
 
         public TextWriter Out => Console.Out;
 
+        public ConsoleColor BackgroundColor
+        {
+            get => Console.BackgroundColor;
+            set => Console.BackgroundColor = value;
+        }
+
         public ConsoleColor ForegroundColor
         {
             get => Console.ForegroundColor;
@@ -30,8 +40,8 @@ namespace System.CommandLine.Invocation
 
         public void ResetColor() => Console.ResetColor();
 
-        public Region GetRegion() => 
-            IsOutputRedirected 
+        public Region GetRegion() =>
+            IsOutputRedirected
                 ? new Region(0, 0, int.MaxValue, int.MaxValue, false)
                 : EntireConsoleRegion.Instance;
 
@@ -62,9 +72,9 @@ namespace System.CommandLine.Invocation
                 if (_virtualTerminalMode != null)
                 {
                     return _virtualTerminalMode.IsEnabled;
-            }
+                }
 
-            var terminalName = Environment.GetEnvironmentVariable("TERM");
+                var terminalName = Environment.GetEnvironmentVariable("TERM");
 
                 return !string.IsNullOrEmpty(terminalName)
                        && terminalName.StartsWith("xterm", StringComparison.OrdinalIgnoreCase);
