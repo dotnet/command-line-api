@@ -3,6 +3,7 @@ using System.CommandLine.Rendering.Views;
 using System.Drawing;
 using FluentAssertions;
 using Xunit;
+using Size = System.CommandLine.Rendering.Size;
 
 namespace System.CommandLine.Tests.Rendering.Views
 {
@@ -138,6 +139,119 @@ namespace System.CommandLine.Tests.Rendering.Views
                 new TestConsole.CursorPositionChanged(new Point(9, 1)),
                 new TestConsole.ContentWritten("fox  ")
             );
+        }
+
+        [Fact]
+        public void Measuring_a_vertical_stack_sums_content_height()
+        {
+            var stackLayout = new StackLayoutView(Orientation.Vertical);
+            var child1 = new ContentView("The quick");
+            var child2 = new ContentView("brown fox");
+
+            stackLayout.AddChild(child1);
+            stackLayout.AddChild(child2);
+
+            var console = new TestConsole();
+            var renderer = new ConsoleRenderer(console);
+            
+            var size = stackLayout.Measure(renderer, new Size(10, 10));
+
+            size.Should().BeEquivalentTo(new Size(9, 2));
+        }
+
+        [Fact]
+        public void Measuring_a_vertical_stack_with_word_wrap_it_sums_max_height_for_each_row()
+        {
+            var stackLayout = new StackLayoutView(Orientation.Vertical);
+            var child1 = new ContentView("The quick");
+            var child2 = new ContentView("brown fox");
+
+            stackLayout.AddChild(child1);
+            stackLayout.AddChild(child2);
+
+            var console = new TestConsole();
+            var renderer = new ConsoleRenderer(console);
+            
+            var size = stackLayout.Measure(renderer, new Size(7, 10));
+
+            // Max width is "brown ".
+            size.Should().BeEquivalentTo(new Size(6, 4));
+        }
+
+        [Fact]
+        public void Measuring_a_vertical_stack_with_row_truncation_the_top_row_is_measured_first()
+        {
+            var stackLayout = new StackLayoutView(Orientation.Vertical);
+            var child1 = new ContentView("The quick");
+            var child2 = new ContentView("brown fox");
+
+            stackLayout.AddChild(child1);
+            stackLayout.AddChild(child2);
+
+            var console = new TestConsole();
+            var renderer = new ConsoleRenderer(console);
+            
+            var size = stackLayout.Measure(renderer, new Size(7, 1));
+
+            // The max width of the first row is "The ".
+            // "brown " is in the second row.
+            size.Should().BeEquivalentTo(new Size(4, 1));
+        }
+
+        [Fact]
+        public void Measuring_a_horizontal_stack_sums_content_width()
+        {
+            var stackLayout = new StackLayoutView(Orientation.Horizontal);
+            var child1 = new ContentView("The quick");
+            var child2 = new ContentView("brown fox");
+
+            stackLayout.AddChild(child1);
+            stackLayout.AddChild(child2);
+
+            var console = new TestConsole();
+            var renderer = new ConsoleRenderer(console);
+            
+            var size = stackLayout.Measure(renderer, new Size(20, 20));
+
+            size.Should().BeEquivalentTo(new Size(18, 1));
+        }
+
+        [Fact]
+        public void Measuring_a_horizontal_stack_with_word_wrap_it_sums_max_width_for_each_column()
+        {
+            var stackLayout = new StackLayoutView(Orientation.Horizontal);
+            var child1 = new ContentView("The quick");
+            var child2 = new ContentView("brown fox");
+
+            stackLayout.AddChild(child1);
+            stackLayout.AddChild(child2);
+
+            var console = new TestConsole();
+            var renderer = new ConsoleRenderer(console);
+            
+            var size = stackLayout.Measure(renderer, new Size(7, 10));
+
+            // 11 because "brown " and "quick" are the max for each row
+            size.Should().BeEquivalentTo(new Size(11, 2));
+        }
+
+        [Fact]
+        public void Measuring_a_horizontal_stack_with_truncated_height_measures_max_for_each_column()
+        {
+            var stackLayout = new StackLayoutView(Orientation.Horizontal);
+            var child1 = new ContentView("The quick");
+            var child2 = new ContentView("brown fox");
+
+            stackLayout.AddChild(child1);
+            stackLayout.AddChild(child2);
+
+            var console = new TestConsole();
+            var renderer = new ConsoleRenderer(console);
+            
+            var size = stackLayout.Measure(renderer, new Size(7, 1));
+
+            // 10 because "The " and "brown " are the max for each row. "fox" and "quick" are truncated.
+            size.Should().BeEquivalentTo(new Size(10, 1));
         }
     }
 }
