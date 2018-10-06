@@ -60,7 +60,7 @@ namespace System.CommandLine.Rendering.Views
             ChildLocations = new View[_columns.Count, _rows.Count];
         }
 
-        public override Size Measure(IRenderer renderer, Size maxSize)
+        public override Size Measure(ConsoleRenderer renderer, Size maxSize)
         {
             int width = 0;
             int height = 0;
@@ -87,7 +87,7 @@ namespace System.CommandLine.Rendering.Views
             return new Size(width, height);
         }
 
-        public override void Render(IRenderer renderer, Region region)
+        public override void Render(ConsoleRenderer renderer, Region region)
         {
             Size[,] sizes = GetGridSizes(renderer, new Size(region.Width, region.Height));
 
@@ -111,7 +111,7 @@ namespace System.CommandLine.Rendering.Views
             }
         }
 
-        private Size[,] GetGridSizes(IRenderer renderer, Size maxSize)
+        private Size[,] GetGridSizes(ConsoleRenderer renderer, Size maxSize)
         {
             double totalColumnStarSize = _columns.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);
             double totalRowStarSize = _rows.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);

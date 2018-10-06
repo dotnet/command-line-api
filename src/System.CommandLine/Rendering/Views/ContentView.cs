@@ -16,7 +16,7 @@
 
         protected Span Span { get; set; }
 
-        public override void Render(IRenderer renderer, Region region)
+        public override void Render(ConsoleRenderer renderer, Region region)
         {
             if (renderer == null) throw new ArgumentNullException(nameof(renderer));
             if (region == null) throw new ArgumentNullException(nameof(region));
@@ -26,7 +26,7 @@
             renderer.RenderToRegion(Span, region);
         }
 
-        public override Size Measure(IRenderer renderer, Size maxSize)
+        public override Size Measure(ConsoleRenderer renderer, Size maxSize)
         {
             if (renderer == null) throw new ArgumentNullException(nameof(renderer));
             if (maxSize == null) throw new ArgumentNullException(nameof(maxSize));

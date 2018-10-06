@@ -2,7 +2,7 @@
 
 namespace System.CommandLine.Rendering
 {
-    public class ConsoleRenderer : IRenderer
+    public class ConsoleRenderer
     {
         public ConsoleRenderer(
             IConsole console = null,

@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests.Rendering.Views
     public class ContentViewGenericTests
     {
         private readonly TestConsole _console;
-        private readonly IRenderer _renderer;
+        private readonly ConsoleRenderer _renderer;
 
         public ContentViewGenericTests()
         {

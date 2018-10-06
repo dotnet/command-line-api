@@ -10,7 +10,7 @@ namespace System.CommandLine.Rendering.Views
         private int _renderInProgress;
         private readonly SynchronizationContext _context;
 
-        public ScreenView(IConsole console = null, IRenderer renderer = null, OutputMode outputMode = OutputMode.Ansi)
+        public ScreenView(IConsole console = null, ConsoleRenderer renderer = null, OutputMode outputMode = OutputMode.Ansi)
         {
             _context = SynchronizationContext.Current ?? new SynchronizationContext();
             Console = console ?? SystemConsole.Instance;
@@ -18,7 +18,7 @@ namespace System.CommandLine.Rendering.Views
         }
 
         private IConsole Console { get; }
-        private IRenderer Renderer { get; }
+        private ConsoleRenderer Renderer { get; }
 
         public View Child
         {
