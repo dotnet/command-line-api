@@ -174,8 +174,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             
             var size = stackLayout.Measure(renderer, new Size(7, 10));
 
-            // Max width is "brown ".
-            size.Should().BeEquivalentTo(new Size(6, 4));
+            size.Should().BeEquivalentTo(new Size("brown ".Length, 4));
         }
 
         [Fact]
@@ -193,9 +192,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             
             var size = stackLayout.Measure(renderer, new Size(7, 1));
 
-            // The max width of the first row is "The ".
-            // "brown " is in the second row.
-            size.Should().BeEquivalentTo(new Size(4, 1));
+            var firstViewTopRow = "The ".Length;
+            size.Should().BeEquivalentTo(new Size(firstViewTopRow, 1));
         }
 
         [Fact]
@@ -213,7 +211,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             
             var size = stackLayout.Measure(renderer, new Size(20, 20));
 
-            size.Should().BeEquivalentTo(new Size(18, 1));
+            size.Should().BeEquivalentTo(new Size("The quickbrown fox".Length, 1));
         }
 
         [Fact]
@@ -231,8 +229,9 @@ namespace System.CommandLine.Tests.Rendering.Views
             
             var size = stackLayout.Measure(renderer, new Size(7, 10));
 
-            // 11 because "brown " and "quick" are the max for each row
-            size.Should().BeEquivalentTo(new Size(11, 2));
+            var colOneWidth = Math.Max("The ".Length, "quick".Length);
+            var colTwoWidth = Math.Max("brown ".Length, "fox".Length);
+            size.Should().BeEquivalentTo(new Size(colOneWidth + colTwoWidth, 2));
         }
 
         [Fact]
@@ -250,8 +249,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             
             var size = stackLayout.Measure(renderer, new Size(7, 1));
 
-            // 10 because "The " and "brown " are the max for each row. "fox" and "quick" are truncated.
-            size.Should().BeEquivalentTo(new Size(10, 1));
+            size.Should().BeEquivalentTo(new Size("The ".Length + "brown ".Length, 1));
         }
     }
 }
