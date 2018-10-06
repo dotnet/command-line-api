@@ -122,14 +122,23 @@ namespace System.CommandLine.Tests.Rendering.Views
         }
 
         [Fact]
-        public void FromObservable_automatically_subscribes_observer()
+        public void Views_created_from_an_observable_can_be_updated_by_the_observable()
         {
             var observable = new TestObservable();
+            var view = ContentView.FromObservable(observable);
+            var isViewUpdated = false;
+            view.Updated += (s, e) => { isViewUpdated = true; };
 
-            observable.Observers.Should().BeEmpty();
-            var view = ContentView.FromObservable(observable); 
-            observable.Observers.Should().HaveCount(1);
-            view.Should().NotBeNull();
+            var initialSize = view.Measure(_renderer, new Size(10, 10));
+            initialSize.Height.Should().Be(0);
+            initialSize.Width.Should().Be(0);
+
+            observable.UpdateViews("Four");
+            
+            isViewUpdated.Should().BeTrue();
+            var updatedSize = view.Measure(_renderer, new Size(10, 10));
+            updatedSize.Height.Should().Be(1);
+            updatedSize.Width.Should().Be(4);
         }
 
         private class TestContentView : ContentView
@@ -143,31 +152,39 @@ namespace System.CommandLine.Tests.Rendering.Views
             public TestContentView(string content) : base(content) { }
         }
 
-        private class TestObservable : IObservable<int>
+        private class TestObservable : IObservable<string>
         {
-            public List<IObserver<int>> Observers { get; private set; }
+            public List<IObserver<string>> _observers;
 
             public TestObservable()
             {
-                Observers = new List<IObserver<int>>();
+                _observers = new List<IObserver<string>>();
             }
 
-            public IDisposable Subscribe(IObserver<int> observer)
+            public IDisposable Subscribe(IObserver<string> observer)
             {
-                if (!Observers.Contains(observer))
+                if (!_observers.Contains(observer))
                 {
-                    Observers.Add(observer);
+                    _observers.Add(observer);
                 }
-                return new TestDisposable(Observers, observer);
+                return new TestDisposable(_observers, observer);
+            }
+
+            public void UpdateViews(string value)
+            {
+                foreach(var observer in _observers)
+                {
+                    observer.OnNext(value);
+                }
             }
         }
 
         private class TestDisposable : IDisposable
         {
-            private List<IObserver<int>> _observers;
-            private IObserver<int> _observer;
+            private List<IObserver<string>> _observers;
+            private IObserver<string> _observer;
             
-            public TestDisposable(List<IObserver<int>> observers, IObserver<int> observer)
+            public TestDisposable(List<IObserver<string>> observers, IObserver<string> observer)
             {
                 this._observers = observers;
                 this._observer = observer;
