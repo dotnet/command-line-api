@@ -9,9 +9,13 @@ namespace System.CommandLine.Invocation
     internal class SystemConsole : IConsole
     {
         private VirtualTerminalMode _virtualTerminalMode;
+        private readonly ConsoleColor _initialForegroundColor;
+        private readonly ConsoleColor _initialBackgroundColor;
 
-        private SystemConsole()
+        internal SystemConsole()
         {
+            _initialForegroundColor = Console.ForegroundColor;
+            _initialBackgroundColor = Console.BackgroundColor;
         }
 
         public static IConsole Instance { get; } = new SystemConsole();
@@ -22,6 +26,12 @@ namespace System.CommandLine.Invocation
 
         public TextWriter Out => Console.Out;
 
+        public ConsoleColor BackgroundColor
+        {
+            get => Console.BackgroundColor;
+            set => Console.BackgroundColor = value;
+        }
+
         public ConsoleColor ForegroundColor
         {
             get => Console.ForegroundColor;
@@ -30,8 +40,8 @@ namespace System.CommandLine.Invocation
 
         public void ResetColor() => Console.ResetColor();
 
-        public Region GetRegion() => 
-            IsOutputRedirected 
+        public Region GetRegion() =>
+            IsOutputRedirected
                 ? new Region(0, 0, int.MaxValue, int.MaxValue, false)
                 : EntireConsoleRegion.Instance;
 
@@ -55,17 +65,20 @@ namespace System.CommandLine.Invocation
 
         public bool IsInputRedirected => Console.IsInputRedirected;
 
-        public bool IsVirtualTerminal()
+        public bool IsVirtualTerminal
         {
-            if (_virtualTerminalMode != null)
+            get
             {
-                return _virtualTerminalMode.IsEnabled;
+                if (_virtualTerminalMode != null)
+                {
+                    return _virtualTerminalMode.IsEnabled;
+                }
+
+                var terminalName = Environment.GetEnvironmentVariable("TERM");
+
+                return !string.IsNullOrEmpty(terminalName)
+                       && terminalName.StartsWith("xterm", StringComparison.OrdinalIgnoreCase);
             }
-
-            var terminalName = Environment.GetEnvironmentVariable("TERM");
-
-            return !string.IsNullOrEmpty(terminalName)
-                   && terminalName.StartsWith("xterm", StringComparison.OrdinalIgnoreCase);
         }
 
         public void TryEnableVirtualTerminal()
@@ -78,9 +91,23 @@ namespace System.CommandLine.Invocation
             _virtualTerminalMode = VirtualTerminalMode.TryEnable();
         }
 
-        public void Dispose()
+        private void ResetConsole()
         {
             _virtualTerminalMode?.Dispose();
+
+            Console.ForegroundColor = _initialForegroundColor;
+            Console.BackgroundColor = _initialBackgroundColor;
+        }
+
+        public void Dispose()
+        {
+            ResetConsole();
+            GC.SuppressFinalize(this);
+        }
+
+        ~SystemConsole()
+        {
+            ResetConsole();
         }
     }
 }

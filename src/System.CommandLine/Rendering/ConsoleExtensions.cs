@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -19,14 +19,14 @@ namespace System.CommandLine.Rendering
                 return OutputMode.File;
             }
 
-            return console.IsVirtualTerminal()
+            return console.IsVirtualTerminal
                        ? OutputMode.Ansi
                        : OutputMode.NonAnsi;
         }
 
         public static void Clear(this IConsole console)
         {
-            if (console.IsVirtualTerminal())
+            if (console.IsVirtualTerminal)
             {
                 console.Out.WriteLine(Ansi.Clear.EntireScreen);
             }

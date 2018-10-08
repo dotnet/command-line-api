@@ -27,11 +27,9 @@ namespace System.CommandLine.Tests.Rendering
 
             _console.RenderOperations()
                     .Should()
-                    .BeEquivalentTo(new[] {
-                        new TextRendered("1", new Point(3, 5)),
+                    .BeEquivalentSequenceTo(new TextRendered("1", new Point(3, 5)),
                         new TextRendered("2", new Point(3, 6)),
-                        new TextRendered("3", new Point(3, 7)),
-                    }, options => options.WithStrictOrdering());
+                        new TextRendered("3", new Point(3, 7)));
         }
 
         [Fact(Skip = "WIP")]
@@ -51,12 +49,11 @@ namespace System.CommandLine.Tests.Rendering
             view.Render(renderer, new Region(3, 5, 1, 3));
 
             _console.RenderOperations()
-                .Should()
-                .BeEquivalentTo(new[] {
-                    new TextRendered("1", new Point(3, 5)),
-                    new TextRendered("2", new Point(3, 6)),
-                    new TextRendered("3", new Point(3, 7)),
-                }, options => options.WithStrictOrdering());
+                    .Should()
+                    .BeEquivalentSequenceTo(
+                        new TextRendered("1", new Point(3, 5)),
+                        new TextRendered("2", new Point(3, 6)),
+                        new TextRendered("3", new Point(3, 7)));
         }
 
         private class StringsView : StackLayoutView

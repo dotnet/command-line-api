@@ -9,19 +9,19 @@
 
         public T Value { get; }
 
-        public override Size Measure(IRenderer renderer, Size maxSize)
+        public override Size Measure(ConsoleRenderer renderer, Size maxSize)
         {
             EnsureSpanCreated(renderer);
             return base.Measure(renderer, maxSize);
         }
 
-        public override void Render(IRenderer renderer, Region region)
+        public override void Render(ConsoleRenderer renderer, Region region)
         {
             EnsureSpanCreated(renderer);
             base.Render(renderer, region);
         }
 
-        private void EnsureSpanCreated(IRenderer renderer)
+        private void EnsureSpanCreated(ConsoleRenderer renderer)
         {
             if (Span == null)
             {

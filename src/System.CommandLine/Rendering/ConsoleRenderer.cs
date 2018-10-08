@@ -1,12 +1,12 @@
-using System.CommandLine.Invocation;
+﻿using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Rendering
 {
-    public class ConsoleRenderer : IRenderer
+    public class ConsoleRenderer
     {
         public ConsoleRenderer(
             IConsole console = null,
-            OutputMode mode = OutputMode.NonAnsi)
+            OutputMode mode = OutputMode.Auto)
         {
             Console = console ?? SystemConsole.Instance;
 

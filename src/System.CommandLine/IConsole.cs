@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Rendering;
@@ -16,6 +16,8 @@ namespace System.CommandLine
 
         Region GetRegion();
 
+        ConsoleColor BackgroundColor { get; set; }
+
         ConsoleColor ForegroundColor { get; set; }
 
         void ResetColor();
@@ -32,7 +34,7 @@ namespace System.CommandLine
 
         bool IsInputRedirected { get; }
 
-        bool IsVirtualTerminal();
+        bool IsVirtualTerminal { get; }
 
         void TryEnableVirtualTerminal();
     }

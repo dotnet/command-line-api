@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests
 
             console.TryEnableVirtualTerminal();
 
-            console.IsVirtualTerminal().Should().BeFalse();
+            console.IsVirtualTerminal.Should().BeFalse();
         }
     }
 }

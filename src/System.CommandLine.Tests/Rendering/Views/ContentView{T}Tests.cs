@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests.Rendering.Views
     public class ContentViewGenericTests
     {
         private readonly TestConsole _console;
-        private readonly IRenderer _renderer;
+        private readonly ConsoleRenderer _renderer;
 
         public ContentViewGenericTests()
         {
@@ -35,11 +35,11 @@ namespace System.CommandLine.Tests.Rendering.Views
 
             view.Render(_renderer, new Region(0, 0, 3, 1));
 
-            _console.Events.Should().BeEquivalentTo(new object[]
-            {
-                new TestConsole.CursorPositionChanged(new Point(0, 0)),
-                new TestConsole.ContentWritten("421")
-            }, config => config.WithStrictOrdering());
+            _console.Events
+                    .Should()
+                    .BeEquivalentSequenceTo(
+                        new TestConsole.CursorPositionChanged(new Point(0, 0)),
+                        new TestConsole.ContentWritten("421"));
         }
 
         [Fact]

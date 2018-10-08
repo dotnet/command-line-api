@@ -52,18 +52,14 @@ namespace System.CommandLine.Tests.Rendering
             visitor.VisitedSpans
                    .Select(s => s.GetType())
                    .Should()
-                   .BeEquivalentTo(
-                       expectation: new[] {
-                           typeof(ContainerSpan),
-                           typeof(BackgroundColorSpan),
-                           typeof(ContainerSpan),
-                           typeof(ForegroundColorSpan),
-                           typeof(ContentSpan),
-                           typeof(ForegroundColorSpan),
-                           typeof(BackgroundColorSpan),
-                       },
-                       config: options => options.WithStrictOrdering()
-                   );
+                   .BeEquivalentSequenceTo(
+                       typeof(ContainerSpan),
+                       typeof(BackgroundColorSpan),
+                       typeof(ContainerSpan),
+                       typeof(ForegroundColorSpan),
+                       typeof(ContentSpan),
+                       typeof(ForegroundColorSpan),
+                       typeof(BackgroundColorSpan));
         }
     }
 

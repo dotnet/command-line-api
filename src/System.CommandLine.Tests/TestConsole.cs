@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -18,7 +18,8 @@ namespace System.CommandLine.Tests
         private readonly List<ConsoleEvent> _events = new List<ConsoleEvent>();
         private readonly StringBuilder _outBuffer = new StringBuilder();
         private readonly StringBuilder _ansiCodeBuffer = new StringBuilder();
-        private bool _isVirtualTerminal;
+        private ConsoleColor _backgroundColor = ConsoleColor.Black;
+        private ConsoleColor _foregroundColor = ConsoleColor.White;
 
         public TestConsole()
         {
@@ -57,16 +58,6 @@ namespace System.CommandLine.Tests
             }
         }
 
-        public class AnsiControlCodeWritten : ConsoleEvent
-        {
-            public AnsiControlCodeWritten(AnsiControlCode ansiControlCode)
-            {
-                Code = ansiControlCode ?? throw new ArgumentNullException(nameof(ansiControlCode));
-            }
-
-            public AnsiControlCode Code { get; }
-        }
-
         public void SetOut(TextWriter writer)
         {
             Out = writer ?? throw new ArgumentNullException(nameof(writer));
@@ -77,14 +68,13 @@ namespace System.CommandLine.Tests
 
         public TextWriter Out { get; private set; }
 
-        public virtual ConsoleColor ForegroundColor { get; set; }
-
         public int Height { get; set; } = 100;
 
         public int Width { get; set; } = 100;
 
         public virtual void ResetColor()
         {
+            RecordEvent(new ColorReset());
         }
 
         public Region GetRegion() =>
@@ -196,9 +186,31 @@ namespace System.CommandLine.Tests
 
         public bool IsInputRedirected { get; }
 
-        public bool IsVirtualTerminal() => _isVirtualTerminal;
+        public bool IsVirtualTerminal { get; private set; }
 
-        public void TryEnableVirtualTerminal() => _isVirtualTerminal = !IsOutputRedirected;
+        public void TryEnableVirtualTerminal() => IsVirtualTerminal = !IsOutputRedirected;
+
+        public virtual ConsoleColor BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                _backgroundColor = value;
+
+                RecordEvent(new BackgroundColorChanged(value));
+            }
+        }
+
+        public virtual ConsoleColor ForegroundColor
+        {
+            get => _foregroundColor;
+            set
+            {
+                _foregroundColor = value;
+
+                RecordEvent(new ForegroundColorChanged(value));
+            }
+        }
 
         public IEnumerable<TextRendered> RenderOperations()
         {
@@ -229,6 +241,7 @@ namespace System.CommandLine.Tests
 
                             position = cursorPositionChanged.Position;
                         }
+
                         break;
                 }
             }
@@ -239,7 +252,35 @@ namespace System.CommandLine.Tests
             }
         }
 
+        public void Dispose()
+        {
+        }
+
         public abstract class ConsoleEvent
+        {
+        }
+
+        public class AnsiControlCodeWritten : ConsoleEvent
+        {
+            public AnsiControlCodeWritten(AnsiControlCode ansiControlCode)
+            {
+                Code = ansiControlCode ?? throw new ArgumentNullException(nameof(ansiControlCode));
+            }
+
+            public AnsiControlCode Code { get; }
+        }
+
+        public class BackgroundColorChanged : ConsoleEvent
+        {
+            public BackgroundColorChanged(ConsoleColor backgroundColor)
+            {
+                BackgroundColor = backgroundColor;
+            }
+
+            public ConsoleColor BackgroundColor { get; }
+        }
+
+        public class ColorReset : ConsoleEvent
         {
         }
 
@@ -263,9 +304,14 @@ namespace System.CommandLine.Tests
             public string Content { get; }
         }
 
-        public void Dispose()
+        public class ForegroundColorChanged : ConsoleEvent
         {
+            public ForegroundColorChanged(ConsoleColor foregroundColor)
+            {
+                ForegroundColor = foregroundColor;
+            }
 
+            public ConsoleColor ForegroundColor { get; }
         }
     }
 }

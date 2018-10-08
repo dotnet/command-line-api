@@ -11,7 +11,7 @@ namespace System.CommandLine.Tests
         protected override IConsole GetConsole() => new TestConsole();
 
         [Fact]
-        public void When_CurorLeft_is_set_then_a_cursor_position_is_recorded()
+        public void When_CursorLeft_is_set_then_a_cursor_position_is_recorded()
         {
             var console = new TestConsole();
 
@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
                    .OfType<TestConsole.CursorPositionChanged>()
                    .Select(e => e.Position)
                    .Should()
-                   .BeEquivalentTo(new Point(19, 0));
+                   .BeEquivalentSequenceTo(new Point(19, 0));
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests
                    .OfType<TestConsole.CursorPositionChanged>()
                    .Select(e => e.Position)
                    .Should()
-                   .BeEquivalentTo(new Point(0, 12));
+                   .BeEquivalentSequenceTo(new Point(0, 12));
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests
                    .OfType<TestConsole.CursorPositionChanged>()
                    .Select(e => e.Position)
                    .Should()
-                   .BeEquivalentTo(new Point(3, 5));
+                   .BeEquivalentSequenceTo(new Point(3, 5));
         }
 
         [Theory]
@@ -75,11 +75,10 @@ namespace System.CommandLine.Tests
                    .OfType<TestConsole.CursorPositionChanged>()
                    .Select(e => e.Position)
                    .Should()
-                   .BeEquivalentTo(new[] {
+                   .BeEquivalentSequenceTo(
                        new Point(2, 5),
                        new Point(2, 6),
-                       new Point(2, 7),
-                   });
+                       new Point(2, 7));
         }
 
         [Theory]
@@ -98,12 +97,11 @@ namespace System.CommandLine.Tests
             console.Events
                    .Where(e => !(e is TestConsole.AnsiControlCodeWritten))
                    .Should()
-                   .BeEquivalentTo(new object[] {
+                   .BeEquivalentSequenceTo(
                        new TestConsole.CursorPositionChanged(new Point(1, 3)),
                        new TestConsole.ContentWritten("first line "),
                        new TestConsole.CursorPositionChanged(new Point(1, 4)),
-                       new TestConsole.ContentWritten("second line"),
-                   }, options => options.WithStrictOrdering());
+                       new TestConsole.ContentWritten("second line"));
         }
 
         [Fact]

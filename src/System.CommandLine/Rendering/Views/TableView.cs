@@ -44,19 +44,19 @@ namespace System.CommandLine.Rendering.Views
             OnUpdated();
         }
 
-        public override void Render(IRenderer renderer, Region region)
+        public override void Render(ConsoleRenderer renderer, Region region)
         {
             EnsureInitialized(renderer);
             Layout.Render(renderer, region);
         }
 
-        public override Size Measure(IRenderer renderer, Size maxSize)
+        public override Size Measure(ConsoleRenderer renderer, Size maxSize)
         {
             EnsureInitialized(renderer);
             return Layout.Measure(renderer, maxSize);
         }
 
-        private void EnsureInitialized(IRenderer renderer)
+        private void EnsureInitialized(ConsoleRenderer renderer)
         {
             if (_gridInitialized) return;
 

@@ -14,7 +14,7 @@
 
         public Orientation Orientation { get; }
 
-        public override void Render(IRenderer renderer, Region region)
+        public override void Render(ConsoleRenderer renderer, Region region)
         {
             switch (Orientation)
             {
@@ -27,7 +27,7 @@
             }
         }
 
-        private void RenderVertical(Region region, IRenderer renderer)
+        private void RenderVertical(Region region, ConsoleRenderer renderer)
         {
             var left = region.Left;
             var top = region.Top;
@@ -48,7 +48,7 @@
             }
         }
 
-        private void RenderHorizontal(Region region, IRenderer renderer)
+        private void RenderHorizontal(Region region, ConsoleRenderer renderer)
         {
             var left = region.Left;
             var top = region.Top;
@@ -68,7 +68,7 @@
             }
         }
 
-        public override Size Measure(IRenderer renderer, Size maxSize)
+        public override Size Measure(ConsoleRenderer renderer, Size maxSize)
         {
             switch (Orientation)
             {
@@ -81,7 +81,7 @@
             }
         }
 
-        private Size GetAdjustedSizeVertical(IRenderer renderer, Size maxSize)
+        private Size GetAdjustedSizeVertical(ConsoleRenderer renderer, Size maxSize)
         {
             var maxWidth = 0;
             var totHeight = 0;
@@ -103,7 +103,7 @@
             return new Size(maxWidth, totHeight);
         }
 
-        private Size GetAdjustedSizeHorizontal(IRenderer renderer, Size maxSize)
+        private Size GetAdjustedSizeHorizontal(ConsoleRenderer renderer, Size maxSize)
         {
             var maxHeight = 0;
             var totalWidth = 0;

@@ -1,10 +1,12 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace System.CommandLine.Invocation
 {
-    public class InvocationContext
+    public sealed class InvocationContext : IDisposable
     {
+        private readonly IDisposable _onDispose;
+
         public InvocationContext(
             ParseResult parseResult,
             Parser parser,
@@ -12,7 +14,16 @@ namespace System.CommandLine.Invocation
         {
             ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
-            Console = console ?? SystemConsole.Instance;
+
+            if (console != null)
+            {
+                Console = console;
+            }
+            else
+            {
+                Console = new SystemConsole();
+                _onDispose = Console;
+            }
         }
 
         public Parser Parser { get; }
@@ -24,5 +35,10 @@ namespace System.CommandLine.Invocation
         public int ResultCode { get; set; }
 
         public IInvocationResult InvocationResult { get; set; }
+
+        public void Dispose()
+        {
+            _onDispose?.Dispose();
+        }
     }
 }

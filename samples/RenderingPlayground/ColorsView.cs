@@ -12,9 +12,9 @@ namespace RenderingPlayground
 
         private string Text { get; }
 
-        public override Size Measure(IRenderer renderer, Size maxSize) => maxSize;
+        public override Size Measure(ConsoleRenderer renderer, Size maxSize) => maxSize;
 
-        public override void Render(IRenderer renderer, Region region)
+        public override void Render(ConsoleRenderer renderer, Region region)
         {
             byte r = 0;
             byte g = 0;
