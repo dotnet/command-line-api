@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Rendering;
@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests.Rendering.Views
     public class ContentViewTests
     {
         private readonly TestConsole _console;
-        private readonly IRenderer _renderer;
+        private readonly ConsoleRenderer _renderer;
 
         public ContentViewTests()
         {
