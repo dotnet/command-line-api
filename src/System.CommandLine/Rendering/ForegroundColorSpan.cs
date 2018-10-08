@@ -1,4 +1,4 @@
-namespace System.CommandLine.Rendering
+﻿namespace System.CommandLine.Rendering
 {
     public class ForegroundColorSpan : ColorSpan
     {
@@ -14,58 +14,40 @@ namespace System.CommandLine.Rendering
         {
         }
 
-        public static ForegroundColorSpan Reset { get; } =
-            new ForegroundColorSpan(nameof(Reset));
+        public static ForegroundColorSpan Reset() => new ForegroundColorSpan(nameof(Reset));
 
-        public static ForegroundColorSpan Black { get; } =
-            new ForegroundColorSpan(nameof(Black));
+        public static ForegroundColorSpan Black() => new ForegroundColorSpan(nameof(Black));
 
-        public static ForegroundColorSpan Red { get; } =
-            new ForegroundColorSpan(nameof(Red));
+        public static ForegroundColorSpan Red() => new ForegroundColorSpan(nameof(Red));
 
-        public static ForegroundColorSpan Green { get; } =
-            new ForegroundColorSpan(nameof(Green));
+        public static ForegroundColorSpan Green() => new ForegroundColorSpan(nameof(Green));
 
-        public static ForegroundColorSpan Yellow { get; } =
-            new ForegroundColorSpan(nameof(Yellow));
+        public static ForegroundColorSpan Yellow() => new ForegroundColorSpan(nameof(Yellow));
 
-        public static ForegroundColorSpan Blue { get; } =
-            new ForegroundColorSpan(nameof(Blue));
+        public static ForegroundColorSpan Blue() => new ForegroundColorSpan(nameof(Blue));
 
-        public static ForegroundColorSpan Magenta { get; } =
-            new ForegroundColorSpan(nameof(Magenta));
+        public static ForegroundColorSpan Magenta() => new ForegroundColorSpan(nameof(Magenta));
 
-        public static ForegroundColorSpan Cyan { get; } =
-            new ForegroundColorSpan(nameof(Cyan));
+        public static ForegroundColorSpan Cyan() => new ForegroundColorSpan(nameof(Cyan));
 
-        public static ForegroundColorSpan White { get; } =
-            new ForegroundColorSpan(nameof(White));
+        public static ForegroundColorSpan White() => new ForegroundColorSpan(nameof(White));
 
-        public static ForegroundColorSpan DarkGray { get; } =
-            new ForegroundColorSpan(nameof(DarkGray));
+        public static ForegroundColorSpan DarkGray() => new ForegroundColorSpan(nameof(DarkGray));
 
-        public static ForegroundColorSpan LightRed { get; } =
-            new ForegroundColorSpan(nameof(LightRed));
+        public static ForegroundColorSpan LightRed() => new ForegroundColorSpan(nameof(LightRed));
 
-        public static ForegroundColorSpan LightGreen { get; } =
-            new ForegroundColorSpan(nameof(LightGreen));
+        public static ForegroundColorSpan LightGreen() => new ForegroundColorSpan(nameof(LightGreen));
 
-        public static ForegroundColorSpan LightYellow { get; } =
-            new ForegroundColorSpan(nameof(LightYellow));
+        public static ForegroundColorSpan LightYellow() => new ForegroundColorSpan(nameof(LightYellow));
 
-        public static ForegroundColorSpan LightBlue { get; } =
-            new ForegroundColorSpan(nameof(LightBlue));
+        public static ForegroundColorSpan LightBlue() => new ForegroundColorSpan(nameof(LightBlue));
 
-        public static ForegroundColorSpan LightMagenta { get; } =
-            new ForegroundColorSpan(nameof(LightMagenta));
+        public static ForegroundColorSpan LightMagenta() => new ForegroundColorSpan(nameof(LightMagenta));
 
-        public static ForegroundColorSpan LightCyan { get; } =
-            new ForegroundColorSpan(nameof(LightCyan));
+        public static ForegroundColorSpan LightCyan() => new ForegroundColorSpan(nameof(LightCyan));
 
-        public static ForegroundColorSpan LightGray { get; } =
-            new ForegroundColorSpan(nameof(LightGray));
+        public static ForegroundColorSpan LightGray() => new ForegroundColorSpan(nameof(LightGray));
 
-        public static ForegroundColorSpan Rgb(byte r, byte g, byte b) =>
-            new ForegroundColorSpan(r, g, b);
+        public static ForegroundColorSpan Rgb(byte r, byte g, byte b) => new ForegroundColorSpan(r, g, b);
     }
 }

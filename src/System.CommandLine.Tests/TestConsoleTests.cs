@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests
 
             var region = new Region(0, 0, 4, 1);
 
-            renderer.RenderToRegion($"{ForegroundColorSpan.Red}text{ForegroundColorSpan.Reset}", region);
+            renderer.RenderToRegion($"{ForegroundColorSpan.Red()}text{ForegroundColorSpan.Reset()}", region);
 
             console.Events
                    .Should()

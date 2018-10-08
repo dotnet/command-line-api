@@ -38,12 +38,12 @@ namespace System.CommandLine.Tests.Rendering
         public void SpanVisitor_visits_child_spans_in_depth_first_order()
         {
             var outerContainer = new ContainerSpan(
-                BackgroundColorSpan.Green,
+                BackgroundColorSpan.Green(),
                 new ContainerSpan(
-                    ForegroundColorSpan.Red,
+                    ForegroundColorSpan.Red(),
                     new ContentSpan("the content"),
-                    ForegroundColorSpan.Reset),
-                BackgroundColorSpan.Reset);
+                    ForegroundColorSpan.Reset()),
+                BackgroundColorSpan.Reset());
 
             var visitor = new RecordingSpanVisitor();
 

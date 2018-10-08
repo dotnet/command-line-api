@@ -43,7 +43,7 @@ namespace RenderingPlayground
                 unchecked
                 {
                     renderer.RenderToRegion(
-                        $"{ForegroundColorSpan.Rgb(r += 2, g += 3, b += 5)}{Text[i]}{ForegroundColorSpan.Reset}",
+                        $"{ForegroundColorSpan.Rgb(r += 2, g += 3, b += 5)}{Text[i]}{ForegroundColorSpan.Reset()}",
                         subregion);
                 }
             }

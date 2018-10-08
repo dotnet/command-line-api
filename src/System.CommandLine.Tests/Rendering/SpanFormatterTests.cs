@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void A_formattable_string_containing_ansi_codes_can_be_converted_to_a_ContainerSpan()
         {
-            var span = new SpanFormatter().ParseToSpan($"some {StyleSpan.BlinkOn}blinking{StyleSpan.BlinkOff} text");
+            var span = new SpanFormatter().ParseToSpan($"some {StyleSpan.BlinkOn()}blinking{StyleSpan.BlinkOff()} text");
 
             var containerSpan = span.Should()
                                     .BeOfType<ContainerSpan>()
@@ -42,9 +42,9 @@ namespace System.CommandLine.Tests.Rendering
                 .BeEquivalentTo(
                     new ContainerSpan(
                         new ContentSpan("some "),
-                        StyleSpan.BlinkOn,
+                        StyleSpan.BlinkOn(),
                         new ContentSpan("blinking"),
-                        StyleSpan.BlinkOff,
+                        StyleSpan.BlinkOff(),
                         new ContentSpan(" text")
                     ),
                     options => options.WithStrictOrdering()

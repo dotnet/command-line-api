@@ -42,7 +42,7 @@ namespace RenderingPlayground
             {
                 if (!p.Responding)
                 {
-                    return $"{ForegroundColorSpan.Rgb(180, 0, 0)}{p.ProcessName}{ForegroundColorSpan.Reset}";
+                    return $"{ForegroundColorSpan.Rgb(180, 0, 0)}{p.ProcessName}{ForegroundColorSpan.Reset()}";
                 }
                 return $"{p.ProcessName}";
             }

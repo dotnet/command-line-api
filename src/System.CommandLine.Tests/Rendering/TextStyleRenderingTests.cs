@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests.Rendering
         public void BackgroundColorSpans_are_replaced_with_ANSI_codes_during_ANSI_rendering()
         {
             var span = _spanFormatter.ParseToSpan(
-                $"{BackgroundColorSpan.Red}red {BackgroundColorSpan.Blue}blue {BackgroundColorSpan.Green}green {BackgroundColorSpan.Reset}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
+                $"{BackgroundColorSpan.Red()}red {BackgroundColorSpan.Blue()}blue {BackgroundColorSpan.Green()}green {BackgroundColorSpan.Reset()}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_console, OutputMode.Ansi);
 
@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests.Rendering
         public void ForegroundColorSpans_are_replaced_with_ANSI_codes_during_ANSI_rendering()
         {
             var span = _spanFormatter.ParseToSpan(
-                $"{ForegroundColorSpan.Red}red {ForegroundColorSpan.Blue}blue {ForegroundColorSpan.Green}green {ForegroundColorSpan.Reset}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
+                $"{ForegroundColorSpan.Red()}red {ForegroundColorSpan.Blue()}blue {ForegroundColorSpan.Green()}green {ForegroundColorSpan.Reset()}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_console, OutputMode.Ansi);
 
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests.Rendering
         public void BackgroundColorSpans_are_replaced_with_System_Console_calls_during_non_ANSI_rendering()
         {
             var span = _spanFormatter.ParseToSpan(
-                $"{BackgroundColorSpan.Red}red {BackgroundColorSpan.Blue}blue {BackgroundColorSpan.Green}green {BackgroundColorSpan.Reset}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
+                $"{BackgroundColorSpan.Red()}red {BackgroundColorSpan.Blue()}blue {BackgroundColorSpan.Green()}green {BackgroundColorSpan.Reset()}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_console, OutputMode.NonAnsi);
 
@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests.Rendering
         public void ForegroundColorSpans_are_replaced_with_System_Console_calls_during_non_ANSI_rendering()
         {
             var span = _spanFormatter.ParseToSpan(
-                $"{ForegroundColorSpan.Red}red {ForegroundColorSpan.Blue}blue {ForegroundColorSpan.Green}green {ForegroundColorSpan.Reset}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
+                $"{ForegroundColorSpan.Red()}red {ForegroundColorSpan.Blue()}blue {ForegroundColorSpan.Green()}green {ForegroundColorSpan.Reset()}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_console, OutputMode.NonAnsi);
 
@@ -107,7 +107,7 @@ namespace System.CommandLine.Tests.Rendering
         public void BackgroundColorSpans_are_removed_during_file_rendering()
         {
             var span = _spanFormatter.ParseToSpan(
-                $"{BackgroundColorSpan.Red}red {BackgroundColorSpan.Blue}blue {BackgroundColorSpan.Green}green {BackgroundColorSpan.Reset}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
+                $"{BackgroundColorSpan.Red()}red {BackgroundColorSpan.Blue()}blue {BackgroundColorSpan.Green()}green {BackgroundColorSpan.Reset()}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_console, OutputMode.File);
 
@@ -120,7 +120,7 @@ namespace System.CommandLine.Tests.Rendering
         public void ForegroundColorSpans_are_removed_during_file_rendering()
         {
             var span = _spanFormatter.ParseToSpan(
-                $"{ForegroundColorSpan.Red}red {ForegroundColorSpan.Blue}blue {ForegroundColorSpan.Green}green {ForegroundColorSpan.Reset}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
+                $"{ForegroundColorSpan.Red()}red {ForegroundColorSpan.Blue()}blue {ForegroundColorSpan.Green()}green {ForegroundColorSpan.Reset()}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_console, OutputMode.File);
 
