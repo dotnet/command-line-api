@@ -56,7 +56,8 @@ namespace RenderingPlayground
 
             var consoleRenderer = new ConsoleRenderer(
                 console,
-                mode: outputMode);
+                mode: outputMode,
+                resetAfterRender: true);
 
             switch (sample)
             {

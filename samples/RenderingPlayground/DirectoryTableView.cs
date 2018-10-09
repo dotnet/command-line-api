@@ -16,7 +16,7 @@ namespace RenderingPlayground
             }
 
             var formatter = new SpanFormatter();
-            formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}{ForegroundColorSpan.Reset()} ");
+            formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t} ");
 
 
             AddChild(new ContentView(""));
@@ -35,8 +35,8 @@ namespace RenderingPlayground
             var tableView = new TableView<FileSystemInfo>();
             tableView.Items = directoryContents;
             tableView.AddColumn(f => f is DirectoryInfo
-                                 ? Span($"{ForegroundColorSpan.LightGreen()}{f.Name}{ForegroundColorSpan.Reset()} ")
-                                 : Span($"{ForegroundColorSpan.White()}{f.Name}{ForegroundColorSpan.Reset()} ") , 
+                                 ? Span($"{ForegroundColorSpan.LightGreen()}{f.Name} ")
+                                 : Span($"{ForegroundColorSpan.White()}{f.Name} ") , 
                                  new ContentView("Name".Underline()));
             
             tableView.AddColumn(f => formatter.Format(f.CreationTime), new ContentView("Created".Underline()));
