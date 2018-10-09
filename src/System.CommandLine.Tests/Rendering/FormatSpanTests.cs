@@ -134,7 +134,7 @@ namespace System.CommandLine.Tests.Rendering
         [Fact]
         public void FormatSpans_do_not_have_default_string_representations()
         {
-            $"{ForegroundColorSpan.DarkGray}The {BackgroundColorSpan.Cyan}quick{StyleSpan.BlinkOn} brown fox jumped over the lazy dog.{StyleSpan.BoldOff}{ForegroundColorSpan.Reset}{BackgroundColorSpan.Reset}"
+            $"{ForegroundColorSpan.DarkGray()}The {BackgroundColorSpan.Cyan()}quick{StyleSpan.BlinkOn()} brown fox jumped over the lazy dog.{StyleSpan.BoldOff()}{ForegroundColorSpan.Reset()}{BackgroundColorSpan.Reset()}"
                 .Should()
                 .Be("The quick brown fox jumped over the lazy dog.");
         }

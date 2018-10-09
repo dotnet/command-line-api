@@ -4,12 +4,15 @@ namespace System.CommandLine.Rendering
 {
     public class ConsoleRenderer
     {
+        private readonly bool _resetAfterRender;
+
         public ConsoleRenderer(
             IConsole console = null,
-            OutputMode mode = OutputMode.Auto)
+            OutputMode mode = OutputMode.Auto,
+            bool resetAfterRender = false)
         {
             Console = console ?? SystemConsole.Instance;
-
+            _resetAfterRender = resetAfterRender;
             Mode = mode == OutputMode.Auto
                        ? Console.DetectOutputMode()
                        : mode;
@@ -44,6 +47,14 @@ namespace System.CommandLine.Rendering
             Region region)
         {
             SpanVisitor visitor;
+
+            if (_resetAfterRender)
+            {
+                span = new ContainerSpan(
+                    span,
+                    ForegroundColorSpan.Reset(),
+                    BackgroundColorSpan.Reset());
+            }
 
             switch (Mode)
             {

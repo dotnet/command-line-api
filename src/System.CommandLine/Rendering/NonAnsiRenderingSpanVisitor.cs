@@ -21,7 +21,7 @@ namespace System.CommandLine.Rendering
         public override void VisitForegroundColorSpan(ForegroundColorSpan span)
         {
             if (span.RgbColor == null &&
-                _foregroundColorMappings.TryGetValue(span, out var color))
+                _foregroundColorMappings.TryGetValue(span.Name, out var color))
             {
                 Console.ForegroundColor = color;
             }
@@ -36,7 +36,7 @@ namespace System.CommandLine.Rendering
         public override void VisitBackgroundColorSpan(BackgroundColorSpan span)
         {
             if (span.RgbColor == null &&
-                _backgroundColorMappings.TryGetValue(span, out var color))
+                _backgroundColorMappings.TryGetValue(span.Name, out var color))
             {
                 Console.BackgroundColor = color;
             }
@@ -48,46 +48,46 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        private static readonly Dictionary<BackgroundColorSpan, ConsoleColor> _backgroundColorMappings =
-            new Dictionary<BackgroundColorSpan, ConsoleColor>
+        private static readonly Dictionary<string, ConsoleColor> _backgroundColorMappings =
+            new Dictionary<string, ConsoleColor>
             {
-                [BackgroundColorSpan.Black] = ConsoleColor.Black,
-                [BackgroundColorSpan.Red] = ConsoleColor.DarkRed,
-                [BackgroundColorSpan.Green] = ConsoleColor.DarkGreen,
-                [BackgroundColorSpan.Yellow] = ConsoleColor.DarkYellow,
-                [BackgroundColorSpan.Blue] = ConsoleColor.DarkBlue,
-                [BackgroundColorSpan.Magenta] = ConsoleColor.DarkMagenta,
-                [BackgroundColorSpan.Cyan] = ConsoleColor.DarkCyan,
-                [BackgroundColorSpan.White] = ConsoleColor.White,
-                [BackgroundColorSpan.DarkGray] = ConsoleColor.DarkGray,
-                [BackgroundColorSpan.LightRed] = ConsoleColor.Red,
-                [BackgroundColorSpan.LightGreen] = ConsoleColor.Green,
-                [BackgroundColorSpan.LightYellow] = ConsoleColor.Yellow,
-                [BackgroundColorSpan.LightBlue] = ConsoleColor.Blue,
-                [BackgroundColorSpan.LightMagenta] = ConsoleColor.Magenta,
-                [BackgroundColorSpan.LightCyan] = ConsoleColor.Cyan,
-                [BackgroundColorSpan.LightGray] = ConsoleColor.Gray,
+                [nameof(BackgroundColorSpan.Black)] = ConsoleColor.Black,
+                [nameof(BackgroundColorSpan.Red)] = ConsoleColor.DarkRed,
+                [nameof(BackgroundColorSpan.Green)] = ConsoleColor.DarkGreen,
+                [nameof(BackgroundColorSpan.Yellow)] = ConsoleColor.DarkYellow,
+                [nameof(BackgroundColorSpan.Blue)] = ConsoleColor.DarkBlue,
+                [nameof(BackgroundColorSpan.Magenta)] = ConsoleColor.DarkMagenta,
+                [nameof(BackgroundColorSpan.Cyan)] = ConsoleColor.DarkCyan,
+                [nameof(BackgroundColorSpan.White)] = ConsoleColor.White,
+                [nameof(BackgroundColorSpan.DarkGray)] = ConsoleColor.DarkGray,
+                [nameof(BackgroundColorSpan.LightRed)] = ConsoleColor.Red,
+                [nameof(BackgroundColorSpan.LightGreen)] = ConsoleColor.Green,
+                [nameof(BackgroundColorSpan.LightYellow)] = ConsoleColor.Yellow,
+                [nameof(BackgroundColorSpan.LightBlue)] = ConsoleColor.Blue,
+                [nameof(BackgroundColorSpan.LightMagenta)] = ConsoleColor.Magenta,
+                [nameof(BackgroundColorSpan.LightCyan)] = ConsoleColor.Cyan,
+                [nameof(BackgroundColorSpan.LightGray)] = ConsoleColor.Gray,
             };
 
-        private static readonly Dictionary<ForegroundColorSpan, ConsoleColor> _foregroundColorMappings =
-            new Dictionary<ForegroundColorSpan, ConsoleColor>
+        private static readonly Dictionary<string, ConsoleColor> _foregroundColorMappings =
+            new Dictionary<string, ConsoleColor>
             {
-                [ForegroundColorSpan.Black] = ConsoleColor.Black,
-                [ForegroundColorSpan.Red] = ConsoleColor.DarkRed,
-                [ForegroundColorSpan.Green] = ConsoleColor.DarkGreen,
-                [ForegroundColorSpan.Yellow] = ConsoleColor.DarkYellow,
-                [ForegroundColorSpan.Blue] = ConsoleColor.DarkBlue,
-                [ForegroundColorSpan.Magenta] = ConsoleColor.DarkMagenta,
-                [ForegroundColorSpan.Cyan] = ConsoleColor.DarkCyan,
-                [ForegroundColorSpan.White] = ConsoleColor.White,
-                [ForegroundColorSpan.DarkGray] = ConsoleColor.DarkGray,
-                [ForegroundColorSpan.LightRed] = ConsoleColor.Red,
-                [ForegroundColorSpan.LightGreen] = ConsoleColor.Green,
-                [ForegroundColorSpan.LightYellow] = ConsoleColor.Yellow,
-                [ForegroundColorSpan.LightBlue] = ConsoleColor.Blue,
-                [ForegroundColorSpan.LightMagenta] = ConsoleColor.Magenta,
-                [ForegroundColorSpan.LightCyan] = ConsoleColor.Cyan,
-                [ForegroundColorSpan.LightGray] = ConsoleColor.Gray,
+                [nameof(ForegroundColorSpan.Black)] = ConsoleColor.Black,
+                [nameof(ForegroundColorSpan.Red)] = ConsoleColor.DarkRed,
+                [nameof(ForegroundColorSpan.Green)] = ConsoleColor.DarkGreen,
+                [nameof(ForegroundColorSpan.Yellow)] = ConsoleColor.DarkYellow,
+                [nameof(ForegroundColorSpan.Blue)] = ConsoleColor.DarkBlue,
+                [nameof(ForegroundColorSpan.Magenta)] = ConsoleColor.DarkMagenta,
+                [nameof(ForegroundColorSpan.Cyan)] = ConsoleColor.DarkCyan,
+                [nameof(ForegroundColorSpan.White)] = ConsoleColor.White,
+                [nameof(ForegroundColorSpan.DarkGray)] = ConsoleColor.DarkGray,
+                [nameof(ForegroundColorSpan.LightRed)] = ConsoleColor.Red,
+                [nameof(ForegroundColorSpan.LightGreen)] = ConsoleColor.Green,
+                [nameof(ForegroundColorSpan.LightYellow)] = ConsoleColor.Yellow,
+                [nameof(ForegroundColorSpan.LightBlue)] = ConsoleColor.Blue,
+                [nameof(ForegroundColorSpan.LightMagenta)] = ConsoleColor.Magenta,
+                [nameof(ForegroundColorSpan.LightCyan)] = ConsoleColor.Cyan,
+                [nameof(ForegroundColorSpan.LightGray)] = ConsoleColor.Gray,
             };
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using static System.CommandLine.Rendering.Ansi;
 
 namespace System.CommandLine.Rendering
@@ -27,7 +27,7 @@ namespace System.CommandLine.Rendering
             {
                 controlCode = Color.Foreground.Rgb(rgb.Red, rgb.Green, rgb.Blue);
             }
-            else if (!_foregroundColorControlCodeMappings.TryGetValue(span, out controlCode))
+            else if (!_foregroundColorControlCodeMappings.TryGetValue(span.Name, out controlCode))
             {
                 return;
             }
@@ -43,7 +43,7 @@ namespace System.CommandLine.Rendering
             {
                 controlCode = Color.Background.Rgb(rgb.Red, rgb.Green, rgb.Blue);
             }
-            else if (!_backgroundColorControlCodeMappings.TryGetValue(span, out controlCode))
+            else if (!_backgroundColorControlCodeMappings.TryGetValue(span.Name, out controlCode))
             {
                 return;
             }
@@ -53,70 +53,70 @@ namespace System.CommandLine.Rendering
 
         public override void VisitStyleSpan(StyleSpan span)
         {
-            if (_styleControlCodeMappings.TryGetValue(span, out var controlCode))
+            if (_styleControlCodeMappings.TryGetValue(span.Name, out var controlCode))
             {
                 Writer.Write(controlCode.EscapeSequence);
             }
         }
 
-        private static readonly Dictionary<ForegroundColorSpan, AnsiControlCode> _foregroundColorControlCodeMappings =
-            new Dictionary<ForegroundColorSpan, AnsiControlCode>
+        private static readonly Dictionary<string, AnsiControlCode> _foregroundColorControlCodeMappings =
+            new Dictionary<string, AnsiControlCode>
             {
-                [ForegroundColorSpan.Reset] = Color.Foreground.Default,
-                [ForegroundColorSpan.Black] = Color.Foreground.Black,
-                [ForegroundColorSpan.Red] = Color.Foreground.Red,
-                [ForegroundColorSpan.Green] = Color.Foreground.Green,
-                [ForegroundColorSpan.Yellow] = Color.Foreground.Yellow,
-                [ForegroundColorSpan.Blue] = Color.Foreground.Blue,
-                [ForegroundColorSpan.Magenta] = Color.Foreground.Magenta,
-                [ForegroundColorSpan.Cyan] = Color.Foreground.Cyan,
-                [ForegroundColorSpan.White] = Color.Foreground.White,
-                [ForegroundColorSpan.DarkGray] = Color.Foreground.DarkGray,
-                [ForegroundColorSpan.LightRed] = Color.Foreground.LightRed,
-                [ForegroundColorSpan.LightGreen] = Color.Foreground.LightGreen,
-                [ForegroundColorSpan.LightYellow] = Color.Foreground.LightYellow,
-                [ForegroundColorSpan.LightBlue] = Color.Foreground.LightBlue,
-                [ForegroundColorSpan.LightMagenta] = Color.Foreground.LightMagenta,
-                [ForegroundColorSpan.LightCyan] = Color.Foreground.LightCyan,
-                [ForegroundColorSpan.LightGray] = Color.Foreground.LightGray,
+                [nameof(ForegroundColorSpan.Reset)] = Color.Foreground.Default,
+                [nameof(ForegroundColorSpan.Black)] = Color.Foreground.Black,
+                [nameof(ForegroundColorSpan.Red)] = Color.Foreground.Red,
+                [nameof(ForegroundColorSpan.Green)] = Color.Foreground.Green,
+                [nameof(ForegroundColorSpan.Yellow)] = Color.Foreground.Yellow,
+                [nameof(ForegroundColorSpan.Blue)] = Color.Foreground.Blue,
+                [nameof(ForegroundColorSpan.Magenta)] = Color.Foreground.Magenta,
+                [nameof(ForegroundColorSpan.Cyan)] = Color.Foreground.Cyan,
+                [nameof(ForegroundColorSpan.White)] = Color.Foreground.White,
+                [nameof(ForegroundColorSpan.DarkGray)] = Color.Foreground.DarkGray,
+                [nameof(ForegroundColorSpan.LightRed)] = Color.Foreground.LightRed,
+                [nameof(ForegroundColorSpan.LightGreen)] = Color.Foreground.LightGreen,
+                [nameof(ForegroundColorSpan.LightYellow)] = Color.Foreground.LightYellow,
+                [nameof(ForegroundColorSpan.LightBlue)] = Color.Foreground.LightBlue,
+                [nameof(ForegroundColorSpan.LightMagenta)] = Color.Foreground.LightMagenta,
+                [nameof(ForegroundColorSpan.LightCyan)] = Color.Foreground.LightCyan,
+                [nameof(ForegroundColorSpan.LightGray)] = Color.Foreground.LightGray,
             };
 
-        private static readonly Dictionary<BackgroundColorSpan, AnsiControlCode> _backgroundColorControlCodeMappings =
-            new Dictionary<BackgroundColorSpan, AnsiControlCode>
+        private static readonly Dictionary<string, AnsiControlCode> _backgroundColorControlCodeMappings =
+            new Dictionary<string, AnsiControlCode>
             {
-                [BackgroundColorSpan.Reset] = Color.Background.Default,
-                [BackgroundColorSpan.Black] = Color.Background.Black,
-                [BackgroundColorSpan.Red] = Color.Background.Red,
-                [BackgroundColorSpan.Green] = Color.Background.Green,
-                [BackgroundColorSpan.Yellow] = Color.Background.Yellow,
-                [BackgroundColorSpan.Blue] = Color.Background.Blue,
-                [BackgroundColorSpan.Magenta] = Color.Background.Magenta,
-                [BackgroundColorSpan.Cyan] = Color.Background.Cyan,
-                [BackgroundColorSpan.White] = Color.Background.White,
-                [BackgroundColorSpan.DarkGray] = Color.Background.DarkGray,
-                [BackgroundColorSpan.LightRed] = Color.Background.LightRed,
-                [BackgroundColorSpan.LightGreen] = Color.Background.LightGreen,
-                [BackgroundColorSpan.LightYellow] = Color.Background.LightYellow,
-                [BackgroundColorSpan.LightBlue] = Color.Background.LightBlue,
-                [BackgroundColorSpan.LightMagenta] = Color.Background.LightMagenta,
-                [BackgroundColorSpan.LightCyan] = Color.Background.LightCyan,
-                [BackgroundColorSpan.LightGray] = Color.Background.LightGray,
+                [nameof(BackgroundColorSpan.Reset)] = Color.Background.Default,
+                [nameof(BackgroundColorSpan.Black)] = Color.Background.Black,
+                [nameof(BackgroundColorSpan.Red)] = Color.Background.Red,
+                [nameof(BackgroundColorSpan.Green)] = Color.Background.Green,
+                [nameof(BackgroundColorSpan.Yellow)] = Color.Background.Yellow,
+                [nameof(BackgroundColorSpan.Blue)] = Color.Background.Blue,
+                [nameof(BackgroundColorSpan.Magenta)] = Color.Background.Magenta,
+                [nameof(BackgroundColorSpan.Cyan)] = Color.Background.Cyan,
+                [nameof(BackgroundColorSpan.White)] = Color.Background.White,
+                [nameof(BackgroundColorSpan.DarkGray)] = Color.Background.DarkGray,
+                [nameof(BackgroundColorSpan.LightRed)] = Color.Background.LightRed,
+                [nameof(BackgroundColorSpan.LightGreen)] = Color.Background.LightGreen,
+                [nameof(BackgroundColorSpan.LightYellow)] = Color.Background.LightYellow,
+                [nameof(BackgroundColorSpan.LightBlue)] = Color.Background.LightBlue,
+                [nameof(BackgroundColorSpan.LightMagenta)] = Color.Background.LightMagenta,
+                [nameof(BackgroundColorSpan.LightCyan)] = Color.Background.LightCyan,
+                [nameof(BackgroundColorSpan.LightGray)] = Color.Background.LightGray,
             };
 
-        private static readonly Dictionary<StyleSpan, AnsiControlCode> _styleControlCodeMappings =
-            new Dictionary<StyleSpan, AnsiControlCode>
+        private static readonly Dictionary<string, AnsiControlCode> _styleControlCodeMappings =
+            new Dictionary<string, AnsiControlCode>
             {
-                [StyleSpan.BlinkOff] = Ansi.Text.BlinkOff,
-                [StyleSpan.BlinkOn] = Ansi.Text.BlinkOn,
-                [StyleSpan.BoldOff] = Ansi.Text.BoldOff,
-                [StyleSpan.BoldOn] = Ansi.Text.BoldOn,
-                [StyleSpan.HiddenOn] = Ansi.Text.HiddenOn,
-                [StyleSpan.ReverseOn] = Ansi.Text.ReverseOn,
-                [StyleSpan.ReversOff] = Ansi.Text.ReversOff,
-                [StyleSpan.StandoutOff] = Ansi.Text.StandoutOff,
-                [StyleSpan.StandoutOn] = Ansi.Text.StandoutOn,
-                [StyleSpan.UnderlinedOff] = Ansi.Text.UnderlinedOff,
-                [StyleSpan.UnderlinedOn] = Ansi.Text.UnderlinedOn,
+                [nameof(StyleSpan.BlinkOff)] = Ansi.Text.BlinkOff,
+                [nameof(StyleSpan.BlinkOn)] = Ansi.Text.BlinkOn,
+                [nameof(StyleSpan.BoldOff)] = Ansi.Text.BoldOff,
+                [nameof(StyleSpan.BoldOn)] = Ansi.Text.BoldOn,
+                [nameof(StyleSpan.HiddenOn)] = Ansi.Text.HiddenOn,
+                [nameof(StyleSpan.ReverseOn)] = Ansi.Text.ReverseOn,
+                [nameof(StyleSpan.ReversOff)] = Ansi.Text.ReversOff,
+                [nameof(StyleSpan.StandoutOff)] = Ansi.Text.StandoutOff,
+                [nameof(StyleSpan.StandoutOn)] = Ansi.Text.StandoutOn,
+                [nameof(StyleSpan.UnderlinedOff)] = Ansi.Text.UnderlinedOff,
+                [nameof(StyleSpan.UnderlinedOn)] = Ansi.Text.UnderlinedOn,
             };
     }
 }

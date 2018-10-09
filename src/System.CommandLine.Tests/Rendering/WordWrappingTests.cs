@@ -52,7 +52,7 @@ namespace System.CommandLine.Tests.Rendering
                 OutputMode.NonAnsi);
 
             FormattableString formattableString =
-                $"Call me {StyleSpan.BoldOn}{StyleSpan.UnderlinedOn}Ishmael{StyleSpan.UnderlinedOff}{StyleSpan.BoldOff}. Some years ago -- never mind how long precisely -- having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and {ForegroundColorSpan.Rgb(60, 0, 0)}methodically{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(90, 0, 0)}knocking{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(120, 0, 0)}people's{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(160, 0, 0)}hats{ForegroundColorSpan.Reset} {ForegroundColorSpan.Rgb(220, 0, 0)}off{ForegroundColorSpan.Reset} then, I account it high time to get to sea as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the ship. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the ocean with me.";
+                $"Call me {StyleSpan.BoldOn()}{StyleSpan.UnderlinedOn()}Ishmael{StyleSpan.UnderlinedOff()}{StyleSpan.BoldOff()}. Some years ago -- never mind how long precisely -- having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and {ForegroundColorSpan.Rgb(60, 0, 0)}methodically{ForegroundColorSpan.Reset()} {ForegroundColorSpan.Rgb(90, 0, 0)}knocking{ForegroundColorSpan.Reset()} {ForegroundColorSpan.Rgb(120, 0, 0)}people's{ForegroundColorSpan.Reset()} {ForegroundColorSpan.Rgb(160, 0, 0)}hats{ForegroundColorSpan.Reset()} {ForegroundColorSpan.Rgb(220, 0, 0)}off{ForegroundColorSpan.Reset()} then, I account it high time to get to sea as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the ship. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the ocean with me.";
 
             var stringWithoutCodes = formattableString.ToString();
 
@@ -104,7 +104,7 @@ namespace System.CommandLine.Tests.Rendering
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
-                    rendering: $"{ForegroundColorSpan.Red}The quick brown fox jumps over the lazy dog.",
+                    rendering: $"{ForegroundColorSpan.Red()}The quick brown fox jumps over the lazy dog.",
                     inRegion: new Region(0, 0, 3, 4),
                     Line(0, 0, $"{Ansi.Color.Foreground.Red.EscapeSequence}The"),
                     Line(0, 1, $"qui"),
@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests.Rendering
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
-                    rendering: $"{ForegroundColorSpan.Red}The quick brown fox jumps over the lazy dog.",
+                    rendering: $"{ForegroundColorSpan.Red()}The quick brown fox jumps over the lazy dog.",
                     inRegion: new Region(12, 12, 3, 4),
                     Line(12, 12, $"{Ansi.Color.Foreground.Red.EscapeSequence}The"),
                     Line(12, 13, $"qui"),
@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests.Rendering
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
-                    rendering: $"The quick brown fox jumps over the lazy dog.{ForegroundColorSpan.Reset}",
+                    rendering: $"The quick brown fox jumps over the lazy dog.{ForegroundColorSpan.Reset()}",
                     inRegion: new Region(0, 0, 3, 4),
                     Line(0, 0, $"The"),
                     Line(0, 1, $"qui"),
@@ -133,7 +133,7 @@ namespace System.CommandLine.Tests.Rendering
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
-                    rendering: $"The quick brown fox jumps over the lazy dog.{ForegroundColorSpan.Reset}",
+                    rendering: $"The quick brown fox jumps over the lazy dog.{ForegroundColorSpan.Reset()}",
                     inRegion: new Region(12, 12, 3, 4),
                     Line(12, 12, $"The"),
                     Line(12, 13, $"qui"),
@@ -144,7 +144,7 @@ namespace System.CommandLine.Tests.Rendering
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
-                    rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
+                    rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset()} fox jumps over the lazy dog.",
                     inRegion: new Region(0, 0, 3, 4),
                     Line(0, 0, $"The"),
                     Line(0, 1, $"qui{Ansi.Color.Foreground.Rgb(139, 69, 19).EscapeSequence}"),
@@ -153,7 +153,7 @@ namespace System.CommandLine.Tests.Rendering
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
-                    rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
+                    rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset()} fox jumps over the lazy dog.",
                     inRegion: new Region(12, 12, 3, 4),
                     Line(12, 12, $"The"),
                     Line(12, 13, $"qui{Ansi.Color.Foreground.Rgb(139, 69, 19).EscapeSequence}"),
@@ -164,7 +164,7 @@ namespace System.CommandLine.Tests.Rendering
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
-                    rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
+                    rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset()} fox jumps over the lazy dog.",
                     inRegion: new Region(0, 0, "The quick brown fox jumps over the lazy dog.".Length, 1),
                     expectOutput:
                     Line(0, 0,
@@ -172,7 +172,7 @@ namespace System.CommandLine.Tests.Rendering
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
-                    rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset} fox jumps over the lazy dog.",
+                    rendering: $"The quick {ForegroundColorSpan.Rgb(139, 69, 19)}brown{ForegroundColorSpan.Reset()} fox jumps over the lazy dog.",
                     inRegion: new Region(12, 12, "The quick brown fox jumps over the lazy dog.".Length, 1),
                     expectOutput:
                     Line(12, 12,

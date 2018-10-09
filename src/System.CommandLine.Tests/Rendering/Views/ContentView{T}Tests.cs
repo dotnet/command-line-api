@@ -46,7 +46,7 @@ namespace System.CommandLine.Tests.Rendering.Views
         public void Span_is_only_created_after_measure_is_called()
         {
             var view = new TestableContentView<int>(42);
-            
+
             view.IsSpanCreated.Should().BeFalse();
             view.Measure(_renderer, new Size(0, 0));
             view.IsSpanCreated.Should().BeTrue();
@@ -94,7 +94,8 @@ namespace System.CommandLine.Tests.Rendering.Views
 
             public TestableContentView(T value)
                 : base(value)
-            { }
+            {
+            }
         }
     }
 }

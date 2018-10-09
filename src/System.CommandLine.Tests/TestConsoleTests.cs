@@ -1,8 +1,10 @@
 ﻿using System.CommandLine.Rendering;
+using System.CommandLine.Tests.Rendering;
 using System.Drawing;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
+using static System.CommandLine.Tests.TestConsole;
 
 namespace System.CommandLine.Tests
 {
@@ -18,7 +20,7 @@ namespace System.CommandLine.Tests
             console.CursorLeft = 19;
 
             console.Events
-                   .OfType<TestConsole.CursorPositionChanged>()
+                   .OfType<CursorPositionChanged>()
                    .Select(e => e.Position)
                    .Should()
                    .BeEquivalentSequenceTo(new Point(19, 0));
@@ -32,7 +34,7 @@ namespace System.CommandLine.Tests
             console.CursorTop = 12;
 
             console.Events
-                   .OfType<TestConsole.CursorPositionChanged>()
+                   .OfType<CursorPositionChanged>()
                    .Select(e => e.Position)
                    .Should()
                    .BeEquivalentSequenceTo(new Point(0, 12));
@@ -41,15 +43,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_SetCursorLocation_is_called_then_a_single_cursor_position_is_recorded()
         {
+        }
+
+        [Fact]
+        public void When_ANSI_sequences_are_used_to_set_cursor_positions_then_CursorPositionChanged_events_are_recorded()
+        {
             var console = new TestConsole();
 
-            console.SetCursorPosition(3, 5);
+            console.Out.Write($"before move{Ansi.Cursor.Move.ToLocation(3, 5).EscapeSequence}after move");
 
             console.Events
-                   .OfType<TestConsole.CursorPositionChanged>()
-                   .Select(e => e.Position)
                    .Should()
-                   .BeEquivalentSequenceTo(new Point(3, 5));
+                   .BeEquivalentSequenceTo(
+                       new ContentWritten("before move"),
+                       new CursorPositionChanged(new Point(2, 4)),
+                       new ContentWritten("after move"));
         }
 
         [Theory]
@@ -72,7 +80,7 @@ namespace System.CommandLine.Tests
             renderer.RenderToRegion(threeLinesOfText, new Region(2, 5, 13, 3));
 
             console.Events
-                   .OfType<TestConsole.CursorPositionChanged>()
+                   .OfType<CursorPositionChanged>()
                    .Select(e => e.Position)
                    .Should()
                    .BeEquivalentSequenceTo(
@@ -95,13 +103,13 @@ namespace System.CommandLine.Tests
             renderer.RenderToRegion("first line\nsecond line", region);
 
             console.Events
-                   .Where(e => !(e is TestConsole.AnsiControlCodeWritten))
+                   .Where(e => !(e is AnsiControlCodeWritten))
                    .Should()
                    .BeEquivalentSequenceTo(
-                       new TestConsole.CursorPositionChanged(new Point(1, 3)),
-                       new TestConsole.ContentWritten("first line "),
-                       new TestConsole.CursorPositionChanged(new Point(1, 4)),
-                       new TestConsole.ContentWritten("second line"));
+                       new CursorPositionChanged(new Point(1, 3)),
+                       new ContentWritten("first line "),
+                       new CursorPositionChanged(new Point(1, 4)),
+                       new ContentWritten("second line"));
         }
 
         [Fact]
@@ -113,12 +121,12 @@ namespace System.CommandLine.Tests
 
             var region = new Region(0, 0, 4, 1);
 
-            renderer.RenderToRegion($"{ForegroundColorSpan.Red}text{ForegroundColorSpan.Reset}", region);
+            renderer.RenderToRegion($"{ForegroundColorSpan.Red()}text{ForegroundColorSpan.Reset()}", region);
 
             console.Events
                    .Should()
-                   .Contain(e => e is TestConsole.ContentWritten &&
-                                 ((TestConsole.ContentWritten)e).Content == "text");
+                   .Contain(e => e is ContentWritten &&
+                                 ((ContentWritten)e).Content == "text");
         }
     }
 }

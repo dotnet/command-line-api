@@ -8,6 +8,7 @@ using Xunit.Abstractions;
 using static System.CommandLine.Rendering.Ansi;
 using static System.Environment;
 using System.CommandLine.Rendering.Views;
+using static System.CommandLine.Tests.TestConsole;
 
 namespace System.CommandLine.Tests.Rendering
 {
@@ -194,7 +195,7 @@ namespace System.CommandLine.Tests.Rendering
             writer.RenderToRegion($"{NewLine}*", region);
 
             _console.Events
-                    .OfType<TestConsole.CursorPositionChanged>()
+                    .OfType<CursorPositionChanged>()
                     .Select(e => e.Position)
                     .Should()
                     .BeEquivalentSequenceTo(
@@ -251,6 +252,40 @@ namespace System.CommandLine.Tests.Rendering
             _console.RenderOperations().Should().HaveCount(height);
         }
 
+        [Fact]
+        public void Text_styles_can_be_automatically_reset_after_render_operations_in_ANSI_mode()
+        {
+            var renderer = new ConsoleRenderer(_console, OutputMode.Ansi, true);
+
+            renderer.RenderToRegion("hello", new Region(0, 0, 5, 1));
+
+            _console.Events
+                    .Should()
+                    .BeEquivalentSequenceTo(
+                        new CursorPositionChanged(new Point(0, 0)),
+                        new ContentWritten("hello"),
+                        new AnsiControlCodeWritten(Ansi.Color.Foreground.Default),
+                        new AnsiControlCodeWritten(Ansi.Color.Background.Default));
+        }
+
+        [Fact]
+        public void Text_styles_can_be_automatically_reset_after_render_operations_in_non_ANSI_mode()
+        {
+            var renderer = new ConsoleRenderer(_console, OutputMode.NonAnsi, true);
+
+            renderer.RenderToRegion("hello", new Region(0, 0, 5, 1));
+
+            _console.Events
+                    .Should()
+                    .BeEquivalentSequenceTo(
+                        new CursorPositionChanged(new Point(0, 0)),
+                        new ContentWritten("hello"),
+                        new ColorReset(),
+                        new BackgroundColorChanged(ConsoleColor.Black),
+                        new ColorReset(),
+                        new ForegroundColorChanged(ConsoleColor.White));
+        }
+
         private const string ZeroThroughThirty =
             "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine thirty";
 
@@ -264,7 +299,7 @@ namespace System.CommandLine.Tests.Rendering
                 }
 
                 var formatter = new SpanFormatter();
-                formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray}{d:t}{ForegroundColorSpan.Reset} ");
+                formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}{ForegroundColorSpan.Reset()} ");
 
 
                 AddChild(new ContentView(""));
@@ -283,8 +318,8 @@ namespace System.CommandLine.Tests.Rendering
                 var tableView = new TableView<FileSystemInfo>();
                 tableView.Items = directoryContents;
                 tableView.AddColumn(f => f is DirectoryInfo
-                                     ? Span($"{ForegroundColorSpan.LightGreen}{f.Name}{ForegroundColorSpan.Reset} ")
-                                     : Span($"{ForegroundColorSpan.White}{f.Name}{ForegroundColorSpan.Reset} "),
+                                     ? Span($"{ForegroundColorSpan.LightGreen()}{f.Name}{ForegroundColorSpan.Reset()} ")
+                                     : Span($"{ForegroundColorSpan.White()}{f.Name}{ForegroundColorSpan.Reset()} "),
                                      new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}")));
 
                 tableView.AddColumn(f => formatter.Format(f.CreationTime), 
