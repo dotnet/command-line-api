@@ -113,12 +113,14 @@ namespace System.CommandLine.Tests.Rendering.Views
         public void Render_writes_span_in_region()
         {
             var contentView = new ContentView("Four");
+
             contentView.Render(_renderer, new Region(0, 0, 4, 1));
-            _console.Events.Should().BeEquivalentTo(new object[]
-           {
-                new TestConsole.CursorPositionChanged(new Point(0, 0)),
-                new TestConsole.ContentWritten("Four")
-           }, config => config.WithStrictOrdering());
+
+            _console.Events
+                    .Should()
+                    .BeEquivalentSequenceTo(
+                        new TestConsole.CursorPositionChanged(new Point(0, 0)),
+                        new TestConsole.ContentWritten("Four"));
         }
 
         [Fact]

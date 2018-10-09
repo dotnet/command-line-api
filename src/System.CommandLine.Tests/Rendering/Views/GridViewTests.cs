@@ -1,4 +1,4 @@
-using System.CommandLine.Rendering;
+﻿using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
 using System.Drawing;
 using FluentAssertions;
@@ -105,7 +105,9 @@ namespace System.CommandLine.Tests.Rendering.Views
             var renderer = new ConsoleRenderer(console);
             grid.Render(renderer, new Region(0, 0, 10, 4));
 
-            console.Events.Should().BeEquivalentSequenceTo(
+            console.Events
+                   .Should()
+                   .BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
                 new TestConsole.ContentWritten("The   "),
                 new TestConsole.CursorPositionChanged(new Point(6, 0)),
