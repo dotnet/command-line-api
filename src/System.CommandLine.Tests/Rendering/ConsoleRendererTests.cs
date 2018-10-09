@@ -329,9 +329,9 @@ namespace System.CommandLine.Tests.Rendering
 
                 AddChild(tableView);
 
-                Span Span(FormattableString formatableString)
+                Span Span(FormattableString formattableString)
                 {
-                    return formatter.ParseToSpan(formatableString);
+                    return formatter.ParseToSpan(formattableString);
                 }
             }
         }

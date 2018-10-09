@@ -44,9 +44,9 @@ namespace RenderingPlayground
 
             AddChild(tableView);
 
-            Span Span(FormattableString formatableString)
+            Span Span(FormattableString formattableString)
             {
-                return formatter.ParseToSpan(formatableString);
+                return formatter.ParseToSpan(formattableString);
             }
         }
     }
