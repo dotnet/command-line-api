@@ -21,17 +21,25 @@
             if (renderer == null) throw new ArgumentNullException(nameof(renderer));
             if (region == null) throw new ArgumentNullException(nameof(region));
 
-            if (Span == null) return;
-
             renderer.RenderToRegion(Span, region);
         }
 
         public override Size Measure(ConsoleRenderer renderer, Size maxSize)
         {
-            if (renderer == null) throw new ArgumentNullException(nameof(renderer));
-            if (maxSize == null) throw new ArgumentNullException(nameof(maxSize));
-            
-            if (Span == null) return new Size(0, 0);
+            if (renderer == null)
+            {
+                throw new ArgumentNullException(nameof(renderer));
+            }
+
+            if (maxSize == null)
+            {
+                throw new ArgumentNullException(nameof(maxSize));
+            }
+
+            if (Span == null)
+            {
+                return new Size(0, 0);
+            }
 
             return renderer.MeasureSpan(Span, maxSize);
         }

@@ -48,7 +48,11 @@ namespace System.CommandLine.Rendering
         {
             SpanVisitor visitor;
 
-            if (_resetAfterRender)
+            if (span == null)
+            {
+                span = Span.Empty();
+            }
+            else if (_resetAfterRender)
             {
                 span = new ContainerSpan(
                     span,

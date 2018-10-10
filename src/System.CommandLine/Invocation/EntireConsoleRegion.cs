@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.CommandLine.Rendering;
 using static System.Console;
 
@@ -16,8 +16,8 @@ namespace System.CommandLine.Invocation
 
         public override int Width => WindowWidth;
 
-        public override int Top => WindowTop;
+        public override int Top => CursorTop;
 
-        public override int Left => WindowLeft;
+        public override int Left => CursorLeft;
     }
 }
