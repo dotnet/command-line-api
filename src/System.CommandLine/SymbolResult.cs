@@ -94,7 +94,7 @@ namespace System.CommandLine
 
         internal abstract SymbolResult TryTakeToken(Token token);
 
-        protected internal SymbolResult TryTakeArgument(Token token)
+        internal SymbolResult TryTakeArgument(Token token)
         {
             if (token.Type != TokenType.Argument)
             {
