@@ -63,7 +63,9 @@ namespace System.CommandLine.Rendering.Views
 
         public void Render()
         {
-            Render(Console.GetRegion());
+            var region = Console.GetRegion();
+
+            Render(new Region(0, 0, region.Width, region.Height));
         }
     }
 }

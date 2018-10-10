@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 
 namespace System.CommandLine.Rendering
 {
@@ -12,10 +12,15 @@ namespace System.CommandLine.Rendering
 
         protected override void SetCursorPosition(int left, int top)
         {
-            if (top > 0)
+            if (top > 0 && left == 0)
             {
                 Writer.WriteLine();
             }
+        }
+
+        protected override void TryClearRemainingWidth()
+        {
+            ClearRemainingWidth();
         }
     }
 }

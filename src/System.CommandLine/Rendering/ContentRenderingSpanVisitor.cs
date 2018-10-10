@@ -87,7 +87,7 @@ namespace System.CommandLine.Rendering
 
         private void FlushLine()
         {
-            ClearRemainingWidth();
+            TryClearRemainingWidth();
 
             Flush();
 
@@ -96,13 +96,18 @@ namespace System.CommandLine.Rendering
             _positionOnLine = 0;
         }
 
-        protected virtual void ClearRemainingWidth()
+        protected virtual void TryClearRemainingWidth()
         {
             if (!Region.IsOverwrittenOnRender)
             {
-                return;
+               return;
             }
 
+            ClearRemainingWidth();
+        }
+
+        protected void ClearRemainingWidth()
+        {
             var remainingWidthOnLine = RemainingWidthInRegion;
 
             if (remainingWidthOnLine > 0)

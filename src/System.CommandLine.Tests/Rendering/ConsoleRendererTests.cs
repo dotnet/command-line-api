@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests.Rendering
 
             writer.RenderToRegion(
                 $"{Ansi.Color.Foreground.Red}normal{Ansi.Color.Foreground.Default}",
-                _console.GetRegion());
+                new Region(0, 0, 6, 1));
 
             var output = _console.Out.ToString();
 
@@ -329,9 +329,9 @@ namespace System.CommandLine.Tests.Rendering
 
                 AddChild(tableView);
 
-                Span Span(FormattableString formatableString)
+                Span Span(FormattableString formattableString)
                 {
-                    return formatter.ParseToSpan(formatableString);
+                    return formatter.ParseToSpan(formattableString);
                 }
             }
         }

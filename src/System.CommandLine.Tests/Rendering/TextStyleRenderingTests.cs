@@ -111,9 +111,11 @@ namespace System.CommandLine.Tests.Rendering
 
             var renderer = new ConsoleRenderer(_console, OutputMode.File);
 
-            renderer.RenderToRegion(span, new Region(0, 0, 200, 1, false));
+            var expected = "red blue green or a little of each.";
 
-            _console.Out.ToString().Should().Be("red blue green or a little of each.");
+            renderer.RenderToRegion(span, new Region(0, 0, expected.Length, 1, false));
+
+            _console.Out.ToString().Should().Be(expected);
         }
 
         [Fact]
@@ -124,9 +126,11 @@ namespace System.CommandLine.Tests.Rendering
 
             var renderer = new ConsoleRenderer(_console, OutputMode.File);
 
-            renderer.RenderToRegion(span, new Region(0, 0, 200, 1, false));
+            var expected = "red blue green or a little of each.";
 
-            _console.Out.ToString().Should().Be("red blue green or a little of each.");
+            renderer.RenderToRegion(span, new Region(0, 0, expected.Length, 1, false));
+
+            _console.Out.ToString().Should().Be(expected);
         }
     }
 }

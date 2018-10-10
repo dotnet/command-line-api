@@ -9,6 +9,7 @@ using Xunit;
 using Size = System.CommandLine.Rendering.Size;
 using System;
 using System.Collections.Generic;
+using static System.CommandLine.Tests.TestConsole;
 
 namespace System.CommandLine.Tests.Rendering.Views
 {
@@ -119,8 +120,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             _console.Events
                     .Should()
                     .BeEquivalentSequenceTo(
-                        new TestConsole.CursorPositionChanged(new Point(0, 0)),
-                        new TestConsole.ContentWritten("Four"));
+                        new CursorPositionChanged(new Point(0, 0)),
+                        new ContentWritten("Four"));
         }
 
         [Fact]
