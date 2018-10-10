@@ -51,12 +51,13 @@ namespace System.CommandLine.Tests.Rendering.Views
             Size measuredSize = grid.Measure(renderer, new Size(10, 10));
 
             measuredSize.Width.Should().Be(0);
-            measuredSize.Height.Should().Be(
-0);
+            measuredSize.Height.Should().Be(0);
         }
 
-        [Fact]
-        public void Star_grid_lays_out_in_even_grid()
+        [Theory]
+        [InlineData(OutputMode.Ansi)]
+        [InlineData(OutputMode.NonAnsi)]
+        public void Star_grid_lays_out_in_even_grid(OutputMode outputMode)
         {
             var grid = new GridView();
             grid.SetColumns(ColumnDefinition.Star(1), ColumnDefinition.Star(1));
@@ -66,9 +67,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             grid.SetChild(new ContentView("jumped"), 0, 1);
             grid.SetChild(new ContentView("over"), 1, 1);
 
-
             var console = new TestConsole();
-            var renderer = new ConsoleRenderer(console);
+            var renderer = new ConsoleRenderer(console, outputMode);
             grid.Render(renderer, new Region(0, 0, 10, 4));
 
             console.Events.Should().BeEquivalentSequenceTo(
@@ -90,8 +90,10 @@ namespace System.CommandLine.Tests.Rendering.Views
                 new TestConsole.ContentWritten("     "));
         }
 
-        [Fact]
-        public void Fixed_grid_lays_out_fixed_rows_and_columns()
+        [Theory]
+        [InlineData(OutputMode.Ansi)]
+        [InlineData(OutputMode.NonAnsi)]
+        public void Fixed_grid_lays_out_fixed_rows_and_columns(OutputMode outputMode)
         {
             var grid = new GridView();
             grid.SetColumns(ColumnDefinition.Fixed(6), ColumnDefinition.Fixed(4));
@@ -102,7 +104,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             grid.SetChild(new ContentView("the sleepy"), 1, 1);
 
             var console = new TestConsole();
-            var renderer = new ConsoleRenderer(console);
+            var renderer = new ConsoleRenderer(console, outputMode);
             grid.Render(renderer, new Region(0, 0, 10, 4));
 
             console.Events
@@ -122,8 +124,10 @@ namespace System.CommandLine.Tests.Rendering.Views
                 new TestConsole.ContentWritten("slee"));
         }
 
-        [Fact]
-        public void Size_to_content_grid_with_wide_region_adjusts_to_content_size()
+        [Theory]
+        [InlineData(OutputMode.Ansi)]
+        [InlineData(OutputMode.NonAnsi)]
+        public void Size_to_content_grid_with_wide_region_adjusts_to_content_size(OutputMode outputMode)
         {
             var grid = new GridView();
             grid.SetColumns(ColumnDefinition.SizeToContent(), ColumnDefinition.SizeToContent());
@@ -134,22 +138,24 @@ namespace System.CommandLine.Tests.Rendering.Views
             grid.SetChild(new ContentView("the sleepy"), 1, 1);
 
             var console = new TestConsole();
-            var renderer = new ConsoleRenderer(console);
+            var renderer = new ConsoleRenderer(console, outputMode);
             grid.Render(renderer, new Region(0, 0, 25, 3));
 
             console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
-                new TestConsole.ContentWritten("The quick  "),
-                new TestConsole.CursorPositionChanged(new Point(11, 0)),
+                new TestConsole.ContentWritten("The quick    "),
+                new TestConsole.CursorPositionChanged(new Point(13, 0)),
                 new TestConsole.ContentWritten("brown fox "),
                 new TestConsole.CursorPositionChanged(new Point(0, 1)),
-                new TestConsole.ContentWritten("jumped over"),
-                new TestConsole.CursorPositionChanged(new Point(11, 1)),
+                new TestConsole.ContentWritten("jumped over  "),
+                new TestConsole.CursorPositionChanged(new Point(13, 1)),
                 new TestConsole.ContentWritten("the sleepy"));
         }
 
-        [Fact]
-        public void Size_to_content_grid_with_narrow_region_increases_row_height()
+        [Theory]
+        [InlineData(OutputMode.Ansi)]
+        [InlineData(OutputMode.NonAnsi)]
+        public void Size_to_content_grid_with_narrow_region_increases_row_height(OutputMode outputMode)
         {
             var grid = new GridView();
             grid.SetColumns(ColumnDefinition.SizeToContent(), ColumnDefinition.SizeToContent());
@@ -160,22 +166,22 @@ namespace System.CommandLine.Tests.Rendering.Views
             grid.SetChild(new ContentView("the sleepy"), 1, 1);
 
             var console = new TestConsole();
-            var renderer = new ConsoleRenderer(console);
+            var renderer = new ConsoleRenderer(console, outputMode);
             grid.Render(renderer, new Region(0, 0, 18, 3));
 
             console.Events.Should().BeEquivalentSequenceTo(
                 new TestConsole.CursorPositionChanged(new Point(0, 0)),
-                new TestConsole.ContentWritten("The quick  "),
+                new TestConsole.ContentWritten("The quick    "),
                 new TestConsole.CursorPositionChanged(new Point(0, 1)),
-                new TestConsole.ContentWritten("           "),
-                new TestConsole.CursorPositionChanged(new Point(11, 0)),
-                new TestConsole.ContentWritten("brown "),
-                new TestConsole.CursorPositionChanged(new Point(11, 1)),
-                new TestConsole.ContentWritten("fox   "),
+                new TestConsole.ContentWritten("             "),
+                new TestConsole.CursorPositionChanged(new Point(13, 0)),
+                new TestConsole.ContentWritten("brown"),
+                new TestConsole.CursorPositionChanged(new Point(13, 1)),
+                new TestConsole.ContentWritten("fox  "),
                 new TestConsole.CursorPositionChanged(new Point(0, 2)),
-                new TestConsole.ContentWritten("jumped over"),
-                new TestConsole.CursorPositionChanged(new Point(11, 2)),
-                new TestConsole.ContentWritten("the   "));
+                new TestConsole.ContentWritten("jumped over  "),
+                new TestConsole.CursorPositionChanged(new Point(13, 2)),
+                new TestConsole.ContentWritten("the s"));
         }
     }
 }

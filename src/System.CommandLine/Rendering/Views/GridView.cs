@@ -7,6 +7,7 @@ namespace System.CommandLine.Rendering.Views
     {
         private readonly List<ColumnDefinition> _columns = new List<ColumnDefinition>();
         private readonly List<RowDefinition> _rows = new List<RowDefinition>();
+        private readonly int _gutterWidth = 2;
 
         private View[,] ChildLocations { get; set; }
 
@@ -161,9 +162,21 @@ namespace System.CommandLine.Rendering.Views
                             {
                                 childSize = child.Measure(renderer, new Size(availableWidth, availableHeight));
                             }
-                            measuredColumns[columnIndex] = Math.Min(Math.Max(measuredColumns[columnIndex] ?? 0, childSize?.Width ?? 0), availableWidth);
+
+                            int gutterWidth;
+                            if (columnIndex < _columns.Count - 1)
+                            {
+                                gutterWidth = _gutterWidth;
+                            }
+                            else
+                            {
+                                gutterWidth = 0;
+                            }
+
+                            var width = childSize?.Width + gutterWidth ?? 0;
+                            measuredColumns[columnIndex] = Math.Min(Math.Max(measuredColumns[columnIndex] ?? 0, width), availableWidth);
                         }
-                        break;
+                            break;
                         case SizeMode.Star:
                         {
                             if (totalWidthForStarSizing == null)
