@@ -9,8 +9,6 @@ using Xunit;
 using Size = System.CommandLine.Rendering.Size;
 using System;
 using System.Collections.Generic;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using static System.CommandLine.Tests.TestConsole;
 
 namespace System.CommandLine.Tests.Rendering.Views
