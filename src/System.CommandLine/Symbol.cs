@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public abstract class Symbol : ISuggestionSource
+    public abstract class Symbol : ISymbol
     {
         private readonly HashSet<string> _aliases = new HashSet<string>();
 
@@ -57,7 +57,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
-        protected internal Argument Argument { get; protected set; }
+        public Argument Argument { get; protected set; }
 
         public string Description { get; }
 
@@ -65,10 +65,9 @@ namespace System.CommandLine
 
         public string Name { get; }
 
-        // TODO: (Parent) make this immutable
-        public Command Parent { get; protected internal set; }
+        public Command Parent { get; internal set; }
 
-        public SymbolSet Symbols { get; } = new SymbolSet();
+        public SymbolSet Children { get; } = new SymbolSet();
 
         internal void AddAlias(string alias) => _rawAliases.Add(alias);
 
@@ -76,19 +75,12 @@ namespace System.CommandLine
 
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
 
-        protected internal bool HasArguments => Argument != null && Argument != Argument.None;
-
-        protected internal bool HasHelp => Argument != null && Argument.HasHelp;
-
-        internal string Token() => _rawAliases.First(alias => alias.RemovePrefix() == Name);
-
         public virtual IEnumerable<string> Suggest(
             ParseResult parseResult,
             int? position = null)
         {
-            var symbolAliases = Symbols
-                                .Where(symbol => !symbol.IsHidden())
-                                .SelectMany(symbol => symbol.RawAliases);
+            var symbolAliases = Children.Where<ISymbol>(symbol => !symbol.IsHidden())
+                                       .SelectMany(symbol => symbol.RawAliases);
 
             var argumentSuggestions = Argument
                                       .SuggestionSource
@@ -101,5 +93,9 @@ namespace System.CommandLine
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";
+
+        ICommand ISymbol.Parent => Parent;
+
+        ISymbolSet ISymbol.Children => Children;
     }
 }

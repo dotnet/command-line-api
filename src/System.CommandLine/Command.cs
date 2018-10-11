@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Command : Symbol
+    public class Command : Symbol, ICommand, ISuggestionSource
     {
         private readonly IHelpBuilder _helpBuilder;
 
@@ -27,7 +27,7 @@ namespace System.CommandLine
         public Command(
             string name,
             string description,
-            IReadOnlyCollection<Symbol> symbols = null,
+            IReadOnlyCollection<ISymbol> symbols = null,
             Argument argument = null,
             bool treatUnmatchedTokensAsErrors = true,
             MethodBinder executionHandler = null,
@@ -37,7 +37,7 @@ namespace System.CommandLine
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
             ExecutionHandler = executionHandler;
             _helpBuilder = helpBuilder;
-            symbols = symbols ?? Array.Empty<Symbol>();
+            symbols = symbols ?? Array.Empty<ISymbol>();
 
             var validSymbolAliases = symbols
                                      .SelectMany(o => o.RawAliases)
@@ -64,17 +64,17 @@ namespace System.CommandLine
                 Argument = argument;
             }
 
-            foreach (Symbol symbol in symbols)
+            foreach (var symbol in symbols.OfType<Symbol>())
             {
                 symbol.Parent = this;
-                Symbols.Add(symbol);
+                Children.Add(symbol);
             }
         }
 
         public bool TreatUnmatchedTokensAsErrors { get; }
 
         internal MethodBinder ExecutionHandler { get; }
-        
+
         public void WriteHelp(IConsole console)
         {
             IHelpBuilder helpBuilder = _helpBuilder ?? new HelpBuilder(console);

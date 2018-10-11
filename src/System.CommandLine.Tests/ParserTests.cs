@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -123,6 +123,9 @@ namespace System.CommandLine.Tests
                              arguments: args => args.ExactlyOne())
                          .Build()
                          .Parse("-o args_for_one -t args_for_two");
+
+
+
 
             result["one"].Arguments.Single().Should().Be("args_for_one");
             result["two"].Arguments.Single().Should().Be("args_for_two");

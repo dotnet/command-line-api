@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -53,7 +53,7 @@ namespace System.CommandLine
             var tokenList = new List<Token>();
             var errorList = new List<ParseError>();
 
-            Symbol currentSymbol = null;
+            ISymbol currentSymbol = null;
             var foundEndOfArguments = false;
             var argList = args.ToList();
 
@@ -158,8 +158,18 @@ namespace System.CommandLine
                     else
                     {
                         // when a subcommand is encountered, re-scope which tokens are valid
-                        currentSymbol = (currentSymbol?.Symbols ??
-                                         configuration.Symbols)[arg];
+                        ISymbolSet symbolSet;
+
+                        if (currentSymbol is ICommand subcommand)
+                        {
+                            symbolSet = subcommand.Children;
+                        }
+                        else
+                        {
+                            symbolSet = configuration.Symbols;
+                        }
+
+                        currentSymbol = symbolSet.GetByAlias(arg);
                         knownTokens = currentSymbol.ValidTokens();
                         tokenList.Add(Command(arg));
                     }
@@ -303,20 +313,25 @@ namespace System.CommandLine
             }
         }
 
-        private static HashSet<Token> ValidTokens(this Symbol symbol) =>
-            new HashSet<Token>(
-                symbol.RawAliases
-                      .Select(Command)
-                      .Concat(
-                          symbol.Symbols
-                                .SelectMany(
-                                    s => s.RawAliases
-                                          .Select(a => new Token(
-                                                      a,
-                                                      s is Command
-                                                          ? TokenType.Command
-                                                          : TokenType.Option)))));
+        private static HashSet<Token> ValidTokens(this ISymbol symbol)
+        {
+            var tokens = symbol.RawAliases.Select(Command);
 
-       
+            if (symbol is ICommand command)
+            {
+                tokens =
+                    tokens.Concat(
+                        command.Children
+                               .SelectMany(
+                                   s => s.RawAliases
+                                         .Select(a => new Token(
+                                                     a,
+                                                     s is ICommand
+                                                         ? TokenType.Command
+                                                         : TokenType.Option))));
+            }
+
+            return new HashSet<Token>(tokens);
+        }
     }
 }

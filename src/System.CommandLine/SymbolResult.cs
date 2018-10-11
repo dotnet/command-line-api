@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -12,7 +12,10 @@ namespace System.CommandLine
 
         private ValidationMessages _validationMessages = ValidationMessages.Instance;
 
-        protected internal SymbolResult(Symbol symbol, string token, CommandResult parent = null)
+        protected internal SymbolResult(
+            ISymbol symbol, 
+            string token, 
+            CommandResult parent = null)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -36,7 +39,7 @@ namespace System.CommandLine
 
         public CommandResult Parent { get; }
 
-        public Symbol Symbol { get; }
+        public ISymbol Symbol { get; }
 
         public string Token { get; }
 
@@ -102,7 +105,7 @@ namespace System.CommandLine
             }
 
             if (!OptionWasRespecified &&
-                Symbol is Option)
+                Symbol is IOption)
             {
                 // Options must be respecified in order to accept additional arguments. This is
                 // not the case for command.
@@ -138,20 +141,20 @@ namespace System.CommandLine
         }
 
         internal static SymbolResult Create(
-            Symbol symbol, 
+            ISymbol symbol, 
             string token, 
             CommandResult parent = null, 
             ValidationMessages validationMessages = null)
         {
             switch (symbol)
             {
-                case Command command:
+                case ICommand command:
                     return new CommandResult(command, parent)
                     {
                         ValidationMessages = validationMessages
                     };
 
-                case Option option:
+                case IOption option:
                     return new OptionResult(option, token, parent)
                     {
                         ValidationMessages = validationMessages

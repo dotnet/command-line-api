@@ -1,3 +1,6 @@
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -46,7 +49,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public void Write(Command command)
+        public void Write(ICommand command)
         {
             if (command == null)
             {
@@ -281,7 +284,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="commandDef"></param>
         /// <returns>A new <see cref="HelpItem"/></returns>
-        protected virtual HelpItem ArgumentFormatter(Symbol commandDef)
+        protected virtual HelpItem ArgumentFormatter(ISymbol commandDef)
         {
             var argHelp = commandDef?.Argument?.Help;
 
@@ -296,14 +299,14 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns>A new <see cref="HelpItem"/></returns>
-        protected virtual HelpItem OptionFormatter(Symbol symbol)
+        protected virtual HelpItem OptionFormatter(ISymbol symbol)
         {
             var rawAliases = symbol.RawAliases
                 .OrderBy(alias => alias.Length);
 
             var option = string.Join(", ", rawAliases);
 
-            if (symbol.HasArguments && !string.IsNullOrWhiteSpace(symbol.Argument?.Help?.Name))
+            if (symbol.HasArguments() && !string.IsNullOrWhiteSpace(symbol.Argument?.Help?.Name))
             {
                 option = $"{option} <{symbol.Argument?.Help?.Name}>";
             }
@@ -318,9 +321,9 @@ namespace System.CommandLine
         /// Writes a summary, if configured, for the supplied <see cref="command"/>
         /// </summary>
         /// <param name="command"></param>
-        protected virtual void AddSynopsis(Command command)
+        protected virtual void AddSynopsis(ICommand command)
         {
-            if (!command.HasHelp)
+            if (!command.HasHelp())
             {
                 return;
             }
@@ -333,7 +336,7 @@ namespace System.CommandLine
         /// Writes the usage summary for the supplied <see cref="command"/>
         /// </summary>
         /// <param name="command"></param>
-        protected virtual void AddUsage(Command command)
+        protected virtual void AddUsage(ICommand command)
         {
             var usage = new List<string>();
 
@@ -352,9 +355,9 @@ namespace System.CommandLine
                 }
             }
 
-            var hasOptionHelp = command.Symbols
-                .OfType<Option>()
-                .Any(symbolDef => symbolDef.HasHelp);
+            var hasOptionHelp = command.Children
+                .OfType<IOption>()
+                .Any(symbolDef => symbolDef.HasHelp());
 
             if (hasOptionHelp)
             {
@@ -367,9 +370,9 @@ namespace System.CommandLine
                 usage.Add($"<{commandArgHelp.Name}>");
             }
 
-            var hasCommandHelp = command.Symbols
-                .OfType<Command>()
-                .Any(f => f.HasHelp);
+            var hasCommandHelp = command.Children
+                .OfType<ICommand>()
+                .Any(f => f.HasHelp());
 
             if (hasCommandHelp)
             {
@@ -388,9 +391,9 @@ namespace System.CommandLine
         /// Writes the arguments, if any, for the supplied <see cref="command"/>
         /// </summary>
         /// <param name="command"></param>
-        protected virtual void AddArguments(Command command)
+        protected virtual void AddArguments(ICommand command)
         {
-            var arguments = new List<Command>();
+            var arguments = new List<ICommand>();
 
             if (GetArgumentHelp(command.Parent) != null)
             {
@@ -410,12 +413,12 @@ namespace System.CommandLine
         /// for the supplied <see cref="command"/>
         /// </summary>
         /// <param name="command"></param>
-        protected virtual void AddOptions(Symbol command)
+        protected virtual void AddOptions(ICommand command)
         {
             var options = command
-                .Symbols
-                .OfType<Option>()
-                .Where(opt => opt.HasHelp)
+                .Children
+                .OfType<IOption>()
+                .Where(opt => opt.HasHelp())
                 .ToArray();
 
             HelpSection.Write(this, Options.Title, options, OptionFormatter);
@@ -426,18 +429,18 @@ namespace System.CommandLine
         /// for the supplied <see cref="command"/>
         /// </summary>
         /// <param name="command"></param>
-        protected virtual void AddSubcommands(Symbol command)
+        protected virtual void AddSubcommands(ICommand command)
         {
             var subcommands = command
-                .Symbols
-                .OfType<Command>()
-                .Where(subCommand => subCommand.HasHelp)
+                .Children
+                .OfType<ICommand>()
+                .Where(subCommand => subCommand.HasHelp())
                 .ToArray();
 
             HelpSection.Write(this, Commands.Title, subcommands, OptionFormatter);
         }
 
-        protected virtual void AddAdditionalArguments(Command command)
+        protected virtual void AddAdditionalArguments(ICommand command)
         {
             if (command.TreatUnmatchedTokensAsErrors)
             {
@@ -447,9 +450,9 @@ namespace System.CommandLine
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private static HelpDetail GetArgumentHelp(Symbol symbolDef)
+        private static HelpDetail GetArgumentHelp(ISymbol symbolDef)
         {
-            if (symbolDef?.HasArguments != true || symbolDef.Argument?.HasHelp != true)
+            if (symbolDef?.HasArguments() != true || symbolDef.Argument?.HasHelp != true)
             {
                 return null;
             }
@@ -506,8 +509,8 @@ namespace System.CommandLine
             public static void Write(
                 HelpBuilder builder,
                 string title,
-                IReadOnlyCollection<Symbol> usageItems = null,
-                Func<Symbol, HelpItem> formatter = null,
+                IReadOnlyCollection<ISymbol> usageItems = null,
+                Func<ISymbol, HelpItem> formatter = null,
                 string description = null)
             {
                 if (!ShouldWrite(description, usageItems))
@@ -523,7 +526,7 @@ namespace System.CommandLine
                 builder.AppendBlankLine();
             }
 
-            private static bool ShouldWrite(string description, IReadOnlyCollection<Symbol> usageItems)
+            private static bool ShouldWrite(string description, IReadOnlyCollection<ISymbol> usageItems)
             {
                 if (!string.IsNullOrWhiteSpace(description))
                 {
@@ -555,8 +558,8 @@ namespace System.CommandLine
 
             private static void AddInvocation(
                 HelpBuilder builder,
-                IReadOnlyCollection<Symbol> symbols,
-                Func<Symbol, HelpItem> formatter)
+                IReadOnlyCollection<ISymbol> symbols,
+                Func<ISymbol, HelpItem> formatter)
             {
                 if (symbols?.Any() != true)
                 {

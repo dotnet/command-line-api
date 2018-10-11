@@ -1,14 +1,17 @@
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace System.CommandLine
 {
-    public partial class CommandLineConfiguration
+    public class CommandLineConfiguration
     {
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
+        private readonly SymbolSet _symbols = new SymbolSet();
 
         public CommandLineConfiguration(
             IReadOnlyCollection<Symbol> symbols,
@@ -17,7 +20,7 @@ namespace System.CommandLine
             bool enablePosixBundling = true,
             bool enablePositionalOptions = false,
             ValidationMessages validationMessages = null,
-            ResponseFileHandling responseFileHandling = default(ResponseFileHandling),
+            ResponseFileHandling responseFileHandling = default,
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null)
         {
             if (symbols == null)
@@ -59,7 +62,7 @@ namespace System.CommandLine
                     symbols);
             }
 
-            Symbols.Add(RootCommand);
+            _symbols.Add(RootCommand);
 
             EnablePosixBundling = enablePosixBundling;
             EnablePositionalOptions = enablePositionalOptions;
@@ -88,7 +91,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> Prefixes { get; }
 
-        public SymbolSet Symbols { get; } = new SymbolSet();
+        public ISymbolSet Symbols => _symbols;
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
