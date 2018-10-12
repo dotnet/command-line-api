@@ -85,7 +85,7 @@ namespace System.CommandLine.Suggest.Tests
 
             await Process.ExecuteAsync(
                 _dotnetSuggest.FullName,
-                $"get -e \"{_endToEndTestApp.FullName}\" -p 0 -- a",
+                $"get -e \"{_endToEndTestApp.FullName}\" -p 0 -- {Path.GetFileNameWithoutExtension(_endToEndTestApp.FullName)} a",
                 stdOut: value => stdOut.AppendLine(value),
                 stdErr: value => stdErr.AppendLine(value),
                 environmentVariables: _environmentVariables);
@@ -100,6 +100,39 @@ namespace System.CommandLine.Suggest.Tests
             stdOut.ToString()
                   .Should()
                   .Be($"--apple{NewLine}--banana{NewLine}--durian{NewLine}");
+        }
+
+        [ReleaseBuildOnlyFact]
+        public async Task dotnet_suggest_provides_completions_for_app_with_only_commandname()
+        {
+            // run once to trigger a call to dotnet-suggest register
+            await Process.ExecuteAsync(
+                _endToEndTestApp.FullName,
+                "-h",
+                stdOut: s => _output.WriteLine(s),
+                stdErr: s => _output.WriteLine(s),
+                environmentVariables: _environmentVariables);
+
+            var stdOut = new StringBuilder();
+            var stdErr = new StringBuilder();
+
+            await Process.ExecuteAsync(
+                _dotnetSuggest.FullName,
+                $"get -e \"{_endToEndTestApp.FullName}\" --position 0 -- {Path.GetFileNameWithoutExtension(_endToEndTestApp.FullName)}",
+                stdOut: value => stdOut.AppendLine(value),
+                stdErr: value => stdErr.AppendLine(value),
+                environmentVariables: _environmentVariables);
+
+            _output.WriteLine($"stdOut:{NewLine}{stdOut}{NewLine}");
+            _output.WriteLine($"stdErr:{NewLine}{stdErr}{NewLine}");
+
+            stdErr.ToString()
+                .Should()
+                .BeEmpty();
+
+            stdOut.ToString()
+                .Should()
+                .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}");
         }
     }
 }

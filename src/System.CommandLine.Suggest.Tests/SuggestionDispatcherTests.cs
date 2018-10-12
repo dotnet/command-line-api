@@ -116,13 +116,10 @@ namespace System.CommandLine.Suggest.Tests
                             .AddCommand("add", "add description",
                                     symbols: s => s.AddCommand("package", "package description")
                                                    .AddCommand("reference", "reference description"))
-                           .AddCommand("[suggest]",
-                                    symbols: a => a.AddOption(new[] { "-p", "--position" },
-                                    arguments: ar => ar.ParseArgumentsAs<int>()))
+                            .AddCommand("[suggest]")
                             .TreatUnmatchedTokensAsErrors(false)
                             .Build();
                 var parseResult = parser.Parse(suggestionTargetArguments);
-                var position = parseResult.ValueForOption<int>("position");
                 var suggested = parser.Parse(parseResult.UnmatchedTokens).Suggestions();
                 return string.Join(
                         Environment.NewLine,
