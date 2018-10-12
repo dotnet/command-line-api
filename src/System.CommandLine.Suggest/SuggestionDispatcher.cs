@@ -106,9 +106,7 @@ namespace System.CommandLine.Suggest
         {
             var args = new List<string>
             {
-                targetCommands[1],
-                "--position",
-                parseResult.ValueForOption<string>("--position")
+                targetCommands[1]
             };
 
             args.AddRange(parseResult.UnparsedTokens);
