@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 
@@ -9,11 +10,11 @@ namespace System.CommandLine.Suggest
 {
     public class GlobalToolsSuggestionRegistration : ISuggestionRegistration
     {
-        private readonly string _dotnetProfileDir;
         private readonly IFileEnumerator _fileEnumerator;
-        private readonly string _toolsShimPath;
+        private readonly string _nullableToolsShimPath;
 
-        public GlobalToolsSuggestionRegistration(string dotnetProfileDirectory, IFileEnumerator fileEnumerator = null)
+        public GlobalToolsSuggestionRegistration(string dotnetProfileDirectory = null,
+            IFileEnumerator fileEnumerator = null)
         {
             var directory = dotnetProfileDirectory;
             if (directory == null)
@@ -34,15 +35,25 @@ namespace System.CommandLine.Suggest
 
         public IReadOnlyCollection<RegistrationPair> FindAllRegistrations()
         {
-            return _fileEnumerator.EnumerateFiles(_toolsShimPath).Select(p =>
+            if (_nullableToolsShimPath == null)
+            {
+                return Array.Empty<RegistrationPair>();
+            }
+
+            return _fileEnumerator.EnumerateFiles(_nullableToolsShimPath).Select(p =>
                 new RegistrationPair(p, $"{Path.GetFileNameWithoutExtension(p)} [suggest]")).ToArray();
         }
 
         public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
         {
+            if (_nullableToolsShimPath == null)
+            {
+                return null;
+            }
+
             if (soughtExecutable == null) throw new ArgumentNullException(nameof(soughtExecutable));
 
-            if (!soughtExecutable.FullName.StartsWith(_toolsShimPath))
+            if (!soughtExecutable.FullName.StartsWith(_nullableToolsShimPath))
             {
                 return null;
             }

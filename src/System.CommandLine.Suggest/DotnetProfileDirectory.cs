@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace System.CommandLine.Suggest
 {
-    public class DotnetProfileDirectory
+    public static class DotnetProfileDirectory
     {
         private const string DotnetHomeVariableName = "DOTNET_CLI_HOME";
         private const string DotnetProfileDirectoryName = ".dotnet";
