@@ -7,8 +7,8 @@ namespace System.CommandLine.Rendering.Views
     public abstract class LayoutView<T> : View
         where T : View
     {
-        //TODO: Only expose a readonly version of the children to make sure all adds flow through the AddChild method
-        public IList<T> Children { get; } = new List<T>();
+        private readonly List<T> _children = new List<T>();
+        public IReadOnlyList<T> Children => _children.AsReadOnly();
 
         public virtual void AddChild(T child)
         {
@@ -17,7 +17,7 @@ namespace System.CommandLine.Rendering.Views
                 throw new ArgumentNullException(nameof(child));
             }
 
-            Children.Add(child);
+            _children.Add(child);
             
             child.Updated -= OnChildUpdated;
             child.Updated += OnChildUpdated;
@@ -34,7 +34,7 @@ namespace System.CommandLine.Rendering.Views
         public virtual bool RemoveChild(T child)
         {
             child.Updated -= OnChildUpdated;
-            return Children.Remove(child);
+            return _children.Remove(child);
         }
 
         protected virtual void OnChildUpdated(object sender, EventArgs e)

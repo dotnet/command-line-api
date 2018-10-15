@@ -1,4 +1,4 @@
-using System.CommandLine.Rendering;
+﻿using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
 using FluentAssertions;
 using Xunit;
@@ -31,6 +31,45 @@ namespace System.CommandLine.Tests.Rendering.Views
             view.RaiseUpdated();
 
             layout.OnChildUpdatedInvocationCount.Should().Be(1);
+        }
+
+        [Fact]
+        public void Adding_null_child_throws_exception()
+        {
+            var layout = new TestLayout();
+
+            Action addNullChild = () => layout.AddChild(null);
+
+            addNullChild.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Removing_child_from_layout_unregisters_for_updated()
+        {
+            var layout = new TestLayout();
+            var view = new TestView();
+
+            layout.AddChild(view);
+            layout.RemoveChild(view);
+            view.RaiseUpdated();
+
+            layout.OnChildUpdatedInvocationCount.Should().Be(0);
+            layout.Children.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Clearing_children_removes_all_child_views()
+        {
+            var layout = new TestLayout();
+            var view1 = new TestView();
+            var view2 = new TestView();
+
+            layout.AddChild(view1);
+            layout.RemoveChild(view2);
+
+            layout.ClearChildren();
+            
+            layout.Children.Should().BeEmpty();
         }
 
         private class TestView : View
