@@ -20,7 +20,7 @@ namespace System.CommandLine.Suggest.Tests
             suggestionProvider.AddSuggestionRegistration(suggestion1);
             suggestionProvider.AddSuggestionRegistration(suggestion2);
 
-            IReadOnlyCollection<RegistrationPair> allRegistrations = suggestionProvider.FindAllRegistrations();
+            var allRegistrations = suggestionProvider.FindAllRegistrations();
             allRegistrations
                 .Should()
                 .HaveCount(2)

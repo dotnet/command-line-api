@@ -32,11 +32,10 @@ namespace System.CommandLine.Suggest
                 .FirstOrDefault(r => r.HasValue);
         }
 
-        public IReadOnlyCollection<RegistrationPair> FindAllRegistrations()
+        public IEnumerable<RegistrationPair> FindAllRegistrations()
         {
             return _suggestionRegistration
-                .SelectMany(s => s.FindAllRegistrations())
-                .ToArray();
+                .SelectMany(s => s.FindAllRegistrations());
         }
     }
 }

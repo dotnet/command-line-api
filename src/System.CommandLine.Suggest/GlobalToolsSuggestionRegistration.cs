@@ -33,7 +33,7 @@ namespace System.CommandLine.Suggest
         {
         }
 
-        public IReadOnlyCollection<RegistrationPair> FindAllRegistrations()
+        public IEnumerable<RegistrationPair> FindAllRegistrations()
         {
             if (_nullableToolsShimPath == null)
             {
@@ -41,7 +41,7 @@ namespace System.CommandLine.Suggest
             }
 
             return _fileEnumerator.EnumerateFiles(_nullableToolsShimPath).Select(p =>
-                new RegistrationPair(p, $"{Path.GetFileNameWithoutExtension(p)} [suggest]")).ToArray();
+                new RegistrationPair(p, $"{Path.GetFileNameWithoutExtension(p)} [suggest]"));
         }
 
         public RegistrationPair? FindRegistration(FileInfo soughtExecutable)

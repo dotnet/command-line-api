@@ -51,7 +51,7 @@ namespace System.CommandLine.Suggest
             return new RegistrationPair(completionTarget);
         }
 
-        public IReadOnlyCollection<RegistrationPair> FindAllRegistrations()
+        public IEnumerable<RegistrationPair> FindAllRegistrations()
         {
             var allRegistration = new List<RegistrationPair>();
 

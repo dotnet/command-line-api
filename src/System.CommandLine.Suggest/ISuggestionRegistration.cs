@@ -7,6 +7,6 @@ namespace System.CommandLine.Suggest
     {
         void AddSuggestionRegistration(RegistrationPair registration);
         RegistrationPair? FindRegistration(FileInfo soughtExecutable);
-        IReadOnlyCollection<RegistrationPair> FindAllRegistrations();
+        IEnumerable<RegistrationPair> FindAllRegistrations();
     }
 }
