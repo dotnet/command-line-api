@@ -21,7 +21,7 @@ namespace System.CommandLine.Invocation
             }
             else
             {
-                Console = new SystemConsole();
+                Console = SystemConsole.Create();
                 _onDispose = Console;
             }
         }

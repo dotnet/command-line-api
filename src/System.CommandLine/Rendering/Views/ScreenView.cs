@@ -10,11 +10,13 @@ namespace System.CommandLine.Rendering.Views
         private int _renderInProgress;
         private readonly SynchronizationContext _context;
 
-        public ScreenView(ConsoleRenderer renderer, IConsole console = null, SynchronizationContext synchronizationContext = null)
+        public ScreenView(
+            ConsoleRenderer renderer, 
+            SynchronizationContext synchronizationContext = null)
         {
             Renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
             _context = synchronizationContext ?? SynchronizationContext.Current ?? new SynchronizationContext();
-            Console = console ?? SystemConsole.Instance;   
+            Console = renderer.Console;   
         }
 
         private IConsole Console { get; }

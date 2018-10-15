@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests.Rendering.Views
         [Fact]
         public void Clearing_child_view_unregisters_from_updated_event()
         {
-            var screen = new ScreenView(_renderer, _console, _synchronizationContext);
+            var screen = new ScreenView(_renderer, _synchronizationContext);
             var view = new TestView();
             
             screen.Child = view;
@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests.Rendering.Views
         [Fact]
         public void Rendering_without_a_child_view_should_not_throw()
         {
-            var screen = new ScreenView(_renderer, _console, _synchronizationContext);
+            var screen = new ScreenView(_renderer, _synchronizationContext);
 
             Action renderAction = () => screen.Render();
 
@@ -59,7 +59,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             _console.Width = 100;
             _console.CursorLeft = _console.CursorTop = 20;
 
-            var screen = new ScreenView(_renderer, _console, _synchronizationContext);
+            var screen = new ScreenView(_renderer, _synchronizationContext);
             var view = new TestView();
             screen.Child = view;
 
@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             _console.Width = 100;
             _console.CursorLeft = _console.CursorTop = 20;
 
-            var screen = new ScreenView(_renderer, _console, _synchronizationContext);
+            var screen = new ScreenView(_renderer, _synchronizationContext);
             var view = new TestView();
             screen.Child = view;
 
@@ -100,7 +100,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             _console.Width = 100;
             _console.CursorLeft = _console.CursorTop = 20;
 
-            var screen = new ScreenView(_renderer, _console, _synchronizationContext);
+            var screen = new ScreenView(_renderer, _synchronizationContext);
             var view = new TestView();
             void BeforeRenderAction()
             {

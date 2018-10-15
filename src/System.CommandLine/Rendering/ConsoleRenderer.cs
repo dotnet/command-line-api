@@ -11,7 +11,7 @@ namespace System.CommandLine.Rendering
             OutputMode mode = OutputMode.Auto,
             bool resetAfterRender = false)
         {
-            Console = console ?? SystemConsole.Instance;
+            Console = console ?? SystemConsole.Create();
             _resetAfterRender = resetAfterRender;
             Mode = mode == OutputMode.Auto
                        ? Console.DetectOutputMode()
