@@ -19,8 +19,8 @@ namespace System.CommandLine.Suggest.Tests
 
             var pair = suggestionRegistration.FindRegistration(fileInfo);
 
-            pair.CommandPath.Should().Be(validToolsPath);
-            pair.SuggestionCommand.Should().Be("play [suggest]");
+            pair.Value.CommandPath.Should().Be(validToolsPath);
+            pair.Value.SuggestionCommand.Should().Be("play [suggest]");
         }
 
         [Fact]

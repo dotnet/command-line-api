@@ -78,15 +78,15 @@ namespace System.CommandLine.Suggest
             var suggestionRegistration =
                 _suggestionRegistration.FindRegistration(commandPath);
 
-            if (suggestionRegistration == null)
+            if (!suggestionRegistration.HasValue)
             {
                 // Can't find a completion exe to call
                 return;
             }
 
-            string targetArgs = FormatSuggestionArguments(parseResult, suggestionRegistration.SuggestionCommand.Tokenize().ToList());
+            string targetArgs = FormatSuggestionArguments(parseResult, suggestionRegistration.Value.SuggestionCommand.Tokenize().ToList());
 
-            string suggestions = _suggestionStore.GetSuggestions(suggestionRegistration.CommandPath, targetArgs, Timeout);
+            string suggestions = _suggestionStore.GetSuggestions(suggestionRegistration.Value.CommandPath, targetArgs, Timeout);
             if (!string.IsNullOrWhiteSpace(suggestions))
             {
                 console.Out.Write(suggestions);

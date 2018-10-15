@@ -40,7 +40,7 @@ namespace System.CommandLine.Suggest.Tests
             suggestionProvider.AddSuggestionRegistration(
                 new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand"));
 
-            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("COMMANDPATH"));
+            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("COMMANDPATH")).Value;
 
             registration.CommandPath.Should().Be(Path.GetFullPath("commandPath"));
             registration.SuggestionCommand.Should().Be("suggestionCommand");
@@ -57,7 +57,7 @@ namespace System.CommandLine.Suggest.Tests
             suggestionProvider.AddSuggestionRegistration(
                 new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand2"));
 
-            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("commandPath"));
+            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("commandPath")).Value;
 
             registration.CommandPath.Should().Be(Path.GetFullPath("commandPath"));
             registration.SuggestionCommand.Should().Be("suggestionCommand2");

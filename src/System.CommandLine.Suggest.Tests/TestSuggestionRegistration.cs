@@ -21,7 +21,7 @@ namespace System.CommandLine.Suggest.Tests
             }
         }
 
-        public RegistrationPair FindRegistration(FileInfo soughtExecutable)
+        public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
             => _suggestionRegistrations.FirstOrDefault(x => x.CommandPath.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase));
 
         public IReadOnlyCollection<RegistrationPair> FindAllRegistrations()

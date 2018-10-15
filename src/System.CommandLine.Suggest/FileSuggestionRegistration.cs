@@ -27,7 +27,7 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        public RegistrationPair FindRegistration(FileInfo soughtExecutable)
+        public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
         {
             if (soughtExecutable == null)
             {

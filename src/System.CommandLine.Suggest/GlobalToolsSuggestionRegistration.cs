@@ -25,7 +25,7 @@ namespace System.CommandLine.Suggest
             throw new NotImplementedException();
         }
 
-        public RegistrationPair FindRegistration(FileInfo soughtExecutable)
+        public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
         {
             if (soughtExecutable == null) throw new ArgumentNullException(nameof(soughtExecutable));
 

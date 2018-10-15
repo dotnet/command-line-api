@@ -6,7 +6,7 @@ namespace System.CommandLine.Suggest
     public interface ISuggestionRegistration
     {
         void AddSuggestionRegistration(RegistrationPair registration);
-        RegistrationPair FindRegistration(FileInfo soughtExecutable);
+        RegistrationPair? FindRegistration(FileInfo soughtExecutable);
         IReadOnlyCollection<RegistrationPair> FindAllRegistrations();
     }
 }

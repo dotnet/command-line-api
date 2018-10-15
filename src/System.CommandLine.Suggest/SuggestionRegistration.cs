@@ -1,6 +1,6 @@
 namespace System.CommandLine.Suggest
 {
-    public class RegistrationPair
+    public struct RegistrationPair
     {
         public RegistrationPair(string commandPath, string suggestionCommand)
         {
