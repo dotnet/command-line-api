@@ -12,26 +12,26 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public void Path_is_in_global_tools()
         {
-            var homeDir = "/Users/jeredmyers";
-            var validToolsPath = "/Users/jeredmyers/.dotnet/tools/play";
+            var homeDir = Path.GetTempPath();
+            var validToolsPath = Path.Combine(homeDir, "tools", "play");
             var fileInfo = new FileInfo(validToolsPath);
-            var gtRegister = new GlobalToolsSuggestionRegistration(homeDir);
+            var suggestionRegistration = new GlobalToolsSuggestionRegistration(homeDir);
 
-            var pair = gtRegister.FindRegistration(fileInfo);
+            var pair = suggestionRegistration.FindRegistration(fileInfo);
 
             pair.CommandPath.Should().Be(validToolsPath);
-            pair.SuggestionCommand.Should().Be("[suggest]");
+            pair.SuggestionCommand.Should().Be("play [suggest]");
         }
 
         [Fact]
         public void Invalid_global_tools_returns_null()
         {
-            var homeDir = "/Users/jeredmyers";
-            var invalidToolsPath = "/Not/a/valid/path";
+            var homeDir = Path.GetTempPath();
+            var invalidToolsPath = Path.Combine(homeDir, "not-valid");
             var fileInfo = new FileInfo(invalidToolsPath);
-            var gtRegister = new GlobalToolsSuggestionRegistration(homeDir);
+            var suggestionRegistration = new GlobalToolsSuggestionRegistration(homeDir);
 
-            var pair = gtRegister.FindRegistration(fileInfo);
+            var pair = suggestionRegistration.FindRegistration(fileInfo);
 
             pair.Should().BeNull();
         }

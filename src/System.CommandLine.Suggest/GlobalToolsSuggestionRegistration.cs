@@ -8,11 +8,11 @@ namespace System.CommandLine.Suggest
 {
     public class GlobalToolsSuggestionRegistration : ISuggestionRegistration
     {
-        private string _homeDir;
+        private readonly string _dotnetProfileDir;
 
-        public GlobalToolsSuggestionRegistration(string homeDirectory)
+        public GlobalToolsSuggestionRegistration(string dotnetProfileDirectory)
         {
-            _homeDir = homeDirectory;
+            _dotnetProfileDir = dotnetProfileDirectory;
         }
 
         public void AddSuggestionRegistration(RegistrationPair registration)
@@ -29,14 +29,13 @@ namespace System.CommandLine.Suggest
         {
             if (soughtExecutable == null) throw new ArgumentNullException(nameof(soughtExecutable));
 
-            // TODO: Won't work on Windows...Or everyone elses machine.
-            // We don't know if the caller is passing the global tools conventional location.
-            if (!soughtExecutable.FullName.StartsWith(Path.Combine(_homeDir, ".dotnet/tools")))
+            if (!soughtExecutable.FullName.StartsWith(Path.Combine(_dotnetProfileDir, "tools")))
             {
                 return null;
             }
 
-            return new RegistrationPair(soughtExecutable.FullName, "[suggest]");
+            return new RegistrationPair(soughtExecutable.FullName,
+                $"{Path.GetFileNameWithoutExtension(soughtExecutable.FullName)} [suggest]");
         }
     }
 }
