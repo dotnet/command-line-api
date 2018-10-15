@@ -10,11 +10,11 @@ namespace System.CommandLine.Rendering.Views
         private int _renderInProgress;
         private readonly SynchronizationContext _context;
 
-        public ScreenView(IConsole console = null, ConsoleRenderer renderer = null, OutputMode outputMode = OutputMode.Ansi)
+        public ScreenView(ConsoleRenderer renderer, IConsole console = null, SynchronizationContext synchronizationContext = null)
         {
-            _context = SynchronizationContext.Current ?? new SynchronizationContext();
-            Console = console ?? SystemConsole.Instance;
-            Renderer = renderer ?? new ConsoleRenderer(Console, outputMode);
+            Renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
+            _context = synchronizationContext ?? SynchronizationContext.Current ?? new SynchronizationContext();
+            Console = console ?? SystemConsole.Instance;   
         }
 
         private IConsole Console { get; }
@@ -41,7 +41,7 @@ namespace System.CommandLine.Rendering.Views
         {
             if (Interlocked.CompareExchange(ref _renderRequested, 1, 0) == 0)
             {
-                _context.Post(new SendOrPostCallback(x =>
+                _context.Post(x =>
                 {
                     while (Interlocked.CompareExchange(ref _renderRequested, 0, 1) == 1)
                     {
@@ -51,7 +51,7 @@ namespace System.CommandLine.Rendering.Views
                             Interlocked.Exchange(ref _renderInProgress, 0);
                         }
                     }
-                }), null);
+                }, null);
             }
         }
 
