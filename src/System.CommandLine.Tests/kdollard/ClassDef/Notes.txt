@@ -1,0 +1,11 @@
+There is an issue with redundant commands. You can see this in Add/Remove. Add/Remove will be used elsewhere and Package/Reference is already used. Three solutions I can think of:
+
+- namespaces
+- nested classes (I implemented this for package/reference)
+- Allow/always prefix subcommands with their logical parent, and remove on generation
+
+The third is my preferred and would result in 
+
+> public class ProjectAddCommand where the "Project" part would be removed. 
+
+I did this for List as we needed an immediate solution. 
