@@ -22,7 +22,7 @@ namespace System.CommandLine.Builder
 
         public bool? TreatUnmatchedTokensAsErrors { get; set; }
 
-        internal IBinderInvoker ExecutionHandler { get; set; }
+        internal ICommandHandler ExecutionHandler { get; set; }
 
         public string Name { get; }
 
@@ -38,7 +38,7 @@ namespace System.CommandLine.Builder
                 treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
                                               Parent?.TreatUnmatchedTokensAsErrors ??
                                               true,
-                executionHandler: ExecutionHandler,
+                handler: ExecutionHandler,
                 helpBuilder: HelpBuilder);
         }
 

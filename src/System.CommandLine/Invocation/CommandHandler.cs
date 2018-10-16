@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public abstract class BinderInvoker : IBinderInvoker
+    public abstract class CommandHandler : ICommandHandler
     {
         static protected async Task<int> CoerceResultAsync(object value)
         {

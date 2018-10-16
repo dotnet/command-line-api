@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace System.CommandLine.Invocation
 {
 
-    public class MethodBinder : BinderInvoker
+    public class MethodBinder : CommandHandler
     {
         private readonly object _target;
         private readonly MethodInfo _method;

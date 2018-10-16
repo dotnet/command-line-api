@@ -72,19 +72,19 @@ namespace System.CommandLine.Builder
             }
 
             // TODO: Clean up to consider multiple constructors
-            ConstructorInfo constructorInfo = typeof(TType).GetConstructors().Single();
+            ConstructorInfo constructorInfo = typeof(TType).GetConstructors()
+                                                           .SingleOrDefault() ??
+                                              throw new ArgumentException($"No eligible constructor found to bind type {typeof(TType)}");
 
             foreach (PropertyInfo property in typeof(TType).GetProperties())
             {
                 builder.AddOptionFromProperty(property);
-
             }
 
             builder.OnExecute(constructorInfo, onExecuteMethod);
 
             return builder;
         }
-
 
         public static TBuilder AddOptionFromProperty<TBuilder>(
             this TBuilder builder,
@@ -95,19 +95,15 @@ namespace System.CommandLine.Builder
                             ? $"--{property.Name.ToKebabCase()}"
                             : $"-{property.Name}";
 
-            if(!property.CanWrite)
+            if (property.CanWrite)
             {
-                throw new ArgumentException(ValidationMessages.Instance.ArgumentPropertyHasNoSetter(property.Name), nameof(property));
+                builder.AddOption(
+                    alias,
+                    property.Name,
+                    args => {
+                        args.ParseArgumentsAs(property.PropertyType);
+                    });
             }
-
-            builder.AddOption(
-                alias,
-                property.Name,
-                args => {
-                    args.ParseArgumentsAs(property.PropertyType);
-
-                    // TODO: Consider adding a default value
-                });
 
             return builder;
         }

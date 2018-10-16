@@ -30,12 +30,12 @@ namespace System.CommandLine
             IReadOnlyCollection<ISymbol> symbols = null,
             Argument argument = null,
             bool treatUnmatchedTokensAsErrors = true,
-            IBinderInvoker executionHandler = null,
+            ICommandHandler handler = null,
             IHelpBuilder helpBuilder = null) :
             base(new[] { name }, description)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-            ExecutionHandler = executionHandler;
+            Handler = handler;
             _helpBuilder = helpBuilder;
             symbols = symbols ?? Array.Empty<ISymbol>();
 
@@ -73,7 +73,7 @@ namespace System.CommandLine
 
         public bool TreatUnmatchedTokensAsErrors { get; }
 
-        internal IBinderInvoker ExecutionHandler { get; }
+        internal ICommandHandler Handler { get; }
         
         public void WriteHelp(IConsole console)
         {

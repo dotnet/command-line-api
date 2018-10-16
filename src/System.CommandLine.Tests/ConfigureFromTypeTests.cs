@@ -126,8 +126,6 @@ namespace System.CommandLine.Tests
 
         }
 
-
-
         private PropertyInfo GetPropertyInfo(string name)
         {
             return typeof(ConfigureFromTypeTests)

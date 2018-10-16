@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public class ConstructorBinder : BinderInvoker
+    public class ConstructorBinder : CommandHandler
     {
         private ConstructorInfo constructorInfo;
         private MethodInfo _method;
