@@ -27,7 +27,7 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        public SuggestionRegistration FindRegistration(FileInfo soughtExecutable)
+        public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
         {
             if (soughtExecutable == null)
             {
@@ -48,12 +48,12 @@ namespace System.CommandLine.Suggest
                 return null;
             }
 
-            return new SuggestionRegistration(completionTarget);
+            return new RegistrationPair(completionTarget);
         }
 
-        public IReadOnlyCollection<SuggestionRegistration> FindAllRegistrations()
+        public IEnumerable<RegistrationPair> FindAllRegistrations()
         {
-            var allRegistration = new List<SuggestionRegistration>();
+            var allRegistration = new List<RegistrationPair>();
 
             if (File.Exists(_registrationConfigurationFilePath))
             {
@@ -62,14 +62,14 @@ namespace System.CommandLine.Suggest
                         .ReadAllLines(_registrationConfigurationFilePath)
                         .Select(l => l.Trim())
                         .Where(l => l.Any())
-                        .Select(item => new SuggestionRegistration(item))
+                        .Select(item => new RegistrationPair(item))
                     );
             }
 
             return allRegistration;
         }
 
-        public void AddSuggestionRegistration(SuggestionRegistration registration)
+        public void AddSuggestionRegistration(RegistrationPair registration)
         {
             using (var writer = new StreamWriter(_registrationConfigurationFilePath, true))
             {

@@ -12,7 +12,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public void Constructor_with_badly_formatted_completion_provider_throws()
         {
-            Action action = () => new SuggestionRegistration("foo^^bar");
+            Action action = () => new RegistrationPair("foo^^bar");
             action
                 .Should()
                 .Throw<ArgumentException>()

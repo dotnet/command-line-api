@@ -9,7 +9,9 @@ namespace System.CommandLine.Suggest
     {
         public static async Task<int> Main(string[] args)
         {
-            var provider = new FileSuggestionRegistration();
+            var provider = new CombineSuggestionRegistration(
+                new GlobalToolsSuggestionRegistration(),
+                new FileSuggestionRegistration());
             var dispatcher = new SuggestionDispatcher(provider);
             return await dispatcher.InvokeAsync(args);
         }
