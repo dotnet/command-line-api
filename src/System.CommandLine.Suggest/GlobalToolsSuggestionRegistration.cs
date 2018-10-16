@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 
@@ -23,8 +22,8 @@ namespace System.CommandLine.Suggest
             }
 
             _nullableToolsShimPath = directory != null
-                    ? Path.Combine(directory, "tools")
-                    : null;
+                ? Path.Combine(directory, "tools")
+                : null;
 
             _fileEnumerator = fileEnumerator ?? new FileEnumerator();
         }
@@ -46,12 +45,12 @@ namespace System.CommandLine.Suggest
 
         public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
         {
+            if (soughtExecutable == null) throw new ArgumentNullException(nameof(soughtExecutable));
+
             if (_nullableToolsShimPath == null)
             {
                 return null;
             }
-
-            if (soughtExecutable == null) throw new ArgumentNullException(nameof(soughtExecutable));
 
             if (!soughtExecutable.FullName.StartsWith(_nullableToolsShimPath))
             {

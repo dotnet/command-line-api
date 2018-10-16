@@ -27,7 +27,7 @@ namespace System.CommandLine.Suggest
 
         public override bool Equals(object obj)
         {
-            return obj is RegistrationPair && Equals((RegistrationPair)obj);
+            return obj is RegistrationPair pair && Equals(pair);
         }
 
         public bool Equals(RegistrationPair other)

@@ -9,17 +9,17 @@ namespace System.CommandLine.Suggest
 {
     public class CombineSuggestionRegistration : ISuggestionRegistration
     {
-        private readonly IList<ISuggestionRegistration> _suggestionRegistration;
+        private readonly ISuggestionRegistration[] _suggestionRegistrations;
 
-        public CombineSuggestionRegistration(IList<ISuggestionRegistration> suggestionRegistration)
+        public CombineSuggestionRegistration(params ISuggestionRegistration[] suggestionRegistration)
         {
-            _suggestionRegistration =
+            _suggestionRegistrations =
                 suggestionRegistration ?? throw new ArgumentNullException(nameof(suggestionRegistration));
         }
 
         public void AddSuggestionRegistration(RegistrationPair registration)
         {
-            foreach (var suggestionRegistration in _suggestionRegistration)
+            foreach (var suggestionRegistration in _suggestionRegistrations)
             {
                 suggestionRegistration.AddSuggestionRegistration(registration);
             }
@@ -27,14 +27,14 @@ namespace System.CommandLine.Suggest
 
         public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
         {
-            return _suggestionRegistration
+            return _suggestionRegistrations
                 .Select(s => s.FindRegistration(soughtExecutable))
                 .FirstOrDefault(r => r.HasValue);
         }
 
         public IEnumerable<RegistrationPair> FindAllRegistrations()
         {
-            return _suggestionRegistration
+            return _suggestionRegistrations
                 .SelectMany(s => s.FindAllRegistrations());
         }
     }
