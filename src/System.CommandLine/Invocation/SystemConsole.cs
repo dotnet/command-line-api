@@ -18,8 +18,6 @@ namespace System.CommandLine.Invocation
             _initialBackgroundColor = Console.BackgroundColor;
         }
 
-        public static IConsole Instance { get; } = new SystemConsole();
-
         public void SetOut(TextWriter writer) => Console.SetOut(writer);
 
         public TextWriter Error => Console.Error;
@@ -109,5 +107,7 @@ namespace System.CommandLine.Invocation
         {
             ResetConsole();
         }
+
+        public static IConsole Create() => new SystemConsole();
     }
 }
