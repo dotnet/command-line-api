@@ -6,25 +6,19 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-
-    public class MethodBinder : CommandHandler
+    internal class MethodBindingCommandHandler : CommandHandler
     {
         private readonly object _target;
         private readonly MethodInfo _method;
         private readonly Delegate _delegate;
 
-        public MethodBinder(Delegate @delegate) 
+        public MethodBindingCommandHandler(Delegate @delegate)
         {
-            if (@delegate == null)
-            {
-                throw new ArgumentNullException(nameof(@delegate));
-            }
-
-            _delegate = @delegate;
+            _delegate = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
             _method = @delegate.Method;
         }
 
-        public MethodBinder(MethodInfo method, object target = null)
+        public MethodBindingCommandHandler(MethodInfo method, object target = null)
         {
             _method = method;
             _target = target;
@@ -36,7 +30,6 @@ namespace System.CommandLine.Invocation
 
             var arguments = Binder.BindArguments(context, parameters);
 
-            
             object value = null;
 
             if (_delegate != null)
@@ -50,6 +43,5 @@ namespace System.CommandLine.Invocation
 
             return CoerceResultAsync(value);
         }
-
     }
 }

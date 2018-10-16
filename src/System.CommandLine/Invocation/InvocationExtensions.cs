@@ -237,7 +237,7 @@ namespace System.CommandLine.Invocation
             object target = null)
             where TBuilder : CommandBuilder
         {
-            var methodBinder = new MethodBinder(method, target);
+            var methodBinder = new MethodBindingCommandHandler(method, target);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -248,7 +248,7 @@ namespace System.CommandLine.Invocation
            MethodInfo method)
            where TBuilder : CommandBuilder
         {
-            var methodBinder = new ConstructorBinder(constructor, method);
+            var methodBinder = new ConstructorBindingCommandHandler(constructor, method);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -258,7 +258,7 @@ namespace System.CommandLine.Invocation
             Action action)
             where TBuilder : CommandBuilder
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -267,7 +267,7 @@ namespace System.CommandLine.Invocation
             this CommandBuilder builder,
             Action<T> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -276,7 +276,7 @@ namespace System.CommandLine.Invocation
             this CommandBuilder builder,
             Action<T1, T2> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -285,7 +285,7 @@ namespace System.CommandLine.Invocation
             this CommandBuilder builder,
             Action<T1, T2, T3> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -294,7 +294,7 @@ namespace System.CommandLine.Invocation
             this CommandBuilder builder,
             Action<T1, T2, T3, T4> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -303,7 +303,7 @@ namespace System.CommandLine.Invocation
             this CommandBuilder builder,
             Action<T1, T2, T3, T4, T5> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -312,7 +312,7 @@ namespace System.CommandLine.Invocation
             this CommandBuilder builder,
             Action<T1, T2, T3, T4, T5, T6> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -321,7 +321,7 @@ namespace System.CommandLine.Invocation
             this CommandBuilder builder,
             Action<T1, T2, T3, T4, T5, T6, T7> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -330,7 +330,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder,
             Action<T> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -339,7 +339,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder,
             Action<T1, T2> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -348,7 +348,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder,
             Action<T1, T2, T3> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -357,7 +357,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder,
             Action<T1, T2, T3, T4> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -366,7 +366,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder,
             Action<T1, T2, T3, T4, T5> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -375,7 +375,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder,
             Action<T1, T2, T3, T4, T5, T6> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }
@@ -384,7 +384,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder,
             Action<T1, T2, T3, T4, T5, T6, T7> action)
         {
-            var methodBinder = new MethodBinder(action);
+            var methodBinder = new MethodBindingCommandHandler(action);
             builder.ExecutionHandler = methodBinder;
             return builder;
         }

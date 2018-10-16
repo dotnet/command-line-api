@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public class ConstructorBinder : CommandHandler
+    internal class ConstructorBindingCommandHandler : CommandHandler
     {
-        private ConstructorInfo constructorInfo;
-        private MethodInfo _method;
+        private readonly ConstructorInfo constructorInfo;
+        private readonly MethodInfo _method;
 
-        public ConstructorBinder(ConstructorInfo constructorInfo, MethodInfo method) 
+        public ConstructorBindingCommandHandler(ConstructorInfo constructorInfo, MethodInfo method) 
         {
             this.constructorInfo = constructorInfo ?? throw new ArgumentNullException(nameof(constructorInfo));
-            _method = method;
+            _method = method ?? throw new ArgumentNullException(nameof(method));
         }
 
         public override Task<int> InvokeAsync(InvocationContext context)
