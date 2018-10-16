@@ -397,7 +397,7 @@ namespace System.CommandLine.Invocation
                 context.Parser
                        .Configuration
                        .Symbols
-                       .FlattenBreadthFirst(s => s.Symbols)
+                       .FlattenBreadthFirst(s => s.Children)
                        .SelectMany(s => s.RawAliases)
                        .Any(helpOptionAliases.Contains);
         }

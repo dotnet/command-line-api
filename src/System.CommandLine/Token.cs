@@ -1,10 +1,9 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 
 namespace System.CommandLine
 {
-    public class Token
+    internal class Token
     {
         public Token(string value, TokenType type)
         {

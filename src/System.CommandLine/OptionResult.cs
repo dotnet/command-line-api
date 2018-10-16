@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace System.CommandLine
@@ -6,7 +6,7 @@ namespace System.CommandLine
     public class OptionResult : SymbolResult
     {
         public OptionResult(
-            Option option,
+            IOption option,
             string token = null,
             CommandResult parent = null) :
             base(option, token ?? option?.Token(), parent)
@@ -14,7 +14,7 @@ namespace System.CommandLine
             Option = option;
         }
 
-        public Option Option { get; }
+        public IOption Option { get; }
 
         internal bool IsImplicit { get; private set; }
 
@@ -37,7 +37,7 @@ namespace System.CommandLine
         }
 
         internal static OptionResult CreateImplicit(
-            Option option,
+            IOption option,
             CommandResult parent)
         {
             var result = new OptionResult(option,

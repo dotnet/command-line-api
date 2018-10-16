@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
         private readonly TestConsole _console = new TestConsole();
 
         [Fact]
-        public async Task General_invocation_middlware_can_be_specified_in_the_parser()
+        public async Task General_invocation_middleware_can_be_specified_in_the_parser()
         {
             var wasCalled = false;
 

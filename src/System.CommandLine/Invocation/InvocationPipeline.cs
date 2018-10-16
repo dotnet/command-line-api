@@ -1,3 +1,4 @@
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -27,15 +28,19 @@ namespace System.CommandLine.Invocation
 
             var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware);
 
-            invocations.Add(async (invocationContext, next) => {
-                var handler = invocationContext.ParseResult
-                                               .CommandResult
-                                               .Command
-                                               .ExecutionHandler;
-
-                if (handler != null)
+            invocations.Add(async (invocationContext, next) =>
+            {
+                if (invocationContext
+                    .ParseResult
+                    .CommandResult
+                    .Command is Command command)
                 {
-                    context.ResultCode = await handler.InvokeAsync(invocationContext);
+                    var handler = command.ExecutionHandler;
+
+                    if (handler != null)
+                    {
+                        context.ResultCode = await handler.InvokeAsync(invocationContext);
+                    }
                 }
             });
 

@@ -31,7 +31,7 @@ namespace System.CommandLine
             CommandResult rootCommand = null;   
             CommandResult innermostCommand = null;
 
-            IList<Option> optionQueue = GatherOptions(Configuration.Symbols);
+            IList<IOption> optionQueue = GatherOptions(Configuration.Symbols);
 
             while (unparsedTokens.Any())
             {
@@ -98,7 +98,7 @@ namespace System.CommandLine
                     }
 
                     if (token.Type == TokenType.Argument &&
-                        topLevelSymbol.Symbol is Command)
+                        topLevelSymbol.Symbol is ICommand)
                     {
                         break;
                     }
@@ -145,10 +145,10 @@ namespace System.CommandLine
 
                 foreach (Token token in tokensToAttemptByPosition)
                 {
-                    var optionSymdef = optionQueue.FirstOrDefault();
-                    if (optionSymdef != null)
+                    var option = optionQueue.FirstOrDefault();
+                    if (option != null)
                     {
-                        var newToken = new Token(optionSymdef.RawAliases.First(), TokenType.Option);
+                        var newToken = new Token(option.RawAliases.First(), TokenType.Option);
                         var optionResult = currentCommand.TryTakeToken(newToken);
                         var optionArgument = optionResult?.TryTakeToken(token);
                         if (optionArgument != null)
@@ -170,23 +170,28 @@ namespace System.CommandLine
             }
         }
 
-        private static IList<Option> GatherOptions(SymbolSet symbols)
+        private static IList<IOption> GatherOptions(ISymbolSet symbols)
         {
-            var optionList = new List<Option>();
+            var optionList = new List<IOption>();
+
             foreach (var symbol in symbols)
             {
-                if (symbol is Option optionDefinition)
+                if (symbol is IOption option)
                 {
-                    var validator = optionDefinition.Argument.Parser.ArityValidator;
+                    var validator = option.Argument.Parser.ArityValidator;
                     if (validator?.MaximumNumberOfArguments == 1 &&
-                        validator.MinimumNumberOfArguments == 1)    // Exactly One
+                        validator.MinimumNumberOfArguments == 1) // Exactly One
                     {
-                        optionList.Add(optionDefinition);
+                        optionList.Add(option);
                     }
                 }
 
-                optionList.AddRange(GatherOptions(symbol.Symbols));
+                if (symbol is ICommand command)
+                {
+                    optionList.AddRange(GatherOptions(command.Children));
+                }
             }
+
             return optionList;
         }
 

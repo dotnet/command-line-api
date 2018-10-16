@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -54,14 +54,14 @@ namespace System.CommandLine
             {
                 if (result is CommandResult command)
                 {
-                    foreach (var symbol in command.Command.Symbols)
+                    foreach (var symbol in command.Command.Children)
                     {
                         if (symbol.Argument.HasDefaultValue &&
                             command.Children[symbol.Name] == null)
                         {
                             switch (symbol)
                             {
-                                case Option option:
+                                case IOption option:
                                     command.AddImplicitOption(option);
                                     break;
                             }
@@ -88,7 +88,7 @@ namespace System.CommandLine
                 }
             }
 
-            if (CommandResult.Command?.Symbols.OfType<Command>().Any() == true)
+            if (CommandResult.Command?.Children.OfType<ICommand>().Any() == true)
             {
                 _errors.Insert(0,
                                new ParseError(

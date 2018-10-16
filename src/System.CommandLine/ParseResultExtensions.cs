@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -127,7 +127,7 @@ namespace System.CommandLine
 
         public static bool HasOption(
             this ParseResult parseResult,
-            Option option)
+            IOption option)
         {
             if (parseResult == null)
             {
@@ -155,14 +155,13 @@ namespace System.CommandLine
         {
             var currentSymbol = parseResult?.CurrentSymbol().Symbol;
 
-            var currentSymbolSuggestions = currentSymbol
-                                               ?.Suggest(parseResult, position)
-                                           ?? Array.Empty<string>();
+            var currentSymbolSuggestions = currentSymbol is ISuggestionSource currentSuggestionSource
+                                               ? currentSuggestionSource.Suggest(parseResult, position)
+                                               : Array.Empty<string>();
 
-            var command = currentSymbol?.Parent;
-
-            var parentSymbolSuggestions = command?.Suggest(parseResult, position)
-                                          ?? Array.Empty<string>();
+            var parentSymbolSuggestions = currentSymbol?.Parent is ISuggestionSource parentSuggestionSource
+                                              ? parentSuggestionSource.Suggest(parseResult, position)
+                                              : Array.Empty<string>();
 
             return parentSymbolSuggestions
                    .Concat(currentSymbolSuggestions)

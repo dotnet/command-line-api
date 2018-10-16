@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq;
@@ -7,16 +7,16 @@ namespace System.CommandLine
 {
     public class CommandResult : SymbolResult
     {
-        public CommandResult(Command command, CommandResult parent = null) : base(command, command?.Name, parent)
+        public CommandResult(ICommand command, CommandResult parent = null) : base(command, command?.Name, parent)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
         }
 
-        public Command Command { get; }
+        public ICommand Command { get; }
 
         public OptionResult this[string alias] => (OptionResult) Children[alias];
 
-        internal void AddImplicitOption(Option option)
+        internal void AddImplicitOption(IOption option)
         {
             Children.Add(OptionResult.CreateImplicit(option, this));
         }
@@ -37,10 +37,10 @@ namespace System.CommandLine
             }
 
             symbol =
-                Command.Symbols
-                          .Where(o => o.RawAliases.Contains(token.Value))
-                          .Select(o => Create(o, token.Value, this, ValidationMessages))
-                          .SingleOrDefault();
+                Command.Children
+                       .Where(o => o.RawAliases.Contains(token.Value))
+                       .Select(o => Create(o, token.Value, this, ValidationMessages))
+                       .SingleOrDefault();
 
             if (symbol != null)
             {
