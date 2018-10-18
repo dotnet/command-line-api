@@ -1,14 +1,13 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
     public abstract class CommandHandler : ICommandHandler
     {
-        static protected async Task<int> CoerceResultAsync(object value)
+        protected virtual async Task<int> GetResultCodeAsync(object value)
         {
             switch (value)
             {
@@ -26,6 +25,6 @@ namespace System.CommandLine.Invocation
             }
         }
 
-        public abstract Task<int> InvokeAsync( InvocationContext context);
+        public abstract Task<int> InvokeAsync(InvocationContext context);
     }
 }

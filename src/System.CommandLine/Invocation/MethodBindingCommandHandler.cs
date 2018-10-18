@@ -41,7 +41,7 @@ namespace System.CommandLine.Invocation
                 value = _method.Invoke(_target, arguments);
             }
 
-            return CoerceResultAsync(value);
+            return GetResultCodeAsync(value);
         }
     }
 }

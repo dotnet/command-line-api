@@ -1,9 +1,8 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
-using System.Linq.Expressions;
 using System.Linq;
 using System.Reflection;
 
@@ -60,28 +59,26 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder ConfigureFromType<TBuilder, TType>(
-            this TBuilder builder,
+        public static CommandLineBuilder ConfigureFromType<T>(
+            this CommandLineBuilder builder,
             MethodInfo onExecuteMethod)
-            where TType : class
-            where TBuilder : CommandBuilder
+            where T : class
         {
             if (builder == null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            // TODO: Clean up to consider multiple constructors
-            ConstructorInfo constructorInfo = typeof(TType).GetConstructors()
-                                                           .SingleOrDefault() ??
-                                              throw new ArgumentException($"No eligible constructor found to bind type {typeof(TType)}");
+            var handler = new TypeBindingCommandHandler(
+                typeof(T),
+                onExecuteMethod);
 
-            foreach (PropertyInfo property in typeof(TType).GetProperties())
+            foreach (var option in handler.BuildOptions())
             {
-                builder.AddOptionFromProperty(property);
+                builder.AddOption(option);
             }
 
-            builder.OnExecute(constructorInfo, onExecuteMethod);
+            builder.Handler = handler;
 
             return builder;
         }
@@ -91,35 +88,24 @@ namespace System.CommandLine.Builder
             PropertyInfo property)
             where TBuilder : CommandBuilder
         {
-            var alias = property.Name.Length > 1
-                            ? $"--{property.Name.ToKebabCase()}"
-                            : $"-{property.Name}";
-
             if (property.CanWrite)
             {
                 builder.AddOption(
-                    alias,
+                    property.BuildAlias(),
                     property.Name,
-                    args => {
-                        args.ParseArgumentsAs(property.PropertyType);
-                    });
+                    args => args.ParseArgumentsAs(property.PropertyType));
             }
 
             return builder;
         }
-
 
         public static TBuilder AddOptionFromParameter<TBuilder>(
             this TBuilder builder,
             ParameterInfo parameter)
             where TBuilder : CommandBuilder
         {
-            var alias = parameter.Name.Length > 1
-                            ? $"--{parameter.Name.ToKebabCase()}"
-                            : $"-{parameter.Name}";
-
             builder.AddOption(
-                alias,
+                parameter.BuildAlias(),
                 parameter.Name,
                 args => {
                     args.ParseArgumentsAs(parameter.ParameterType);
