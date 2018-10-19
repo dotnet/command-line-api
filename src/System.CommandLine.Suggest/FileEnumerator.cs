@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -10,6 +10,11 @@ namespace System.CommandLine.Suggest
     {
         public IEnumerable<string> EnumerateFiles(string path)
         {
+            if (!Directory.Exists(path))
+            {
+                return Array.Empty<string>();
+            }
+
             return Directory.EnumerateFiles(path);
         }
     }

@@ -10,16 +10,18 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using static System.Environment;
+using System.Runtime.InteropServices;
 
 namespace System.CommandLine.Suggest.Tests
 {
-    public class DotnetSuggestEndToEndTests
+    public class DotnetSuggestEndToEndTests : IDisposable
     {
         private readonly ITestOutputHelper _output;
         private readonly FileInfo _endToEndTestApp;
         private readonly FileInfo _dotnetSuggest;
-        private readonly (string, string) _environmentVariables;
+        private readonly (string, string)[] _environmentVariables;
         private readonly DirectoryInfo _dotnetHostDir = DotnetMuxer.Path.Directory;
+        private static string _testRoot;
 
         public DotnetSuggestEndToEndTests(ITestOutputHelper output)
         {
@@ -50,7 +52,26 @@ namespace System.CommandLine.Suggest.Tests
                              .GetFiles("dotnet-suggest".ExecutableName())
                              .SingleOrDefault();
 
-            _environmentVariables = ("DOTNET_ROOT", _dotnetHostDir.FullName);
+            PrepareTestHomeDirectoryToAvoidPolluteBuildMachineHome();
+
+            _environmentVariables = new[] {
+                ("DOTNET_ROOT", _dotnetHostDir.FullName),
+                (FileSuggestionRegistration.TestDirectroyOverride, _testRoot)};
+        }
+
+        public void Dispose()
+        {
+            if (_testRoot != null && Directory.Exists(_testRoot))
+            {
+                Directory.Delete(_testRoot, recursive: true);
+            }
+        }
+
+        private void PrepareTestHomeDirectoryToAvoidPolluteBuildMachineHome()
+        {
+            var tempDirectroy = Path.GetTempPath();
+            _testRoot = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(_testRoot);
         }
 
         [ReleaseBuildOnlyFact]
