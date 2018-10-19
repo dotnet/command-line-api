@@ -5,25 +5,35 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using static System.Environment;
 
 namespace System.CommandLine.Suggest
 {
     public class FileSuggestionRegistration : ISuggestionRegistration
     {
+        public const string ResgistrationFileName = ".dotnet-suggest-registration.txt";
+        public const string TestDirectroyOverride = "INTERNAL_TEST_DOTNET_SUGGEST_HOME";
         private readonly string _registrationConfigurationFilePath;
 
         public FileSuggestionRegistration(string registrationsConfigurationFilePath = null)
         {
-
-            if (string.IsNullOrWhiteSpace(registrationsConfigurationFilePath))
-            {
-                _registrationConfigurationFilePath = Path.Combine(
-                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                    "Registration.txt");
-            }
-            else
+            if (!string.IsNullOrWhiteSpace(registrationsConfigurationFilePath))
             {
                 _registrationConfigurationFilePath = registrationsConfigurationFilePath;
+                return;
+            }
+
+            var testDirectroyOVerride = Environment.GetEnvironmentVariable(TestDirectroyOverride);
+            if (!string.IsNullOrWhiteSpace(testDirectroyOVerride))
+            {
+                _registrationConfigurationFilePath = Path.Combine(testDirectroyOVerride, ResgistrationFileName);
+                return;
+            }
+
+            var userProfile = Environment.GetFolderPath(SpecialFolder.UserProfile);
+            if (userProfile != null)
+            {
+                _registrationConfigurationFilePath = Path.Combine(userProfile, ResgistrationFileName);
             }
         }
 
@@ -34,7 +44,8 @@ namespace System.CommandLine.Suggest
                 return null;
             }
 
-            if (!File.Exists(_registrationConfigurationFilePath))
+            if (_registrationConfigurationFilePath == null
+                || !File.Exists(_registrationConfigurationFilePath))
             {
                 return null;
             }
@@ -55,7 +66,7 @@ namespace System.CommandLine.Suggest
         {
             var allRegistration = new List<RegistrationPair>();
 
-            if (File.Exists(_registrationConfigurationFilePath))
+            if (_registrationConfigurationFilePath != null && File.Exists(_registrationConfigurationFilePath))
             {
                 allRegistration
                     .AddRange(File
