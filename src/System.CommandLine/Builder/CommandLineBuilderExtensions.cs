@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
-using System.Linq;
 using System.Reflection;
+using System.Linq;
 
 namespace System.CommandLine.Builder
 {
@@ -19,10 +19,11 @@ namespace System.CommandLine.Builder
             IHelpBuilder helpBuilder = null)
             where TBuilder : CommandBuilder
         {
-            var commandBuilder = new CommandBuilder(name, builder) {
-                Description = description,
-                HelpBuilder = helpBuilder ?? builder.HelpBuilder,
-            };
+            var commandBuilder = new CommandBuilder(name, builder)
+                                 {
+                                     Description = description,
+                                     HelpBuilder = helpBuilder ?? builder.HelpBuilder,
+                                 };
 
             symbols?.Invoke(commandBuilder);
 
@@ -61,7 +62,7 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder ConfigureFromType<T>(
             this CommandLineBuilder builder,
-            MethodInfo onExecuteMethod)
+            MethodInfo onExecuteMethod = null)
             where T : class
         {
             if (builder == null)
@@ -69,16 +70,16 @@ namespace System.CommandLine.Builder
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            var handler = new TypeBindingCommandHandler(
-                typeof(T),
-                onExecuteMethod);
+            var typeBinder = new TypeBinder(typeof(T));
 
-            foreach (var option in handler.BuildOptions())
+            foreach (var option in typeBinder.BuildOptions())
             {
                 builder.AddOption(option);
             }
 
-            builder.Handler = handler;
+            builder.Handler = new TypeBindingCommandHandler(
+                onExecuteMethod,
+                typeBinder);
 
             return builder;
         }
@@ -107,7 +108,8 @@ namespace System.CommandLine.Builder
             builder.AddOption(
                 parameter.BuildAlias(),
                 parameter.Name,
-                args => {
+                args =>
+                {
                     args.ParseArgumentsAs(parameter.ParameterType);
 
                     if (parameter.HasDefaultValue)
@@ -126,9 +128,10 @@ namespace System.CommandLine.Builder
             Action<ArgumentBuilder> arguments = null)
             where TBuilder : CommandBuilder
         {
-            var optionBuilder = new OptionBuilder(aliases, builder) {
-                Description = description,
-            };
+            var optionBuilder = new OptionBuilder(aliases, builder)
+                                {
+                                    Description = description,
+                                };
 
             arguments?.Invoke(optionBuilder.Arguments);
 

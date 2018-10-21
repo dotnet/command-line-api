@@ -10,7 +10,9 @@ namespace System.CommandLine.Invocation
 {
     internal static class Binder
     {
-        public static object[] BindArguments(InvocationContext context, ParameterInfo[] parameters)
+        public static object[] GetMethodArguments(
+            InvocationContext context, 
+            ParameterInfo[] parameters)
         {
             var arguments = new List<object>();
 
@@ -47,7 +49,9 @@ namespace System.CommandLine.Invocation
             return arguments.ToArray();
         }
 
-        public static void SetProperties(InvocationContext context, object instance)
+        public static void SetProperties(
+            InvocationContext context, 
+            object instance)
         {
             PropertyInfo[] properties = instance.GetType().GetProperties();
 
@@ -76,24 +80,6 @@ namespace System.CommandLine.Invocation
                     propertyInfo.SetValue(instance, argument);
                 }
             }
-        }
-
-        public static IEnumerable<Option> BuildOptionsFromConstructor<T>()
-        {
-            var constructor = typeof(T).GetConstructor();
-
-            foreach (var parameter in constructor.GetParameters())
-            {
-                yield return parameter.BuildOption();
-            }
-        }
-
-        public static ConstructorInfo GetConstructor(this Type type)
-        {
-            // TODO: Clean up to consider multiple constructors
-
-            return type.GetConstructors().SingleOrDefault() ??
-                   throw new ArgumentException($"No eligible constructor found to bind type {type}");
         }
 
         public static Option BuildOption(this ParameterInfo parameter)
@@ -169,7 +155,7 @@ namespace System.CommandLine.Invocation
 
             return parameterName.Length > 1
                        ? $"--{parameterName.ToKebabCase()}"
-                       : $"-{parameterName}";
+                       : $"-{parameterName.ToLowerInvariant()}";
         }
     }
 }
