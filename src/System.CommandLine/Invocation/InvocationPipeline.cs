@@ -35,7 +35,7 @@ namespace System.CommandLine.Invocation
                     .CommandResult
                     .Command is Command command)
                 {
-                    var handler = command.ExecutionHandler;
+                    var handler = command.Handler;
 
                     if (handler != null)
                     {

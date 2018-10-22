@@ -9,6 +9,9 @@ namespace System.CommandLine.Builder
 {
     public class CommandBuilder : SymbolBuilder
     {
+        private readonly Lazy<List<Command>> _builtCommands = new Lazy<List<Command>>();
+        private readonly Lazy<List<Option>> _builtOptions = new Lazy<List<Option>>();
+
         public CommandBuilder(
             string name,
             CommandBuilder parent = null) : base(parent)
@@ -22,11 +25,15 @@ namespace System.CommandLine.Builder
 
         public bool? TreatUnmatchedTokensAsErrors { get; set; }
 
-        internal MethodBinder ExecutionHandler { get; set; }
+        internal ICommandHandler Handler { get; set; }
 
         public string Name { get; }
 
         public IHelpBuilder HelpBuilder { get; set; }
+
+        internal void AddCommand(Command command) => _builtCommands.Value.Add(command);
+
+        internal void AddOption(Option option) => _builtOptions.Value.Add(option);
 
         public Command BuildCommand()
         {
@@ -38,20 +45,31 @@ namespace System.CommandLine.Builder
                 treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
                                               Parent?.TreatUnmatchedTokensAsErrors ??
                                               true,
-                executionHandler: ExecutionHandler,
+                handler: Handler,
                 helpBuilder: HelpBuilder);
         }
 
         protected IReadOnlyCollection<Symbol> BuildChildSymbols()
         {
             var subcommands = Commands
-                .Select(b => {
+                .Select(b =>
+                {
                     b.TreatUnmatchedTokensAsErrors = TreatUnmatchedTokensAsErrors;
                     return b.BuildCommand();
                 });
 
+            if (_builtCommands.IsValueCreated)
+            {
+                subcommands = subcommands.Concat(_builtCommands.Value);
+            }
+
             var options = Options
                 .Select(b => b.BuildOption());
+
+            if (_builtOptions.IsValueCreated)
+            {
+                options = options.Concat(_builtOptions.Value);
+            }
 
             return subcommands.Concat<Symbol>(options).ToArray();
         }

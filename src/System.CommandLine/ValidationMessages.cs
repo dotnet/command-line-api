@@ -58,5 +58,8 @@ namespace System.CommandLine
 
         public virtual string ErrorReadingResponseFile(string filePath, IOException e) =>
             $"Error reading response file '{filePath}': {e.Message}";
+
+        public virtual string ArgumentPropertyHasNoSetter(string propertyName) =>
+            $"The property '{propertyName}' has no setter.";
     }
 }
