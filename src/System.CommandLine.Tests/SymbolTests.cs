@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
@@ -31,11 +31,11 @@ namespace System.CommandLine.Tests
             Action result = () => new TestSymbol(mockAliases, null);
 
             result.Should().Throw<ArgumentException>()
-                .WithMessage("An option alias cannot be null, empty, or consist entirely of whitespace.");
+                .WithMessage("An alias cannot be null, empty, or consist entirely of whitespace.");
 
             mockAliases = new [] {"test", ""};
             result.Should().Throw<ArgumentException>()
-                .WithMessage("An option alias cannot be null, empty, or consist entirely of whitespace.");
+                .WithMessage("An alias cannot be null, empty, or consist entirely of whitespace.");
         }
 
         [Fact]
@@ -44,11 +44,11 @@ namespace System.CommandLine.Tests
             var mockAliases = new [] {"--"};
             Action result = () => new TestSymbol(mockAliases, null);
             result.Should().Throw<ArgumentException>()
-                .WithMessage("An option alias cannot be null, empty, or consist entirely of whitespace.");
+                .WithMessage("An alias cannot be null, empty, or consist entirely of whitespace.");
 
             mockAliases = new [] {"--test", "--"};
             result.Should().Throw<ArgumentException>()
-                .WithMessage("An option alias cannot be null, empty, or consist entirely of whitespace.");
+                .WithMessage("An alias cannot be null, empty, or consist entirely of whitespace.");
         }
     }
 }

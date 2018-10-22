@@ -121,7 +121,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("An option alias cannot be null, empty, or consist entirely of whitespace.");
+                  .Be("An alias cannot be null, empty, or consist entirely of whitespace.");
         }
 
         [Fact]
@@ -134,7 +134,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("An option alias cannot be null, empty, or consist entirely of whitespace.");
+                  .Be("An alias cannot be null, empty, or consist entirely of whitespace.");
         }
 
         [Fact]

@@ -11,6 +11,7 @@ namespace System.CommandLine
         private readonly HashSet<string> _aliases = new HashSet<string>();
 
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
+        private string _name = "";
 
         protected internal Symbol(
             IReadOnlyCollection<string> aliases,
@@ -35,11 +36,6 @@ namespace System.CommandLine
 
             Description = description;
 
-            Name = aliases
-                   .Select(a => a.RemovePrefix())
-                   .OrderBy(a => a.Length)
-                   .Last();
-
             Argument = argument ?? Argument.None;
 
             Help = help ?? new HelpDetail(Name, Description, false);
@@ -55,7 +51,19 @@ namespace System.CommandLine
 
         public HelpDetail Help { get; }
 
-        public string Name { get; }
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
+                }
+
+                _name = value;
+            }
+        }
 
         public Command Parent { get; internal set; }
 
@@ -63,19 +71,31 @@ namespace System.CommandLine
 
         public void AddAlias(string alias)
         {
-            _rawAliases.Add(alias);
+            var unprefixedAlias = alias?.RemovePrefix();
 
-            var cleanedAlias = alias?.RemovePrefix();
-
-            if (string.IsNullOrWhiteSpace(cleanedAlias))
+            if (string.IsNullOrWhiteSpace(unprefixedAlias))
             {
-                throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
+                throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            _aliases.Add(cleanedAlias);
+            _rawAliases.Add(alias);
+            _aliases.Add(unprefixedAlias);
+
+            if (unprefixedAlias.Length > Name?.Length)
+            {
+                _name = unprefixedAlias;
+            }
         }
 
-        public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
+        public bool HasAlias(string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
+            }
+
+            return _aliases.Contains(alias.RemovePrefix());
+        }
 
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
 
