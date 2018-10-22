@@ -10,7 +10,7 @@ namespace System.CommandLine
     {
         private readonly HashSet<string> _aliases = new HashSet<string>();
 
-        private readonly HashSet<string> _rawAliases;
+        private readonly HashSet<string> _rawAliases = new HashSet<string>();
 
         protected internal Symbol(
             IReadOnlyCollection<string> aliases,
@@ -28,17 +28,9 @@ namespace System.CommandLine
                 throw new ArgumentException("An option must have at least one alias.");
             }
 
-            _rawAliases = new HashSet<string>(aliases);
-
             foreach (var alias in aliases)
             {
-                var cleanedAlias = alias?.RemovePrefix();
-                if (string.IsNullOrWhiteSpace(cleanedAlias))
-                {
-                    throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
-                }
-
-                _aliases.Add(cleanedAlias);
+                AddAlias(alias);
             }
 
             Description = description;
@@ -69,7 +61,19 @@ namespace System.CommandLine
 
         public SymbolSet Children { get; } = new SymbolSet();
 
-        internal void AddAlias(string alias) => _rawAliases.Add(alias);
+        public void AddAlias(string alias)
+        {
+            _rawAliases.Add(alias);
+
+            var cleanedAlias = alias?.RemovePrefix();
+
+            if (string.IsNullOrWhiteSpace(cleanedAlias))
+            {
+                throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
+            }
+
+            _aliases.Add(cleanedAlias);
+        }
 
         public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
 

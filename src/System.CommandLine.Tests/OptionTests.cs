@@ -34,6 +34,17 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void A_prefixed_alias_can_be_added_to_an_option()
+        {
+            var option = new Option("--apple");
+
+            option.AddAlias("-a");
+
+            option.HasAlias("a").Should().BeTrue();
+            option.HasRawAlias("-a").Should().BeTrue();
+        }
+
+        [Fact]
         public void Option_aliases_are_case_sensitive()
         {
             var option = new Option(new[] { "-o" }, "");
