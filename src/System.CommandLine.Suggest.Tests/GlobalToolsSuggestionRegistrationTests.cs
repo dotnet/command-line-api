@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -11,6 +11,7 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class GlobalToolsSuggestionRegistrationTests
     {
+        public static IEnumerable<string> FilesNameWithoutExtensionUnderDotnetProfileToolsExample = new[] { "dotnet-suggest", "t-rex" };
         [Fact]
         public void Path_is_in_global_tools()
         {
@@ -18,7 +19,7 @@ namespace System.CommandLine.Suggest.Tests
             var validToolsPath = Path.Combine(dotnetProfileDirectory, "tools", "play");
             var fileInfo = new FileInfo(validToolsPath);
             var suggestionRegistration = new GlobalToolsSuggestionRegistration(dotnetProfileDirectory,
-                new FakeFileEnumerator(dotnetProfileDirectory));
+                FilesNameWithoutExtensionUnderDotnetProfileToolsExample);
 
             var pair = suggestionRegistration.FindRegistration(fileInfo);
 
@@ -33,7 +34,7 @@ namespace System.CommandLine.Suggest.Tests
             var invalidToolsPath = Path.Combine(dotnetProfileDirectory, "not-valid");
             var fileInfo = new FileInfo(invalidToolsPath);
             var suggestionRegistration = new GlobalToolsSuggestionRegistration(dotnetProfileDirectory,
-                new FakeFileEnumerator(dotnetProfileDirectory));
+               FilesNameWithoutExtensionUnderDotnetProfileToolsExample);
 
             var pair = suggestionRegistration.FindRegistration(fileInfo);
 
@@ -45,7 +46,7 @@ namespace System.CommandLine.Suggest.Tests
         {
             var dotnetProfileDirectory = Path.GetTempPath();
             var suggestionRegistration = new GlobalToolsSuggestionRegistration(dotnetProfileDirectory,
-                new FakeFileEnumerator(dotnetProfileDirectory));
+                FilesNameWithoutExtensionUnderDotnetProfileToolsExample);
 
             var registrationPairs = suggestionRegistration.FindAllRegistrations();
             registrationPairs.Should()
@@ -55,30 +56,6 @@ namespace System.CommandLine.Suggest.Tests
             registrationPairs.Should()
                 .Contain(new RegistrationPair(Path.Combine(dotnetProfileDirectory, "tools", "t-rex"),
                     "t-rex [suggest]"));
-        }
-
-        private class FakeFileEnumerator : IFileEnumerator
-        {
-            private readonly string _dotnetProfileDirectory;
-
-            public FakeFileEnumerator(string homeDir)
-            {
-                _dotnetProfileDirectory = homeDir ?? throw new ArgumentNullException(nameof(homeDir));
-            }
-
-            public IEnumerable<string> EnumerateFiles(string path)
-            {
-                if (path == Path.Combine(_dotnetProfileDirectory, "tools"))
-                {
-                    return new[]
-                    {
-                        Path.Combine(_dotnetProfileDirectory, "tools", "dotnet-suggest"),
-                        Path.Combine(_dotnetProfileDirectory, "tools", "t-rex")
-                    };
-                }
-
-                return Array.Empty<string>();
-            }
         }
     }
 }
