@@ -20,9 +20,9 @@ namespace System.CommandLine.Suggest.Tests
         {
             var path = Path.GetTempPath();
             FileEnumerator.EnumerateFilesWithoutExtension(
-                Path.Combine(path,
+                new DirectoryInfo(Path.Combine(path,
                 Path.GetRandomFileName(),
-                "notexist"))
+                "notexist")))
                 .Should().BeEmpty();
         }
 
@@ -35,7 +35,7 @@ namespace System.CommandLine.Suggest.Tests
                 Directory.CreateDirectory(path);
                 File.WriteAllText(Path.Combine(path, "dotnet-suggest"), "");
                 File.WriteAllText(Path.Combine(path, "t-rex"), "");
-                FileEnumerator.EnumerateFilesWithoutExtension(path)
+                FileEnumerator.EnumerateFilesWithoutExtension(new DirectoryInfo(path))
                     .Should()
                     .BeEquivalentTo(
                         GlobalToolsSuggestionRegistrationTests

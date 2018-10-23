@@ -26,7 +26,7 @@ namespace System.CommandLine.Suggest
                 : null;
 
             _filesNameWithoutExtensionUnderDotnetProfileTools 
-                = filesNameWithoutExtensionUnderDotnetProfileTools ?? FileEnumerator.EnumerateFilesWithoutExtension(_nullableToolsShimPath);
+                = filesNameWithoutExtensionUnderDotnetProfileTools ?? FileEnumerator.EnumerateFilesWithoutExtension(new DirectoryInfo(_nullableToolsShimPath));
         }
 
         public void AddSuggestionRegistration(RegistrationPair registration)
