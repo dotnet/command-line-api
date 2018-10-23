@@ -1,9 +1,8 @@
-﻿using System.CommandLine.Invocation;
-using System.Threading;
+﻿using System.Threading;
 
 namespace System.CommandLine.Rendering.Views
 {
-    public class ScreenView
+    public class ScreenView : IDisposable
     {
         private View _child;
         private int _renderRequested;
@@ -11,12 +10,12 @@ namespace System.CommandLine.Rendering.Views
         private readonly SynchronizationContext _context;
 
         public ScreenView(
-            ConsoleRenderer renderer, 
+            ConsoleRenderer renderer,
             SynchronizationContext synchronizationContext = null)
         {
             Renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
             _context = synchronizationContext ?? SynchronizationContext.Current ?? new SynchronizationContext();
-            Console = renderer.Console;   
+            Console = renderer.Console;
         }
 
         private IConsole Console { get; }
@@ -27,15 +26,20 @@ namespace System.CommandLine.Rendering.Views
             get => _child;
             set
             {
-                if (_child != null)
+                if (value == null)
                 {
-                    _child.Updated -= ChildUpdated;
+                    throw new ArgumentNullException(nameof(value));
                 }
+
+                var previousChild = _child;
+                if (previousChild != null)
+                {
+                    previousChild.Updated -= ChildUpdated;
+                }
+
                 _child = value;
-                if (value != null)
-                {
-                    value.Updated += ChildUpdated;
-                }
+
+                value.Updated += ChildUpdated;
             }
         }
 
@@ -68,6 +72,14 @@ namespace System.CommandLine.Rendering.Views
             var region = Console.GetRegion();
 
             Render(new Region(0, 0, region.Width, region.Height));
+        }
+
+        public void Dispose()
+        {
+            if (_child is View child)
+            {
+                child.Updated -= ChildUpdated;
+            }
         }
     }
 }
