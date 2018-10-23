@@ -9,11 +9,11 @@ namespace System.CommandLine.Suggest
 {
     public class GlobalToolsSuggestionRegistration : ISuggestionRegistration
     {
-        private readonly IFileEnumerator _fileEnumerator;
         private readonly string _nullableToolsShimPath;
+        private readonly IEnumerable<string> _filesNameWithoutExtensionUnderDotnetProfileTools;
 
         public GlobalToolsSuggestionRegistration(string dotnetProfileDirectory = null,
-            IFileEnumerator fileEnumerator = null)
+            IEnumerable<string> filesNameWithoutExtensionUnderDotnetProfileTools = null)
         {
             var directory = dotnetProfileDirectory;
             if (directory == null)
@@ -25,7 +25,8 @@ namespace System.CommandLine.Suggest
                 ? Path.Combine(directory, "tools")
                 : null;
 
-            _fileEnumerator = fileEnumerator ?? new FileEnumerator();
+            _filesNameWithoutExtensionUnderDotnetProfileTools 
+                = filesNameWithoutExtensionUnderDotnetProfileTools ?? FileEnumerator.EnumerateFilesWithoutExtension(new DirectoryInfo(_nullableToolsShimPath));
         }
 
         public void AddSuggestionRegistration(RegistrationPair registration)
@@ -39,8 +40,8 @@ namespace System.CommandLine.Suggest
                 return Array.Empty<RegistrationPair>();
             }
 
-            return _fileEnumerator.EnumerateFiles(_nullableToolsShimPath).Select(p =>
-                new RegistrationPair(p, $"{Path.GetFileNameWithoutExtension(p)} [suggest]"));
+            return _filesNameWithoutExtensionUnderDotnetProfileTools.Select(p =>
+                new RegistrationPair(Path.Combine(_nullableToolsShimPath, p), $"{p} [suggest]"));
         }
 
         public RegistrationPair? FindRegistration(FileInfo soughtExecutable)

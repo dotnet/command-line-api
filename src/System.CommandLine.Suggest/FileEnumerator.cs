@@ -3,19 +3,21 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace System.CommandLine.Suggest
 {
-    public class FileEnumerator : IFileEnumerator
+    public static class  FileEnumerator
     {
-        public IEnumerable<string> EnumerateFiles(string path)
+        public static IEnumerable<string> EnumerateFilesWithoutExtension(DirectoryInfo path)
         {
-            if (!Directory.Exists(path))
+            if (path == null || !path.Exists)
             {
                 return Array.Empty<string>();
             }
 
-            return Directory.EnumerateFiles(path);
+            return path.EnumerateFiles()
+                .Select(p => Path.GetFileNameWithoutExtension(p.FullName));
         }
     }
 }
