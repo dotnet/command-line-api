@@ -9,9 +9,9 @@ namespace System.CommandLine
     public abstract class Symbol : ISymbol
     {
         private readonly HashSet<string> _aliases = new HashSet<string>();
-
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
-        private string _name = "";
+        private string _longestAlias = "";
+        private string _specifiedName;
 
         protected internal Symbol(
             IReadOnlyCollection<string> aliases,
@@ -53,7 +53,7 @@ namespace System.CommandLine
 
         public string Name
         {
-            get => _name;
+            get => _specifiedName ?? _longestAlias;
             set
             {
                 if (string.IsNullOrWhiteSpace(value))
@@ -61,7 +61,12 @@ namespace System.CommandLine
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
                 }
 
-                _name = value;
+                if (value.Length != value.RemovePrefix().Length)
+                {
+                    throw new ArgumentException($"Property {GetType().Name}.{nameof(Name)} cannot have a prefix.");
+                }
+
+                _specifiedName = value;
             }
         }
 
@@ -83,7 +88,7 @@ namespace System.CommandLine
 
             if (unprefixedAlias.Length > Name?.Length)
             {
-                _name = unprefixedAlias;
+                _longestAlias = unprefixedAlias;
             }
         }
 
