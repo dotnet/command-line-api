@@ -98,17 +98,19 @@ namespace System.CommandLine.Builder
             suggestionSource.AddSuggestionSource(argument.SuggestionSource.Suggest);
 
             var builder = new ArgumentBuilder
-            {
-                ConvertArguments = argument.Parser.ConvertArguments,
-                DefaultValue = argument.GetDefaultValue,
-                Help = new HelpDetail(
-                    argument.Help?.Name,
-                    argument.Help?.Description,
-                    argument.Help?.IsHidden ?? HelpDetail.DefaultIsHidden),
-                Parser = argument.Parser,
-                _suggestionSource = suggestionSource,
-                SymbolValidators = new List<ValidateSymbol>(argument.SymbolValidators)
-            };
+                          {
+                              ConvertArguments = argument.Parser.ConvertArguments,
+                              DefaultValue = argument.GetDefaultValue,
+                              Help = new HelpDetail
+                                     {
+                                         Name = argument.Help?.Name,
+                                         Description = argument.Help?.Description,
+                                         IsHidden = argument.Help?.IsHidden ?? HelpDetail.DefaultIsHidden
+                                     },
+                              Parser = argument.Parser,
+                              _suggestionSource = suggestionSource,
+                              SymbolValidators = new List<ValidateSymbol>(argument.SymbolValidators)
+                          };
 
             return builder;
         }

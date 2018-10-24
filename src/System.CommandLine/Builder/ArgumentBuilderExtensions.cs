@@ -214,7 +214,12 @@ namespace System.CommandLine.Builder
             string description = null,
             bool isHidden = HelpDetail.DefaultIsHidden)
         {
-            builder.Help = new HelpDetail(name, description, isHidden);
+            builder.Help = new HelpDetail
+                           {
+                               Name = name,
+                               Description = description,
+                               IsHidden = isHidden,
+                           };
 
             return builder;
         }

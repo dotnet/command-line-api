@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using System.Linq;
 
 namespace System.CommandLine
@@ -38,7 +39,12 @@ namespace System.CommandLine
 
             Argument = argument ?? Argument.None;
 
-            Help = help ?? new HelpDetail(Name, Description, false);
+            Help = help ?? new HelpDetail
+                           {
+                               Name = Name,
+                               Description = Description,
+                               IsHidden = false,
+                           };
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;

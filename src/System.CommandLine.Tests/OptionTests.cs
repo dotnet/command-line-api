@@ -286,7 +286,12 @@ namespace System.CommandLine.Tests
                 new[] { "-o", "--option" },
                 "desc",
                 null,
-                new HelpDetail("helpName", "helpDesc", true));
+                new HelpDetail
+                {
+                    Name = "helpName",
+                    Description = "helpDesc",
+                    IsHidden = true,
+                });
 
             option.Help.Name.Should().Be("helpName");
             option.Help.Description.Should().Be("helpDesc");
@@ -300,7 +305,12 @@ namespace System.CommandLine.Tests
                 new [] { "-o", "--option" },
                 new CommandBuilder("optionCommand"));
             optionBuilder.Description = "desc";
-            var option = optionBuilder.WithHelp(new HelpDetail("helpName", "helpDesc", true)).BuildOption();
+            var option = optionBuilder.WithHelp(new HelpDetail
+                                                {
+                                                    Name = "helpName",
+                                                    Description = "helpDesc",
+                                                    IsHidden = true,
+                                                }).BuildOption();
 
             option.Help.Name.Should().Be("helpName");
             option.Help.Description.Should().Be("helpDesc");
@@ -314,8 +324,18 @@ namespace System.CommandLine.Tests
                 new[] { "-o", "--option" },
                 new CommandBuilder("optionCommand"));
 
-            var option1 = optionBuilder.WithHelp(new HelpDetail("helpName1", "helpDesc1", true)).BuildOption();
-            var option2 = optionBuilder.WithHelp(new HelpDetail("helpName2", "helpDesc2", false)).BuildOption();
+            var option1 = optionBuilder.WithHelp(new HelpDetail
+                                                 {
+                                                     Name = "helpName1",
+                                                     Description = "helpDesc1",
+                                                     IsHidden = true,
+                                                 }).BuildOption();
+            var option2 = optionBuilder.WithHelp(new HelpDetail
+                                                 {
+                                                     Name = "helpName2",
+                                                     Description = "helpDesc2",
+                                                     IsHidden = false,
+                                                 }).BuildOption();
 
             option1.Help.Name.Should().Be("helpName1");
             option1.Help.Description.Should().Be("helpDesc1");
