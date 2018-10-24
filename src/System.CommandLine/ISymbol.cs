@@ -15,7 +15,7 @@ namespace System.CommandLine
 
         string Description { get; }
 
-        HelpDetail Help { get; }
+        IHelpDetail Help { get; }
 
         ICommand Parent { get; }
 

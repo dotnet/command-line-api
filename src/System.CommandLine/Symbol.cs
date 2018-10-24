@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Builder;
 using System.Linq;
 
 namespace System.CommandLine
@@ -132,5 +131,7 @@ namespace System.CommandLine
         ICommand ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;
+
+        IHelpDetail ISymbol.Help => Help;
     }
 }
