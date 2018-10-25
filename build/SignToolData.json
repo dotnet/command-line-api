@@ -4,7 +4,9 @@
         "certificate": "Microsoft402",
         "strongName": "MsSharedLib72",
         "values": [
-          "bin/System.CommandLine/*/System.CommandLine.dll"
+          "bin/System.CommandLine/*/System.CommandLine.dll",
+          "bin/System.CommandLine.DragonFruit/*/System.CommandLine.DragonFruit.dll",
+          "bin/dotnet-suggest/*/dotnet-suggest.dll"
       ]
     },
     {
