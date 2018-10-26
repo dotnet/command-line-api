@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq;
@@ -8,31 +8,32 @@ namespace System.CommandLine
     internal class ArgumentParser
     {
         public ArgumentParser(
-            ArgumentArityValidator arityValidator,
+            ArgumentArity arity,
             ConvertArgument convert = null)
         {
-            ArityValidator = arityValidator ?? throw new ArgumentNullException(nameof(arityValidator));
+            Arity = arity ?? throw new ArgumentNullException(nameof(arity));
             ConvertArguments = convert;
         }
 
-        public ArgumentArityValidator ArityValidator { get; }
+        public ArgumentArity Arity { get; }
 
         internal ConvertArgument ConvertArguments { get; }
 
         public ArgumentParseResult Parse(SymbolResult symbolResult)
         {
-            var error = ArityValidator.Validate(symbolResult);
-            if (!string.IsNullOrWhiteSpace(error))
-            {
-                return new FailedArgumentArityResult(error);
-            }
+            var error = Arity.Validate(symbolResult);
 
+            if (error != null)
+            {
+                return error;
+            }
+            
             if (ConvertArguments != null)
             {
                 return ConvertArguments(symbolResult);
             }
 
-            switch (ArityValidator.MaximumNumberOfArguments)
+            switch (Arity.MaximumNumberOfArguments)
             {
                 case 0:
                     return ArgumentParseResult.Success((string)null);

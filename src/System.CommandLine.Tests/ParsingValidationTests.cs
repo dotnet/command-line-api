@@ -1,4 +1,4 @@
-using System.CommandLine.Builder;
+﻿using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -227,7 +227,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain("Option '-x' cannot be specified more than once.");
+                  .Contain("Option '-x' expects a single argument but 2 were provided.");
         }
 
         [Fact]
@@ -244,7 +244,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain("Option '-x' cannot be specified more than once.");
+                  .Contain("Option '-x' expects a single argument but 2 were provided.");
         }
 
         [Fact]

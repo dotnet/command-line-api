@@ -128,6 +128,8 @@ namespace System.CommandLine
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
+        IArgument ISymbol.Argument => Argument;
+
         ICommand ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;

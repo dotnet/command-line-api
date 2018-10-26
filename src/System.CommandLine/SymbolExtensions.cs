@@ -16,7 +16,10 @@ namespace System.CommandLine
 
         internal static bool HasHelp(this ISymbol symbol) =>
             symbol.Argument != null &&
-            symbol.Argument.HasHelp;
+            symbol.Argument.HasHelp();
+
+        internal static bool HasHelp(this IArgument argument) =>
+            argument?.Help.IsHidden == false;
 
         internal static string Token(this ISymbol symbol) => symbol.RawAliases.First(alias => alias.RemovePrefix() == symbol.Name);
     }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public interface ISymbol 
+    public interface ISymbol
     {
         IReadOnlyCollection<string> Aliases { get; }
 
@@ -23,7 +23,7 @@ namespace System.CommandLine
 
         bool HasRawAlias(string alias);
 
-        Argument Argument { get; }
+        IArgument Argument { get; }
 
         ISymbolSet Children { get; }
     }

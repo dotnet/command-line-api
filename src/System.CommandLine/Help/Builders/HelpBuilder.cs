@@ -450,9 +450,9 @@ namespace System.CommandLine
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private static HelpDetail GetArgumentHelp(ISymbol symbolDef)
+        private static IHelpDetail GetArgumentHelp(ISymbol symbolDef)
         {
-            if (symbolDef?.HasArguments() != true || symbolDef.Argument?.HasHelp != true)
+            if (symbolDef?.HasArguments() != true || symbolDef.Argument?.HasHelp() != true)
             {
                 return null;
             }

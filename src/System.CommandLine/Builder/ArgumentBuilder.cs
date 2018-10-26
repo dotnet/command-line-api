@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ namespace System.CommandLine.Builder
     {
         private ArgumentSuggestionSource _suggestionSource;
 
-        internal ArgumentArityValidator ArgumentArity { get; set; }
+        internal ArgumentArity ArgumentArity { get; set; }
 
         internal ConvertArgument ConvertArguments { get; set; }
 

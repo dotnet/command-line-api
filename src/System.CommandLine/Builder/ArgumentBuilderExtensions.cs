@@ -141,7 +141,7 @@ namespace System.CommandLine.Builder
         public static Argument ParseArgumentsAs<T>(
             this ArgumentBuilder builder,
             ConvertArgument convert = null,
-            ArgumentArityValidator arity = null) =>
+            ArgumentArity arity = null) =>
             ParseArgumentsAs(
                 builder,
                 typeof(T),
@@ -152,7 +152,7 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             Type type,
             ConvertArgument convert = null,
-            ArgumentArityValidator arity = null)
+            ArgumentArity arity = null)
         {
             if (convert == null)
             {
@@ -190,7 +190,7 @@ namespace System.CommandLine.Builder
             return builder.Build();
         }
 
-        internal static ArgumentArityValidator DefaultArity(this Type type)
+        internal static ArgumentArity DefaultArity(this Type type)
         {
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
                 type != typeof(string))

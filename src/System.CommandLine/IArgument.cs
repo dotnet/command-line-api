@@ -3,5 +3,14 @@
 
 namespace System.CommandLine
 {
-    public delegate string ValidateSymbol(SymbolResult symbolResult);
+    public interface IArgument
+    {
+        IHelpDetail Help { get; }
+
+        ArgumentArity Arity { get; }
+
+        bool HasDefaultValue { get; }
+
+        object GetDefaultValue();
+    }
 }
