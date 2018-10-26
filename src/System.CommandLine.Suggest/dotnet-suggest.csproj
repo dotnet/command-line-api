@@ -6,7 +6,6 @@
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <PackageId>dotnet-suggest</PackageId>
-    <Version>1.0.1</Version>
     <ToolCommandName>dotnet-suggest</ToolCommandName>
   </PropertyGroup>
   
