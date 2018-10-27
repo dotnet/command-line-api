@@ -53,9 +53,10 @@ namespace System.CommandLine.Builder
 
             var argument = new Argument(
                 Parser ?? (Parser = BuildArgumentParser()),
-                DefaultValue,
                 SymbolValidators,
                 _suggestionSource);
+
+            argument.SetDefaultValue(DefaultValue);
 
             if (Help != null)
             {

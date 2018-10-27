@@ -8,18 +8,16 @@ namespace System.CommandLine
 {
     public class Argument : IArgument
     {
-        private readonly Func<object> _defaultValue;
+        private Func<object> _defaultValue;
         private  HelpDetail _helpDetail;
 
         internal Argument(
             ArgumentParser parser,
-            Func<object> defaultValue = null,
             IReadOnlyCollection<ValidateSymbol> symbolValidators = null,
             ISuggestionSource suggestionSource = null)
         {
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
 
-            _defaultValue = defaultValue;
 
             SuggestionSource = suggestionSource ?? NullSuggestionSource.Instance;
 
@@ -33,25 +31,30 @@ namespace System.CommandLine
 
         public object GetDefaultValue() => _defaultValue?.Invoke();
 
+        public void SetDefaultValue(object value) => _defaultValue = () => value;
+
+        public void SetDefaultValue(Func<object> value) => _defaultValue = value;
+
         public bool HasDefaultValue => _defaultValue != null;
 
         public HelpDetail Help => _helpDetail ?? (_helpDetail = new HelpDetail());
 
         internal ArgumentParser Parser { get; }
 
-        internal static Argument None { get; } = new Argument(
-            new ArgumentParser(
-                ArgumentArity.Zero,
-                symbol =>
-                {
-                    if (symbol.Arguments.Any())
+        internal static Argument None { get; } =
+            new Argument(
+                new ArgumentParser(
+                    ArgumentArity.Zero,
+                    symbol =>
                     {
-                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol));
-                    }
+                        if (symbol.Arguments.Any())
+                        {
+                            return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol));
+                        }
 
-                    return SuccessfulArgumentParseResult.Empty;
-                }),
-            symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
+                        return SuccessfulArgumentParseResult.Empty;
+                    }),
+                symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
 
         public ISuggestionSource SuggestionSource { get; }
 
