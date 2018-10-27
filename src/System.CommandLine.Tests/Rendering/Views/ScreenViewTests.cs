@@ -30,13 +30,14 @@ namespace System.CommandLine.Tests.Rendering.Views
         }
 
         [Fact]
-        public void Clearing_child_view_unregisters_from_updated_event()
+        public void Dispose_unregisters_from_updated_event()
         {
             var screen = new ScreenView(_renderer, _synchronizationContext);
             var view = new TestView();
             
             screen.Child = view;
-            screen.Child = null;
+
+            screen.Dispose();
             view.RaiseUpdated();
 
             _synchronizationContext.PostInvocationCount.Should().Be(0);
