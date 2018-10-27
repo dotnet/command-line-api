@@ -6,20 +6,18 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Argument : IArgument
+    public class Argument : IArgument, ISuggestionSource
     {
         private Func<object> _defaultValue;
-        private  HelpDetail _helpDetail;
+        private HelpDetail _helpDetail;
+        private readonly List<string> _suggestions = new List<string>();
+        private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
 
         internal Argument(
             ArgumentParser parser,
-            IReadOnlyCollection<ValidateSymbol> symbolValidators = null,
-            ISuggestionSource suggestionSource = null)
+            IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
         {
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
-
-
-            SuggestionSource = suggestionSource ?? NullSuggestionSource.Instance;
 
             if (symbolValidators != null)
             {
@@ -56,7 +54,51 @@ namespace System.CommandLine
                     }),
                 symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
 
-        public ISuggestionSource SuggestionSource { get; }
+        public void AddSuggestions(IReadOnlyCollection<string> suggestions)
+        {
+            if (suggestions == null)
+            {
+                throw new ArgumentNullException(nameof(suggestions));
+            }
+
+            _suggestions.AddRange(suggestions);
+        }
+
+        public void AddSuggestionSource(ISuggestionSource suggest)
+        {
+            if (suggest == null)
+            {
+                throw new ArgumentNullException(nameof(suggest));
+            }
+
+            _suggestionSources.Add(suggest);
+        }
+
+        public void AddSuggestionSource(Suggest suggest)
+        {
+           AddSuggestionSource(new AnonymousSuggestionSource(suggest));
+        }
+
+        public IEnumerable<string> Suggest(
+            ParseResult parseResult,
+            int? position = null)
+        {
+            if (parseResult == null)
+            {
+                throw new ArgumentNullException(nameof(parseResult));
+            }
+
+            var fixedSuggestions = _suggestions;
+
+            var dynamicSuggestions = _suggestionSources
+                .SelectMany(source => source.Suggest(parseResult, position));
+
+            return fixedSuggestions
+                   .Concat(dynamicSuggestions)
+                   .Distinct()
+                   .OrderBy(c => c)
+                   .Containing(parseResult.TextToMatch());
+        }
 
         public ArgumentArity Arity => Parser.Arity;
 

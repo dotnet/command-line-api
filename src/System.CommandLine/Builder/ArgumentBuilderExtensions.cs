@@ -57,7 +57,7 @@ namespace System.CommandLine.Builder
         {
             builder.ValidTokens.UnionWith(values);
 
-            builder.SuggestionSource.AddSuggestions(values);
+            builder.AddSuggestions(values);
 
             return builder;
         }
@@ -72,10 +72,10 @@ namespace System.CommandLine.Builder
             builder.AddValidator(symbol =>
             {
                 return symbol.Arguments
-                                   .Where(filePath => !File.Exists(filePath) &&
-                                                      !Directory.Exists(filePath))
-                                   .Select(symbol.ValidationMessages.FileDoesNotExist)
-                                   .FirstOrDefault();
+                             .Where(filePath => !File.Exists(filePath) &&
+                                                !Directory.Exists(filePath))
+                             .Select(symbol.ValidationMessages.FileDoesNotExist)
+                             .FirstOrDefault();
             });
             return builder;
         }
@@ -83,7 +83,8 @@ namespace System.CommandLine.Builder
         public static ArgumentBuilder LegalFilePathsOnly(
             this ArgumentBuilder builder)
         {
-            builder.AddValidator(symbol => {
+            builder.AddValidator(symbol =>
+            {
                 var errorMessage = new List<(string, string)>();
                 foreach (var arg in symbol.Arguments)
                 {
@@ -112,8 +113,8 @@ namespace System.CommandLine.Builder
                 if (errorMessage.Any())
                 {
                     return errorMessage
-                        .Select(e => $"Arguement {e.Item1} failed validation due to {e.Item2}")
-                        .Aggregate((current, next) => current + Environment.NewLine + next);
+                           .Select(e => $"Arguement {e.Item1} failed validation due to {e.Item2}")
+                           .Aggregate((current, next) => current + Environment.NewLine + next);
                 }
 
                 return null;
@@ -172,7 +173,8 @@ namespace System.CommandLine.Builder
                 }
                 else
                 {
-                    convert = symbol => {
+                    convert = symbol =>
+                    {
                         if (symbol.Arguments.Count != 1)
                         {
                             return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentProvided(symbol));
@@ -228,7 +230,7 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             Func<object> defaultValue)
         {
-            builder.DefaultValue = defaultValue;
+            builder.Configure(argument => argument.SetDefaultValue(defaultValue));
 
             return builder;
         }
@@ -237,7 +239,7 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             params string[] suggestions)
         {
-            builder.SuggestionSource.AddSuggestions(suggestions);
+            builder.Configure(argument => argument.AddSuggestions(suggestions));
 
             return builder;
         }
@@ -251,7 +253,7 @@ namespace System.CommandLine.Builder
                 throw new ArgumentNullException(nameof(suggest));
             }
 
-            builder.SuggestionSource.AddSuggestionSource(suggest);
+            builder.Configure(argument => argument.AddSuggestionSource(suggest));
 
             return builder;
         }

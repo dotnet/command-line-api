@@ -8,7 +8,7 @@ namespace System.CommandLine.Builder
 {
     public class ArgumentBuilder
     {
-        private ArgumentSuggestionSource _suggestionSource;
+        private readonly List<Action<Argument>> _configureActions = new List<Action<Argument>>();
 
         internal ArgumentArity ArgumentArity { get; set; }
 
@@ -22,11 +22,12 @@ namespace System.CommandLine.Builder
 
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
-        internal ArgumentSuggestionSource SuggestionSource =>
-            _suggestionSource ??
-            (_suggestionSource = new ArgumentSuggestionSource());
-
         internal HashSet<string> ValidTokens { get; } = new HashSet<string>();
+
+        internal void Configure(Action<Argument> action)
+        {
+            _configureActions.Add(action);
+        }
 
         public void AddValidator(ValidateSymbol validator)
         {
@@ -53,8 +54,7 @@ namespace System.CommandLine.Builder
 
             var argument = new Argument(
                 Parser ?? (Parser = BuildArgumentParser()),
-                SymbolValidators,
-                _suggestionSource);
+                SymbolValidators);
 
             argument.SetDefaultValue(DefaultValue);
 
@@ -63,6 +63,11 @@ namespace System.CommandLine.Builder
                 argument.Help.Description = Help.Description;
                 argument.Help.Name = Help.Name;
                 argument.Help.IsHidden = Help.IsHidden;
+            }
+
+            foreach (var configure in _configureActions)
+            {
+                configure(argument);
             }
 
             return argument;
@@ -103,9 +108,6 @@ namespace System.CommandLine.Builder
                 throw new ArgumentNullException(nameof(argument));
             }
 
-            var suggestionSource = new ArgumentSuggestionSource();
-            suggestionSource.AddSuggestionSource(argument.SuggestionSource.Suggest);
-
             var builder = new ArgumentBuilder
                           {
                               ConvertArguments = argument.Parser.ConvertArguments,
@@ -117,7 +119,6 @@ namespace System.CommandLine.Builder
                                          IsHidden = argument.Help?.IsHidden ?? HelpDetail.DefaultIsHidden
                                      },
                               Parser = argument.Parser,
-                              _suggestionSource = suggestionSource,
                               SymbolValidators = new List<ValidateSymbol>(argument.SymbolValidators)
                           };
 
