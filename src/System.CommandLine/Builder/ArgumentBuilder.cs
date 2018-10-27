@@ -10,15 +10,7 @@ namespace System.CommandLine.Builder
     {
         private readonly List<Action<Argument>> _configureActions = new List<Action<Argument>>();
 
-        internal ArgumentArity ArgumentArity { get; set; }
-
-        internal ConvertArgument ConvertArguments { get; set; }
-
-        internal Func<object> DefaultValue { get; set; }
-
         internal HelpDetail Help { get; set; }
-
-        internal ArgumentParser Parser { get; set; }
 
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
@@ -39,24 +31,11 @@ namespace System.CommandLine.Builder
             SymbolValidators.Add(validator);
         }
 
-        internal virtual ArgumentParser BuildArgumentParser()
-        {
-            var parser = new ArgumentParser(
-                ArgumentArity ?? ArgumentArity.Zero,
-                ConvertArguments);
-
-            return parser;
-        }
-
         public Argument Build()
         {
             AddTokenValidator();
 
-            var argument = new Argument(
-                Parser ?? (Parser = BuildArgumentParser()),
-                SymbolValidators);
-
-            argument.SetDefaultValue(DefaultValue);
+            var argument = new Argument(SymbolValidators);
 
             if (Help != null)
             {
@@ -97,32 +76,6 @@ namespace System.CommandLine.Builder
 
                 return null;
             });
-        }
-
-        internal static ArgumentBuilder From(Argument argument)
-        {
-            // TODO: (From) get rid of this method
-
-            if (argument == null)
-            {
-                throw new ArgumentNullException(nameof(argument));
-            }
-
-            var builder = new ArgumentBuilder
-                          {
-                              ConvertArguments = argument.Parser.ConvertArguments,
-                              DefaultValue = argument.GetDefaultValue,
-                              Help = new HelpDetail
-                                     {
-                                         Name = argument.Help?.Name,
-                                         Description = argument.Help?.Description,
-                                         IsHidden = argument.Help?.IsHidden ?? HelpDetail.DefaultIsHidden
-                                     },
-                              Parser = argument.Parser,
-                              SymbolValidators = new List<ValidateSymbol>(argument.SymbolValidators)
-                          };
-
-            return builder;
         }
     }
 }

@@ -21,9 +21,9 @@ namespace System.CommandLine
             MaximumNumberOfArguments = maximumNumberOfArguments;
         }
 
-        public int MinimumNumberOfArguments { get; }
+        public int MinimumNumberOfArguments { get; set; }
 
-        public int MaximumNumberOfArguments { get; }
+        public int MaximumNumberOfArguments { get; set; }
 
         internal FailedArgumentArityResult Validate(SymbolResult symbolResult)
         {

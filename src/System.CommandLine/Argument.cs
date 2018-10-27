@@ -12,18 +12,17 @@ namespace System.CommandLine
         private HelpDetail _helpDetail;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
+        private ArgumentArity _arity;
 
-        internal Argument(
-            ArgumentParser parser,
-            IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
+        internal Argument(IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
         {
-            Parser = parser ?? throw new ArgumentNullException(nameof(parser));
-
             if (symbolValidators != null)
             {
                 SymbolValidators.AddRange(symbolValidators);
             }
         }
+
+        internal ConvertArgument ConvertArguments { get; set; }
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
 
@@ -37,22 +36,20 @@ namespace System.CommandLine
 
         public HelpDetail Help => _helpDetail ?? (_helpDetail = new HelpDetail());
 
-        internal ArgumentParser Parser { get; }
-
         internal static Argument None { get; } =
             new Argument(
-                new ArgumentParser(
-                    ArgumentArity.Zero,
-                    symbol =>
+                symbolValidators: new ValidateSymbol[] { AcceptNoArguments })
+            {
+                ConvertArguments = symbol =>
+                {
+                    if (symbol.Arguments.Any())
                     {
-                        if (symbol.Arguments.Any())
-                        {
-                            return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol));
-                        }
+                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol));
+                    }
 
-                        return SuccessfulArgumentParseResult.Empty;
-                    }),
-                symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
+                    return SuccessfulArgumentParseResult.Empty;
+                }
+            };
 
         public void AddSuggestions(IReadOnlyCollection<string> suggestions)
         {
@@ -76,7 +73,7 @@ namespace System.CommandLine
 
         public void AddSuggestionSource(Suggest suggest)
         {
-           AddSuggestionSource(new AnonymousSuggestionSource(suggest));
+            AddSuggestionSource(new AnonymousSuggestionSource(suggest));
         }
 
         public IEnumerable<string> Suggest(
@@ -100,7 +97,38 @@ namespace System.CommandLine
                    .Containing(parseResult.TextToMatch());
         }
 
-        public ArgumentArity Arity => Parser.Arity;
+        public ArgumentArity Arity
+        {
+            get => _arity ?? (_arity = ArgumentArity.Zero);
+            set => _arity = value;
+        }
+
+        internal ArgumentParseResult Parse(SymbolResult symbolResult)
+        {
+            var error = Arity.Validate(symbolResult);
+
+            if (error != null)
+            {
+                return error;
+            }
+
+            if (ConvertArguments != null)
+            {
+                return ConvertArguments(symbolResult);
+            }
+
+            switch (Arity.MaximumNumberOfArguments)
+            {
+                case 0:
+                    return ArgumentParseResult.Success((string)null);
+
+                case 1:
+                    return ArgumentParseResult.Success(symbolResult.Arguments.SingleOrDefault());
+
+                default:
+                    return ArgumentParseResult.Success(symbolResult.Arguments);
+            }
+        }
 
         internal (ArgumentParseResult, ParseError) Validate(SymbolResult symbolResult)
         {
@@ -119,7 +147,7 @@ namespace System.CommandLine
 
             if (error == null)
             {
-                result = Parser.Parse(symbolResult);
+                result = Parse(symbolResult);
 
                 var canTokenBeRetried =
                     symbolResult.Symbol is ICommand ||

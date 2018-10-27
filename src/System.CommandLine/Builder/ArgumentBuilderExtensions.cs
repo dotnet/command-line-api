@@ -15,35 +15,40 @@ namespace System.CommandLine.Builder
         public static Argument ExactlyOne(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.ExactlyOne;
+            builder.Configure(argument => argument.Arity = ArgumentArity.ExactlyOne);
+
             return builder.Build();
         }
 
         public static Argument None(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.Zero;
+            builder.Configure(argument => argument.Arity = ArgumentArity.Zero);
+
             return builder.Build();
         }
 
         public static Argument ZeroOrMore(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.ZeroOrMore;
+            builder.Configure(argument => argument.Arity = ArgumentArity.ZeroOrMore);
+
             return builder.Build();
         }
 
         public static Argument ZeroOrOne(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.ZeroOrOne;
+            builder.Configure(argument => argument.Arity = ArgumentArity.ZeroOrOne);
+
             return builder.Build();
         }
 
         public static Argument OneOrMore(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.OneOrMore;
+            builder.Configure(argument => argument.Arity = ArgumentArity.OneOrMore);
+
             return builder.Build();
         }
 
@@ -57,7 +62,7 @@ namespace System.CommandLine.Builder
         {
             builder.ValidTokens.UnionWith(values);
 
-            builder.AddSuggestions(values);
+            builder.Configure(argument => argument.AddSuggestions(values));
 
             return builder;
         }
@@ -185,9 +190,8 @@ namespace System.CommandLine.Builder
                 }
             }
 
-            builder.ArgumentArity = arity;
-
-            builder.ConvertArguments = convert;
+            builder.Configure(a => a.Arity = arity);
+            builder.Configure(a => a.ConvertArguments = convert);
 
             return builder.Build();
         }
