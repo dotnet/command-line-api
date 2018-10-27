@@ -14,8 +14,6 @@ namespace System.CommandLine.Builder
 
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
-        internal HashSet<string> ValidTokens { get; } = new HashSet<string>();
-
         internal void Configure(Action<Argument> action)
         {
             _configureActions.Add(action);
@@ -33,8 +31,6 @@ namespace System.CommandLine.Builder
 
         public Argument Build()
         {
-            AddTokenValidator();
-
             var argument = new Argument(SymbolValidators);
 
             if (Help != null)
@@ -50,32 +46,6 @@ namespace System.CommandLine.Builder
             }
 
             return argument;
-        }
-
-        private void AddTokenValidator()
-        {
-            if (ValidTokens.Count == 0)
-            {
-                return;
-            }
-
-            AddValidator(symbol =>
-            {
-                if (symbol.Arguments.Count == 0)
-                {
-                    return null;
-                }
-
-                foreach (var arg in symbol.Arguments)
-                {
-                    if (!ValidTokens.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        return symbol.ValidationMessages.UnrecognizedArgument(arg, ValidTokens);
-                    }
-                }
-
-                return null;
-            });
         }
     }
 }

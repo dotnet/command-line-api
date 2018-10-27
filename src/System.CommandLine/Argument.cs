@@ -13,6 +13,7 @@ namespace System.CommandLine
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private ArgumentArity _arity;
+        private HashSet<string> _validValues;
 
         internal Argument(IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
         {
@@ -76,6 +77,16 @@ namespace System.CommandLine
             AddSuggestionSource(new AnonymousSuggestionSource(suggest));
         }
 
+        internal void AddValidValues(IEnumerable<string> values)
+        {
+            if (_validValues == null)
+            {
+                _validValues = new HashSet<string>();
+            }
+
+            _validValues.UnionWith(values);
+        }
+
         public IEnumerable<string> Suggest(
             ParseResult parseResult,
             int? position = null)
@@ -135,6 +146,19 @@ namespace System.CommandLine
             ParseError error = null;
             ArgumentParseResult result = null;
 
+            if (_validValues?.Count > 0 &&
+                symbolResult.Arguments.Count > 0)
+            {
+                foreach (var arg in symbolResult.Arguments)
+                {
+                    if (!_validValues.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        error = new ParseError(
+                            symbolResult.ValidationMessages.UnrecognizedArgument(arg, _validValues));
+                    }
+                }
+            }
+
             foreach (var symbolValidator in SymbolValidators)
             {
                 var errorMessage = symbolValidator(symbolResult);
@@ -193,5 +217,6 @@ namespace System.CommandLine
         }
 
         IHelpDetail IArgument.Help => Help;
+
     }
 }

@@ -60,9 +60,11 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             params string[] values)
         {
-            builder.ValidTokens.UnionWith(values);
-
-            builder.Configure(argument => argument.AddSuggestions(values));
+            builder.Configure(argument =>
+            {
+                argument.AddValidValues(values);
+                argument.AddSuggestions(values);
+            });
 
             return builder;
         }
