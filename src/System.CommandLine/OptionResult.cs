@@ -21,21 +21,6 @@ namespace System.CommandLine
         internal override SymbolResult TryTakeToken(Token token) =>
             TryTakeArgument(token);
 
-        protected internal override ParseError Validate()
-        {
-            if (Arguments.Count > 1 &&
-                Symbol.Argument.ArgumentArity.MaximumNumberOfArguments == 1)
-            {
-                // TODO: (Validate) localize
-                return new ParseError(
-                    $"Option '{Symbol.Token()}' cannot be specified more than once.",
-                    this,
-                    false);
-            }
-
-            return base.Validate();
-        }
-
         internal static OptionResult CreateImplicit(
             IOption option,
             CommandResult parent)

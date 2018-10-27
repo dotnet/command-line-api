@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ namespace System.CommandLine.Builder
     {
         private ArgumentSuggestionSource _suggestionSource;
 
-        internal ArgumentArityValidator ArgumentArity { get; set; }
+        internal ArgumentArity ArgumentArity { get; set; }
 
         internal ConvertArgument ConvertArguments { get; set; }
 
@@ -98,17 +98,19 @@ namespace System.CommandLine.Builder
             suggestionSource.AddSuggestionSource(argument.SuggestionSource.Suggest);
 
             var builder = new ArgumentBuilder
-            {
-                ConvertArguments = argument.Parser.ConvertArguments,
-                DefaultValue = argument.GetDefaultValue,
-                Help = new HelpDetail(
-                    argument.Help?.Name,
-                    argument.Help?.Description,
-                    argument.Help?.IsHidden ?? HelpDetail.DefaultIsHidden),
-                Parser = argument.Parser,
-                _suggestionSource = suggestionSource,
-                SymbolValidators = new List<ValidateSymbol>(argument.SymbolValidators)
-            };
+                          {
+                              ConvertArguments = argument.Parser.ConvertArguments,
+                              DefaultValue = argument.GetDefaultValue,
+                              Help = new HelpDetail
+                                     {
+                                         Name = argument.Help?.Name,
+                                         Description = argument.Help?.Description,
+                                         IsHidden = argument.Help?.IsHidden ?? HelpDetail.DefaultIsHidden
+                                     },
+                              Parser = argument.Parser,
+                              _suggestionSource = suggestionSource,
+                              SymbolValidators = new List<ValidateSymbol>(argument.SymbolValidators)
+                          };
 
             return builder;
         }

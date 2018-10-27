@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -84,7 +84,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new ArgumentBuilder().ParseArgumentsAs<int>(s => ArgumentParseResult.Success(1));
 
-            argument.ArgumentArity.Should().Be(ArgumentArity.ExactlyOne);
+            argument.Arity.Should().Be(ArgumentArity.ExactlyOne);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new ArgumentBuilder().ParseArgumentsAs<string>(s => ArgumentParseResult.Success(1));
 
-            argument.ArgumentArity.Should().Be(ArgumentArity.ExactlyOne);
+            argument.Arity.Should().Be(ArgumentArity.ExactlyOne);
         }
 
         [Theory]
@@ -103,7 +103,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new ArgumentBuilder().ParseArgumentsAs(type, s => ArgumentParseResult.Success(1));
 
-            argument.ArgumentArity.Should().Be(ArgumentArity.OneOrMore);
+            argument.Arity.Should().Be(ArgumentArity.OneOrMore);
         }
 
         [Fact]

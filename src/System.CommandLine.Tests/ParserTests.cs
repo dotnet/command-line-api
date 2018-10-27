@@ -619,11 +619,11 @@ namespace System.CommandLine.Tests
                              symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.None()))
                          .Build();
 
-            ParseResult result = parser.Parse("the-command -x two");
+            var result = parser.Parse("the-command -x the-argument");
 
             var command = result.CommandResult;
             command["x"].Arguments.Should().BeEmpty();
-            command.Arguments.Should().BeEquivalentTo("two");
+            command.Arguments.Should().BeEquivalentTo("the-argument");
         }
 
         [Fact]
@@ -636,9 +636,9 @@ namespace System.CommandLine.Tests
                              symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.ExactlyOne()))
                          .Build();
 
-            ParseResult result = parser.Parse("the-command -x two");
+            var result = parser.Parse("the-command -x the-argument");
 
-            result.CommandResult["x"].Arguments.Should().BeEquivalentTo("two");
+            result.CommandResult["x"].Arguments.Should().BeEquivalentTo("the-argument");
             result.CommandResult.Arguments.Should().BeEmpty();
         }
 

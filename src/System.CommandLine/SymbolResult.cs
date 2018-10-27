@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -53,43 +54,14 @@ namespace System.CommandLine
             set => _validationMessages = value;
         }
 
-        protected internal virtual ParseError Validate()
+        protected internal ParseError Validate()
         {
-            foreach (var symbolValidator in Symbol.Argument.SymbolValidators)
+            // FIX: (Validate) don't cast
+            if (Symbol.Argument is Argument argument)
             {
-                var errorMessage = symbolValidator(this);
-
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    return new ParseError(errorMessage, this);
-                }
-            }
-
-            _result = Symbol.Argument.Parser.Parse(this);
-
-            switch (_result)
-            {
-                case FailedArgumentArityResult arityFailure:
-
-                    return new ParseError(arityFailure.ErrorMessage,
-                                          this,
-                                          true);
-
-                case FailedArgumentTypeConversionResult conversionFailure:
-
-                    var canTokenBeRetried = Symbol.Argument
-                                                  .ArgumentArity
-                                                  .MinimumNumberOfArguments == 0;
-
-                    return new ParseError(conversionFailure.ErrorMessage,
-                                          this,
-                                          canTokenBeRetried);
-
-                case FailedArgumentParseResult general:
-
-                    return new ParseError(general.ErrorMessage,
-                                          this,
-                                          false);
+                var (result, error) = argument.Validate(this);
+                _result = result;
+                return error;
             }
 
             return null;

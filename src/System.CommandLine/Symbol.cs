@@ -9,8 +9,9 @@ namespace System.CommandLine
     public abstract class Symbol : ISymbol
     {
         private readonly HashSet<string> _aliases = new HashSet<string>();
-
-        private readonly HashSet<string> _rawAliases;
+        private readonly HashSet<string> _rawAliases = new HashSet<string>();
+        private string _longestAlias = "";
+        private string _specifiedName;
 
         protected internal Symbol(
             IReadOnlyCollection<string> aliases,
@@ -28,29 +29,21 @@ namespace System.CommandLine
                 throw new ArgumentException("An option must have at least one alias.");
             }
 
-            _rawAliases = new HashSet<string>(aliases);
-
             foreach (var alias in aliases)
             {
-                var cleanedAlias = alias?.RemovePrefix();
-                if (string.IsNullOrWhiteSpace(cleanedAlias))
-                {
-                    throw new ArgumentException("An option alias cannot be null, empty, or consist entirely of whitespace.");
-                }
-
-                _aliases.Add(cleanedAlias);
+                AddAlias(alias);
             }
 
             Description = description;
 
-            Name = aliases
-                   .Select(a => a.RemovePrefix())
-                   .OrderBy(a => a.Length)
-                   .Last();
-
             Argument = argument ?? Argument.None;
 
-            Help = help ?? new HelpDetail(Name, Description, false);
+            Help = help ?? new HelpDetail
+                           {
+                               Name = Name,
+                               Description = Description,
+                               IsHidden = false,
+                           };
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
@@ -63,15 +56,56 @@ namespace System.CommandLine
 
         public HelpDetail Help { get; }
 
-        public string Name { get; }
+        public string Name
+        {
+            get => _specifiedName ?? _longestAlias;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
+                }
+
+                if (value.Length != value.RemovePrefix().Length)
+                {
+                    throw new ArgumentException($"Property {GetType().Name}.{nameof(Name)} cannot have a prefix.");
+                }
+
+                _specifiedName = value;
+            }
+        }
 
         public Command Parent { get; internal set; }
 
         public SymbolSet Children { get; } = new SymbolSet();
 
-        internal void AddAlias(string alias) => _rawAliases.Add(alias);
+        public void AddAlias(string alias)
+        {
+            var unprefixedAlias = alias?.RemovePrefix();
 
-        public bool HasAlias(string alias) => _aliases.Contains(alias.RemovePrefix());
+            if (string.IsNullOrWhiteSpace(unprefixedAlias))
+            {
+                throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
+            }
+
+            _rawAliases.Add(alias);
+            _aliases.Add(unprefixedAlias);
+
+            if (unprefixedAlias.Length > Name?.Length)
+            {
+                _longestAlias = unprefixedAlias;
+            }
+        }
+
+        public bool HasAlias(string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
+            }
+
+            return _aliases.Contains(alias.RemovePrefix());
+        }
 
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
 
@@ -94,8 +128,12 @@ namespace System.CommandLine
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
+        IArgument ISymbol.Argument => Argument;
+
         ICommand ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;
+
+        IHelpDetail ISymbol.Help => Help;
     }
 }

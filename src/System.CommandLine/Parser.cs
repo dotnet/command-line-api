@@ -178,9 +178,10 @@ namespace System.CommandLine
             {
                 if (symbol is IOption option)
                 {
-                    var validator = option.Argument.Parser.ArityValidator;
-                    if (validator?.MaximumNumberOfArguments == 1 &&
-                        validator.MinimumNumberOfArguments == 1) // Exactly One
+                    var arity = option.Argument.Arity;
+
+                    if (arity.MaximumNumberOfArguments == 1 &&
+                        arity.MinimumNumberOfArguments == 1) // Exactly One
                     {
                         optionList.Add(option);
                     }

@@ -9,7 +9,7 @@ namespace System.CommandLine
     {
         public Option(
             IReadOnlyCollection<string> aliases,
-            string description,
+            string description = null,
             Argument argument = null,
             HelpDetail help = null)
             : base(aliases, description, argument, help)
@@ -17,7 +17,7 @@ namespace System.CommandLine
 
         public Option(
             string alias,
-            string description,
+            string description = null,
             Argument argument = null,
             HelpDetail help = null)
             : base(new [] {alias}, description, argument, help)
