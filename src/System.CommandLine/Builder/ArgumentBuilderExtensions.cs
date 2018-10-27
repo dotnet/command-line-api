@@ -220,14 +220,25 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             string name = null,
             string description = null,
-            bool isHidden = HelpDetail.DefaultIsHidden)
+            bool? isHidden = null)
         {
-            builder.Help = new HelpDetail
-                           {
-                               Name = name,
-                               Description = description,
-                               IsHidden = isHidden,
-                           };
+            builder.Configure(a =>
+            {
+                if (name != null)
+                {
+                    a.Help.Name = name;
+                }
+
+                if (description != null)
+                {
+                    a.Help.Description = description;
+                }
+
+                if (isHidden != null)
+                {
+                    a.Help.IsHidden = isHidden.Value;
+                }
+            });
 
             return builder;
         }

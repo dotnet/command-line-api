@@ -10,8 +10,6 @@ namespace System.CommandLine.Builder
     {
         private readonly List<Action<Argument>> _configureActions = new List<Action<Argument>>();
 
-        internal HelpDetail Help { get; set; }
-
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
         internal void Configure(Action<Argument> action)
@@ -32,13 +30,6 @@ namespace System.CommandLine.Builder
         public Argument Build()
         {
             var argument = new Argument(SymbolValidators);
-
-            if (Help != null)
-            {
-                argument.Help.Description = Help.Description;
-                argument.Help.Name = Help.Name;
-                argument.Help.IsHidden = Help.IsHidden;
-            }
 
             foreach (var configure in _configureActions)
             {
