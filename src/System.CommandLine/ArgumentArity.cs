@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
+
 namespace System.CommandLine
 {
     public class ArgumentArity 
@@ -53,8 +55,24 @@ namespace System.CommandLine
 
         public static ArgumentArity ExactlyOne { get; } = new ArgumentArity(1, 1);
 
-        public static ArgumentArity ZeroOrMore { get; } = new ArgumentArity(0, int.MaxValue);
+        public static ArgumentArity ZeroOrMore { get; } = new ArgumentArity(0, Int32.MaxValue);
 
-        public static ArgumentArity OneOrMore { get; } = new ArgumentArity(1, int.MaxValue);
+        public static ArgumentArity OneOrMore { get; } = new ArgumentArity(1, Int32.MaxValue);
+
+        public static ArgumentArity DefaultForType(Type type)
+        {
+            if (typeof(IEnumerable).IsAssignableFrom(type) &&
+                type != typeof(string))
+            {
+                return OneOrMore;
+            }
+
+            if (type == typeof(bool))
+            {
+                return ZeroOrOne;
+            }
+
+            return ExactlyOne;
+        }
     }
 }

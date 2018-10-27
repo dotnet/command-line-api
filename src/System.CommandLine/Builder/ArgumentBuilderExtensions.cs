@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -134,18 +133,6 @@ namespace System.CommandLine.Builder
 
         #region type / return value
 
-        private static ConvertArgument DefaultConvertArgument(Type type) =>
-            symbol =>
-            {
-                switch (type.DefaultArity().MaximumNumberOfArguments)
-                {
-                    case 1:
-                        return ArgumentConverter.Parse(type, symbol.Arguments.SingleOrDefault());
-                    default:
-                        return ArgumentConverter.ParseMany(type, symbol.Arguments);
-                }
-            };
-
         public static Argument ParseArgumentsAs<T>(
             this ArgumentBuilder builder,
             ConvertArgument convert = null,
@@ -162,56 +149,22 @@ namespace System.CommandLine.Builder
             ConvertArgument convert = null,
             ArgumentArity arity = null)
         {
-            if (convert == null)
+            builder.Configure(a =>
             {
-                convert = DefaultConvertArgument(type);
-            }
+                a.ArgumentType = type;
 
-            arity = arity ?? type.DefaultArity();
-
-            if (arity.MaximumNumberOfArguments == 1)
-            {
-                var originalConvert = convert;
-
-                if (type == typeof(bool))
+                if (convert != null)
                 {
-                    convert = symbol =>
-                        ArgumentConverter.Parse<bool>(symbol.Arguments.SingleOrDefault() ?? "true");
+                    a.ConvertArguments = convert;
                 }
-                else
+
+                if (arity != null)
                 {
-                    convert = symbol =>
-                    {
-                        if (symbol.Arguments.Count != 1)
-                        {
-                            return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentProvided(symbol));
-                        }
-
-                        return originalConvert(symbol);
-                    };
+                    a.Arity = arity;
                 }
-            }
-
-            builder.Configure(a => a.Arity = arity);
-            builder.Configure(a => a.ConvertArguments = convert);
+            });
 
             return builder.Build();
-        }
-
-        internal static ArgumentArity DefaultArity(this Type type)
-        {
-            if (typeof(IEnumerable).IsAssignableFrom(type) &&
-                type != typeof(string))
-            {
-                return ArgumentArity.OneOrMore;
-            }
-
-            if (type == typeof(bool))
-            {
-                return ArgumentArity.ZeroOrOne;
-            }
-
-            return ArgumentArity.ExactlyOne;
         }
 
         #endregion

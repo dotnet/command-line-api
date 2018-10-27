@@ -134,5 +134,17 @@ namespace System.CommandLine
         {
             return new FailedArgumentTypeConversionResult(type, value);
         }
+
+        public static ConvertArgument DefaultConvertArgument(Type type) =>
+            symbol =>
+            {
+                switch (ArgumentArity.DefaultForType(type).MaximumNumberOfArguments)
+                {
+                    case 1:
+                        return Parse(type, symbol.Arguments.SingleOrDefault());
+                    default:
+                        return ParseMany(type, symbol.Arguments);
+                }
+            };
     }
 }

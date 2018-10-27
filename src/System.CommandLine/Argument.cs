@@ -14,6 +14,7 @@ namespace System.CommandLine
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private ArgumentArity _arity;
         private HashSet<string> _validValues;
+        private ConvertArgument _convertArguments;
 
         internal Argument(IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
         {
@@ -23,7 +24,54 @@ namespace System.CommandLine
             }
         }
 
-        internal ConvertArgument ConvertArguments { get; set; }
+        public ArgumentArity Arity
+        {
+            get
+            {
+                if (_arity == null)
+                {
+                    if (ArgumentType != null)
+                    {
+                        _arity = ArgumentArity.DefaultForType(ArgumentType);
+                    }
+                    else
+                    {
+                        _arity = ArgumentArity.Zero;
+                    }
+                }
+
+                return _arity;
+            }
+            set => _arity = value;
+        }
+
+        internal ConvertArgument ConvertArguments
+        {
+            get
+            {
+                if (_convertArguments == null)
+                {
+                    if (ArgumentType != null)
+                    {
+                        if (Arity.MaximumNumberOfArguments == 1 &&
+                            ArgumentType == typeof(bool))
+                        {
+                            _convertArguments = symbol =>
+                                ArgumentConverter.Parse<bool>(symbol.Arguments.SingleOrDefault() ?? "true");
+                        }
+                        else
+                        {
+                            _convertArguments = ArgumentConverter.DefaultConvertArgument(ArgumentType);
+                        }
+                    }
+                }
+
+                return _convertArguments;
+            }
+            set => _convertArguments = value;
+        }
+
+        public Type ArgumentType { get; set; }
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
 
@@ -106,12 +154,6 @@ namespace System.CommandLine
                    .Distinct()
                    .OrderBy(c => c)
                    .Containing(parseResult.TextToMatch());
-        }
-
-        public ArgumentArity Arity
-        {
-            get => _arity ?? (_arity = ArgumentArity.Zero);
-            set => _arity = value;
         }
 
         internal ArgumentParseResult Parse(SymbolResult symbolResult)
@@ -217,6 +259,5 @@ namespace System.CommandLine
         }
 
         IHelpDetail IArgument.Help => Help;
-
     }
 }
