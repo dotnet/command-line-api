@@ -51,12 +51,20 @@ namespace System.CommandLine.Builder
         {
             AddTokenValidator();
 
-            return new Argument(
+            var argument = new Argument(
                 Parser ?? (Parser = BuildArgumentParser()),
                 DefaultValue,
-                Help,
                 SymbolValidators,
                 _suggestionSource);
+
+            if (Help != null)
+            {
+                argument.Help.Description = Help.Description;
+                argument.Help.Name = Help.Name;
+                argument.Help.IsHidden = Help.IsHidden;
+            }
+
+            return argument;
         }
 
         private void AddTokenValidator()

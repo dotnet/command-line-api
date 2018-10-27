@@ -9,19 +9,17 @@ namespace System.CommandLine
     public class Argument : IArgument
     {
         private readonly Func<object> _defaultValue;
+        private  HelpDetail _helpDetail;
 
         internal Argument(
             ArgumentParser parser,
             Func<object> defaultValue = null,
-            HelpDetail help = null,
             IReadOnlyCollection<ValidateSymbol> symbolValidators = null,
             ISuggestionSource suggestionSource = null)
         {
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
 
             _defaultValue = defaultValue;
-
-            Help = help ?? new HelpDetail();
 
             SuggestionSource = suggestionSource ?? NullSuggestionSource.Instance;
 
@@ -37,7 +35,7 @@ namespace System.CommandLine
 
         public bool HasDefaultValue => _defaultValue != null;
 
-        public HelpDetail Help { get; }
+        public HelpDetail Help => _helpDetail ?? (_helpDetail = new HelpDetail());
 
         internal ArgumentParser Parser { get; }
 
