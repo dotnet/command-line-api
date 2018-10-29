@@ -9,6 +9,7 @@ namespace System.CommandLine
         Command,
         Option,
         EndOfArguments,
-        Operand
+        Operand,
+        Directive
     }
 }

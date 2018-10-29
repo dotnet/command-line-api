@@ -9,11 +9,7 @@ namespace System.CommandLine.Invocation
     {
         public void Apply(InvocationContext context)
         {
-            var tokensAfterDirective = context.ParseResult.Tokens.Skip(1).ToArray();
-
-            var reparseResult = context.Parser.Parse(tokensAfterDirective);
-
-            context.Console.Out.WriteLine(reparseResult.Diagram());
+            context.Console.Out.WriteLine(context.ParseResult.Diagram());
         }
     }
 }

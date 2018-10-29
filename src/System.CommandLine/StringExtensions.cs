@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -55,6 +56,7 @@ namespace System.CommandLine
 
             ISymbol currentSymbol = null;
             var foundEndOfArguments = false;
+            var foundEndOfDirectives = false;
             var argList = args.ToList();
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
@@ -76,6 +78,17 @@ namespace System.CommandLine
                     tokenList.Add(EndOfArguments());
                     foundEndOfArguments = true;
                     continue;
+                }
+
+                if (!foundEndOfDirectives && arg.StartsWith("[") && arg.EndsWith("]"))
+                {
+                    tokenList.Add(Directive(arg));
+                    continue;
+                }
+                else if (!foundEndOfDirectives 
+                    && !string.Equals(CommandLineBuilder.ExeName, arg, StringComparison.OrdinalIgnoreCase))
+                {
+                    foundEndOfDirectives = true;
                 }
 
                 if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
@@ -244,6 +257,8 @@ namespace System.CommandLine
         private static Token EndOfArguments() => new Token("--", TokenType.EndOfArguments);
 
         private static Token Operand(string value) => new Token(value, TokenType.Operand);
+
+        private static Token Directive(string value) => new Token(value, TokenType.Directive);
 
         private static bool CanBeUnbundled(
             this string arg,
