@@ -14,6 +14,11 @@ namespace System.CommandLine.Builder
 
         internal void Configure(Action<Argument> action)
         {
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
             _configureActions.Add(action);
         }
 

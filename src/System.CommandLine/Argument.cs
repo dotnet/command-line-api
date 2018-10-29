@@ -12,7 +12,7 @@ namespace System.CommandLine
         private HelpDetail _helpDetail;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
-        private ArgumentArity _arity;
+        private IArgumentArity _arity;
         private HashSet<string> _validValues;
         private ConvertArgument _convertArguments;
 
@@ -24,7 +24,7 @@ namespace System.CommandLine
             }
         }
 
-        public ArgumentArity Arity
+        public IArgumentArity Arity
         {
             get
             {
@@ -57,7 +57,7 @@ namespace System.CommandLine
                             ArgumentType == typeof(bool))
                         {
                             _convertArguments = symbol =>
-                                ArgumentConverter.Parse<bool>(symbol.Arguments.SingleOrDefault() ?? "true");
+                                ArgumentConverter.Parse<bool>(symbol.Arguments.SingleOrDefault() ?? bool.TrueString);
                         }
                         else
                         {
@@ -77,7 +77,7 @@ namespace System.CommandLine
 
         public object GetDefaultValue() => _defaultValue?.Invoke();
 
-        public void SetDefaultValue(object value) => _defaultValue = () => value;
+        public void SetDefaultValue(object value) => SetDefaultValue(() => value);
 
         public void SetDefaultValue(Func<object> value) => _defaultValue = value;
 
@@ -158,11 +158,13 @@ namespace System.CommandLine
 
         internal ArgumentParseResult Parse(SymbolResult symbolResult)
         {
-            var error = Arity.Validate(symbolResult);
+            var failedResult = ArgumentArity.Validate(symbolResult,
+                                                      Arity.MinimumNumberOfArguments,
+                                                      Arity.MaximumNumberOfArguments);
 
-            if (error != null)
+            if (failedResult != null)
             {
-                return error;
+                return failedResult;
             }
 
             if (ConvertArguments != null)
@@ -257,6 +259,8 @@ namespace System.CommandLine
 
             return symbolResult.ValidationMessages.NoArgumentsAllowed(symbolResult);
         }
+
+        IArgumentArity IArgument.Arity => Arity;
 
         IHelpDetail IArgument.Help => Help;
     }

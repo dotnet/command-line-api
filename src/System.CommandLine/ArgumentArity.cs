@@ -5,7 +5,7 @@ using System.Collections;
 
 namespace System.CommandLine
 {
-    public class ArgumentArity 
+    public class ArgumentArity : IArgumentArity
     {
         public ArgumentArity(int minimumNumberOfArguments, int maximumNumberOfArguments)
         {
@@ -27,39 +27,42 @@ namespace System.CommandLine
 
         public int MaximumNumberOfArguments { get; set; }
 
-        internal FailedArgumentArityResult Validate(SymbolResult symbolResult)
+        internal static FailedArgumentArityResult Validate(
+            SymbolResult symbolResult,
+            int minimumNumberOfArguments,
+            int maximumNumberOfArguments)
         {
-            if (symbolResult.Arguments.Count < MinimumNumberOfArguments)
+            if (symbolResult.Arguments.Count < minimumNumberOfArguments)
             {
                 return new FailedArgumentArityResult(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
             }
 
-            if (symbolResult.Arguments.Count > MaximumNumberOfArguments)
+            if (symbolResult.Arguments.Count > maximumNumberOfArguments)
             {
-                if (MaximumNumberOfArguments == 1)
+                if (maximumNumberOfArguments == 1)
                 {
                     return new FailedArgumentArityResult(symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
                 }
                 else
                 {
-                    return new FailedArgumentArityResult(symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, MaximumNumberOfArguments));
+                    return new FailedArgumentArityResult(symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, maximumNumberOfArguments));
                 }
             }
 
             return null;
         }
 
-        public static ArgumentArity Zero { get; } = new ArgumentArity(0, 0);
+        public static IArgumentArity Zero { get; } = new ArgumentArity(0, 0);
 
-        public static ArgumentArity ZeroOrOne { get; } = new ArgumentArity(0, 1);
+        public static IArgumentArity ZeroOrOne { get; } = new ArgumentArity(0, 1);
 
-        public static ArgumentArity ExactlyOne { get; } = new ArgumentArity(1, 1);
+        public static IArgumentArity ExactlyOne { get; } = new ArgumentArity(1, 1);
 
-        public static ArgumentArity ZeroOrMore { get; } = new ArgumentArity(0, Int32.MaxValue);
+        public static IArgumentArity ZeroOrMore { get; } = new ArgumentArity(0, int.MaxValue);
 
-        public static ArgumentArity OneOrMore { get; } = new ArgumentArity(1, Int32.MaxValue);
+        public static IArgumentArity OneOrMore { get; } = new ArgumentArity(1, int.MaxValue);
 
-        public static ArgumentArity DefaultForType(Type type)
+        public static IArgumentArity DefaultForType(Type type)
         {
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
                 type != typeof(string))

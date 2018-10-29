@@ -3,14 +3,9 @@
 
 namespace System.CommandLine
 {
-    public interface IArgument
+    public interface IArgumentArity
     {
-        IHelpDetail Help { get; }
-
-        IArgumentArity Arity { get; }
-
-        bool HasDefaultValue { get; }
-
-        object GetDefaultValue();
+        int MinimumNumberOfArguments { get;  }
+        int MaximumNumberOfArguments { get;  }
     }
 }

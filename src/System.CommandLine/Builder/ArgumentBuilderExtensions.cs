@@ -136,7 +136,7 @@ namespace System.CommandLine.Builder
         public static Argument ParseArgumentsAs<T>(
             this ArgumentBuilder builder,
             ConvertArgument convert = null,
-            ArgumentArity arity = null) =>
+            IArgumentArity arity = null) =>
             ParseArgumentsAs(
                 builder,
                 typeof(T),
@@ -147,7 +147,7 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             Type type,
             ConvertArgument convert = null,
-            ArgumentArity arity = null)
+            IArgumentArity arity = null)
         {
             builder.Configure(a =>
             {
