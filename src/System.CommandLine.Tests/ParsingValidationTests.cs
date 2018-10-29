@@ -220,7 +220,10 @@ namespace System.CommandLine.Tests
                 new Option(
                     "-x",
                     "",
-                    new ArgumentBuilder().ExactlyOne()));
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }));
 
             var result = parser.Parse("-x 1 -x 2");
 

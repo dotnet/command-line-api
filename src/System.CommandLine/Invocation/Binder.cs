@@ -98,7 +98,10 @@ namespace System.CommandLine.Invocation
             return new Option(
                 property.BuildAlias(),
                 property.Name,
-                new ArgumentBuilder().ParseArgumentsAs(property.PropertyType));
+                new Argument
+                {
+                    ArgumentType = property.PropertyType
+                });
         }
 
         public static string FindMatchingOptionName(ParseResult parseResult, string parameterName)

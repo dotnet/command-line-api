@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -214,7 +214,10 @@ namespace System.CommandLine.Tests
                     new Command("one", "Command one"),
                     new Command("two", "Command two")
                 },
-                new ArgumentBuilder().ExactlyOne());
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                });
 
             command.Parse("test ")
                    .Suggestions()
@@ -227,10 +230,15 @@ namespace System.CommandLine.Tests
         {
             var command = new Command(
                 "test", "",
-                new Symbol[] {
+                new Symbol[]
+                {
                     new Command("one", "Command one"),
                     new Option("--one", "Option one")
-                }, new ArgumentBuilder().ExactlyOne());
+                },
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                });
 
             command.Parse("test ")
                    .Suggestions()
@@ -500,7 +508,10 @@ namespace System.CommandLine.Tests
         {
             Command command =
                 new Command("the-command", "",
-                            new ArgumentBuilder().ZeroOrMore());
+                            new Argument
+                            {
+                                Arity = ArgumentArity.ZeroOrMore
+                            });
 
             string textToMatch = command.Parse(input.Replace("$", ""))
                                         .TextToMatch(input.IndexOf("$", StringComparison.Ordinal));

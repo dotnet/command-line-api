@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -20,12 +20,18 @@ namespace System.CommandLine.Tests
                         new Option(
                             "-x",
                             "Specifies value x",
-                            new ArgumentBuilder().ExactlyOne()),
+                            new Argument
+                            {
+                                Arity = ArgumentArity.ExactlyOne
+                            }),
                         new Option(
                             "-y",
                             "Specifies value y")
                     },
-                    new ArgumentBuilder().ZeroOrMore()));
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }));
 
             var result = parser.Parse("the-command -x one -y two three");
 
@@ -38,14 +44,18 @@ namespace System.CommandLine.Tests
         public void Parse_result_diagram_displays_unmatched_tokens()
         {
             var parser = new Parser(
-                new Command("command", "", new[] {
-                    new Option(
-                        "-x",
-                        "",
-                        new ArgumentBuilder()
-                            .FromAmong("arg1", "arg2", "arg3")
-                            .ExactlyOne())
-                }));
+                new Command("command", "",
+                            new[]
+                            {
+                                new Option(
+                                    "-x",
+                                    "",
+                                    new Argument
+                                    {
+                                        Arity = ArgumentArity.ExactlyOne
+                                    }
+                                    .FromAmong("arg1", "arg2", "arg3"))
+                            }));
 
             var result = parser.Parse("command -x ar");
 

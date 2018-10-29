@@ -6,6 +6,21 @@ using System.Linq;
 
 namespace System.CommandLine
 {
+    public class Argument<T> : Argument
+    {
+        public Argument(ConvertArgument convert = null)
+        {
+            Arity = ArgumentArity.DefaultForType(typeof(T));
+
+            ArgumentType = typeof(T);
+
+            if (convert != null)
+            {
+                ConvertArguments = convert;
+            }
+        }
+    }
+
     public class Argument : IArgument, ISuggestionSource
     {
         private Func<object> _defaultValue;
@@ -16,12 +31,18 @@ namespace System.CommandLine
         private HashSet<string> _validValues;
         private ConvertArgument _convertArguments;
 
-        internal Argument(IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
+        public Argument()
         {
-            if (symbolValidators != null)
+        }
+
+        public Argument(IReadOnlyCollection<ValidateSymbol> symbolValidators)
+        {
+            if (symbolValidators == null)
             {
-                SymbolValidators.AddRange(symbolValidators);
+                throw new ArgumentNullException(nameof(symbolValidators));
             }
+
+            SymbolValidators.AddRange(symbolValidators);
         }
 
         public IArgumentArity Arity
@@ -74,6 +95,8 @@ namespace System.CommandLine
         public Type ArgumentType { get; set; }
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
+
+        public void AddValidator(ValidateSymbol validator) => SymbolValidators.Add(validator);
 
         public object GetDefaultValue() => _defaultValue?.Invoke();
 
