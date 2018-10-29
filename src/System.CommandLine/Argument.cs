@@ -6,45 +6,90 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Argument : IArgument
+    public class Argument : IArgument, ISuggestionSource
     {
-        private readonly Func<object> _defaultValue;
+        private Func<object> _defaultValue;
+        private HelpDetail _helpDetail;
+        private readonly List<string> _suggestions = new List<string>();
+        private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
+        private IArgumentArity _arity;
+        private HashSet<string> _validValues;
+        private ConvertArgument _convertArguments;
 
-        internal Argument(
-            ArgumentParser parser,
-            Func<object> defaultValue = null,
-            HelpDetail help = null,
-            IReadOnlyCollection<ValidateSymbol> symbolValidators = null,
-            ISuggestionSource suggestionSource = null)
+        internal Argument(IReadOnlyCollection<ValidateSymbol> symbolValidators = null)
         {
-            Parser = parser ?? throw new ArgumentNullException(nameof(parser));
-
-            _defaultValue = defaultValue;
-
-            Help = help ?? new HelpDetail();
-
-            SuggestionSource = suggestionSource ?? NullSuggestionSource.Instance;
-
             if (symbolValidators != null)
             {
                 SymbolValidators.AddRange(symbolValidators);
             }
         }
 
+        public IArgumentArity Arity
+        {
+            get
+            {
+                if (_arity == null)
+                {
+                    if (ArgumentType != null)
+                    {
+                        _arity = ArgumentArity.DefaultForType(ArgumentType);
+                    }
+                    else
+                    {
+                        _arity = ArgumentArity.Zero;
+                    }
+                }
+
+                return _arity;
+            }
+            set => _arity = value;
+        }
+
+        internal ConvertArgument ConvertArguments
+        {
+            get
+            {
+                if (_convertArguments == null)
+                {
+                    if (ArgumentType != null)
+                    {
+                        if (Arity.MaximumNumberOfArguments == 1 &&
+                            ArgumentType == typeof(bool))
+                        {
+                            _convertArguments = symbol =>
+                                ArgumentConverter.Parse<bool>(symbol.Arguments.SingleOrDefault() ?? bool.TrueString);
+                        }
+                        else
+                        {
+                            _convertArguments = ArgumentConverter.DefaultConvertArgument(ArgumentType);
+                        }
+                    }
+                }
+
+                return _convertArguments;
+            }
+            set => _convertArguments = value;
+        }
+
+        public Type ArgumentType { get; set; }
+
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
 
         public object GetDefaultValue() => _defaultValue?.Invoke();
 
+        public void SetDefaultValue(object value) => SetDefaultValue(() => value);
+
+        public void SetDefaultValue(Func<object> value) => _defaultValue = value;
+
         public bool HasDefaultValue => _defaultValue != null;
 
-        public HelpDetail Help { get; }
+        public HelpDetail Help => _helpDetail ?? (_helpDetail = new HelpDetail());
 
-        internal ArgumentParser Parser { get; }
-
-        internal static Argument None { get; } = new Argument(
-            new ArgumentParser(
-                ArgumentArity.Zero,
-                symbol =>
+        internal static Argument None { get; } =
+            new Argument(
+                symbolValidators: new ValidateSymbol[] { AcceptNoArguments })
+            {
+                ConvertArguments = symbol =>
                 {
                     if (symbol.Arguments.Any())
                     {
@@ -52,17 +97,111 @@ namespace System.CommandLine
                     }
 
                     return SuccessfulArgumentParseResult.Empty;
-                }),
-            symbolValidators: new ValidateSymbol[] { AcceptNoArguments });
+                }
+            };
 
-        public ISuggestionSource SuggestionSource { get; }
+        public void AddSuggestions(IReadOnlyCollection<string> suggestions)
+        {
+            if (suggestions == null)
+            {
+                throw new ArgumentNullException(nameof(suggestions));
+            }
 
-        public ArgumentArity Arity => Parser.Arity;
+            _suggestions.AddRange(suggestions);
+        }
+
+        public void AddSuggestionSource(ISuggestionSource suggest)
+        {
+            if (suggest == null)
+            {
+                throw new ArgumentNullException(nameof(suggest));
+            }
+
+            _suggestionSources.Add(suggest);
+        }
+
+        public void AddSuggestionSource(Suggest suggest)
+        {
+            AddSuggestionSource(new AnonymousSuggestionSource(suggest));
+        }
+
+        internal void AddValidValues(IEnumerable<string> values)
+        {
+            if (_validValues == null)
+            {
+                _validValues = new HashSet<string>();
+            }
+
+            _validValues.UnionWith(values);
+        }
+
+        public IEnumerable<string> Suggest(
+            ParseResult parseResult,
+            int? position = null)
+        {
+            if (parseResult == null)
+            {
+                throw new ArgumentNullException(nameof(parseResult));
+            }
+
+            var fixedSuggestions = _suggestions;
+
+            var dynamicSuggestions = _suggestionSources
+                .SelectMany(source => source.Suggest(parseResult, position));
+
+            return fixedSuggestions
+                   .Concat(dynamicSuggestions)
+                   .Distinct()
+                   .OrderBy(c => c)
+                   .Containing(parseResult.TextToMatch());
+        }
+
+        internal ArgumentParseResult Parse(SymbolResult symbolResult)
+        {
+            var failedResult = ArgumentArity.Validate(symbolResult,
+                                                      Arity.MinimumNumberOfArguments,
+                                                      Arity.MaximumNumberOfArguments);
+
+            if (failedResult != null)
+            {
+                return failedResult;
+            }
+
+            if (ConvertArguments != null)
+            {
+                return ConvertArguments(symbolResult);
+            }
+
+            switch (Arity.MaximumNumberOfArguments)
+            {
+                case 0:
+                    return ArgumentParseResult.Success((string)null);
+
+                case 1:
+                    return ArgumentParseResult.Success(symbolResult.Arguments.SingleOrDefault());
+
+                default:
+                    return ArgumentParseResult.Success(symbolResult.Arguments);
+            }
+        }
 
         internal (ArgumentParseResult, ParseError) Validate(SymbolResult symbolResult)
         {
             ParseError error = null;
             ArgumentParseResult result = null;
+
+            if (_validValues?.Count > 0 &&
+                symbolResult.Arguments.Count > 0)
+            {
+                foreach (var arg in symbolResult.Arguments)
+                {
+                    if (!_validValues.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        error = new ParseError(
+                            symbolResult.ValidationMessages.UnrecognizedArgument(arg, _validValues));
+                    }
+                }
+            }
 
             foreach (var symbolValidator in SymbolValidators)
             {
@@ -76,7 +215,7 @@ namespace System.CommandLine
 
             if (error == null)
             {
-                result = Parser.Parse(symbolResult);
+                result = Parse(symbolResult);
 
                 var canTokenBeRetried =
                     symbolResult.Symbol is ICommand ||
@@ -120,6 +259,8 @@ namespace System.CommandLine
 
             return symbolResult.ValidationMessages.NoArgumentsAllowed(symbolResult);
         }
+
+        IArgumentArity IArgument.Arity => Arity;
 
         IHelpDetail IArgument.Help => Help;
     }

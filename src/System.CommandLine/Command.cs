@@ -43,21 +43,11 @@ namespace System.CommandLine
                                      .SelectMany(o => o.RawAliases)
                                      .ToArray();
 
-            ArgumentBuilder builder;
             if (argument == null)
             {
-                builder = new ArgumentBuilder();
-            }
-            else
-            {
-                builder = ArgumentBuilder.From(argument);
-            }
-
-            builder.ValidTokens.UnionWith(validSymbolAliases);
-
-            if (argument == null)
-            {
-                Argument = builder.ZeroOrMore();
+                var argumentBuilder = new ArgumentBuilder();
+                argumentBuilder.Configure(a => a.AddValidValues(validSymbolAliases));
+                Argument = argumentBuilder.ZeroOrMore();
             }
             else
             {
@@ -74,7 +64,7 @@ namespace System.CommandLine
         public bool TreatUnmatchedTokensAsErrors { get; }
 
         internal ICommandHandler Handler { get; }
-        
+
         public void WriteHelp(IConsole console)
         {
             IHelpBuilder helpBuilder = _helpBuilder ?? new HelpBuilder(console);

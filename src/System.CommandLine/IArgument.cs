@@ -7,7 +7,7 @@ namespace System.CommandLine
     {
         IHelpDetail Help { get; }
 
-        ArgumentArity Arity { get; }
+        IArgumentArity Arity { get; }
 
         bool HasDefaultValue { get; }
 

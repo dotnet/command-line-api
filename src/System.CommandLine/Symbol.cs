@@ -114,11 +114,10 @@ namespace System.CommandLine
             int? position = null)
         {
             var symbolAliases = Children.Where<ISymbol>(symbol => !symbol.IsHidden())
-                                       .SelectMany(symbol => symbol.RawAliases);
+                                        .SelectMany(symbol => symbol.RawAliases);
 
-            var argumentSuggestions = Argument
-                                      .SuggestionSource
-                                      .Suggest(parseResult, position);
+            var argumentSuggestions = 
+                Argument.Suggest(parseResult, position);
 
             return symbolAliases.Concat(argumentSuggestions)
                                 .Distinct()

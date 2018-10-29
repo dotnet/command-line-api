@@ -243,8 +243,7 @@ namespace System.CommandLine.Tests
         {
             Action create = () => new Parser(
                 new Option(
-                    string.Format(template, delimiter), "",
-                    new ArgumentBuilder().ExactlyOne()));
+                    string.Format(template, delimiter), ""));
 
             create.Should().Throw<ArgumentException>().Which.Message.Should()
                   .Be($"Symbol cannot contain delimiter: \"{delimiter}\"");

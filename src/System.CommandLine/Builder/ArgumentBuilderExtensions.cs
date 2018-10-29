@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,35 +14,40 @@ namespace System.CommandLine.Builder
         public static Argument ExactlyOne(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.ExactlyOne;
+            builder.Configure(argument => argument.Arity = ArgumentArity.ExactlyOne);
+
             return builder.Build();
         }
 
         public static Argument None(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.Zero;
+            builder.Configure(argument => argument.Arity = ArgumentArity.Zero);
+
             return builder.Build();
         }
 
         public static Argument ZeroOrMore(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.ZeroOrMore;
+            builder.Configure(argument => argument.Arity = ArgumentArity.ZeroOrMore);
+
             return builder.Build();
         }
 
         public static Argument ZeroOrOne(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.ZeroOrOne;
+            builder.Configure(argument => argument.Arity = ArgumentArity.ZeroOrOne);
+
             return builder.Build();
         }
 
         public static Argument OneOrMore(
             this ArgumentBuilder builder)
         {
-            builder.ArgumentArity = ArgumentArity.OneOrMore;
+            builder.Configure(argument => argument.Arity = ArgumentArity.OneOrMore);
+
             return builder.Build();
         }
 
@@ -55,9 +59,11 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             params string[] values)
         {
-            builder.ValidTokens.UnionWith(values);
-
-            builder.SuggestionSource.AddSuggestions(values);
+            builder.Configure(argument =>
+            {
+                argument.AddValidValues(values);
+                argument.AddSuggestions(values);
+            });
 
             return builder;
         }
@@ -72,10 +78,10 @@ namespace System.CommandLine.Builder
             builder.AddValidator(symbol =>
             {
                 return symbol.Arguments
-                                   .Where(filePath => !File.Exists(filePath) &&
-                                                      !Directory.Exists(filePath))
-                                   .Select(symbol.ValidationMessages.FileDoesNotExist)
-                                   .FirstOrDefault();
+                             .Where(filePath => !File.Exists(filePath) &&
+                                                !Directory.Exists(filePath))
+                             .Select(symbol.ValidationMessages.FileDoesNotExist)
+                             .FirstOrDefault();
             });
             return builder;
         }
@@ -83,7 +89,8 @@ namespace System.CommandLine.Builder
         public static ArgumentBuilder LegalFilePathsOnly(
             this ArgumentBuilder builder)
         {
-            builder.AddValidator(symbol => {
+            builder.AddValidator(symbol =>
+            {
                 var errorMessage = new List<(string, string)>();
                 foreach (var arg in symbol.Arguments)
                 {
@@ -112,8 +119,8 @@ namespace System.CommandLine.Builder
                 if (errorMessage.Any())
                 {
                     return errorMessage
-                        .Select(e => $"Arguement {e.Item1} failed validation due to {e.Item2}")
-                        .Aggregate((current, next) => current + Environment.NewLine + next);
+                           .Select(e => $"Arguement {e.Item1} failed validation due to {e.Item2}")
+                           .Aggregate((current, next) => current + Environment.NewLine + next);
                 }
 
                 return null;
@@ -126,22 +133,10 @@ namespace System.CommandLine.Builder
 
         #region type / return value
 
-        private static ConvertArgument DefaultConvertArgument(Type type) =>
-            symbol =>
-            {
-                switch (type.DefaultArity().MaximumNumberOfArguments)
-                {
-                    case 1:
-                        return ArgumentConverter.Parse(type, symbol.Arguments.SingleOrDefault());
-                    default:
-                        return ArgumentConverter.ParseMany(type, symbol.Arguments);
-                }
-            };
-
         public static Argument ParseArgumentsAs<T>(
             this ArgumentBuilder builder,
             ConvertArgument convert = null,
-            ArgumentArity arity = null) =>
+            IArgumentArity arity = null) =>
             ParseArgumentsAs(
                 builder,
                 typeof(T),
@@ -152,58 +147,24 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             Type type,
             ConvertArgument convert = null,
-            ArgumentArity arity = null)
+            IArgumentArity arity = null)
         {
-            if (convert == null)
+            builder.Configure(a =>
             {
-                convert = DefaultConvertArgument(type);
-            }
+                a.ArgumentType = type;
 
-            arity = arity ?? type.DefaultArity();
-
-            if (arity.MaximumNumberOfArguments == 1)
-            {
-                var originalConvert = convert;
-
-                if (type == typeof(bool))
+                if (convert != null)
                 {
-                    convert = symbol =>
-                        ArgumentConverter.Parse<bool>(symbol.Arguments.SingleOrDefault() ?? "true");
+                    a.ConvertArguments = convert;
                 }
-                else
+
+                if (arity != null)
                 {
-                    convert = symbol => {
-                        if (symbol.Arguments.Count != 1)
-                        {
-                            return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentProvided(symbol));
-                        }
-
-                        return originalConvert(symbol);
-                    };
+                    a.Arity = arity;
                 }
-            }
-
-            builder.ArgumentArity = arity;
-
-            builder.ConvertArguments = convert;
+            });
 
             return builder.Build();
-        }
-
-        internal static ArgumentArity DefaultArity(this Type type)
-        {
-            if (typeof(IEnumerable).IsAssignableFrom(type) &&
-                type != typeof(string))
-            {
-                return ArgumentArity.OneOrMore;
-            }
-
-            if (type == typeof(bool))
-            {
-                return ArgumentArity.ZeroOrOne;
-            }
-
-            return ArgumentArity.ExactlyOne;
         }
 
         #endregion
@@ -212,14 +173,25 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             string name = null,
             string description = null,
-            bool isHidden = HelpDetail.DefaultIsHidden)
+            bool? isHidden = null)
         {
-            builder.Help = new HelpDetail
-                           {
-                               Name = name,
-                               Description = description,
-                               IsHidden = isHidden,
-                           };
+            builder.Configure(a =>
+            {
+                if (name != null)
+                {
+                    a.Help.Name = name;
+                }
+
+                if (description != null)
+                {
+                    a.Help.Description = description;
+                }
+
+                if (isHidden != null)
+                {
+                    a.Help.IsHidden = isHidden.Value;
+                }
+            });
 
             return builder;
         }
@@ -228,7 +200,7 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             Func<object> defaultValue)
         {
-            builder.DefaultValue = defaultValue;
+            builder.Configure(argument => argument.SetDefaultValue(defaultValue));
 
             return builder;
         }
@@ -237,7 +209,7 @@ namespace System.CommandLine.Builder
             this ArgumentBuilder builder,
             params string[] suggestions)
         {
-            builder.SuggestionSource.AddSuggestions(suggestions);
+            builder.Configure(argument => argument.AddSuggestions(suggestions));
 
             return builder;
         }
@@ -251,7 +223,7 @@ namespace System.CommandLine.Builder
                 throw new ArgumentNullException(nameof(suggest));
             }
 
-            builder.SuggestionSource.AddSuggestionSource(suggest);
+            builder.Configure(argument => argument.AddSuggestionSource(suggest));
 
             return builder;
         }

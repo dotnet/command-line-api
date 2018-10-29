@@ -56,7 +56,7 @@ namespace System.CommandLine
 
         protected internal ParseError Validate()
         {
-            // FIX: (Validate) don't cast
+            // TODO: (Validate) don't cast
             if (Symbol.Argument is Argument argument)
             {
                 var (result, error) = argument.Validate(this);
