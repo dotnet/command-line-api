@@ -87,7 +87,10 @@ namespace System.CommandLine.Invocation
             return new Option(
                 parameter.BuildAlias(),
                 parameter.Name,
-                new ArgumentBuilder().ParseArgumentsAs(parameter.ParameterType));
+                new Argument
+                {
+                    ArgumentType = parameter.ParameterType
+                });
         }
 
         public static Option BuildOption(this PropertyInfo property)

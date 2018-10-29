@@ -45,9 +45,9 @@ namespace System.CommandLine
 
             if (argument == null)
             {
-                var argumentBuilder = new ArgumentBuilder();
-                argumentBuilder.Configure(a => a.AddValidValues(validSymbolAliases));
-                Argument = argumentBuilder.ZeroOrMore();
+                Argument = new Argument();
+                Argument.AddValidValues(validSymbolAliases);
+                Argument.Arity = ArgumentArity.ZeroOrMore;
             }
             else
             {
