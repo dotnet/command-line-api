@@ -6,21 +6,6 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Argument<T> : Argument
-    {
-        public Argument(ConvertArgument convert = null)
-        {
-            Arity = ArgumentArity.DefaultForType(typeof(T));
-
-            ArgumentType = typeof(T);
-
-            if (convert != null)
-            {
-                ConvertArguments = convert;
-            }
-        }
-    }
-
     public class Argument : IArgument, ISuggestionSource
     {
         private Func<object> _defaultValue;
