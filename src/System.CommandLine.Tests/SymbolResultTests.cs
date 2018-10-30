@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -15,9 +15,11 @@ namespace System.CommandLine.Tests
             var option = new Option(
                 "-x",
                 "",
-                new ArgumentBuilder()
-                    .WithDefaultValue(() => "default")
-                    .ExactlyOne());
+                new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }
+                    .WithDefaultValue(() => "default"));
 
             var result = new OptionResult(option, "-x");
 
@@ -32,9 +34,11 @@ namespace System.CommandLine.Tests
                 new Option(
                     "-x",
                     "",
-                    argument: new ArgumentBuilder()
-                              .WithDefaultValue(() => (++i).ToString())
-                              .ExactlyOne());
+                    new Argument
+                        {
+                            Arity = ArgumentArity.ExactlyOne
+                        }
+                        .WithDefaultValue(() => (++i).ToString()));
 
             var result1 = option.Parse("");
             var result2 = option.Parse("");
@@ -62,9 +66,11 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command", "", new[] {
                 new Option(
                     new[] { "-c", "--count" }, "",
-                    new ArgumentBuilder()
-                        .WithDefaultValue(() => 5)
-                        .Build())
+                    new Argument
+                        {
+                            Arity = ArgumentArity.ExactlyOne
+                        }
+                        .WithDefaultValue(() => 5))
             });
 
             var result = command.Parse("the-command");
@@ -75,10 +81,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
-            var command = new Command("outer", "", new[] {
-                new Command("inner-one", "", new ArgumentBuilder().None()),
-                new Command("inner-two", "", new ArgumentBuilder().None())
-            });
+            var command = new Command(
+                "outer", "",
+                new[]
+                {
+                    new Command("inner-one", "",
+                                new Argument
+                                {
+                                    Arity = ArgumentArity.Zero
+                                }),
+                    new Command("inner-two", "",
+                                new Argument
+                                {
+                                    Arity = ArgumentArity.Zero
+                                })
+                });
 
             var result = new Parser(command).Parse("outer inner-one inner-two");
 

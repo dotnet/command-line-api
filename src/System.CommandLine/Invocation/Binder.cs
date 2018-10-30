@@ -87,7 +87,10 @@ namespace System.CommandLine.Invocation
             return new Option(
                 parameter.BuildAlias(),
                 parameter.Name,
-                new ArgumentBuilder().ParseArgumentsAs(parameter.ParameterType));
+                new Argument
+                {
+                    ArgumentType = parameter.ParameterType
+                });
         }
 
         public static Option BuildOption(this PropertyInfo property)
@@ -95,7 +98,10 @@ namespace System.CommandLine.Invocation
             return new Option(
                 property.BuildAlias(),
                 property.Name,
-                new ArgumentBuilder().ParseArgumentsAs(property.PropertyType));
+                new Argument
+                {
+                    ArgumentType = property.PropertyType
+                });
         }
 
         public static string FindMatchingOptionName(ParseResult parseResult, string parameterName)

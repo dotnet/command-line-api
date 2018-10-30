@@ -1,8 +1,7 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Builder;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
@@ -16,8 +15,11 @@ namespace System.CommandLine.Tests
         {
             var messages = new FakeValidationMessages("the-message");
 
-            var builder = new ArgumentBuilder();
-            var command = new Command("the-command", "", builder.ExactlyOne());
+            var command = new Command("the-command", "",
+                                      new Argument
+                                      {
+                                          Arity = ArgumentArity.ExactlyOne
+                                      });
             var parser = new Parser(new CommandLineConfiguration(new[] { command }, validationMessages: messages));
             var result = parser.Parse("the-command");
 

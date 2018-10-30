@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -23,9 +23,11 @@ namespace System.CommandLine.Tests
             var option = new Option(
                 "--hello",
                 "",
-                new ArgumentBuilder()
-                    .AddSuggestions("one", "two", "three")
-                    .ExactlyOne());
+                new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }
+                    .WithSuggestions("one", "two", "three"));
 
             var suggestions = option.Suggest(option.Parse("--hello "));
 
@@ -84,12 +86,13 @@ namespace System.CommandLine.Tests
                 "command", "a command",
                 new Symbol[] {
                     new Command("subcommand", "subcommand"),
-
                     new Option("--option", "option")
                 },
-                new ArgumentBuilder()
-                    .AddSuggestions("command-argument")
-                    .OneOrMore());
+                new Argument
+                    {
+                        Arity = ArgumentArity.OneOrMore
+                    }
+                    .WithSuggestions("command-argument"));
 
             var suggestions = command.Suggest(command.Parse("command "));
 
@@ -100,11 +103,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_it_will_still_be_suggested()
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("--apple", "kinds of apples", args => args.WithDefaultValue(() => "grannysmith"))
-                         .AddOption("--banana", "kinds of bananas")
-                         .AddOption("--cherry", "kinds of cherries")
-                         .Build();
+            var parser = new Parser(
+                new Option("--apple", "kinds of apples",
+                           new Argument().WithDefaultValue(() => "grannysmith")),
+                new Option("--banana", "kinds of bananas"),
+                new Option("--cherry", "kinds of cherries"));
 
             var result = parser.Parse("");
 
@@ -122,11 +125,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_one_option_has_been_specified_then_it_and_its_siblings_will_still_be_suggested()
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("--apple", "kinds of apples")
-                         .AddOption("--banana", "kinds of bananas")
-                         .AddOption("--cherry", "kinds of cherries")
-                         .Build();
+            var parser = new Parser(
+                new Option("--apple", "kinds of apples"),
+                new Option("--banana", "kinds of bananas"),
+                new Option("--cherry", "kinds of cherries"));
 
             var result = parser.Parse("--apple grannysmith ");
 
@@ -183,14 +185,12 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Option(
                     "--bread", "",
-                    new ArgumentBuilder()
-                        .FromAmong("wheat", "sourdough", "rye")
-                        .ExactlyOne()),
+                    new Argument { Arity = ArgumentArity.ExactlyOne }
+                        .FromAmong("wheat", "sourdough", "rye")),
                 new Option(
                     "--cheese", "",
-                    new ArgumentBuilder()
-                        .FromAmong("provolone", "cheddar", "cream cheese")
-                        .ExactlyOne()));
+                    new Argument { Arity = ArgumentArity.ExactlyOne }
+                        .FromAmong("provolone", "cheddar", "cream cheese")));
 
             var result = parser.Parse("--bread ");
 
@@ -214,7 +214,10 @@ namespace System.CommandLine.Tests
                     new Command("one", "Command one"),
                     new Command("two", "Command two")
                 },
-                new ArgumentBuilder().ExactlyOne());
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                });
 
             command.Parse("test ")
                    .Suggestions()
@@ -227,10 +230,15 @@ namespace System.CommandLine.Tests
         {
             var command = new Command(
                 "test", "",
-                new Symbol[] {
+                new Symbol[]
+                {
                     new Command("one", "Command one"),
                     new Option("--one", "Option one")
-                }, new ArgumentBuilder().ExactlyOne());
+                },
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                });
 
             command.Parse("test ")
                    .Suggestions()
@@ -265,6 +273,7 @@ namespace System.CommandLine.Tests
                 }));
 
             ParseResult result = parser.Parse("outer ");
+
             result.Suggestions().Should().BeEquivalentTo("--one", "--two", "--three");
         }
 
@@ -272,20 +281,20 @@ namespace System.CommandLine.Tests
         public void Argument_suggestions_can_be_based_on_the_proximate_option()
         {
             var parser = new Parser(
-                new Command("outer", "", new[] {
-                    new Option(
-                        "--one",
-                        "",
-                        new ArgumentBuilder()
-                            .FromAmong("one-a", "one-b")
-                            .ExactlyOne()),
-                    new Option(
-                        "--two",
-                        "",
-                        new ArgumentBuilder()
-                            .FromAmong("two-a", "two-b")
-                            .ExactlyOne())
-                }));
+                new Command("outer", "",
+                            new[]
+                            {
+                                new Option(
+                                    "--one",
+                                    "",
+                                    new Argument { Arity = ArgumentArity.ExactlyOne }
+                                        .FromAmong("one-a", "one-b")),
+                                new Option(
+                                    "--two",
+                                    "",
+                                    new Argument { Arity = ArgumentArity.ExactlyOne }
+                                        .FromAmong("two-a", "two-b"))
+                            }));
 
             ParseResult result = parser.Parse("outer --two ");
 
@@ -316,9 +325,11 @@ namespace System.CommandLine.Tests
                 "the-command", "",
                 new[] {
                     new Option("-t", "",
-                               new ArgumentBuilder()
-                                   .AddSuggestions("vegetable", "mineral", "animal")
-                                   .ExactlyOne())
+                               new Argument
+                                   {
+                                       Arity = ArgumentArity.ExactlyOne
+                                   }
+                                   .WithSuggestions("vegetable", "mineral", "animal"))
                 });
 
             command.Parse("the-command -t m")
@@ -338,13 +349,15 @@ namespace System.CommandLine.Tests
                 new[] {
                     new Command(
                         "one", "",
-                        new ArgumentBuilder()
-                            .AddSuggestionSource((parseResult, pos) => new[] {
+                        new Argument
+                            {
+                                Arity = ArgumentArity.ExactlyOne
+                            }
+                            .WithSuggestionSource((parseResult, pos) => new[] {
                                 "vegetable",
                                 "mineral",
                                 "animal"
-                            })
-                            .ExactlyOne())
+                            }))
                 });
 
             command.Parse("the-command one m")
@@ -500,7 +513,10 @@ namespace System.CommandLine.Tests
         {
             Command command =
                 new Command("the-command", "",
-                            new ArgumentBuilder().ZeroOrMore());
+                            new Argument
+                            {
+                                Arity = ArgumentArity.ZeroOrMore
+                            });
 
             string textToMatch = command.Parse(input.Replace("$", ""))
                                         .TextToMatch(input.IndexOf("$", StringComparison.Ordinal));

@@ -20,12 +20,15 @@ namespace System.CommandLine.Tests
         public void
             When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var builder = new ArgumentBuilder();
             var parser = new Parser(
                 new Option(
                     "-x",
                     "",
-                    builder.FromAmong("this", "that", "the-other-thing").ExactlyOne()));
+                    new Argument
+                        {
+                            Arity = ArgumentArity.ExactlyOne 
+                        }
+                        .FromAmong("this", "that", "the-other-thing")));
 
             var result = parser.Parse("-x none-of-those");
 
@@ -37,11 +40,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var builder = new ArgumentBuilder();
             var option = new Option(
                 "-x",
                 "",
-                builder.FromAmong("this", "that").ExactlyOne());
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }.FromAmong("this", "that"));
 
             var parser = new Parser(option);
 
@@ -56,11 +61,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var builder = new ArgumentBuilder();
             var parser = new Parser(new Option(
                                         "-x",
                                         "",
-                                        builder.ExactlyOne()));
+                                        new Argument
+                                        {
+                                            Arity = ArgumentArity.ExactlyOne
+                                        }));
 
             var result = parser.Parse("-x");
 
@@ -89,8 +96,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
         {
-            var builder = new ArgumentBuilder();
-            builder.AddValidator(symbol => {
+            var argument = new Argument();
+            argument.AddValidator(symbol => {
                 if (symbol.Children.Contains("one") &&
                     symbol.Children.Contains("two"))
                 {
@@ -103,7 +110,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command", "", new[] {
                 new Option("--one", ""),
                 new Option("--two", "")
-            }, builder.ExactlyOne());
+            }, argument);
 
             var result = command.Parse("the-command --one --two");
 
@@ -117,8 +124,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
         {
-            var builder = new ArgumentBuilder();
-            var command = new Command("the-command", "", builder.LegalFilePathsOnly().ZeroOrMore());
+            var command = new Command("the-command", "", 
+                                      new Argument
+                                      {
+                                          Arity = ArgumentArity.ZeroOrMore
+                                      }.LegalFilePathsOnly());
 
             var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
 
@@ -135,8 +145,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_accepts_arguments_containing_valid_path_characters()
         {
-            var builder = new ArgumentBuilder();
-            var command = new Command("the-command", "", builder.LegalFilePathsOnly().ZeroOrMore());
+            var command = new Command("the-command", "",
+                                      new Argument
+                                      {
+                                          Arity = ArgumentArity.ZeroOrMore
+                                      }.LegalFilePathsOnly());
 
             var validPathName = Directory.GetCurrentDirectory();
             var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
@@ -220,7 +233,10 @@ namespace System.CommandLine.Tests
                 new Option(
                     "-x",
                     "",
-                    new ArgumentBuilder().ExactlyOne()));
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }));
 
             var result = parser.Parse("-x 1 -x 2");
 
@@ -237,7 +253,7 @@ namespace System.CommandLine.Tests
                 new Option(
                     "-x",
                     "",
-                    new ArgumentBuilder().ParseArgumentsAs<int>()));
+                    new Argument<int>()));
 
             var result = parser.Parse("-x 1 -x 2");
 
@@ -253,9 +269,8 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Option(
                     "-x", "",
-                    new ArgumentBuilder()
-                        .WithDefaultValue(() => "123")
-                        .ParseArgumentsAs<int>()));
+                    new Argument<int>()
+                        .WithDefaultValue(() => "123")));
 
             var result = parser.Parse("-x");
 
@@ -272,16 +287,13 @@ namespace System.CommandLine.Tests
                 new Option(
                     "-x",
                     "",
-                    new ArgumentBuilder()
-                        .WithDefaultValue(() => "123")
-                        .ParseArgumentsAs<int>()),
+                    new Argument<int>()
+                        .WithDefaultValue(() => "123")),
                 new Option(
                     "-y",
                     "",
-                    new ArgumentBuilder()
-                        .WithDefaultValue(() => "456")
-                        .ParseArgumentsAs<int>())
-            );
+                    new Argument<int>()
+                        .WithDefaultValue(() => "456")));
 
             var result = parser.Parse("");
 

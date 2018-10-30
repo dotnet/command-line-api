@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -14,15 +14,16 @@ namespace System.CommandLine.Tests
 
         public CommandTests()
         {
-            var builder = new ArgumentBuilder();
-
             _parser = new Parser(
                 new Command("outer", "", new[] {
                     new Command("inner", "", new[] {
                         new Option(
                             "--option",
                             "",
-                            builder.ExactlyOne())
+                            new Argument
+                            {
+                                Arity = ArgumentArity.ExactlyOne
+                            })
                     })
                 }));
         }
@@ -129,7 +130,10 @@ namespace System.CommandLine.Tests
             Action create = () => new Parser(
                 new Command(
                     commandWithDelimiter, "",
-                    new ArgumentBuilder().ExactlyOne()));
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }));
 
             create.Should().Throw<SymbolCannotContainDelimiterArgumentException>();
         }
