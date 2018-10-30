@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_sets_and_resets_foreground_color()
         {
-            var commandLineBuilder = new CommandLineBuilder
+            var command = new CommandLineBuilder
                 {
                     HelpBuilder = _colorHelpBuilder,
                     Description = "test  description",
@@ -77,7 +77,7 @@ namespace System.CommandLine.Tests.Help
                     arguments: args => args.ExactlyOne())
                 .BuildCommand();
 
-            commandLineBuilder.WriteHelp(_console);
+            command.WriteHelp(_console);
 
             _console.ForegroundColorCalls.Should().Be(3);
             _console.ResetColorCalls.Should().Be(3);

@@ -5,8 +5,6 @@ namespace System.CommandLine
 {
     public class HelpDetail : IHelpDetail
     {
-        internal const bool DefaultIsHidden = false;
-
         public string Description { get; set; }
 
         public bool IsHidden { get; set; }
