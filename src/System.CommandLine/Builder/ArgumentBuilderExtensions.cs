@@ -75,14 +75,8 @@ namespace System.CommandLine.Builder
         public static ArgumentBuilder ExistingFilesOnly(
             this ArgumentBuilder builder)
         {
-            builder.AddValidator(symbol =>
-            {
-                return symbol.Arguments
-                             .Where(filePath => !File.Exists(filePath) &&
-                                                !Directory.Exists(filePath))
-                             .Select(symbol.ValidationMessages.FileDoesNotExist)
-                             .FirstOrDefault();
-            });
+            builder.Configure(argument => argument.ExistingFilesOnly());
+
             return builder;
         }
 
