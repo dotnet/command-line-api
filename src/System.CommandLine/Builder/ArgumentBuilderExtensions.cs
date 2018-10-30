@@ -89,42 +89,7 @@ namespace System.CommandLine.Builder
         public static ArgumentBuilder LegalFilePathsOnly(
             this ArgumentBuilder builder)
         {
-            builder.AddValidator(symbol =>
-            {
-                var errorMessage = new List<(string, string)>();
-                foreach (var arg in symbol.Arguments)
-                {
-                    try
-                    {
-                        var fileInfo = new FileInfo(arg);
-                    }
-                    catch (NotSupportedException ex)
-                    {
-                        errorMessage.Add((arg, ex.Message));
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        errorMessage.Add((arg, ex.Message));
-                    }
-
-                    // File class no longer check invalid charactor
-                    // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
-                    var invalidCharactorsIndex = arg.IndexOfAny(Path.GetInvalidPathChars());
-                    if (invalidCharactorsIndex >= 0)
-                    {
-                        errorMessage.Add((arg, arg[invalidCharactorsIndex] + " is invalid charactor in path {arg}"));
-                    }
-                }
-
-                if (errorMessage.Any())
-                {
-                    return errorMessage
-                           .Select(e => $"Arguement {e.Item1} failed validation due to {e.Item2}")
-                           .Aggregate((current, next) => current + Environment.NewLine + next);
-                }
-
-                return null;
-            });
+            builder.Configure(a => a.LegalFilePathsOnly());
 
             return builder;
         }

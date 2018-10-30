@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine.Builder;
 using FluentAssertions;
 using System.Linq;
@@ -16,15 +16,13 @@ namespace System.CommandLine.Tests
                     new Option(
                         "-x",
                         "",
-                        new ArgumentBuilder()
-                            .WithDefaultValue(() => "123")
-                            .ParseArgumentsAs<int>()),
+                        new Argument<int>()
+                            .WithDefaultValue(() => "123")),
                     new Option(
                         "-y",
                         "",
-                        new ArgumentBuilder()
-                            .WithDefaultValue(() => "456")
-                            .ParseArgumentsAs<int>())
+                        new Argument<int>()
+                            .WithDefaultValue(() => "456"))
                 },
                 enablePositionalOptions: true);
 
@@ -45,15 +43,13 @@ namespace System.CommandLine.Tests
                     new Option(
                         "-x",
                         "",
-                        new ArgumentBuilder()
-                            .WithDefaultValue(() => "123")
-                            .ParseArgumentsAs<int>()),
+                        new Argument<int>()
+                            .WithDefaultValue(() => "123")),
                     new Option(
                         "-y",
                         "",
-                        new ArgumentBuilder()
-                            .WithDefaultValue(() => "456")
-                            .ParseArgumentsAs<int>())
+                        new Argument<int>()
+                            .WithDefaultValue(() => "456"))
                 },
                 enablePositionalOptions: true);
 
