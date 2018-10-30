@@ -12,7 +12,6 @@ namespace System.CommandLine.Tests
 {
     public class DirectiveTests
     {
-        // Directives are still in raw tokens
         [Fact]
         public void Directives_should_not_be_considered_as_unmatched_tokens()
         {
