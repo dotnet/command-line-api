@@ -19,7 +19,7 @@ namespace System.CommandLine.Builder
         public CommandLineBuilder() : base(executableName.Value)
         {
         }
-        
+
         public static string ExeName { get; } = executableName.Value;
 
         public bool EnablePositionalOptions { get; set; } = false;

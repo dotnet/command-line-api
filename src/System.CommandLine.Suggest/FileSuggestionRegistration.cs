@@ -23,14 +23,14 @@ namespace System.CommandLine.Suggest
                 return;
             }
 
-            var testDirectroyOVerride = Environment.GetEnvironmentVariable(TestDirectroyOverride);
+            var testDirectroyOVerride = GetEnvironmentVariable(TestDirectroyOverride);
             if (!string.IsNullOrWhiteSpace(testDirectroyOVerride))
             {
                 _registrationConfigurationFilePath = Path.Combine(testDirectroyOVerride, ResgistrationFileName);
                 return;
             }
 
-            var userProfile = Environment.GetFolderPath(SpecialFolder.UserProfile);
+            var userProfile = GetFolderPath(SpecialFolder.UserProfile);
             if (userProfile != null)
             {
                 _registrationConfigurationFilePath = Path.Combine(userProfile, ResgistrationFileName);

@@ -15,20 +15,25 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionDispatcherTests
     {
-        private static RegistrationPair GetDotnetSuggestionRegistration()
-            => new RegistrationPair(GetDotnetPath(), "testdotnet [suggest]");
+        private static string _fakedotnet = CommandLineBuilder.ExeName;
 
-        private static string GetDotnetPath() => Path.GetFullPath("testdotnet");
+        private static RegistrationPair FakeDotnetRegistrationPair()
+            => new RegistrationPair(FakeDotnetFullPath(), $"{_fakedotnet} [suggest]");
+
+        private static string FakeDotnetFullPath() => Path.GetFullPath(_fakedotnet);
 
         [Fact]
         public async Task InvokeAsync_executes_completion_command_for_executable()
         {
-            string[] args = $@"get -p 12 -e ""{GetDotnetPath()}"" -- {CommandLineBuilder.ExeName} add".Tokenize().ToArray();
+            string[] args = $@"get -p 12 -e ""{FakeDotnetFullPath()}"" --  {_fakedotnet} add".Tokenize().ToArray();
 
-            (await InvokeAsync(args, new TestSuggestionRegistration(GetDotnetSuggestionRegistration())))
-                    .Should()
-                    .Contain("package")
-                    .And.Contain("reference");
+            var suggestions = await InvokeAsync(args, new TestSuggestionRegistration(FakeDotnetRegistrationPair()));
+
+            suggestions
+                .Should()
+                .Contain("package")
+                .And
+                .Contain("reference");
         }
 
         [Fact]
@@ -43,12 +48,12 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
         {
-            var provider = new TestSuggestionRegistration(new RegistrationPair(GetDotnetPath(), $"testdotnet {Assembly.GetExecutingAssembly().Location}"));
+            var provider = new TestSuggestionRegistration(new RegistrationPair(FakeDotnetFullPath(), $"{_fakedotnet} {Assembly.GetExecutingAssembly().Location}"));
             var dispatcher = new SuggestionDispatcher(provider, new TestSuggestionStore());
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
 
-            var args = $@"get -p 0 -e ""testdotnet"" -- testdotnet add".Tokenize().ToArray();
+            var args = $@"get -p 0 -e ""{_fakedotnet}"" -- {_fakedotnet} add".Tokenize().ToArray();
 
             await dispatcher.InvokeAsync(args, testConsole);
 
@@ -112,18 +117,18 @@ namespace System.CommandLine.Suggest.Tests
                 {
                     return "";
                 }
-                var parser = new CommandLineBuilder()
-                            .AddCommand("add", "add description",
-                                    symbols: s => s.AddCommand("package", "package description")
-                                                   .AddCommand("reference", "reference description"))
-                            .AddCommand("[suggest]")
-                            .TreatUnmatchedTokensAsErrors(false)
-                            .Build();
-                var parseResult = parser.Parse(suggestionTargetArguments);
-                var suggested = parser.Parse(parseResult.UnmatchedTokens).Suggestions();
-                return string.Join(
-                        Environment.NewLine,
-                        suggested);
+
+                if (exeFileName != FakeDotnetFullPath())
+                {
+                    return $"unexpected value for {nameof(exeFileName)}: {exeFileName}";
+                }
+
+                if (suggestionTargetArguments != $"[suggest] {_fakedotnet} add")
+                {
+                    return $"unexpected value for {nameof(suggestionTargetArguments)}: {suggestionTargetArguments}";
+                }
+
+                return $"package{Environment.NewLine}reference";
             }
         }
     }
