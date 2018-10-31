@@ -141,7 +141,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("You must specify at least one option.");
+                  .Be("You must specify at least one option or command.");
         }
 
         [Fact]
