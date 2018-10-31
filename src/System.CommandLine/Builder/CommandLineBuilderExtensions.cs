@@ -83,22 +83,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder AddOptionFromProperty<TBuilder>(
-            this TBuilder builder,
-            PropertyInfo property)
-            where TBuilder : CommandBuilder
-        {
-            if (property.CanWrite)
-            {
-                builder.AddOption(
-                    property.BuildAlias(),
-                    property.Name,
-                    args => args.ParseArgumentsAs(property.PropertyType));
-            }
-
-            return builder;
-        }
-
         public static TBuilder AddOptionFromParameter<TBuilder>(
             this TBuilder builder,
             ParameterInfo parameter)
