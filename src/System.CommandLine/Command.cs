@@ -37,7 +37,11 @@ namespace System.CommandLine
                 AddSymbol(symbol);
             }
         }
-  
+
+        public void AddCommand(Command command) => AddSymbol(command);
+
+        public void AddOption(Option option) => AddSymbol(option);
+
         private void AddSymbol(Symbol symbol)
         {
             symbol.Parent = this;

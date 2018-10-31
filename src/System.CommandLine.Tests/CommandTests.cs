@@ -93,12 +93,19 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("outer", "",
-                                     symbols: outer => outer.AddCommand("inner", "",
-                                                                        arguments: innerArgs => innerArgs.ZeroOrMore()),
-                                     arguments: outerArgs => outerArgs.ExactlyOne())
-                         .Build();
+            var outer = new Command("outer", 
+                argument: new Argument
+                          {
+                              Arity = ArgumentArity.ExactlyOne
+                          });
+            outer.AddCommand(
+                new Command("inner",
+                            argument: new Argument
+                                      {
+                                          Arity = ArgumentArity.ZeroOrMore
+                                      }));
+
+            var parser = new Parser(outer);
 
             var result = parser.Parse("outer arg1 inner arg2 arg3");
 
