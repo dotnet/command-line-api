@@ -23,7 +23,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task InvokeAsync_executes_completion_command_for_executable()
         {
-            string[] args = $@"get -p 12 -e ""{GetDotnetPath()}"" -- testdotnet add".Tokenize().ToArray();
+            string[] args = $@"get -p 12 -e ""{GetDotnetPath()}"" -- {CommandLineBuilder.ExeName} add".Tokenize().ToArray();
 
             (await InvokeAsync(args, new TestSuggestionRegistration(GetDotnetSuggestionRegistration())))
                     .Should()
@@ -112,7 +112,7 @@ namespace System.CommandLine.Suggest.Tests
                 {
                     return "";
                 }
-                var parser = new CommandLineBuilder("testdotnet")
+                var parser = new CommandLineBuilder()
                             .AddCommand("add", "add description",
                                     symbols: s => s.AddCommand("package", "package description")
                                                    .AddCommand("reference", "reference description"))

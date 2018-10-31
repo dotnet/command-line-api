@@ -216,7 +216,6 @@ namespace System.CommandLine
                         error = new ParseError(general.ErrorMessage,
                                                symbolResult,
                                                false);
-
                         break;
                 }
             }
