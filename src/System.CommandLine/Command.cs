@@ -26,33 +26,18 @@ namespace System.CommandLine
             _helpBuilder = helpBuilder;
             symbols = symbols ?? Array.Empty<Symbol>();
 
-            var validSymbolAliases = symbols
-                                     .SelectMany(o => o.RawAliases)
-                                     .ToArray();
-
-            if (argument == null)
-            {
-                Argument = new Argument
-                           {
-                               Arity = ArgumentArity.Zero
-                           };
-               // Argument.AddValidValues(validSymbolAliases);
-            }
-            else
-            {
-                Argument = argument;
-            }
+            Argument = argument ??
+                       new Argument
+                       {
+                           Arity = ArgumentArity.Zero
+                       };
 
             foreach (var symbol in symbols)
             {
                 AddSymbol(symbol);
             }
         }
-
-        public void AddCommand(Command command) => AddSymbol(command);
-        
-        public void AddOption(Option option) => AddSymbol(option);
-      
+  
         private void AddSymbol(Symbol symbol)
         {
             symbol.Parent = this;

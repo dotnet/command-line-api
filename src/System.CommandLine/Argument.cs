@@ -182,31 +182,10 @@ namespace System.CommandLine
 
         internal (ArgumentParseResult, ParseError) Validate(SymbolResult symbolResult)
         {
-            ParseError error = null;
             ArgumentParseResult result = null;
 
-            if (_validValues?.Count > 0 &&
-                symbolResult.Arguments.Count > 0)
-            {
-                foreach (var arg in symbolResult.Arguments)
-                {
-                    if (!_validValues.Any(value => string.Equals(arg, value, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        error = new ParseError(
-                            symbolResult.ValidationMessages.UnrecognizedArgument(arg, _validValues));
-                    }
-                }
-            }
-
-            foreach (var symbolValidator in SymbolValidators)
-            {
-                var errorMessage = symbolValidator(symbolResult);
-
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    error = new ParseError(errorMessage, symbolResult);
-                }
-            }
+            var error = UnrecognizedArgumentError() ??
+                        CustomError();
 
             if (error == null)
             {
@@ -243,6 +222,41 @@ namespace System.CommandLine
             }
 
             return (result, error);
+
+            ParseError UnrecognizedArgumentError()
+            {
+                if (_validValues?.Count > 0 &&
+                    symbolResult.Arguments.Count > 0)
+                {
+                    foreach (var arg in symbolResult.Arguments)
+                    {
+                        if (!_validValues.Contains(arg))
+                        {
+                            return new ParseError(
+                                symbolResult.ValidationMessages
+                                            .UnrecognizedArgument(arg,
+                                                                  _validValues));
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            ParseError CustomError()
+            {
+                foreach (var symbolValidator in SymbolValidators)
+                {
+                    var errorMessage = symbolValidator(symbolResult);
+
+                    if (!string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        return new ParseError(errorMessage, symbolResult);
+                    }
+                }
+
+                return null;
+            }
         }
 
         private static string AcceptNoArguments(SymbolResult symbolResult)
