@@ -93,20 +93,7 @@ namespace System.CommandLine
 
         public HelpDetail Help => _helpDetail ?? (_helpDetail = new HelpDetail());
 
-        internal static Argument None { get; } =
-            new Argument(
-                symbolValidators: new ValidateSymbol[] { AcceptNoArguments })
-            {
-                ConvertArguments = symbol =>
-                {
-                    if (symbol.Arguments.Any())
-                    {
-                        return ArgumentParseResult.Failure(symbol.ValidationMessages.NoArgumentsAllowed(symbol));
-                    }
-
-                    return SuccessfulArgumentParseResult.Empty;
-                }
-            };
+        public static Argument None => new Argument { Arity = ArgumentArity.Zero };
 
         public void AddSuggestions(IReadOnlyCollection<string> suggestions)
         {

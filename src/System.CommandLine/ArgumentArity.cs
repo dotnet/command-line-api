@@ -52,15 +52,15 @@ namespace System.CommandLine
             return null;
         }
 
-        public static IArgumentArity Zero { get; } = new ArgumentArity(0, 0);
+        public static IArgumentArity Zero => new ArgumentArity(0, 0);
 
-        public static IArgumentArity ZeroOrOne { get; } = new ArgumentArity(0, 1);
+        public static IArgumentArity ZeroOrOne => new ArgumentArity(0, 1);
 
-        public static IArgumentArity ExactlyOne { get; } = new ArgumentArity(1, 1);
+        public static IArgumentArity ExactlyOne => new ArgumentArity(1, 1);
 
-        public static IArgumentArity ZeroOrMore { get; } = new ArgumentArity(0, int.MaxValue);
+        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, int.MaxValue);
 
-        public static IArgumentArity OneOrMore { get; } = new ArgumentArity(1, int.MaxValue);
+        public static IArgumentArity OneOrMore => new ArgumentArity(1, int.MaxValue);
 
         public static IArgumentArity DefaultForType(Type type)
         {

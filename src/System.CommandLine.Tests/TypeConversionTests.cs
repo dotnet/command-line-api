@@ -89,7 +89,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<int>(s => ArgumentParseResult.Success(1));
 
-            argument.Arity.Should().Be(ArgumentArity.ExactlyOne);
+            argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<string>();
 
-            argument.Arity.Should().Be(ArgumentArity.ExactlyOne);
+            argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
 
         [Theory]
@@ -108,7 +108,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument { ArgumentType = type };
 
-            argument.Arity.Should().Be(ArgumentArity.OneOrMore);
+            argument.Arity.Should().BeEquivalentTo(ArgumentArity.OneOrMore);
         }
 
         [Fact]
