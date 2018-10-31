@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;
 
@@ -14,20 +13,8 @@ namespace System.CommandLine
 
         public Command(
             string name,
-            string description,
-            Argument argument,
-            bool treatUnmatchedTokensAsErrors = true,
-            IHelpBuilder helpBuilder = null) :
-            base(new[] { name }, description, argument)
-        {
-            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-            _helpBuilder = helpBuilder;
-        }
-
-        public Command(
-            string name,
-            string description,
-            IReadOnlyCollection<ISymbol> symbols = null,
+            string description = "",
+            IReadOnlyCollection<Symbol> symbols = null,
             Argument argument = null,
             bool treatUnmatchedTokensAsErrors = true,
             ICommandHandler handler = null,
@@ -37,7 +24,7 @@ namespace System.CommandLine
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
             Handler = handler;
             _helpBuilder = helpBuilder;
-            symbols = symbols ?? Array.Empty<ISymbol>();
+            symbols = symbols ?? Array.Empty<Symbol>();
 
             var validSymbolAliases = symbols
                                      .SelectMany(o => o.RawAliases)
@@ -45,23 +32,34 @@ namespace System.CommandLine
 
             if (argument == null)
             {
-                Argument = new Argument();
-                Argument.AddValidValues(validSymbolAliases);
-                Argument.Arity = ArgumentArity.ZeroOrMore;
+                Argument = new Argument
+                           {
+                               Arity = ArgumentArity.Zero
+                           };
+               // Argument.AddValidValues(validSymbolAliases);
             }
             else
             {
                 Argument = argument;
             }
 
-            foreach (var symbol in symbols.OfType<Symbol>())
+            foreach (var symbol in symbols)
             {
-                symbol.Parent = this;
-                Children.Add(symbol);
+                AddSymbol(symbol);
             }
         }
 
-        public bool TreatUnmatchedTokensAsErrors { get; }
+        public void AddCommand(Command command) => AddSymbol(command);
+        
+        public void AddOption(Option option) => AddSymbol(option);
+      
+        private void AddSymbol(Symbol symbol)
+        {
+            symbol.Parent = this;
+            Children.Add(symbol);
+        }
+
+        public bool TreatUnmatchedTokensAsErrors { get; set; }
 
         internal ICommandHandler Handler { get; }
 

@@ -130,7 +130,7 @@ namespace System.CommandLine.Tests
             Action create = () => new Parser(
                 new Command(
                     commandWithDelimiter, "",
-                    new Argument
+                    argument: new Argument
                     {
                         Arity = ArgumentArity.ExactlyOne
                     }));

@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests
 
             var parser = new Parser(
                 new Command("custom", "",
-                            argument));
+                            argument: argument));
 
             var result = parser.Parse("custom one two three");
 
@@ -541,7 +541,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command(
                 "tally", "",
-                new Argument<int>(a => ArgumentParseResult.Failure("Could not parse int")));
+                argument: new Argument<int>(a => ArgumentParseResult.Failure("Could not parse int")));
 
             var result = command.Parse("tally one");
 

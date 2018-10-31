@@ -879,7 +879,7 @@ namespace System.CommandLine.Tests
                 @"rm ""/temp/the file.txt""";
 
             var parser = new Parser(new Command("rm", "",
-                                                new Argument
+                                                argument: new Argument
                                                 {
                                                     Arity = ArgumentArity.ZeroOrMore
                                                 }));
@@ -899,7 +899,7 @@ namespace System.CommandLine.Tests
                 @"rm ""c:\temp\the file.txt\""";
 
             var parser = new Parser(new Command("rm", "",
-                                                new Argument
+                                                argument: new Argument
                                                 {
                                                     Arity = ArgumentArity.ZeroOrMore
                                                 }));

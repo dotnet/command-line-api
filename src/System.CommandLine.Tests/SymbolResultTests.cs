@@ -86,12 +86,12 @@ namespace System.CommandLine.Tests
                 new[]
                 {
                     new Command("inner-one", "",
-                                new Argument
+                                argument: new Argument
                                 {
                                     Arity = ArgumentArity.Zero
                                 }),
                     new Command("inner-two", "",
-                                new Argument
+                                argument: new Argument
                                 {
                                     Arity = ArgumentArity.Zero
                                 })

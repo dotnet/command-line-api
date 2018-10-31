@@ -79,9 +79,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(new Command("the-command", "", new[] {
-                new Option("-x", "")
-            }));
+            var parser = new Parser(
+                new Command("the-command", "",
+                            new[]
+                            {
+                                new Option("-x", "")
+                            }, Argument.None));
 
             var result = parser.Parse("the-command -x some-arg");
 
@@ -125,7 +128,7 @@ namespace System.CommandLine.Tests
         public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
         {
             var command = new Command("the-command", "", 
-                                      new Argument
+                                      argument: new Argument
                                       {
                                           Arity = ArgumentArity.ZeroOrMore
                                       }.LegalFilePathsOnly());
@@ -146,7 +149,7 @@ namespace System.CommandLine.Tests
         public void LegalFilePathsOnly_accepts_arguments_containing_valid_path_characters()
         {
             var command = new Command("the-command", "",
-                                      new Argument
+                                      argument: new Argument
                                       {
                                           Arity = ArgumentArity.ZeroOrMore
                                       }.LegalFilePathsOnly());
