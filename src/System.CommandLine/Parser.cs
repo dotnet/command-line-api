@@ -24,6 +24,7 @@ namespace System.CommandLine
         {
             var rawTokens = arguments;  // allow a more user-friendly name for callers of Parse
             var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
+            var directives = new List<string>();
             var unparsedTokens = new Queue<Token>(lexResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();
             var errors = new List<ParseError>(lexResult.Errors);
@@ -66,6 +67,13 @@ namespace System.CommandLine
                         continue;
                     }
                 }
+
+                if (token.Type == TokenType.Directive)
+                {
+                    directives.Add(token.Value);
+                    continue;
+                }
+
 
                 var added = false;
 
@@ -121,6 +129,7 @@ namespace System.CommandLine
             return new ParseResult(
                 rootCommand,
                 innermostCommand ?? rootCommand,
+                directives,
                 rawTokens,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens.Select(t => t.Value).ToArray(),
