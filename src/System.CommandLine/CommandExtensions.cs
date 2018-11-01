@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
@@ -21,6 +23,26 @@ namespace System.CommandLine
             return command.Children
                           .OfType<TCommand>()
                           .Single(c => c.Name == name);
+        }
+
+        public static async Task<int> InvokeAsync(
+            this Command command,
+            string commandLine,
+            IConsole console = null)
+        {
+            var parser = new Parser(command);
+            return await new InvocationPipeline(parser, parser.Parse(commandLine))
+                       .InvokeAsync(console);
+        }
+
+        public static async Task<int> InvokeAsync(
+            this Command command,
+            string[] args,
+            IConsole console = null)
+        {
+            var parser = new Parser(command);
+            return await new InvocationPipeline(parser, parser.Parse(args))
+                       .InvokeAsync(console);
         }
 
         public static ParseResult Parse(

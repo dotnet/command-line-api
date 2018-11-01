@@ -50,7 +50,7 @@ namespace System.CommandLine
 
         public bool TreatUnmatchedTokensAsErrors { get; set; }
 
-        internal ICommandHandler Handler { get; }
+        public ICommandHandler Handler { get; set; }
 
         public void WriteHelp(IConsole console)
         {

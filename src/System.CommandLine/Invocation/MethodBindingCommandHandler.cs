@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal class MethodBindingCommandHandler : CommandHandler
+    internal class MethodBindingCommandHandler : ICommandHandler
     {
         private readonly object _target;
         private readonly MethodInfo _method;
@@ -24,7 +24,7 @@ namespace System.CommandLine.Invocation
             _target = target;
         }
 
-        public override Task<int> InvokeAsync(InvocationContext context)
+        public Task<int> InvokeAsync(InvocationContext context)
         {
             var parameters = _method.GetParameters();
 
@@ -41,7 +41,7 @@ namespace System.CommandLine.Invocation
                 value = _method.Invoke(_target, arguments);
             }
 
-            return GetResultCodeAsync(value);
+            return CommandHandler.GetResultCodeAsync(value);
         }
     }
 }

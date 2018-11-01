@@ -19,12 +19,10 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd => cmd.OnExecute(() => wasCalled = true))
-                    .Build();
+            var command = new Command("command");
+            command.Handler = CommandHandler.Create(() => wasCalled = true);
+
+            var parser = new Parser(command);
 
             await parser.InvokeAsync("command", _console);
 
@@ -43,19 +41,16 @@ namespace System.CommandLine.Tests
                 age.Should().Be(425);
             }
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd =>
-                        {
-                            cmd.AddOption("--name", "", a => a.ExactlyOne())
-                               .OnExecute<string, int>(Execute)
-                               .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
-                        })
-                    .Build();
+            var command = new Command("command");
+            command.AddOption(
+                new Option("--name",
+                           argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            command.AddOption(
+                new Option("--age",
+                           argument: new Argument<int>()));
+            command.Handler = CommandHandler.Create<string, int>(Execute);
 
-            await parser.InvokeAsync("command --age 425 --name Gandalf", _console);
+            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -71,18 +66,12 @@ namespace System.CommandLine.Tests
                 firstName.Should().Be("Gandalf");
             }
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd =>
-                        {
-                            cmd.AddOption("--first-name", "", a => a.ExactlyOne())
-                               .OnExecute<string>(Execute);
-                        })
-                    .Build();
+            var command = new Command("command");
+            command.AddOption(new Option("--first-name",
+                                         argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            command.Handler = CommandHandler.Create<string>(Execute);
 
-            await parser.InvokeAsync("command --first-name Gandalf", _console);
+            await command.InvokeAsync("command --first-name Gandalf", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -99,19 +88,12 @@ namespace System.CommandLine.Tests
                 Age.Should().Be(425);
             }
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd =>
-                        {
-                            cmd.AddOption("--NAME", "", a => a.ExactlyOne())
-                               .OnExecute<string, int>(Execute)
-                               .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
-                        })
-                    .Build();
+            var command = new Command("command");
+            command.AddOption(new Option("--NAME", argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            command.AddOption(new Option("--age", argument: new Argument<int>()));
+            command.Handler = CommandHandler.Create<string, int>(Execute);
 
-            await parser.InvokeAsync("command --age 425 --NAME Gandalf", _console);
+            await command.InvokeAsync("command --age 425 --NAME Gandalf", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -128,19 +110,12 @@ namespace System.CommandLine.Tests
                 age.Should().Be(0);
             }
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd =>
-                        {
-                            cmd.AddOption("--name", "", a => a.ExactlyOne())
-                               .AddOption("--age", "", a => a.ParseArgumentsAs<int>())
-                               .OnExecute<string, int>(Execute);
-                        })
-                    .Build();
+            var command = new Command("command");
+            command.AddOption(new Option("--name", argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            command.AddOption(new Option("--age", argument: new Argument<int>()));
+            command.Handler = CommandHandler.Create<string, int>(Execute);
 
-            await parser.InvokeAsync("command", _console);
+            await command.InvokeAsync("command", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -157,19 +132,12 @@ namespace System.CommandLine.Tests
                 Age.Should().Be(425);
             }
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd =>
-                        {
-                            cmd.AddOption(new[] { "-n", "--NAME" }, "", a => a.ExactlyOne())
-                               .OnExecute<string, int>(Execute)
-                               .AddOption(new[] { "-a", "--age" }, "", a => a.ParseArgumentsAs<int>());
-                        })
-                    .Build();
+            var command = new Command("command");
+            command.AddOption(new Option(new[] { "-n", "--NAME" }, argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            command.AddOption(new Option(new[] { "-a", "--age" }, argument: new Argument<int>()));
+            command.Handler = CommandHandler.Create<string, int>(Execute);
 
-            await parser.InvokeAsync("command -a 425 -n Gandalf", _console);
+            await command.InvokeAsync("command -a 425 -n Gandalf", _console);
 
             wasCalled.Should().BeTrue();
         }

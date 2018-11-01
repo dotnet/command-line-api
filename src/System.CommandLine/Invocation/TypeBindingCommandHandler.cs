@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal class TypeBindingCommandHandler : CommandHandler
+    internal class TypeBindingCommandHandler : ICommandHandler
     {
         private readonly MethodInfo _onExecuteMethodInfo;
         private readonly TypeBinder _typeBinder;
@@ -19,7 +19,7 @@ namespace System.CommandLine.Invocation
             _typeBinder = typeBinder;
         }
 
-        public override Task<int> InvokeAsync(InvocationContext context)
+        public Task<int> InvokeAsync(InvocationContext context)
         {
             var instance =
                 _onExecuteMethodInfo.IsStatic
@@ -32,7 +32,7 @@ namespace System.CommandLine.Invocation
 
             var value = _onExecuteMethodInfo.Invoke(instance, args);
 
-            return GetResultCodeAsync(value);
+            return CommandHandler.GetResultCodeAsync(value);
         }
     }
 }

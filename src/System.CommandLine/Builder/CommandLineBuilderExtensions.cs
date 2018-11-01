@@ -11,6 +11,16 @@ namespace System.CommandLine.Builder
     {
         public static TBuilder AddCommand<TBuilder>(
             this TBuilder builder,
+            Command command)
+            where TBuilder : CommandBuilder
+        {
+            builder.AddCommand(command);
+
+            return builder;
+        }
+
+        public static TBuilder AddCommand<TBuilder>(
+            this TBuilder builder,
             string name,
             string description = null,
             Action<CommandBuilder> symbols = null,
@@ -100,6 +110,16 @@ namespace System.CommandLine.Builder
                         args.WithDefaultValue(() => parameter.DefaultValue);
                     }
                 });
+
+            return builder;
+        }
+
+        public static TBuilder AddOption<TBuilder>(
+            this TBuilder builder,
+            Option option)
+            where TBuilder : CommandBuilder
+        {
+            builder.AddOption(option);
 
             return builder;
         }
