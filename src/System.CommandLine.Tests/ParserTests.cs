@@ -830,39 +830,8 @@ namespace System.CommandLine.Tests
             result1.Diagram().Should().Be(result2.Diagram());
         }
 
-        [Fact]
-        public void When_no_commands_are_added_then_ParseResult_Command_identifies_executable()
-        {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-x", "")
-                         .AddOption("-y", "")
-                         .Build();
-
-            var result = parser.Parse("-x -y");
-
-            var command = result.CommandResult.Command;
-
-            command.Should().NotBeNull();
-
-            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-        }
-
-        [Fact]
-        public void An_implicit_root_command_is_returned_by_Command()
-        {
-            var result = new CommandLineBuilder()
-                         .AddOption("-x")
-                         .AddOption("-y")
-                         .Build()
-                         .Parse("-x -y");
-
-            var command = result.CommandResult;
-
-            command.Should().NotBeNull();
-
-            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-        }
-
+      
+      
         [Fact]
         public void Absolute_unix_style_paths_are_lexed_correctly()
         {
