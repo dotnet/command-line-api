@@ -79,7 +79,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
-                if (context.ParseResult.Directives.Contains("[parse]"))
+                if (context.ParseResult.Directives.Contains("parse"))
                 {
                     context.InvocationResult = new ParseDirectiveResult();
                 }
@@ -96,7 +96,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
-                if (context.ParseResult.Directives.Contains("[suggest]"))
+                if (context.ParseResult.Directives.Contains("suggest"))
                 {
                     context.InvocationResult = new SuggestDirectiveResult();
                 }
