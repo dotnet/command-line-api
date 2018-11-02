@@ -70,10 +70,10 @@ namespace System.CommandLine
 
                 if (token.Type == TokenType.Directive)
                 {
-                    directives.Add(token.Value);
+                    var withoutBrackets = token.Value.Substring(1, token.Value.Length - 2);
+                    directives.Add(withoutBrackets);
                     continue;
                 }
-
 
                 var added = false;
 

@@ -1,12 +1,10 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using FluentAssertions.Common;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
@@ -35,7 +33,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("[parse] -y");
 
-            result.Directives.Should().Contain("[parse]"); 
+            result.Directives.Should().Contain("parse"); 
             result.Tokens.Should().Contain("[parse]");
         }
 
@@ -49,7 +47,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("[parse] -y");
 
-            result.Directives.Should().Contain("[parse]");
+            result.Directives.Should().Contain("parse");
         }
 
         [Fact]
@@ -62,8 +60,8 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("[parse] [suggest] -y");
 
-            result.Directives.Should().Contain("[parse]");
-            result.Directives.Should().Contain("[suggest]"); 
+            result.Directives.Should().Contain("parse");
+            result.Directives.Should().Contain("suggest"); 
         }
 
         [Fact]
