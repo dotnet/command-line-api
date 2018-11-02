@@ -1,4 +1,7 @@
-﻿using System.CommandLine.Builder;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -165,18 +168,23 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_file_existence()
         {
-            var command = new CommandBuilder("move")
-                          .AddOption("--to", "",
-                                     args => args.ExactlyOne())
-                          .AddArguments(args => args.ExistingFilesOnly()
-                                                    .ExactlyOne())
-                          .BuildCommand();
+            var command = new Command(
+                "move",
+                argument: new Argument
+                          {
+                              Arity = ArgumentArity.ExactlyOne
+                          }.ExistingFilesOnly());
+            command.AddOption(
+                new Option(
+                    "--to",
+                    argument: new Argument
+                              {
+                                  Arity = ArgumentArity.ExactlyOne
+                              }));
 
             var result =
                 command.Parse(
-                    $@"move ""{Guid.NewGuid()}.txt"" ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
-
-            _output.WriteLine(result.Diagram());
+                    $@"move ""{Guid.NewGuid()}.txt"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
             result.CommandResult
                   .Arguments
@@ -187,21 +195,25 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_argument_can_be_invalid_based_on_directory_existence()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("move", "",
-                                     toArgs => toArgs.AddOption("--to", "", args => args.ExactlyOne()),
-                                     moveArgs => moveArgs.ExistingFilesOnly()
-                                                         .ExactlyOne())
-                         .Build();
+            var command = new Command(
+                "move",
+                argument: new Argument
+                          {
+                              Arity = ArgumentArity.ExactlyOne
+                          }.ExistingFilesOnly());
+            command.AddOption(
+                new Option("--to",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ExactlyOne
+                                     }));
 
             var currentDirectory = Directory.GetCurrentDirectory();
             var trash = Path.Combine(currentDirectory, ".trash");
 
             var commandLine = $@"move ""{currentDirectory}"" --to ""{trash}""";
 
-            _output.WriteLine(commandLine);
-
-            var result = parser.Parse(commandLine);
+            var result = command.Parse(commandLine);
 
             _output.WriteLine(result.Diagram());
 
@@ -214,12 +226,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_there_are_subcommands_and_options_then_a_subcommand_must_be_provided()
         {
-            var command = new CommandBuilder("outer")
-                          .AddCommand("inner", "",
-                                      inner => inner.AddCommand("inner-er", ""))
-                          .BuildCommand();
+            var outer = new Command("outer");
+            var inner = new Command("inner");
+            var innerer = new Command("inner-er");
+            outer.AddCommand(inner);
+            inner.AddCommand(innerer);
 
-            var result = command.Parse("outer inner arg");
+            var result = outer.Parse("outer inner arg");
 
             result.Errors
                   .Should()
@@ -303,24 +316,6 @@ namespace System.CommandLine.Tests
             result.Errors.Should().BeEmpty();
             result.RootCommandResult.ValueForOption("-x").Should().Be(123);
             result.RootCommandResult.ValueForOption("-y").Should().Be(456);
-        }
-
-        [Fact]
-        public void When_a_command_line_has_unmatched_tokens_they_are_not_applied_to_subsequent_options()
-        {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-x", "",
-                                    argument => argument.ExactlyOne())
-                         .AddOption("-y", "",
-                                    argument => argument.ExactlyOne())
-                         .TreatUnmatchedTokensAsErrors(false)
-                         .Build();
-
-            var result = parser.Parse("-x 23 unmatched-token -y 42");
-
-            result.ValueForOption("-x").Should().Be("23");
-            result.ValueForOption("-y").Should().Be("42");
-            result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
         }
     }
 }

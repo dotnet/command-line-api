@@ -42,12 +42,6 @@ namespace System.CommandLine
 
         public void AddOption(Option option) => AddSymbol(option);
 
-        private void AddSymbol(Symbol symbol)
-        {
-            symbol.Parent = this;
-            Children.Add(symbol);
-        }
-
         public bool TreatUnmatchedTokensAsErrors { get; set; }
 
         public ICommandHandler Handler { get; set; }

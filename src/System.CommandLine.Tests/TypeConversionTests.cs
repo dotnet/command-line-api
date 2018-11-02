@@ -398,7 +398,7 @@ namespace System.CommandLine.Tests
                    .BeEquivalentTo(new[] { "arg1" });
         }
 
-        [Fact(Skip="Broken and maybe not correct")]
+        [Fact]
         public void The_default_value_of_a_command_with_no_arguments_is_an_empty_collection()
         {
             var result = new CommandResult(new Command("-x", ""));
@@ -407,11 +407,7 @@ namespace System.CommandLine.Tests
 
             valueOrDefault
                   .Should()
-                  .BeAssignableTo<IReadOnlyCollection<string>>()
-                  .Which
-                  .Count
-                  .Should()
-                  .Be(0);
+                  .BeNull();
         }
 
         [Fact]

@@ -75,7 +75,17 @@ namespace System.CommandLine
             }
         }
 
-        public Command Parent { get; protected internal set; }
+        public Command Parent { get; private set; }
+
+        private protected void AddSymbol(Symbol symbol)
+        {
+            if (this is Command command)
+            {
+                symbol.Parent = command;
+            }
+
+            Children.Add(symbol);
+        }
 
         public SymbolSet Children { get; } = new SymbolSet();
 

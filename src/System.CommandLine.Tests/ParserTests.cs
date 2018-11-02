@@ -875,12 +875,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_can_have_default_argument_values()
         {
-            var command = new CommandLineBuilder()
-                          .AddCommand("command", "",
-                                      arguments:
-                                      args => args.WithDefaultValue(() => "default")
-                                                  .ExactlyOne())
-                          .BuildCommand();
+            var command = new Command("command",
+                                      argument: new Argument { Arity = ArgumentArity.ExactlyOne }
+                                          .WithDefaultValue(() => "default"));
 
             ParseResult result = command.Parse("command");
 
@@ -890,16 +887,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
         {
-            var command = new Command("command", "", new[] {
+            var command = new Command("command");
+            command.AddOption(
                 new Option(
                     new[] { "-o", "--option" },
-                    "",
-                    argument: 
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne,
-                    }.WithDefaultValue(() => "the-default"))
-            });
+                    argument: new Argument
+                              {
+                                  Arity = ArgumentArity.ExactlyOne
+                              }.WithDefaultValue(() => "the-default")));
 
             ParseResult result = command.Parse("command");
 
@@ -912,14 +907,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Unmatched_options_are_not_split_into_smaller_tokens()
         {
-            var command = new CommandLineBuilder()
-                          .AddCommand("outer", "",
-                                      outer => outer.AddOption("-p", "")
-                                                    .AddCommand("inner", "",
-                                                                inner => inner.AddOption("-o", ""), args => args.OneOrMore()))
-                          .BuildCommand();
+            var outer = new Command("outer");
+            outer.AddOption(
+                new Option("-p"));
+            outer.AddCommand(
+                new Command("inner",
+                            argument: new Argument
+                                      {
+                                          Arity = ArgumentArity.OneOrMore
+                                      }));
 
-            ParseResult result = command.Parse("outer inner -p:RandomThing=random");
+            ParseResult result = outer.Parse("outer inner -p:RandomThing=random");
 
             _output.WriteLine(result.Diagram());
 
@@ -932,10 +930,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void The_default_behavior_of_unmatched_tokens_resulting_in_errors_can_be_turned_off()
         {
-            var parser = new CommandLineBuilder()
-                         .TreatUnmatchedTokensAsErrors(false)
-                         .AddCommand("the-command", "", arguments: args => args.ExactlyOne())
-                         .Build();
+            var parser = new Command(
+                "the-command",
+                treatUnmatchedTokensAsErrors: false,
+                argument: new Argument
+                          {
+                              Arity = ArgumentArity.ExactlyOne
+                          });
 
             ParseResult result = parser.Parse("the-command arg1 arg2");
 
@@ -1064,12 +1065,22 @@ namespace System.CommandLine.Tests
         [InlineData("-x:-y")]
         public void Arguments_can_start_with_prefixes_that_make_them_look_like_options(string input)
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-x", "", args => args.ZeroOrOne())
-                         .AddOption("-z", "", args => args.ZeroOrOne())
-                         .Build();
+            var command = new Command("command");
 
-            var result = parser.Parse(input);
+            command.AddOption(
+                new Option("-x",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ZeroOrOne
+                                     }));
+            command.AddOption(
+                new Option("-z",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ZeroOrOne
+                                     }));
+
+            var result = command.Parse(input);
 
             var valueForOption = result.ValueForOption("-x");
 
@@ -1081,12 +1092,19 @@ namespace System.CommandLine.Tests
         [InlineData("-x:-y")]
         public void Arguments_can_match_the_aliases_of_sibling_options(string input)
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-x", "", args => args.ZeroOrOne())
-                         .AddOption("-y", "", args => args.ZeroOrOne())
-                         .Build();
+            var command = new Command("command");
+            command.AddOption(
+                new Option("-x", argument: new Argument
+                                           {
+                                               Arity = ArgumentArity.ZeroOrOne
+                                           }));
+            command.AddOption(
+                new Option("-y", argument: new Argument
+                                           {
+                                               Arity = ArgumentArity.ZeroOrOne
+                                           }));
 
-            var result = parser.Parse(input);
+            var result = command.Parse(input);
 
             var valueForOption = result.ValueForOption("-x");
 
@@ -1137,16 +1155,40 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Boolean_options_with_no_argument_specified_do_not_match_subsequent_arguments()
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-v", "", builder => builder.ParseArgumentsAs<bool>())
-                         .AddArguments(builder => builder.OneOrMore())
-                         .Build();
+            var command = new Command("command");
+            command.AddOption(
+                new Option("-v",
+                           argument: new Argument<bool>()));
 
-            var result = parser.Parse("-v an-argument");
+            var result = command.Parse("-v an-argument");
 
             _output.WriteLine(result.ToString());
 
             result.ValueForOption("v").Should().Be(true);
+        }
+
+        [Fact]
+        public void When_a_command_line_has_unmatched_tokens_they_are_not_applied_to_subsequent_options()
+        {
+            var command = new Command("command", treatUnmatchedTokensAsErrors: false);
+            command.AddOption(
+                new Option("-x",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ExactlyOne
+                                     }));
+            command.AddOption(
+                new Option("-y",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ExactlyOne
+                                     }));
+
+            var result = command.Parse("-x 23 unmatched-token -y 42");
+
+            result.ValueForOption("-x").Should().Be("23");
+            result.ValueForOption("-y").Should().Be("42");
+            result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
         }
     }
 }

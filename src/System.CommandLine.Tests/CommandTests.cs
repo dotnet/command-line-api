@@ -166,16 +166,15 @@ namespace System.CommandLine.Tests
         [InlineData("outer arg inner arg inner-er arg", "inner-er")]
         public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand)
         {
-            var command = new CommandBuilder("outer")
-                          .AddCommand("inner", "",
-                                      sibling => sibling.AddCommand("inner-er", "",
-                                                                    arguments: args => args.ZeroOrMore()))
-                          .AddCommand("sibling", "",
-                                      arguments: args => args.ZeroOrMore())
-                          .AddArguments(a => a.ZeroOrMore())
-                          .BuildCommand();
+            var outer = new Command("outer");
+            var inner = new Command("inner");
+            outer.AddCommand(inner);
+            var sibling = new Command("sibling");
+            outer.AddCommand(sibling);
+            var innerer = new Command("inner-er");
+            inner.AddCommand(innerer);
 
-            var result = command.Parse(input);
+            var result = outer.Parse(input);
 
             result.CommandResult.Name.Should().Be(expectedCommand);
         }
