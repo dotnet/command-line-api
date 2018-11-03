@@ -9,8 +9,8 @@
     <ToolCommandName>dotnet-suggest</ToolCommandName>
   </PropertyGroup>
   
-  <PropertyGroup Condition=" $(VERSION) != '' " >
-    <PackageVersion>1.0.2-$(Version)</PackageVersion>
+  <PropertyGroup Condition=" $(Build_BuildId) != '' " >
+    <PackageVersion>1.0.2-$(Build_BuildId)</PackageVersion>
   </PropertyGroup>
   
   <PropertyGroup>
