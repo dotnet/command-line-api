@@ -1,19 +1,20 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace System.CommandLine.Rendering.Views
 {
     //TODO: consider IEnumerable<T> addition
-    public abstract class LayoutView<T> : View
+    public abstract class LayoutView<T> : View, IEnumerable<T>
         where T : View
     {
         private readonly List<T> _children = new List<T>();
         public IReadOnlyList<T> Children => _children.AsReadOnly();
 
-        public virtual void AddChild(T child)
+        public virtual void Add(T child)
         {
             if (child == null)
             {
@@ -26,15 +27,15 @@ namespace System.CommandLine.Rendering.Views
             child.Updated += OnChildUpdated;
         }
 
-        public virtual void ClearChildren()
+        public virtual void Clear()
         {
             while (Children.Any())
             {
-                RemoveChild(Children[0]);
+                Remove(Children[0]);
             }
         }
 
-        public virtual bool RemoveChild(T child)
+        public virtual bool Remove(T child)
         {
             child.Updated -= OnChildUpdated;
             return _children.Remove(child);
@@ -44,5 +45,9 @@ namespace System.CommandLine.Rendering.Views
         {
             OnUpdated();
         }
+
+        public IEnumerator<T> GetEnumerator() => _children.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_children).GetEnumerator();
     }
 }

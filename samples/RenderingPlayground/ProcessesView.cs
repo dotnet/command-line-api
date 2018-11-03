@@ -14,9 +14,9 @@ namespace RenderingPlayground
             var formatter = new SpanFormatter();
             formatter.AddFormatter<TimeSpan>(t => new ContentSpan(t.ToString(@"hh\:mm\:ss")));
 
-            AddChild(new ContentView(""));
-            AddChild(new ContentView("Processes"));
-            AddChild(new ContentView(""));
+            Add(new ContentView(""));
+            Add(new ContentView("Processes"));
+            Add(new ContentView(""));
 
             var table = new TableView<Process>
             {
@@ -36,7 +36,7 @@ namespace RenderingPlayground
             }, new ContentView("CPU".Underline()));
 
 
-            AddChild(table);
+            Add(table);
 
             FormattableString Name(Process p)
             {

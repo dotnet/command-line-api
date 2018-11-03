@@ -19,13 +19,13 @@ namespace RenderingPlayground
             formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}");
 
 
-            AddChild(new ContentView(""));
-            AddChild(new ContentView(""));
+            Add(new ContentView(""));
+            Add(new ContentView(""));
 
-            AddChild(new ContentView($"Directory: {directory.FullName}"));
+            Add(new ContentView($"Directory: {directory.FullName}"));
 
-            AddChild(new ContentView(""));
-            AddChild(new ContentView(""));
+            Add(new ContentView(""));
+            Add(new ContentView(""));
             
             var directoryContents = directory.EnumerateFileSystemInfos()
                                              .OrderBy(f => f is DirectoryInfo
@@ -42,7 +42,7 @@ namespace RenderingPlayground
             tableView.AddColumn(f => formatter.Format(f.CreationTime), new ContentView("Created".Underline()));
             tableView.AddColumn(f => formatter.Format(f.LastWriteTime), new ContentView("Modified".Underline()));
 
-            AddChild(tableView);
+            Add(tableView);
 
             Span Span(FormattableString formattableString)
             {

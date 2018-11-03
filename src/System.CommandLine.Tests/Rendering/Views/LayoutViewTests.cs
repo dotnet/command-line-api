@@ -14,8 +14,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new TestView();
             var child2 = new TestView();
 
-            layout.AddChild(child1);
-            layout.AddChild(child2);
+            layout.Add(child1);
+            layout.Add(child2);
 
             layout.Children.Should().BeEquivalentSequenceTo(child1, child2);
         }
@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var layout = new TestLayout();
             var view = new TestView();
 
-            layout.AddChild(view);
+            layout.Add(view);
 
             view.RaiseUpdated();
 
@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests.Rendering.Views
         {
             var layout = new TestLayout();
 
-            Action addNullChild = () => layout.AddChild(null);
+            Action addNullChild = () => layout.Add(null);
 
             addNullChild.Should().Throw<ArgumentNullException>();
         }
@@ -49,8 +49,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var layout = new TestLayout();
             var view = new TestView();
 
-            layout.AddChild(view);
-            layout.RemoveChild(view);
+            layout.Add(view);
+            layout.Remove(view);
             view.RaiseUpdated();
 
             layout.OnChildUpdatedInvocationCount.Should().Be(0);
@@ -64,12 +64,24 @@ namespace System.CommandLine.Tests.Rendering.Views
             var view1 = new TestView();
             var view2 = new TestView();
 
-            layout.AddChild(view1);
-            layout.RemoveChild(view2);
+            layout.Add(view1);
+            layout.Remove(view2);
 
-            layout.ClearChildren();
+            layout.Clear();
             
             layout.Children.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Layout_view_adds_children_with_collection_initializer()
+        {
+            var layout = new TestLayout
+            {
+                new TestView(),
+                new TestView()
+            };
+
+            layout.Children.Count.Should().Be(2);
         }
 
         private class TestView : View
