@@ -144,8 +144,12 @@ namespace System.CommandLine
             var dynamicSuggestions = _suggestionSources
                 .SelectMany(source => source.Suggest(parseResult, position));
 
+            var typeSuggestions = SuggestionSource.ForType(ArgumentType)
+                                                  .Suggest(parseResult, position);
+
             return fixedSuggestions
                    .Concat(dynamicSuggestions)
+                   .Concat(typeSuggestions)
                    .Distinct()
                    .OrderBy(c => c)
                    .Containing(parseResult.TextToMatch());
@@ -256,16 +260,6 @@ namespace System.CommandLine
 
                 return null;
             }
-        }
-
-        private static string AcceptNoArguments(SymbolResult symbolResult)
-        {
-            if (!symbolResult.Arguments.Any())
-            {
-                return null;
-            }
-
-            return symbolResult.ValidationMessages.NoArgumentsAllowed(symbolResult);
         }
 
         IArgumentArity IArgument.Arity => Arity;
