@@ -10,7 +10,7 @@
   </PropertyGroup>
   
   <PropertyGroup Condition=" $(Build_BuildId) != '' " >
-    <PackageVersion>1.0.2-$(Build_BuildId)</PackageVersion>
+    <PackageVersion>1.0.2.$(Build_BuildId)</PackageVersion>
   </PropertyGroup>
   
   <PropertyGroup>
