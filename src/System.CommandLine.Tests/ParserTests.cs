@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
         public void An_option_without_a_long_form_can_be_checked_for_using_a_prefix()
         {
             var result = new Parser(
-                    new Option("--flag", ""))
+                    new Option("--flag"))
                 .Parse("--flag");
 
             result.HasOption("--flag").Should().BeTrue();
@@ -35,8 +35,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_can_be_checked_by_object_instance()
         {
-            var option = new Option("--flag", "");
-            var option2 = new Option("--flag2", "");
+            var option = new Option("--flag");
+            var option2 = new Option("--flag2");
             var result = new Parser(option, option2)
                 .Parse("--flag");
 
@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests
         public void An_option_without_a_long_form_can_be_checked_for_without_using_a_prefix()
         {
             var result = new Parser(
-                    new Option("--flag", ""))
+                    new Option("--flag"))
                 .Parse("--flag");
 
             result.HasOption("flag").Should().BeTrue();
@@ -58,7 +58,7 @@ namespace System.CommandLine.Tests
         public void When_invoked_by_its_short_form_an_option_with_an_alias_can_be_checked_for_by_its_short_form()
         {
             var result = new Parser(
-                    new Option(new[] { "-o", "--one" }, ""))
+                    new Option(new[] { "-o", "--one" }))
                 .Parse("-o");
 
             result.HasOption("o").Should().BeTrue();
@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
         public void When_invoked_by_its_long_form_an_option_with_an_alias_can_be_checked_for_by_its_short_form()
         {
             var result = new Parser(
-                    new Option(new[] { "-o", "--one" }, ""))
+                    new Option(new[] { "-o", "--one" }))
                 .Parse("--one");
 
             result.HasOption("o").Should().BeTrue();
@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests
         public void When_invoked_by_its_short_form_an_option_with_an_alias_can_be_checked_for_by_its_long_form()
         {
             var result = new Parser(
-                    new Option(new[] { "-o", "--one" }, ""))
+                    new Option(new[] { "-o", "--one" }))
                 .Parse("-o");
 
             result.HasOption("one").Should().BeTrue();
@@ -88,7 +88,7 @@ namespace System.CommandLine.Tests
         public void When_invoked_by_its_long_form_an_option_with_an_alias_can_be_checked_for_by_its_long_form()
         {
             var result = new Parser(
-                    new Option(new[] { "-o", "--one" }, ""))
+                    new Option(new[] { "-o", "--one" }))
                 .Parse("--one");
 
             result.HasOption("one").Should().BeTrue();
@@ -99,9 +99,9 @@ namespace System.CommandLine.Tests
         {
             ParseResult result = new Parser(
                     new Option(
-                        new[] { "-o", "--one" }, ""),
+                        new[] { "-o", "--one" }),
                     new Option(
-                        new[] { "-t", "--two" }, "")
+                        new[] { "-t", "--two" })
                 )
                 .Parse("-o -t");
 
@@ -114,18 +114,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_contains_arguments_to_options()
         {
-            var result = new CommandLineBuilder()
-                         .AddOption(
-                             new[] { "-o", "--one" },
-                             arguments: args => args.ExactlyOne())
-                         .AddOption(
-                             new[] { "-t", "--two" },
-                             arguments: args => args.ExactlyOne())
-                         .Build()
-                         .Parse("-o args_for_one -t args_for_two");
+            var parser = new Parser(
+                new Option(new[] { "-o", "--one" },
+                           argument: new Argument { Arity = ArgumentArity.ExactlyOne }),
+                new Option(new[] { "-t", "--two" },
+                           argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
 
-
-
+            var result = parser.Parse("-o args_for_one -t args_for_two");
 
             result["one"].Arguments.Single().Should().Be("args_for_one");
             result["two"].Arguments.Single().Should().Be("args_for_two");
@@ -141,7 +136,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("You must specify at least one option.");
+                  .Be("You must specify at least one option or command.");
         }
 
         [Fact]
@@ -149,9 +144,9 @@ namespace System.CommandLine.Tests
         {
             Action create = () =>
                 new Parser(new Option(
-                               new[] { "-o", "--one" }, ""),
+                               new[] { "-o", "--one" }),
                            new Option(
-                               new[] { "-t", "--one" }, ""));
+                               new[] { "-t", "--one" }));
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -164,7 +159,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_double_dash_delimiter_specifies_that_no_further_command_line_args_will_be_treated_as_options()
         {
-            var result = new Parser(new Option(new[] { "-o", "--one" }, ""))
+            var result = new Parser(new Option(new[] { "-o", "--one" }))
                 .Parse("-o \"some stuff\" -- -x -y -z -o:foo");
 
             result.HasOption("o")
@@ -179,7 +174,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void The_portion_of_the_command_line_following_a_double_slash_is_accessible_as_UnparsedTokens()
         {
-            var result = new Parser(new Option("-o", ""))
+            var result = new Parser(new Option("-o"))
                 .Parse("-o \"some stuff\" -- x y z");
 
             result.UnparsedTokens
@@ -192,8 +187,7 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(new Option(
                                         "-x",
-                                        "",
-                                        new Argument
+                                        argument: new Argument
                                         {
                                             Arity = ArgumentArity.ExactlyOne
                                         }));
@@ -211,11 +205,10 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Option(
                     "--hello",
-                    "",
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }));
+                    argument: new Argument
+                              {
+                                  Arity = ArgumentArity.ExactlyOne
+                              }));
 
             var result = parser.Parse("--hello=there");
 
@@ -230,11 +223,10 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Option(
                     "-x",
-                    "",
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }));
+                    argument: new Argument
+                              {
+                                  Arity = ArgumentArity.ExactlyOne
+                              }));
 
             var result = parser.Parse("-x:some-value");
 
@@ -246,12 +238,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Long_form_options_can_be_specified_using_colon_delimiter()
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("--hello", "",
-                                    args => args.ExactlyOne())
-                         .Build();
-
-            var result = parser.Parse("--hello:there");
+            var option = new Option("--hello",
+                                    argument: new Argument
+                                              {
+                                                  Arity = ArgumentArity.ExactlyOne
+                                              });
+            
+            var result = option.Parse("--hello:there");
 
             result.Errors.Should().BeEmpty();
 
@@ -261,14 +254,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_short_forms_can_be_bundled()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "",
-                                     c => c.AddOption("-x")
-                                           .AddOption("-y")
-                                           .AddOption("-z"))
-                         .Build();
+            var command = new Command("the-command");
+            command.AddOption(new Option("-x"));
+            command.AddOption(new Option("-y"));
+            command.AddOption(new Option("-z"));
 
-            var result = parser.Parse("the-command -xyz");
+            var result = command.Parse("the-command -xyz");
 
             result.CommandResult
                   .Children
@@ -318,20 +309,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_do_not_get_unbundled_unless_all_resulting_options_would_be_valid_for_the_current_command()
         {
-            var parser = new Parser(
-                new Command("outer", "",
-                                      new Symbol[] {
-                                          new Option("-a", ""),
-                                          new Command("inner", "",
-                                                                new[] {
-                                                                    new Option("-b", ""),
-                                                                    new Option("-c", "")
-                                                                },
-                                                                new Argument
-                                                                {
-                                                                    Arity = ArgumentArity.ZeroOrMore
-                                                                })
-                                      }));
+            var outer = new Command("outer");
+            outer.AddOption(new Option("-a"));
+            var inner = new Command("inner")
+                        {
+                            Argument = new Argument
+                                       {
+                                           Arity = ArgumentArity.ZeroOrMore
+                                       }
+                        };
+            inner.AddOption(new Option("-b"));
+            inner.AddOption(new Option("-c"));
+            outer.AddCommand(inner);
+
+            var parser = new Parser(outer);
 
             ParseResult result = parser.Parse("outer inner -abc");
 
@@ -839,39 +830,8 @@ namespace System.CommandLine.Tests
             result1.Diagram().Should().Be(result2.Diagram());
         }
 
-        [Fact]
-        public void When_no_commands_are_added_then_ParseResult_Command_identifies_executable()
-        {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-x", "")
-                         .AddOption("-y", "")
-                         .Build();
-
-            var result = parser.Parse("-x -y");
-
-            var command = result.CommandResult.Command;
-
-            command.Should().NotBeNull();
-
-            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-        }
-
-        [Fact]
-        public void An_implicit_root_command_is_returned_by_Command()
-        {
-            var result = new CommandLineBuilder()
-                         .AddOption("-x")
-                         .AddOption("-y")
-                         .Build()
-                         .Parse("-x -y");
-
-            var command = result.CommandResult;
-
-            command.Should().NotBeNull();
-
-            command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-        }
-
+      
+      
         [Fact]
         public void Absolute_unix_style_paths_are_lexed_correctly()
         {
@@ -879,7 +839,7 @@ namespace System.CommandLine.Tests
                 @"rm ""/temp/the file.txt""";
 
             var parser = new Parser(new Command("rm", "",
-                                                new Argument
+                                                argument: new Argument
                                                 {
                                                     Arity = ArgumentArity.ZeroOrMore
                                                 }));
@@ -899,7 +859,7 @@ namespace System.CommandLine.Tests
                 @"rm ""c:\temp\the file.txt\""";
 
             var parser = new Parser(new Command("rm", "",
-                                                new Argument
+                                                argument: new Argument
                                                 {
                                                     Arity = ArgumentArity.ZeroOrMore
                                                 }));
@@ -915,12 +875,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_can_have_default_argument_values()
         {
-            var command = new CommandLineBuilder()
-                          .AddCommand("command", "",
-                                      arguments:
-                                      args => args.WithDefaultValue(() => "default")
-                                                  .ExactlyOne())
-                          .BuildCommand();
+            var command = new Command("command",
+                                      argument: new Argument { Arity = ArgumentArity.ExactlyOne }
+                                          .WithDefaultValue(() => "default"));
 
             ParseResult result = command.Parse("command");
 
@@ -930,16 +887,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
         {
-            var command = new Command("command", "", new[] {
+            var command = new Command("command");
+            command.AddOption(
                 new Option(
                     new[] { "-o", "--option" },
-                    "",
-                    argument: 
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne,
-                    }.WithDefaultValue(() => "the-default"))
-            });
+                    argument: new Argument
+                              {
+                                  Arity = ArgumentArity.ExactlyOne
+                              }.WithDefaultValue(() => "the-default")));
 
             ParseResult result = command.Parse("command");
 
@@ -952,14 +907,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Unmatched_options_are_not_split_into_smaller_tokens()
         {
-            var command = new CommandLineBuilder()
-                          .AddCommand("outer", "",
-                                      outer => outer.AddOption("-p", "")
-                                                    .AddCommand("inner", "",
-                                                                inner => inner.AddOption("-o", ""), args => args.OneOrMore()))
-                          .BuildCommand();
+            var outer = new Command("outer");
+            outer.AddOption(
+                new Option("-p"));
+            outer.AddCommand(
+                new Command("inner",
+                            argument: new Argument
+                                      {
+                                          Arity = ArgumentArity.OneOrMore
+                                      }));
 
-            ParseResult result = command.Parse("outer inner -p:RandomThing=random");
+            ParseResult result = outer.Parse("outer inner -p:RandomThing=random");
 
             _output.WriteLine(result.Diagram());
 
@@ -972,10 +930,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void The_default_behavior_of_unmatched_tokens_resulting_in_errors_can_be_turned_off()
         {
-            var parser = new CommandLineBuilder()
-                         .TreatUnmatchedTokensAsErrors(false)
-                         .AddCommand("the-command", "", arguments: args => args.ExactlyOne())
-                         .Build();
+            var parser = new Command(
+                "the-command",
+                treatUnmatchedTokensAsErrors: false,
+                argument: new Argument
+                          {
+                              Arity = ArgumentArity.ExactlyOne
+                          });
 
             ParseResult result = parser.Parse("the-command arg1 arg2");
 
@@ -1104,12 +1065,22 @@ namespace System.CommandLine.Tests
         [InlineData("-x:-y")]
         public void Arguments_can_start_with_prefixes_that_make_them_look_like_options(string input)
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-x", "", args => args.ZeroOrOne())
-                         .AddOption("-z", "", args => args.ZeroOrOne())
-                         .Build();
+            var command = new Command("command");
 
-            var result = parser.Parse(input);
+            command.AddOption(
+                new Option("-x",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ZeroOrOne
+                                     }));
+            command.AddOption(
+                new Option("-z",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ZeroOrOne
+                                     }));
+
+            var result = command.Parse(input);
 
             var valueForOption = result.ValueForOption("-x");
 
@@ -1121,12 +1092,19 @@ namespace System.CommandLine.Tests
         [InlineData("-x:-y")]
         public void Arguments_can_match_the_aliases_of_sibling_options(string input)
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-x", "", args => args.ZeroOrOne())
-                         .AddOption("-y", "", args => args.ZeroOrOne())
-                         .Build();
+            var command = new Command("command");
+            command.AddOption(
+                new Option("-x", argument: new Argument
+                                           {
+                                               Arity = ArgumentArity.ZeroOrOne
+                                           }));
+            command.AddOption(
+                new Option("-y", argument: new Argument
+                                           {
+                                               Arity = ArgumentArity.ZeroOrOne
+                                           }));
 
-            var result = parser.Parse(input);
+            var result = command.Parse(input);
 
             var valueForOption = result.ValueForOption("-x");
 
@@ -1177,16 +1155,40 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Boolean_options_with_no_argument_specified_do_not_match_subsequent_arguments()
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-v", "", builder => builder.ParseArgumentsAs<bool>())
-                         .AddArguments(builder => builder.OneOrMore())
-                         .Build();
+            var command = new Command("command");
+            command.AddOption(
+                new Option("-v",
+                           argument: new Argument<bool>()));
 
-            var result = parser.Parse("-v an-argument");
+            var result = command.Parse("-v an-argument");
 
             _output.WriteLine(result.ToString());
 
             result.ValueForOption("v").Should().Be(true);
+        }
+
+        [Fact]
+        public void When_a_command_line_has_unmatched_tokens_they_are_not_applied_to_subsequent_options()
+        {
+            var command = new Command("command", treatUnmatchedTokensAsErrors: false);
+            command.AddOption(
+                new Option("-x",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ExactlyOne
+                                     }));
+            command.AddOption(
+                new Option("-y",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ExactlyOne
+                                     }));
+
+            var result = command.Parse("-x 23 unmatched-token -y 42");
+
+            result.ValueForOption("-x").Should().Be("23");
+            result.ValueForOption("-y").Should().Be("42");
+            result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
         }
     }
 }

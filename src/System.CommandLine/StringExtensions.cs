@@ -85,8 +85,9 @@ namespace System.CommandLine
                     tokenList.Add(Directive(arg));
                     continue;
                 }
-                else if (!foundEndOfDirectives 
-                    && !string.Equals(CommandLineBuilder.ExeName, arg, StringComparison.OrdinalIgnoreCase))
+
+                if (!foundEndOfDirectives 
+                    && !string.Equals(configuration.RootCommand.Name, arg, StringComparison.OrdinalIgnoreCase))
                 {
                     foundEndOfDirectives = true;
                 }
@@ -95,7 +96,7 @@ namespace System.CommandLine
                     arg.StartsWith("@"))
                 {
                     var filePath = arg.Substring(1);
-                    if (!String.IsNullOrWhiteSpace(filePath))
+                    if (!string.IsNullOrWhiteSpace(filePath))
                     {
                         try
                         {

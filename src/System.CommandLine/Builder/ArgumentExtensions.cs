@@ -46,6 +46,17 @@ namespace System.CommandLine.Builder
             return argument;
         }
 
+        public static Argument ExistingFilesOnly(this Argument argument)
+        {
+            argument.AddValidator(symbol =>
+                                      symbol.Arguments
+                                            .Where(filePath => !File.Exists(filePath) &&
+                                                               !Directory.Exists(filePath))
+                                            .Select(symbol.ValidationMessages.FileDoesNotExist)
+                                            .FirstOrDefault());
+            return argument;
+        }
+
         public static Argument LegalFilePathsOnly(this Argument argument)
         {
             argument.AddValidator(symbol =>

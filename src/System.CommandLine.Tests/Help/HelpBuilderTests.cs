@@ -222,7 +222,6 @@ namespace System.CommandLine.Tests.Help
             {
                 HelpBuilder = _helpBuilder,
             }
-            .TreatUnmatchedTokensAsErrors(true)
             .AddCommand("some-command", "Does something",
                 c => c.AddOption(
                     "-x",

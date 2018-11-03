@@ -30,7 +30,7 @@ namespace System.CommandLine
 
             if (!symbols.Any())
             {
-                throw new ArgumentException("You must specify at least one option.");
+                throw new ArgumentException("You must specify at least one option or command.");
             }
 
             ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=', ' ' };

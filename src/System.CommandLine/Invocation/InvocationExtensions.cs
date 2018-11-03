@@ -138,6 +138,7 @@ namespace System.CommandLine.Invocation
                 if (prefixes == null)
                 {
                     helpOptionTokens.Add("-h");
+                    helpOptionTokens.Add("/h");
                     helpOptionTokens.Add("--help");
                     helpOptionTokens.Add("-?");
                     helpOptionTokens.Add("/?");

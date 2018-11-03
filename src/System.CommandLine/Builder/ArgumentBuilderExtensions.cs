@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Builder
@@ -75,14 +73,8 @@ namespace System.CommandLine.Builder
         public static ArgumentBuilder ExistingFilesOnly(
             this ArgumentBuilder builder)
         {
-            builder.AddValidator(symbol =>
-            {
-                return symbol.Arguments
-                             .Where(filePath => !File.Exists(filePath) &&
-                                                !Directory.Exists(filePath))
-                             .Select(symbol.ValidationMessages.FileDoesNotExist)
-                             .FirstOrDefault();
-            });
+            builder.Configure(argument => argument.ExistingFilesOnly());
+
             return builder;
         }
 

@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
             var messages = new FakeValidationMessages("the-message");
 
             var command = new Command("the-command", "",
-                                      new Argument
+                                      argument: new Argument
                                       {
                                           Arity = ArgumentArity.ExactlyOne
                                       });

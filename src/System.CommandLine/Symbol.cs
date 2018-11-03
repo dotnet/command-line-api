@@ -15,7 +15,7 @@ namespace System.CommandLine
 
         protected internal Symbol(
             IReadOnlyCollection<string> aliases,
-            string description,
+            string description = null,
             Argument argument = null,
             HelpDetail help = null)
         {
@@ -50,9 +50,9 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
-        public Argument Argument { get; protected set; }
+        public Argument Argument { get; set; }
 
-        public string Description { get; }
+        public string Description { get; set; }
 
         public HelpDetail Help { get; }
 
@@ -75,7 +75,17 @@ namespace System.CommandLine
             }
         }
 
-        public Command Parent { get; internal set; }
+        public Command Parent { get; private set; }
+
+        private protected void AddSymbol(Symbol symbol)
+        {
+            if (this is Command command)
+            {
+                symbol.Parent = command;
+            }
+
+            Children.Add(symbol);
+        }
 
         public SymbolSet Children { get; } = new SymbolSet();
 

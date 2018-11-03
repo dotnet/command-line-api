@@ -349,7 +349,7 @@ namespace System.CommandLine.Tests
                 new[] {
                     new Command(
                         "one", "",
-                        new Argument
+                        argument: new Argument
                             {
                                 Arity = ArgumentArity.ExactlyOne
                             }
@@ -513,7 +513,7 @@ namespace System.CommandLine.Tests
         {
             Command command =
                 new Command("the-command", "",
-                            new Argument
+                            argument: new Argument
                             {
                                 Arity = ArgumentArity.ZeroOrMore
                             });

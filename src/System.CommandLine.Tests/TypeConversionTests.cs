@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests
 
             var parser = new Parser(
                 new Command("custom", "",
-                            argument));
+                            argument: argument));
 
             var result = parser.Parse("custom one two three");
 
@@ -89,7 +89,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<int>(s => ArgumentParseResult.Success(1));
 
-            argument.Arity.Should().Be(ArgumentArity.ExactlyOne);
+            argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<string>();
 
-            argument.Arity.Should().Be(ArgumentArity.ExactlyOne);
+            argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
 
         [Theory]
@@ -108,7 +108,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument { ArgumentType = type };
 
-            argument.Arity.Should().Be(ArgumentArity.OneOrMore);
+            argument.Arity.Should().BeEquivalentTo(ArgumentArity.OneOrMore);
         }
 
         [Fact]
@@ -401,15 +401,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void The_default_value_of_a_command_with_no_arguments_is_an_empty_collection()
         {
-            var option = new CommandResult(new Command("-x", ""));
+            var result = new CommandResult(new Command("-x", ""));
 
-            option.GetValueOrDefault()
+            var valueOrDefault = result.GetValueOrDefault();
+
+            valueOrDefault
                   .Should()
-                  .BeAssignableTo<IReadOnlyCollection<string>>()
-                  .Which
-                  .Count
-                  .Should()
-                  .Be(0);
+                  .BeNull();
         }
 
         [Fact]
@@ -541,7 +539,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command(
                 "tally", "",
-                new Argument<int>(a => ArgumentParseResult.Failure("Could not parse int")));
+                argument: new Argument<int>(a => ArgumentParseResult.Failure("Could not parse int")));
 
             var result = command.Parse("tally one");
 

@@ -11,6 +11,16 @@ namespace System.CommandLine.Builder
     {
         public static TBuilder AddCommand<TBuilder>(
             this TBuilder builder,
+            Command command)
+            where TBuilder : CommandBuilder
+        {
+            builder.AddCommand(command);
+
+            return builder;
+        }
+
+        public static TBuilder AddCommand<TBuilder>(
+            this TBuilder builder,
             string name,
             string description = null,
             Action<CommandBuilder> symbols = null,
@@ -83,22 +93,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder AddOptionFromProperty<TBuilder>(
-            this TBuilder builder,
-            PropertyInfo property)
-            where TBuilder : CommandBuilder
-        {
-            if (property.CanWrite)
-            {
-                builder.AddOption(
-                    property.BuildAlias(),
-                    property.Name,
-                    args => args.ParseArgumentsAs(property.PropertyType));
-            }
-
-            return builder;
-        }
-
         public static TBuilder AddOptionFromParameter<TBuilder>(
             this TBuilder builder,
             ParameterInfo parameter)
@@ -116,6 +110,16 @@ namespace System.CommandLine.Builder
                         args.WithDefaultValue(() => parameter.DefaultValue);
                     }
                 });
+
+            return builder;
+        }
+
+        public static TBuilder AddOption<TBuilder>(
+            this TBuilder builder,
+            Option option)
+            where TBuilder : CommandBuilder
+        {
+            builder.AddOption(option);
 
             return builder;
         }
