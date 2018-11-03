@@ -162,6 +162,8 @@ function InstallDotNetCli {
 
   # Don't resolve runtime, shared framework, or SDK from other locations
   export DOTNET_MULTILEVEL_LOOKUP=0
+ 
+  export USE_REPO_TOOLSET=1
 }
 
 function InstallRepoToolset {

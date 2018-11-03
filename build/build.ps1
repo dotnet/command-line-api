@@ -102,6 +102,8 @@ function InstallDotNetCli {
 
   # Don't resolve runtime, shared framework, or SDK from other locations
   $env:DOTNET_MULTILEVEL_LOOKUP=0
+  
+  $env:USE_REPO_TOOLSET=1
 }
 
 function InstallRepoToolset {
