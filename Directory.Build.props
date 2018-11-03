@@ -10,8 +10,8 @@
     that is done by the file that imports us.
   -->
 
-  <Import Project="build\NuGet.props"/>
-  <Import Project="build\Versions.props"/>
+  <Import Condition="$(USE_REPO_TOOLSET) == '1'" Project="build\NuGet.props"/>
+  <Import Condition="$(USE_REPO_TOOLSET) == '1'" Project="build\Versions.props"/>
 
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
