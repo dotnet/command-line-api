@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests.Rendering
             {
                 foreach(var @string in strings)
                 {
-                    AddChild(new ContentView(@string));
+                    Add(new ContentView(@string));
                 }
             }
         }

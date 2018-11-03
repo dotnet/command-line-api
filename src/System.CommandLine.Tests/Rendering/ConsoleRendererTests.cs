@@ -302,13 +302,13 @@ namespace System.CommandLine.Tests.Rendering
                 formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}{ForegroundColorSpan.Reset()} ");
 
 
-                AddChild(new ContentView(""));
-                AddChild(new ContentView(""));
+                Add(new ContentView(""));
+                Add(new ContentView(""));
 
-                AddChild(new ContentView($"Directory: {directory.FullName}"));
+                Add(new ContentView($"Directory: {directory.FullName}"));
 
-                AddChild(new ContentView(""));
-                AddChild(new ContentView(""));
+                Add(new ContentView(""));
+                Add(new ContentView(""));
 
                 var directoryContents = directory.EnumerateFileSystemInfos()
                                                  .OrderBy(f => f is DirectoryInfo
@@ -327,7 +327,7 @@ namespace System.CommandLine.Tests.Rendering
                 tableView.AddColumn(f => formatter.Format(f.LastWriteTime), 
                     new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Modified{Ansi.Text.UnderlinedOff}")));
 
-                AddChild(tableView);
+                Add(tableView);
 
                 Span Span(FormattableString formattableString)
                 {

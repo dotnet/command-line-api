@@ -28,11 +28,11 @@ namespace System.CommandLine.Rendering.Views
         public void SetChild(View child, int column, int row)
         {
             //TODO: Ensure row/column is in a valid range
-            base.AddChild(child);
+            base.Add(child);
             ChildLocations[column, row] = child;
         }
 
-        public override void AddChild(View child) => throw new InvalidOperationException("Must call SetChild(View child, int column, int row) instead");
+        public override void Add(View child) => throw new InvalidOperationException("Must call SetChild(View child, int column, int row) instead");
 
         public void SetColumns(params ColumnDefinition[] columns)
         {

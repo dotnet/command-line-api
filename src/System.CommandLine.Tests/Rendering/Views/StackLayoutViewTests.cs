@@ -16,8 +16,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -37,8 +37,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -56,8 +56,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -82,8 +82,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -103,8 +103,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -124,8 +124,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -148,8 +148,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -166,8 +166,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -184,8 +184,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -203,8 +203,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -221,8 +221,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
@@ -241,8 +241,8 @@ namespace System.CommandLine.Tests.Rendering.Views
             var child1 = new ContentView("The quick");
             var child2 = new ContentView("brown fox");
 
-            stackLayout.AddChild(child1);
-            stackLayout.AddChild(child2);
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
 
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
