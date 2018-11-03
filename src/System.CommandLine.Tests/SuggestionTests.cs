@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
+using System.IO;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -10,7 +11,7 @@ namespace System.CommandLine.Tests
 {
     public class SuggestionTests
     {
-        private ITestOutputHelper _output;
+        private readonly ITestOutputHelper _output;
 
         public SuggestionTests(ITestOutputHelper output)
         {
@@ -522,6 +523,20 @@ namespace System.CommandLine.Tests
                                         .TextToMatch(input.IndexOf("$", StringComparison.Ordinal));
 
             textToMatch.Should().Be("one");
+        }
+
+        [Fact]
+        public void Arguments_of_type_enum_provide_enum_values_as_suggestions()
+        {
+            var command = new Command("the-command",
+                                      argument: new Argument<FileMode>());
+
+            var suggestions = command.Parse("the-command create")
+                                     .Suggestions();
+
+            _output.WriteLine(string.Join("\n", suggestions));
+
+            suggestions.Should().BeEquivalentTo("CreateNew", "Create", "OpenOrCreate");
         }
     }
 }
