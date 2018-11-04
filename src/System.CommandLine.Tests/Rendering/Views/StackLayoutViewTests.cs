@@ -1,4 +1,4 @@
-using System.CommandLine.Rendering;
+﻿using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
 using System.Drawing;
 using FluentAssertions;
@@ -215,7 +215,7 @@ namespace System.CommandLine.Tests.Rendering.Views
         }
 
         [Fact]
-        public void Measuring_a_horizontal_stack_with_word_wrap_it_sums_max_width_for_each_column()
+        public void Measuring_a_horizontal_stack_with_word_wrap_it_sums_max_width_for_each_child()
         {
             var stackLayout = new StackLayoutView(Orientation.Horizontal);
             var child1 = new ContentView("The quick");
@@ -235,7 +235,7 @@ namespace System.CommandLine.Tests.Rendering.Views
         }
 
         [Fact]
-        public void Measuring_a_horizontal_stack_with_truncated_height_measures_max_for_each_column()
+        public void Measuring_a_horizontal_stack_with_truncated_height_measures_max_for_each_child()
         {
             var stackLayout = new StackLayoutView(Orientation.Horizontal);
             var child1 = new ContentView("The quick");
@@ -250,6 +250,42 @@ namespace System.CommandLine.Tests.Rendering.Views
             var size = stackLayout.Measure(renderer, new Size(7, 1));
 
             size.Should().BeEquivalentTo(new Size("The ".Length + "brown ".Length, 1));
+        }
+
+        [Fact]
+        public void Measuring_a_horizontal_stack_with_wide_children_wraps_last_child()
+        {
+            var stackLayout = new StackLayoutView(Orientation.Horizontal);
+            var child1 = new ContentView("The quick");
+            var child2 = new ContentView("brown fox");
+
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
+
+            var console = new TestConsole();
+            var renderer = new ConsoleRenderer(console);
+
+            var size = stackLayout.Measure(renderer, new Size(12, 5));
+
+            size.Should().BeEquivalentTo(new Size(12, 2));
+        }
+
+        [Fact]
+        public void Measuring_a_vertical_stack_with_tall_children_trims_last_child()
+        {
+            var stackLayout = new StackLayoutView(Orientation.Vertical);
+            var child1 = new ContentView("The quick");
+            var child2 = new ContentView("brown fox");
+
+            stackLayout.Add(child1);
+            stackLayout.Add(child2);
+
+            var console = new TestConsole();
+            var renderer = new ConsoleRenderer(console);
+
+            var size = stackLayout.Measure(renderer, new Size(5, 3));
+
+            size.Should().BeEquivalentTo(new Size(5, 3));
         }
     }
 }
