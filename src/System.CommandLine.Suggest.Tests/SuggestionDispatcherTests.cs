@@ -15,19 +15,19 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionDispatcherTests
     {
-        private static readonly string _fakedotnet = CommandLineBuilder.ExeName;
+        private static readonly string _currentExeName = CommandLineBuilder.ExeName;
 
-        private static RegistrationPair FakeDotnetRegistrationPair()
-            => new RegistrationPair(FakeDotnetFullPath(), $"{_fakedotnet} [suggest]");
+        private static RegistrationPair CurrentExeRegistrationPair()
+            => new RegistrationPair(FakeDotnetFullPath(), $"{_currentExeName} [suggest]");
 
-        private static string FakeDotnetFullPath() => Path.GetFullPath(_fakedotnet);
+        private static string FakeDotnetFullPath() => Path.GetFullPath(_currentExeName);
 
         [Fact]
         public async Task InvokeAsync_executes_completion_command_for_executable()
         {
-            string[] args = $@"get -p 12 -e ""{FakeDotnetFullPath()}"" --  {_fakedotnet} add".Tokenize().ToArray();
+            string[] args = $@"get -p 12 -e ""{FakeDotnetFullPath()}"" --  {_currentExeName} add".Tokenize().ToArray();
 
-            var suggestions = await InvokeAsync(args, new TestSuggestionRegistration(FakeDotnetRegistrationPair()));
+            var suggestions = await InvokeAsync(args, new TestSuggestionRegistration(CurrentExeRegistrationPair()));
 
             suggestions
                 .Should()
@@ -48,12 +48,12 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
         {
-            var provider = new TestSuggestionRegistration(new RegistrationPair(FakeDotnetFullPath(), $"{_fakedotnet} {Assembly.GetExecutingAssembly().Location}"));
+            var provider = new TestSuggestionRegistration(new RegistrationPair(FakeDotnetFullPath(), $"{_currentExeName} {Assembly.GetExecutingAssembly().Location}"));
             var dispatcher = new SuggestionDispatcher(provider, new TestSuggestionStore());
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
 
-            var args = $@"get -p 0 -e ""{_fakedotnet}"" -- {_fakedotnet} add".Tokenize().ToArray();
+            var args = $@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add".Tokenize().ToArray();
 
             await dispatcher.InvokeAsync(args, testConsole);
 
@@ -63,27 +63,32 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task List_command_gets_all_executable_names()
         {
-            TestSuggestionRegistration testSuggestionProvider;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                testSuggestionProvider = new TestSuggestionRegistration(
-                    new RegistrationPair(@"C:\Program Files\dotnet\dotnet.exe","dotnet complete"),
-                    new RegistrationPair(@"C:\Program Files\himalayan-berry.exe","himalayan-berry spread"));
-            }
-            else
-            {
-                testSuggestionProvider = new TestSuggestionRegistration(
-                    new RegistrationPair(@"/bin/dotnet", "dotnet complete"),
-                    new RegistrationPair(@"/bin/himalayan-berry", "himalayan-berry spread"));
-            }
+            var testSuggestionProvider = new TestSuggestionRegistration(
+                new RegistrationPair(_dotnetExeFullPath, "dotnet complete"),
+                new RegistrationPair(_himalayanBerryExeFullPath, "himalayan-berry spread"));
 
             var dispatcher = new SuggestionDispatcher(testSuggestionProvider);
             var testConsole = new TestConsole();
 
-            await dispatcher.InvokeAsync(new[] {"list"}, testConsole);
+            await dispatcher.InvokeAsync(new[] { "list" }, testConsole);
 
             testConsole.Out.ToString().Should().Be($"dotnet himalayan-berry{Environment.NewLine}");
         }
+
+        private static readonly string _dotnetExeFullPath =
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? @"C:\Program Files\dotnet\dotnet.exe"
+                : "/bin/dotnet";
+
+        private static readonly string _netExeFullPath =
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? @"C:\Windows\System32\net.exe"
+                : "/bin/net";
+
+        private static readonly string _himalayanBerryExeFullPath =
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? @"C:\Program Files\himalayan-berry.exe"
+                : "/bin/himalayan-berry";
 
         [Fact]
         public async Task Register_command_adds_new_suggestion_entry()
@@ -91,12 +96,12 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = "register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray();
+            var args = $"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray();
 
             await dispatcher.InvokeAsync(args);
 
             RegistrationPair addedRegistration = provider.FindAllRegistrations().Single();
-            addedRegistration.CommandPath.Should().Be(@"C:\Windows\System32\net.exe");
+            addedRegistration.CommandPath.Should().Be(_netExeFullPath);
             addedRegistration.SuggestionCommand.Should().Be("net-suggestions complete");
         }
 
@@ -106,7 +111,7 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = "register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray();
+            var args = $"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray();
 
             await dispatcher.InvokeAsync(args);
             await dispatcher.InvokeAsync(args);
@@ -138,7 +143,7 @@ namespace System.CommandLine.Suggest.Tests
                     return $"unexpected value for {nameof(exeFileName)}: {exeFileName}";
                 }
 
-                if (suggestionTargetArguments != $"[suggest] {_fakedotnet} add")
+                if (suggestionTargetArguments != $"[suggest] {_currentExeName} add")
                 {
                     return $"unexpected value for {nameof(suggestionTargetArguments)}: {suggestionTargetArguments}";
                 }
