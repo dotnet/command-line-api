@@ -128,16 +128,14 @@ namespace System.CommandLine
             ParseResult parseResult,
             int? position = null)
         {
-            var symbolAliases = Children.Where<ISymbol>(symbol => !symbol.IsHidden)
-                                        .SelectMany(symbol => symbol.RawAliases);
-
-            var argumentSuggestions = 
+            var argumentSuggestions =
                 Argument.Suggest(parseResult, position);
 
-            return symbolAliases.Concat(argumentSuggestions)
-                                .Distinct()
-                                .OrderBy(symbol => symbol)
-                                .Containing(parseResult.TextToMatch());
+            return this.ChildSymbolAliases()
+                       .Concat(argumentSuggestions)
+                       .Distinct()
+                       .OrderBy(symbol => symbol)
+                       .Containing(parseResult.TextToMatch(position));
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";

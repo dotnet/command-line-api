@@ -21,6 +21,12 @@ namespace System.CommandLine
                     return new AnonymousSuggestionSource((result, position) => names);
                 }
 
+                if (t == typeof(bool))
+                {
+                    var trueAndFalse = new[] { bool.FalseString, bool.TrueString };
+                    return new AnonymousSuggestionSource((result, position) => trueAndFalse);
+                }
+
                 return Empty;
             }
         }

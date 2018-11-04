@@ -48,6 +48,11 @@ namespace System.CommandLine
 
         public bool HasAlias(string alias) => Symbol.HasAlias(alias);
 
+        internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
+
+        private protected virtual int RemainingArgumentCapacity =>
+             Symbol.Argument.Arity.MaximumNumberOfArguments - Arguments.Count;
+
         public ValidationMessages ValidationMessages    
         {
             get => _validationMessages ?? (_validationMessages = ValidationMessages.Instance);

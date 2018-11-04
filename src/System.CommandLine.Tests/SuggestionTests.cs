@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.IO;
 using FluentAssertions;
 using Xunit;
@@ -139,8 +140,7 @@ namespace System.CommandLine.Tests
 
             result.Suggestions()
                   .Should()
-                  .BeEquivalentTo("--apple",
-                                  "--banana",
+                  .BeEquivalentTo("--banana",
                                   "--cherry");
         }
 
@@ -535,6 +535,34 @@ namespace System.CommandLine.Tests
             _output.WriteLine(string.Join("\n", suggestions));
 
             suggestions.Should().BeEquivalentTo("CreateNew", "Create", "OpenOrCreate");
+        }
+
+        [Fact]
+        public void Options_that_have_been_specified_to_their_maximum_arity_are_not_suggested()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption(new Option("--allows-one", argument: new Argument<string>()))
+                         .AddOption(new Option("--allows-many", argument: new Argument<string[]>()))
+                         .UseSuggestDirective()
+                         .Build();
+
+            var suggestions = parser.Parse("--allows-one x ").Suggestions();
+
+            suggestions.Should().BeEquivalentTo("--allows-many");
+        }
+
+        [Fact]
+        public void When_current_symbol_is_an_option_that_requires_arguments_then_parent_symbol_suggestions_are_omitted()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption(new Option("--allows-one", argument: new Argument<string>()))
+                         .AddOption(new Option("--allows-many", argument: new Argument<string[]>()))
+                         .UseSuggestDirective()
+                         .Build();
+
+            var suggestions = parser.Parse("--allows-one ").Suggestions();
+
+            suggestions.Should().BeEmpty();
         }
     }
 }
