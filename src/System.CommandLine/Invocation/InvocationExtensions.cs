@@ -16,9 +16,21 @@ namespace System.CommandLine.Invocation
     {
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
+            InvocationMiddleware middleware)
+        {
+            builder.AddMiddleware(
+                middleware,
+                CommandLineBuilder.MiddlewareOrder.Middle);
+
+            return builder;
+        }
+
+        public static CommandLineBuilder UseMiddleware(
+            this CommandLineBuilder builder,
             Action<InvocationContext> onInvoke)
         {
-            builder.AddMiddleware(async (context, next) => {
+            builder.AddMiddleware(async (context, next) =>
+            {
                 onInvoke(context);
                 await next(context);
             }, CommandLineBuilder.MiddlewareOrder.Middle);

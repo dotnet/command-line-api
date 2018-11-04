@@ -3,10 +3,10 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using FluentAssertions;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
         private readonly TestConsole _console = new TestConsole();
 
         [Fact]
-        public async Task General_invocation_middleware_can_be_specified_in_the_parser()
+        public async Task General_invocation_middleware_can_be_specified_in_the_CommandLineBuilder()
         {
             var wasCalled = false;
 
@@ -85,102 +85,59 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task UseExceptionHandler_catches_middleware_exceptions_and_writes_details_to_standard_error()
-        {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "")
-                         .UseMiddleware(_ => throw new Exception("oops!"))
-                         .UseExceptionHandler()
-                         .Build();
-
-            var resultCode = await parser.InvokeAsync("the-command", _console);
-
-            _console.Error.ToString().Should().Contain("Unhandled exception: System.Exception: oops!");
-
-            resultCode.Should().Be(1);
-        }
-
-        [Fact]
-        public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
-        {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute(() => throw new Exception("oops!")))
-                         .UseExceptionHandler()
-                         .Build();
-
-            var resultCode = await parser.InvokeAsync("the-command", _console);
-
-            resultCode.Should().Be(1);
-        }
-
-        [Fact]
-        public async Task UseExceptionHandler_catches_command_handler_exceptions_and_writes_details_to_standard_error()
-        {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute(() => throw new Exception("oops!")))
-                         .UseExceptionHandler()
-                         .Build();
-
-            await parser.InvokeAsync("the-command", _console);
-
-            _console.Error.ToString().Should().Contain("System.Exception: oops!");
-        }
-
-        [Fact]
-        public async Task Declaration_of_UseExceptionHandler_can_come_before_other_middleware()
-        {
-            await new CommandLineBuilder()
-                  .AddCommand("the-command", "")
-                  .UseExceptionHandler()
-                  .UseMiddleware(_ => throw new Exception("oops!"))
-                  .Build()
-                  .InvokeAsync("the-command", _console);
-
-            _console.Error
-                    .ToString()
-                    .Should()
-                    .Contain("oops!");
-        }
-
-        [Fact]
-        public async Task Declaration_of_UseExceptionHandler_can_come_after_other_middleware()
-        {
-            await new CommandLineBuilder()
-                  .AddCommand("the-command", "")
-                  .UseMiddleware(_ => throw new Exception("oops!"))
-                  .UseExceptionHandler()
-                  .Build()
-                  .InvokeAsync("the-command", _console);
-
-            _console.Error
-                    .ToString()
-                    .Should()
-                    .Contain("oops!");
-        }
-
-        [Fact]
         public async Task ParseResult_can_be_replaced_by_middleware()
         {
             var wasCalled = false;
+            var command = new Command("the-command");
+            var implicitInnerCommand = new Command("implicit-inner-command");
+            command.AddCommand(implicitInnerCommand);
+            implicitInnerCommand.Handler = CommandHandler.Create((ParseResult result) =>
+            {
+                wasCalled = true;
+                result.Errors.Should().BeEmpty();
+            });
 
             var parser = new CommandLineBuilder()
-                         .UseMiddleware(context => {
-                             var tokensAfterFirst = context.ParseResult.Tokens.Skip(1).ToArray();
-                             var reparsed = context.Parser.Parse(tokensAfterFirst);
-                             context.ParseResult = reparsed;
+                         .UseMiddleware(async (context, next) =>
+                         {
+                             var tokens = context.ParseResult.Tokens.Concat(new[] { "implicit-inner-command" }).ToArray();
+                             context.ParseResult = context.Parser.Parse(tokens);
+                             await next(context);
                          })
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute<ParseResult>(result => {
-                                         wasCalled = true;
-                                         result.Errors.Should().BeEmpty();
-                                     }))
+                         .AddCommand(command)
                          .Build();
 
-            await parser.InvokeAsync("!my-directive the-command", new TestConsole());
+            await parser.InvokeAsync("the-command", new TestConsole());
 
             wasCalled.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Invocation_can_be_short_circuited_by_middleware_by_not_calling_next()
+        {
+            var middlewareWasCalled = false;
+            var handlerWasCalled = false;
+
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create((ParseResult result) =>
+            {
+                middlewareWasCalled = true;
+                result.Errors.Should().BeEmpty();
+            });
+
+            var parser = new CommandLineBuilder()
+                         .UseMiddleware(async (context, next) =>
+                         {
+                             middlewareWasCalled = true;
+                             await Task.Yield();
+                         })
+                         .AddCommand(command)
+                         .Build();
+
+            await parser.InvokeAsync("the-command", new TestConsole());
+
+            middlewareWasCalled.Should().BeTrue();
+            handlerWasCalled.Should().BeFalse();
         }
     }
 }
