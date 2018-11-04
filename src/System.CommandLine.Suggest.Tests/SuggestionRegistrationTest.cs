@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
 using Xunit;
@@ -40,7 +40,7 @@ namespace System.CommandLine.Suggest.Tests
             suggestionProvider.AddSuggestionRegistration(
                 new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand"));
 
-            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("COMMANDPATH")).Value;
+            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("COMMANDPATH"));
 
             registration.CommandPath.Should().Be(Path.GetFullPath("commandPath"));
             registration.SuggestionCommand.Should().Be("suggestionCommand");
@@ -57,7 +57,7 @@ namespace System.CommandLine.Suggest.Tests
             suggestionProvider.AddSuggestionRegistration(
                 new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand2"));
 
-            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("commandPath")).Value;
+            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("commandPath"));
 
             registration.CommandPath.Should().Be(Path.GetFullPath("commandPath"));
             registration.SuggestionCommand.Should().Be("suggestionCommand2");

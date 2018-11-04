@@ -62,13 +62,23 @@ namespace System.CommandLine.Suggest
             _parser.InvokeAsync(args, console);
 
         private void RegisterCommand(
-            string commandPath, 
-            string suggestionCommand, 
+            string commandPath,
+            string suggestionCommand,
             IConsole console)
         {
-            _suggestionRegistration.AddSuggestionRegistration(new RegistrationPair(commandPath, suggestionCommand));
+            var existingRegistration = _suggestionRegistration.FindRegistration(new FileInfo(commandPath));
 
-            console.Out.WriteLine($"Registered {commandPath} --> {suggestionCommand}");
+            if (existingRegistration == null)
+            {
+                _suggestionRegistration.AddSuggestionRegistration(
+                    new RegistrationPair(commandPath, suggestionCommand));
+
+                console.Out.WriteLine($"Registered {commandPath} --> {suggestionCommand}");
+            }
+            else
+            {
+                console.Out.WriteLine($"Registered {commandPath} --> {suggestionCommand}");
+            }
         }
 
         private void GetSuggestions(ParseResult parseResult, IConsole console)
@@ -78,15 +88,15 @@ namespace System.CommandLine.Suggest
             var suggestionRegistration =
                 _suggestionRegistration.FindRegistration(commandPath);
 
-            if (!suggestionRegistration.HasValue)
+            if (suggestionRegistration == null)
             {
                 // Can't find a completion exe to call
                 return;
             }
 
-            string targetArgs = FormatSuggestionArguments(parseResult, suggestionRegistration.Value.SuggestionCommand.Tokenize().ToList());
+            string targetArgs = FormatSuggestionArguments(parseResult, suggestionRegistration.SuggestionCommand.Tokenize().ToList());
 
-            string suggestions = _suggestionStore.GetSuggestions(suggestionRegistration.Value.CommandPath, targetArgs, Timeout);
+            string suggestions = _suggestionStore.GetSuggestions(suggestionRegistration.CommandPath, targetArgs, Timeout);
             if (!string.IsNullOrWhiteSpace(suggestions))
             {
                 console.Out.Write(suggestions);

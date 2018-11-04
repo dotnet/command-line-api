@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -23,8 +22,8 @@ namespace System.CommandLine.Suggest.Tests
 
             var pair = suggestionRegistration.FindRegistration(fileInfo);
 
-            pair.Value.CommandPath.Should().Be(validToolsPath);
-            pair.Value.SuggestionCommand.Should().Be("play [suggest]");
+            pair.CommandPath.Should().Be(validToolsPath);
+            pair.SuggestionCommand.Should().Be("play [suggest]");
         }
 
         [Fact]
@@ -46,16 +45,18 @@ namespace System.CommandLine.Suggest.Tests
         {
             var dotnetProfileDirectory = Path.GetTempPath();
             var suggestionRegistration = new GlobalToolsSuggestionRegistration(dotnetProfileDirectory,
-                FilesNameWithoutExtensionUnderDotnetProfileToolsExample);
+                                                                               FilesNameWithoutExtensionUnderDotnetProfileToolsExample);
 
             var registrationPairs = suggestionRegistration.FindAllRegistrations();
-            registrationPairs.Should()
-                .Contain(new RegistrationPair(
-                    Path.Combine(dotnetProfileDirectory, "tools", "dotnet-suggest"),
-                    "dotnet-suggest [suggest]"));
-            registrationPairs.Should()
-                .Contain(new RegistrationPair(Path.Combine(dotnetProfileDirectory, "tools", "t-rex"),
-                    "t-rex [suggest]"));
+
+            registrationPairs
+                .Should()
+                .BeEquivalentTo(
+                    new RegistrationPair(
+                        Path.Combine(dotnetProfileDirectory, "tools", "dotnet-suggest"),
+                        "dotnet-suggest [suggest]"),
+                    new RegistrationPair(Path.Combine(dotnetProfileDirectory, "tools", "t-rex"),
+                                         "t-rex [suggest]"));
         }
     }
 }
