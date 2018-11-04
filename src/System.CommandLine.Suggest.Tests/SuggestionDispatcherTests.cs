@@ -15,7 +15,7 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionDispatcherTests
     {
-        private static string _fakedotnet = CommandLineBuilder.ExeName;
+        private static readonly string _fakedotnet = CommandLineBuilder.ExeName;
 
         private static RegistrationPair FakeDotnetRegistrationPair()
             => new RegistrationPair(FakeDotnetFullPath(), $"{_fakedotnet} [suggest]");
@@ -64,8 +64,7 @@ namespace System.CommandLine.Suggest.Tests
         public async Task List_command_gets_all_executable_names()
         {
             TestSuggestionRegistration testSuggestionProvider;
-            if (RuntimeInformation
-                .IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 testSuggestionProvider = new TestSuggestionRegistration(
                     new RegistrationPair(@"C:\Program Files\dotnet\dotnet.exe","dotnet complete"),
@@ -92,11 +91,27 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            await dispatcher.InvokeAsync("register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray());
+            var args = "register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray();
+
+            await dispatcher.InvokeAsync(args);
 
             RegistrationPair addedRegistration = provider.FindAllRegistrations().Single();
             addedRegistration.CommandPath.Should().Be(@"C:\Windows\System32\net.exe");
             addedRegistration.SuggestionCommand.Should().Be("net-suggestions complete");
+        }
+
+        [Fact]
+        public async Task Register_command_will_not_add_duplicate_entry()
+        {
+            var provider = new TestSuggestionRegistration();
+            var dispatcher = new SuggestionDispatcher(provider);
+
+            var args = "register --command-path \"C:\\Windows\\System32\\net.exe\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray();
+
+            await dispatcher.InvokeAsync(args);
+            await dispatcher.InvokeAsync(args);
+
+            provider.FindAllRegistrations().Should().HaveCount(1);
         }
 
         private static async Task<string> InvokeAsync(

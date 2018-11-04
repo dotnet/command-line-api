@@ -44,7 +44,7 @@ namespace System.CommandLine.Suggest
                 new RegistrationPair(Path.Combine(_nullableToolsShimPath, p), $"{p} [suggest]"));
         }
 
-        public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
+        public RegistrationPair FindRegistration(FileInfo soughtExecutable)
         {
             if (soughtExecutable == null) throw new ArgumentNullException(nameof(soughtExecutable));
 

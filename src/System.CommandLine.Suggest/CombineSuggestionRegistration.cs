@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -25,11 +25,11 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
+        public RegistrationPair FindRegistration(FileInfo soughtExecutable)
         {
             return _suggestionRegistrations
                 .Select(s => s.FindRegistration(soughtExecutable))
-                .FirstOrDefault(r => r.HasValue);
+                .FirstOrDefault();
         }
 
         public IEnumerable<RegistrationPair> FindAllRegistrations()

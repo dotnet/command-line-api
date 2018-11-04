@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using static System.Environment;
 
 namespace System.CommandLine.Suggest
@@ -37,7 +36,7 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        public RegistrationPair? FindRegistration(FileInfo soughtExecutable)
+        public RegistrationPair FindRegistration(FileInfo soughtExecutable)
         {
             if (soughtExecutable == null)
             {
