@@ -171,7 +171,7 @@ namespace System.CommandLine.Tests
             var command = new Command(
                 "the-command", "Does things.",
                 new[] {
-                    new Option("--hide-me", ""),
+                    new Option("--hide-me", isHidden: true),
                     new Option("-n", "Not hidden")
                 });
 
@@ -287,13 +287,11 @@ namespace System.CommandLine.Tests
                             {
                                 new Option(
                                     "--one",
-                                    "",
-                                    new Argument { Arity = ArgumentArity.ExactlyOne }
+                                    argument: new Argument { Arity = ArgumentArity.ExactlyOne }
                                         .FromAmong("one-a", "one-b")),
                                 new Option(
                                     "--two",
-                                    "",
-                                    new Argument { Arity = ArgumentArity.ExactlyOne }
+                                    argument: new Argument { Arity = ArgumentArity.ExactlyOne }
                                         .FromAmong("two-a", "two-b"))
                             }));
 

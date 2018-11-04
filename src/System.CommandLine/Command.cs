@@ -17,8 +17,9 @@ namespace System.CommandLine
             Argument argument = null,
             bool treatUnmatchedTokensAsErrors = true,
             ICommandHandler handler = null,
-            IHelpBuilder helpBuilder = null) :
-            base(new[] { name }, description)
+            IHelpBuilder helpBuilder = null,
+            bool isHidden = false) :
+            base(new[] { name }, description, isHidden: isHidden)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
             Handler = handler;
