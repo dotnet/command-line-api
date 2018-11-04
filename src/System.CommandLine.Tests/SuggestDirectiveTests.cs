@@ -12,16 +12,30 @@ namespace System.CommandLine.Tests
 {
     public class SuggestDirectiveTests
     {
-        [Fact]
-        public async Task Suggest_directive_writes_suggestions_for_option_arguments()
-        {
-            var eatCommand = new Command("eat");
-            var fruitOption = new Option("--fruit",
-                                         argument: new Argument<string>().WithSuggestions("apple", "banana", "cherry"));
-            eatCommand.AddOption(fruitOption);
+        protected internal Option _fruitOption;
 
+        protected internal Option _vegetableOption;
+
+        private readonly Command _eatCommand;
+
+        public SuggestDirectiveTests()
+        {
+            _fruitOption = new Option("--fruit",
+                                      argument: new Argument<string>()
+                                          .WithSuggestions("apple", "banana", "cherry"));
+
+            _vegetableOption = new Option("--vegetable",
+                                          argument: new Argument<string>()
+                                              .WithSuggestions("asparagus", "broccoli", "carrot"));
+            _eatCommand = new Command("eat",
+                                      symbols: new[] { _fruitOption, _vegetableOption });
+        }
+
+        [Fact]
+        public async Task Suggest_directive_writes_suggestions_for_option_arguments_when_under_subcommand()
+        {
             var parser = new CommandLineBuilder()
-                         .AddCommand(eatCommand)
+                         .AddCommand(_eatCommand)
                          .UseSuggestDirective()
                          .Build();
 
@@ -38,14 +52,52 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task Suggest_directive_writes_suggestions_for_options()
+        public async Task Suggest_directive_writes_suggestions_for_option_arguments_when_under_root_command()
         {
-            var fruitOption = new Option("--fruit",
-                                         argument: new Argument<string>().WithSuggestions("apple", "banana", "cherry"));
-
             var parser = new CommandLineBuilder()
-                         .AddOption("--vegetable", "A fruit")
-                         .AddOption(fruitOption)
+                         .AddOption(_fruitOption)
+                         .AddOption(_vegetableOption)
+                         .UseSuggestDirective()
+                         .Build();
+
+            var result = parser.Parse("[suggest] --fruit ");
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync(result, console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
+        }
+
+        [Fact]
+        public async Task Suggest_directive_writes_suggestions_for_option_aliases_under_subcommand()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddCommand(_eatCommand)
+                         .UseSuggestDirective()
+                         .Build();
+
+            var result = parser.Parse("[suggest] eat ");
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync(result, console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"--fruit{NewLine}--vegetable{NewLine}");
+        }
+
+        [Fact]
+        public async Task Suggest_directive_writes_suggestions_for_option_aliases_under_root_command()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption(_vegetableOption)
+                         .AddOption(_fruitOption)
                          .UseSuggestDirective()
                          .Build();
 
@@ -59,6 +111,26 @@ namespace System.CommandLine.Tests
                    .ToString()
                    .Should()
                    .Be($"--fruit{NewLine}--vegetable{NewLine}");
+        }
+
+        [Fact]
+        public async Task Suggest_directive_writes_suggestions_for_subcommand_aliases_under_root_command()
+        {
+            var parser = new CommandLineBuilder()
+                       .AddCommand(_eatCommand)
+                         .UseSuggestDirective()
+                         .Build();
+
+            var result = parser.Parse("[suggest] ");
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync(result, console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"eat{NewLine}");
         }
     }
 }

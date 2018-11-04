@@ -172,15 +172,17 @@ namespace System.CommandLine
                     ? currentSuggestionSource.Suggest(parseResult, position)
                     : Array.Empty<string>();
 
-            if (currentSymbolResult is CommandResult)
+            if (currentSymbolResult is CommandResult commandResult)
             {
-                var optionsWithArgLimitReached = currentSymbolResult
-                                    .Children
-                                    .Where(c => c.IsArgumentLimitReached);
+                var optionsWithArgLimitReached =
+                    currentSymbolResult
+                        .Children
+                        .Where(c => c.IsArgumentLimitReached);
 
                 var exclude =
                     optionsWithArgLimitReached
                         .SelectMany(c => c.Symbol.RawAliases)
+                        .Concat(commandResult.Symbol.RawAliases)
                         .ToArray();
 
                 currentSymbolSuggestions = currentSymbolSuggestions.Except(exclude);
@@ -189,7 +191,7 @@ namespace System.CommandLine
             var parentSymbolSuggestions =
                 includeParentSuggestions &&
                 currentSymbol?.Parent is ISuggestionSource parentSuggestionSource
-                    ? parentSuggestionSource.Suggest(parseResult, position)
+                    ? parentSuggestionSource.Suggest(parseResult, position).Except(currentSymbol.RawAliases)
                     : Array.Empty<string>();
 
             return parentSymbolSuggestions
