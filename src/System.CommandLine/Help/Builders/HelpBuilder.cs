@@ -306,7 +306,8 @@ namespace System.CommandLine
 
             var option = string.Join(", ", rawAliases);
 
-            if (symbol.HasArguments() && !string.IsNullOrWhiteSpace(symbol.Argument?.Help?.Name))
+            if (symbol?.ShouldShowHelp() == true && 
+                !string.IsNullOrWhiteSpace(symbol.Argument?.Help?.Name))
             {
                 option = $"{option} <{symbol.Argument?.Help?.Name}>";
             }
@@ -323,7 +324,7 @@ namespace System.CommandLine
         /// <param name="command"></param>
         protected virtual void AddSynopsis(ICommand command)
         {
-            if (!command.HasHelp())
+            if (!command.ShouldShowHelp())
             {
                 return;
             }
@@ -357,7 +358,7 @@ namespace System.CommandLine
 
             var hasOptionHelp = command.Children
                 .OfType<IOption>()
-                .Any(symbolDef => symbolDef.HasHelp());
+                .Any(symbolDef => symbolDef.ShouldShowHelp());
 
             if (hasOptionHelp)
             {
@@ -372,7 +373,7 @@ namespace System.CommandLine
 
             var hasCommandHelp = command.Children
                 .OfType<ICommand>()
-                .Any(f => f.HasHelp());
+                .Any(f => f.ShouldShowHelp());
 
             if (hasCommandHelp)
             {
@@ -418,7 +419,7 @@ namespace System.CommandLine
             var options = command
                 .Children
                 .OfType<IOption>()
-                .Where(opt => opt.HasHelp())
+                .Where(opt => opt.ShouldShowHelp())
                 .ToArray();
 
             HelpSection.Write(this, Options.Title, options, OptionFormatter);
@@ -434,7 +435,7 @@ namespace System.CommandLine
             var subcommands = command
                 .Children
                 .OfType<ICommand>()
-                .Where(subCommand => subCommand.HasHelp())
+                .Where(subCommand => subCommand.ShouldShowHelp())
                 .ToArray();
 
             HelpSection.Write(this, Commands.Title, subcommands, OptionFormatter);
@@ -452,7 +453,7 @@ namespace System.CommandLine
 
         private static IHelpDetail GetArgumentHelp(ISymbol symbolDef)
         {
-            if (symbolDef?.HasArguments() != true || symbolDef.Argument?.HasHelp() != true)
+            if (symbolDef?.Argument?.ShouldShowHelp() != true)
             {
                 return null;
             }

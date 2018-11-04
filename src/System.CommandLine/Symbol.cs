@@ -17,7 +17,8 @@ namespace System.CommandLine
             IReadOnlyCollection<string> aliases,
             string description = null,
             Argument argument = null,
-            HelpDetail help = null)
+            HelpDetail help = null,
+            bool isHidden = false)
         {
             if (aliases == null)
             {
@@ -35,6 +36,8 @@ namespace System.CommandLine
             }
 
             Description = description;
+
+            IsHidden = isHidden;
 
             Argument = argument ?? Argument.None;
 
@@ -119,20 +122,20 @@ namespace System.CommandLine
 
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
 
+        public bool IsHidden { get; set; }
+
         public virtual IEnumerable<string> Suggest(
             ParseResult parseResult,
             int? position = null)
         {
-            var symbolAliases = Children.Where<ISymbol>(symbol => !symbol.IsHidden())
-                                        .SelectMany(symbol => symbol.RawAliases);
-
-            var argumentSuggestions = 
+            var argumentSuggestions =
                 Argument.Suggest(parseResult, position);
 
-            return symbolAliases.Concat(argumentSuggestions)
-                                .Distinct()
-                                .OrderBy(symbol => symbol)
-                                .Containing(parseResult.TextToMatch());
+            return this.ChildSymbolAliases()
+                       .Concat(argumentSuggestions)
+                       .Distinct()
+                       .OrderBy(symbol => symbol)
+                       .Containing(parseResult.TextToMatch(position));
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";

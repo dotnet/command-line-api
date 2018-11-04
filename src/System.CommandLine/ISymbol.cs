@@ -23,6 +23,8 @@ namespace System.CommandLine
 
         bool HasRawAlias(string alias);
 
+        bool IsHidden { get; }
+
         IArgument Argument { get; }
 
         ISymbolSet Children { get; }

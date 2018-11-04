@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -78,8 +79,7 @@ namespace System.CommandLine
             throw new InvalidOperationException(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
         }
 
-        internal static IEnumerable<SymbolResult> AllSymbolResults(
-            this SymbolResult symbolResult)
+        internal static IEnumerable<SymbolResult> AllSymbolResults(this SymbolResult symbolResult)
         {
             if (symbolResult == null)
             {
@@ -88,9 +88,47 @@ namespace System.CommandLine
 
             yield return symbolResult;
 
-            foreach (var item in symbolResult.Children.FlattenBreadthFirst(o => o.Children))
+            foreach (var item in symbolResult
+                                 .Children
+                                 .FlattenBreadthFirst(o => o.Children))
             {
                 yield return item;
+            }
+        }
+
+        internal static SymbolResult CurrentSymbol(
+            this ParseResult parseResult,
+            int? position = null)
+        {
+            // TODO: (Suggestions) make this position-aware
+            var symbolResult = parseResult.CommandResult;
+
+            var currentSymbol = AllSymbolResultsForCompletion()
+                .LastOrDefault();
+
+            return currentSymbol;
+
+            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
+            {
+                foreach (var item in symbolResult.AllSymbolResults())
+                {
+                    if (item is CommandResult command)
+                    {
+                        yield return command;
+                    }
+                    else if (item is OptionResult option)
+                    {
+                        var willAcceptAnArgument =
+                            !option.IsImplicit &&
+                            !option.IsArgumentLimitReached ||
+                            parseResult.TextToMatch(position).Length > 0;
+
+                        if (willAcceptAnArgument)
+                        {
+                            yield return option;
+                        }
+                    }
+                }
             }
         }
     }

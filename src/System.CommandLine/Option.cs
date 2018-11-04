@@ -11,16 +11,18 @@ namespace System.CommandLine
             IReadOnlyCollection<string> aliases,
             string description = null,
             Argument argument = null,
-            HelpDetail help = null)
-            : base(aliases, description, argument, help)
+            HelpDetail help = null, 
+            bool isHidden = false)
+            : base(aliases, description, argument, help, isHidden)
         { }
 
         public Option(
             string alias,
             string description = null,
             Argument argument = null,
-            HelpDetail help = null)
-            : base(new [] {alias}, description, argument, help)
+            HelpDetail help = null, 
+            bool isHidden = false)
+            : base(new [] {alias}, description, argument, help, isHidden)
         { }
     }
 }

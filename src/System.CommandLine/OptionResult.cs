@@ -18,6 +18,21 @@ namespace System.CommandLine
 
         internal bool IsImplicit { get; private set; }
 
+        private protected override int RemainingArgumentCapacity
+        {
+            get
+            {
+                var capacity = base.RemainingArgumentCapacity;
+
+                if (IsImplicit)
+                {
+                    capacity += 1;
+                }
+
+                return capacity;
+            }
+        }
+
         internal override SymbolResult TryTakeToken(Token token) =>
             TryTakeArgument(token);
 

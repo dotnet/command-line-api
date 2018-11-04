@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
-
 namespace System.CommandLine.Builder
 {
     public static class ArgumentBuilderExtensions
@@ -129,8 +127,7 @@ namespace System.CommandLine.Builder
         public static ArgumentBuilder WithHelp(
             this ArgumentBuilder builder,
             string name = null,
-            string description = null,
-            bool? isHidden = null)
+            string description = null)
         {
             builder.Configure(a =>
             {
@@ -142,11 +139,6 @@ namespace System.CommandLine.Builder
                 if (description != null)
                 {
                     a.Help.Description = description;
-                }
-
-                if (isHidden != null)
-                {
-                    a.Help.IsHidden = isHidden.Value;
                 }
             });
 
@@ -167,20 +159,6 @@ namespace System.CommandLine.Builder
             params string[] suggestions)
         {
             builder.Configure(argument => argument.AddSuggestions(suggestions));
-
-            return builder;
-        }
-
-        public static ArgumentBuilder AddSuggestionSource(
-            this ArgumentBuilder builder,
-            Suggest suggest)
-        {
-            if (suggest == null)
-            {
-                throw new ArgumentNullException(nameof(suggest));
-            }
-
-            builder.Configure(argument => argument.AddSuggestionSource(suggest));
 
             return builder;
         }

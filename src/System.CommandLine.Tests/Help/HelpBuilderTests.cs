@@ -544,15 +544,25 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_does_not_contain_argument_with_HelpDefinition_that_IsHidden()
         {
+            var command = new Command("outer")
+                          {
+                              Argument = new Argument
+                                         {
+                                             Help =
+                                             {
+                                                 Name = "test name",
+                                                 Description = "test desc"
+                                             }
+                                         },
+                              IsHidden = true
+                          };
+
             var commandLineBuilder = new CommandLineBuilder
-            {
-                HelpBuilder = _helpBuilder,
-            }
-                .AddCommand("outer", "Help text for the outer command",
-                    arguments: args => args
-                        .WithHelp("test name", "test desc", true)
-                        .ExactlyOne())
-                .BuildCommand();
+                                     {
+                                         HelpBuilder = _helpBuilder
+                                     }
+                                     .AddCommand(command)
+                                     .BuildCommand();
 
             commandLineBuilder.WriteHelp(_console);
 
@@ -809,15 +819,16 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_does_not_contain_option_with_HelpDefinition_that_IsHidden()
         {
+            var command = new Command("the-command");
+            command.AddOption(new Option("-x", "Is Hidden", isHidden: true));
+            command.AddOption(new Option("-n", "Not Hidden", isHidden: false));
+
             var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                }
-                .AddCommand("the-command", "Does things.",
-                    cmd => cmd
-                        .AddOption("-x", "Is Hidden", opt => opt.WithHelp(isHidden: true))
-                        .AddOption("-n", "Not Hidden"))
-                .BuildCommand();
+                                     {
+                                         HelpBuilder = _helpBuilder
+                                     }
+                                     .AddCommand(command)
+                                     .BuildCommand();
 
             commandLineBuilder
                 .Subcommand("the-command")

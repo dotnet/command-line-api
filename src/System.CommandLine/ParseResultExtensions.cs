@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace System.CommandLine
@@ -40,11 +41,6 @@ namespace System.CommandLine
             return textBeforeCursor.Split(' ').LastOrDefault() +
                    textAfterCursor.Split(' ').FirstOrDefault();
         }
-
-        internal static SymbolResult CurrentSymbol(this ParseResult result) =>
-            result.CommandResult
-                  .AllSymbolResults()
-                  .LastOrDefault();
 
         public static string Diagram(this ParseResult result)
         {
@@ -153,15 +149,48 @@ namespace System.CommandLine
             this ParseResult parseResult,
             int? position = null)
         {
-            var currentSymbol = parseResult?.CurrentSymbol().Symbol;
+            var currentSymbolResult = parseResult.CurrentSymbol();
+            var currentSymbol = currentSymbolResult.Symbol;
+            var includeParentSuggestions = true;
 
-            var currentSymbolSuggestions = currentSymbol is ISuggestionSource currentSuggestionSource
-                                               ? currentSuggestionSource.Suggest(parseResult, position)
-                                               : Array.Empty<string>();
+            if (currentSymbolResult is OptionResult optionResult)
+            {
+                var maxNumberOfArguments =
+                    optionResult.Option
+                                .Argument
+                                .Arity
+                                .MaximumNumberOfArguments;
 
-            var parentSymbolSuggestions = currentSymbol?.Parent is ISuggestionSource parentSuggestionSource
-                                              ? parentSuggestionSource.Suggest(parseResult, position)
-                                              : Array.Empty<string>();
+                if (currentSymbolResult.Arguments.Count < maxNumberOfArguments)
+                {
+                    includeParentSuggestions = false;
+                }
+            }
+
+            var currentSymbolSuggestions =
+                currentSymbol is ISuggestionSource currentSuggestionSource
+                    ? currentSuggestionSource.Suggest(parseResult, position)
+                    : Array.Empty<string>();
+
+            if (currentSymbolResult is CommandResult)
+            {
+                var optionsWithArgLimitReached = currentSymbolResult
+                                    .Children
+                                    .Where(c => c.IsArgumentLimitReached);
+
+                var exclude =
+                    optionsWithArgLimitReached
+                        .SelectMany(c => c.Symbol.RawAliases)
+                        .ToArray();
+
+                currentSymbolSuggestions = currentSymbolSuggestions.Except(exclude);
+            }
+
+            var parentSymbolSuggestions =
+                includeParentSuggestions &&
+                currentSymbol?.Parent is ISuggestionSource parentSuggestionSource
+                    ? parentSuggestionSource.Suggest(parseResult, position)
+                    : Array.Empty<string>();
 
             return parentSymbolSuggestions
                    .Concat(currentSymbolSuggestions)
