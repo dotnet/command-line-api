@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
-namespace DotnetMetal
+namespace DotMetal
 {
-    public class ToolActions : IToolActions
+    public static class ToolActions 
     {
-        public void Install(bool global, DirectoryInfo toolPath, string version, FileInfo file, string addSource, 
+        public static void Install(bool global, DirectoryInfo toolPath, string version, FileInfo file, string addSource, 
             string framework, StandardVerbosity verbosity) 
             => Console.WriteLine(
 $@"Tool/Install(
@@ -19,19 +17,19 @@ $@"Tool/Install(
         Framework: {framework}
         Verbosity: {verbosity}
     )");
-        public void List(bool global, DirectoryInfo toolPath)
+        public static void List(bool global, DirectoryInfo toolPath)
             => Console.WriteLine(
 $@"Tool/List(
         Global: {global}
         Tool Path: {toolPath}
     )");
-        public void Uninstall(bool global, DirectoryInfo toolPath)
+        public static void Uninstall(bool global, DirectoryInfo toolPath)
             => Console.WriteLine(
 $@"Tool/Uninstall(
         Global: {global}
         Tool Path: {toolPath}
     )");
-        public void Update(bool global, DirectoryInfo toolPath, FileInfo file, string addSource, string framework, 
+        public static void Update(bool global, DirectoryInfo toolPath, FileInfo file, string addSource, string framework, 
             StandardVerbosity verbosity)
             => Console.WriteLine(
 $@"Tool/Update(

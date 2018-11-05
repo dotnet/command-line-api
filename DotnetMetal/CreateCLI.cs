@@ -1,46 +1,43 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
 
-namespace DotnetMetal
+namespace DotMetal
 {
     public static class CreateCli
     {
 
-        public static CommandLineBuilder GetParseBuilder()
+        public static CommandLineBuilder GetParserBuilder()
         {
-            IToolActions toolActions = new ToolActions();
-            return new CommandLineBuilder()
-                .AddCommand(GetToolCommand(toolActions));
+            var builder =  new CommandLineBuilder()
+                .AddCommand(new Command("--info", Strings.rootInfoOptionDescription,handler: CommandHandler.Create(InfoHandler)))
+                .AddOption("--list-sdks", Strings.rootListSdksOptionDescription)
+                .AddOption("--list-runtimes", Strings.rootListRuntimesOptionDescription)
+                .AddVersionOption()
+                .AddCommand(GetToolCommand());
+            return builder;
         }
 
-        private static Command GetSdkCommand()
-        {
-            var command = new Command("sdk", Strings.sdkDescription);
-            command.AddCommand(new Command("install", Strings.sdkInstallDescription));
-            command.AddCommand(new Command("uninstall", Strings.sdkUninstallDescription));
-            command.AddCommand(new Command("list", Strings.sdkListDescription));
-            command.AddCommand(new Command("update", Strings.sdkUpdateDescription));
-            return command;
-        }
+        private static void InfoHandler() => Console.WriteLine("Output some info");
 
-        private static Command GetToolCommand(IToolActions toolActions)
+        private static Command GetToolCommand()
         {
             var command = new Command("tool", Strings.toolDescription);
             command.AddCommand(new Command("install", Strings.toolInstallDescription,
                 new Option[] { Global(), ToolPath(), Version(), ConfigFile(), AddSource(), Framework(), StandardVerbosity() },
-                handler: CommandHandler.Create<bool, DirectoryInfo, string, FileInfo, string, string, StandardVerbosity>(toolActions.Install),
+                handler: CommandHandler.Create<bool, DirectoryInfo, string, FileInfo, string, string, StandardVerbosity>(ToolActions.Install),
                 argument: new Argument<string>()));
             command.AddCommand(new Command("uninstall", Strings.toolUninstallDescription,
                 new Option[] { Global(), ToolPath() },
-                handler: CommandHandler.Create<bool, DirectoryInfo>(toolActions.Uninstall)));
+                handler: CommandHandler.Create<bool, DirectoryInfo>(ToolActions.Uninstall)));
             command.AddCommand(new Command("list", Strings.toolListDescription,
                 new Option[] { Global(), ToolPath() },
-                handler: CommandHandler.Create<bool, DirectoryInfo>(toolActions.List)));
+                handler: CommandHandler.Create<bool, DirectoryInfo>(ToolActions.List)));
             command.AddCommand(new Command("update", Strings.toolUpdateDescription,
                 new Option[] { Global(), ToolPath(), ConfigFile(), AddSource(), Framework(), StandardVerbosity() },
-                handler: CommandHandler.Create<bool, DirectoryInfo, FileInfo, string, string, StandardVerbosity>(toolActions.Update),
+                handler: CommandHandler.Create<bool, DirectoryInfo, FileInfo, string, string, StandardVerbosity>(ToolActions.Update),
                 argument: new Argument<string>()));
             return command;
 

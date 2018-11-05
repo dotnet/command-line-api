@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DotnetMetal
+namespace DotMetal
 {
     class Strings
     {
@@ -23,5 +23,10 @@ namespace DotnetMetal
         public static readonly string addSourceOptionDescription = "Add an additional NuGet package source to use during installation.";
         public static readonly string frameworkOptionDescription = "The target framework to install the tool for.";
         public static readonly string verbosityOptionDescription = "Set the MSBuild verbosity level. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].";
+
+        public static readonly string rootVersionOptionDescription = "Display .NET Core SDK version in use.";
+        public static readonly string rootInfoOptionDescription = "Display .NET Core information.";
+        public static readonly string rootListSdksOptionDescription = "Display the installed SDKs.";
+        public static readonly string rootListRuntimesOptionDescription = "Display the installed runtimes.";
     }
 }

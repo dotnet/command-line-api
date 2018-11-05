@@ -1,13 +1,13 @@
 ﻿using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 
-namespace DotnetMetal
+namespace DotMetal
 {
     class Program
     {
         static async Task Main(string[] args)
         {
-            var parser = CreateCli.GetParseBuilder()
+            var parser = CreateCli.GetParserBuilder()
                           .UseDebugDirective()
                           .UseParseErrorReporting()
                           .UseParseDirective()
@@ -19,6 +19,4 @@ namespace DotnetMetal
             await parser.InvokeAsync(args);
         }
     }
-
-
 }

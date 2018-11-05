@@ -1,4 +1,4 @@
-﻿namespace DotnetMetal
+﻿namespace DotMetal
 {
     public enum StandardVerbosity
     {
