@@ -120,8 +120,8 @@ namespace System.CommandLine
                     {
                         var willAcceptAnArgument =
                             !option.IsImplicit &&
-                            !option.IsArgumentLimitReached ||
-                            parseResult.TextToMatch(position).Length > 0;
+                            (!option.IsArgumentLimitReached ||
+                             parseResult.TextToMatch(position).Length > 0);
 
                         if (willAcceptAnArgument)
                         {
