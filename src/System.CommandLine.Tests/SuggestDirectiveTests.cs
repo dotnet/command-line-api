@@ -117,11 +117,52 @@ namespace System.CommandLine.Tests
         public async Task Suggest_directive_writes_suggestions_for_subcommand_aliases_under_root_command()
         {
             var parser = new CommandLineBuilder()
-                       .AddCommand(_eatCommand)
+                         .AddCommand(_eatCommand)
                          .UseSuggestDirective()
                          .Build();
 
             var result = parser.Parse("[suggest] ");
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync(result, console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"eat{NewLine}");
+        }
+
+        [Fact]
+        public async Task Suggest_directive_writes_suggestions_for_partial_option_aliases_under_root_command()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddOption(_vegetableOption)
+                         .AddOption(_fruitOption)
+                         .UseSuggestDirective()
+                         .Build();
+
+            var result = parser.Parse("[suggest] f");
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync(result, console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"--fruit{NewLine}");
+        }
+
+        [Fact]
+        public async Task Suggest_directive_writes_suggestions_for_partial_subcommand_aliases_under_root_command()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddCommand(_eatCommand)
+                         .UseSuggestDirective()
+                         .Build();
+
+            var result = parser.Parse("[suggest] e");
 
             var console = new TestConsole();
 

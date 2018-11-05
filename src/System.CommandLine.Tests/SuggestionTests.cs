@@ -166,7 +166,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void A_command_can_be_hidden_from_completions_by_leaving_its_help_empty()
+        public void An_option_can_be_hidden_from_completions_by_setting_IsHidden_to_true()
         {
             var command = new Command(
                 "the-command", "Does things.",
@@ -540,13 +540,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_that_have_been_specified_to_their_maximum_arity_are_not_suggested()
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption(new Option("--allows-one", argument: new Argument<string>()))
-                         .AddOption(new Option("--allows-many", argument: new Argument<string[]>()))
-                         .UseSuggestDirective()
-                         .Build();
+            var command = new Command("command");
+            command.AddOption(new Option("--allows-one",
+                                         argument: new Argument<string>()));
+            command.AddOption(new Option("--allows-many",
+                                         argument: new Argument<string[]>()));
 
-            var suggestions = parser.Parse("--allows-one x ").Suggestions();
+            var suggestions = command.Parse("--allows-one x ").Suggestions();
 
             suggestions.Should().BeEquivalentTo("--allows-many");
         }
@@ -563,6 +563,24 @@ namespace System.CommandLine.Tests
             var suggestions = parser.Parse("--allows-one ").Suggestions();
 
             suggestions.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Option_substring_matching_when_arguments_have_default_values()
+        {
+            var command = new Command("the-command");
+            command.AddOption(
+                new Option("--implicit",
+                           argument: new Argument<string[]>()
+                               .WithDefaultValue(() => "the default")));
+            command.AddOption(
+                new Option("--not",
+                           argument: new Argument<string[]>()
+                               .WithDefaultValue(() => "the default")));
+
+            var suggestions = command.Parse("m").Suggestions();
+
+            suggestions.Should().BeEquivalentTo("--implicit");
         }
     }
 }
