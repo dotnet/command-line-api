@@ -37,5 +37,7 @@ namespace System.CommandLine
         bool IsVirtualTerminal { get; }
 
         void TryEnableVirtualTerminal();
+
+        Action CancelKeyPress { set; }
     }
 }

@@ -22,39 +22,40 @@ namespace System.CommandLine.Invocation
 
         public async Task<int> InvokeAsync(IConsole console = null)
         {
-            var context = new InvocationContext(parseResult,
+            using (var context = new InvocationContext(parseResult,
                                                 parser,
-                                                console);
-
-            var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware);
-
-            invocations.Add(async (invocationContext, next) =>
+                                                console))
             {
-                if (invocationContext
-                    .ParseResult
-                    .CommandResult
-                    .Command is Command command)
+                var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware);
+
+                invocations.Add(async (invocationContext, next) =>
                 {
-                    var handler = command.Handler;
-
-                    if (handler != null)
+                    if (invocationContext
+                        .ParseResult
+                        .CommandResult
+                        .Command is Command command)
                     {
-                        context.ResultCode = await handler.InvokeAsync(invocationContext);
+                        var handler = command.Handler;
+
+                        if (handler != null)
+                        {
+                            context.ResultCode = await handler.InvokeAsync(invocationContext);
+                        }
                     }
-                }
-            });
+                });
 
-            var invocationChain = invocations.Aggregate(
-                (first, second) =>
-                    ((ctx, next) =>
-                        first(ctx,
-                              c => second(c, next))));
+                var invocationChain = invocations.Aggregate(
+                    (first, second) =>
+                        ((ctx, next) =>
+                            first(ctx,
+                                c => second(c, next))));
 
-            await invocationChain(context, invocationContext => Task.CompletedTask);
+                await invocationChain(context, invocationContext => Task.CompletedTask);
 
-            context.InvocationResult?.Apply(context);
+                context.InvocationResult?.Apply(context);
 
-            return context.ResultCode;
+                return context.ResultCode;
+            }
         }
     }
 }

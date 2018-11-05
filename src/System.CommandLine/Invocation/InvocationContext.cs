@@ -1,11 +1,15 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Threading;
+
 namespace System.CommandLine.Invocation
 {
     public sealed class InvocationContext : IDisposable
     {
-        private readonly IDisposable _onDispose;
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly bool _disposeConsole;
+        private readonly Action _cancelAction;
 
         public InvocationContext(
             ParseResult parseResult,
@@ -24,6 +28,8 @@ namespace System.CommandLine.Invocation
                 Console = SystemConsole.Create();
                 _onDispose = Console;
             }
+
+            console.CancelKeyPress = () => Cancel();
         }
 
         public Parser Parser { get; }
@@ -36,9 +42,17 @@ namespace System.CommandLine.Invocation
 
         public IInvocationResult InvocationResult { get; set; }
 
+        public CancellationToken Canceled => _cts.Token;
+
+        public void Cancel() => _cts.Cancel();
+
         public void Dispose()
         {
-            _onDispose?.Dispose();
+            Console.CancelKeyPress = null;
+            if (_disposeConsole)
+            {
+                Console.Dispose();
+            }
         }
     }
 }

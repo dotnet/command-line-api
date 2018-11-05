@@ -33,6 +33,10 @@ namespace System.CommandLine.Invocation
                 {
                     arguments.Add(context.Console);
                 }
+                else if (parameterInfo.ParameterType == typeof(CancellationToken))
+                {
+                    arguments.Add(context.Canceled);
+                }
                 else
                 {
                     var argument = context.ParseResult
