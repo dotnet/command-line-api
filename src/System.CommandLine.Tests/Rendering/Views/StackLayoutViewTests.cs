@@ -227,11 +227,9 @@ namespace System.CommandLine.Tests.Rendering.Views
             var console = new TestConsole();
             var renderer = new ConsoleRenderer(console);
             
-            var size = stackLayout.Measure(renderer, new Size(7, 10));
-
-            var colOneWidth = Math.Max("The ".Length, "quick".Length);
-            var colTwoWidth = Math.Max("brown ".Length, "fox".Length);
-            size.Should().BeEquivalentTo(new Size(colOneWidth + colTwoWidth, 2));
+            var size = stackLayout.Measure(renderer, new Size(10, 10));
+            
+            size.Should().BeEquivalentTo(new Size(10, 2));
         }
 
         [Fact]
@@ -249,7 +247,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             
             var size = stackLayout.Measure(renderer, new Size(7, 1));
 
-            size.Should().BeEquivalentTo(new Size("The ".Length + "brown ".Length, 1));
+            size.Should().BeEquivalentTo(new Size(7, 1));
         }
 
         [Fact]
