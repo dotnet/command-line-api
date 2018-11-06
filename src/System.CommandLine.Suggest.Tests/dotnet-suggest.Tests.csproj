@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <IsPackable>false</IsPackable>
-    <StartupObject>System.CommandLine.Suggest.Tests.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

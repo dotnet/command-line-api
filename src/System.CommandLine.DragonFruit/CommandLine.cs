@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.DragonFruit
 {
-    public class CommandLine
+    public static class CommandLine
     {
         public const int ErrorExitCode = 1;
         public const int OkExitCode = 0;
@@ -60,16 +60,15 @@ namespace System.CommandLine.DragonFruit
                           .UseSuggestDirective()
                           .RegisterWithDotnetSuggest()
                           .AddVersionOption()
-                          .UseExceptionHandler();
-
-            SetHelpMetadata(method, builder);
+                          .UseExceptionHandler()
+                          .ConfigureHelpFromXmlComments(method);
 
             Parser parser = builder.Build();
 
             return await parser.InvokeAsync(args, console);
         }
 
-        private static void SetHelpMetadata(MethodInfo method, CommandBuilder builder)
+        private static CommandLineBuilder ConfigureHelpFromXmlComments(this CommandLineBuilder builder, MethodInfo method)
         {
             Assembly assembly = method.DeclaringType.Assembly;
             string docFilePath = Path.Combine(
@@ -97,6 +96,8 @@ namespace System.CommandLine.DragonFruit
                     metadata.Name = assembly.GetName().Name;
                 }
             }
+
+            return builder;
         }
     }
 }

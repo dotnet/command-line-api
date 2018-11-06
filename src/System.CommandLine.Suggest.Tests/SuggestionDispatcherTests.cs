@@ -18,22 +18,20 @@ namespace System.CommandLine.Suggest.Tests
         private static readonly string _currentExeName = CommandLineBuilder.ExeName;
 
         private static RegistrationPair CurrentExeRegistrationPair()
-            => new RegistrationPair(FakeDotnetFullPath(), $"{_currentExeName} [suggest]");
+            => new RegistrationPair(CurrentExeFullPath(), $"{_currentExeName} [suggest]");
 
-        private static string FakeDotnetFullPath() => Path.GetFullPath(_currentExeName);
+        private static string CurrentExeFullPath() => Path.GetFullPath(_currentExeName);
 
         [Fact]
         public async Task InvokeAsync_executes_completion_command_for_executable()
         {
-            string[] args = $@"get -p 12 -e ""{FakeDotnetFullPath()}"" --  {_currentExeName} add".Tokenize().ToArray();
+            string[] args = $@"get -p 12 -e ""{CurrentExeFullPath()}"" -- {_currentExeName} add".Tokenize().ToArray();
 
             var suggestions = await InvokeAsync(args, new TestSuggestionRegistration(CurrentExeRegistrationPair()));
 
             suggestions
                 .Should()
-                .Contain("package")
-                .And
-                .Contain("reference");
+                .Be($"package{Environment.NewLine}reference{Environment.NewLine}");
         }
 
         [Fact]
@@ -48,7 +46,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
         {
-            var provider = new TestSuggestionRegistration(new RegistrationPair(FakeDotnetFullPath(), $"{_currentExeName} {Assembly.GetExecutingAssembly().Location}"));
+            var provider = new TestSuggestionRegistration(new RegistrationPair(CurrentExeFullPath(), $"{_currentExeName} {Assembly.GetExecutingAssembly().Location}"));
             var dispatcher = new SuggestionDispatcher(provider, new TestSuggestionStore());
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
@@ -138,17 +136,17 @@ namespace System.CommandLine.Suggest.Tests
                     return "";
                 }
 
-                if (exeFileName != FakeDotnetFullPath())
+                if (exeFileName != CurrentExeFullPath())
                 {
                     return $"unexpected value for {nameof(exeFileName)}: {exeFileName}";
                 }
 
-                if (suggestionTargetArguments != $"[suggest] {_currentExeName} add")
+                if (suggestionTargetArguments != $"[suggest] add")
                 {
                     return $"unexpected value for {nameof(suggestionTargetArguments)}: {suggestionTargetArguments}";
                 }
 
-                return $"package{Environment.NewLine}reference";
+                return $"package{Environment.NewLine}reference{Environment.NewLine}";
             }
         }
     }
