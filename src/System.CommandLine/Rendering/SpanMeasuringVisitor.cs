@@ -8,7 +8,7 @@ namespace System.CommandLine.Rendering
         private bool _LastSpanEndedWithWhitespace;
         private int _PositionOnLine;
 
-        public SpanMeasuringVisitor ( Region region)
+        public SpanMeasuringVisitor(Region region)
         {
             Region = region ?? throw new ArgumentNullException(nameof(region));
         }
@@ -16,7 +16,8 @@ namespace System.CommandLine.Rendering
         private int PositionOnLine
         {
             get => _PositionOnLine;
-            set {
+            set
+            {
                 if (value > Width)
                 {
                     Width = value;
@@ -25,7 +26,7 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public int Width { get; set; }
+        public int Width { get; private set; }
         public int Height => LinesWritten;
 
         private int LinesWritten { get; set; }
@@ -73,8 +74,6 @@ namespace System.CommandLine.Rendering
             {
                 FlushLine();
             }
-
-            //ClearRemainingHeight();
         }
 
         private bool FilledRegionHeight => LinesWritten >= Region.Height;
@@ -83,45 +82,16 @@ namespace System.CommandLine.Rendering
 
         private void FlushLine()
         {
-            //ClearRemainingWidth();
-
             LinesWritten++;
 
             PositionOnLine = 0;
         }
 
-        private void ClearRemainingWidth()
-        {
-            if (!Region.IsOverwrittenOnRender)
-            {
-                return;
-            }
-
-            var remainingWidthOnLine = RemainingWidthInRegion;
-
-            if (remainingWidthOnLine > 0)
-            {
-                PositionOnLine += remainingWidthOnLine;
-            }
-        }
-
-        private void ClearRemainingHeight()
-        {
-            if (!Region.IsOverwrittenOnRender)
-            {
-                return;
-            }
-
-            while (TryStartNewLine())
-            {
-                FlushLine();
-            }
-        }
-
         private bool TryAppendWord(string value)
         {
             if (PositionOnLine == 0 &&
-                string.IsNullOrWhiteSpace(value))
+                string.IsNullOrWhiteSpace(value) &&
+                LinesWritten > 0)
             {
                 // omit whitespace if it's at the beginning of the line
                 return true;
