@@ -1,15 +1,14 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
 using System.Drawing;
 using FluentAssertions;
 using Xunit;
-using Size = System.CommandLine.Rendering.Size;
-using System;
-using System.Collections.Generic;
 using static System.CommandLine.Tests.TestConsole;
+using Size = System.CommandLine.Rendering.Size;
 
 namespace System.CommandLine.Tests.Rendering.Views
 {
@@ -30,7 +29,7 @@ namespace System.CommandLine.Tests.Rendering.Views
             var contentView = new TestContentView("Four");
             var span = contentView.GetSpan();
             
-            span.Should().BeOfType<ContentSpan>().Which.Content.Contains("Four");
+            span.Should().BeOfType<ContentSpan>().Which.Content.Should().Contain("Four");
         }
 
         [Fact]
@@ -144,20 +143,46 @@ namespace System.CommandLine.Tests.Rendering.Views
             updatedSize.Width.Should().Be(4);
         }
 
+        [Fact]
+        public void View_measures_whitespace()
+        {
+            var view = new ContentView("   One Two  ");
+
+            Size measuredSize = view.Measure(_renderer, new Size(6, 2));
+
+            measuredSize.Should().BeEquivalentTo(new Size(6, 2));
+        }
+
+        [Fact]
+        public void View_renders_whitespace()
+        {
+            var view = new ContentView("   One Two  ");
+
+            view.Render(_renderer, new Region(0, 0, 6, 2));
+
+            _console.Events.Should().BeEquivalentSequenceTo(
+                new CursorPositionChanged(new Point(0,0)),
+                new ContentWritten("   One"),
+                new CursorPositionChanged(new Point(0, 1)),
+                new ContentWritten("Two   ")
+            );
+        }
+
         private class TestContentView : ContentView
         {
             public bool IsSpanNull => Span == null;
 
             public Span GetSpan() => Span;
 
-            public TestContentView() : base() { }
+            public TestContentView()
+            { }
 
             public TestContentView(string content) : base(content) { }
         }
 
         private class TestObservable : IObservable<string>
         {
-            public List<IObserver<string>> _observers;
+            private readonly List<IObserver<string>> _observers;
 
             public TestObservable()
             {
@@ -184,18 +209,18 @@ namespace System.CommandLine.Tests.Rendering.Views
 
         private class TestDisposable : IDisposable
         {
-            private List<IObserver<string>> _observers;
-            private IObserver<string> _observer;
+            private readonly List<IObserver<string>> _observers;
+            private readonly IObserver<string> _observer;
             
             public TestDisposable(List<IObserver<string>> observers, IObserver<string> observer)
             {
-                this._observers = observers;
-                this._observer = observer;
+                _observers = observers;
+                _observer = observer;
             }
 
             public void Dispose() 
             {
-                if (!(_observer == null)) _observers.Remove(_observer);
+                if (_observer != null) _observers.Remove(_observer);
             }
         }
     }
