@@ -97,7 +97,9 @@ namespace System.CommandLine.Suggest
             if (suggestionRegistration == null)
             {
                 // Can't find a completion exe to call
+#if DEBUG
                 Program.LogDebug($"Couldn't find registration for parse result: {parseResult}");
+#endif
                 return;
             }
 

@@ -13,7 +13,9 @@ namespace System.CommandLine.Suggest
 
         public static async Task<int> Main(string[] args)
         {
+#if DEBUG
             LogDebug(new[] { "dotnet-suggest received: " }.Concat(args).ToArray());
+#endif
 
             var provider = new CombineSuggestionRegistration(
                 new GlobalToolsSuggestionRegistration(),
@@ -22,6 +24,7 @@ namespace System.CommandLine.Suggest
             return await dispatcher.InvokeAsync(args);
         }
 
+#if DEBUG
         internal static void LogDebug(params string[] args)
         {
             if (Environment.GetEnvironmentVariable(DOTNET_SUGGEST_LOGGING) == "1")
@@ -35,5 +38,6 @@ namespace System.CommandLine.Suggest
                 File.AppendAllText(logFile, string.Join("|", args) + Environment.NewLine);
             }
         }
+#endif
     }
 }

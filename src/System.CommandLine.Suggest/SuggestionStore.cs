@@ -42,8 +42,9 @@ namespace System.CommandLine.Suggest
                                          StartInfo = processStartInfo
                                      })
                 {
-                    Program.LogDebug($"Starting: {exeFileName}");
-                    Program.LogDebug("Passing: ", suggestionTargetArguments);
+#if DEBUG
+                    Program.LogDebug($"dotnet-suggest invoking: {exeFileName} {suggestionTargetArguments}");
+#endif
 
                     process.Start();
 
