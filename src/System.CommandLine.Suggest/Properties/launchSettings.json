@@ -1,7 +1,0 @@
-{
-  "profiles": {
-    "System.CommandLine.Suggest": {
-      "commandName": "Project"
-    }
-  }
-}
