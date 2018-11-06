@@ -26,12 +26,16 @@ namespace System.CommandLine.Suggest
             _parser = new CommandLineBuilder()
                       .UseHelp()
                       .UseExceptionHandler()
+                      .UseDebugDirective()
                       .UseParseDirective()
                       .UseParseErrorReporting()
+
                       .AddCommand("list",
                                   "Lists apps registered for suggestions",
-                                  cmd => cmd.OnExecute<IConsole>(c =>
-                                                                     c.Out.WriteLine(GetCompletionAvailableCommands(_suggestionRegistration))),
+                                  cmd => cmd
+                                         .AddOption("--detailed", "", args => args.ParseArgumentsAs<bool>())
+                                         .OnExecute<IConsole, bool>((c, detailed) =>
+                                                                        c.Out.WriteLine(List(_suggestionRegistration, detailed))),
                                   argument => argument.None())
                       .AddCommand("get",
                                   "Gets suggestions",
@@ -43,7 +47,8 @@ namespace System.CommandLine.Suggest
                                                                 .ParseArgumentsAs<string>())
                                          .AddOption(new[] { "-p", "--position" }, "the current character position on the command line",
                                                     position => position.ParseArgumentsAs<string>())
-                                         .OnExecute<ParseResult, IConsole>(GetSuggestions))
+                                         .OnExecute<ParseResult, IConsole>(Get))
+
                       .AddCommand("register",
                                   "Registers an app for suggestions",
                                   cmd =>
@@ -52,8 +57,9 @@ namespace System.CommandLine.Suggest
                                                     a => a.ParseArgumentsAs<string>())
                                          .AddOption("--suggestion-command", "The command to invoke to retrieve suggestions",
                                                     a => a.ParseArgumentsAs<string>())
-                                         .OnExecute<string, string, IConsole>(RegisterCommand);
+                                         .OnExecute<string, string, IConsole>(Register);
                                   })
+
                       .AddVersionOption()
                       .Build();
         }
@@ -61,7 +67,7 @@ namespace System.CommandLine.Suggest
         public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
             _parser.InvokeAsync(args, console);
 
-        private void RegisterCommand(
+        private void Register(
             string commandPath,
             string suggestionCommand,
             IConsole console)
