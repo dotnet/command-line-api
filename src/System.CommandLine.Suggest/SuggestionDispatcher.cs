@@ -147,7 +147,7 @@ namespace System.CommandLine.Suggest
 
             var tokens = parseResult.UnparsedTokens;
 
-            var rootCommand = tokens.FirstOrDefault().RemoveExeExtension();
+            var rootCommand = Path.GetFileName(tokens.FirstOrDefault()).RemoveExeExtension();
 
             targetExeName = Path.GetFileName(targetExeName).RemoveExeExtension();
 
