@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace DotMetal
+namespace DotnetMetal
 {
     public static class ToolActions 
     {

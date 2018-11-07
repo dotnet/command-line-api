@@ -1,21 +1,24 @@
-﻿using System.CommandLine.Invocation;
+﻿using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 
-namespace DotMetal
+namespace DotnetMetal
 {
-    class Program
+    static class Program
     {
         static async Task Main(string[] args)
         {
-            var parser = CreateCli.GetParserBuilder()
-                          .UseDebugDirective()
-                          .UseParseErrorReporting()
-                          .UseParseDirective()
-                          .UseHelp()
-                          .UseSuggestDirective()
-                          .RegisterWithDotnetSuggest()
-                          .UseExceptionHandler()
-                          .Build();
+            var parser = new CommandLineBuilder()
+                         .ConfigureParser()
+                         .UseDebugDirective()
+                         .UseParseErrorReporting()
+                         .UseParseDirective()
+                         .UseHelp()
+                         .UseSuggestDirective()
+                         .RegisterWithDotnetSuggest()
+                         .UseExceptionHandler()
+                         .Build();
+
             await parser.InvokeAsync(args);
         }
     }
