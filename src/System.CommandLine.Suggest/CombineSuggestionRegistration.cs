@@ -28,8 +28,8 @@ namespace System.CommandLine.Suggest
         public RegistrationPair FindRegistration(FileInfo soughtExecutable)
         {
             return _suggestionRegistrations
-                .Select(s => s.FindRegistration(soughtExecutable))
-                .FirstOrDefault();
+                   .Select(s => s.FindRegistration(soughtExecutable))
+                   .FirstOrDefault(s => s != null);
         }
 
         public IEnumerable<RegistrationPair> FindAllRegistrations()

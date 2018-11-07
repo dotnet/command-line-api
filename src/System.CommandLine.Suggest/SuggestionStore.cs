@@ -16,12 +16,12 @@ namespace System.CommandLine.Suggest
         {
             if (string.IsNullOrWhiteSpace(exeFileName))
             {
-                throw new ArgumentException("message", nameof(exeFileName));
+                throw new ArgumentException("Value cannot be null, empty, or consist entirely of whitespace.", nameof(exeFileName));
             }
 
             if (string.IsNullOrWhiteSpace(suggestionTargetArguments))
             {
-                throw new ArgumentException("message", nameof(suggestionTargetArguments));
+                throw new ArgumentException("Value cannot be null, empty, or consist entirely of whitespace.", nameof(suggestionTargetArguments));
             }
 
             string result = "";
@@ -66,8 +66,14 @@ namespace System.CommandLine.Suggest
                 // it is a command that start process can resolve to a file name.
                 if (!File.Exists(exeFileName))
                 {
+                    var message = $"Unable to find the file '{exeFileName}'";
+
+#if DEBUG
+                    Program.LogDebug($"exception: {message}");
+#endif
+
                     throw new ArgumentException(
-                        $"Unable to find the file '{exeFileName}'", nameof(exeFileName), exception);
+                        message, nameof(exeFileName), exception);
                 }
             }
             return result;
