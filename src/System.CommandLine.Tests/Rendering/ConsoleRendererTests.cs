@@ -299,8 +299,7 @@ namespace System.CommandLine.Tests.Rendering
                 }
 
                 var formatter = new SpanFormatter();
-                formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}{ForegroundColorSpan.Reset()} ");
-
+                formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}");
 
                 Add(new ContentView(""));
                 Add(new ContentView(""));
@@ -318,8 +317,8 @@ namespace System.CommandLine.Tests.Rendering
                 var tableView = new TableView<FileSystemInfo>();
                 tableView.Items = directoryContents;
                 tableView.AddColumn(f => f is DirectoryInfo
-                                     ? Span($"{ForegroundColorSpan.LightGreen()}{f.Name}{ForegroundColorSpan.Reset()} ")
-                                     : Span($"{ForegroundColorSpan.White()}{f.Name}{ForegroundColorSpan.Reset()} "),
+                                     ? Span($"{ForegroundColorSpan.LightGreen()}{f.Name} ")
+                                     : Span($"{ForegroundColorSpan.White()}{f.Name} "),
                                      new ContentView(formatter.ParseToSpan($"{Ansi.Text.UnderlinedOn}Name{Ansi.Text.UnderlinedOff}")));
 
                 tableView.AddColumn(f => formatter.Format(f.CreationTime), 

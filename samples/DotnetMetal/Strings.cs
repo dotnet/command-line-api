@@ -26,5 +26,6 @@
         public static readonly string RootInfoOptionDescription = "Display .NET Core information.";
         public static readonly string RootListSdksOptionDescription = "Display the installed SDKs.";
         public static readonly string RootListRuntimesOptionDescription = "Display the installed runtimes.";
+        public static readonly string OutputDescription = "Path to the file to write the output to.";
     }
 }
