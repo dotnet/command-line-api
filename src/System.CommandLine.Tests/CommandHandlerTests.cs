@@ -147,25 +147,17 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd =>
-                        {
-                            cmd
-                                .AddOption("--name", "", ArgumentArity.ExactlyOne)
-                                .OnExecute<string, int>((name, age) =>
-                                {
-                                    wasCalled = true;
-                                    name.Should().Be("Gandalf");
-                                    age.Should().Be(425);
-                                })
-                                .AddOption("--age", "", new Argument<int>());
-                        })
-                    .Build();
+            var command = new Command("command");
+            command.AddOption(new Option("--name", "", new Argument<string>()));
+            command.AddOption(new Option("--age", "", new Argument<int>()));
+            command.Handler = CommandHandler.Create<string, int>((name, age) =>
+            {
+                wasCalled = true;
+                name.Should().Be("Gandalf");
+                age.Should().Be(425);
+            });
 
-            await parser.InvokeAsync("command --age 425 --name Gandalf", _console);
+            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -175,22 +167,15 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd =>
-                        {
-                            cmd.AddOption("-x", "", new Argument<int>())
-                               .OnExecute<ParseResult>(result =>
+            var command = new Command("command");
+            command.AddOption(new Option("-x", "", new Argument<int>()));
+            command.Handler = CommandHandler.Create<ParseResult>(result =>
                                {
                                    wasCalled = true;
                                    result.ValueForOption("-x").Should().Be(123);
                                });
-                        })
-                    .Build();
 
-            await parser.InvokeAsync("command -x 123", _console);
+            await command.InvokeAsync("command -x 123", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -200,22 +185,15 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd =>
-                        {
-                            cmd.AddOption("-x", "", new Argument<int>())
-                               .OnExecute<IConsole>(console =>
-                               {
-                                   wasCalled = true;
-                                   console.Out.Write("Hello!");
-                               });
-                        })
-                    .Build();
+            var command = new Command("command");
+            command.AddOption(new Option("-x", "", new Argument<int>()));
+            command.Handler = CommandHandler.Create<IConsole>(console =>
+            {
+                wasCalled = true;
+                console.Out.Write("Hello!");
+            });
 
-            await parser.InvokeAsync("command", _console);
+            await command.InvokeAsync("command", _console);
 
             wasCalled.Should().BeTrue();
             _console.Out.ToString().Should().Be("Hello!");
@@ -226,22 +204,15 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
 
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(
-                        "command", "",
-                        cmd =>
-                        {
-                            cmd.AddOption("-x", "", new Argument<int>())
-                               .OnExecute<InvocationContext>(context =>
-                               {
-                                   wasCalled = true;
-                                   context.ParseResult.ValueForOption("-x").Should().Be(123);
-                               });
-                        })
-                    .Build();
+            var command = new Command("command");
+            command.AddOption(new Option("-x", "", new Argument<int>()));
+            command.Handler = CommandHandler.Create<InvocationContext>(context =>
+            {
+                wasCalled = true;
+                context.ParseResult.ValueForOption("-x").Should().Be(123);
+            });
 
-            await parser.InvokeAsync("command -x 123", _console);
+            await command.InvokeAsync("command -x 123", _console);
 
             wasCalled.Should().BeTrue();
         }

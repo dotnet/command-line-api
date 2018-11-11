@@ -11,7 +11,7 @@ namespace System.CommandLine.Builder
 
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
-        internal void Configure(Action<Argument> action)
+        public void Configure(Action<Argument> action)
         {
             if (action == null)
             {

@@ -27,21 +27,5 @@ namespace System.CommandLine.Tests.Builder
 
             command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
         }
-
-        [Fact]
-        public void Child_builders_can_be_accessed_after_being_added()
-        {
-            var builder = new CommandLineBuilder();
-
-            builder.AddCommand("the-command", "",
-                               cmd => cmd.AddOption(new Option(new[] { "-o", "--the-option" })));
-
-            var option = builder
-                         .Commands["the-command"]
-                         .Options
-                         .Single();
-
-            option.RawAliases.Should().BeEquivalentTo("-o", "--the-option");
-        }
     }
 }

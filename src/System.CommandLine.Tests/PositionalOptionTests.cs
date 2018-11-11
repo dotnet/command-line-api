@@ -72,10 +72,10 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddCommand("command1", symbols: b =>
+                         .AddCommand("command1", "", symbols: b =>
                                          b.AddOption("-anon", "", ArgumentArity.ExactlyOne)
                          )
-                         .AddCommand("command2", symbols: b =>
+                         .AddCommand("command2", "", symbols: b =>
                                          b.AddOption("-anon", "", ArgumentArity.ExactlyOne)
                          )
                          .Build();
@@ -97,14 +97,14 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddCommand("subcommand1", symbols: b =>
+                         .AddCommand("subcommand1", "", symbols: b =>
                          {
                              foreach (int optionIndex in Enumerable.Range(1, subcommand1Options))
                              {
                                  b.AddOption($"-anon{optionIndex}", "", ArgumentArity.ExactlyOne);
                              }
 
-                             b.AddCommand("subcommand2", symbols: subCommandBuilder =>
+                             b.AddCommand("subcommand2", "", symbols: subCommandBuilder =>
                              {
                                  foreach (int optionIndex in Enumerable.Range(1, subcommand2Options))
                                  {
@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddCommand("subcommand", symbols: b =>
+                         .AddCommand("subcommand", "", symbols: b =>
                                          b.AddOption("-anon1", "", arity: ArgumentArity.ExactlyOne)
                                           .AddOption("-anon2", "", arity: ArgumentArity.ExactlyOne)
                          )

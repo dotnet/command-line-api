@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
             var parser =
                 new CommandLineBuilder()
                     .AddCommand("command", "",
-                                command => command.AddCommand("subcommand"))
+                                command => command.AddCommand(new Command("subcommand", "")))
                     .UseHelp()
                     .Build();
 
@@ -56,7 +56,7 @@ namespace System.CommandLine.Tests
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command", "")
+                    .AddCommand("command")
                     .UseHelp()
                     .UsePrefixes(new[] { "~" })
                     .Build();
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command", "")
+                    .AddCommand("command")
                     .UseHelp()
                     .Build();
 
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command", "")
+                    .AddCommand("command")
                     .UseHelp(new[] { "~cthulhu" })
                     .Build();
 

@@ -572,8 +572,8 @@ namespace System.CommandLine.Tests
                          .AddCommand("one", "",
                                      one => {
                                          one.AddCommand("two", "",
-                                                        two => two.AddCommand("three", ""));
-                                         one.AddCommand("three", "");
+                                                        two => two.AddCommand("three"));
+                                         one.AddCommand("three");
                                      })
                          .Build();
 
@@ -589,8 +589,8 @@ namespace System.CommandLine.Tests
                          .AddCommand("one", "",
                                      one => {
                                          one.AddCommand("two", "",
-                                                        two => two.AddCommand("three", ""));
-                                         one.AddCommand("three", "");
+                                                        two => two.AddCommand(new Command("three")));
+                                         one.AddCommand(new Command("three"));
                                      })
                          .Build();
 

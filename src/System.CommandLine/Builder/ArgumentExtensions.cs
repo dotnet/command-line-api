@@ -28,6 +28,24 @@ namespace System.CommandLine.Builder
             return argument;
         }
 
+        public static Argument WithHelp(
+            this Argument argument,
+            string name = null, 
+            string description = null)
+        {
+            if (name != null)
+            {
+                argument.Help.Name = name;
+            }
+
+            if (description != null)
+            {
+                argument.Help.Description = description;
+            }
+
+            return argument;
+        }
+
         public static Argument WithSuggestions(
             this Argument argument,
             params string[] suggestions)

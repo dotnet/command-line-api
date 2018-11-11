@@ -48,7 +48,17 @@ namespace System.CommandLine
 
         public void WriteHelp(IConsole console)
         {
-            IHelpBuilder helpBuilder = _helpBuilder ?? new HelpBuilder(console);
+            IHelpBuilder helpBuilder;
+
+            if (_helpBuilder != null)
+            {
+                helpBuilder = _helpBuilder;
+            }
+            else
+            {
+                helpBuilder = new HelpBuilder(console);
+            }
+
             helpBuilder.Write(this);
         }
     }
