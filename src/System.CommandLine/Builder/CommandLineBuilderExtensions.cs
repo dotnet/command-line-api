@@ -98,18 +98,22 @@ namespace System.CommandLine.Builder
             ParameterInfo parameter)
             where TBuilder : CommandBuilder
         {
-            builder.AddOption(
+            var argument = new Argument
+                           {
+                               ArgumentType = parameter.ParameterType
+                           };
+
+            if (parameter.HasDefaultValue)
+            {
+                argument.SetDefaultValue(() => parameter.DefaultValue);
+            }
+
+            var option = new Option(
                 parameter.BuildAlias(),
                 parameter.Name,
-                args =>
-                {
-                    args.ParseArgumentsAs(parameter.ParameterType);
+                argument);
 
-                    if (parameter.HasDefaultValue)
-                    {
-                        args.WithDefaultValue(() => parameter.DefaultValue);
-                    }
-                });
+            builder.AddOption(option);
 
             return builder;
         }
