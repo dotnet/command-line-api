@@ -66,26 +66,6 @@ namespace System.CommandLine.Builder
 
         #endregion
 
-        #region files
-
-        public static ArgumentBuilder ExistingFilesOnly(
-            this ArgumentBuilder builder)
-        {
-            builder.Configure(argument => argument.ExistingFilesOnly());
-
-            return builder;
-        }
-
-        public static ArgumentBuilder LegalFilePathsOnly(
-            this ArgumentBuilder builder)
-        {
-            builder.Configure(a => a.LegalFilePathsOnly());
-
-            return builder;
-        }
-
-        #endregion
-
         #region type / return value
 
         public static Argument ParseArgumentsAs<T>(
@@ -150,15 +130,6 @@ namespace System.CommandLine.Builder
             Func<object> defaultValue)
         {
             builder.Configure(argument => argument.SetDefaultValue(defaultValue));
-
-            return builder;
-        }
-
-        public static ArgumentBuilder AddSuggestions(
-            this ArgumentBuilder builder,
-            params string[] suggestions)
-        {
-            builder.Configure(argument => argument.AddSuggestions(suggestions));
 
             return builder;
         }

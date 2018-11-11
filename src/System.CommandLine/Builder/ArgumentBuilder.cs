@@ -21,16 +21,6 @@ namespace System.CommandLine.Builder
             _configureActions.Add(action);
         }
 
-        public void AddValidator(ValidateSymbol validator)
-        {
-            if (validator == null)
-            {
-                throw new ArgumentNullException(nameof(validator));
-            }
-
-            SymbolValidators.Add(validator);
-        }
-
         public Argument Build()
         {
             var argument = new Argument(SymbolValidators);

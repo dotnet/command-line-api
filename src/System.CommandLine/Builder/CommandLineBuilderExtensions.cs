@@ -181,15 +181,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder AddArguments<TBuilder>(
-            this TBuilder builder,
-            Action<ArgumentBuilder> action)
-            where TBuilder : CommandBuilder
-        {
-            action.Invoke(builder.Arguments);
-            return builder;
-        }
-
         public static CommandLineBuilder ParseResponseFileAs(
             this CommandLineBuilder builder,
             ResponseFileHandling responseFileHandling)
