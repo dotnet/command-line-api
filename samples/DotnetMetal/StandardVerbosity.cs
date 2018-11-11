@@ -1,4 +1,4 @@
-﻿namespace DotMetal
+﻿namespace DotnetMetal
 {
     public enum StandardVerbosity
     {
@@ -7,6 +7,5 @@
         Normal,
         Detailed,
         Diagnostic
-
     }
 }
