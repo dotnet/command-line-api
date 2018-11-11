@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;
 
@@ -12,6 +11,31 @@ namespace System.CommandLine
     {
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
         private readonly SymbolSet _symbols = new SymbolSet();
+
+        public CommandLineConfiguration(
+            RootCommand rootCommand,
+            IReadOnlyCollection<char> argumentDelimiters = null,
+            IReadOnlyCollection<string> prefixes = null,
+            bool enablePosixBundling = true,
+            bool enablePositionalOptions = false,
+            ValidationMessages validationMessages = null,
+            ResponseFileHandling responseFileHandling = default,
+            IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null)
+            : this(
+                new[] { rootCommand },
+                argumentDelimiters,
+                prefixes,
+                enablePosixBundling,
+                enablePositionalOptions,
+                validationMessages,
+                responseFileHandling,
+                middlewarePipeline)
+        {
+            if (rootCommand == null)
+            {
+                throw new ArgumentNullException(nameof(rootCommand));
+            }
+        }
 
         public CommandLineConfiguration(
             IReadOnlyCollection<Symbol> symbols,
@@ -57,7 +81,7 @@ namespace System.CommandLine
             else
             {
                 RootCommand = new Command(
-                    CommandLineBuilder.ExeName,
+                    CommandLine.RootCommand.ExeName,
                     "",
                     symbols);
             }

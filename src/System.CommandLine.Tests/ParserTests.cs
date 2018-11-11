@@ -579,7 +579,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("one two three");
 
-            result.Diagram().Should().Be($"[ {CommandLineBuilder.ExeName} [ one [ two [ three ] ] ] ]");
+            result.Diagram().Should().Be($"[ {RootCommand.ExeName} [ one [ two [ three ] ] ] ]");
         }
 
         [Fact]
@@ -596,7 +596,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("one three");
 
-            result.Diagram().Should().Be($"[ {CommandLineBuilder.ExeName} [ one [ three ] ] ]");
+            result.Diagram().Should().Be($"[ {RootCommand.ExeName} [ one [ three ] ] ]");
         }
 
         [Fact]
@@ -638,7 +638,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.Diagram().Should().Be($"[ {CommandLineBuilder.ExeName} [ outer [ inner [ non-unique <arg3> ] <arg2> ] <arg1> ] ]");
+            result.Diagram().Should().Be($"[ {RootCommand.ExeName} [ outer [ inner [ non-unique <arg3> ] <arg2> ] <arg1> ] ]");
         }
 
         [Fact]

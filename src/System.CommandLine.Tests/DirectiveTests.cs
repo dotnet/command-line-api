@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -15,7 +13,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option("-y");
 
-            var result = option.Parse($"{CommandLineBuilder.ExeName} [parse] -y");
+            var result = option.Parse($"{RootCommand.ExeName} [parse] -y");
 
             result.UnmatchedTokens.Should().BeEmpty();
         }

@@ -4,7 +4,6 @@
 using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
-using static System.CommandLine.Builder.CommandLineBuilder;
 
 namespace System.CommandLine.Tests
 {
@@ -76,7 +75,7 @@ namespace System.CommandLine.Tests
 
             result.Diagram()
                   .Should()
-                  .Be($"[ {ExeName} ![ -f <not-an-int> ] ]");
+                  .Be($"[ {RootCommand.ExeName} ![ -f <not-an-int> ] ]");
         }
 
         [Fact]
@@ -99,7 +98,7 @@ namespace System.CommandLine.Tests
             var diagram = result.Diagram();
 
             diagram.Should()
-                   .Be($"[ {ExeName} [ -w <9000> ] *[ --height <10> ] *[ --color <Cyan> ] ]");
+                   .Be($"[ {RootCommand.ExeName} [ -w <9000> ] *[ --height <10> ] *[ --color <Cyan> ] ]");
         }
     }
 }
