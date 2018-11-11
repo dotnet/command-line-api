@@ -10,7 +10,6 @@ namespace System.CommandLine.Builder
     public class CommandBuilder : SymbolBuilder
     {
         private readonly Lazy<List<Command>> _builtCommands = new Lazy<List<Command>>();
-        private readonly Lazy<List<Option>> _builtOptions = new Lazy<List<Option>>();
 
         public CommandBuilder(
             string name,
@@ -19,7 +18,7 @@ namespace System.CommandLine.Builder
             Name = name;
         }
 
-        public OptionBuilderSet Options { get; } = new OptionBuilderSet();
+        public IList<Option> Options { get; } = new List<Option>();
 
         public CommandBuilderSet Commands { get; } = new CommandBuilderSet();
 
@@ -33,7 +32,7 @@ namespace System.CommandLine.Builder
 
         internal void AddCommand(Command command) => _builtCommands.Value.Add(command);
 
-        internal void AddOption(Option option) => _builtOptions.Value.Add(option);
+        internal void AddOption(Option option) => Options.Add(option);
 
         public Command BuildCommand()
         {
@@ -63,15 +62,7 @@ namespace System.CommandLine.Builder
                 subcommands = subcommands.Concat(_builtCommands.Value);
             }
 
-            var options = Options
-                .Select(b => b.BuildOption());
-
-            if (_builtOptions.IsValueCreated)
-            {
-                options = options.Concat(_builtOptions.Value);
-            }
-
-            return subcommands.Concat<Symbol>(options).ToArray();
+            return subcommands.Concat<Symbol>(Options).ToArray();
         }
     }
 }

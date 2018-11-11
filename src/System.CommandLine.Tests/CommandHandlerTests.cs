@@ -154,14 +154,14 @@ namespace System.CommandLine.Tests
                         cmd =>
                         {
                             cmd
-                                .AddOption("--name", "", a => a.ExactlyOne())
+                                .AddOption("--name", "", ArgumentArity.ExactlyOne)
                                 .OnExecute<string, int>((name, age) =>
                                 {
                                     wasCalled = true;
                                     name.Should().Be("Gandalf");
                                     age.Should().Be(425);
                                 })
-                                .AddOption("--age", "", a => a.ParseArgumentsAs<int>());
+                                .AddOption("--age", "", new Argument<int>());
                         })
                     .Build();
 
@@ -181,7 +181,7 @@ namespace System.CommandLine.Tests
                         "command", "",
                         cmd =>
                         {
-                            cmd.AddOption("-x", "", args => args.ParseArgumentsAs<int>())
+                            cmd.AddOption("-x", "", new Argument<int>())
                                .OnExecute<ParseResult>(result =>
                                {
                                    wasCalled = true;
@@ -206,7 +206,7 @@ namespace System.CommandLine.Tests
                         "command", "",
                         cmd =>
                         {
-                            cmd.AddOption("-x", "", args => args.ParseArgumentsAs<int>())
+                            cmd.AddOption("-x", "", new Argument<int>())
                                .OnExecute<IConsole>(console =>
                                {
                                    wasCalled = true;
@@ -232,7 +232,7 @@ namespace System.CommandLine.Tests
                         "command", "",
                         cmd =>
                         {
-                            cmd.AddOption("-x", "", args => args.ParseArgumentsAs<int>())
+                            cmd.AddOption("-x", "", new Argument<int>())
                                .OnExecute<InvocationContext>(context =>
                                {
                                    wasCalled = true;

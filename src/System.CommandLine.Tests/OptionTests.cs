@@ -178,9 +178,9 @@ namespace System.CommandLine.Tests
         public void When_options_use_different_prefixes_they_still_work(string prefix)
         {
             var result = new CommandLineBuilder()
-                         .AddOption(prefix + "a", "", a => a.ExactlyOne())
-                         .AddOption(prefix + "b", "")
-                         .AddOption(prefix + "c", "", a => a.ExactlyOne())
+                         .AddOption(prefix + "a", "", ArgumentArity.ExactlyOne)
+                         .AddOption(prefix + "b")
+                         .AddOption(prefix + "c", "", ArgumentArity.ExactlyOne)
                          .Build()
                          .Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 

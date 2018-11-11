@@ -73,10 +73,10 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .EnablePositionalOptions()
                          .AddCommand("command1", symbols: b =>
-                                         b.AddOption("-anon", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
+                                         b.AddOption("-anon", "", ArgumentArity.ExactlyOne)
                          )
                          .AddCommand("command2", symbols: b =>
-                                         b.AddOption("-anon", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
+                                         b.AddOption("-anon", "", ArgumentArity.ExactlyOne)
                          )
                          .Build();
 
@@ -101,15 +101,15 @@ namespace System.CommandLine.Tests
                          {
                              foreach (int optionIndex in Enumerable.Range(1, subcommand1Options))
                              {
-                                 b.AddOption($"-anon{optionIndex}", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne());
+                                 b.AddOption($"-anon{optionIndex}", "", ArgumentArity.ExactlyOne);
                              }
 
                              b.AddCommand("subcommand2", symbols: subCommandBuilder =>
                              {
                                  foreach (int optionIndex in Enumerable.Range(1, subcommand2Options))
                                  {
-                                     subCommandBuilder.AddOption($"-anon{optionIndex}",
-                                                                 arguments: argumentsBuilder => argumentsBuilder.ExactlyOne());
+                                     subCommandBuilder.AddOption($"-anon{optionIndex}","",
+                                                                 ArgumentArity.ExactlyOne);
                                  }
                              });
                          })
@@ -151,8 +151,8 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .EnablePositionalOptions()
                          .AddCommand("subcommand", symbols: b =>
-                                         b.AddOption("-anon1", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
-                                          .AddOption("-anon2", arguments: argumentsBuilder => argumentsBuilder.ExactlyOne())
+                                         b.AddOption("-anon1", "", arity: ArgumentArity.ExactlyOne)
+                                          .AddOption("-anon2", "", arity: ArgumentArity.ExactlyOne)
                          )
                          .Build();
 
@@ -168,7 +168,7 @@ namespace System.CommandLine.Tests
         {
             var result = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddOption("-a", "", a => a.ExactlyOne())
+                         .AddOption("-a", "", ArgumentArity.ExactlyOne)
                          .Build()
                          .Parse("value-for-a");
 
@@ -180,9 +180,9 @@ namespace System.CommandLine.Tests
         {
             var result = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddOption("-a", "", a => a.ExactlyOne())
-                         .AddOption("-b", "")
-                         .AddOption("-c", "", a => a.ExactlyOne())
+                         .AddOption("-a", "", ArgumentArity.ExactlyOne)
+                         .AddOption("-b")
+                         .AddOption("-c", "", ArgumentArity.ExactlyOne)
                          .Build()
                          .Parse("value-for-a value-for-c");
 
@@ -196,9 +196,9 @@ namespace System.CommandLine.Tests
         {
             var result = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddOption("-a", "", a => a.ExactlyOne())
-                         .AddOption("-b", "")
-                         .AddOption("-c", "", a => a.ExactlyOne())
+                         .AddOption("-a", "", ArgumentArity.ExactlyOne)
+                         .AddOption("-b")
+                         .AddOption("-c", "", ArgumentArity.ExactlyOne)
                          .Build()
                          .Parse("-a value-for-a value-for-c");
 
@@ -212,9 +212,9 @@ namespace System.CommandLine.Tests
         {
             var result = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddOption("-a", "", a => a.ExactlyOne())
-                         .AddOption("-b", "")
-                         .AddOption("-c", "", a => a.ExactlyOne())
+                         .AddOption("-a", "", ArgumentArity.ExactlyOne)
+                         .AddOption("-b")
+                         .AddOption("-c", "", ArgumentArity.ExactlyOne)
                          .Build()
                          .Parse("-c value-for-c value-for-a");
 

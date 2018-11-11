@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .AddCommand("the-command", "",
                                      cmd => cmd.AddOption(new[] { "-c", "--count" }, "",
-                                                          args => args.ParseArgumentsAs<int>()))
+                                                          new Argument<int>()))
                          .UseParseDirective()
                          .Build();
 

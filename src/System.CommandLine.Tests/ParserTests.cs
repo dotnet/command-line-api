@@ -273,9 +273,9 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .EnablePosixBundling(false)
                          .AddCommand("the-command", "", c =>
-                                         c.AddOption("-x", "")
-                                          .AddOption("-y", "")
-                                          .AddOption("-z", ""))
+                                         c.AddOption("-x")
+                                          .AddOption("-y")
+                                          .AddOption("-z"))
                          .Build();
 
             var result = parser.Parse("the-command -xyz");
@@ -527,7 +527,7 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .AddCommand("move", "",
                                      move => move.AddOption("-X", "",
-                                                            xArgs => xArgs.ExactlyOne()),
+                                                            ArgumentArity.ExactlyOne),
                                      moveArgs => moveArgs.OneOrMore())
                          .Build();
 
@@ -648,7 +648,7 @@ namespace System.CommandLine.Tests
                          .AddCommand(
                              "the-command", "",
                              arguments: commandArgs => commandArgs.ZeroOrMore(),
-                             symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.None()))
+                             symbols: cmd => cmd.AddOption("-x", "", ArgumentArity.Zero))
                          .Build();
 
             var result = parser.Parse("the-command -x the-argument");
@@ -665,7 +665,7 @@ namespace System.CommandLine.Tests
                          .AddCommand(
                              "the-command", "",
                              arguments: commandArgs => commandArgs.None(),
-                             symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.ExactlyOne()))
+                             symbols: cmd => cmd.AddOption("-x", "", ArgumentArity.ExactlyOne))
                          .Build();
 
             var result = parser.Parse("the-command -x the-argument");
@@ -683,8 +683,8 @@ namespace System.CommandLine.Tests
                              outer => {
                                  outer.AddCommand(
                                      "inner", "",
-                                     inner => inner.AddOption("-x", ""));
-                                 outer.AddOption("-x", "");
+                                     inner => inner.AddOption(new Option("-x")));
+                                 outer.AddOption(new Option("-x"));
                              })
                          .Build();
 
@@ -710,8 +710,8 @@ namespace System.CommandLine.Tests
                              outer => {
                                  outer.AddCommand(
                                      "inner", "",
-                                     inner => inner.AddOption("-x", ""));
-                                 outer.AddOption("-x", "");
+                                     inner => inner.AddOption("-x"));
+                                 outer.AddOption("-x");
                              })
                          .Build();
 
@@ -760,7 +760,7 @@ namespace System.CommandLine.Tests
             var command = new CommandBuilder("the-command")
                           .AddCommand("complete", "",
                                       completeCmd => completeCmd.AddOption("--position", "",
-                                                                           positionArgs => positionArgs.ExactlyOne()),
+                                                                           ArgumentArity.ExactlyOne),
                                       completeArgs => completeArgs.ExactlyOne())
                           .BuildCommand();
 

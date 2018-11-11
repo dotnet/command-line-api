@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Xunit;
@@ -33,13 +34,14 @@ namespace System.CommandLine.Tests.Builder
             var builder = new CommandLineBuilder();
 
             builder.AddCommand("the-command", "",
-                               cmd => cmd.AddOption(new[] { "-o", "--the-option" }));
+                               cmd => cmd.AddOption(new Option(new[] { "-o", "--the-option" })));
 
             var option = builder
                          .Commands["the-command"]
-                         .Options["the-option"];
+                         .Options
+                         .Single();
 
-            option.Aliases.Should().BeEquivalentTo("-o", "--the-option");
+            option.RawAliases.Should().BeEquivalentTo("-o", "--the-option");
         }
     }
 }

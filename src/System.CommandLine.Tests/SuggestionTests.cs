@@ -128,9 +128,9 @@ namespace System.CommandLine.Tests
         public void When_one_option_has_been_specified_then_it_and_its_siblings_will_still_be_suggested()
         {
             var parser = new Parser(
-                new Option("--apple", "kinds of apples"),
-                new Option("--banana", "kinds of bananas"),
-                new Option("--cherry", "kinds of cherries"));
+                new Option("--apple"),
+                new Option("--banana"),
+                new Option("--cherry"));
 
             var result = parser.Parse("--apple grannysmith ");
 
@@ -148,9 +148,9 @@ namespace System.CommandLine.Tests
         public void When_one_option_has_been_partially_specified_then_nonmatching_siblings_will_not_be_suggested()
         {
             var parser = new CommandLineBuilder()
-                         .AddOption("--apple", "kinds of apples")
-                         .AddOption("--banana", "kinds of bananas")
-                         .AddOption("--cherry", "kinds of cherries")
+                         .AddOption("--apple")
+                         .AddOption("--banana")
+                         .AddOption("--cherry")
                          .Build();
 
             var result = parser.Parse("a");
@@ -373,16 +373,25 @@ namespace System.CommandLine.Tests
                              "outer", "",
                              outer => outer.AddOption(
                                                "one", "",
-                                               args => args.FromAmong("one-a", "one-b", "one-c")
-                                                           .ExactlyOne())
+                                               new Argument
+                                               {
+                                                   Arity = ArgumentArity.ExactlyOne
+                                               }.FromAmong("one-a", "one-b", "one-c")
+                                           )
                                            .AddOption(
                                                "two", "",
-                                               args => args.FromAmong("two-a", "two-b", "two-c")
-                                                           .ExactlyOne())
+                                               new Argument
+                                               {
+                                                   Arity = ArgumentArity.ExactlyOne
+                                               }.FromAmong("two-a", "two-b", "two-c")
+                                           )
                                            .AddOption(
                                                "three", "",
-                                               args => args.FromAmong("three-a", "three-b", "three-c")
-                                                           .ExactlyOne()))
+                                               new Argument
+                                               {
+                                                   Arity = ArgumentArity.ExactlyOne
+                                               }.FromAmong("three-a", "three-b", "three-c")
+                                           ))
                          .Build();
 
             ParseResult result = parser.Parse(new[] { "outer", "two", "b" });
@@ -400,16 +409,25 @@ namespace System.CommandLine.Tests
                              "outer", "",
                              outer => outer.AddOption(
                                                "one", "",
-                                               args => args.FromAmong("one-a", "one-b", "one-c")
-                                                           .ExactlyOne())
+                                               new Argument
+                                               {
+                                                   Arity = ArgumentArity.ExactlyOne
+                                               }.FromAmong("one-a", "one-b", "one-c")
+                                           )
                                            .AddOption(
                                                "two", "",
-                                               args => args.FromAmong("two-a", "two-b", "two-c")
-                                                           .ExactlyOne())
+                                               new Argument
+                                               {
+                                                   Arity = ArgumentArity.ExactlyOne
+                                               }.FromAmong("two-a", "two-b", "two-c")
+                                           )
                                            .AddOption(
                                                "three", "",
-                                               args => args.FromAmong("three-a", "three-b", "three-c")
-                                                           .ExactlyOne()))
+                                               new Argument
+                                               {
+                                                   Arity = ArgumentArity.ExactlyOne
+                                               }.FromAmong("three-a", "three-b", "three-c")
+                                           ))
                          .Build();
 
             ParseResult result = parser.Parse("outer two b");
@@ -426,17 +444,23 @@ namespace System.CommandLine.Tests
                          .AddCommand(
                              "outer", "",
                              outer => outer.AddCommand(
-                                               "one", "",
-                                               arguments: args => args.FromAmong("one-a", "one-b", "one-c")
-                                                                      .ExactlyOne())
+                                               new Command("one", "",
+                                                           argument: new Argument
+                                                                     {
+                                                                         Arity = ArgumentArity.ExactlyOne
+                                                                     }.FromAmong("one-a", "one-b", "one-c")))
                                            .AddCommand(
-                                               "two", "",
-                                               arguments: args => args.FromAmong("two-a", "two-b", "two-c")
-                                                                      .ExactlyOne())
+                                               new Command("two", "",
+                                                           argument: new Argument
+                                                                     {
+                                                                         Arity = ArgumentArity.ExactlyOne
+                                                                     }.FromAmong("two-a", "two-b", "two-c")))
                                            .AddCommand(
-                                               "three", "",
-                                               arguments: args => args.FromAmong("three-a", "three-b", "three-c")
-                                                                      .ExactlyOne()))
+                                               new Command("three", "",
+                                                           argument: new Argument
+                                                                     {
+                                                                         Arity = ArgumentArity.ExactlyOne
+                                                                     }.FromAmong("three-a", "three-b", "three-c"))))
                          .Build();
 
             ParseResult result = parser.Parse(new[] { "outer", "two", "b" });

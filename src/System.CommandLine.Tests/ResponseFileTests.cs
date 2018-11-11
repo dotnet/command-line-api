@@ -48,8 +48,8 @@ namespace System.CommandLine.Tests
                 s.WriteLine("123");
             }
             var result = new CommandLineBuilder()
-                .AddOption("--flag", "")
-                .AddOption("--flag2", "", a => a.ParseArgumentsAs<int>())
+                .AddOption("--flag")
+                .AddOption("--flag2", "", new Argument<int>())
                 .Build()
                 .Parse("@" + FilePath);
             result.HasOption("--flag").Should().BeTrue();
@@ -70,8 +70,8 @@ namespace System.CommandLine.Tests
                 s.WriteLine("--flag2");
             }
             var result = new CommandLineBuilder()
-                .AddOption("--flag", "")
-                .AddOption("--flag2", "")
+                .AddOption("--flag")
+                .AddOption("--flag2")
                 .Build()
                 .Parse("@" + FilePath);
             result.HasOption("--flag").Should().BeTrue();
@@ -84,8 +84,8 @@ namespace System.CommandLine.Tests
         {
             File.Delete(FilePath);
             var result = new CommandLineBuilder()
-                .AddOption("--flag", "")
-                .AddOption("--flag2", "")
+                .AddOption("--flag")
+                .AddOption("--flag2")
                 .Build()
                 .Parse("@" + FilePath);
             result.HasOption("--flag").Should().BeFalse();
@@ -98,8 +98,8 @@ namespace System.CommandLine.Tests
         public void When_response_filepath_is_not_specified_error_is_returned()
         {
             var result = new CommandLineBuilder()
-                .AddOption("--flag", "")
-                .AddOption("--flag2", "")
+                .AddOption("--flag")
+                .AddOption("--flag2")
                 .Build()
                 .Parse("@");
             result.HasOption("--flag").Should().BeFalse();
@@ -114,8 +114,8 @@ namespace System.CommandLine.Tests
             using (File.Open(FilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
             {
                 var result = new CommandLineBuilder()
-                    .AddOption("--flag", "")
-                    .AddOption("--flag2", "")
+                    .AddOption("--flag")
+                    .AddOption("--flag2")
                     .Build()
                     .Parse("@" + FilePath);
                 result.HasOption("--flag").Should().BeFalse();
@@ -137,8 +137,8 @@ namespace System.CommandLine.Tests
             }
 
             var result = new CommandLineBuilder()
-                .AddOption("--flag", "", a => a.ExactlyOne())
-                .AddOption("--flag2", "", a=> a.ParseArgumentsAs<int>())
+                .AddOption("--flag", "", ArgumentArity.ExactlyOne)
+                .AddOption("--flag2", "", new Argument<int>())
                 .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
                 .Build()
                 .Parse("@" + FilePath);
@@ -150,8 +150,8 @@ namespace System.CommandLine.Tests
         public void When_response_file_processing_is_disabled_returns_response_file_name_as_argument()
         {
             var result = new CommandLineBuilder()
-                .AddOption("--flag", "")
-                .AddOption("--flag2", "")
+                .AddOption("--flag")
+                .AddOption("--flag2")
                 .ParseResponseFileAs(ResponseFileHandling.Disabled)
                 .Build()
                 .Parse($"--flag @{FilePath} --flag2");

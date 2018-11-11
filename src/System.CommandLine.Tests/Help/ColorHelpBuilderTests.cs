@@ -124,8 +124,8 @@ namespace System.CommandLine.Tests.Help
                 .AddCommand("test-command", "Help text for the command",
                     symbols => symbols
                         .AddOption(
-                            new[] { "-a", "--aaa" },
-                            "Help   for      the   option"))
+                            new Option(new[] { "-a", "--aaa" },
+                            "Help   for      the   option")))
                 .BuildCommand();
 
             commandLineBuilder
@@ -158,8 +158,8 @@ namespace System.CommandLine.Tests.Help
                             .WithHelp(name: "inner-args")
                             .ZeroOrOne(),
                         symbols: inner => inner.AddOption(
-                            new[] { "-v", "--verbosity" },
-                            "Inner    option \twith spaces")))
+                            new Option(new[] { "-v", "--verbosity" },
+                            "Inner    option \twith spaces"))))
                 .BuildCommand();
 
             commandLineBuilder

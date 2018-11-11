@@ -89,7 +89,11 @@ namespace System.CommandLine.DragonFruit
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
                     {
-                        if (options[parameterDescription.Key.ToKebabCase()] is OptionBuilder option)
+                        var kebabCasedParameterName = parameterDescription.Key.ToKebabCase();
+
+                        var option = options.FirstOrDefault(o => o.HasAlias(kebabCasedParameterName));
+
+                        if (option != null)
                         {
                             option.Description = parameterDescription.Value;
                         }

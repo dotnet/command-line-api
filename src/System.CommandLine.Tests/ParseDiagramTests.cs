@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .AddOption("-f", "",
-                                    args => args.ParseArgumentsAs<int>())
+                                    new Argument<int>())
                          .Build();
 
             var result = parser.Parse("-f not-an-int");
@@ -83,14 +83,22 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .AddOption(new[] { "-h", "--height" }, "",
-                                    args => args.WithDefaultValue(() => 10)
-                                                .ExactlyOne())
+                                    new Argument
+                                    {
+                                        Arity = ArgumentArity.ExactlyOne
+                                    }.WithDefaultValue(() => 10))
                          .AddOption(new[] { "-w", "--width" }, "",
-                                    args => args.WithDefaultValue(() => 15)
-                                                .ExactlyOne())
+                                    new Argument
+                                    {
+                                        Arity = ArgumentArity.ExactlyOne
+                                    }.WithDefaultValue(() => 15)
+                         )
                          .AddOption(new[] { "-c", "--color" }, "",
-                                    args => args.WithDefaultValue(() => ConsoleColor.Cyan)
-                                                .ExactlyOne())
+                                    new Argument
+                                    {
+                                        Arity = ArgumentArity.ExactlyOne
+                                    }.WithDefaultValue(() => ConsoleColor.Cyan)
+                         )
                          .Build();
 
             var result = parser.Parse("-w 9000");
