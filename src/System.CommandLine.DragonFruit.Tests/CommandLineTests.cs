@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Tests;
@@ -45,7 +45,7 @@ namespace System.CommandLine.DragonFruit.Tests
                                action.Method,
                                this);
 
-            exitCode.Should().Be(CommandLine.OkExitCode);
+            exitCode.Should().Be(0);
             _console.Out.ToString().Should()
                     .Contain("--name")
                     .And.Contain("Options:");
@@ -90,7 +90,7 @@ namespace System.CommandLine.DragonFruit.Tests
                                action.Method,
                                this);
 
-            exitCode.Should().Be(CommandLine.ErrorExitCode);
+            exitCode.Should().Be(1);
             _console.Error.ToString()
                     .Should().NotBeEmpty()
                     .And
@@ -109,7 +109,7 @@ namespace System.CommandLine.DragonFruit.Tests
                                action.Method,
                                this);
 
-            exitCode.Should().Be(CommandLine.ErrorExitCode);
+            exitCode.Should().Be(1);
             _console.Error.ToString()
                     .Should().NotBeEmpty()
                     .And

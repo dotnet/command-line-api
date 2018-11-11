@@ -59,18 +59,20 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Synopsis_section_removes_extra_whitespace()
         {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                    Description = "test  description\tfor synopsis",
-                }
+            var command = new CommandLineBuilder
+                      {
+                          HelpBuilder = _helpBuilder,
+                          Description = "test  description\tfor synopsis",
+                      }
                 .BuildCommand();
 
-            commandLineBuilder.WriteHelp(_console);
+            command.WriteHelp(_console);
+
+            _output.WriteLine(_console.Out.ToString());
 
             var expected =
-            $@"{_executableName}:{NewLine}" +
-            $"{_indentation}test description for synopsis{NewLine}{NewLine}";
+                $@"{_executableName}:{NewLine}" +
+                $"{_indentation}test description for synopsis{NewLine}{NewLine}";
 
             GetHelpText().Should().Contain(expected);
         }
