@@ -606,7 +606,7 @@ namespace System.CommandLine.Tests
                           .AddCommand("outer", "",
                                       arguments: outerArgs => outerArgs.ZeroOrMore(),
                                       symbols: outer => outer.AddCommand("inner", "", arguments: innerArgs => innerArgs.ZeroOrMore()))
-                          .BuildCommand();
+                          .Command;
 
             ParseResult result = command.Parse("outer arg1 inner arg2");
 
@@ -736,7 +736,7 @@ namespace System.CommandLine.Tests
                                       outer => outer.AddCommand("inner", "",
                                                                 arguments: innerArgs => innerArgs.ExactlyOne()),
                                       outerArgs => outerArgs.ExactlyOne())
-                          .BuildCommand();
+                          .Command;
 
             ParseResult result = command.Parse("outer inner arg1 arg2");
 

@@ -25,7 +25,7 @@ namespace System.CommandLine.Builder
 
         public Parser Build()
         {
-            var rootCommand = BuildCommand();
+            var rootCommand = Command;
 
             return new Parser(
                 new CommandLineConfiguration(

@@ -9,9 +9,7 @@ namespace System.CommandLine.Builder
 {
     public class CommandBuilder
     {
-        public CommandBuilder(
-            Command command,
-            CommandBuilder parent = null) 
+        public CommandBuilder(Command command) 
         {
             Command = command;
         }
@@ -41,21 +39,5 @@ namespace System.CommandLine.Builder
         internal void AddCommand(Command command) => Command.AddCommand(command);
 
         internal void AddOption(Option option) => Command.AddOption(option);
-
-        public Command BuildCommand()
-        {
-            return Command;
-
-            // return new Command(
-            //     Name,
-            //     Description,
-            //     symbols: BuildChildSymbols(),
-            //     treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
-            //                                   Parent?.TreatUnmatchedTokensAsErrors ??
-            //                                   true,
-            //     handler: Handler,
-            //     helpBuilder: HelpBuilder);
-        }
-
     }
 }

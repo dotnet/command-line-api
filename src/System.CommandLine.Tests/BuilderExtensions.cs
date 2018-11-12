@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
             IHelpBuilder helpBuilder = null)
             where TBuilder : CommandBuilder
         {
-            var commandBuilder = new CommandBuilder(new Command(name, description), builder)
+            var commandBuilder = new CommandBuilder(new Command(name, description))
                                  {
                                      HelpBuilder = helpBuilder ?? builder.HelpBuilder
                                  };
@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
                 symbols.Invoke(commandBuilder);
             }
 
-            var command = commandBuilder.BuildCommand();
+            var command = commandBuilder.Command;
 
             if (arguments != null)
             {
