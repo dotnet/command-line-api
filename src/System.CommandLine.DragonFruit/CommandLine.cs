@@ -68,8 +68,8 @@ namespace System.CommandLine.DragonFruit
             return await parser.InvokeAsync(args, console);
         }
 
-        private static CommandLineBuilder ConfigureHelpFromXmlComments(
-            this CommandLineBuilder builder, 
+        public static CommandLineBuilder ConfigureHelpFromXmlComments(
+            this CommandLineBuilder builder,
             MethodInfo method)
         {
             Assembly assembly = method.DeclaringType.Assembly;
@@ -80,11 +80,10 @@ namespace System.CommandLine.DragonFruit
             var metadata = new CommandHelpMetadata();
             if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
             {
-                builder.Description = metadata.Description;
-
                 if (xmlDocs.TryGetMethodDescription(method, out metadata) &&
                     metadata.Description != null)
                 {
+                    builder.Command.Description = metadata.Description;
                     var options = builder.Options;
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
@@ -95,7 +94,7 @@ namespace System.CommandLine.DragonFruit
 
                         if (option != null)
                         {
-                            option.Description = parameterDescription.Value;
+                            option.Help.Description = parameterDescription.Value;
                         }
                     }
 
