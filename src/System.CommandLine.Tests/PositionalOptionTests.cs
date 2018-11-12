@@ -168,7 +168,7 @@ namespace System.CommandLine.Tests
         {
             var result = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddOption("-a", "", ArgumentArity.ExactlyOne)
+                         .AddOption(new Option("-a", "", new Argument<string>()))
                          .Build()
                          .Parse("value-for-a");
 

@@ -757,12 +757,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
-            var command = new CommandBuilder("the-command")
-                          .AddCommand("complete", "",
-                                      completeCmd => completeCmd.AddOption("--position", "",
-                                                                           ArgumentArity.ExactlyOne),
-                                      completeArgs => completeArgs.ExactlyOne())
-                          .BuildCommand();
+            var command = new Command("the-command");
+            var complete = new Command("complete", argument: new Argument<string>().ExactlyOne());
+            command.AddCommand(complete);
+            var position = new Option("--position",
+                                      argument: new Argument<int>().ExactlyOne());
+            complete.AddOption(position);
 
             ParseResult result = command.Parse("the-command",
                                                "complete",
@@ -770,11 +770,11 @@ namespace System.CommandLine.Tests
                                                "7",
                                                "the-command");
 
-            CommandResult complete = result.CommandResult;
+            CommandResult completeResult = result.CommandResult;
 
             _output.WriteLine(result.Diagram());
 
-            complete.Arguments.Should().BeEquivalentTo("the-command");
+            completeResult.Arguments.Should().BeEquivalentTo("the-command");
         }
 
         [Fact]

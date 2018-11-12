@@ -52,12 +52,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Synopsis_section_removes_extra_whitespace()
         {
-            var command = new CommandLineBuilder
-                      {
-                          HelpBuilder = _helpBuilder,
-                          Description = "test  description\tfor synopsis",
-                      }
-                .BuildCommand();
+            var command = new RootCommand(
+                helpBuilder: _helpBuilder,
+                description: "test  description\tfor synopsis");
 
             command.WriteHelp(_console);
 
@@ -73,18 +70,15 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Synopsis_section_removes_added_newlines()
         {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                    Description = $"test{NewLine}description with{NewLine}line breaks",
-                }
-                .BuildCommand();
+            var command = new RootCommand(
+                helpBuilder: _helpBuilder,
+                description: $"test{NewLine}description with{NewLine}line breaks");
 
-            commandLineBuilder.WriteHelp(_console);
+            command.WriteHelp(_console);
 
             var expected =
-            $@"{_executableName}:{NewLine}" +
-            $"{_indentation}test description with line breaks{NewLine}{NewLine}";
+                $@"{_executableName}:{NewLine}" +
+                $"{_indentation}test description with line breaks{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -93,23 +87,19 @@ namespace System.CommandLine.Tests.Help
         public void Synopsis_section_properly_wraps_description()
         {
             var longSynopsisText =
-            $"test{NewLine}" +
-            $"description with line breaks that is long enough to wrap to a{NewLine}" +
-            $"new line";
+                $"test{NewLine}" +
+                $"description with line breaks that is long enough to wrap to a{NewLine}" +
+                $"new line";
 
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = GetHelpBuilder(SmallMaxWidth),
-                    Description = longSynopsisText,
-                }
-                .BuildCommand();
+            var command = new RootCommand(helpBuilder: GetHelpBuilder(SmallMaxWidth),
+                                          description: longSynopsisText);
 
-            commandLineBuilder.WriteHelp(_console);
+            command.WriteHelp(_console);
 
             var expected =
-            $@"{_executableName}:{NewLine}" +
-            $"{_indentation}test description with line breaks that is long enough to wrap to a{NewLine}" +
-            $"{_indentation}new line{NewLine}{NewLine}";
+                $@"{_executableName}:{NewLine}" +
+                $"{_indentation}test description with line breaks that is long enough to wrap to a{NewLine}" +
+                $"{_indentation}new line{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -233,44 +223,29 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_does_not_show_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_true()
         {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                }
-                .AddCommand("some-command", "Does something",
-                    c => c.AddOption(
-                        new Option("-x", "Indicates whether x")))
-                .BuildCommand();
+            var command = new RootCommand();
+            var subcommand = new Command("some-command", "Does something");
+            command.AddCommand(subcommand);
+            subcommand.AddOption(new Option("-x", "Indicates whether x"));
+            subcommand.TreatUnmatchedTokensAsErrors = true;
 
-            commandLineBuilder
-                .Subcommand("some-command")
-                .WriteHelp(_console);
+            subcommand.WriteHelp(_console);
 
-            _console.Out.ToString().Should().NotContain("additional arguments");
+            _console.Out.ToString().Should().NotContain("<additional arguments>");
         }
 
         [Fact]
         public void Usage_section_shows_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_false()
         {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                }
-                .TreatUnmatchedTokensAsErrors(false)
-                .AddCommand("some-command", "Does something",
-                    c => c.AddOption(
-                        new Option("-x", "Indicates whether x")))
-                .BuildCommand();
+            var command = new RootCommand();
+            var subcommand = new Command("some-command", "Does something");
+            command.AddCommand(subcommand);
+            subcommand.AddOption(new Option("-x", "Indicates whether x"));
+            subcommand.TreatUnmatchedTokensAsErrors = false;
 
-            commandLineBuilder
-                .Subcommand("some-command")
-                .WriteHelp(_console);
+            subcommand.WriteHelp(_console);
 
-            var expected =
-                $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} some-command [options] [[--] <additional arguments>...]]";
-
-            _console.Out.ToString().Should().Contain(expected);
+            _console.Out.ToString().Should().Contain("<additional arguments>");
         }
 
         [Fact]
@@ -435,9 +410,9 @@ namespace System.CommandLine.Tests.Help
                 .AddCommand(
                     name: "the-command",
                     description: "command help",
-                    arguments: args => args
-                        .WithHelp(name: "arg command name", description: "test")
-                        .ExactlyOne())
+                    argument: new Argument()
+                        .ExactlyOne()
+                        .WithHelp(name: "arg command name", description: "test"))
                 .BuildCommand();
 
             commandLineBuilder
@@ -490,19 +465,20 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_includes_configured_argument_aliases()
         {
+            var command = new Command("the-command", "command help");
+            var option = new Option(new[] { "-v", "--verbosity" },
+                                    "Sets the verbosity.",
+                                    new Argument
+                                    {
+                                        Help = { Name = "LEVEL" },
+                                        Arity = ArgumentArity.ExactlyOne
+                                    });
+            command.AddOption(option);
             var commandLineBuilder = new CommandLineBuilder
-            {
-                HelpBuilder = _helpBuilder,
-            }
-                                     .AddCommand("the-command", "command help",
-                                                 cmd => cmd.AddOption(
-                                                     new Option(new[] { "-v", "--verbosity" },
-                                                                "Sets the verbosity.",
-                                                                new Argument
-                                                                {
-                                                                    Help = { Name = "LEVEL" },
-                                                                    Arity = ArgumentArity.ExactlyOne
-                                                                })))
+                                     {
+                                         HelpBuilder = _helpBuilder
+                                     }
+                                     .AddCommand(command)
                                      .BuildCommand();
 
             commandLineBuilder
@@ -522,7 +498,7 @@ namespace System.CommandLine.Tests.Help
                 HelpBuilder = _helpBuilder,
             }
             .AddCommand("the-command", "Help text from description",
-                arguments: args => args
+                argument: new Argument()
                     .WithHelp(name: "the-arg", description: "Help text from HelpDetail")
                     .ExactlyOne())
             .BuildCommand();
@@ -677,7 +653,7 @@ namespace System.CommandLine.Tests.Help
                     HelpBuilder = _helpBuilder,
                 }
                 .AddCommand("outer", "Help text for the outer command",
-                    arguments: args => args
+                    argument: new Argument()
                         .WithHelp(
                             name: "outer-command-arg",
                             description: "Argument\tfor the   inner command")
@@ -738,7 +714,10 @@ namespace System.CommandLine.Tests.Help
                 HelpBuilder = GetHelpBuilder(SmallMaxWidth)
             }
             .AddCommand("outer", "Help text for the outer command",
-                        new Argument { Arity = ArgumentArity.ExactlyOne }
+                        new Argument
+                            {
+                                Arity = ArgumentArity.ExactlyOne
+                            }
                             .WithHelp(
                                 name: "outer-command-arg",
                                 description: longCmdText))
@@ -778,17 +757,10 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_is_not_included_if_only_subcommands_configured()
         {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                }
-                .AddCommand("outer", "description for outer",
-                    outer => outer.AddCommand("inner"))
-                .BuildCommand();
-
-            commandLineBuilder
-                .Subcommand("outer")
-                .WriteHelp(_console);
+            var command = new Command("outer",  "description for outer");
+            command.AddCommand(new Command("inner"));
+            
+            command.WriteHelp(_console);
 
             _console.Out.ToString().Should().NotContain("Options:");
         }

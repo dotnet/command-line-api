@@ -7,62 +7,55 @@ using System.Linq;
 
 namespace System.CommandLine.Builder
 {
-    public class CommandBuilder : SymbolBuilder
+    public class CommandBuilder
     {
-        private readonly Lazy<List<Command>> _builtCommands = new Lazy<List<Command>>();
-
         public CommandBuilder(
-            string name,
-            CommandBuilder parent = null) : base(parent)
+            Command command,
+            CommandBuilder parent = null) 
         {
-            Name = name;
+            Command = command;
         }
 
-        public IList<Option> Options { get; } = new List<Option>();
+        public Command Command { get; }
 
-        public CommandBuilderSet Commands { get; } = new CommandBuilderSet();
+        public IEnumerable<Option> Options => Command.Children.OfType<Option>();
 
-        public bool? TreatUnmatchedTokensAsErrors { get; set; }
+        public bool? TreatUnmatchedTokensAsErrors
+        {
+            get => Command.TreatUnmatchedTokensAsErrors;
+            set => Command.TreatUnmatchedTokensAsErrors = value ?? false;
+        }
 
-        internal ICommandHandler Handler { get; set; }
+        internal ICommandHandler Handler
+        {
+            get => Command.Handler;
+            set => Command.Handler = value;
+        }
 
-        public string Name { get; }
+        public IHelpBuilder HelpBuilder
+        {
+            get => Command.HelpBuilder;
+            set => Command.HelpBuilder = value;
+        }
 
-        public IHelpBuilder HelpBuilder { get; set; }
+        internal void AddCommand(Command command) => Command.AddCommand(command);
 
-        internal void AddCommand(Command command) => _builtCommands.Value.Add(command);
-
-        internal void AddOption(Option option) => Options.Add(option);
+        internal void AddOption(Option option) => Command.AddOption(option);
 
         public Command BuildCommand()
         {
-            return new Command(
-                Name,
-                Description,
-                argument: BuildArguments(),
-                symbols: BuildChildSymbols(),
-                treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
-                                              Parent?.TreatUnmatchedTokensAsErrors ??
-                                              true,
-                handler: Handler,
-                helpBuilder: HelpBuilder);
+            return Command;
+
+            // return new Command(
+            //     Name,
+            //     Description,
+            //     symbols: BuildChildSymbols(),
+            //     treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
+            //                                   Parent?.TreatUnmatchedTokensAsErrors ??
+            //                                   true,
+            //     handler: Handler,
+            //     helpBuilder: HelpBuilder);
         }
 
-        protected IReadOnlyCollection<Symbol> BuildChildSymbols()
-        {
-            var subcommands = Commands
-                .Select(b =>
-                {
-                    b.TreatUnmatchedTokensAsErrors = TreatUnmatchedTokensAsErrors;
-                    return b.BuildCommand();
-                });
-
-            if (_builtCommands.IsValueCreated)
-            {
-                subcommands = subcommands.Concat(_builtCommands.Value);
-            }
-
-            return subcommands.Concat<Symbol>(Options).ToArray();
-        }
     }
 }

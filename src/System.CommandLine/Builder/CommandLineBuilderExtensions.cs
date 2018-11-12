@@ -19,61 +19,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder AddCommand<TBuilder>(
-            this TBuilder builder,
-            string name,
-            string description,
-            Action<CommandBuilder> symbols = null,
-            Action<ArgumentBuilder> arguments = null,
-            IHelpBuilder helpBuilder = null)
-            where TBuilder : CommandBuilder
-        {
-            var commandBuilder = new CommandBuilder(name, builder)
-                                 {
-                                     Description = description,
-                                     HelpBuilder = helpBuilder ?? builder.HelpBuilder
-                                 };
-
-            if (symbols != null)
-            {
-                symbols.Invoke(commandBuilder);
-            }
-
-            if (arguments != null)
-            {
-                arguments.Invoke(commandBuilder.Arguments);
-            } 
-
-            var command = commandBuilder.BuildCommand();
-            
-            builder.AddCommand(command);
-
-            return builder;
-        }
-
-        public static TBuilder AddCommand<TBuilder>(
-            this TBuilder builder,
-            string name,
-            string description = null,
-            Argument argument = null,
-            IHelpBuilder helpBuilder = null)
-            where TBuilder : CommandBuilder
-        {
-            var command = new Command(name, helpBuilder: helpBuilder ?? builder.HelpBuilder)
-                          {
-                              Description = description
-                          };
-
-            if (argument != null)
-            {
-                command.Argument = argument;
-            }
-
-            builder.AddCommand(command);
-
-            return builder;
-        }
-
         public static TBuilder ConfigureFromMethod<TBuilder>(
             this TBuilder builder,
             MethodInfo method,

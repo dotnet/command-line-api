@@ -8,8 +8,6 @@ namespace System.CommandLine
 {
     public class Command : Symbol, ICommand, ISuggestionSource
     {
-        private readonly IHelpBuilder _helpBuilder;
-
         public Command(
             string name,
             string description = "",
@@ -23,7 +21,7 @@ namespace System.CommandLine
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
             Handler = handler;
-            _helpBuilder = helpBuilder;
+            HelpBuilder = helpBuilder;
             symbols = symbols ?? Array.Empty<Symbol>();
 
             Argument = argument ??
@@ -46,13 +44,15 @@ namespace System.CommandLine
 
         public ICommandHandler Handler { get; set; }
 
+        internal IHelpBuilder HelpBuilder { get; set; }
+
         public void WriteHelp(IConsole console)
         {
             IHelpBuilder helpBuilder;
 
-            if (_helpBuilder != null)
+            if (HelpBuilder != null)
             {
-                helpBuilder = _helpBuilder;
+                helpBuilder = HelpBuilder;
             }
             else
             {
