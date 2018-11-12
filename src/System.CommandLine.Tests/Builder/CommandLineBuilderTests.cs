@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Xunit;
@@ -25,21 +26,6 @@ namespace System.CommandLine.Tests.Builder
             command.Should().NotBeNull();
 
             command.Name.Should().Be(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-        }
-
-        [Fact]
-        public void Child_builders_can_be_accessed_after_being_added()
-        {
-            var builder = new CommandLineBuilder();
-
-            builder.AddCommand("the-command", "",
-                               cmd => cmd.AddOption(new[] { "-o", "--the-option" }));
-
-            var option = builder
-                         .Commands["the-command"]
-                         .Options["the-option"];
-
-            option.Aliases.Should().BeEquivalentTo("-o", "--the-option");
         }
     }
 }

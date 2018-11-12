@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Builder;
 using System.CommandLine.Tests;
 using System.IO;
 using System.Linq;
@@ -15,7 +14,7 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionDispatcherTests
     {
-        private static readonly string _currentExeName = CommandLineBuilder.ExeName;
+        private static readonly string _currentExeName = RootCommand.ExeName;
 
         private static RegistrationPair CurrentExeRegistrationPair()
             => new RegistrationPair(CurrentExeFullPath(), $"{_currentExeName} [suggest]");

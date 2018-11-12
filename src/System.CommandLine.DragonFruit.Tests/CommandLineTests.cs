@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Tests;
@@ -11,70 +11,57 @@ namespace System.CommandLine.DragonFruit.Tests
     public class CommandLineTests
     {
         private readonly TestConsole _console;
+        private readonly TestProgram _testProgram;
 
         public CommandLineTests()
         {
             _console = new TestConsole();
+            _testProgram = new TestProgram();
         }
-
-        private string _captured;
-
-        private void TestMain(string name) => _captured = name;
 
         [Fact]
         public async Task It_executes_method_with_string_option()
         {
-            Action<string> action = TestMain;
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--name", "Wayne" },
                                _console,
-                               action.Method,
-                               this);
+                               TestProgram.TestMainMethodInfo,
+                               _testProgram);
             exitCode.Should().Be(0);
-            _captured.Should().Be("Wayne");
+            _testProgram.Captured.Should().Be("Wayne");
         }
 
         [Fact]
-        public async Task It_shows_help_text()
+        public async Task It_shows_help_text_based_on_XML_documentation_comments()
         {
-            Action<string> action = TestMain;
-
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--help" },
                                _console,
-                               action.Method,
-                               this);
+                               TestProgram.TestMainMethodInfo,
+                               _testProgram);
 
-            exitCode.Should().Be(CommandLine.OkExitCode);
-            _console.Out.ToString().Should()
-                    .Contain("--name")
-                    .And.Contain("Options:");
+            exitCode.Should().Be(0);
+
+            var stdOut = _console.Out.ToString();
+
+            stdOut.Should()
+                  .Contain("--name       Specifies the name option")
+                  .And.Contain("Options:");
+            stdOut.Should()
+                  .Contain("Help for the test program");
         }
-
-        private void TestMainWithDefault(string name = "Bruce") => _captured = name;
 
         [Fact]
         public async Task It_executes_method_with_string_option_with_default()
         {
-            Action<string> action = TestMainWithDefault;
-
             int exitCode = await CommandLine.InvokeMethodAsync(
-                               new[] { "--name", "Wayne" },
+                               Array.Empty<string>(),
                                _console,
-                               action.Method,
-                               this);
+                               TestProgram.TestMainMethodInfoWithDefault,
+                               _testProgram);
 
             exitCode.Should().Be(0);
-            _captured.Should().Be("Wayne");
-
-            exitCode = await CommandLine.InvokeMethodAsync(
-                           Array.Empty<string>(),
-                           _console,
-                           action.Method,
-                           this);
-
-            exitCode.Should().Be(0);
-            _captured.Should().Be("Bruce");
+            _testProgram.Captured.Should().Be("Bruce");
         }
 
         private void TestMainThatThrows() => throw new InvalidOperationException("This threw an error");
@@ -90,7 +77,7 @@ namespace System.CommandLine.DragonFruit.Tests
                                action.Method,
                                this);
 
-            exitCode.Should().Be(CommandLine.ErrorExitCode);
+            exitCode.Should().Be(1);
             _console.Error.ToString()
                     .Should().NotBeEmpty()
                     .And
@@ -109,7 +96,7 @@ namespace System.CommandLine.DragonFruit.Tests
                                action.Method,
                                this);
 
-            exitCode.Should().Be(CommandLine.ErrorExitCode);
+            exitCode.Should().Be(1);
             _console.Error.ToString()
                     .Should().NotBeEmpty()
                     .And

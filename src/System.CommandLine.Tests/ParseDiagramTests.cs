@@ -4,7 +4,6 @@
 using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
-using static System.CommandLine.Builder.CommandLineBuilder;
 
 namespace System.CommandLine.Tests
 {
@@ -69,14 +68,14 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .AddOption("-f", "",
-                                    args => args.ParseArgumentsAs<int>())
+                                    new Argument<int>())
                          .Build();
 
             var result = parser.Parse("-f not-an-int");
 
             result.Diagram()
                   .Should()
-                  .Be($"[ {ExeName} ![ -f <not-an-int> ] ]");
+                  .Be($"[ {RootCommand.ExeName} ![ -f <not-an-int> ] ]");
         }
 
         [Fact]
@@ -84,14 +83,22 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .AddOption(new[] { "-h", "--height" }, "",
-                                    args => args.WithDefaultValue(() => 10)
-                                                .ExactlyOne())
+                                    new Argument
+                                    {
+                                        Arity = ArgumentArity.ExactlyOne
+                                    }.WithDefaultValue(() => 10))
                          .AddOption(new[] { "-w", "--width" }, "",
-                                    args => args.WithDefaultValue(() => 15)
-                                                .ExactlyOne())
+                                    new Argument
+                                    {
+                                        Arity = ArgumentArity.ExactlyOne
+                                    }.WithDefaultValue(() => 15)
+                         )
                          .AddOption(new[] { "-c", "--color" }, "",
-                                    args => args.WithDefaultValue(() => ConsoleColor.Cyan)
-                                                .ExactlyOne())
+                                    new Argument
+                                    {
+                                        Arity = ArgumentArity.ExactlyOne
+                                    }.WithDefaultValue(() => ConsoleColor.Cyan)
+                         )
                          .Build();
 
             var result = parser.Parse("-w 9000");
@@ -99,7 +106,7 @@ namespace System.CommandLine.Tests
             var diagram = result.Diagram();
 
             diagram.Should()
-                   .Be($"[ {ExeName} [ -w <9000> ] *[ --height <10> ] *[ --color <Cyan> ] ]");
+                   .Be($"[ {RootCommand.ExeName} [ -w <9000> ] *[ --height <10> ] *[ --color <Cyan> ] ]");
         }
     }
 }

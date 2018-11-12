@@ -54,7 +54,7 @@ namespace System.CommandLine.Tests
         public void When_middleware_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
             var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "")
+                         .AddCommand("the-command")
                          .UseMiddleware(_ => throw new Exception("oops!"))
                          .Build();
 

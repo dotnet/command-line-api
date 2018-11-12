@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests
                           .ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this)
                           .Build();
 
-            var result = builder.Parse($"{CommandLineBuilder.ExeName} --value");
+            var result = builder.Parse($"{RootCommand.ExeName} --value");
 
             _output.WriteLine(result.Diagram());
 

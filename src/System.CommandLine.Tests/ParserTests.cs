@@ -273,9 +273,9 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .EnablePosixBundling(false)
                          .AddCommand("the-command", "", c =>
-                                         c.AddOption("-x", "")
-                                          .AddOption("-y", "")
-                                          .AddOption("-z", ""))
+                                         c.AddOption("-x")
+                                          .AddOption("-y")
+                                          .AddOption("-z"))
                          .Build();
 
             var result = parser.Parse("the-command -xyz");
@@ -527,7 +527,7 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .AddCommand("move", "",
                                      move => move.AddOption("-X", "",
-                                                            xArgs => xArgs.ExactlyOne()),
+                                                            ArgumentArity.ExactlyOne),
                                      moveArgs => moveArgs.OneOrMore())
                          .Build();
 
@@ -572,14 +572,14 @@ namespace System.CommandLine.Tests
                          .AddCommand("one", "",
                                      one => {
                                          one.AddCommand("two", "",
-                                                        two => two.AddCommand("three", ""));
-                                         one.AddCommand("three", "");
+                                                        two => two.AddCommand("three"));
+                                         one.AddCommand("three");
                                      })
                          .Build();
 
             ParseResult result = parser.Parse("one two three");
 
-            result.Diagram().Should().Be($"[ {CommandLineBuilder.ExeName} [ one [ two [ three ] ] ] ]");
+            result.Diagram().Should().Be($"[ {RootCommand.ExeName} [ one [ two [ three ] ] ] ]");
         }
 
         [Fact]
@@ -589,14 +589,14 @@ namespace System.CommandLine.Tests
                          .AddCommand("one", "",
                                      one => {
                                          one.AddCommand("two", "",
-                                                        two => two.AddCommand("three", ""));
-                                         one.AddCommand("three", "");
+                                                        two => two.AddCommand(new Command("three")));
+                                         one.AddCommand(new Command("three"));
                                      })
                          .Build();
 
             ParseResult result = parser.Parse("one three");
 
-            result.Diagram().Should().Be($"[ {CommandLineBuilder.ExeName} [ one [ three ] ] ]");
+            result.Diagram().Should().Be($"[ {RootCommand.ExeName} [ one [ three ] ] ]");
         }
 
         [Fact]
@@ -606,7 +606,7 @@ namespace System.CommandLine.Tests
                           .AddCommand("outer", "",
                                       arguments: outerArgs => outerArgs.ZeroOrMore(),
                                       symbols: outer => outer.AddCommand("inner", "", arguments: innerArgs => innerArgs.ZeroOrMore()))
-                          .BuildCommand();
+                          .Command;
 
             ParseResult result = command.Parse("outer arg1 inner arg2");
 
@@ -638,7 +638,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.Diagram().Should().Be($"[ {CommandLineBuilder.ExeName} [ outer [ inner [ non-unique <arg3> ] <arg2> ] <arg1> ] ]");
+            result.Diagram().Should().Be($"[ {RootCommand.ExeName} [ outer [ inner [ non-unique <arg3> ] <arg2> ] <arg1> ] ]");
         }
 
         [Fact]
@@ -648,7 +648,7 @@ namespace System.CommandLine.Tests
                          .AddCommand(
                              "the-command", "",
                              arguments: commandArgs => commandArgs.ZeroOrMore(),
-                             symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.None()))
+                             symbols: cmd => cmd.AddOption("-x", "", ArgumentArity.Zero))
                          .Build();
 
             var result = parser.Parse("the-command -x the-argument");
@@ -665,7 +665,7 @@ namespace System.CommandLine.Tests
                          .AddCommand(
                              "the-command", "",
                              arguments: commandArgs => commandArgs.None(),
-                             symbols: cmd => cmd.AddOption("-x", "", optionArgs => optionArgs.ExactlyOne()))
+                             symbols: cmd => cmd.AddOption("-x", "", ArgumentArity.ExactlyOne))
                          .Build();
 
             var result = parser.Parse("the-command -x the-argument");
@@ -683,8 +683,8 @@ namespace System.CommandLine.Tests
                              outer => {
                                  outer.AddCommand(
                                      "inner", "",
-                                     inner => inner.AddOption("-x", ""));
-                                 outer.AddOption("-x", "");
+                                     inner => inner.AddOption(new Option("-x")));
+                                 outer.AddOption(new Option("-x"));
                              })
                          .Build();
 
@@ -710,8 +710,8 @@ namespace System.CommandLine.Tests
                              outer => {
                                  outer.AddCommand(
                                      "inner", "",
-                                     inner => inner.AddOption("-x", ""));
-                                 outer.AddOption("-x", "");
+                                     inner => inner.AddOption("-x"));
+                                 outer.AddOption("-x");
                              })
                          .Build();
 
@@ -736,7 +736,7 @@ namespace System.CommandLine.Tests
                                       outer => outer.AddCommand("inner", "",
                                                                 arguments: innerArgs => innerArgs.ExactlyOne()),
                                       outerArgs => outerArgs.ExactlyOne())
-                          .BuildCommand();
+                          .Command;
 
             ParseResult result = command.Parse("outer inner arg1 arg2");
 
@@ -757,12 +757,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
-            var command = new CommandBuilder("the-command")
-                          .AddCommand("complete", "",
-                                      completeCmd => completeCmd.AddOption("--position", "",
-                                                                           positionArgs => positionArgs.ExactlyOne()),
-                                      completeArgs => completeArgs.ExactlyOne())
-                          .BuildCommand();
+            var command = new Command("the-command");
+            var complete = new Command("complete", argument: new Argument<string>().ExactlyOne());
+            command.AddCommand(complete);
+            var position = new Option("--position",
+                                      argument: new Argument<int>().ExactlyOne());
+            complete.AddOption(position);
 
             ParseResult result = command.Parse("the-command",
                                                "complete",
@@ -770,11 +770,11 @@ namespace System.CommandLine.Tests
                                                "7",
                                                "the-command");
 
-            CommandResult complete = result.CommandResult;
+            CommandResult completeResult = result.CommandResult;
 
             _output.WriteLine(result.Diagram());
 
-            complete.Arguments.Should().BeEquivalentTo("the-command");
+            completeResult.Arguments.Should().BeEquivalentTo("the-command");
         }
 
         [Fact]

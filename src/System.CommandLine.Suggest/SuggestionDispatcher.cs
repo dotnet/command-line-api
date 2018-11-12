@@ -30,38 +30,63 @@ namespace System.CommandLine.Suggest
                       .UseParseDirective()
                       .UseParseErrorReporting()
 
-                      .AddCommand("list",
-                                  "Lists apps registered for suggestions",
-                                  cmd => cmd
-                                         .AddOption("--detailed", "", args => args.ParseArgumentsAs<bool>())
-                                         .OnExecute<IConsole, bool>((c, detailed) =>
-                                                                        c.Out.WriteLine(List(_suggestionRegistration, detailed))),
-                                  argument => argument.None())
-                      .AddCommand("get",
-                                  "Gets suggestions",
-                                  cmd => cmd
-                                         .AddOption(new[] { "-e", "--executable" },
-                                                    "The executable to ask for argument resolution",
-                                                    argument => argument
-                                                                .LegalFilePathsOnly()
-                                                                .ParseArgumentsAs<string>())
-                                         .AddOption(new[] { "-p", "--position" }, "the current character position on the command line",
-                                                    position => position.ParseArgumentsAs<string>())
-                                         .OnExecute<ParseResult, IConsole>(Get))
-
-                      .AddCommand("register",
-                                  "Registers an app for suggestions",
-                                  cmd =>
-                                  {
-                                      cmd.AddOption("--command-path", "The path to the command for which to register suggestions",
-                                                    a => a.ParseArgumentsAs<string>())
-                                         .AddOption("--suggestion-command", "The command to invoke to retrieve suggestions",
-                                                    a => a.ParseArgumentsAs<string>())
-                                         .OnExecute<string, string, IConsole>(Register);
-                                  })
-
+                      .AddCommand(ListCommand())
+                      .AddCommand(GetCommand())
+                      .AddCommand(RegisterCommand())
+                   
                       .AddVersionOption()
                       .Build();
+
+            Command GetCommand() =>
+                new Command("get",
+                            "Gets suggestions from the specified executable",
+                            new[] { ExecutableOption(), PositionOption() })
+                {
+                    Handler = CommandHandler.Create<ParseResult, IConsole>(Get)
+                };
+
+            Option ExecutableOption() =>
+                new Option(new[] { "-e", "--executable" },
+                           "The executable to call for suggestions",
+                           new Argument<string>().LegalFilePathsOnly());
+
+            Option PositionOption() =>
+                new Option(new[] { "-p", "--position" },
+                           "The current character position on the command line",
+                           new Argument<int>());
+
+            Command ListCommand() =>
+                new Command(
+                    "list",
+                    "Lists apps registered for suggestions",
+                    new[] { DetailedOption() })
+                {
+                    Handler = CommandHandler.Create<IConsole, bool>(
+                        (c, detailed) => c.Out.WriteLine(List(_suggestionRegistration, detailed)))
+                };
+
+            Option DetailedOption() =>
+                new Option("--detailed",
+                           "Provides detailed output about registered completions",
+                           new Argument<bool>());
+
+            Command RegisterCommand() =>
+                new Command("register",
+                            "Registers an app for suggestions",
+                            new[] { CommandPathOption(), SuggestionCommandOption() })
+                {
+                    Handler = CommandHandler.Create<string, string, IConsole>(Register)
+                };
+
+            Option CommandPathOption() =>
+                new Option("--command-path",
+                           "The path to the command for which to register suggestions",
+                           new Argument<string>());
+
+            Option SuggestionCommandOption() =>
+                new Option("--suggestion-command",
+                           "The command to invoke to retrieve suggestions",
+                           new Argument<string>());
         }
 
         public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
