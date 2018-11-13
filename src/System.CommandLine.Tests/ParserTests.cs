@@ -128,7 +128,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_options_are_specified_then_an_error_is_returned()
         {
-            Action create = () => new Parser();
+            Action create = () => new Parser(Array.Empty<Symbol>());
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -1188,6 +1188,18 @@ namespace System.CommandLine.Tests
             result.ValueForOption("-x").Should().Be("23");
             result.ValueForOption("-y").Should().Be("42");
             result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
+        }
+
+        [Fact]
+        public void Parse_can_be_called_with_null_args()
+        {
+            var parser = new Parser();
+
+            var result = parser.Parse(null);
+
+            _output.WriteLine(result.Diagram());
+
+            result.CommandResult.Command.Name.Should().Be(RootCommand.ExeName);
         }
     }
 }
