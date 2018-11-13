@@ -18,9 +18,15 @@ namespace System.CommandLine
         {
         }
 
+        public Parser() : this(new RootCommand())
+        {
+        }
+
         internal CommandLineConfiguration Configuration { get; }
 
-        public virtual ParseResult Parse(IReadOnlyCollection<string> arguments, string rawInput = null)
+        public virtual ParseResult Parse(
+            IReadOnlyCollection<string> arguments, 
+            string rawInput = null)
         {
             var rawTokens = arguments;  // allow a more user-friendly name for callers of Parse
             var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
@@ -207,6 +213,11 @@ namespace System.CommandLine
 
         internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
         {
+            if (args == null)
+            {
+                args = Array.Empty<string>();
+            }
+
             var firstArg = args.FirstOrDefault();
 
             var commandName = Configuration.RootCommand.Name;
