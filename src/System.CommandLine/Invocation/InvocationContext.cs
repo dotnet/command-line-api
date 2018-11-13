@@ -7,8 +7,8 @@ namespace System.CommandLine.Invocation
 {
     public sealed class InvocationContext : IDisposable
     {
+        private readonly IDisposable _onDispose;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private readonly bool _disposeConsole;
 
         public InvocationContext(
             ParseResult parseResult,
@@ -25,7 +25,7 @@ namespace System.CommandLine.Invocation
             else
             {
                 Console = SystemConsole.Create();
-                _disposeConsole = true;
+                _onDispose = Console;
             }
         }
 
@@ -45,10 +45,7 @@ namespace System.CommandLine.Invocation
 
         public void Dispose()
         {
-            if (_disposeConsole)
-            {
-                Console.Dispose();
-            }
+            _onDispose?.Dispose();
         }
     }
 }
