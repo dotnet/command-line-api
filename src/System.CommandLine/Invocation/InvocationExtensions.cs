@@ -34,7 +34,7 @@ namespace System.CommandLine.Invocation
                 {
                     context.Console.CancelKeyPress -= handler;
                 }
-            }, CommandLineBuilder.MiddlewareOrder.Middle);
+            }, CommandLineBuilder.MiddlewareOrder.Configuration);
 
             return builder;
         }
@@ -60,7 +60,7 @@ namespace System.CommandLine.Invocation
                     AssemblyLoadContext.Default.Unloading -= handler;
                     mre.Set();
                 }
-            }, CommandLineBuilder.MiddlewareOrder.Middle);
+            }, CommandLineBuilder.MiddlewareOrder.UnloadHandler);
 
             return builder;
         }
