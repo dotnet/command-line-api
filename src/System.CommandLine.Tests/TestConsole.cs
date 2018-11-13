@@ -313,5 +313,10 @@ namespace System.CommandLine.Tests
 
             public ConsoleColor ForegroundColor { get; }
         }
+
+        public Action CancelKeyPress { set; get; }
+
+        public void EmitCancelKeyPress()
+            => CancelKeyPress?.Invoke();
     }
 }

@@ -20,19 +20,15 @@ namespace System.CommandLine.Invocation
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                ConsoleCancelEventHandler handler = (_, args) =>
-                {
-                    args.Cancel = true;
-                    context.Cancel();
-                };
+                Action handler = () => context.Cancel();
                 try
                 {
-                    context.Console.CancelKeyPress += handler;
+                    context.Console.CancelKeyPress = handler;
                     await next(context);
                 }
                 finally
                 {
-                    context.Console.CancelKeyPress -= handler;
+                    context.Console.CancelKeyPress = null;
                 }
             }, CommandLineBuilder.MiddlewareOrder.Configuration);
 

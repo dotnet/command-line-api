@@ -20,6 +20,10 @@ namespace System.CommandLine.Invocation
             Action<T> action) => 
             new MethodBindingCommandHandler(action);
 
+        public static ICommandHandler Create<T>(
+            Func<T, Task> action) =>
+            new MethodBindingCommandHandler(action);
+
         public static ICommandHandler Create<T1, T2>(
             Action<T1, T2> action) => 
             new MethodBindingCommandHandler(action);

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.CommandLine.Rendering;
 using System.IO;
 
@@ -11,6 +12,8 @@ namespace System.CommandLine.Invocation
         private VirtualTerminalMode _virtualTerminalMode;
         private readonly ConsoleColor _initialForegroundColor;
         private readonly ConsoleColor _initialBackgroundColor;
+        private ConsoleCancelEventHandler _consoleCancelEventHandler;
+        private Action _cancelKeyPress;
 
         internal SystemConsole()
         {
@@ -103,10 +106,32 @@ namespace System.CommandLine.Invocation
             GC.SuppressFinalize(this);
         }
 
-        public event ConsoleCancelEventHandler CancelKeyPress
+        public Action CancelKeyPress
         {
-            add => Console.CancelKeyPress += value;
-            remove => Console.CancelKeyPress -= value;
+            set
+            {
+                if (value == null)
+                {
+                    Console.CancelKeyPress -= _consoleCancelEventHandler;
+                    _consoleCancelEventHandler = null;
+                }
+                else if (_consoleCancelEventHandler == null)
+                {
+                    _consoleCancelEventHandler = OnConsoleCancelEvent;
+                    Console.CancelKeyPress += _consoleCancelEventHandler;
+                }
+                _cancelKeyPress = value;
+            }
+        }
+
+        private void OnConsoleCancelEvent(object sender, ConsoleCancelEventArgs args)
+        {
+            Action cancelKeyPress = _cancelKeyPress;
+            if (cancelKeyPress != null)
+            {
+                args.Cancel = true;
+                cancelKeyPress?.Invoke();
+            }
         }
 
         ~SystemConsole()
