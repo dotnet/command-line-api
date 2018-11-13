@@ -9,7 +9,6 @@ namespace System.CommandLine.Invocation
     {
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly bool _disposeConsole;
-        private readonly Action _cancelAction;
 
         public InvocationContext(
             ParseResult parseResult,
@@ -26,10 +25,8 @@ namespace System.CommandLine.Invocation
             else
             {
                 Console = SystemConsole.Create();
-                _onDispose = Console;
+                _disposeConsole = true;
             }
-
-            console.CancelKeyPress = () => Cancel();
         }
 
         public Parser Parser { get; }
@@ -48,7 +45,6 @@ namespace System.CommandLine.Invocation
 
         public void Dispose()
         {
-            Console.CancelKeyPress = null;
             if (_disposeConsole)
             {
                 Console.Dispose();

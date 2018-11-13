@@ -38,6 +38,6 @@ namespace System.CommandLine
 
         void TryEnableVirtualTerminal();
 
-        Action CancelKeyPress { set; }
+        event ConsoleCancelEventHandler CancelKeyPress;
     }
 }

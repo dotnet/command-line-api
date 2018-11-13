@@ -14,6 +14,29 @@ namespace System.CommandLine.Invocation
 {
     public static class InvocationExtensions
     {
+        public static CommandLineBuilder CancelOnCancelKey(this CommandLineBuilder builder)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                ConsoleCancelEventHandler handler = (_, args) =>
+                {
+                    args.Cancel = true;
+                    context.Cancel();
+                };
+                try
+                {
+                    context.Console.CancelKeyPress += handler;
+                    await next(context);
+                }
+                finally
+                {
+                    context.Console.CancelKeyPress -= handler;
+                }
+            }, CommandLineBuilder.MiddlewareOrder.Middle);
+
+            return builder;
+        }
+
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
             InvocationMiddleware middleware)

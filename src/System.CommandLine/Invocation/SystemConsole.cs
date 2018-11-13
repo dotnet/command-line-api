@@ -11,7 +11,6 @@ namespace System.CommandLine.Invocation
         private VirtualTerminalMode _virtualTerminalMode;
         private readonly ConsoleColor _initialForegroundColor;
         private readonly ConsoleColor _initialBackgroundColor;
-        private readonly ConsoleCancelEventHandler _cancelEventHandler;
 
         internal SystemConsole()
         {
@@ -100,30 +99,14 @@ namespace System.CommandLine.Invocation
 
         public void Dispose()
         {
-            CancelKeyPress = null;
             ResetConsole();
             GC.SuppressFinalize(this);
         }
 
-        public Action CancelKeyPress
+        public event ConsoleCancelEventHandler CancelKeyPress
         {
-            set
-            {
-                if (value != null)
-                {
-                    if (_cancelEventHandler != null)
-                    {
-                        throw new ArgumentException("Action is already assigned.", nameof(value));
-                    }
-                    _cancelEventHandler = (o, e) => { e.Cancel = true; value(); };
-                    ConsoleExtensions.CancelKeyPress += _cancelEventHandler;
-                }
-                else if (_cancelEventHandler != null)
-                {
-                    ConsoleExtensions.CancelKeyPress -= _cancelEventHandler;
-                    _cancelEventHandler = null;
-                }
-            }
+            add => Console.CancelKeyPress += value;
+            remove => Console.CancelKeyPress -= value;
         }
 
         ~SystemConsole()
