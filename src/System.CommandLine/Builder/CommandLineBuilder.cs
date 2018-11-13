@@ -11,7 +11,8 @@ namespace System.CommandLine.Builder
     {
         private List<(InvocationMiddleware middleware, int order)> _middlewareList;
 
-        public CommandLineBuilder() : base(new RootCommand())
+        public CommandLineBuilder(RootCommand rootCommand = null)
+            : base(rootCommand ?? new RootCommand())
         {
         }
 
