@@ -6,7 +6,9 @@ using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static System.Environment;
 
@@ -31,6 +33,32 @@ namespace System.CommandLine.Invocation
                 finally
                 {
                     context.Console.CancelKeyPress -= handler;
+                }
+            }, CommandLineBuilder.MiddlewareOrder.Middle);
+
+            return builder;
+        }
+
+        public static CommandLineBuilder CancelOnUnload(this CommandLineBuilder builder)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                var mre = new ManualResetEventSlim(initialState: false);
+                Action<AssemblyLoadContext> handler = _ =>
+                {
+                    context.Cancel();
+                    mre.Wait();
+                    Environment.ExitCode = context.ResultCode;
+                };
+                try
+                {
+                    AssemblyLoadContext.Default.Unloading += handler;
+                    await next(context);
+                }
+                finally
+                {
+                    AssemblyLoadContext.Default.Unloading -= handler;
+                    mre.Set();
                 }
             }, CommandLineBuilder.MiddlewareOrder.Middle);
 
