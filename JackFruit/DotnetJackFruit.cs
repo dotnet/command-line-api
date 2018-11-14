@@ -1,11 +1,12 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 
 namespace JackFruit
 {
-    internal class DotJackFruit
+    internal class DotnetJackFruit
     { }
 
-    internal class Tool : DotJackFruit
+    internal class Tool : DotnetJackFruit
     { }
 
     internal class ToolInstall : Tool
@@ -17,6 +18,11 @@ namespace JackFruit
         public string AddSource { get; set; }
         public string Framework { get; set; }
         public StandardVerbosity Verbosity { get; set; }
+        public async Task<int> Invoke()
+        {
+            return await ToolActions.InstallAsync(Global, ToolPath, Version,
+                  ConfigFile, AddSource, Framework, Verbosity);
+        }
     }
 
     internal class ToolUpgrade : Tool
@@ -39,10 +45,6 @@ namespace JackFruit
     {
         public bool Global { get; set; }
         public DirectoryInfo ToolPath { get; set; }
-        invoke()
-        {
-            ToolActions.Install(toolInstall.Global, toolInstall.ToolPath, toolInstall.Version,
-                  toolInstall.ConfigFile, toolInstall.AddSource, toolInstall.Framework, toolInstall.Verbosity);
-        }
+  
     }
 }
