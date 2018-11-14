@@ -35,6 +35,8 @@ namespace System.CommandLine.Builder
                 throw new ArgumentNullException(nameof(method));
             }
 
+            // FIX: (ConfigureFromMethod) use MethodBinder
+
             foreach (var parameter in method.GetParameters())
             {
                 builder.AddOptionFromParameter(parameter);
@@ -74,25 +76,13 @@ namespace System.CommandLine.Builder
             ParameterInfo parameter)
             where TBuilder : CommandBuilder
         {
-            var argument = new Argument
-                           {
-                               ArgumentType = parameter.ParameterType
-                           };
-
-            if (parameter.HasDefaultValue)
-            {
-                argument.SetDefaultValue(() => parameter.DefaultValue);
-            }
-
-            var option = new Option(
-                parameter.BuildAlias(),
-                parameter.Name,
-                argument);
+            var option = parameter.BuildOption();
 
             builder.AddOption(option);
 
             return builder;
         }
+
 
         public static TBuilder AddOption<TBuilder>(
             this TBuilder builder,
