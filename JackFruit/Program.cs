@@ -8,14 +8,14 @@ namespace JackFruit
         static async void Main(string[] args)
         {
             // Approach #1
-            await Runner.RunAsync<DotJackFruit, DotJackFruitHelpTextProvider>(args);
+            await Runner.RunAsync<DotnetJackFruit, DotnetJackFruitHelpTextProvider>(args);
 
             // Approach #2
-            DotJackFruit dot = ResultTools.GetResult<DotJackFruit, DotJackFruitHelpTextProvider>(args);
+            DotnetJackFruit dot = ResultTools.GetResult<DotnetJackFruit, DotnetJackFruitHelpTextProvider>(args);
             switch (dot)
             {
                 case ToolInstall toolInstall :
-                    ToolActions.Install(toolInstall.Global,toolInstall.ToolPath, toolInstall.Version,
+                    ToolActions.InstallAsync(toolInstall.Global,toolInstall.ToolPath, toolInstall.Version,
                         toolInstall.ConfigFile, toolInstall.AddSource, toolInstall.Framework, toolInstall.Verbosity );
                     break;
             }

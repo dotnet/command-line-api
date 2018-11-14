@@ -2,7 +2,7 @@
 
 namespace JackFruit
 {
-    internal class DotJackFruitHelpTextProvider : IHelpDescription
+    internal class DotnetJackFruitHelpTextProvider : IHelpDescription
     {
         private static Dictionary<string, string> toolDescriptions = new Dictionary<string, string>
         {
