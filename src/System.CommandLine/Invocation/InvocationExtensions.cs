@@ -38,6 +38,17 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
+        public static CommandLineBuilder UseCommonMiddleware(
+            this CommandLineBuilder builder) => builder
+                 .AddVersionOption()
+                  .UseHelp()
+                  .UseParseDirective()
+                  .UseDebugDirective()
+                  .UseSuggestDirective()
+                  .RegisterWithDotnetSuggest()
+                  .UseParseErrorReporting()
+                  .UseExceptionHandler();
+
         public static CommandLineBuilder UseDebugDirective(
             this CommandLineBuilder builder)
         {
@@ -120,6 +131,22 @@ namespace System.CommandLine.Invocation
 
             return builder;
         }
+
+        public static async Task<int> InvokeAsync(
+            this CommandLineBuilder builder,
+            string commandLine,
+            IConsole console = null) => await builder
+                    .UseCommonMiddleware()
+                    .Build()
+                    .InvokeAsync(commandLine, console);
+
+        public static async Task<int> InvokeAsync(
+            this CommandLineBuilder builder,
+            string[] args,
+            IConsole console = null) => await builder
+                     .UseCommonMiddleware()
+                     .Build()
+                     .InvokeAsync(args, console);
 
         public static async Task<int> InvokeAsync(
             this Parser parser,
