@@ -36,7 +36,8 @@ namespace System.CommandLine.Invocation
                 }
                 else if (parameterInfo.ParameterType == typeof(CancellationToken))
                 {
-                    arguments.Add(context.Canceled);
+                    CancellationToken ct = context.EnableCancellation();
+                    arguments.Add(ct);
                 }
                 else
                 {

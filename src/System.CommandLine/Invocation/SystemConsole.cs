@@ -12,8 +12,6 @@ namespace System.CommandLine.Invocation
         private VirtualTerminalMode _virtualTerminalMode;
         private readonly ConsoleColor _initialForegroundColor;
         private readonly ConsoleColor _initialBackgroundColor;
-        private ConsoleCancelEventHandler _consoleCancelEventHandler;
-        private Action _cancelKeyPress;
 
         internal SystemConsole()
         {
@@ -104,34 +102,6 @@ namespace System.CommandLine.Invocation
         {
             ResetConsole();
             GC.SuppressFinalize(this);
-        }
-
-        public Action CancelKeyPress
-        {
-            set
-            {
-                if (value == null)
-                {
-                    Console.CancelKeyPress -= _consoleCancelEventHandler;
-                    _consoleCancelEventHandler = null;
-                }
-                else if (_consoleCancelEventHandler == null)
-                {
-                    _consoleCancelEventHandler = OnConsoleCancelEvent;
-                    Console.CancelKeyPress += _consoleCancelEventHandler;
-                }
-                _cancelKeyPress = value;
-            }
-        }
-
-        private void OnConsoleCancelEvent(object sender, ConsoleCancelEventArgs args)
-        {
-            Action cancelKeyPress = _cancelKeyPress;
-            if (cancelKeyPress != null)
-            {
-                args.Cancel = true;
-                cancelKeyPress?.Invoke();
-            }
         }
 
         ~SystemConsole()

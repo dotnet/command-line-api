@@ -6,6 +6,7 @@ using System.CommandLine.Invocation;
 using FluentAssertions;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -138,6 +139,64 @@ namespace System.CommandLine.Tests
 
             middlewareWasCalled.Should().BeTrue();
             handlerWasCalled.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task Invocation_can_be_cancelled_by_middleware_before_cancellation_enabled()
+        {
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create((InvocationContext context) =>
+            {
+                CancellationToken ct = context.EnableCancellation();
+                // The middleware canceled the request
+                Assert.True(ct.IsCancellationRequested);
+            });
+
+            var parser = new CommandLineBuilder()
+                         .UseMiddleware(async (context, next) =>
+                         {
+                             bool cancellationEnabled = context.Cancel();
+                             // Cancellation is not yet enabled
+                             Assert.False(cancellationEnabled);
+                             await next(context);
+                         })
+                         .AddCommand(command)
+                         .Build();
+
+            await parser.InvokeAsync("the-command", new TestConsole());
+        }
+
+        [Fact]
+        public async Task Invocation_can_be_cancelled_by_middleware_after_cancellation_enabled()
+        {
+            const int timeout = 5000;
+
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create(async (InvocationContext context) =>
+            {
+                CancellationToken ct = context.EnableCancellation();
+                // The middleware hasn't cancelled our request yet.
+                Assert.False(ct.IsCancellationRequested);
+
+                await Task.Delay(timeout, ct);
+            });
+
+            var parser = new CommandLineBuilder()
+                         .UseMiddleware(async (context, next) =>
+                         {
+                             Task task = next(context);
+
+                             bool cancellationEnabled = context.Cancel();
+                             // Cancellation is enabled by next
+                             Assert.True(cancellationEnabled);
+
+                             await task;
+                         })
+                         .AddCommand(command)
+                         .Build();
+
+            var invocation = parser.InvokeAsync("the-command", new TestConsole());
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => invocation);
         }
     }
 }

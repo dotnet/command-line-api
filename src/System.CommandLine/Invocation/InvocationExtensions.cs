@@ -20,15 +20,21 @@ namespace System.CommandLine.Invocation
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                Action handler = () => context.Cancel();
+                ConsoleCancelEventHandler handler = (_, args) =>
+                {
+                    if (context.Cancel())
+                    {
+                        args.Cancel = true;
+                    }
+                };
                 try
                 {
-                    context.Console.CancelKeyPress = handler;
+                    Console.CancelKeyPress += handler;
                     await next(context);
                 }
                 finally
                 {
-                    context.Console.CancelKeyPress = null;
+                    Console.CancelKeyPress -= handler;
                 }
             }, CommandLineBuilder.MiddlewareOrder.Configuration);
 
@@ -42,9 +48,11 @@ namespace System.CommandLine.Invocation
                 var mre = new ManualResetEventSlim(initialState: false);
                 Action<AssemblyLoadContext> handler = _ =>
                 {
-                    context.Cancel();
-                    mre.Wait();
-                    Environment.ExitCode = context.ResultCode;
+                    if (context.Cancel())
+                    {
+                        mre.Wait();
+                        Environment.ExitCode = context.ResultCode;
+                    }
                 };
                 try
                 {
