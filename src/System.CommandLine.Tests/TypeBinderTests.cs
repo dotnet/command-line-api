@@ -4,6 +4,7 @@
 using System.CommandLine.Invocation;
 using FluentAssertions;
 using System.Linq;
+using System.Threading;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -22,7 +23,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Multi_character_constructor_arguments_generate_aliases_that_accept_a_single_dash_prefix()
+        public void Multi_character_constructor_arguments_generate_aliases_that_accept_a_double_dash_prefix()
         {
             var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameter));
 
@@ -56,6 +57,57 @@ namespace System.CommandLine.Tests
             options.Should().Contain(o => o.HasRawAlias("--boolean-option"));
         }
 
+        [Fact]
+        public void When_both_constructor_parameters_and_setters_are_present_then_BuildOptions_creates_options_for_all_of_them()
+        {
+            var binder = new TypeBinder(typeof(ClassWithSettersAndCtorParameters));
+
+            var options = binder.BuildOptions();
+
+            options.Should().Contain(o => o.HasRawAlias("--int-option"));
+            options.Should().Contain(o => o.HasRawAlias("--string-option"));
+            options.Should().Contain(o => o.HasRawAlias("--boolean-option"));
+
+            options.Should().Contain(o => o.HasRawAlias("-i"));
+            options.Should().Contain(o => o.HasRawAlias("-s"));
+            options.Should().Contain(o => o.HasRawAlias("-b"));
+        }
+
+        [Fact]
+        public void Default_option_values_are_based_on_constructor_parameter_defaults()
+        {
+            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameter));
+
+            var options = binder.BuildOptions().ToArray();
+
+            options.Single(o => o.HasRawAlias("--int-option"))
+                   .Argument
+                   .GetDefaultValue()
+                   .Should()
+                   .Be(123);
+
+            options.Single(o => o.HasRawAlias("--string-option"))
+                   .Argument
+                   .GetDefaultValue()
+                   .Should()
+                   .Be("the default");
+        }
+
+        [Theory]
+        [InlineData(typeof(IConsole))]
+        [InlineData(typeof(InvocationContext))]
+        [InlineData(typeof(ParseResult))]
+        [InlineData(typeof(CancellationToken))]
+        public void Options_are_not_built_for_infrastructure_types_exposed_by_properties(Type type)
+        {
+            var binder = new TypeBinder(typeof(ClassWithSetter<>).MakeGenericType(type));
+
+            var options = binder.BuildOptions();
+
+            options.Should()
+                   .NotContain(o => o.Argument.ArgumentType == type);
+        }
+
         public class ClassWithSingleLetterCtorParameter
         {
             public ClassWithSingleLetterCtorParameter(int x, string y)
@@ -79,9 +131,9 @@ namespace System.CommandLine.Tests
         public class ClassWithMultiLetterCtorParameter
         {
             public ClassWithMultiLetterCtorParameter(
-                int intOption,
-                string stringOption,
-                bool booleanOption)
+                int intOption = 123,
+                string stringOption = "the default",
+                bool booleanOption = false)
             {
                 IntOption = intOption;
                 StringOption = stringOption;
@@ -98,6 +150,28 @@ namespace System.CommandLine.Tests
             public int IntOption { get; set; }
             public string StringOption { get; set; }
             public bool BooleanOption { get; set; }
+        }
+
+        public class ClassWithSettersAndCtorParameters
+        {
+            public ClassWithSettersAndCtorParameters(
+                int i = 123,
+                string s = "the default",
+                bool b = false)
+            {
+                IntOption = i;
+                StringOption = s;
+                BooleanOption = b;
+            }
+
+            public int IntOption { get; set; }
+            public string StringOption { get; set; }
+            public bool BooleanOption { get; set; }
+        }
+
+        public class ClassWithSetter<T>
+        {
+            public T Value { get; set; }
         }
     }
 }
