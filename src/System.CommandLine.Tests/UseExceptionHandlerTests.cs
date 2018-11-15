@@ -86,7 +86,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync("the-command", _console);
 
-            _console.Error.ToString().Should().Equals("");
+            _console.Error.ToString().Should().Contain("The operation was cancelled.");
         }
 
         [Fact]

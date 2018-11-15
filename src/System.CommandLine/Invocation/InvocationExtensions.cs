@@ -113,15 +113,19 @@ namespace System.CommandLine.Invocation
                 }
                 catch (Exception exception)
                 {
-                    if (!(context.IsCancelled &&
-                          exception is OperationCanceledException))
+                    context.Console.ResetColor();
+                    context.Console.ForegroundColor = ConsoleColor.Red;
+                    if (context.IsCancelled &&
+                        exception is OperationCanceledException)
                     {
-                        context.Console.ResetColor();
-                        context.Console.ForegroundColor = ConsoleColor.Red;
+                        context.Console.Error.WriteLine("The operation was cancelled.");
+                    }
+                    else
+                    {
                         context.Console.Error.Write("Unhandled exception: ");
                         context.Console.Error.WriteLine(exception.ToString());
-                        context.Console.ResetColor();
                     }
+                    context.Console.ResetColor();
                     context.ResultCode = 1;
                 }
             }, order: CommandLineBuilder.MiddlewareOrder.ExceptionHandler);
