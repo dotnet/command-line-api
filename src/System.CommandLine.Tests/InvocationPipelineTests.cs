@@ -77,9 +77,8 @@ namespace System.CommandLine.Tests
             Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
 
             invoke.Should()
-                  .Throw<TargetInvocationException>()
+                  .Throw<Exception>()
                   .Which
-                  .InnerException
                   .Message
                   .Should()
                   .Be("oops!");

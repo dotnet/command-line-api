@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -71,6 +72,21 @@ namespace System.CommandLine.Tests
             await parser.InvokeAsync("the-command", _console);
 
             _console.Error.ToString().Should().Contain("System.Exception: oops!");
+        }
+
+        [Fact]
+        public async Task UseExceptionHandler_doesnt_write_operationcancelledexception_details_when_context_is_cancelled()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseMiddleware((InvocationContext context) => context.Cancel())
+                         .AddCommand("the-command", "",
+                                     cmd => cmd.OnExecute((CancellationToken ct) => ct.ThrowIfCancellationRequested()))
+                         .UseExceptionHandler()
+                         .Build();
+
+            await parser.InvokeAsync("the-command", _console);
+
+            _console.Error.ToString().Should().Equals("");
         }
 
         [Fact]

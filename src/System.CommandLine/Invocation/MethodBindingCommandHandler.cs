@@ -32,13 +32,24 @@ namespace System.CommandLine.Invocation
 
             object value = null;
 
-            if (_delegate != null)
+            try
             {
-                value = _delegate.DynamicInvoke(arguments);
+                if (_delegate != null)
+                {
+                    value = _delegate.DynamicInvoke(arguments);
+                }
+                else
+                {
+                    value = _method.Invoke(_target, arguments);
+                }
             }
-            else
+            catch (TargetInvocationException te)
             {
-                value = _method.Invoke(_target, arguments);
+                if (te.InnerException != null)
+                {
+                    throw te.InnerException;
+                }
+                throw;
             }
 
             return CommandHandler.GetResultCodeAsync(value);

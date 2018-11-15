@@ -74,6 +74,9 @@ namespace System.CommandLine.Invocation
             }
         }
 
+        public bool IsCancelled =>
+            _cts?.Token.IsCancellationRequested == true;
+
         public void Dispose()
         {
             _onDispose?.Dispose();

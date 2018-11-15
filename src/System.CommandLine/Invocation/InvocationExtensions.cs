@@ -6,7 +6,6 @@ using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,55 +15,39 @@ namespace System.CommandLine.Invocation
 {
     public static class InvocationExtensions
     {
-        public static CommandLineBuilder CancelOnCancelKey(this CommandLineBuilder builder)
+        public static CommandLineBuilder UseConsoleLifetime(this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                ConsoleCancelEventHandler handler = (_, args) =>
+                ConsoleCancelEventHandler consoleHandler = (_, args) =>
                 {
                     if (context.Cancel())
                     {
                         args.Cancel = true;
                     }
                 };
-                try
-                {
-                    Console.CancelKeyPress += handler;
-                    await next(context);
-                }
-                finally
-                {
-                    Console.CancelKeyPress -= handler;
-                }
-            }, CommandLineBuilder.MiddlewareOrder.Configuration);
-
-            return builder;
-        }
-
-        public static CommandLineBuilder CancelOnUnload(this CommandLineBuilder builder)
-        {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                var mre = new ManualResetEventSlim(initialState: false);
-                Action<AssemblyLoadContext> handler = _ =>
+                var blockProcessExit = new ManualResetEventSlim(initialState: false);
+                EventHandler processExitHandler = (_1, _2) =>
                 {
                     if (context.Cancel())
                     {
-                        mre.Wait();
+                        blockProcessExit.Wait();
                         Environment.ExitCode = context.ResultCode;
                     }
                 };
                 try
                 {
-                    AssemblyLoadContext.Default.Unloading += handler;
+                    Console.CancelKeyPress += consoleHandler;
+                    AppDomain.CurrentDomain.ProcessExit += processExitHandler;
                     await next(context);
                 }
                 finally
                 {
-                    AssemblyLoadContext.Default.Unloading -= handler;
-                    mre.Set();
+                    Console.CancelKeyPress -= consoleHandler;
+                    AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
+                    blockProcessExit.Set();
                 }
-            }, CommandLineBuilder.MiddlewareOrder.UnloadHandler);
+            }, CommandLineBuilder.MiddlewareOrder.ProcessExit);
 
             return builder;
         }
@@ -130,11 +113,15 @@ namespace System.CommandLine.Invocation
                 }
                 catch (Exception exception)
                 {
-                    context.Console.ResetColor();
-                    context.Console.ForegroundColor = ConsoleColor.Red;
-                    context.Console.Error.Write("Unhandled exception: ");
-                    context.Console.Error.WriteLine(exception.ToString());
-                    context.Console.ResetColor();
+                    if (!(context.IsCancelled &&
+                          exception is OperationCanceledException))
+                    {
+                        context.Console.ResetColor();
+                        context.Console.ForegroundColor = ConsoleColor.Red;
+                        context.Console.Error.Write("Unhandled exception: ");
+                        context.Console.Error.WriteLine(exception.ToString());
+                        context.Console.ResetColor();
+                    }
                     context.ResultCode = 1;
                 }
             }, order: CommandLineBuilder.MiddlewareOrder.ExceptionHandler);
