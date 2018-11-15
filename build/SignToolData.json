@@ -10,13 +10,6 @@
       ]
     },
     {
-      "certificate": "Microsoft402",
-      "values": [
-        "bin/dotnet-suggest/shims/netcoreapp2.1/win-x64/dotnet-suggest.exe",
-        "bin/dotnet-suggest/shims/netcoreapp2.1/win-x86/dotnet-suggest.exe"
-      ]
-    },
-    {
       "certificate": null,
       "strongName": null,
       "values": [
