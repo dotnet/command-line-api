@@ -27,7 +27,18 @@ namespace System.CommandLine.Invocation
 
         public Task<int> InvokeAsync(InvocationContext context)
         {
-            return  _methodBinder.InvokeAsync(context);
+            try
+            {
+                return  _methodBinder.InvokeAsync(context);
+            }
+            catch (TargetInvocationException te)
+            {
+                if (te.InnerException != null)
+                {
+                    throw te.InnerException;
+                }
+                throw;
+            }
         }
     }
 }
