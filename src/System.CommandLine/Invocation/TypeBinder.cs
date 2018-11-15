@@ -31,28 +31,33 @@ namespace System.CommandLine.Invocation
         {
             foreach (var propertyInfo in GetSettableProperties())
             {
-                if (propertyInfo.PropertyType == typeof(ParseResult))
-                {
-                    propertyInfo.SetValue(instance, context.ParseResult);
-                }
-                else if (propertyInfo.PropertyType == typeof(InvocationContext))
-                {
-                    propertyInfo.SetValue(instance, context);
-                }
-                else if (propertyInfo.PropertyType == typeof(IConsole))
-                {
-                    propertyInfo.SetValue(instance, context.Console);
-                }
-                else
-                {
-                    var argument = context.ParseResult
-                                          .CommandResult
-                                          .ValueForOption(
-                                              Binder.FindMatchingOptionName(
-                                                  context.ParseResult,
-                                                  propertyInfo.Name));
-                    propertyInfo.SetValue(instance, argument);
-                }
+                SetProperty(context, instance, propertyInfo);
+            }
+        }
+
+        private static void SetProperty(InvocationContext context, object instance, PropertyInfo propertyInfo)
+        {
+            if (propertyInfo.PropertyType == typeof(ParseResult))
+            {
+                propertyInfo.SetValue(instance, context.ParseResult);
+            }
+            else if (propertyInfo.PropertyType == typeof(InvocationContext))
+            {
+                propertyInfo.SetValue(instance, context);
+            }
+            else if (propertyInfo.PropertyType == typeof(IConsole))
+            {
+                propertyInfo.SetValue(instance, context.Console);
+            }
+            else
+            {
+                var argument = context.ParseResult
+                                      .CommandResult
+                                      .ValueForOption(
+                                          Binder.FindMatchingOptionName(
+                                              context.ParseResult,
+                                              propertyInfo.Name));
+                propertyInfo.SetValue(instance, argument);
             }
         }
 
@@ -68,7 +73,7 @@ namespace System.CommandLine.Invocation
             foreach (var property in GetSettableProperties()
                 .OmitInfrastructureTypes())
             {
-                var option = property.BuildOption();
+                var option = BuildOption(property);
 
                 if (!optionSet.Contains(option.Name))
                 {
@@ -78,6 +83,9 @@ namespace System.CommandLine.Invocation
 
             return optionSet.Cast<Option>();
         }
+
+        public static Option BuildOption(PropertyInfo property) 
+            => property.BuildOption();
 
         private IEnumerable<PropertyInfo> GetSettableProperties()
         {
