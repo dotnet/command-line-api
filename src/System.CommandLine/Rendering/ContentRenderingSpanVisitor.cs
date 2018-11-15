@@ -143,7 +143,8 @@ namespace System.CommandLine.Rendering
         private bool TryAppendWord(string value)
         {
             if (_positionOnLine == 0 &&
-                string.IsNullOrWhiteSpace(value))
+                string.IsNullOrWhiteSpace(value) &&
+                LinesWritten > 0)
             {
                 // omit whitespace if it's at the beginning of the line
                 return true;

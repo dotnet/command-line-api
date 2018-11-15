@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
             var parser =
                 new CommandLineBuilder()
                     .AddCommand("command", "",
-                                command => command.AddCommand("subcommand"))
+                                command => command.AddCommand(new Command("subcommand", "")))
                     .UseHelp()
                     .Build();
 
@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().Contain($"{CommandLineBuilder.ExeName} command subcommand");
+            _console.Out.ToString().Should().Contain($"{RootCommand.ExeName} command subcommand");
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace System.CommandLine.Tests
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command", "")
+                    .AddCommand("command")
                     .UseHelp()
                     .UsePrefixes(new[] { "~" })
                     .Build();
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command", "")
+                    .AddCommand("command")
                     .UseHelp()
                     .Build();
 
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command", "")
+                    .AddCommand("command")
                     .UseHelp(new[] { "~cthulhu" })
                     .Build();
 

@@ -22,10 +22,10 @@ namespace System.CommandLine.Suggest
                 return;
             }
 
-            var testDirectroyOVerride = GetEnvironmentVariable(TestDirectroyOverride);
-            if (!string.IsNullOrWhiteSpace(testDirectroyOVerride))
+            var testDirectoryOverride = GetEnvironmentVariable(TestDirectroyOverride);
+            if (!string.IsNullOrWhiteSpace(testDirectoryOverride))
             {
-                _registrationConfigurationFilePath = Path.Combine(testDirectroyOVerride, ResgistrationFileName);
+                _registrationConfigurationFilePath = Path.Combine(testDirectoryOverride, ResgistrationFileName);
                 return;
             }
 

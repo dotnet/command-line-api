@@ -21,18 +21,12 @@ namespace System.CommandLine.Invocation
 
         public Task<int> InvokeAsync(InvocationContext context)
         {
-            var instance =
-                _onExecuteMethodInfo.IsStatic
-                    ? null
-                    : _typeBinder.CreateInstance(context);
+            var instance = _typeBinder.CreateInstance(context);
 
-            var args = Binder.GetMethodArguments(
-                context,
-                _onExecuteMethodInfo.GetParameters());
+            var methodBinder = new MethodBinder(_onExecuteMethodInfo, instance);
 
-            var value = _onExecuteMethodInfo.Invoke(instance, args);
+            return methodBinder.InvokeAsync(context);
 
-            return CommandHandler.GetResultCodeAsync(value);
         }
     }
 }

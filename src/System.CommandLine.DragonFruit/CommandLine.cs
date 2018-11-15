@@ -10,11 +10,8 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.DragonFruit
 {
-    public class CommandLine
+    public static class CommandLine
     {
-        public const int ErrorExitCode = 1;
-        public const int OkExitCode = 0;
-
         /// <summary>
         /// Finds and executes 'Program.Main', but with strong types.
         /// </summary>
@@ -52,24 +49,28 @@ namespace System.CommandLine.DragonFruit
             object @object)
         {
             var builder = new CommandLineBuilder()
+                          // parser
                           .ConfigureFromMethod(method, @object)
-                          .UseDebugDirective()
-                          .UseParseErrorReporting()
-                          .UseParseDirective()
+                          .ConfigureHelpFromXmlComments(method)
+                          .AddVersionOption()
+                          
+                          // middleware
                           .UseHelp()
+                          .UseParseDirective()
+                          .UseDebugDirective()
                           .UseSuggestDirective()
                           .RegisterWithDotnetSuggest()
-                          .AddVersionOption()
+                          .UseParseErrorReporting()
                           .UseExceptionHandler();
-
-            SetHelpMetadata(method, builder);
 
             Parser parser = builder.Build();
 
             return await parser.InvokeAsync(args, console);
         }
 
-        private static void SetHelpMetadata(MethodInfo method, CommandBuilder builder)
+        public static CommandLineBuilder ConfigureHelpFromXmlComments(
+            this CommandLineBuilder builder,
+            MethodInfo method)
         {
             Assembly assembly = method.DeclaringType.Assembly;
             string docFilePath = Path.Combine(
@@ -79,24 +80,29 @@ namespace System.CommandLine.DragonFruit
             var metadata = new CommandHelpMetadata();
             if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
             {
-                builder.Description = metadata.Description;
-
                 if (xmlDocs.TryGetMethodDescription(method, out metadata) &&
                     metadata.Description != null)
                 {
+                    builder.Command.Description = metadata.Description;
                     var options = builder.Options;
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
                     {
-                        if (options[parameterDescription.Key.ToKebabCase()] is OptionBuilder option)
+                        var kebabCasedParameterName = parameterDescription.Key.ToKebabCase();
+
+                        var option = options.FirstOrDefault(o => o.HasAlias(kebabCasedParameterName));
+
+                        if (option != null)
                         {
-                            option.Description = parameterDescription.Value;
+                            option.Help.Description = parameterDescription.Value;
                         }
                     }
 
                     metadata.Name = assembly.GetName().Name;
                 }
             }
+
+            return builder;
         }
     }
 }

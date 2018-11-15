@@ -26,42 +26,73 @@ namespace System.CommandLine.Suggest
             _parser = new CommandLineBuilder()
                       .UseHelp()
                       .UseExceptionHandler()
+                      .UseDebugDirective()
                       .UseParseDirective()
                       .UseParseErrorReporting()
-                      .AddCommand("list",
-                                  "Lists apps registered for suggestions",
-                                  cmd => cmd.OnExecute<IConsole>(c =>
-                                                                     c.Out.WriteLine(GetCompletionAvailableCommands(_suggestionRegistration))),
-                                  argument => argument.None())
-                      .AddCommand("get",
-                                  "Gets suggestions",
-                                  cmd => cmd
-                                         .AddOption(new[] { "-e", "--executable" },
-                                                    "The executable to ask for argument resolution",
-                                                    argument => argument
-                                                                .LegalFilePathsOnly()
-                                                                .ParseArgumentsAs<string>())
-                                         .AddOption(new[] { "-p", "--position" }, "the current character position on the command line",
-                                                    position => position.ParseArgumentsAs<string>())
-                                         .OnExecute<ParseResult, IConsole>(GetSuggestions))
-                      .AddCommand("register",
-                                  "Registers an app for suggestions",
-                                  cmd =>
-                                  {
-                                      cmd.AddOption("--command-path", "The path to the command for which to register suggestions",
-                                                    a => a.ParseArgumentsAs<string>())
-                                         .AddOption("--suggestion-command", "The command to invoke to retrieve suggestions",
-                                                    a => a.ParseArgumentsAs<string>())
-                                         .OnExecute<string, string, IConsole>(RegisterCommand);
-                                  })
+
+                      .AddCommand(ListCommand())
+                      .AddCommand(GetCommand())
+                      .AddCommand(RegisterCommand())
+                   
                       .AddVersionOption()
                       .Build();
+
+            Command GetCommand() =>
+                new Command("get",
+                            "Gets suggestions from the specified executable",
+                            new[] { ExecutableOption(), PositionOption() })
+                {
+                    Handler = CommandHandler.Create<ParseResult, IConsole>(Get)
+                };
+
+            Option ExecutableOption() =>
+                new Option(new[] { "-e", "--executable" },
+                           "The executable to call for suggestions",
+                           new Argument<string>().LegalFilePathsOnly());
+
+            Option PositionOption() =>
+                new Option(new[] { "-p", "--position" },
+                           "The current character position on the command line",
+                           new Argument<int>());
+
+            Command ListCommand() =>
+                new Command(
+                    "list",
+                    "Lists apps registered for suggestions",
+                    new[] { DetailedOption() })
+                {
+                    Handler = CommandHandler.Create<IConsole, bool>(
+                        (c, detailed) => c.Out.WriteLine(List(_suggestionRegistration, detailed)))
+                };
+
+            Option DetailedOption() =>
+                new Option("--detailed",
+                           "Provides detailed output about registered completions",
+                           new Argument<bool>());
+
+            Command RegisterCommand() =>
+                new Command("register",
+                            "Registers an app for suggestions",
+                            new[] { CommandPathOption(), SuggestionCommandOption() })
+                {
+                    Handler = CommandHandler.Create<string, string, IConsole>(Register)
+                };
+
+            Option CommandPathOption() =>
+                new Option("--command-path",
+                           "The path to the command for which to register suggestions",
+                           new Argument<string>());
+
+            Option SuggestionCommandOption() =>
+                new Option("--suggestion-command",
+                           "The command to invoke to retrieve suggestions",
+                           new Argument<string>());
         }
 
         public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
             _parser.InvokeAsync(args, console);
 
-        private void RegisterCommand(
+        private void Register(
             string commandPath,
             string suggestionCommand,
             IConsole console)
@@ -81,7 +112,7 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        private void GetSuggestions(ParseResult parseResult, IConsole console)
+        private void Get(ParseResult parseResult, IConsole console)
         {
             var commandPath = parseResult.ValueForOption<FileInfo>("-e");
 
@@ -91,37 +122,68 @@ namespace System.CommandLine.Suggest
             if (suggestionRegistration == null)
             {
                 // Can't find a completion exe to call
+#if DEBUG
+                Program.LogDebug($"Couldn't find registration for parse result: {parseResult}");
+#endif
                 return;
             }
 
-            string targetArgs = FormatSuggestionArguments(parseResult, suggestionRegistration.SuggestionCommand.Tokenize().ToList());
+            var targetExePath = suggestionRegistration.CommandPath;
 
-            string suggestions = _suggestionStore.GetSuggestions(suggestionRegistration.CommandPath, targetArgs, Timeout);
-            if (!string.IsNullOrWhiteSpace(suggestions))
+            string targetArgs = FormatSuggestionArguments(
+                parseResult,
+                targetExePath);
+
+            string suggestions = _suggestionStore.GetSuggestions(
+                targetExePath,
+                targetArgs,
+                Timeout);
+
+            console.Out.Write(suggestions);
+        }
+
+        private static string List(
+            ISuggestionRegistration suggestionProvider,
+            bool detailed = false)
+        {
+            var registrations = suggestionProvider.FindAllRegistrations();
+
+            if (detailed)
             {
-                console.Out.Write(suggestions);
+                return string.Join(Environment.NewLine,
+                                   registrations.Select(r => $"{r.CommandPath} --> {r.SuggestionCommand}"));
+            }
+            else
+            {
+                return string.Join(" ", registrations
+                                        .Select(suggestionRegistration => suggestionRegistration.CommandPath)
+                                        .Select(Path.GetFileNameWithoutExtension));
             }
         }
 
-        private static string GetCompletionAvailableCommands(ISuggestionRegistration suggestionProvider)
+        private static string FormatSuggestionArguments(
+            ParseResult parseResult,
+            string targetExeName)
         {
-            IEnumerable<string> allFileNames = suggestionProvider.FindAllRegistrations()
-                                                                 .Select(suggestionRegistration => suggestionRegistration.CommandPath)
-                                                                 .Select(Path.GetFileNameWithoutExtension);
+            var outboundArgs = new List<string>
+                               {
+                                   "[suggest]"
+                               };
 
-            return string.Join(" ", allFileNames);
-        }
+            var tokens = parseResult.UnparsedTokens;
 
-        private static string FormatSuggestionArguments(ParseResult parseResult, IReadOnlyList<string> targetCommands)
-        {
-            var args = new List<string>
+            var rootCommand = Path.GetFileName(tokens.FirstOrDefault()).RemoveExeExtension();
+
+            targetExeName = Path.GetFileName(targetExeName).RemoveExeExtension();
+
+            if (rootCommand == targetExeName)
             {
-                targetCommands[1]
-            };
+                tokens = tokens.Skip(1).ToArray();
+            }
 
-            args.AddRange(parseResult.UnparsedTokens);
+            outboundArgs.AddRange(tokens);
 
-            return string.Join(' ', args);
+            return string.Join(' ', outboundArgs);
         }
     }
 }

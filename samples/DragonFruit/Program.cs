@@ -8,7 +8,7 @@ namespace DragonFruit
     class Program
     {
         /// <summary>
-        /// Hello
+        /// DragonFruit simple example program
         /// </summary>
         /// <param name="verbose">Show verbose output</param>
         /// <param name="flavor">Which flavor to use</param>

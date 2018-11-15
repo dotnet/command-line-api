@@ -15,39 +15,45 @@ namespace RenderingPlayground
                 throw new ArgumentNullException(nameof(directory));
             }
 
-            var formatter = new SpanFormatter();
-            formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}");
-
-
-            Add(new ContentView(""));
-            Add(new ContentView(""));
-
-            Add(new ContentView($"Directory: {directory.FullName}"));
-
-            Add(new ContentView(""));
-            Add(new ContentView(""));
-            
-            var directoryContents = directory.EnumerateFileSystemInfos()
-                                             .OrderBy(f => f is DirectoryInfo
-                                                               ? 0
-                                                               : 1).ToList();
+            Add(new ContentView("\n"));
+            Add(new ContentView(Span($"Directory: {directory.FullName.Rgb(235, 30, 180)}")));
+            Add(new ContentView("\n"));
 
             var tableView = new TableView<FileSystemInfo>();
-            tableView.Items = directoryContents;
-            tableView.AddColumn(f => f is DirectoryInfo
-                                 ? Span($"{ForegroundColorSpan.LightGreen()}{f.Name}")
-                                 : Span($"{ForegroundColorSpan.White()}{f.Name}") , 
-                                 new ContentView("Name".Underline()));
-            
-            tableView.AddColumn(f => formatter.Format(f.CreationTime), new ContentView("Created".Underline()));
-            tableView.AddColumn(f => formatter.Format(f.LastWriteTime), new ContentView("Modified".Underline()));
+
+            tableView.Items = directory.EnumerateFileSystemInfos()
+                                       .OrderByDescending(f => f is DirectoryInfo)
+                                       .ToList();
+
+            tableView.AddColumn(
+                cellValue: f => f is DirectoryInfo
+                                    ? f.Name.LightGreen()
+                                    : f.Name.White(),
+                header: new ContentView("Name".Underline()));
+
+            tableView.AddColumn(
+                cellValue: f => Span(f.CreationTime),
+                header: new ContentView("Created".Underline()));
+
+            tableView.AddColumn(
+                cellValue: f => Span(f.LastWriteTime),
+                header: new ContentView("Modified".Underline()));
 
             Add(tableView);
 
-            Span Span(FormattableString formattableString)
-            {
-                return formatter.ParseToSpan(formattableString);
-            }
+            Formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}");
         }
+
+        Span Span(FormattableString formattableString)
+        {
+            return Formatter.ParseToSpan(formattableString);
+        }
+
+        Span Span(object obj)
+        {
+            return Formatter.Format(obj);
+        }
+
+        protected SpanFormatter Formatter { get; } = new SpanFormatter();
     }
 }

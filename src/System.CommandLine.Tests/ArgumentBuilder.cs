@@ -1,9 +1,6 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+﻿using System.Collections.Generic;
 
-using System.Collections.Generic;
-
-namespace System.CommandLine.Builder
+namespace System.CommandLine.Tests
 {
     public class ArgumentBuilder
     {
@@ -11,7 +8,7 @@ namespace System.CommandLine.Builder
 
         internal List<ValidateSymbol> SymbolValidators { get; set; } = new List<ValidateSymbol>();
 
-        internal void Configure(Action<Argument> action)
+        public void Configure(Action<Argument> action)
         {
             if (action == null)
             {
@@ -19,16 +16,6 @@ namespace System.CommandLine.Builder
             }
 
             _configureActions.Add(action);
-        }
-
-        public void AddValidator(ValidateSymbol validator)
-        {
-            if (validator == null)
-            {
-                throw new ArgumentNullException(nameof(validator));
-            }
-
-            SymbolValidators.Add(validator);
         }
 
         public Argument Build()

@@ -3,24 +3,18 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace System.CommandLine.Builder
 {
     public class CommandLineBuilder : CommandBuilder
     {
-        private static readonly Lazy<string> executableName =
-            new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
-
         private List<(InvocationMiddleware middleware, int order)> _middlewareList;
 
-        public CommandLineBuilder() : base(executableName.Value)
+        public CommandLineBuilder(RootCommand rootCommand = null)
+            : base(rootCommand ?? new RootCommand())
         {
         }
-
-        public static string ExeName { get; } = executableName.Value;
 
         public bool EnablePositionalOptions { get; set; } = false;
 
@@ -32,7 +26,7 @@ namespace System.CommandLine.Builder
 
         public Parser Build()
         {
-            var rootCommand = BuildCommand();
+            var rootCommand = Command;
 
             return new Parser(
                 new CommandLineConfiguration(

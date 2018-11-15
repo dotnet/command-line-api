@@ -10,92 +10,24 @@ namespace System.CommandLine.Invocation
 {
     internal static class Binder
     {
-        public static object[] GetMethodArguments(
-            InvocationContext context, 
-            ParameterInfo[] parameters)
-        {
-            var arguments = new List<object>();
-
-            for (var index = 0; index < parameters.Length; index++)
-            {
-                var parameterInfo = parameters[index];
-
-                var parameterName = parameterInfo.Name;
-
-                if (parameterInfo.ParameterType == typeof(ParseResult))
-                {
-                    arguments.Add(context.ParseResult);
-                }
-                else if (parameterInfo.ParameterType == typeof(InvocationContext))
-                {
-                    arguments.Add(context);
-                }
-                else if (parameterInfo.ParameterType == typeof(IConsole))
-                {
-                    arguments.Add(context.Console);
-                }
-                else if (parameterInfo.ParameterType == typeof(CancellationToken))
-                {
-                    CancellationToken ct = context.EnableCancellation();
-                    arguments.Add(ct);
-                }
-                else
-                {
-                    var argument = context.ParseResult
-                                          .CommandResult
-                                          .ValueForOption(
-                                              FindMatchingOptionName(
-                                                  context.ParseResult,
-                                                  parameterName));
-                    arguments.Add(argument);
-                }
-            }
-
-            return arguments.ToArray();
-        }
-
-        public static void SetProperties(
-            InvocationContext context, 
-            object instance)
-        {
-            PropertyInfo[] properties = instance.GetType().GetProperties();
-
-            foreach (var propertyInfo in properties)
-            {
-                if (propertyInfo.PropertyType == typeof(ParseResult))
-                {
-                    propertyInfo.SetValue(instance, context.ParseResult);
-                }
-                else if (propertyInfo.PropertyType == typeof(InvocationContext))
-                {
-                    propertyInfo.SetValue(instance, context);
-                }
-                else if (propertyInfo.PropertyType == typeof(IConsole))
-                {
-                    propertyInfo.SetValue(instance, context.Console);
-                }
-                else
-                {
-                    var argument = context.ParseResult
-                                          .CommandResult
-                                          .ValueForOption(
-                                              FindMatchingOptionName(
-                                                  context.ParseResult,
-                                                  propertyInfo.Name));
-                    propertyInfo.SetValue(instance, argument);
-                }
-            }
-        }
-
         public static Option BuildOption(this ParameterInfo parameter)
         {
-            return new Option(
+            var argument = new Argument
+                           {
+                               ArgumentType = parameter.ParameterType
+                           };
+
+            if (parameter.HasDefaultValue)
+            {
+                argument.SetDefaultValue(() => parameter.DefaultValue);
+            }
+
+            var option = new Option(
                 parameter.BuildAlias(),
                 parameter.Name,
-                new Argument
-                {
-                    ArgumentType = parameter.ParameterType
-                });
+                argument);
+
+            return option;
         }
 
         public static Option BuildOption(this PropertyInfo property)
@@ -109,7 +41,9 @@ namespace System.CommandLine.Invocation
                 });
         }
 
-        public static string FindMatchingOptionName(ParseResult parseResult, string parameterName)
+        public static string FindMatchingOptionName(
+            ParseResult parseResult, 
+            string parameterName)
         {
             var candidates = parseResult
                              .CommandResult
@@ -124,18 +58,36 @@ namespace System.CommandLine.Invocation
 
             if (candidates.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {String.Join(",", candidates.ToString())}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", candidates.ToString())}");
             }
 
             return parameterName;
 
             bool Matching(string alias)
             {
-                return String.Equals(alias.Replace("-", ""),
+                return string.Equals(alias.RemovePrefix().Replace("-", ""),
                                      parameterName,
                                      StringComparison.OrdinalIgnoreCase);
             }
         }
+
+        private static readonly HashSet<Type> _infrastructureTypes = new HashSet<Type>(
+            new[]
+            {
+                typeof(IConsole),
+                typeof(InvocationContext),
+                typeof(ParseResult),
+                typeof(CancellationToken)
+            }
+        );
+
+        internal static IEnumerable<PropertyInfo> OmitInfrastructureTypes(
+            this IEnumerable<PropertyInfo> source) =>
+            source.Where(i => !_infrastructureTypes.Contains(i.PropertyType));
+
+        internal static IEnumerable<ParameterInfo> OmitInfrastructureTypes(
+            this IEnumerable<ParameterInfo> source) =>
+            source.Where(i => !_infrastructureTypes.Contains(i.ParameterType));
 
         public static string BuildAlias(this ParameterInfo parameter)
         {

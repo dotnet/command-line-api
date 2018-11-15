@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests
 
             int sampleValue = 42;
 
-            var parseResult = builder.Parse($"{CommandLineBuilder.ExeName} --sample-property {sampleValue} --other-property {sampleValue}");
+            var parseResult = builder.Parse($"{RootCommand.ExeName} --sample-property {sampleValue} --other-property {sampleValue}");
 
             _output.WriteLine(parseResult.Diagram());
 

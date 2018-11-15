@@ -97,7 +97,7 @@ namespace System.CommandLine.Rendering.Views
                 {
                     break;
                 }
-                var size = child.Measure(renderer, maxSize);
+                var size = child.Measure(renderer, new Size(maxSize.Width, height));
                 height -= size.Height;
                 totHeight += size.Height;
                 maxWidth = Math.Max(maxWidth, size.Width);
@@ -119,7 +119,7 @@ namespace System.CommandLine.Rendering.Views
                 {
                     break;
                 }
-                var size = child.Measure(renderer, maxSize);
+                var size = child.Measure(renderer, new Size(width, maxSize.Height));
                 width -= size.Width;
                 totalWidth += size.Width;
                 maxHeight = Math.Max(maxHeight, size.Height);

@@ -7,71 +7,37 @@ using System.Linq;
 
 namespace System.CommandLine.Builder
 {
-    public class CommandBuilder : SymbolBuilder
+    public class CommandBuilder
     {
-        private readonly Lazy<List<Command>> _builtCommands = new Lazy<List<Command>>();
-        private readonly Lazy<List<Option>> _builtOptions = new Lazy<List<Option>>();
-
-        public CommandBuilder(
-            string name,
-            CommandBuilder parent = null) : base(parent)
+        public CommandBuilder(Command command) 
         {
-            Name = name;
+            Command = command;
         }
 
-        public OptionBuilderSet Options { get; } = new OptionBuilderSet();
+        public Command Command { get; }
 
-        public CommandBuilderSet Commands { get; } = new CommandBuilderSet();
+        public IEnumerable<Option> Options => Command.Children.OfType<Option>();
 
-        public bool? TreatUnmatchedTokensAsErrors { get; set; }
-
-        internal ICommandHandler Handler { get; set; }
-
-        public string Name { get; }
-
-        public IHelpBuilder HelpBuilder { get; set; }
-
-        internal void AddCommand(Command command) => _builtCommands.Value.Add(command);
-
-        internal void AddOption(Option option) => _builtOptions.Value.Add(option);
-
-        public Command BuildCommand()
+        public bool? TreatUnmatchedTokensAsErrors
         {
-            return new Command(
-                Name,
-                Description,
-                argument: BuildArguments(),
-                symbols: BuildChildSymbols(),
-                treatUnmatchedTokensAsErrors: TreatUnmatchedTokensAsErrors ??
-                                              Parent?.TreatUnmatchedTokensAsErrors ??
-                                              true,
-                handler: Handler,
-                helpBuilder: HelpBuilder);
+            get => Command.TreatUnmatchedTokensAsErrors;
+            set => Command.TreatUnmatchedTokensAsErrors = value ?? false;
         }
 
-        protected IReadOnlyCollection<Symbol> BuildChildSymbols()
+        internal ICommandHandler Handler
         {
-            var subcommands = Commands
-                .Select(b =>
-                {
-                    b.TreatUnmatchedTokensAsErrors = TreatUnmatchedTokensAsErrors;
-                    return b.BuildCommand();
-                });
-
-            if (_builtCommands.IsValueCreated)
-            {
-                subcommands = subcommands.Concat(_builtCommands.Value);
-            }
-
-            var options = Options
-                .Select(b => b.BuildOption());
-
-            if (_builtOptions.IsValueCreated)
-            {
-                options = options.Concat(_builtOptions.Value);
-            }
-
-            return subcommands.Concat<Symbol>(options).ToArray();
+            get => Command.Handler;
+            set => Command.Handler = value;
         }
+
+        public IHelpBuilder HelpBuilder
+        {
+            get => Command.HelpBuilder;
+            set => Command.HelpBuilder = value;
+        }
+
+        internal void AddCommand(Command command) => Command.AddCommand(command);
+
+        internal void AddOption(Option option) => Command.AddOption(option);
     }
 }

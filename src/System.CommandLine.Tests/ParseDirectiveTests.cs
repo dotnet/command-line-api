@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .AddCommand("the-command", "",
                                      cmd => cmd.AddOption(new[] { "-c", "--count" }, "",
-                                                          args => args.ParseArgumentsAs<int>()))
+                                                          new Argument<int>()))
                          .UseParseDirective()
                          .Build();
 
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
             console.Out
                    .ToString()
                    .Should()
-                   .Be($"[ {CommandLineBuilder.ExeName} [ the-command [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
+                   .Be($"[ {RootCommand.ExeName} [ the-command [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
         }
     }
 }

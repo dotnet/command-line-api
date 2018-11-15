@@ -8,51 +8,26 @@ namespace System.CommandLine.Invocation
 {
     internal class MethodBindingCommandHandler : ICommandHandler
     {
-        private readonly object _target;
-        private readonly MethodInfo _method;
-        private readonly Delegate _delegate;
+        private readonly MethodBinderBase _methodBinder;
 
         public MethodBindingCommandHandler(Delegate @delegate)
         {
-            _delegate = @delegate ?? throw new ArgumentNullException(nameof(@delegate));
-            _method = @delegate.Method;
+            _methodBinder = new DelegateBinder(@delegate);
         }
 
         public MethodBindingCommandHandler(MethodInfo method, object target = null)
         {
-            _method = method;
-            _target = target;
+            _methodBinder = new MethodBinder(method, target);
+        }
+
+        public MethodBindingCommandHandler(MethodBinderBase methodBinder)
+        {
+            _methodBinder = methodBinder;
         }
 
         public Task<int> InvokeAsync(InvocationContext context)
         {
-            var parameters = _method.GetParameters();
-
-            var arguments = Binder.GetMethodArguments(context, parameters);
-
-            object value = null;
-
-            try
-            {
-                if (_delegate != null)
-                {
-                    value = _delegate.DynamicInvoke(arguments);
-                }
-                else
-                {
-                    value = _method.Invoke(_target, arguments);
-                }
-            }
-            catch (TargetInvocationException te)
-            {
-                if (te.InnerException != null)
-                {
-                    throw te.InnerException;
-                }
-                throw;
-            }
-
-            return CommandHandler.GetResultCodeAsync(value);
+            return  _methodBinder.InvokeAsync(context);
         }
     }
 }
