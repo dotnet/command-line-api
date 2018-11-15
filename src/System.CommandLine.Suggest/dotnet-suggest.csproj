@@ -7,8 +7,6 @@
     <PackAsTool>true</PackAsTool>
     <PackageId>dotnet-suggest</PackageId>
     <ToolCommandName>dotnet-suggest</ToolCommandName>
-    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64</PackAsToolShimRuntimeIdentifiers>
-    <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
   </PropertyGroup>
   
   <PropertyGroup Condition=" $(Build_BuildId) != '' " >
