@@ -115,16 +115,8 @@ namespace System.CommandLine.Invocation
                 {
                     context.Console.ResetColor();
                     context.Console.ForegroundColor = ConsoleColor.Red;
-                    if (context.IsCancelled &&
-                        exception is OperationCanceledException)
-                    {
-                        context.Console.Error.WriteLine("The operation was cancelled.");
-                    }
-                    else
-                    {
-                        context.Console.Error.Write("Unhandled exception: ");
-                        context.Console.Error.WriteLine(exception.ToString());
-                    }
+                    context.Console.Error.Write("Unhandled exception: ");
+                    context.Console.Error.WriteLine(exception.ToString());
                     context.Console.ResetColor();
                     context.ResultCode = 1;
                 }

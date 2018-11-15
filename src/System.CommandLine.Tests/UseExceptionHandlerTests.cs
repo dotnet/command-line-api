@@ -75,21 +75,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task UseExceptionHandler_doesnt_write_operationcancelledexception_details_when_context_is_cancelled()
-        {
-            var parser = new CommandLineBuilder()
-                         .UseMiddleware((InvocationContext context) => context.Cancel())
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute((CancellationToken ct) => ct.ThrowIfCancellationRequested()))
-                         .UseExceptionHandler()
-                         .Build();
-
-            await parser.InvokeAsync("the-command", _console);
-
-            _console.Error.ToString().Should().Contain("The operation was cancelled.");
-        }
-
-        [Fact]
         public async Task Declaration_of_UseExceptionHandler_can_come_before_other_middleware()
         {
             await new CommandLineBuilder()
