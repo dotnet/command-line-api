@@ -15,7 +15,7 @@ namespace System.CommandLine.Invocation
 {
     public static class InvocationExtensions
     {
-        public static CommandLineBuilder UseConsoleLifetime(this CommandLineBuilder builder)
+        public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) =>
             {

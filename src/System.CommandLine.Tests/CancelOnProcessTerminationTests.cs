@@ -11,7 +11,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class UseConsoleLifetimeTests
+    public class CancelOnProcessTerminationTests
     {
         private const int SIGINT = 2;
         private const int SIGTERM = 15;
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests
                         Assert.True(false, "The operation was not cancelled.");
                         return 1;
                     })))
-                  .UseConsoleLifetime()
+                  .CancelOnProcessTermination()
                   .Build()
                   .InvokeAsync("the-command");
 
