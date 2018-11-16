@@ -33,14 +33,20 @@ namespace System.CommandLine.Invocation
                 var blockProcessExit = new ManualResetEventSlim(initialState: false);
                 EventHandler processExitHandler = (_1, _2) =>
                 {
+                    // The process exits as soon as the event handler returns.
+                    // We provide a return value using Environment.ExitCode
+                    // because Main will not finish executing.
                     context.Cancel(out bool isCancelling);
                     if (isCancelling)
                     {
-                        // The process exits as soon as the event handler returns.
-                        // We need to block until the invocation finishes and
-                        // set the return value here (because Main will not return).
+                        // Wait for the invocation to finish.
                         blockProcessExit.Wait();
+
                         Environment.ExitCode = context.ResultCode;
+                    }
+                    else
+                    {
+                        Environment.ExitCode = 1;
                     }
                 };
                 try
