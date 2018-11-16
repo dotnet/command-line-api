@@ -134,6 +134,19 @@ namespace System.CommandLine.Builder
             builder.ResponseFileHandling = responseFileHandling;
             return builder;
         }
+        
+        public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
+        {
+            return builder
+                   .AddVersionOption()
+                   .UseHelp()
+                   .UseParseDirective()
+                   .UseDebugDirective()
+                   .UseSuggestDirective()
+                   .RegisterWithDotnetSuggest()
+                   .UseParseErrorReporting()
+                   .UseExceptionHandler();
+        }
 
         public static TBuilder UsePrefixes<TBuilder>(this TBuilder builder, IReadOnlyCollection<string> prefixes)
             where TBuilder : CommandLineBuilder

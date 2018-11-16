@@ -140,22 +140,24 @@ namespace System.CommandLine.Invocation
             IConsole console = null) =>
             await parser.InvokeAsync(parser.Parse(args), console);
 
-        public static async Task<int> InvokeAsync(
+        public static Task<int> InvokeAsync(
             this Command command,
             string commandLine,
-            IConsole console = null)
-        {
-            var parser = new Parser(command);
-            return await new InvocationPipeline(parser, parser.Parse(commandLine))
-                       .InvokeAsync(console);
-        }
+            IConsole console = null) =>
+            command.InvokeAsync(commandLine.Tokenize().ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Command command,
             string[] args,
             IConsole console = null)
         {
-            var parser = new Parser(command);
+            var builder = new CommandLineBuilder();
+
+            builder.AddCommand(command);
+
+            var parser = builder.UseDefaults()
+                                .Build();
+
             return await new InvocationPipeline(parser, parser.Parse(args))
                        .InvokeAsync(console);
         }
