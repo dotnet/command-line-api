@@ -9,7 +9,7 @@ namespace System.CommandLine.Invocation
     {
         private readonly IDisposable _onDispose;
         private CancellationTokenSource _cts;
-        private bool _isCancellationEnabled;
+        private bool _isCancellationSupported;
         private readonly object _gate = new object();
 
         public InvocationContext(
@@ -41,27 +41,28 @@ namespace System.CommandLine.Invocation
 
         public IInvocationResult InvocationResult { get; set; }
 
-        // Indicates the invocation can be cancelled.
-        // This returns a CancellationToken that will be set when the invocation
-        // is cancelled. The method may return a CancellationToken that is already
-        // cancelled.
-        public CancellationToken EnableCancellation()
+        /// <summary>
+        /// Indicates the invocation can be cancelled.
+        /// </summary>
+        /// <param name="cancellationToken">token used by the caller to implement cancellation handling.</param>
+        public void AddCancellationHandling(out CancellationToken cancellationToken)
         {
             lock (_gate)
             {
-                _isCancellationEnabled = true;
+                _isCancellationSupported = true;
                 if (_cts == null)
                 {
                     _cts = new CancellationTokenSource();
                 }
-                return _cts.Token;
+                cancellationToken = _cts.Token;
             }
         }
 
-        // The return value indicates if the Invocation has cancellation enabled.
-        // When Cancel returns false, the Middleware may decide to forcefully
-        // end the process, for example, by calling Environment.Exit.
-        public bool Cancel()
+        /// <summary>
+        /// Cancels the invocation.
+        /// </summary>
+        /// <param name="isCancelling">returns whether the invocation is being cancelled.</param>
+        public void Cancel(out bool isCancelling)
         {
             lock (_gate)
             {
@@ -70,7 +71,7 @@ namespace System.CommandLine.Invocation
                     _cts = new CancellationTokenSource();
                 }
                 _cts.Cancel();
-                return _isCancellationEnabled;
+                isCancelling = _isCancellationSupported;
             }
         }
 

@@ -21,7 +21,8 @@ namespace System.CommandLine.Invocation
             {
                 ConsoleCancelEventHandler consoleHandler = (_, args) =>
                 {
-                    if (context.Cancel())
+                    context.Cancel(out bool isCancelling);
+                    if (isCancelling)
                     {
                         // Stop the process from terminating.
                         // Since the context was cancelled, the invocation should
@@ -32,7 +33,8 @@ namespace System.CommandLine.Invocation
                 var blockProcessExit = new ManualResetEventSlim(initialState: false);
                 EventHandler processExitHandler = (_1, _2) =>
                 {
-                    if (context.Cancel())
+                    context.Cancel(out bool isCancelling);
+                    if (isCancelling)
                     {
                         // The process exits as soon as the event handler returns.
                         // We need to block until the invocation finishes and

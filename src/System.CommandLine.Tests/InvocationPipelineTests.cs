@@ -146,7 +146,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.Handler = CommandHandler.Create((InvocationContext context) =>
             {
-                CancellationToken ct = context.EnableCancellation();
+                context.AddCancellationHandling(out CancellationToken ct);
                 // The middleware canceled the request
                 Assert.True(ct.IsCancellationRequested);
             });
@@ -154,9 +154,9 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .UseMiddleware(async (context, next) =>
                          {
-                             bool cancellationEnabled = context.Cancel();
+                             context.Cancel(out bool isCancelling);
                              // Cancellation is not yet enabled
-                             Assert.False(cancellationEnabled);
+                             Assert.False(isCancelling);
                              await next(context);
                          })
                          .AddCommand(command)
@@ -173,7 +173,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.Handler = CommandHandler.Create(async (InvocationContext context) =>
             {
-                CancellationToken ct = context.EnableCancellation();
+                context.AddCancellationHandling(out CancellationToken ct);
                 // The middleware hasn't cancelled our request yet.
                 Assert.False(ct.IsCancellationRequested);
 
@@ -185,9 +185,9 @@ namespace System.CommandLine.Tests
                          {
                              Task task = next(context);
 
-                             bool cancellationEnabled = context.Cancel();
+                             context.Cancel(out bool isCancelling);
                              // Cancellation is enabled by next
-                             Assert.True(cancellationEnabled);
+                             Assert.True(isCancelling);
 
                              await task;
                          })

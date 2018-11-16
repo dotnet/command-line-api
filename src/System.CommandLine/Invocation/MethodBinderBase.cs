@@ -79,7 +79,7 @@ namespace System.CommandLine.Invocation
                 }
                 else if (parameterInfo.ParameterType == typeof(CancellationToken))
                 {
-                    CancellationToken ct = context.EnableCancellation();
+                    context.AddCancellationHandling(out CancellationToken ct);
                     arguments.Add(ct);
                 }
                 else
