@@ -31,13 +31,10 @@ namespace System.CommandLine.Invocation
             {
                 return  _methodBinder.InvokeAsync(context);
             }
-            catch (TargetInvocationException te)
+            // InvokeAsync wraps exceptions thrown by the method in a TargetInvocationException
+            catch (TargetInvocationException te) when (te.InnerException != null)
             {
-                if (te.InnerException != null)
-                {
-                    throw te.InnerException;
-                }
-                throw;
+                throw te.InnerException;
             }
         }
     }
