@@ -19,6 +19,44 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        public static TBuilder AddOption<TBuilder>(
+            this TBuilder builder,
+            Option option)
+            where TBuilder : CommandBuilder
+        {
+            builder.AddOption(option);
+
+            return builder;
+        }
+
+        private static readonly Lazy<string> _assemblyVersion =
+            new Lazy<string>(() =>
+                                 Assembly.GetEntryAssembly()
+                                         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                         .InformationalVersion);
+
+        public static CommandLineBuilder AddVersionOption(
+            this CommandLineBuilder builder)
+        {
+            var versionOption = new Option("--version", "Display version information");
+
+            builder.AddOption(versionOption);
+
+            builder.AddMiddleware(async (context, next) =>
+            {
+                if (context.ParseResult.HasOption(versionOption))
+                {
+                    context.Console.Out.WriteLine(_assemblyVersion.Value);
+                }
+                else
+                {
+                    await next(context);
+                }
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+
+            return builder;
+        }
+
         public static TBuilder ConfigureFromMethod<TBuilder>(
             this TBuilder builder,
             MethodInfo method,
@@ -39,7 +77,9 @@ namespace System.CommandLine.Builder
 
             foreach (var parameter in method.GetParameters())
             {
-                builder.AddOptionFromParameter(parameter);
+                var option = parameter.BuildOption();
+
+                builder.Command.AddOption(option);
             }
 
             builder.OnExecute(method, target);
@@ -71,106 +111,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder AddOptionFromParameter<TBuilder>(
-            this TBuilder builder,
-            ParameterInfo parameter)
-            where TBuilder : CommandBuilder
-        {
-            var option = parameter.BuildOption();
-
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            Option option)
-            where TBuilder : CommandBuilder
-        {
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string alias)
-            where TBuilder : CommandBuilder
-        {
-            builder.AddOption(new Option(alias));
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string[] aliases,
-            string description = null,
-            Argument argument = null)
-            where TBuilder : CommandBuilder
-        {
-            var option = new Option(aliases)
-                         {
-                             Description = description
-                         };
-
-            if (argument != null)
-            {
-                option.Argument = argument;
-            }
-
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string[] aliases,
-            string description = null,
-            IArgumentArity arity = null)
-            where TBuilder : CommandBuilder
-        {
-            var option = new Option(aliases)
-                         {
-                             Description = description
-                         };
-
-            if (arity != null)
-            {
-                option.Argument = new Argument
-                                  {
-                                      Arity = arity
-                                  };
-            }
-
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string name,
-            string description = null,
-            Argument argument = null)
-            where TBuilder : CommandBuilder
-        {
-            return builder.AddOption(new[] { name }, description, argument);
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string name,
-            string description = null,
-            IArgumentArity arity = null)
-            where TBuilder : CommandBuilder
-        {
-            return builder.AddOption(new[] { name }, description, arity);
-        }
-
         public static CommandLineBuilder EnablePositionalOptions(
             this CommandLineBuilder builder,
             bool value = true)
@@ -187,14 +127,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static CommandLineBuilder TreatUnmatchedTokensAsErrors(
-            this CommandLineBuilder builder,
-            bool value = true)
-        {
-            builder.TreatUnmatchedTokensAsErrors = value;
-            return builder;
-        }
-
         public static CommandLineBuilder ParseResponseFileAs(
             this CommandLineBuilder builder,
             ResponseFileHandling responseFileHandling)
@@ -207,34 +139,6 @@ namespace System.CommandLine.Builder
             where TBuilder : CommandLineBuilder
         {
             builder.Prefixes = prefixes;
-            return builder;
-        }
-
-        private static readonly Lazy<string> _assemblyVersion =
-            new Lazy<string>(() =>
-                                 Assembly.GetEntryAssembly()
-                                         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                         .InformationalVersion);
-
-        public static CommandLineBuilder AddVersionOption(
-            this CommandLineBuilder builder)
-        {
-            var versionOption = new Option("--version", "Display version information");
-
-            builder.AddOption(versionOption);
-
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.HasOption(versionOption))
-                {
-                    context.Console.Out.WriteLine(_assemblyVersion.Value);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
-
             return builder;
         }
     }

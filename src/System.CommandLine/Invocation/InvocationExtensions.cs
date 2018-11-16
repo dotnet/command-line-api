@@ -128,19 +128,37 @@ namespace System.CommandLine.Invocation
             await new InvocationPipeline(parser, parseResult)
                 .InvokeAsync(console);
 
-        public static async Task<int> InvokeAsync(
+        public static Task<int> InvokeAsync(
             this Parser parser,
             string commandLine,
             IConsole console = null) =>
-            await new InvocationPipeline(parser, parser.Parse(commandLine))
-                .InvokeAsync(console);
+            parser.InvokeAsync(commandLine.Tokenize().ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Parser parser,
             string[] args,
             IConsole console = null) =>
-            await new InvocationPipeline(parser, parser.Parse(args))
-                .InvokeAsync(console);
+            await parser.InvokeAsync(parser.Parse(args), console);
+
+        public static async Task<int> InvokeAsync(
+            this Command command,
+            string commandLine,
+            IConsole console = null)
+        {
+            var parser = new Parser(command);
+            return await new InvocationPipeline(parser, parser.Parse(commandLine))
+                       .InvokeAsync(console);
+        }
+
+        public static async Task<int> InvokeAsync(
+            this Command command,
+            string[] args,
+            IConsole console = null)
+        {
+            var parser = new Parser(command);
+            return await new InvocationPipeline(parser, parser.Parse(args))
+                       .InvokeAsync(console);
+        }
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
