@@ -405,13 +405,15 @@ namespace System.CommandLine.Tests.Help
         {
             var commandLineBuilder = new CommandLineBuilder
                 {
-                    HelpBuilder = _helpBuilder,
+                    HelpBuilder = _helpBuilder
                 }
                 .AddCommand(
                     name: "the-command",
                     description: "command help",
-                    argument: new Argument()
-                        .ExactlyOne()
+                    argument: new Argument
+                              {
+                                  Arity = ArgumentArity.ExactlyOne
+                              }
                         .WithHelp(name: "arg command name", description: "test"))
                 .Command;
 
@@ -498,9 +500,11 @@ namespace System.CommandLine.Tests.Help
                 HelpBuilder = _helpBuilder,
             }
             .AddCommand("the-command", "Help text from description",
-                argument: new Argument()
-                    .WithHelp(name: "the-arg", description: "Help text from HelpDetail")
-                    .ExactlyOne())
+                argument: new Argument
+                          {
+                              Arity = ArgumentArity.ExactlyOne
+                          }
+                    .WithHelp(name: "the-arg", description: "Help text from HelpDetail"))
             .Command;
 
             var expected =
@@ -653,11 +657,13 @@ namespace System.CommandLine.Tests.Help
                     HelpBuilder = _helpBuilder,
                 }
                 .AddCommand("outer", "Help text for the outer command",
-                    argument: new Argument()
+                    argument: new Argument
+                              {
+                                  Arity = ArgumentArity.ExactlyOne
+                              }
                         .WithHelp(
                             name: "outer-command-arg",
-                            description: "Argument\tfor the   inner command")
-                        .ExactlyOne())
+                            description: "Argument\tfor the   inner command"))
                 .Command;
 
             commandLineBuilder

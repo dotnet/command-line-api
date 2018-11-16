@@ -82,7 +82,7 @@ namespace System.CommandLine.Builder
                 builder.Command.AddOption(option);
             }
 
-            builder.OnExecute(method, target);
+            builder.Handler =  new MethodBindingCommandHandler(method, target);
 
             return builder;
         }

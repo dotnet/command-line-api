@@ -758,10 +758,10 @@ namespace System.CommandLine.Tests
         public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
             var command = new Command("the-command");
-            var complete = new Command("complete", argument: new Argument<string>().ExactlyOne());
+            var complete = new Command("complete", argument: new Argument<string>());
             command.AddCommand(complete);
             var position = new Option("--position",
-                                      argument: new Argument<int>().ExactlyOne());
+                                      argument: new Argument<int>());
             complete.AddOption(position);
 
             ParseResult result = command.Parse("the-command",

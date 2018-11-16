@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Tests
 {
@@ -142,52 +143,21 @@ namespace System.CommandLine.Tests
             return builder.AddOption(new[] { name }, description, argument);
         }
 
-        public static Argument ExactlyOne(
-            this Argument argument)
+        public static TBuilder OnExecute<TBuilder>(
+            this TBuilder builder,
+            Action action)
+            where TBuilder : CommandBuilder
         {
-            argument.Arity = ArgumentArity.ExactlyOne;
-
-            return argument;
+            builder.Command.Handler = CommandHandler.Create(action);
+            return builder;
         }
 
-        public static Argument None(
-            this Argument argument)
+        public static CommandBuilder OnExecute<T>(
+            this CommandBuilder builder,
+            Action<T> action)
         {
-            argument.Arity = ArgumentArity.Zero;
-
-            return argument;
-        }
-
-        public static Argument ZeroOrMore(
-            this Argument argument)
-        {
-            argument.Arity = ArgumentArity.ZeroOrMore;
-
-            return argument;
-        }
-
-        public static Argument ZeroOrOne(
-            this Argument argument)
-        {
-            argument.Arity = ArgumentArity.ZeroOrOne;
-
-            return argument;
-        }
-
-        public static Argument OneOrMore(
-            this Argument argument)
-        {
-            argument.Arity = ArgumentArity.OneOrMore;
-
-            return argument;
-        }
-
-        public static Argument argument(
-            this Argument argument,
-            string name = null,
-            string description = null)
-        {
-            return argument.WithHelp(name, description);
+            builder.Command.Handler =CommandHandler.Create(action);
+            return builder;
         }
 
         public static Argument ExactlyOne(
