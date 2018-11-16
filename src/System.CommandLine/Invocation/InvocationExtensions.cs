@@ -23,6 +23,9 @@ namespace System.CommandLine.Invocation
                 {
                     if (context.Cancel())
                     {
+                        // Stop the process from terminating.
+                        // Since the context was cancelled, the invocation should
+                        // finish and Main will return.
                         args.Cancel = true;
                     }
                 };
@@ -31,6 +34,9 @@ namespace System.CommandLine.Invocation
                 {
                     if (context.Cancel())
                     {
+                        // The process exits as soon as the event handler returns.
+                        // We need to block until the invocation finishes and
+                        // set the return value here (because Main will not return).
                         blockProcessExit.Wait();
                         Environment.ExitCode = context.ResultCode;
                     }
