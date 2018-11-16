@@ -128,19 +128,39 @@ namespace System.CommandLine.Invocation
             await new InvocationPipeline(parser, parseResult)
                 .InvokeAsync(console);
 
-        public static async Task<int> InvokeAsync(
+        public static Task<int> InvokeAsync(
             this Parser parser,
             string commandLine,
             IConsole console = null) =>
-            await new InvocationPipeline(parser, parser.Parse(commandLine))
-                .InvokeAsync(console);
+            parser.InvokeAsync(commandLine.Tokenize().ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Parser parser,
             string[] args,
             IConsole console = null) =>
-            await new InvocationPipeline(parser, parser.Parse(args))
-                .InvokeAsync(console);
+            await parser.InvokeAsync(parser.Parse(args), console);
+
+        public static Task<int> InvokeAsync(
+            this Command command,
+            string commandLine,
+            IConsole console = null) =>
+            command.InvokeAsync(commandLine.Tokenize().ToArray(), console);
+
+        public static async Task<int> InvokeAsync(
+            this Command command,
+            string[] args,
+            IConsole console = null)
+        {
+            var builder = new CommandLineBuilder();
+
+            builder.AddCommand(command);
+
+            var parser = builder.UseDefaults()
+                                .Build();
+
+            return await new InvocationPipeline(parser, parser.Parse(args))
+                       .InvokeAsync(console);
+        }
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
@@ -241,153 +261,6 @@ namespace System.CommandLine.Invocation
                 await next(context);
             }, CommandLineBuilder.MiddlewareOrder.Configuration);
 
-            return builder;
-        }
-
-        public static TBuilder OnExecute<TBuilder>(
-            this TBuilder builder,
-            MethodInfo method,
-            object target = null)
-            where TBuilder : CommandBuilder
-        {
-            var methodBinder = new MethodBindingCommandHandler(method, target);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static TBuilder OnExecute<TBuilder>(
-            this TBuilder builder,
-            Action action)
-            where TBuilder : CommandBuilder
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandBuilder OnExecute<T>(
-            this CommandBuilder builder,
-            Action<T> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandBuilder OnExecute<T1, T2>(
-            this CommandBuilder builder,
-            Action<T1, T2> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandBuilder OnExecute<T1, T2, T3>(
-            this CommandBuilder builder,
-            Action<T1, T2, T3> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandBuilder OnExecute<T1, T2, T3, T4>(
-            this CommandBuilder builder,
-            Action<T1, T2, T3, T4> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandBuilder OnExecute<T1, T2, T3, T4, T5>(
-            this CommandBuilder builder,
-            Action<T1, T2, T3, T4, T5> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandBuilder OnExecute<T1, T2, T3, T4, T5, T6>(
-            this CommandBuilder builder,
-            Action<T1, T2, T3, T4, T5, T6> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandBuilder OnExecute<T1, T2, T3, T4, T5, T6, T7>(
-            this CommandBuilder builder,
-            Action<T1, T2, T3, T4, T5, T6, T7> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandLineBuilder OnExecute<T>(
-            this CommandLineBuilder builder,
-            Action<T> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandLineBuilder OnExecute<T1, T2>(
-            this CommandLineBuilder builder,
-            Action<T1, T2> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandLineBuilder OnExecute<T1, T2, T3>(
-            this CommandLineBuilder builder,
-            Action<T1, T2, T3> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandLineBuilder OnExecute<T1, T2, T3, T4>(
-            this CommandLineBuilder builder,
-            Action<T1, T2, T3, T4> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandLineBuilder OnExecute<T1, T2, T3, T4, T5>(
-            this CommandLineBuilder builder,
-            Action<T1, T2, T3, T4, T5> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandLineBuilder OnExecute<T1, T2, T3, T4, T5, T6>(
-            this CommandLineBuilder builder,
-            Action<T1, T2, T3, T4, T5, T6> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
-            return builder;
-        }
-
-        public static CommandLineBuilder OnExecute<T1, T2, T3, T4, T5, T6, T7>(
-            this CommandLineBuilder builder,
-            Action<T1, T2, T3, T4, T5, T6, T7> action)
-        {
-            var methodBinder = new MethodBindingCommandHandler(action);
-            builder.Handler = methodBinder;
             return builder;
         }
 

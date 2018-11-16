@@ -19,71 +19,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder ConfigureFromMethod<TBuilder>(
-            this TBuilder builder,
-            MethodInfo method,
-            object target = null)
-            where TBuilder : CommandBuilder
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-
-            // FIX: (ConfigureFromMethod) use MethodBinder
-
-            foreach (var parameter in method.GetParameters())
-            {
-                builder.AddOptionFromParameter(parameter);
-            }
-
-            builder.OnExecute(method, target);
-
-            return builder;
-        }
-
-        public static CommandLineBuilder ConfigureFromType<T>(
-            this CommandLineBuilder builder,
-            MethodInfo onExecuteMethod = null)
-            where T : class
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            var typeBinder = new TypeBinder(typeof(T));
-
-            foreach (var option in typeBinder.BuildOptions())
-            {
-                builder.AddOption(option);
-            }
-
-            builder.Handler = new TypeBindingCommandHandler(
-                onExecuteMethod,
-                typeBinder);
-
-            return builder;
-        }
-
-        public static TBuilder AddOptionFromParameter<TBuilder>(
-            this TBuilder builder,
-            ParameterInfo parameter)
-            where TBuilder : CommandBuilder
-        {
-            var option = parameter.BuildOption();
-
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-
         public static TBuilder AddOption<TBuilder>(
             this TBuilder builder,
             Option option)
@@ -91,122 +26,6 @@ namespace System.CommandLine.Builder
         {
             builder.AddOption(option);
 
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string alias)
-            where TBuilder : CommandBuilder
-        {
-            builder.AddOption(new Option(alias));
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string[] aliases,
-            string description = null,
-            Argument argument = null)
-            where TBuilder : CommandBuilder
-        {
-            var option = new Option(aliases)
-                         {
-                             Description = description
-                         };
-
-            if (argument != null)
-            {
-                option.Argument = argument;
-            }
-
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string[] aliases,
-            string description = null,
-            IArgumentArity arity = null)
-            where TBuilder : CommandBuilder
-        {
-            var option = new Option(aliases)
-                         {
-                             Description = description
-                         };
-
-            if (arity != null)
-            {
-                option.Argument = new Argument
-                                  {
-                                      Arity = arity
-                                  };
-            }
-
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string name,
-            string description = null,
-            Argument argument = null)
-            where TBuilder : CommandBuilder
-        {
-            return builder.AddOption(new[] { name }, description, argument);
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string name,
-            string description = null,
-            IArgumentArity arity = null)
-            where TBuilder : CommandBuilder
-        {
-            return builder.AddOption(new[] { name }, description, arity);
-        }
-
-        public static CommandLineBuilder EnablePositionalOptions(
-            this CommandLineBuilder builder,
-            bool value = true)
-        {
-            builder.EnablePositionalOptions = value;
-            return builder;
-        }
-
-        public static CommandLineBuilder EnablePosixBundling(
-            this CommandLineBuilder builder,
-            bool value = true)
-        {
-            builder.EnablePosixBundling = value;
-            return builder;
-        }
-
-        public static CommandLineBuilder TreatUnmatchedTokensAsErrors(
-            this CommandLineBuilder builder,
-            bool value = true)
-        {
-            builder.TreatUnmatchedTokensAsErrors = value;
-            return builder;
-        }
-
-        public static CommandLineBuilder ParseResponseFileAs(
-            this CommandLineBuilder builder,
-            ResponseFileHandling responseFileHandling)
-        {
-            builder.ResponseFileHandling = responseFileHandling;
-            return builder;
-        }
-
-        public static TBuilder UsePrefixes<TBuilder>(this TBuilder builder, IReadOnlyCollection<string> prefixes)
-            where TBuilder : CommandLineBuilder
-        {
-            builder.Prefixes = prefixes;
             return builder;
         }
 
@@ -235,6 +54,104 @@ namespace System.CommandLine.Builder
                 }
             }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
 
+            return builder;
+        }
+
+        public static TBuilder ConfigureFromMethod<TBuilder>(
+            this TBuilder builder,
+            MethodInfo method,
+            object target = null)
+            where TBuilder : CommandBuilder
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
+            // FIX: (ConfigureFromMethod) use MethodBinder
+
+            foreach (var parameter in method.GetParameters())
+            {
+                var option = parameter.BuildOption();
+
+                builder.Command.AddOption(option);
+            }
+
+            builder.Handler =  new MethodBindingCommandHandler(method, target);
+
+            return builder;
+        }
+
+        public static CommandLineBuilder ConfigureFromType<T>(
+            this CommandLineBuilder builder,
+            MethodInfo onExecuteMethod = null)
+            where T : class
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            var typeBinder = new TypeBinder(typeof(T));
+
+            foreach (var option in typeBinder.BuildOptions())
+            {
+                builder.AddOption(option);
+            }
+
+            builder.Handler = new TypeBindingCommandHandler(
+                onExecuteMethod,
+                typeBinder);
+
+            return builder;
+        }
+
+        public static CommandLineBuilder EnablePositionalOptions(
+            this CommandLineBuilder builder,
+            bool value = true)
+        {
+            builder.EnablePositionalOptions = value;
+            return builder;
+        }
+
+        public static CommandLineBuilder EnablePosixBundling(
+            this CommandLineBuilder builder,
+            bool value = true)
+        {
+            builder.EnablePosixBundling = value;
+            return builder;
+        }
+
+        public static CommandLineBuilder ParseResponseFileAs(
+            this CommandLineBuilder builder,
+            ResponseFileHandling responseFileHandling)
+        {
+            builder.ResponseFileHandling = responseFileHandling;
+            return builder;
+        }
+        
+        public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
+        {
+            return builder
+                   .AddVersionOption()
+                   .UseHelp()
+                   .UseParseDirective()
+                   .UseDebugDirective()
+                   .UseSuggestDirective()
+                   .RegisterWithDotnetSuggest()
+                   .UseParseErrorReporting()
+                   .UseExceptionHandler();
+        }
+
+        public static TBuilder UsePrefixes<TBuilder>(this TBuilder builder, IReadOnlyCollection<string> prefixes)
+            where TBuilder : CommandLineBuilder
+        {
+            builder.Prefixes = prefixes;
             return builder;
         }
     }

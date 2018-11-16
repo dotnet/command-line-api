@@ -25,35 +25,15 @@ namespace System.CommandLine
                           .Single(c => c.Name == name);
         }
 
-        public static async Task<int> InvokeAsync(
-            this Command command,
-            string commandLine,
-            IConsole console = null)
-        {
-            var parser = new Parser(command);
-            return await new InvocationPipeline(parser, parser.Parse(commandLine))
-                       .InvokeAsync(console);
-        }
-
-        public static async Task<int> InvokeAsync(
-            this Command command,
-            string[] args,
-            IConsole console = null)
-        {
-            var parser = new Parser(command);
-            return await new InvocationPipeline(parser, parser.Parse(args))
-                       .InvokeAsync(console);
-        }
-
         public static ParseResult Parse(
             this Command command,
             params string[] args) =>
-            new Parser(new[] { command }).Parse(args);
+            new Parser(command).Parse(args);
 
         public static ParseResult Parse(
             this Command command,
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
-            new Parser(new[] { command }).Parse(commandLine);
+            new Parser(command).Parse(commandLine);
     }
 }
