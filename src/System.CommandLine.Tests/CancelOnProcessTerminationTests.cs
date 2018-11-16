@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
         [LinuxOnlyTheory]
         [InlineData(SIGINT)]  // Console.CancelKeyPress
         [InlineData(SIGTERM)] // AppDomain.CurrentDomain.ProcessExit
-        public async Task Foo(int signo)
+        public async Task CancelOnProcessTermination_cancels_on_process_termination(int signo)
         {
             const string ChildProcessWaiting = "Waiting for the command to be cancelled";
             const string ChildProcessCancelling = "Gracefully handling cancellation";
@@ -67,6 +67,44 @@ namespace System.CommandLine.Tests
 
                 process.WaitForExit();
                 Assert.Equal(ExpectedExitCode, process.ExitCode);
+            }
+        }
+
+        [LinuxOnlyTheory]
+        [InlineData(SIGINT)]  // Console.CancelKeyPress
+        [InlineData(SIGTERM)] // AppDomain.CurrentDomain.ProcessExit
+        public async Task CancelOnProcessTermination_non_cancellable_invocation_doesnt_block_termination_and_returns_non_zero_exit_code(int signo)
+        {
+            const string ChildProcessSleeping = "Sleeping";
+
+            Func<string[], Task<int>> childProgram = (string[] args) =>
+                new CommandLineBuilder()
+                    .AddCommand(new Command("the-command",
+                    handler: CommandHandler.Create(() =>
+                    {
+                        const int FailTimeoutMilliseconds = 10000;
+
+                        Console.WriteLine(ChildProcessSleeping);
+                        Thread.Sleep(FailTimeoutMilliseconds);
+
+                        Assert.True(false, "The operation was not cancelled.");
+                        return 1;
+                    })))
+                  .CancelOnProcessTermination()
+                  .Build()
+                  .InvokeAsync("the-command");
+
+            using (RemoteExecution program = RemoteExecutor.Execute(childProgram, psi: new ProcessStartInfo { RedirectStandardOutput = true }))
+            {
+                System.Diagnostics.Process process = program.Process;
+
+                string childState = await process.StandardOutput.ReadLineAsync();
+                Assert.Equal(ChildProcessSleeping, childState);
+
+                Assert.Equal(0, kill(process.Id, signo));
+
+                process.WaitForExit();
+                Assert.NotEqual(0, process.ExitCode);
             }
         }
 
