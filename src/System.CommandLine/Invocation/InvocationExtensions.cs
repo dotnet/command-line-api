@@ -151,9 +151,17 @@ namespace System.CommandLine.Invocation
             string[] args,
             IConsole console = null)
         {
-            var builder = new CommandLineBuilder();
+            CommandLineBuilder builder;
 
-            builder.AddCommand(command);
+            if (command is RootCommand rootCommand)
+            {
+                builder = new CommandLineBuilder(rootCommand);
+            }
+            else
+            {
+                builder = new CommandLineBuilder();
+                builder.AddCommand(command);
+            }
 
             var parser = builder.UseDefaults()
                                 .Build();

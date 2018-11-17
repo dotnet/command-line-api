@@ -46,9 +46,9 @@ namespace System.CommandLine.Invocation
 
             var invocationChain = invocations.Aggregate(
                 (first, second) =>
-                    ((ctx, next) =>
+                    (ctx, next) =>
                         first(ctx,
-                              c => second(c, next))));
+                              c => second(c, next)));
 
             await invocationChain(context, invocationContext => Task.CompletedTask);
 
