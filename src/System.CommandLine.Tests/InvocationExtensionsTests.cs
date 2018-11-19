@@ -42,7 +42,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task RootCommand_InvokeAsync_returns_0_when_handler_is_throws()
+        public async Task RootCommand_InvokeAsync_returns_1_when_handler_throws()
         {
             var wasCalled = false;
             var rootCommand = new RootCommand();
