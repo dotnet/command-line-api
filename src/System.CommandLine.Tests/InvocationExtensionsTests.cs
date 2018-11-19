@@ -26,5 +26,52 @@ namespace System.CommandLine.Tests
                    .Should()
                    .Contain(theHelpText);
         }
+
+        [Fact]
+        public async Task RootCommand_InvokeAsync_returns_0_when_handler_is_successful()
+        {
+            var wasCalled = false;
+            var rootCommand = new RootCommand();
+
+            rootCommand.Handler = CommandHandler.Create(() => wasCalled = true);
+
+            var result = await rootCommand.InvokeAsync("");
+
+            wasCalled.Should().BeTrue();
+            result.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task RootCommand_InvokeAsync_returns_1_when_handler_throws()
+        {
+            var wasCalled = false;
+            var rootCommand = new RootCommand();
+
+            rootCommand.Handler = CommandHandler.Create(() =>
+            {
+                wasCalled = true;
+                throw new Exception("oops!");
+            });
+
+            var resultCode = await rootCommand.InvokeAsync("");
+
+            wasCalled.Should().BeTrue();
+            resultCode.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task RootCommand_InvokeAsync_can_set_custom_result_code()
+        {
+            var rootCommand = new RootCommand();
+
+            rootCommand.Handler = CommandHandler.Create<InvocationContext>(context =>
+            {
+                context.ResultCode = 123;
+            });
+
+            var resultCode = await rootCommand.InvokeAsync("");
+
+            resultCode.Should().Be(123);
+        }
     }
 }
