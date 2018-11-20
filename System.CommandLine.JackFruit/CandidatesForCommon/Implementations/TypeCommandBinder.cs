@@ -6,26 +6,30 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.JackFruit
 {
-    public abstract class TypeCommandProvider : ICommandProvider<Type>
+    // This is the working class until things become functional and then 
+    // refactoring into general CommandBinder and creation of MethodBinder
+    // JsonBinder and SuperBinder (Type non-leaf, method leaf, and yes will 
+    // give it another name. 
+    public abstract class TypeCommandBinder : ICommandBinder<Type>
     {
         private readonly IHelpProvider<Type, PropertyInfo> helpProvider;
-        private readonly IOptionProvider<Type, PropertyInfo> optionProvider;
-        private readonly IArgumentProvider<Type, PropertyInfo> argumentProvider;
+        private readonly IOptionBinder<Type, PropertyInfo> optionProvider;
+        private readonly IArgumentBinder<Type, PropertyInfo> argumentProvider;
         private readonly IInvocationProvider invocationProvider;
 
-        public TypeCommandProvider(
+        public TypeCommandBinder(
                     IDescriptionProvider<Type> descriptionProvider = null,
                     IHelpProvider<Type, PropertyInfo> helpProvider = null,
-                    IOptionProvider<Type, PropertyInfo> optionProvider = null,
-                    IArgumentProvider<Type, PropertyInfo> argumentProvider = null,
+                    IOptionBinder<Type, PropertyInfo> optionProvider = null,
+                    IArgumentBinder<Type, PropertyInfo> argumentProvider = null,
                     IInvocationProvider invocationProvider = null)
         {
             this.helpProvider = helpProvider
                                 ?? new TypeHelpProvider(descriptionProvider);
             this.optionProvider = optionProvider
-                                ?? new PropertyInfoOptionProvider();
+                                ?? new PropertyInfoOptionBinder();
             this.argumentProvider = argumentProvider
-                                ?? new TypeArgumentProvider();
+                                ?? new TypeArgumentBinder();
             this.invocationProvider = invocationProvider
                                 ?? invocationProvider;
 
@@ -70,12 +74,9 @@ namespace System.CommandLine.JackFruit
         public string GetName(Type currentType)
             => currentType.Name;
 
-        public IEnumerable<Option> GetOptions(Type currentType)
-        {
-            return currentType.GetProperties()
+        public IEnumerable<Option> GetOptions(Type currentType) => currentType.GetProperties()
                 .Where(p => argumentProvider.IsArgument(currentType, p))
                 .Select(x => optionProvider.GetOption(currentType, x));
-        }
 
         public IEnumerable<Command> GetSubCommands(Type currentType)
         {
@@ -91,7 +92,7 @@ namespace System.CommandLine.JackFruit
         private void SetHandler(Command command, Type currentType)
         {
             var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var methodInfo = typeof(TypeCommandProvider).GetMethod(nameof(SetHandlerInternal), bindingFlags);
+            var methodInfo = typeof(TypeCommandBinder).GetMethod(nameof(SetHandlerInternal), bindingFlags);
             var constructedMethod = methodInfo.MakeGenericMethod(currentType);
             constructedMethod.Invoke(this, new object[] { command });
         }

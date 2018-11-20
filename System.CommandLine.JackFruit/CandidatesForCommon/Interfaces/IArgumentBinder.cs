@@ -4,7 +4,7 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public interface IArgumentProvider<TSource,TItem>
+    public interface IArgumentBinder<TSource,TItem>
     {
         Argument GetArgument(TSource source);
 

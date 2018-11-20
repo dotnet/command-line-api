@@ -9,25 +9,13 @@ namespace JackFruit
     {
         static async Task<int> Main(string[] args)
         {
-            // With all defaults - this won't work correctly because this result is
-            // altered to show features. 
             var commandLine = new string[] { "tool", "-h" };
-            var retValue = await HierarchicalTypeCommandProvider<DotnetJackFruit>.RunAsync(
+            var retValue = await HierarchicalTypeCommandBinder<DotnetJackFruit>.RunAsync(
                         commandLine, new DescriptionProvider(), new InvocationProvider());
 
-            // I would HIGHLY recommend using the same conventions throughout your CLI. 
-            // This is to demo alternatives. Find the combination you like, and use that. 
-            // Tool class uses help provider and alias attribute
-            // Sln uses InvocationProvider and attributed help
-            // Add uses Help provide, invocation context, constructor parameters and underscores for aliases - DTO no dependencies on JackFruit
-
-            // With features shown
-            // var nuget = BuilderTools.CreateBuilder<NuGet>(new HelpProvider(), ruleProvider: new RuleProvider());
-
-            //Console.Read();
             return retValue;
 
-            // Alternatives
+            // Notes - ignore
             // Help: Provider or attributes. If an attribute exists, provider is not called
             // Invocation: Provider or Invoke method on class: Invoke method required when no provider given or provider returns null
             // RuleProvider: Provider or attributes. If both are present, the results are merged

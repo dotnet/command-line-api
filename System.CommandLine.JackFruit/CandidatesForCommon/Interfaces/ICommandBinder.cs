@@ -2,7 +2,7 @@
 
 namespace System.CommandLine.JackFruit
 {
-    public interface ICommandProvider<TSource>
+    public interface ICommandBinder<TSource>
     {
         Command GetCommand(TSource source);
 

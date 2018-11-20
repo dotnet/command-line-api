@@ -60,7 +60,9 @@ namespace System.CommandLine
                 {
                     foreach (var symbol in command.Command.Children)
                     {
-                        if (symbol.Argument.HasDefaultValue &&
+                        // KAD: Error here appeared suddenly. Might represent different issue
+                        if (symbol.Argument != null &&
+                            symbol.Argument.HasDefaultValue &&
                             command.Children[symbol.Name] == null)
                         {
                             switch (symbol)
@@ -72,7 +74,9 @@ namespace System.CommandLine
                         }
                     }
 
-                    if (command.Command.Argument.HasDefaultValue &&
+                    // KAD: Error here appeared suddenly. Might represent different issue
+                    if (command.Command.Argument != null &&
+                        command.Command.Argument.HasDefaultValue &&
                         command.Arguments.Count == 0)
                     {
                         switch (command.Command.Argument.GetDefaultValue())

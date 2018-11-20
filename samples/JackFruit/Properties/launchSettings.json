@@ -2,7 +2,7 @@
   "profiles": {
     "JackFruit": {
       "commandName": "Project",
-      "commandLineArgs": "-h"
+      "commandLineArgs": "[parse] tool -h"
     }
   }
 }

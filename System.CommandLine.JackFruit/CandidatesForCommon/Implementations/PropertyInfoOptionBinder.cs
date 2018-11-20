@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace System.CommandLine.JackFruit
 {
-    public class PropertyInfoOptionProvider : IOptionProvider<Type, PropertyInfo>
+    public class PropertyInfoOptionBinder : IOptionBinder<Type, PropertyInfo>
     {
         public IHelpProvider<Type, PropertyInfo> HelpProvider { get; set; }
 

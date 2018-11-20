@@ -6,7 +6,7 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class TypeArgumentProvider : IArgumentProvider<Type, PropertyInfo>
+    public class TypeArgumentBinder : IArgumentBinder<Type, PropertyInfo>
     {
 
         public IHelpProvider<Type> HelpProvider { get; set; }

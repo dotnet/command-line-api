@@ -4,7 +4,7 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public interface IOptionProvider<TParent, TSource>
+    public interface IOptionBinder<TParent, TSource>
     {
         Option GetOption(TParent parent, TSource source);
 
