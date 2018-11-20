@@ -11,7 +11,7 @@ namespace JackFruit
         {
             var commandLine = new string[] { "tool", "-h" };
             var retValue = await HierarchicalTypeCommandBinder<DotnetJackFruit>.RunAsync(
-                        commandLine, new DescriptionProvider(), new InvocationProvider());
+                        args, new DescriptionProvider(), new InvocationProvider());
 
             return retValue;
 
