@@ -42,5 +42,27 @@ namespace System.CommandLine.Tests
                    .Should()
                    .Be($"[ {RootCommand.ExeName} [ the-command [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
         }
+
+        [Fact]
+        public async Task When_there_are_no_errors_then_parse_directive_sets_exit_code_0()
+        {
+            var command = new RootCommand();
+            command.AddOption(new Option("-x", argument: new Argument<int>()));
+
+            var exitCode = await command.InvokeAsync("[parse] -x 123");
+
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task When_there_are_errors_then_parse_directive_sets_exit_code_1()
+        {
+            var command = new RootCommand();
+            command.AddOption(new Option("-x", argument: new Argument<int>()));
+
+            var exitCode = await command.InvokeAsync("[parse] -x not-an-int");
+
+            exitCode.Should().Be(1);
+        }
     }
 }

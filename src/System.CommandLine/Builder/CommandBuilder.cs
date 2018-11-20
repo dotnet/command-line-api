@@ -18,12 +18,6 @@ namespace System.CommandLine.Builder
 
         public IEnumerable<Option> Options => Command.Children.OfType<Option>();
 
-        public bool? TreatUnmatchedTokensAsErrors
-        {
-            get => Command.TreatUnmatchedTokensAsErrors;
-            set => Command.TreatUnmatchedTokensAsErrors = value ?? false;
-        }
-
         internal ICommandHandler Handler
         {
             get => Command.Handler;

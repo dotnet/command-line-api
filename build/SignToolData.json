@@ -6,9 +6,14 @@
         "values": [
           "bin/System.CommandLine/*/System.CommandLine.dll",
           "bin/System.CommandLine.DragonFruit/*/System.CommandLine.DragonFruit.dll",
-          "bin/dotnet-suggest/*/dotnet-suggest.dll",
-          "bin/dotnet-suggest/shims/netcoreapp2.1/win-x64/dotnet-suggest.exe",
-          "bin/dotnet-suggest/shims/netcoreapp2.1/win-x86/dotnet-suggest.exe"
+          "bin/dotnet-suggest/*/dotnet-suggest.dll"
+      ]
+    },
+    {
+      "certificate": "Microsoft402",
+      "values": [
+        "bin/dotnet-suggest/shims/netcoreapp2.1/win-x64/dotnet-suggest.exe",
+        "bin/dotnet-suggest/shims/netcoreapp2.1/win-x86/dotnet-suggest.exe"
       ]
     },
     {

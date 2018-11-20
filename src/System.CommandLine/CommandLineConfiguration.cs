@@ -80,10 +80,7 @@ namespace System.CommandLine
             }
             else
             {
-                RootCommand = new Command(
-                    CommandLine.RootCommand.ExeName,
-                    "",
-                    symbols);
+                RootCommand = new RootCommand(symbols: symbols);
             }
 
             _symbols.Add(RootCommand);

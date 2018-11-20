@@ -10,10 +10,16 @@ namespace System.CommandLine.Invocation
         private IReadOnlyCollection<PropertyInfo> _settableProperties;
         private readonly ConstructorBinder _constructorBinder;
 
-        public TypeBinder(Type type)
+        public TypeBinder(
+            Type type,
+            ConstructorBinder constructorBinder = null)
         {
             _type = type ?? throw new ArgumentNullException(nameof(type));
-            _constructorBinder = new ConstructorBinder(GetConstructor());
+
+            _constructorBinder =
+                constructorBinder ??
+                new ConstructorBinder(_type.GetConstructors().SingleOrDefault() ??
+                                      throw new ArgumentException($"No eligible constructor found to bind type {_type}"));
         }
 
         public object CreateInstance(InvocationContext context)
@@ -83,14 +89,6 @@ namespace System.CommandLine.Invocation
         {
             return _settableProperties ??
                    (_settableProperties = _type.GetProperties().Where(p => p.CanWrite).ToArray());
-        }
-
-        protected virtual ConstructorInfo GetConstructor()
-        {
-            // TODO: Clean up to consider multiple constructors
-            return
-                _type.GetConstructors().SingleOrDefault() ??
-                throw new ArgumentException($"No eligible constructor found to bind type {_type}");
         }
     }
 }
