@@ -39,7 +39,7 @@ namespace System.CommandLine.Invocation
         {
             var value = InvokeMethod(context);
 
-            return CommandHandler.GetResultCodeAsync(value);
+            return CommandHandler.GetResultCodeAsync(value, context);
         }
 
         internal object InvokeMethod(InvocationContext context)

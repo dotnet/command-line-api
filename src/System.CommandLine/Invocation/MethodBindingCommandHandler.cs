@@ -20,11 +20,6 @@ namespace System.CommandLine.Invocation
             _methodBinder = new MethodBinder(method, target);
         }
 
-        public MethodBindingCommandHandler(MethodBinderBase methodBinder)
-        {
-            _methodBinder = methodBinder;
-        }
-
         public Task<int> InvokeAsync(InvocationContext context)
         {
             try

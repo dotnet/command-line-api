@@ -49,19 +49,9 @@ namespace System.CommandLine.DragonFruit
             object @object)
         {
             var builder = new CommandLineBuilder()
-                          // parser
                           .ConfigureFromMethod(method, @object)
                           .ConfigureHelpFromXmlComments(method)
-                          .AddVersionOption()
-                          
-                          // middleware
-                          .UseHelp()
-                          .UseParseDirective()
-                          .UseDebugDirective()
-                          .UseSuggestDirective()
-                          .RegisterWithDotnetSuggest()
-                          .UseParseErrorReporting()
-                          .UseExceptionHandler();
+                          .UseDefaults();
 
             Parser parser = builder.Build();
 

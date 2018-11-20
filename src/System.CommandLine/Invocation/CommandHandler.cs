@@ -137,7 +137,7 @@ namespace System.CommandLine.Invocation
             Func<T1, T2, T3, T4, T5, T6, T7, Task<int>> action) =>
             new MethodBindingCommandHandler(action);
 
-        internal static async Task<int> GetResultCodeAsync(object value)
+        internal static async Task<int> GetResultCodeAsync(object value, InvocationContext context)
         {
             switch (value)
             {
@@ -145,11 +145,11 @@ namespace System.CommandLine.Invocation
                     return await resultCodeTask;
                 case Task task:
                     await task;
-                    return 0;
+                    return context.ResultCode;
                 case int resultCode:
                     return resultCode;
                 case null:
-                    return 0;
+                    return context.ResultCode;
                 default:
                     throw new NotSupportedException();
             }
