@@ -154,9 +154,15 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .UseMiddleware(async (context, next) =>
                          {
+                             Assert.False(context.IsCancellationRequested);
+
                              context.Cancel(out bool isCancelling);
+
                              // Cancellation is not yet enabled
                              Assert.False(isCancelling);
+
+                             Assert.True(context.IsCancellationRequested);
+
                              await next(context);
                          })
                          .AddCommand(command)
@@ -183,13 +189,18 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .UseMiddleware(async (context, next) =>
                          {
-                             Task task = next(context);
+                            Task task = next(context);
 
-                             context.Cancel(out bool isCancelling);
-                             // Cancellation is enabled by next
-                             Assert.True(isCancelling);
+                            Assert.False(context.IsCancellationRequested);
 
-                             await task;
+                            context.Cancel(out bool isCancelling);
+
+                            // Cancellation is enabled by next
+                            Assert.True(isCancelling);
+
+                            Assert.True(context.IsCancellationRequested);
+
+                            await task;
                          })
                          .AddCommand(command)
                          .Build();
