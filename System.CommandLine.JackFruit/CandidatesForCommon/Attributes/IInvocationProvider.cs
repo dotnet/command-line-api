@@ -4,7 +4,6 @@ namespace System.CommandLine.JackFruit
 {
     public interface IInvocationProvider
     {
-        Func<Task<int>> InvokeAsyncFunc<T>(T command)
-            where T:Command;
+        Func<T, Task<int>> InvokeAsyncFunc<T>();
     }
 }

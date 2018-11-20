@@ -78,13 +78,10 @@ namespace System.CommandLine.Invocation
                 }
                 else
                 {
-                    var argument = context.ParseResult
-                                          .CommandResult
-                                          .ValueForOption(
-                                              Binder.FindMatchingOptionName(
-                                                  context.ParseResult,
-                                                  parameterName));
-                    arguments.Add(argument);
+                    if( Binder.TryGetValue(context, parameterName, out object value))
+                    {
+                        arguments.Add(value);
+                    }
                 }
             }
 

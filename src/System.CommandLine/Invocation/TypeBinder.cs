@@ -57,13 +57,10 @@ namespace System.CommandLine.Invocation
             }
             else
             {
-                var argument = context.ParseResult
-                                      .CommandResult
-                                      .ValueForOption(
-                                          Binder.FindMatchingOptionName(
-                                              context.ParseResult,
-                                              propertyInfo.Name));
-                propertyInfo.SetValue(instance, argument);
+                if (Binder.TryGetValue(context, propertyInfo.Name, out object value))
+                {
+                    propertyInfo.SetValue(instance, value);
+                }
             }
         }
 
@@ -90,7 +87,7 @@ namespace System.CommandLine.Invocation
             return optionSet.Cast<Option>();
         }
 
-        public static Option BuildOption(PropertyInfo property) 
+        public static Option BuildOption(PropertyInfo property)
             => property.BuildOption();
 
         private IEnumerable<PropertyInfo> GetSettableProperties()

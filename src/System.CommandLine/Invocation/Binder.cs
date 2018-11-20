@@ -13,9 +13,9 @@ namespace System.CommandLine.Invocation
         public static Option BuildOption(this ParameterInfo parameter)
         {
             var argument = new Argument
-                           {
-                               ArgumentType = parameter.ParameterType
-                           };
+            {
+                ArgumentType = parameter.ParameterType
+            };
 
             if (parameter.HasDefaultValue)
             {
@@ -42,7 +42,7 @@ namespace System.CommandLine.Invocation
         }
 
         public static string FindMatchingOptionName(
-            ParseResult parseResult, 
+            ParseResult parseResult,
             string parameterName)
         {
             var candidates = parseResult
@@ -61,7 +61,7 @@ namespace System.CommandLine.Invocation
                 throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", candidates.ToString())}");
             }
 
-            return parameterName;
+            return "";
 
             bool Matching(string alias)
             {
@@ -80,6 +80,29 @@ namespace System.CommandLine.Invocation
                 typeof(CancellationToken)
             }
         );
+
+        internal static bool TryGetValue(InvocationContext context, string name, out object value)
+        {
+            var commandResult = context.ParseResult.CommandResult;
+            var candidateArgument = commandResult.Command.Argument;
+            if (candidateArgument != null && candidateArgument.Help.Name == name)
+            {
+                value = commandResult.GetValueOrDefault();
+                return true;
+            }
+            var optionName = Binder.FindMatchingOptionName(
+                                context.ParseResult,
+                                name);
+            if (string.IsNullOrWhiteSpace(optionName))
+            {
+                value = null;
+                return false;
+            }
+            value = context.ParseResult
+                        .CommandResult
+                        .ValueForOption(optionName);
+            return true;
+        }
 
         internal static IEnumerable<PropertyInfo> OmitInfrastructureTypes(
             this IEnumerable<PropertyInfo> source) =>
