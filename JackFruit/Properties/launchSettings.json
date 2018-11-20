@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "JackFruit": {
+      "commandName": "Project",
+      "commandLineArgs": "Tool Install Foo"
+    }
+  }
+}
