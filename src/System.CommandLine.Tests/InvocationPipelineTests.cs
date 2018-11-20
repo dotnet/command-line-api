@@ -146,7 +146,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.Handler = CommandHandler.Create((InvocationContext context) =>
             {
-                context.AddCancellationHandling(out CancellationToken ct);
+                CancellationToken ct = context.AddCancellationHandling();
                 // The middleware canceled the request
                 Assert.True(ct.IsCancellationRequested);
             });
@@ -173,7 +173,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.Handler = CommandHandler.Create(async (InvocationContext context) =>
             {
-                context.AddCancellationHandling(out CancellationToken ct);
+                CancellationToken ct = context.AddCancellationHandling();
                 // The middleware hasn't cancelled our request yet.
                 Assert.False(ct.IsCancellationRequested);
 

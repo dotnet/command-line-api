@@ -44,8 +44,8 @@ namespace System.CommandLine.Invocation
         /// <summary>
         /// Indicates the invocation can be cancelled.
         /// </summary>
-        /// <param name="cancellationToken">token used by the caller to implement cancellation handling.</param>
-        public void AddCancellationHandling(out CancellationToken cancellationToken)
+        /// <returns>Token used by the caller to implement cancellation handling.</returns>
+        public CancellationToken AddCancellationHandling()
         {
             lock (_gate)
             {
@@ -54,7 +54,7 @@ namespace System.CommandLine.Invocation
                 {
                     _cts = new CancellationTokenSource();
                 }
-                cancellationToken = _cts.Token;
+                return _cts.Token;
             }
         }
 
