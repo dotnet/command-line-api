@@ -8,7 +8,9 @@ namespace System.CommandLine.JackFruit
 {
     public class TypeArgumentBinder : IArgumentBinder<Type, PropertyInfo>
     {
-
+        // TODO: Extract into IEnumerable(ArgumentStrategy) with IArgumentStrategy having 
+        // CanHandle, GetArgument, GetName, GetHelp. GetArgument(Type, Name, Description)
+        // And figure out rules, etc. 
         public IHelpProvider<Type> HelpProvider { get; set; }
 
         public Argument GetArgument(Type source)

@@ -14,7 +14,6 @@ namespace System.CommandLine.JackFruit
             return Extensions.GetHelp(attribute, HelpProvider, parentType, propertyInfo);
         }
 
-  
         public string GetName(Type parentType, PropertyInfo propertyInfo)
             => propertyInfo.Name;
 
