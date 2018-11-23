@@ -59,7 +59,7 @@ namespace System.CommandLine
 
         public HelpDetail Help { get; }
 
-        public string Name
+        public virtual string Name
         {
             get => _specifiedName ?? _longestAlias;
             set
