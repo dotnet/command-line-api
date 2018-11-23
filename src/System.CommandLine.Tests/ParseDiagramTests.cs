@@ -79,26 +79,15 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Parse_diagram_identifies_implicitly_applied_options()
+        public void Parse_diagram_identifies_options_where_default_values_have_been_applied()
         {
             var parser = new CommandLineBuilder()
                          .AddOption(new[] { "-h", "--height" }, "",
-                                    new Argument
-                                    {
-                                        Arity = ArgumentArity.ExactlyOne
-                                    }.WithDefaultValue(() => 10))
+                                    new Argument<int>(defaultValue: 10))
                          .AddOption(new[] { "-w", "--width" }, "",
-                                    new Argument
-                                    {
-                                        Arity = ArgumentArity.ExactlyOne
-                                    }.WithDefaultValue(() => 15)
-                         )
+                                    new Argument<int>(defaultValue: 15))
                          .AddOption(new[] { "-c", "--color" }, "",
-                                    new Argument
-                                    {
-                                        Arity = ArgumentArity.ExactlyOne
-                                    }.WithDefaultValue(() => ConsoleColor.Cyan)
-                         )
+                                    new Argument<ConsoleColor>(ConsoleColor.Cyan))
                          .Build();
 
             var result = parser.Parse("-w 9000");

@@ -20,13 +20,11 @@ namespace System.CommandLine.Tests
                     new Option(
                         "-x",
                         "",
-                        new Argument<int>()
-                            .WithDefaultValue(() => "123")),
+                        new Argument<int>(123)),
                     new Option(
                         "-y",
                         "",
-                        new Argument<int>()
-                            .WithDefaultValue(() => "456"))
+                        new Argument<int>(456))
                 },
                 enablePositionalOptions: true);
 
@@ -48,13 +46,11 @@ namespace System.CommandLine.Tests
                     new Option(
                         "-x",
                         "",
-                        new Argument<int>()
-                            .WithDefaultValue(() => "123")),
+                        new Argument<int>(123)),
                     new Option(
                         "-y",
                         "",
-                        new Argument<int>()
-                            .WithDefaultValue(() => "456"))
+                        new Argument<int>(456))
                 },
                 enablePositionalOptions: true);
 

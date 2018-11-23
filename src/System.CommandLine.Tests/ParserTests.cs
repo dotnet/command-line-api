@@ -875,8 +875,7 @@ namespace System.CommandLine.Tests
         public void Commands_can_have_default_argument_values()
         {
             var command = new Command("command",
-                                      argument: new Argument { Arity = ArgumentArity.ExactlyOne }
-                                          .WithDefaultValue(() => "default"));
+                                      argument: new Argument<string>("default"));
 
             ParseResult result = command.Parse("command");
 
@@ -890,10 +889,7 @@ namespace System.CommandLine.Tests
             command.AddOption(
                 new Option(
                     new[] { "-o", "--option" },
-                    argument: new Argument
-                              {
-                                  Arity = ArgumentArity.ExactlyOne
-                              }.WithDefaultValue(() => "the-default")));
+                    argument: new Argument<string>("the-default")));
 
             ParseResult result = command.Parse("command");
 
