@@ -15,11 +15,7 @@ namespace System.CommandLine.Tests
             var option = new Option(
                 "-x",
                 "",
-                new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                    .WithDefaultValue(() => "default"));
+                new Argument<string>("default"));
 
             var result = new OptionResult(option, "-x");
 
@@ -66,11 +62,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command", "", new[] {
                 new Option(
                     new[] { "-c", "--count" }, "",
-                    new Argument
-                        {
-                            Arity = ArgumentArity.ExactlyOne
-                        }
-                        .WithDefaultValue(() => 5))
+                    new Argument<int>(5))
             });
 
             var result = command.Parse("the-command");
