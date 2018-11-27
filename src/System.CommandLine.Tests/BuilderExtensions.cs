@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Tests
 {
@@ -142,24 +141,7 @@ namespace System.CommandLine.Tests
         {
             return builder.AddOption(new[] { name }, description, argument);
         }
-
-        public static TBuilder OnExecute<TBuilder>(
-            this TBuilder builder,
-            Action action)
-            where TBuilder : CommandBuilder
-        {
-            builder.Command.Handler = CommandHandler.Create(action);
-            return builder;
-        }
-
-        public static CommandBuilder OnExecute<T>(
-            this CommandBuilder builder,
-            Action<T> action)
-        {
-            builder.Command.Handler =CommandHandler.Create(action);
-            return builder;
-        }
-
+        
         public static Argument ExactlyOne(
             this ArgumentBuilder builder)
         {

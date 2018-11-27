@@ -48,9 +48,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
         {
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create(() => throw new Exception("oops!"));
+
             var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute(() => throw new Exception("oops!")))
+                         .AddCommand(command)
                          .UseExceptionHandler()
                          .Build();
 
@@ -62,9 +64,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_writes_details_to_standard_error()
         {
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create(() => throw new Exception("oops!"));
+
             var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute(() => throw new Exception("oops!")))
+                         .AddCommand(command)
                          .UseExceptionHandler()
                          .Build();
 

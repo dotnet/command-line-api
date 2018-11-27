@@ -190,33 +190,14 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_option_not_explicitly_provide_help_will_use_default_help()
+        public void When_option_not_explicitly_provides_help_will_use_default_help()
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "desc");
 
-            option.Help.Name.Should().Be("option");
-            option.Help.Description.Should().Be("desc");
-            option.Help.IsHidden.Should().BeFalse();
-        }
-
-        [Fact]
-        public void When_option_provide_help_from_ctor_the_exposed_help_is_correct()
-        {
-            var option = new Option(
-                new[] { "-o", "--option" },
-                "desc",
-                null,
-                new HelpDetail
-                {
-                    Name = "helpName",
-                    Description = "helpDesc",
-                    IsHidden = true,
-                });
-
-            option.Help.Name.Should().Be("helpName");
-            option.Help.Description.Should().Be("helpDesc");
-            option.Help.IsHidden.Should().BeTrue();
+            option.Name.Should().Be("option");
+            option.Description.Should().Be("desc");
+            option.IsHidden.Should().BeFalse();
         }
     }
 }
