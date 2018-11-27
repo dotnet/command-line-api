@@ -306,17 +306,20 @@ namespace System.CommandLine.Tests
         public void
             When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_and_there_is_a_default_then_getting_value_returns_default_in_an_empty_sequence_of_strings()
         {
+            var option = new Option(
+                "-x",
+                "",
+                new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                });
+
+            option.Argument.SetDefaultValue(() => "the-default");
+
             var command = new Command("the-command", "",
                                       new[]
                                       {
-                                          new Option(
-                                              "-x",
-                                              "",
-                                              new Argument
-                                                  {
-                                                      Arity = ArgumentArity.ZeroOrMore
-                                                  }
-                                                  .WithDefaultValue(() => "the-default"))
+                                          option
                                       });
 
             var result = command.Parse("the-command");

@@ -19,15 +19,6 @@ namespace System.CommandLine.Builder
             return argument;
         }
 
-        public static Argument WithDefaultValue(
-            this Argument argument,
-            Func<object> defaultValue)
-        {
-            argument.SetDefaultValue(defaultValue);
-
-            return argument;
-        }
-
         public static Argument WithHelp(
             this Argument argument,
             string name = null, 

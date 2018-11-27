@@ -604,12 +604,10 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.AddOption(
                 new Option("--implicit",
-                           argument: new Argument<string[]>()
-                               .WithDefaultValue(() => "the default")));
+                           argument: new Argument<string>(defaultValue: "the-default")));
             command.AddOption(
                 new Option("--not",
-                           argument: new Argument<string[]>()
-                               .WithDefaultValue(() => "the default")));
+                           argument: new Argument<string>("the-default")));
 
             var suggestions = command.Parse("m").Suggestions();
 
