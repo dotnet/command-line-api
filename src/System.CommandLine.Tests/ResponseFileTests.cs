@@ -48,8 +48,8 @@ namespace System.CommandLine.Tests
                 s.WriteLine("123");
             }
             var result = new CommandLineBuilder()
-                .AddOption("--flag")
-                .AddOption("--flag2", "", new Argument<int>())
+                .AddOption(new Option("--flag"))
+                .AddOption(new Option("--flag2", argument: new Argument<int>()))
                 .Build()
                 .Parse("@" + FilePath);
             result.HasOption("--flag").Should().BeTrue();
@@ -136,12 +136,15 @@ namespace System.CommandLine.Tests
                 s.WriteLine(input);
             }
 
-            var result = new CommandLineBuilder()
-                .AddOption("--flag", "", ArgumentArity.ExactlyOne)
-                .AddOption("--flag2", "", new Argument<int>())
-                .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
-                .Build()
-                .Parse("@" + FilePath);
+            var rootCommand = new RootCommand();
+            rootCommand.AddOption(new Option("--flag", "", new Argument<string>()));
+            rootCommand.AddOption(new Option("--flag2", "", new Argument<int>()));
+            var parser = new CommandLineBuilder(rootCommand)
+                         .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
+                         .Build();
+
+            var result = parser.Parse("@" + FilePath);
+
             result.ValueForOption("--flag").Should().Be("first value");
             result.ValueForOption("--flag2").Should().Be(123);
         }

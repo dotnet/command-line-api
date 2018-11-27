@@ -66,12 +66,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_diagram_shows_type_conversion_errors()
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption("-f", "",
-                                    new Argument<int>())
-                         .Build();
+            var command = new RootCommand();
+            command.AddOption(new Option("-f", "",
+                                         new Argument<int>()));
 
-            var result = parser.Parse("-f not-an-int");
+            var result = command.Parse("-f not-an-int");
 
             result.Diagram()
                   .Should()
@@ -81,16 +80,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_diagram_identifies_options_where_default_values_have_been_applied()
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption(new[] { "-h", "--height" }, "",
-                                    new Argument<int>(defaultValue: 10))
-                         .AddOption(new[] { "-w", "--width" }, "",
-                                    new Argument<int>(defaultValue: 15))
-                         .AddOption(new[] { "-c", "--color" }, "",
-                                    new Argument<ConsoleColor>(ConsoleColor.Cyan))
-                         .Build();
+            var rootCommand = new RootCommand();
 
-            var result = parser.Parse("-w 9000");
+            rootCommand.AddOption(new Option(new[] { "-h", "--height" }, "",
+                                             new Argument<int>(defaultValue: 10)));
+            rootCommand.AddOption(new Option(new[] { "-w", "--width" }, "",
+                                             new Argument<int>(defaultValue: 15)));
+            rootCommand.AddOption(new Option(new[] { "-c", "--color" }, "",
+                                             new Argument<ConsoleColor>(ConsoleColor.Cyan)));
+
+            var result = rootCommand.Parse("-w 9000");
 
             var diagram = result.Diagram();
 

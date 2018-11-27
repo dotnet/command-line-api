@@ -444,22 +444,18 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_not_included_if_there_are_only_options_with_arguments_configured()
         {
-            var commandLineBuilder = new CommandLineBuilder
-                {
-                    HelpBuilder = _helpBuilder,
-                }
-                .AddOption(
-                    new[] { "-v", "--verbosity" },
-                    "Sets the verbosity.",
-                    new Argument
-                        {
-                            Help = { Name = "argument for options" },
-                            Arity = ArgumentArity.ExactlyOne
-                        })
-                .Command;
+            var command = new Command("command", helpBuilder: _helpBuilder);
 
-            commandLineBuilder
-                .WriteHelp(_console);
+            command.AddOption(
+                new Option("-v",
+                           "Sets the verbosity.",
+                           new Argument
+                           {
+                               Help = { Name = "argument for options" },
+                               Arity = ArgumentArity.ExactlyOne
+                           }));
+
+            command.WriteHelp(_console);
 
             _console.Out.ToString().Should().NotContain("Arguments:");
         }
@@ -763,7 +759,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_is_not_included_if_only_subcommands_configured()
         {
-            var command = new Command("outer",  "description for outer");
+            var command = new Command("outer", "description for outer");
             command.AddCommand(new Command("inner"));
             
             command.WriteHelp(_console);
@@ -780,8 +776,8 @@ namespace System.CommandLine.Tests.Help
                 }
                 .AddCommand("the-command", "Does things.",
                     cmd => cmd
-                        .AddOption("-x")
-                        .AddOption("-n"))
+                        .AddOption(new Option("-x"))
+                        .AddOption(new Option("-n")))
                 .Command;
 
             commandLineBuilder

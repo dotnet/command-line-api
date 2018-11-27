@@ -78,68 +78,16 @@ namespace System.CommandLine.Tests
         public static TBuilder AddOption<TBuilder>(
             this TBuilder builder,
             string name,
-            string description = null,
+            string description,
             IArgumentArity arity = null)
             where TBuilder : CommandBuilder
         {
-            return builder.AddOption(new[] { name }, description, arity);
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string[] aliases,
-            string description = null,
-            Argument argument = null)
-            where TBuilder : CommandBuilder
-        {
-            var option = new Option(aliases)
-                         {
-                             Description = description
-                         };
-
-            if (argument != null)
-            {
-                option.Argument = argument;
-            }
-
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string[] aliases,
-            string description = null,
-            IArgumentArity arity = null)
-            where TBuilder : CommandBuilder
-        {
-            var option = new Option(aliases)
-                         {
-                             Description = description
-                         };
-
-            if (arity != null)
-            {
-                option.Argument = new Argument
-                                  {
-                                      Arity = arity
-                                  };
-            }
-
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string name,
-            string description = null,
-            Argument argument = null)
-            where TBuilder : CommandBuilder
-        {
-            return builder.AddOption(new[] { name }, description, argument);
+            return builder.AddOption(new Option(new[] { name },
+                                                description,
+                                                new Argument
+                                                {
+                                                    Arity = arity
+                                                }));
         }
         
         public static Argument ExactlyOne(

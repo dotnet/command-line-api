@@ -704,18 +704,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_in_between_then_it_attaches_to_the_outer_command()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(
-                             "outer", "",
-                             outer => {
-                                 outer.AddCommand(
-                                     "inner", "",
-                                     inner => inner.AddOption("-x"));
-                                 outer.AddOption("-x");
-                             })
-                         .Build();
+            var outer = new Command("outer");
+            outer.AddOption(new Option("-x"));
+            var inner = new Command("inner");
+            inner.AddOption(new Option("-x"));
+            outer.AddCommand(inner);
 
-            var result = parser.Parse("outer -x inner");
+            var result = outer.Parse("outer -x inner");
 
             result.CommandResult
                   .Children

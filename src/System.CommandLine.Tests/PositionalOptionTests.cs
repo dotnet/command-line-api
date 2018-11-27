@@ -174,11 +174,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_multiple_option_arguments_are_provided_without_option_name_then_argument_positions_are_assumed()
         {
-            var result = new CommandLineBuilder()
+            var rootCommand = new RootCommand();
+            rootCommand.AddOption(new Option("-a", "", new Argument<string>()));
+            rootCommand.AddOption(new Option("-b"));
+            rootCommand.AddOption(new Option("-c", "", new Argument<string>()));
+
+            var result = new CommandLineBuilder(rootCommand)
                          .EnablePositionalOptions()
-                         .AddOption("-a", "", ArgumentArity.ExactlyOne)
-                         .AddOption("-b")
-                         .AddOption("-c", "", ArgumentArity.ExactlyOne)
                          .Build()
                          .Parse("value-for-a value-for-c");
 
@@ -190,11 +192,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_multiple_option_arguments_are_provided_with_first_option_name_then_argument_positions_are_assumed()
         {
-            var result = new CommandLineBuilder()
+            var rootCommand = new RootCommand();
+            rootCommand.AddOption(new Option("-a", "", new Argument<string>()));
+            rootCommand.AddOption(new Option("-b"));
+            rootCommand.AddOption(new Option("-c", "", new Argument<string>()));
+
+            var result = new CommandLineBuilder(rootCommand)
                          .EnablePositionalOptions()
-                         .AddOption("-a", "", ArgumentArity.ExactlyOne)
-                         .AddOption("-b")
-                         .AddOption("-c", "", ArgumentArity.ExactlyOne)
                          .Build()
                          .Parse("-a value-for-a value-for-c");
 
