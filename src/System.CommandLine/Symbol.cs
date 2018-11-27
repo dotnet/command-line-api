@@ -17,7 +17,6 @@ namespace System.CommandLine
             IReadOnlyCollection<string> aliases,
             string description = null,
             Argument argument = null,
-            HelpDetail help = null,
             bool isHidden = false)
         {
             if (aliases == null)
@@ -40,13 +39,6 @@ namespace System.CommandLine
             IsHidden = isHidden;
 
             Argument = argument ?? Argument.None;
-
-            Help = help ?? new HelpDetail
-                           {
-                               Name = Name,
-                               Description = Description,
-                               IsHidden = false,
-                           };
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
@@ -56,8 +48,6 @@ namespace System.CommandLine
         public Argument Argument { get; set; }
 
         public string Description { get; set; }
-
-        public HelpDetail Help { get; }
 
         public virtual string Name
         {
@@ -145,7 +135,5 @@ namespace System.CommandLine
         ICommand ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;
-
-        IHelpDetail ISymbol.Help => Help;
     }
 }
