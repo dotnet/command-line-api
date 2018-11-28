@@ -176,10 +176,12 @@ namespace System.CommandLine.Tests
         [InlineData("/")]
         public void When_options_use_different_prefixes_they_still_work(string prefix)
         {
-            var rootCommand = new RootCommand();
-            rootCommand.AddOption(new Option(prefix + "a", "", new Argument<string>()));
-            rootCommand.AddOption(new Option(prefix + "b"));
-            rootCommand.AddOption(new Option(prefix + "c", "", new Argument<string>()));
+            var rootCommand = new RootCommand
+                              {
+                                  new Option(prefix + "a", "", new Argument<string>()),
+                                  new Option(prefix + "b"),
+                                  new Option(prefix + "c", "", new Argument<string>())
+                              };
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
             result.ValueForOption(prefix + "a").Should().Be("value-for-a");
