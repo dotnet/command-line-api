@@ -22,8 +22,7 @@ namespace System.CommandLine.Tests
         public async Task CancelOnProcessTermination_cancels_on_process_termination(int signo)
         {
             const string ChildProcessWaiting = "Waiting for the command to be cancelled";
-            const string ChildProcessCancelling = "Gracefully handling cancellation";
-            const int ExpectedExitCode = 42;
+            const int CancelledExitCode = 42;
 
             Func<string[], Task<int>> childProgram = (string[] args) =>
                 new CommandLineBuilder()
@@ -37,11 +36,17 @@ namespace System.CommandLine.Tests
                         }
                         catch (OperationCanceledException)
                         {
-                            // Sleep a little to ensure we are really blocking the ProcessExit event.
-                            Thread.Sleep(500);
-                            Console.WriteLine(ChildProcessCancelling);
+                            // For Process.Exit handling the event must remain blocked as long as the
+                            // command is executed.
+                            // We are currently blocking that event because CancellationToken.Cancel
+                            // is called from the event handler.
+                            // We'll do an async Yield now. This means the Cancel call will return
+                            // and we're no longer actively blocking the event.
+                            // The event handler is responsible to continue blocking until the command
+                            // has finished executing. If it doesn't we won't get the CancelledExitCode.
+                            await Task.Yield();
 
-                            return ExpectedExitCode;
+                            return CancelledExitCode;
                         }
 
                         return 1;
@@ -61,10 +66,6 @@ namespace System.CommandLine.Tests
                 // Request termination
                 Assert.Equal(0, kill(process.Id, signo));
 
-                // Verify the CancellationToken is tripped
-                childState = await process.StandardOutput.ReadLineAsync();
-                Assert.Equal(ChildProcessCancelling, childState);
-
                 // Verify the process terminates timely
                 bool processExited = process.WaitForExit(10000);
                 if (!processExited)
@@ -75,7 +76,7 @@ namespace System.CommandLine.Tests
                 Assert.True(processExited);
 
                 // Verify the process exit code
-                Assert.Equal(ExpectedExitCode, process.ExitCode);
+                Assert.Equal(CancelledExitCode, process.ExitCode);
             }
         }
 
@@ -84,14 +85,14 @@ namespace System.CommandLine.Tests
         [InlineData(SIGTERM)] // AppDomain.CurrentDomain.ProcessExit
         public async Task CancelOnProcessTermination_non_cancellable_invocation_doesnt_block_termination_and_returns_non_zero_exit_code(int signo)
         {
-            const string ChildProcessSleeping = "Sleeping";
+            const string ChildProcessWaiting = "Waiting for the command to be terminated";
 
             Func<string[], Task<int>> childProgram = (string[] args) =>
                 new CommandLineBuilder()
                     .AddCommand(new Command("the-command",
                     handler: CommandHandler.Create(() =>
                     {
-                        Console.WriteLine(ChildProcessSleeping);
+                        Console.WriteLine(ChildProcessWaiting);
 
                         Thread.Sleep(int.MaxValue);
                     })))
@@ -105,7 +106,7 @@ namespace System.CommandLine.Tests
 
                 // Wait for the child to be in the command handler.
                 string childState = await process.StandardOutput.ReadLineAsync();
-                Assert.Equal(ChildProcessSleeping, childState);
+                Assert.Equal(ChildProcessWaiting, childState);
 
                 // Request termination
                 Assert.Equal(0, kill(process.Id, signo));
@@ -119,7 +120,7 @@ namespace System.CommandLine.Tests
                 }
                 Assert.True(processExited);
 
-                // Verify the process exit code
+                // Verify non-zero exit code
                 Assert.NotEqual(0, process.ExitCode);
             }
         }
