@@ -10,12 +10,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using static System.Environment;
-using System.Runtime.InteropServices;
+using Microsoft.DotNet.PlatformAbstractions;
 
 namespace System.CommandLine.Suggest.Tests
 {
     public class DotnetSuggestEndToEndTests : IDisposable
     {
+        private const string GetCompletionsResultPath = "get_completions_result.txt";
         private readonly ITestOutputHelper _output;
         private readonly FileInfo _endToEndTestApp;
         private readonly FileInfo _dotnetSuggest;
@@ -154,6 +155,59 @@ namespace System.CommandLine.Suggest.Tests
             stdOut.ToString()
                 .Should()
                 .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}");
+        }
+
+        [ReleaseBuildOnlyFact]
+        public async Task dotnet_suggest_provides_completions_from_bash_shell_script()
+        {
+            if (RuntimeEnvironment.OperatingSystemPlatform == Platform.Windows)
+            {
+                return;
+            }
+
+            EnsureNoPreviousGetCompletionsResultPath();
+
+            // run once to trigger a call to dotnet-suggest register
+            await Process.ExecuteAsync(
+                _endToEndTestApp.FullName,
+                "-h",
+                stdOut: s => _output.WriteLine(s),
+                stdErr: s => _output.WriteLine(s),
+                environmentVariables: _environmentVariables);
+
+            var stdOut = new StringBuilder();
+            var stdErr = new StringBuilder();
+
+            var appendedTestAssetPath =
+                _endToEndTestApp.Directory.FullName + ":" + GetEnvironmentVariable("PATH");
+
+            await Process.ExecuteAsync(
+                command: "sh",
+                args: $"get-completions.sh {_endToEndTestApp.Name} --",
+                stdOut: s => _output.WriteLine(s),
+                stdErr: s => _output.WriteLine(s),
+                environmentVariables:
+                _environmentVariables.Concat(new[] {("PATH", appendedTestAssetPath)}).ToArray());
+
+            _output.WriteLine($"stdOut:{NewLine}{stdOut}{NewLine}");
+            _output.WriteLine($"stdErr:{NewLine}{stdErr}{NewLine}");
+
+            stdErr.ToString()
+                .Should()
+                .BeEmpty();
+
+            // stdOut cannot get echo's result. So it need to write to a file.
+            File.ReadAllText(GetCompletionsResultPath)
+                .Should()
+                .Contain("--apple --banana --cherry --durian");
+        }
+
+        private static void EnsureNoPreviousGetCompletionsResultPath()
+        {
+            if (File.Exists(GetCompletionsResultPath))
+            {
+                File.Delete(GetCompletionsResultPath);
+            }
         }
     }
 }

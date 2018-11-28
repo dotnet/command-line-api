@@ -13,6 +13,10 @@
     <Content Remove="EndToEndTestApp/**" />
     <EmbeddedResource Remove="EndToEndTestApp/**" />
     <None Remove="EndToEndTestApp/**" />
+
+    <None Update="get-completions.sh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

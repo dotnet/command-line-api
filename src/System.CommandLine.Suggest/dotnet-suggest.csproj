@@ -11,7 +11,7 @@
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
   </PropertyGroup>
   
-  <PropertyGroup Condition=" $(Build_BuildId) != '' " >
+  <PropertyGroup Condition=" $(Build_BuildId) != '' ">
     <Version>1.0.2.$(Build_BuildId)</Version>
   </PropertyGroup>
   
@@ -21,6 +21,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="dotnet-suggest-shim.bash">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="dotnet-suggest-shim.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
