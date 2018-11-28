@@ -11,15 +11,9 @@ _dotnet_bash_complete()
     local suggestions=($(compgen -W "$completions"))
 
     if [ "${#suggestions[@]}" == "1" ]; then
-        local number="${suggestions[0]/%\ */}"
-        COMPREPLY=("$number")
+        COMPREPLY=("${suggestions[0]}")
     else
-        for i in "${!suggestions[@]}"; do
-            suggestions[$i]="$(printf '%*s' "-$COLUMNS"  "${suggestions[$i]}")"
-        done
-
         COMPREPLY=("${suggestions[@]}")
     fi
 }
-
 complete -F _dotnet_bash_complete `dotnet-suggest list`
