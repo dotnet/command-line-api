@@ -569,45 +569,50 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_outer_command_with_the_same_name_does_not_capture()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("one", "",
-                                     one => {
-                                         one.AddCommand("two", "",
-                                                        two => two.AddCommand("three"));
-                                         one.AddCommand("three");
-                                     })
-                         .Build();
+            var command = new Command("one")
+                          {
+                              new Command("two")
+                              {
+                                  new Command("three")
+                              },
+                              new Command("three")
+                          };
 
-            ParseResult result = parser.Parse("one two three");
+            ParseResult result = command.Parse("one two three");
 
-            result.Diagram().Should().Be($"[ {RootCommand.ExeName} [ one [ two [ three ] ] ] ]");
+            result.Diagram().Should().Be("[ one [ two [ three ] ] ]");
         }
 
         [Fact]
         public void An_inner_command_with_the_same_name_does_not_capture()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("one", "",
-                                     one => {
-                                         one.AddCommand("two", "",
-                                                        two => two.AddCommand(new Command("three")));
-                                         one.AddCommand(new Command("three"));
-                                     })
-                         .Build();
+         var command = new Command("one")
+                          {
+                              new Command("two")
+                              {
+                                  new Command("three")
+                              },
+                              new Command("three")
+                          };
 
-            ParseResult result = parser.Parse("one three");
+            ParseResult result = command.Parse("one three");
 
-            result.Diagram().Should().Be($"[ {RootCommand.ExeName} [ one [ three ] ] ]");
+            result.Diagram().Should().Be("[ one [ three ] ]");
         }
 
         [Fact]
-        public void When_nested_commands_all_acccept_arguments_then_the_nearest_captures_the_arguments()
+        public void When_nested_commands_all_accept_arguments_then_the_nearest_captures_the_arguments()
         {
-            var command = new CommandLineBuilder()
-                          .AddCommand("outer", "",
-                                      arguments: outerArgs => outerArgs.ZeroOrMore(),
-                                      symbols: outer => outer.AddCommand("inner", "", arguments: innerArgs => innerArgs.ZeroOrMore()))
-                          .Command;
+            var command = new Command(
+                              "outer",
+                              argument: new Argument
+                                        {
+                                            Arity = ArgumentArity.ZeroOrMore
+                                        })
+                          {
+                              new Command("inner",
+                                          argument: new Argument { Arity = ArgumentArity.ZeroOrMore })
+                          };
 
             ParseResult result = command.Parse("outer arg1 inner arg2");
 
@@ -619,27 +624,26 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Nested_commands_with_colliding_names_cannot_both_be_applied()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(
-                             "outer", "",
-                             arguments: outerArgs => outerArgs.ExactlyOne(),
-                             symbols: outer =>
-                                 outer.AddCommand(
-                                          "non-unique", "",
-                                          arguments: args => args.ExactlyOne())
-                                      .AddCommand(
-                                          "inner", "",
-                                          arguments: args => args.ExactlyOne(),
-                                          symbols: inner => inner.AddCommand(
-                                              "non-unique", "",
-                                              arguments: innerArgs => innerArgs.ExactlyOne())))
-                         .Build();
+            var command = new Command(
+                              "outer", "",
+                              argument: new Argument<string>())
+                          {
+                              new Command(
+                                  "non-unique",
+                                  argument: new Argument<string>()),
+                              new Command(
+                                  "inner", "",
+                                  argument: new Argument<string>())
+                              {
+                                  new Command(
+                                      "non-unique",
+                                      argument: new Argument<string>())
+                              }
+                          };
 
-            ParseResult result = parser.Parse("outer arg1 inner arg2 non-unique arg3 ");
+            ParseResult result = command.Parse("outer arg1 inner arg2 non-unique arg3 ");
 
-            _output.WriteLine(result.Diagram());
-
-            result.Diagram().Should().Be($"[ {RootCommand.ExeName} [ outer [ inner [ non-unique <arg3> ] <arg2> ] <arg1> ] ]");
+            result.Diagram().Should().Be($"[ outer [ inner [ non-unique <arg3> ] <arg2> ] <arg1> ]");
         }
 
         [Fact]

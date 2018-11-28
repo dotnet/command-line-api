@@ -48,7 +48,7 @@ namespace System.CommandLine
 
         public ICommandHandler Handler { get; set; }
 
-        internal IHelpBuilder HelpBuilder { get; set; }
+        public IHelpBuilder HelpBuilder { get; set; }
 
         public void WriteHelp(IConsole console)
         {
