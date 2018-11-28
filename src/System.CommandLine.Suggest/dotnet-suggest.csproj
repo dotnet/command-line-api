@@ -9,6 +9,9 @@
     <ToolCommandName>dotnet-suggest</ToolCommandName>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64</PackAsToolShimRuntimeIdentifiers>
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
+      
+    <!--warning about carried complete script. They are not used during nuget package-->
+    <NoWarn>NU5111</NoWarn>
   </PropertyGroup>
   
   <PropertyGroup Condition=" $(Build_BuildId) != '' ">
