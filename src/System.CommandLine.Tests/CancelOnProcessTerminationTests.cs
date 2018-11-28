@@ -30,12 +30,10 @@ namespace System.CommandLine.Tests
                     .AddCommand(new Command("the-command",
                     handler: CommandHandler.Create<CancellationToken>(async ct =>
                     {
-                        const int FailTimeoutMilliseconds = 10000;
-
                         try
                         {
                             Console.WriteLine(ChildProcessWaiting);
-                            await Task.Delay(FailTimeoutMilliseconds, ct);
+                            await Task.Delay(int.MaxValue, ct);
                         }
                         catch (OperationCanceledException)
                         {
@@ -46,7 +44,6 @@ namespace System.CommandLine.Tests
                             return ExpectedExitCode;
                         }
 
-                        Assert.True(false, "The operation was not cancelled.");
                         return 1;
                     })))
                   .CancelOnProcessTermination()
@@ -57,15 +54,27 @@ namespace System.CommandLine.Tests
             {
                 System.Diagnostics.Process process = program.Process;
 
+                // Wait for the child to be in the command handler.
                 string childState = await process.StandardOutput.ReadLineAsync();
                 Assert.Equal(ChildProcessWaiting, childState);
 
+                // Request termination
                 Assert.Equal(0, kill(process.Id, signo));
 
+                // Verify the CancellationToken is tripped
                 childState = await process.StandardOutput.ReadLineAsync();
                 Assert.Equal(ChildProcessCancelling, childState);
 
-                process.WaitForExit();
+                // Verify the process terminates timely
+                bool processExited = process.WaitForExit(10000);
+                if (!processExited)
+                {
+                    process.Kill();
+                    process.WaitForExit();
+                }
+                Assert.True(processExited);
+
+                // Verify the process exit code
                 Assert.Equal(ExpectedExitCode, process.ExitCode);
             }
         }
@@ -82,13 +91,9 @@ namespace System.CommandLine.Tests
                     .AddCommand(new Command("the-command",
                     handler: CommandHandler.Create(() =>
                     {
-                        const int FailTimeoutMilliseconds = 10000;
-
                         Console.WriteLine(ChildProcessSleeping);
-                        Thread.Sleep(FailTimeoutMilliseconds);
 
-                        Assert.True(false, "The operation was not cancelled.");
-                        return 1;
+                        Thread.Sleep(int.MaxValue);
                     })))
                   .CancelOnProcessTermination()
                   .Build()
@@ -98,12 +103,23 @@ namespace System.CommandLine.Tests
             {
                 System.Diagnostics.Process process = program.Process;
 
+                // Wait for the child to be in the command handler.
                 string childState = await process.StandardOutput.ReadLineAsync();
                 Assert.Equal(ChildProcessSleeping, childState);
 
+                // Request termination
                 Assert.Equal(0, kill(process.Id, signo));
 
-                process.WaitForExit();
+                // Verify the process terminates timely
+                bool processExited = process.WaitForExit(10000);
+                if (!processExited)
+                {
+                    process.Kill();
+                    process.WaitForExit();
+                }
+                Assert.True(processExited);
+
+                // Verify the process exit code
                 Assert.NotEqual(0, process.ExitCode);
             }
         }
