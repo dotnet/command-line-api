@@ -64,31 +64,6 @@ namespace System.CommandLine.Tests
 
             return builder;
         }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string alias)
-            where TBuilder : CommandBuilder
-        {
-            builder.AddOption(new Option(alias));
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            string name,
-            string description,
-            IArgumentArity arity = null)
-            where TBuilder : CommandBuilder
-        {
-            return builder.AddOption(new Option(new[] { name },
-                                                description,
-                                                new Argument
-                                                {
-                                                    Arity = arity
-                                                }));
-        }
         
         public static Argument ExactlyOne(
             this ArgumentBuilder builder)

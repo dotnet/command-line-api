@@ -272,10 +272,12 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .EnablePosixBundling(false)
-                         .AddCommand("the-command", "", c =>
-                                         c.AddOption("-x")
-                                          .AddOption("-y")
-                                          .AddOption("-z"))
+                         .AddCommand(new Command("the-command")
+                                     {
+                                         new Option("-x"),
+                                         new Option("-y"),
+                                         new Option("-z")
+                                     })
                          .Build();
 
             var result = parser.Parse("the-command -xyz");
@@ -289,12 +291,13 @@ namespace System.CommandLine.Tests
         public void Option_long_forms_do_not_get_unbundled()
         {
             var parser = new Parser(
-                new Command("the-command", "", new[] {
+                new Command("the-command")
+                {
                     new Option("--xyz", ""),
                     new Option("-x", ""),
                     new Option("-y", ""),
                     new Option("-z", "")
-                }));
+                });
 
             var result = parser.Parse("the-command --xyz");
 
@@ -524,27 +527,25 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Relative_order_of_arguments_and_options_does_not_matter()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("move", "",
-                                     move => move.AddOption("-X", "",
-                                                            ArgumentArity.ExactlyOne),
-                                     moveArgs => moveArgs.OneOrMore())
-                         .Build();
+            var command = new Command("move", argument: new Argument<string[]>())
+                         {
+                             new Option("-X", "", new Argument<string>())
+                         };
 
             // option before args
-            ParseResult result1 = parser.Parse(
+            ParseResult result1 = command.Parse(
                 "move -X the-arg-for-option-x ARG1 ARG2");
 
             // option between two args
-            ParseResult result2 = parser.Parse(
+            ParseResult result2 = command.Parse(
                 "move ARG1 -X the-arg-for-option-x ARG2");
 
             // option after args
-            ParseResult result3 = parser.Parse(
+            ParseResult result3 = command.Parse(
                 "move ARG1 ARG2 -X the-arg-for-option-x");
 
             // arg order reversed
-            ParseResult result4 = parser.Parse(
+            ParseResult result4 = command.Parse(
                 "move ARG2 ARG1 -X the-arg-for-option-x");
 
             // all should be equivalent
@@ -644,31 +645,27 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_child_option_will_not_accept_arg_then_parent_can()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(
-                             "the-command", "",
-                             arguments: commandArgs => commandArgs.ZeroOrMore(),
-                             symbols: cmd => cmd.AddOption("-x", "", ArgumentArity.Zero))
-                         .Build();
+            var command = new Command("the-command", argument: new Argument<string>())
+                         {
+                             new Option("-x", "", Argument.None)
+                         };
 
-            var result = parser.Parse("the-command -x the-argument");
+            var result = command.Parse("the-command -x the-argument");
 
-            var command = result.CommandResult;
-            command["x"].Arguments.Should().BeEmpty();
-            command.Arguments.Should().BeEquivalentTo("the-argument");
+            result.CommandResult["x"].Arguments.Should().BeEmpty();
+            result.CommandResult.Arguments.Should().BeEquivalentTo("the-argument");
         }
 
         [Fact]
         public void When_parent_option_will_not_accept_arg_then_child_can()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(
-                             "the-command", "",
-                             arguments: commandArgs => commandArgs.None(),
-                             symbols: cmd => cmd.AddOption("-x", "", ArgumentArity.ExactlyOne))
-                         .Build();
+            var command = new Command("the-command",
+                                      argument: Argument.None)
+                          {
+                              new Option("-x", "", new Argument<string>())
+                          };
 
-            var result = parser.Parse("the-command -x the-argument");
+            var result = command.Parse("the-command -x the-argument");
 
             result.CommandResult["x"].Arguments.Should().BeEquivalentTo("the-argument");
             result.CommandResult.Arguments.Should().BeEmpty();
@@ -677,18 +674,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_inner_command()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(
-                             "outer", "",
-                             outer => {
-                                 outer.AddCommand(
-                                     "inner", "",
-                                     inner => inner.AddOption(new Option("-x")));
-                                 outer.AddOption(new Option("-x"));
-                             })
-                         .Build();
+            var outer = new Command("outer")
+                        {
+                            new Command("inner")
+                            {
+                                new Option("-x")
+                            },
+                            new Option("-x")
+                        };
 
-            ParseResult result = parser.Parse("outer inner -x");
+            ParseResult result = outer.Parse("outer inner -x");
 
             result.CommandResult
                   .Parent
@@ -726,14 +721,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Arguments_only_apply_to_the_nearest_command()
         {
-            var command = new CommandLineBuilder()
-                          .AddCommand("outer", "",
-                                      outer => outer.AddCommand("inner", "",
-                                                                arguments: innerArgs => innerArgs.ExactlyOne()),
-                                      outerArgs => outerArgs.ExactlyOne())
-                          .Command;
+            var outer = new Command("outer", argument: new Argument<string>())
+            {
+                new Command("inner", argument: new Argument<string>())
+            };
 
-            ParseResult result = command.Parse("outer inner arg1 arg2");
+            ParseResult result = outer.Parse("outer inner arg1 arg2");
 
             result.CommandResult
                   .Parent
@@ -775,21 +768,19 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_root_command_can_be_omitted_from_the_parsed_args()
         {
-            var command = new Command("outer", "",
-                                      new[]
+            var command = new Command("outer")
+                          {
+                              new Command("inner")
+                              {
+                                  new Option(
+                                      "-x",
+                                      "",
+                                      new Argument
                                       {
-                                          new Command("inner", "",
-                                                      new[]
-                                                      {
-                                                          new Option(
-                                                              "-x",
-                                                              "",
-                                                              new Argument
-                                                              {
-                                                                  Arity = ArgumentArity.ExactlyOne
-                                                              })
-                                                      })
-                                      });
+                                          Arity = ArgumentArity.ExactlyOne
+                                      })
+                              }
+                          };
 
             var result1 = command.Parse("inner -x hello");
             var result2 = command.Parse("outer inner -x hello");
@@ -800,21 +791,19 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_root_command_can_match_a_full_path_to_an_executable()
         {
-            var command = new Command("outer", "",
-                                      new[]
+            var command = new Command("outer")
+                          {
+                              new Command("inner")
+                              {
+                                  new Option(
+                                      "-x",
+                                      "",
+                                      new Argument
                                       {
-                                          new Command("inner", "",
-                                                      new[]
-                                                      {
-                                                          new Option(
-                                                              "-x",
-                                                              "",
-                                                              new Argument
-                                                              {
-                                                                  Arity = ArgumentArity.ExactlyOne
-                                                              })
-                                                      })
-                                      });
+                                          Arity = ArgumentArity.ExactlyOne
+                                      })
+                              }
+                          };
 
             ParseResult result1 = command.Parse("inner -x hello");
 

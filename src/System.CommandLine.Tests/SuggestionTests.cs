@@ -148,9 +148,9 @@ namespace System.CommandLine.Tests
         public void When_one_option_has_been_partially_specified_then_nonmatching_siblings_will_not_be_suggested()
         {
             var parser = new CommandLineBuilder()
-                         .AddOption("--apple")
-                         .AddOption("--banana")
-                         .AddOption("--cherry")
+                         .AddOption(new Option("--apple"))
+                         .AddOption(new Option("--banana"))
+                         .AddOption(new Option("--cherry"))
                          .Build();
 
             var result = parser.Parse("a");
@@ -442,7 +442,6 @@ namespace System.CommandLine.Tests
                           {
                               Arity = ArgumentArity.ExactlyOne
                           }.FromAmong("one-a", "one-b", "one-c"));
-
             var two = new Command(
                 "two",
                 argument: new Argument
