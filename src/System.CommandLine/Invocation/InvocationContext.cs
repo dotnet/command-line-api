@@ -9,8 +9,6 @@ namespace System.CommandLine.Invocation
     {
         private readonly IDisposable _onDispose;
         private CancellationTokenSource _cts;
-        private bool _isCancellationSupported;
-        private readonly object _gate = new object();
 
         public InvocationContext(
             ParseResult parseResult,
@@ -41,42 +39,21 @@ namespace System.CommandLine.Invocation
 
         public IInvocationResult InvocationResult { get; set; }
 
+        internal event Action<CancellationTokenSource> CancellationHandlingAdded;
+
         /// <summary>
         /// Indicates the invocation can be cancelled.
         /// </summary>
         /// <returns>Token used by the caller to implement cancellation handling.</returns>
-        public CancellationToken AddCancellationHandling()
+        internal CancellationToken AddCancellationHandling()
         {
-            lock (_gate)
+            if (_cts == null)
             {
-                _isCancellationSupported = true;
-                if (_cts == null)
-                {
-                    _cts = new CancellationTokenSource();
-                }
-                return _cts.Token;
+                _cts = new CancellationTokenSource();
             }
+            CancellationHandlingAdded?.Invoke(_cts);
+            return _cts.Token;
         }
-
-        /// <summary>
-        /// Cancels the invocation.
-        /// </summary>
-        /// <param name="isCancelling">returns whether the invocation is being cancelled.</param>
-        public void Cancel(out bool isCancelling)
-        {
-            lock (_gate)
-            {
-                if (_cts == null)
-                {
-                    _cts = new CancellationTokenSource();
-                }
-                _cts.Cancel();
-                isCancelling = _isCancellationSupported;
-            }
-        }
-
-        public bool IsCancellationRequested =>
-            _cts?.Token.IsCancellationRequested == true;
 
         public void Dispose()
         {

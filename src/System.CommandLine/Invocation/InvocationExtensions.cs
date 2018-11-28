@@ -19,47 +19,49 @@ namespace System.CommandLine.Invocation
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                ConsoleCancelEventHandler consoleHandler = (_, args) =>
+                bool cancellationHandlingAdded = false;
+                ManualResetEventSlim blockProcessExit = null;
+                ConsoleCancelEventHandler consoleHandler = null;
+                EventHandler processExitHandler = null;
+
+                context.CancellationHandlingAdded += (CancellationTokenSource cts) =>
                 {
-                    context.Cancel(out bool isCancelling);
-                    if (isCancelling)
+                    cancellationHandlingAdded = true;
+                    blockProcessExit = new ManualResetEventSlim(initialState: false);
+                    consoleHandler = (_, args) =>
                     {
+                        cts.Cancel();
                         // Stop the process from terminating.
                         // Since the context was cancelled, the invocation should
                         // finish and Main will return.
                         args.Cancel = true;
-                    }
-                };
-                var blockProcessExit = new ManualResetEventSlim(initialState: false);
-                EventHandler processExitHandler = (_1, _2) =>
-                {
-                    // The process exits as soon as the event handler returns.
-                    // We provide a return value using Environment.ExitCode
-                    // because Main will not finish executing.
-                    context.Cancel(out bool isCancelling);
-                    if (isCancelling)
+                    };
+                    processExitHandler = (_1, _2) =>
                     {
+                        cts.Cancel();
+                        // The process exits as soon as the event handler returns.
+                        // We provide a return value using Environment.ExitCode
+                        // because Main will not finish executing.
                         // Wait for the invocation to finish.
                         blockProcessExit.Wait();
-
                         Environment.ExitCode = context.ResultCode;
-                    }
-                    else
-                    {
-                        Environment.ExitCode = 1;
-                    }
-                };
-                try
-                {
+                    };
                     Console.CancelKeyPress += consoleHandler;
                     AppDomain.CurrentDomain.ProcessExit += processExitHandler;
+                };
+
+                try
+                {
                     await next(context);
                 }
                 finally
                 {
-                    Console.CancelKeyPress -= consoleHandler;
-                    AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
-                    blockProcessExit.Set();
+                    if (cancellationHandlingAdded)
+                    {
+                        Console.CancelKeyPress -= consoleHandler;
+                        AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
+                        blockProcessExit.Set();
+                    }
                 }
             }, CommandLineBuilder.MiddlewareOrder.ProcessExit);
 

@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests
                         {
                             // For Process.Exit handling the event must remain blocked as long as the
                             // command is executed.
-                            // We are currently blocking that event because CancellationToken.Cancel
+                            // We are currently blocking that event because CancellationTokenSource.Cancel
                             // is called from the event handler.
                             // We'll do an async Yield now. This means the Cancel call will return
                             // and we're no longer actively blocking the event.
@@ -77,51 +77,6 @@ namespace System.CommandLine.Tests
 
                 // Verify the process exit code
                 Assert.Equal(CancelledExitCode, process.ExitCode);
-            }
-        }
-
-        [LinuxOnlyTheory]
-        [InlineData(SIGINT)]  // Console.CancelKeyPress
-        [InlineData(SIGTERM)] // AppDomain.CurrentDomain.ProcessExit
-        public async Task CancelOnProcessTermination_non_cancellable_invocation_doesnt_block_termination_and_returns_non_zero_exit_code(int signo)
-        {
-            const string ChildProcessWaiting = "Waiting for the command to be terminated";
-
-            Func<string[], Task<int>> childProgram = (string[] args) =>
-                new CommandLineBuilder()
-                    .AddCommand(new Command("the-command",
-                    handler: CommandHandler.Create(() =>
-                    {
-                        Console.WriteLine(ChildProcessWaiting);
-
-                        Thread.Sleep(int.MaxValue);
-                    })))
-                  .CancelOnProcessTermination()
-                  .Build()
-                  .InvokeAsync("the-command");
-
-            using (RemoteExecution program = RemoteExecutor.Execute(childProgram, psi: new ProcessStartInfo { RedirectStandardOutput = true }))
-            {
-                System.Diagnostics.Process process = program.Process;
-
-                // Wait for the child to be in the command handler.
-                string childState = await process.StandardOutput.ReadLineAsync();
-                Assert.Equal(ChildProcessWaiting, childState);
-
-                // Request termination
-                Assert.Equal(0, kill(process.Id, signo));
-
-                // Verify the process terminates timely
-                bool processExited = process.WaitForExit(10000);
-                if (!processExited)
-                {
-                    process.Kill();
-                    process.WaitForExit();
-                }
-                Assert.True(processExited);
-
-                // Verify non-zero exit code
-                Assert.NotEqual(0, process.ExitCode);
             }
         }
 
