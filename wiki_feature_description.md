@@ -29,7 +29,7 @@ CommandHandler.Create(async (IConsole console, CancellationToken ct) =>
 });
 ```
 
-To trigger cancellation, the `CancelOnProcessTermination` middleware must be added to the `CommandLineBuilder`.
+To enabel cancellation, the `CancelOnProcessTermination` middleware must be added to the `CommandLineBuilder`.
 
 ```c#
 var builder =  new CommandLineBuilder()
