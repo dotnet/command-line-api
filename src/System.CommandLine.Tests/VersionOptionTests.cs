@@ -35,10 +35,11 @@ namespace System.CommandLine.Tests
         public async Task When_the_version_option_is_specified_then_invocation_is_short_circuited()
         {
             var wasCalled = false;
+            var rootCommand = new RootCommand();
+            rootCommand.Handler = CommandHandler.Create(() => wasCalled = true);
 
-            var parser = new CommandLineBuilder()
+            var parser = new CommandLineBuilder(rootCommand)
                          .AddVersionOption()
-                         .OnExecute(() => wasCalled = true)
                          .Build();
 
             var console = new TestConsole();

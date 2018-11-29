@@ -17,7 +17,7 @@ namespace System.CommandLine.Tests
         public async Task Declaration_of_UseExceptionHandler_can_come_after_other_middleware()
         {
             await new CommandLineBuilder()
-                  .AddCommand("the-command")
+                  .AddCommand(new Command("the-command"))
                   .UseMiddleware(_ => throw new Exception("oops!"))
                   .UseExceptionHandler()
                   .Build()
@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests
         public async Task UseExceptionHandler_catches_middleware_exceptions_and_writes_details_to_standard_error()
         {
             var parser = new CommandLineBuilder()
-                         .AddCommand("the-command")
+                         .AddCommand(new Command("the-command"))
                          .UseMiddleware(_ => throw new Exception("oops!"))
                          .UseExceptionHandler()
                          .Build();
@@ -48,9 +48,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
         {
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create(() => throw new Exception("oops!"));
+
             var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute(() => throw new Exception("oops!")))
+                         .AddCommand(command)
                          .UseExceptionHandler()
                          .Build();
 
@@ -62,9 +64,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_writes_details_to_standard_error()
         {
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create(() => throw new Exception("oops!"));
+
             var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute(() => throw new Exception("oops!")))
+                         .AddCommand(command)
                          .UseExceptionHandler()
                          .Build();
 
@@ -77,7 +81,7 @@ namespace System.CommandLine.Tests
         public async Task Declaration_of_UseExceptionHandler_can_come_before_other_middleware()
         {
             await new CommandLineBuilder()
-                  .AddCommand("the-command")
+                  .AddCommand(new Command("the-command"))
                   .UseExceptionHandler()
                   .UseMiddleware(_ => throw new Exception("oops!"))
                   .Build()

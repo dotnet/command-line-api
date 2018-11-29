@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command");
             var theHelpText = "the help text";
-            command.Help.Description = theHelpText;
+            command.Description = theHelpText;
 
             var console = new TestConsole();
 

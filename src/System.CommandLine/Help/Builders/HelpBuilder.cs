@@ -314,7 +314,7 @@ namespace System.CommandLine
 
             return new HelpItem {
                 Invocation = option,
-                Description = symbol.Help?.Description ??  "",
+                Description = symbol.Description ??  ""
             };
         }
 
@@ -329,7 +329,7 @@ namespace System.CommandLine
                 return;
             }
 
-            var title = $"{command.Help.Name}:";
+            var title = $"{command.Name}:";
             HelpSection.Write(this, title, command.Description);
         }
 

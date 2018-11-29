@@ -15,11 +15,7 @@ namespace System.CommandLine.Tests
             var option = new Option(
                 "-x",
                 "",
-                new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                    .WithDefaultValue(() => "default"));
+                new Argument<string>("default"));
 
             var result = new OptionResult(option, "-x");
 
@@ -29,16 +25,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Default_values_are_reevaluated_and_not_cached_between_parses()
         {
-            var i = 0;
             var option =
                 new Option(
                     "-x",
                     "",
                     new Argument
-                        {
-                            Arity = ArgumentArity.ExactlyOne
-                        }
-                        .WithDefaultValue(() => (++i).ToString()));
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    });
+
+            var i = 0;
+            option.Argument.SetDefaultValue(() => (++i).ToString());
 
             var result1 = option.Parse("");
             var result2 = option.Parse("");
@@ -66,11 +63,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command", "", new[] {
                 new Option(
                     new[] { "-c", "--count" }, "",
-                    new Argument
-                        {
-                            Arity = ArgumentArity.ExactlyOne
-                        }
-                        .WithDefaultValue(() => 5))
+                    new Argument<int>(5))
             });
 
             var result = command.Parse("the-command");

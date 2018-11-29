@@ -1,12 +1,14 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
+using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Command : Symbol, ICommand, ISuggestionSource
+    public class Command : Symbol, ICommand, ISuggestionSource, IEnumerable<Symbol>
     {
         public Command(
             string name,
@@ -40,11 +42,13 @@ namespace System.CommandLine
 
         public void AddOption(Option option) => AddSymbol(option);
 
+        public void Add(Symbol symbol) => AddSymbol(symbol);
+
         public bool TreatUnmatchedTokensAsErrors { get; set; }
 
         public ICommandHandler Handler { get; set; }
 
-        internal IHelpBuilder HelpBuilder { get; set; }
+        public IHelpBuilder HelpBuilder { get; set; }
 
         public void WriteHelp(IConsole console)
         {
@@ -61,5 +65,9 @@ namespace System.CommandLine
 
             helpBuilder.Write(this);
         }
+
+        public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

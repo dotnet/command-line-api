@@ -38,11 +38,15 @@ namespace System.CommandLine.Tests
             var firstWasCalled = false;
             var secondWasCalled = false;
 
+            var first = new Command("first");
+            first.Handler = CommandHandler.Create(() => firstWasCalled = true);
+
+            var second = new Command("second");
+            second.Handler = CommandHandler.Create(() => secondWasCalled = true);
+
             var parser = new CommandLineBuilder()
-                         .AddCommand("first", "",
-                                     cmd => cmd.OnExecute(() => firstWasCalled = true))
-                         .AddCommand("second", "",
-                                     cmd => cmd.OnExecute(() => secondWasCalled = true))
+                         .AddCommand(first)
+                         .AddCommand(second)
                          .Build();
 
             await parser.InvokeAsync("first", _console);
@@ -55,7 +59,7 @@ namespace System.CommandLine.Tests
         public void When_middleware_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
             var parser = new CommandLineBuilder()
-                         .AddCommand("the-command")
+                         .AddCommand(new Command("the-command"))
                          .UseMiddleware(_ => throw new Exception("oops!"))
                          .Build();
 
@@ -69,9 +73,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_command_handler_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create(() => throw new Exception("oops!"));
+
             var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.OnExecute(() => throw new Exception("oops!")))
+                         .AddCommand(command)
                          .Build();
 
             Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
@@ -121,7 +127,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.Handler = CommandHandler.Create((ParseResult result) =>
             {
-                middlewareWasCalled = true;
+                handlerWasCalled = true;
                 result.Errors.Should().BeEmpty();
             });
 

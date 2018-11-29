@@ -15,13 +15,13 @@ namespace System.CommandLine
 
         internal static bool ShouldShowHelp(this ISymbol symbol) =>
             !symbol.IsHidden &&
-            symbol.Help != null ||
-            (symbol.Argument != null &&
+            (!string.IsNullOrWhiteSpace(symbol.Name) ||
+             !string.IsNullOrWhiteSpace(symbol.Description) ||
              symbol.Argument.ShouldShowHelp());
 
-        internal static bool ShouldShowHelp(this IArgument argument) =>
-            argument.Help != null &&
-            argument.Arity.MaximumNumberOfArguments > 0;
+        internal static bool ShouldShowHelp(
+            this IArgument argument) =>
+            argument?.Help != null && argument.Arity.MaximumNumberOfArguments > 0;
 
         internal static string Token(this ISymbol symbol) => symbol.RawAliases.First(alias => alias.RemovePrefix() == symbol.Name);
     }

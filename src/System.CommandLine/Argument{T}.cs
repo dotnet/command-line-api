@@ -5,16 +5,21 @@ namespace System.CommandLine
 {
     public class Argument<T> : Argument
     {
-        public Argument(ConvertArgument convert = null)
+        public Argument()
         {
             Arity = ArgumentArity.DefaultForType(typeof(T));
 
             ArgumentType = typeof(T);
+        }
 
-            if (convert != null)
-            {
-                ConvertArguments = convert;
-            }
+        public Argument(T defaultValue) : this()
+        {
+            SetDefaultValue(defaultValue);
+        }
+
+        public Argument(ConvertArgument convert) : this()
+        {
+            ConvertArguments = convert ?? throw new ArgumentNullException(nameof(convert));
         }
     }
 }

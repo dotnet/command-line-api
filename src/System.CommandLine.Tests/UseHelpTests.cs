@@ -18,10 +18,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseHelp_writes_help_for_the_specified_command()
         {
+            var command = new Command("command");
+            var subcommand = new Command("subcommand");
+            command.AddCommand(subcommand);
+
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command", "",
-                                command => command.AddCommand(new Command("subcommand", "")))
+                    .AddCommand(command)
                     .UseHelp()
                     .Build();
 
@@ -36,15 +39,16 @@ namespace System.CommandLine.Tests
         public async Task UseHelp_interrupts_execution_of_the_specified_command()
         {
             var wasCalled = false;
+            var command = new Command("command");
+            var subcommand = new Command("subcommand");
+            subcommand.Handler = CommandHandler.Create(() => wasCalled = true);
+            command.AddCommand(subcommand);
 
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command", "",
-                                command => command.AddCommand("subcommand")
-                                                  .OnExecute<string>(_ => wasCalled = true))
+                    .AddCommand(command)
                     .UseHelp()
                     .Build();
-
 
             await parser.InvokeAsync("command subcommand --help", _console);
 
@@ -56,11 +60,10 @@ namespace System.CommandLine.Tests
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command")
+                    .AddCommand(new Command("command"))
                     .UseHelp()
                     .UsePrefixes(new[] { "~" })
                     .Build();
-
 
             await parser.InvokeAsync("command ~help", _console);
 
@@ -76,7 +79,7 @@ namespace System.CommandLine.Tests
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command")
+                    .AddCommand(new Command("command"))
                     .UseHelp()
                     .Build();
 
@@ -90,7 +93,7 @@ namespace System.CommandLine.Tests
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command")
+                    .AddCommand(new Command("command"))
                     .UseHelp(new[] { "~cthulhu" })
                     .Build();
 
@@ -102,10 +105,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseHelp_does_not_display_when_option_defined_with_same_alias()
         {
+            var command = new Command("command");
+            command.AddOption(new Option("-h"));
+            
             var parser =
                 new CommandLineBuilder()
-                    .AddCommand("command", "",
-                                cmd => cmd.AddOption("-h"))
+                    .AddCommand(command)
                     .UseHelp()
                     .Build();
 

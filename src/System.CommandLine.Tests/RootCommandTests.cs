@@ -15,5 +15,16 @@ namespace System.CommandLine.Tests
 
             rootCommand.Name.Should().Be(RootCommand.ExeName);
         }
+
+        [Fact]
+        public void Attempting_to_set_root_command_name_throws()
+        {
+            var rootCommand = new RootCommand();
+
+            rootCommand.Invoking(c => c.Name = "something")
+                       .Should()
+                       .Throw<NotSupportedException>()
+                       .WithMessage("The root command's name cannot be changed.");
+        }
     }
 }
