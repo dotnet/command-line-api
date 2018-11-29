@@ -49,7 +49,14 @@ namespace System.CommandLine.Tests
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
         {
             var command = new Command("the-command");
-            command.Handler = CommandHandler.Create(() => throw new Exception("oops!"));
+            command.Handler = CommandHandler.Create(() =>
+                {
+                    throw new Exception("oops!");
+                // Help the compiler pick a CommandHandler.Create overload.
+#pragma warning disable CS0162 // Unreachable code detected
+                return 0;
+#pragma warning restore CS0162
+                });
 
             var parser = new CommandLineBuilder()
                          .AddCommand(command)
@@ -65,7 +72,14 @@ namespace System.CommandLine.Tests
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_writes_details_to_standard_error()
         {
             var command = new Command("the-command");
-            command.Handler = CommandHandler.Create(() => throw new Exception("oops!"));
+            command.Handler = CommandHandler.Create(() =>
+                {
+                    throw new Exception("oops!");
+                // Help the compiler pick a CommandHandler.Create overload.
+#pragma warning disable CS0162 // Unreachable code detected
+                return 0;
+#pragma warning restore CS0162
+                });
 
             var parser = new CommandLineBuilder()
                          .AddCommand(command)
