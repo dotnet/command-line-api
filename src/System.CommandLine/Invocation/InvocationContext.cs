@@ -9,6 +9,7 @@ namespace System.CommandLine.Invocation
     {
         private readonly IDisposable _onDispose;
         private CancellationTokenSource _cts;
+        private Action<CancellationTokenSource> _cancellationHandlingAddedEvent;
 
         public InvocationContext(
             ParseResult parseResult,
@@ -39,7 +40,18 @@ namespace System.CommandLine.Invocation
 
         public IInvocationResult InvocationResult { get; set; }
 
-        internal event Action<CancellationTokenSource> CancellationHandlingAdded;
+        internal event Action<CancellationTokenSource> CancellationHandlingAdded
+        {
+            add
+            {
+                if (_cts != null)
+                {
+                    throw new InvalidOperationException($"Handlers must be added before adding cancellation handling.");
+                }
+                _cancellationHandlingAddedEvent += value;
+            }
+            remove => _cancellationHandlingAddedEvent -= value;
+        }
 
         /// <summary>
         /// Indicates the invocation can be cancelled.
@@ -47,11 +59,12 @@ namespace System.CommandLine.Invocation
         /// <returns>Token used by the caller to implement cancellation handling.</returns>
         internal CancellationToken AddCancellationHandling()
         {
-            if (_cts == null)
+            if (_cts != null)
             {
-                _cts = new CancellationTokenSource();
+                throw new InvalidOperationException("Cancellation handing was already added.");
             }
-            CancellationHandlingAdded?.Invoke(_cts);
+            _cts = new CancellationTokenSource();
+            _cancellationHandlingAddedEvent?.Invoke(_cts);
             return _cts.Token;
         }
 
