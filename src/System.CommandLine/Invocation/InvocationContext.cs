@@ -61,7 +61,7 @@ namespace System.CommandLine.Invocation
         {
             if (_cts != null)
             {
-                throw new InvalidOperationException("Cancellation handing was already added.");
+                throw new InvalidOperationException("Cancellation handling was already added.");
             }
             _cts = new CancellationTokenSource();
             _cancellationHandlingAddedEvent?.Invoke(_cts);
