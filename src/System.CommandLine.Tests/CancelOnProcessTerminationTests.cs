@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -61,10 +62,10 @@ namespace System.CommandLine.Tests
 
                 // Wait for the child to be in the command handler.
                 string childState = await process.StandardOutput.ReadLineAsync();
-                Assert.Equal(ChildProcessWaiting, childState);
+                childState.Should().Be(ChildProcessWaiting);
 
                 // Request termination
-                Assert.Equal(0, kill(process.Id, signo));
+                kill(process.Id, signo).Should().Be(0);
 
                 // Verify the process terminates timely
                 bool processExited = process.WaitForExit(10000);
@@ -73,10 +74,10 @@ namespace System.CommandLine.Tests
                     process.Kill();
                     process.WaitForExit();
                 }
-                Assert.True(processExited);
+                processExited.Should().Be(true);
 
                 // Verify the process exit code
-                Assert.Equal(CancelledExitCode, process.ExitCode);
+                process.ExitCode.Should().Be(CancelledExitCode);
             }
         }
 
