@@ -25,16 +25,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Default_values_are_reevaluated_and_not_cached_between_parses()
         {
-            var i = 0;
             var option =
                 new Option(
                     "-x",
                     "",
                     new Argument
-                        {
-                            Arity = ArgumentArity.ExactlyOne
-                        }
-                        .WithDefaultValue(() => (++i).ToString()));
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    });
+
+            var i = 0;
+            option.Argument.SetDefaultValue(() => (++i).ToString());
 
             var result1 = option.Parse("");
             var result2 = option.Parse("");
