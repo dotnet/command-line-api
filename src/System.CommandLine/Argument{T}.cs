@@ -17,6 +17,11 @@ namespace System.CommandLine
             SetDefaultValue(defaultValue);
         }
 
+        public Argument(Func<T> defaultValue) : this()
+        {
+            SetDefaultValue(defaultValue);
+        }
+
         public Argument(ConvertArgument convert) : this()
         {
             ConvertArguments = convert ?? throw new ArgumentNullException(nameof(convert));

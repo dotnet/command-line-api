@@ -35,7 +35,7 @@ namespace System.CommandLine
             set => throw new NotSupportedException("The root command's name cannot be changed.");
         }
 
-        public static readonly Lazy<string> executableName =
+        private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
         public static string ExeName { get; } = executableName.Value;
