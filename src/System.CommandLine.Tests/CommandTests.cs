@@ -178,5 +178,34 @@ namespace System.CommandLine.Tests
 
             result.CommandResult.Name.Should().Be(expectedCommand);
         }
+
+        [Fact]
+        public void Commands_can_have_aliases()
+        {
+            var command = new Command("this");
+            command.AddAlias("that");
+
+            var result = command.Parse("that");
+
+            result.CommandResult.Command.Should().Be(command);
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Subcommands_can_have_aliases()
+        {
+            var subcommand = new Command("this");
+            subcommand.AddAlias("that");
+
+            var rootCommand = new RootCommand
+                              {
+                                  subcommand
+                              };
+
+            var result = rootCommand.Parse("that");
+
+            result.CommandResult.Command.Should().Be(subcommand);
+            result.Errors.Should().BeEmpty();
+        }
     }
 }
