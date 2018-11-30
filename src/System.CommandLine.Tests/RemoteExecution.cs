@@ -66,9 +66,20 @@ namespace System.CommandLine.Tests
             }
         }
 
-        private sealed class RemoteExecutionException : XunitException
+        private sealed class RemoteExecutionException : Exception
         {
-            internal RemoteExecutionException(string stackTrace) : base("Remote process failed with an unhandled exception.", stackTrace) { }
+            private readonly string _stackTrace;
+
+            internal RemoteExecutionException(string stackTrace)
+                : base("Remote process failed with an unhandled exception.")
+            {
+                _stackTrace = stackTrace;
+            }
+
+            public override string StackTrace
+            {
+                get => _stackTrace ?? base.StackTrace;
+            }
         }
     }
 }
