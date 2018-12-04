@@ -145,7 +145,8 @@ namespace System.CommandLine.Builder
                    .UseSuggestDirective()
                    .RegisterWithDotnetSuggest()
                    .UseParseErrorReporting()
-                   .UseExceptionHandler();
+                   .UseExceptionHandler()
+                   .CancelOnProcessTermination();
         }
 
         public static TBuilder UsePrefixes<TBuilder>(this TBuilder builder, IReadOnlyCollection<string> prefixes)
