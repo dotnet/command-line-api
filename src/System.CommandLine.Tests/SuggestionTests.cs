@@ -168,7 +168,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_can_be_hidden_from_completions_by_setting_IsHidden_to_true()
+        public void An_option_can_be_hidden_from_suggestions_by_setting_IsHidden_to_true()
         {
             var command = new Command(
                 "the-command", "Does things.",
