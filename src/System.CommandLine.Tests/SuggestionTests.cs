@@ -107,9 +107,11 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 new Option("--apple", "kinds of apples",
-                           new Argument<string>("grannysmith")),
-                new Option("--banana", "kinds of bananas"),
-                new Option("--cherry", "kinds of cherries"));
+                           new Argument<string[]>(new[] { "cortland" })),
+                new Option("--banana", "kinds of bananas",
+                           new Argument<string[]>()),
+                new Option("--cherry", "kinds of cherries",
+                           new Argument<string>()));
 
             var result = parser.Parse("");
 
