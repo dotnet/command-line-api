@@ -75,7 +75,7 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [ReleaseBuildOnlyFact]
-        public async Task Test_app_supplies_completions()
+        public async Task Test_app_supplies_suggestions()
         {
             var stdOut = new StringBuilder();
 
@@ -91,7 +91,7 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [ReleaseBuildOnlyFact]
-        public async Task dotnet_suggest_provides_completions_for_app()
+        public async Task dotnet_suggest_provides_suggestions_for_app()
         {
             // run once to trigger a call to dotnet-suggest register
             await Process.ExecuteAsync(
@@ -124,7 +124,7 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [ReleaseBuildOnlyFact]
-        public async Task dotnet_suggest_provides_completions_for_app_with_only_commandname()
+        public async Task dotnet_suggest_provides_suggestions_for_app_with_only_commandname()
         {
             // run once to trigger a call to dotnet-suggest register
             await Process.ExecuteAsync(

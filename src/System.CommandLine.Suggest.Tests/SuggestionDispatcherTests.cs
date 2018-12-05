@@ -22,7 +22,7 @@ namespace System.CommandLine.Suggest.Tests
         private static string CurrentExeFullPath() => Path.GetFullPath(_currentExeName);
 
         [Fact]
-        public async Task InvokeAsync_executes_completion_command_for_executable()
+        public async Task InvokeAsync_executes_suggestion_command_for_executable()
         {
             string[] args = $@"get -p 12 -e ""{CurrentExeFullPath()}"" -- {_currentExeName} add".Tokenize().ToArray();
 

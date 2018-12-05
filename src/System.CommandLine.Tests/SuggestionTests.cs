@@ -107,9 +107,11 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 new Option("--apple", "kinds of apples",
-                           new Argument<string>("grannysmith")),
-                new Option("--banana", "kinds of bananas"),
-                new Option("--cherry", "kinds of cherries"));
+                           new Argument<string[]>(new[] { "cortland" })),
+                new Option("--banana", "kinds of bananas",
+                           new Argument<string[]>()),
+                new Option("--cherry", "kinds of cherries",
+                           new Argument<string>()));
 
             var result = parser.Parse("");
 
@@ -166,7 +168,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_can_be_hidden_from_completions_by_setting_IsHidden_to_true()
+        public void An_option_can_be_hidden_from_suggestions_by_setting_IsHidden_to_true()
         {
             var command = new Command(
                 "the-command", "Does things.",
