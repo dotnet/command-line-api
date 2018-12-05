@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
@@ -75,6 +76,11 @@ namespace System.CommandLine.Invocation
                 else if (parameterInfo.ParameterType == typeof(IConsole))
                 {
                     arguments.Add(context.Console);
+                }
+                else if (parameterInfo.ParameterType == typeof(CancellationToken))
+                {
+                    CancellationToken ct = context.AddCancellationHandling();
+                    arguments.Add(ct);
                 }
                 else
                 {

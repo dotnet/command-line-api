@@ -6,6 +6,7 @@ using System.CommandLine.Invocation;
 using FluentAssertions;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -73,7 +74,14 @@ namespace System.CommandLine.Tests
         public void When_command_handler_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
             var command = new Command("the-command");
-            command.Handler = CommandHandler.Create(() => throw new Exception("oops!"));
+            command.Handler = CommandHandler.Create(() =>
+                {
+                    throw new Exception("oops!");
+                // Help the compiler pick a CommandHandler.Create overload.
+#pragma warning disable CS0162 // Unreachable code detected
+                return 0;
+#pragma warning restore CS0162
+                });
 
             var parser = new CommandLineBuilder()
                          .AddCommand(command)
@@ -82,9 +90,8 @@ namespace System.CommandLine.Tests
             Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
 
             invoke.Should()
-                  .Throw<TargetInvocationException>()
+                  .Throw<Exception>()
                   .Which
-                  .InnerException
                   .Message
                   .Should()
                   .Be("oops!");
