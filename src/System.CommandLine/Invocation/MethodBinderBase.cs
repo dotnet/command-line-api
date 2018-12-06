@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public abstract class MethodBinderBase
+    public abstract class MethodBinderBase : ICommandHandler
     {
         private ParameterInfo[] _parameters;
 
