@@ -73,16 +73,7 @@ namespace System.CommandLine.Builder
                 throw new ArgumentNullException(nameof(method));
             }
 
-            // FIX: (ConfigureFromMethod) use MethodBinder
-
-            foreach (var parameter in method.GetParameters())
-            {
-                var option = parameter.BuildOption();
-
-                builder.Command.AddOption(option);
-            }
-
-            builder.Handler =  new MethodBindingCommandHandler(method, target);
+            builder.Command.ConfigureFromMethod(method, target);
 
             return builder;
         }

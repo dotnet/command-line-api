@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using FluentAssertions;
 using System.Linq;
@@ -26,18 +25,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Boolean_parameters_will_accept_zero_arguments()
         {
-            var builder = new CommandLineBuilder()
-                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this)
-                          .Build();
+            var rootCommand = new RootCommand();
+            rootCommand.ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this);
 
-            var result = builder.Parse($"{RootCommand.ExeName} --value");
+            await rootCommand.InvokeAsync($"{RootCommand.ExeName} --value", _testConsole);
 
-            _output.WriteLine(result.Diagram());
-
-            await builder.InvokeAsync(result, _testConsole);
-
-            _receivedValues.Should()
-                           .BeEquivalentTo(true);
+            _receivedValues.Should().BeEquivalentTo(true);
         }
 
         [Theory]
@@ -49,24 +42,21 @@ namespace System.CommandLine.Tests
         [InlineData("--value=false", false)]
         public async Task Boolean_parameters_will_accept_one_argument(string commandLine, bool expected)
         {
-            var builder = new CommandLineBuilder()
-                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this)
-                          .Build();
+            var rootCommand = new RootCommand();
+            rootCommand.ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this);
 
-            await builder.InvokeAsync(commandLine, _testConsole);
+            await rootCommand.InvokeAsync(commandLine, _testConsole);
 
-            _receivedValues.Should()
-                           .BeEquivalentTo(expected);
+            _receivedValues.Should().BeEquivalentTo(expected);
         }
 
         [Fact]
         public async Task Single_parameter_arguments_generate_aliases_that_accept_a_single_dash_prefix()
         {
-            var builder = new CommandLineBuilder()
-                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_with_single_letter_parameters)), this)
-                          .Build();
+            var command = new Command("the-command");
+            command.ConfigureFromMethod(GetMethodInfo(nameof(Method_with_single_letter_parameters)), this);
 
-            await builder.InvokeAsync("-x 123 -y 456", _testConsole);
+            await command.InvokeAsync("-x 123 -y 456", _testConsole);
 
             _receivedValues.Should()
                            .BeEquivalentSequenceTo(123, 456);
@@ -75,11 +65,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_method_returns_void_then_return_code_is_0()
         {
-            var builder = new CommandLineBuilder()
-                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_returning_void)), this)
-                          .Build();
+            var command = new Command("the-command");
+            command.ConfigureFromMethod(GetMethodInfo(nameof(Method_returning_void)), this);
 
-            var result = await builder.InvokeAsync("", _testConsole);
+            var result = await command.InvokeAsync("", _testConsole);
 
             result.Should().Be(0);
         }
@@ -87,11 +76,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_method_returns_int_then_return_code_is_set_to_return_value()
         {
-            var builder = new CommandLineBuilder()
-                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_returning_int)), this)
-                          .Build();
+            var command = new Command("the-command");
+            command.ConfigureFromMethod(GetMethodInfo(nameof(Method_returning_int)), this);
 
-            var result = await builder.InvokeAsync("-i 123", _testConsole);
+            var result = await command.InvokeAsync("-i 123", _testConsole);
 
             result.Should().Be(123);
         }
@@ -99,11 +87,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_method_returns_Task_of_int_then_return_code_is_set_to_return_value()
         {
-            var builder = new CommandLineBuilder()
-                          .ConfigureFromMethod(GetMethodInfo(nameof(Method_returning_Task_of_int)), this)
-                          .Build();
+            var command = new Command("the-command");
+            command.ConfigureFromMethod(GetMethodInfo(nameof(Method_returning_Task_of_int)), this);
 
-            var result = await builder.InvokeAsync("-i 123", _testConsole);
+            var result = await command.InvokeAsync("-i 123", _testConsole);
 
             result.Should().Be(123);
         }

@@ -204,22 +204,13 @@ namespace System.CommandLine.Invocation
             string[] args,
             IConsole console = null)
         {
-            CommandLineBuilder builder;
+            var parser = new CommandLineBuilder(command)
+                         .UseDefaults()
+                         .Build();
 
-            if (command is RootCommand rootCommand)
-            {
-                builder = new CommandLineBuilder(rootCommand);
-            }
-            else
-            {
-                builder = new CommandLineBuilder();
-                builder.AddCommand(command);
-            }
+            var parseResult = parser.Parse(args);
 
-            var parser = builder.UseDefaults()
-                                .Build();
-
-            return await new InvocationPipeline(parser, parser.Parse(args))
+            return await new InvocationPipeline(parser, parseResult)
                        .InvokeAsync(console);
         }
 
