@@ -92,7 +92,9 @@ namespace System.CommandLine
                 }
             }
 
-            if (CommandResult.Command?.Children.OfType<ICommand>().Any() == true)
+            if (CommandResult.Command is Command cmd &&
+                cmd.Handler == null && 
+                cmd.Children.OfType<ICommand>().Any())
             {
                 _errors.Insert(0,
                                new ParseError(
