@@ -23,7 +23,7 @@
       https://api.nuget.org/v3/index.json
     </RestoreSources>
 
-    <RepositoryUrl>https://github.com/dotnet/System.CommandLine</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dotnet/command-line-api</RepositoryUrl>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
 
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
