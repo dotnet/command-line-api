@@ -7,10 +7,10 @@ namespace System.CommandLine.Rendering
 {
     internal class NonAnsiRenderingSpanVisitor : ContentRenderingSpanVisitor
     {
-        public IConsole Console { get; }
+        private ITerminal Console { get; }
 
         public NonAnsiRenderingSpanVisitor(
-            IConsole console,
+            ITerminal console,
             Region region) : base(console?.Out, region)
         {
             Console = console ?? throw new ArgumentNullException(nameof(console));

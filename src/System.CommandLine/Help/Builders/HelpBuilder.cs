@@ -474,7 +474,14 @@ namespace System.CommandLine
         {
             try
             {
-                return _console.GetRegion().Width;
+                if (_console is ITerminal terminal)
+                {
+                    return terminal.GetRegion().Width;
+                }
+                else
+                {
+                    return int.MaxValue;
+                }
             }
             catch (Exception exception) when (exception is ArgumentOutOfRangeException || exception is IOException)
             {

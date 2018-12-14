@@ -18,10 +18,8 @@ namespace System.CommandLine.Rendering.Views
         {
             Renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
             _context = synchronizationContext ?? SynchronizationContext.Current ?? new SynchronizationContext();
-            Console = renderer.Console;
         }
 
-        private IConsole Console { get; }
         private ConsoleRenderer Renderer { get; }
 
         public View Child
@@ -72,7 +70,7 @@ namespace System.CommandLine.Rendering.Views
 
         public void Render()
         {
-            var region = Console.GetRegion();
+            var region = Renderer.Terminal.GetRegion();
 
             Render(new Region(0, 0, region.Width, region.Height));
         }

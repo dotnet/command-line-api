@@ -26,7 +26,7 @@ namespace System.CommandLine.Invocation
             else
             {
                 Console = SystemConsole.Create();
-                _onDispose = Console;
+                _onDispose = Console as IDisposable;
             }
         }
 
@@ -35,6 +35,8 @@ namespace System.CommandLine.Invocation
         public ParseResult ParseResult { get; set; }
 
         public IConsole Console { get; }
+
+        internal ITerminal Terminal => Console as ITerminal;
 
         public int ResultCode { get; set; }
 

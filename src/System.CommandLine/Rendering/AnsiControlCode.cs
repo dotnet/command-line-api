@@ -8,8 +8,6 @@ namespace System.CommandLine.Rendering
     [DebuggerStepThrough]
     public class AnsiControlCode
     {
-        public string EscapeSequence { get; }
-
         public AnsiControlCode(string escapeSequence)
         {
             if (string.IsNullOrWhiteSpace(escapeSequence))
@@ -19,6 +17,8 @@ namespace System.CommandLine.Rendering
 
             EscapeSequence = escapeSequence;
         }
+
+        public string EscapeSequence { get; }
 
         public override string ToString() => "";
 

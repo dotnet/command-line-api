@@ -15,11 +15,15 @@ namespace System.CommandLine.Rendering
             bool resetAfterRender = false)
         {
             Console = console ?? SystemConsole.Create();
+            Terminal = console as ITerminal;
             _resetAfterRender = resetAfterRender;
+
             Mode = mode == OutputMode.Auto
-                       ? Console.DetectOutputMode()
+                       ? Terminal.DetectOutputMode()
                        : mode;
         }
+
+        internal ITerminal Terminal { get; set; }
 
         public IConsole Console { get; }
 
@@ -67,7 +71,7 @@ namespace System.CommandLine.Rendering
             {
                 case OutputMode.NonAnsi:
                     visitor = new NonAnsiRenderingSpanVisitor(
-                        Console,
+                        Terminal,
                         region);
                     break;
 

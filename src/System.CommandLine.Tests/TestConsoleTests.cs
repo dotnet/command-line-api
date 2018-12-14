@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests
 {
     public class TestConsoleTests : ConsoleTests
     {
-        protected override IConsole GetConsole() => new TestConsole();
+        protected override ITerminal GetConsole() => new TestConsole();
 
         [Fact]
         public void When_CursorLeft_is_set_then_a_cursor_position_is_recorded()
