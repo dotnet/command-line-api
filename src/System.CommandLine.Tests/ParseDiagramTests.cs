@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
             rootCommand.AddOption(new Option(new[] { "-w", "--width" }, "",
                                              new Argument<int>(defaultValue: 15)));
             rootCommand.AddOption(new Option(new[] { "-c", "--color" }, "",
-                                             new Argument<ConsoleColor>(ConsoleColor.Cyan)));
+                                             new Argument<ConsoleColor>(() => ConsoleColor.Cyan)));
 
             var result = rootCommand.Parse("-w 9000");
 

@@ -19,7 +19,7 @@ namespace System.CommandLine
 
         public Argument(Func<T> defaultValue) : this()
         {
-            SetDefaultValue(defaultValue);
+            SetDefaultValue(() => defaultValue());
         }
 
         public Argument(ConvertArgument convert) : this()
