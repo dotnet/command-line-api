@@ -36,11 +36,10 @@
   </ItemGroup>
 
   <Target Name="DotnetSuggestIntegrationTestAssets" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
-
       <PropertyGroup>
-        <TestAssetsPath>
-          $([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssets
-        </TestAssetsPath>
+        <TestAssetsPath>$([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssets</TestAssetsPath>
+        <TestAssetsMsBuildProjectExtensionsPathDotnetSuggest>$([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssetsMsBuildProjectExtensionsPath/dotnet-suggest/</TestAssetsMsBuildProjectExtensionsPathDotnetSuggest>
+        <TestAssetsMsBuildProjectExtensionsPathEndToEndTestApp>$([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssetsMsBuildProjectExtensionsPath/EndToEndTestApp/</TestAssetsMsBuildProjectExtensionsPathEndToEndTestApp>
       </PropertyGroup>
 
       <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
@@ -56,12 +55,6 @@
       </PropertyGroup>
 
       <MSBuild BuildInParallel="False" 
-               Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj" 
-               Targets="Restore" 
-               Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);ForceRestoreToEvaluateSeparately=1;Configuration=Release">
-      </MSBuild>
-
-      <MSBuild BuildInParallel="False" 
                Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj"
                Targets="Build;Publish"
                Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath);Configuration=Release">
@@ -69,7 +62,7 @@
       
       <MSBuild BuildInParallel="False" 
                Projects="EndToEndTestApp/EndToEndTestApp.csproj" 
-               Targets="Restore" 
+               Targets="Restore"
                Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);ForceRestoreToEvaluateSeparately=1;Configuration=Release">
       </MSBuild>
 
