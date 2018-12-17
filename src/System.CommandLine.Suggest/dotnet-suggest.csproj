@@ -1,5 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <Rid>win-x64</Rid>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
+    <Rid>osx-x64</Rid>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">
+    <Rid>linux-x64</Rid>
+  </PropertyGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -9,7 +19,9 @@
     <ToolCommandName>dotnet-suggest</ToolCommandName>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64</PackAsToolShimRuntimeIdentifiers>
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
-      
+    <RuntimeIdentifier>$(Rid)</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+
     <!--warning about carried complete script. They are not used during nuget package-->
     <NoWarn>NU5111</NoWarn>
   </PropertyGroup>
@@ -17,7 +29,7 @@
   <PropertyGroup Condition=" $(Build_BuildId) != '' ">
     <Version>1.0.2.$(Build_BuildId)</Version>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
