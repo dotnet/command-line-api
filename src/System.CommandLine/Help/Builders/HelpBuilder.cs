@@ -286,11 +286,9 @@ namespace System.CommandLine
         /// <returns>A new <see cref="HelpItem"/></returns>
         protected virtual HelpItem ArgumentFormatter(ISymbol commandDef)
         {
-            var argHelp = commandDef?.Argument?.Help;
-
             return new HelpItem {
-                Invocation = $"<{argHelp?.Name}>",
-                Description = argHelp?.Description ?? "",
+                Invocation = $"<{commandDef?.Argument?.Name}>",
+                Description = commandDef?.Argument?.Description ?? "",
             };
         }
 
@@ -307,9 +305,9 @@ namespace System.CommandLine
             var option = string.Join(", ", rawAliases);
 
             if (symbol?.ShouldShowHelp() == true && 
-                !string.IsNullOrWhiteSpace(symbol.Argument?.Help?.Name))
+                !string.IsNullOrWhiteSpace(symbol.Argument?.Name))
             {
-                option = $"{option} <{symbol.Argument?.Help?.Name}>";
+                option = $"{option} <{symbol.Argument?.Name}>";
             }
 
             return new HelpItem {
@@ -352,7 +350,7 @@ namespace System.CommandLine
                 var subcommandArgHelp = GetArgumentHelp(subcommand);
                 if (subcommand != command && subcommandArgHelp != null)
                 {
-                    usage.Add($"<{subcommandArgHelp.Name}>");
+                    usage.Add($"<{subcommandArgHelp?.Name}>");
                 }
             }
 
@@ -368,7 +366,7 @@ namespace System.CommandLine
             var commandArgHelp = GetArgumentHelp(command);
             if (commandArgHelp != null)
             {
-                usage.Add($"<{commandArgHelp.Name}>");
+                usage.Add($"<{commandArgHelp?.Name}>");
             }
 
             var hasCommandHelp = command.Children
@@ -451,15 +449,15 @@ namespace System.CommandLine
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private static IHelpDetail GetArgumentHelp(ISymbol symbolDef)
+        private static (string Name, string Description)? GetArgumentHelp(ISymbol symbol)
         {
-            if (symbolDef?.Argument?.ShouldShowHelp() != true)
+            if (symbol?.Argument?.ShouldShowHelp() != true ||
+                string.IsNullOrWhiteSpace(symbol?.Argument?.Name))
             {
                 return null;
             }
 
-            var argHelp = symbolDef.Argument.Help;
-            return string.IsNullOrEmpty(argHelp.Name) ? null : argHelp;
+            return (symbol.Argument.Name, symbol.Argument.Description);
         }
 
         /// <summary>

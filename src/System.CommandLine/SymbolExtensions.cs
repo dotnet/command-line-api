@@ -21,7 +21,9 @@ namespace System.CommandLine
 
         internal static bool ShouldShowHelp(
             this IArgument argument) =>
-            argument?.Help != null && argument.Arity.MaximumNumberOfArguments > 0;
+            argument != null &&
+            (!string.IsNullOrWhiteSpace(argument.Name) || string.IsNullOrWhiteSpace(argument.Description)) && 
+            argument.Arity.MaximumNumberOfArguments > 0;
 
         internal static string Token(this ISymbol symbol) => symbol.RawAliases.First(alias => alias.RemovePrefix() == symbol.Name);
     }
