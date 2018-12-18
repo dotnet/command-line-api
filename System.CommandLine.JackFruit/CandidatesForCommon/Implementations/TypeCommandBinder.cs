@@ -69,9 +69,8 @@ namespace System.CommandLine.JackFruit
             return Extensions.GetHelp(attribute, HelpProvider, currentType);
         }
 
-        public override IEnumerable<Option> GetOptions(Type currentType) => currentType.GetProperties()
-         .Where(p => argumentProvider.IsArgument(currentType, p))
-         .Select(x => optionProvider.GetOption(currentType, x));
+        public override IEnumerable<PropertyInfo> GetOptionSources(Type currentType)
+            => currentType.GetProperties();
 
         public override IEnumerable<Command> GetSubCommands(Type currentType)
         {

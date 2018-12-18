@@ -10,7 +10,7 @@ namespace System.CommandLine.JackFruit
     // refactoring into general CommandBinder and creation of MethodBinder
     // JsonBinder and SuperBinder (T non-leaf, method leaf, and yes will 
     // give it another name. 
-    public abstract class CommandBinder<TCommandSource, TOptionSource> : ICommandBinder<TCommandSource>
+    public abstract class CommandBinder<TCommandSource, TOptionSource> : ICommandBinder<TCommandSource, TOptionSource>
     {
         // KAD: Use OptionProvider, helpProvider, Add a name provider,
         private protected readonly IHelpProvider<TCommandSource, TOptionSource> helpProvider;
@@ -51,10 +51,13 @@ namespace System.CommandLine.JackFruit
 
         public abstract string GetName(TCommandSource current);
 
-        public abstract IEnumerable<Option> GetOptions(TCommandSource current);
+        public IEnumerable<Option> GetOptions(TCommandSource current) 
+            => GetOptionSources(current)
+                .Where(p => argumentProvider.IsArgument(current, p))
+                .Select(x => optionProvider.GetOption(current, x));
 
         public abstract IEnumerable<Command> GetSubCommands(TCommandSource current);
 
-
+        public abstract IEnumerable<TOptionSource> GetOptionSources(TCommandSource source);
     }
 }
