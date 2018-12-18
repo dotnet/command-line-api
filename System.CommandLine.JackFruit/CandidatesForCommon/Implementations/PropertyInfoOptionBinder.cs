@@ -20,7 +20,7 @@ namespace System.CommandLine.JackFruit
         public Option GetOption(Type parentType, PropertyInfo propertyInfo)
         {
             var option = TypeBinder.BuildOption(propertyInfo);
-            option.Help.Description = GetHelp(parentType, propertyInfo);
+            option.Description = GetHelp(parentType, propertyInfo);
             var aliasAttribute = propertyInfo.GetCustomAttribute<AliasAttribute>();
             if (aliasAttribute != null)
             {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace JackFruit
+namespace System.CommandLine.JackFruit
 {
     public enum StandardVerbosity
     {

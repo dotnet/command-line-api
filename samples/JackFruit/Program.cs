@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using System.CommandLine.Invocation;
 using System.CommandLine;
 
-namespace JackFruit
+namespace System.CommandLine.JackFruit
 {
     class Program
     {
         static async Task<int> Main(string[] args)
         {
-            var commandLine = new string[] { "tool", "-h" };
+            //var commandLine = new string[] { "tool", "-h" };
             var retValue = await HierarchicalTypeCommandBinder<DotnetJackFruit>.RunAsync(
                         args, new DescriptionProvider(), new InvocationProvider());
 

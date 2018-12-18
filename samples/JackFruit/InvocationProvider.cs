@@ -2,7 +2,7 @@
 using System.CommandLine.JackFruit;
 using System.Threading.Tasks;
 
-namespace JackFruit
+namespace System.CommandLine.JackFruit
 {
     internal class InvocationProvider : IInvocationProvider
     {

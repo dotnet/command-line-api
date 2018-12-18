@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace System.CommandLine.JackFruit
+namespace System.CommandLine.JackFruit.Tests
 {
     internal class Remove : DotnetJackFruit
     {

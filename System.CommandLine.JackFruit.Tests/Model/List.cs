@@ -1,7 +1,7 @@
 ﻿using System.CommandLine.JackFruit;
 using System.IO;
 
-namespace System.CommandLine.JackFruit
+namespace System.CommandLine.JackFruit.Tests
 {
     internal class List : DotnetJackFruit
     {

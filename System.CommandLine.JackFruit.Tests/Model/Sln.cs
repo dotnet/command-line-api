@@ -2,7 +2,7 @@
 using System.CommandLine.JackFruit;
 using System.CommandLine;
 
-namespace System.CommandLine.JackFruit
+namespace System.CommandLine.JackFruit.Tests
 {
     [Help("Modify Visual Studio solution files.")]
     internal class Sln : DotnetJackFruit

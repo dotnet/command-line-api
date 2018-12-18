@@ -49,7 +49,17 @@ namespace System.CommandLine.JackFruit
 
             var parser = builder.Build();
             return await parser.InvokeAsync(args);
+        }
 
+        public static RootCommand GetCommandLine(
+                   IDescriptionProvider<Type> descriptionProvider = null,
+                   IInvocationProvider invocationProvider = null,
+                   IRuleProvider ruleProvider = null)
+        {
+            var commandProvider = new HierarchicalTypeCommandBinder<TRootType>(
+                        descriptionProvider, invocationProvider: invocationProvider);
+            // TODO: Consider Get vs Create naming
+            return commandProvider.GetRootCommand(typeof(TRootType));
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.CommandLine.JackFruit;
 
-namespace JackFruit
+namespace System.CommandLine.JackFruit
 {
     internal class DescriptionProvider : IDescriptionProvider<Type>
     {

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace System.CommandLine.JackFruit
+namespace System.CommandLine.JackFruit.Tests
 {
     internal class Tool : DotnetJackFruit
     { }
@@ -21,7 +21,7 @@ namespace System.CommandLine.JackFruit
         public string Framework { get; set; }
         [Alias("-v")]
         public StandardVerbosity Verbosity { get; set; }
-        public async Task<int> InvokeAsync() 
+        public async Task<int> InvokeAsync()
             => await ToolActions.InstallAsync(PackageId, Global, ToolPath, Version,
                   ConfigFile, AddSource, Framework, Verbosity);
     }
@@ -41,7 +41,7 @@ namespace System.CommandLine.JackFruit
         [Ignore]
         public bool SkipThisOne { get; set; }
 
-        public async Task<int> InvokeAsync() 
+        public async Task<int> InvokeAsync()
             => await ToolActions.UpdateAsync(PackageId, Global, ToolPath,
                   ConfigFile, AddSource, Framework, Verbosity);
     }
@@ -51,7 +51,7 @@ namespace System.CommandLine.JackFruit
         [Alias("-g")]
         public bool Global { get; set; }
         public DirectoryInfo ToolPath { get; set; }
-        public async Task<int> InvokeAsync() 
+        public async Task<int> InvokeAsync()
             => await ToolActions.ListAsync(Global, ToolPath);
     }
 
@@ -64,7 +64,19 @@ namespace System.CommandLine.JackFruit
         public bool Global { get; set; }
         public DirectoryInfo ToolPath { get; set; }
 
+        //public async Task<int> InvokeAsync()
+            //=> await ToolActions.UninstallAsync(PackageId, Global, ToolPath);
+    }
+
+    internal class ToolUninstallTest : ToolUninstall
+    {
         public async Task<int> InvokeAsync()
-            => await ToolActions.UninstallAsync(PackageId, Global, ToolPath);
+            => await ToolActions.ListAsync(Global, ToolPath);
+    }
+
+    internal class ToolUninstallTest2 : ToolUninstall
+    {
+        public async Task<int> InvokeAsync()
+            => await ToolActions.ListAsync(Global, ToolPath);
     }
 }

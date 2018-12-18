@@ -85,7 +85,7 @@ namespace System.CommandLine.Invocation
         {
             var commandResult = context.ParseResult.CommandResult;
             var candidateArgument = commandResult.Command.Argument;
-            if (candidateArgument != null && candidateArgument.Help.Name == name)
+            if (candidateArgument != null && candidateArgument.Name == name)
             {
                 value = commandResult.GetValueOrDefault();
                 return true;

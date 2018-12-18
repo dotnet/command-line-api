@@ -16,6 +16,7 @@ namespace System.CommandLine.JackFruit
         private readonly IOptionBinder<Type, PropertyInfo> optionProvider;
         private readonly IArgumentBinder<Type, PropertyInfo> argumentProvider;
         private readonly IInvocationProvider invocationProvider;
+        private Stack<string> parentNames; 
 
         public TypeCommandBinder(
                     IDescriptionProvider<Type> descriptionProvider = null,
@@ -37,6 +38,7 @@ namespace System.CommandLine.JackFruit
                                 ?? this.helpProvider;
             this.argumentProvider.HelpProvider = this.argumentProvider.HelpProvider
                                 ?? this.helpProvider;
+            parentNames = new Stack<string>();
         }
 
         public IHelpProvider<Type> HelpProvider { get; set; }
@@ -46,8 +48,14 @@ namespace System.CommandLine.JackFruit
             return argumentProvider.GetArgument(source);
         }
 
-        public Command GetCommand(Type currentType) 
-            => FillCommand(currentType, new Command(name: GetName(currentType)));
+        public Command GetCommand(Type currentType)
+        {
+            var name = GetName(currentType);
+            parentNames. Push(name);
+            var command = FillCommand(currentType, new Command(name: name.ToKebabCase()));
+            parentNames.Pop();
+            return command;
+        }
 
         public RootCommand GetRootCommand(Type currentType) 
             => FillCommand(currentType, new RootCommand());
@@ -72,7 +80,18 @@ namespace System.CommandLine.JackFruit
         }
 
         public string GetName(Type currentType)
-            => currentType.Name;
+        {
+            var candidate = currentType.Name;
+            var reverseNames = parentNames.Reverse();
+            foreach(var name in reverseNames)
+            {
+                if (candidate.StartsWith(name))
+                {
+                    candidate = candidate.Substring(name.Length);
+                }
+            }
+            return candidate;
+        }
 
         public IEnumerable<Option> GetOptions(Type currentType) => currentType.GetProperties()
                 .Where(p => argumentProvider.IsArgument(currentType, p))

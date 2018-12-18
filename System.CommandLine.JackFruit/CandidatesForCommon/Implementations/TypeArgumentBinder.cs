@@ -96,10 +96,10 @@ namespace System.CommandLine.JackFruit
             {
                 ArgumentType = property.PropertyType
             };
-            argument.Help.Name = property.Name.EndsWith("Arg")
+            argument.Name = property.Name.EndsWith("Arg")
                         ? property.Name.Substring(0, property.Name.Length - 3)
                         : property.Name;
-            argument.Help.Description = HelpProvider.GetHelp(currentType, property.Name);
+            argument.Description = HelpProvider.GetHelp(currentType, property.Name);
             return argument;
         }
 
@@ -109,8 +109,8 @@ namespace System.CommandLine.JackFruit
             {
                 ArgumentType = parameter.ParameterType
             };
-            argument.Help.Name = parameter.Name;
-            argument.Help.Description = HelpProvider.GetHelp(currentType, parameter.Name);
+            argument.Name = parameter.Name;
+            argument.Description = HelpProvider.GetHelp(currentType, parameter.Name);
             return argument;
         }
 

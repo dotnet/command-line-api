@@ -2,7 +2,8 @@
 
 JackFruit started out as a way to do hiearchically nested types. 
 
-This iteration also attacks a different question - what is an app model for System.CommandLine and how do you build one? And how many might there be? 
+This iteration also attacks a different question - what is an app model for System.CommandLine and how do you build one? 
+And how many might there be? 
 
 I arrived at this set of questions accidently while refactoring the original JackFruit. 
 
