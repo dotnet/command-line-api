@@ -14,7 +14,6 @@ namespace System.CommandLine.JackFruit
         IEnumerable<TCommandSource> GetSubCommandSources(TCommandSource source);
 
         Argument GetArgument(TCommandSource source);
-        string GetName(TCommandSource source);
         string GetHelp(TCommandSource source);
     }
 }

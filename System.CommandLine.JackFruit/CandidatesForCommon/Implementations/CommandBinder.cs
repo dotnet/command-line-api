@@ -49,9 +49,7 @@ namespace System.CommandLine.JackFruit
 
         public abstract string GetHelp(TCommandSource current);
 
-        public abstract string GetName(TCommandSource current);
-
-        public IEnumerable<Option> GetOptions(TCommandSource current) 
+        public IEnumerable<Option> GetOptions(TCommandSource current)
             => GetOptionSources(current)
                 .Where(p => argumentProvider.IsArgument(current, p))
                 .Select(x => optionProvider.GetOption(current, x));
@@ -65,7 +63,20 @@ namespace System.CommandLine.JackFruit
                     .Select(t => GetCommand(t));
         }
 
+        protected abstract void SetHandler(Command command, TCommandSource current);
 
+        protected TCommand FillCommand<TCommand>(TCommandSource current, TCommand command)
+                where TCommand : Command
+        {
+            command.Description = GetHelp(current);
+            SetHandler(command, current);
+
+            command.AddOptions(GetOptions(current));
+            command.Argument = GetArgument(current);
+
+            return command
+                .AddCommands(GetSubCommands(current));
+        }
 
         public abstract IEnumerable<TOptionSource> GetOptionSources(TCommandSource source);
 

@@ -37,19 +37,7 @@ namespace System.CommandLine.JackFruit
         public override RootCommand GetRootCommand(Type currentType)
             => FillCommand(currentType, new RootCommand());
 
-        private T FillCommand<T>(Type currentType, T command)
-            where T : Command
-        {
-            command.Description = GetHelp(currentType);
-            SetHandler(command, currentType);
-
-            command.AddOptions(GetOptions(currentType));
-            command.Argument = GetArgument(currentType);
-
-            return command
-                .AddCommands(GetSubCommands(currentType));
-        }
-        public override string GetName(Type currentType)
+        public string GetName(Type currentType)
         {
             var candidate = currentType.Name;
             var reverseNames = parentNames.Reverse();
@@ -72,7 +60,7 @@ namespace System.CommandLine.JackFruit
         public override IEnumerable<PropertyInfo> GetOptionSources(Type currentType)
             => currentType.GetProperties();
 
-        private void SetHandler(Command command, Type currentType)
+        protected override void SetHandler(Command command, Type currentType)
         {
             var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
             var methodInfo = typeof(TypeCommandBinder).GetMethod(nameof(SetHandlerInternal), bindingFlags);
@@ -102,6 +90,7 @@ namespace System.CommandLine.JackFruit
                 command.Handler = new SimpleCommandHandler(invocationWrapper);
             }
         }
+
         private Task<int> InvokeMethodWithResult<TResult>(InvocationContext context, Func<TResult, Task<int>> invocation)
         {
             var result = Activator.CreateInstance<TResult>();
