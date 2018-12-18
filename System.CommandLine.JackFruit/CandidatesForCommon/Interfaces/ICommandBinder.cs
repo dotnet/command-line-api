@@ -11,9 +11,8 @@ namespace System.CommandLine.JackFruit
         IHelpProvider<TCommandSource> HelpProvider { get; set; }
 
         IEnumerable<TOptionSource> GetOptionSources(TCommandSource source);
+        IEnumerable<TCommandSource> GetSubCommandSources(TCommandSource source);
 
-
-        IEnumerable<Command> GetSubCommands(TCommandSource source);
         Argument GetArgument(TCommandSource source);
         string GetName(TCommandSource source);
         string GetHelp(TCommandSource source);

@@ -12,7 +12,7 @@ namespace System.CommandLine.JackFruit
     // give it another name. 
     public abstract class CommandBinder<TCommandSource, TOptionSource> : ICommandBinder<TCommandSource, TOptionSource>
     {
-        // KAD: Use OptionProvider, helpProvider, Add a name provider,
+        // KAD: Use helpProvider, Add a name provider,
         private protected readonly IHelpProvider<TCommandSource, TOptionSource> helpProvider;
         private protected readonly IOptionBinder<TCommandSource, TOptionSource> optionProvider;
         private protected readonly IArgumentBinder<TCommandSource, TOptionSource> argumentProvider;
@@ -56,8 +56,19 @@ namespace System.CommandLine.JackFruit
                 .Where(p => argumentProvider.IsArgument(current, p))
                 .Select(x => optionProvider.GetOption(current, x));
 
-        public abstract IEnumerable<Command> GetSubCommands(TCommandSource current);
+        public IEnumerable<Command> GetSubCommands(TCommandSource current)
+        {
+            var subCommandSources = GetSubCommandSources(current);
+            return subCommandSources == null
+                ? null
+                : subCommandSources
+                    .Select(t => GetCommand(t));
+        }
+
+
 
         public abstract IEnumerable<TOptionSource> GetOptionSources(TCommandSource source);
+
+        public abstract IEnumerable<TCommandSource> GetSubCommandSources(TCommandSource source);
     }
 }

@@ -25,7 +25,7 @@ namespace System.CommandLine.JackFruit
                           .GroupBy(x => x.BaseType);
         }
 
-        protected override IEnumerable<Type> GetSubCommandTypes(Type currentType)
+        public override IEnumerable<Type> GetSubCommandSources(Type currentType)
         {
             return typesByBase
                     .Where(x => x.Key == currentType)

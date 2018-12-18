@@ -72,17 +72,6 @@ namespace System.CommandLine.JackFruit
         public override IEnumerable<PropertyInfo> GetOptionSources(Type currentType)
             => currentType.GetProperties();
 
-        public override IEnumerable<Command> GetSubCommands(Type currentType)
-        {
-            var subCommandTypes = GetSubCommandTypes(currentType);
-            return subCommandTypes == null
-                ? null
-                : subCommandTypes
-                    .Select(t => GetCommand(t));
-        }
-
-        protected abstract IEnumerable<Type> GetSubCommandTypes(Type currentType);
-
         private void SetHandler(Command command, Type currentType)
         {
             var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
