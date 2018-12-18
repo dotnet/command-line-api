@@ -42,39 +42,40 @@ namespace System.CommandLine.Invocation
         }
 
         public static string FindMatchingOptionName(
-            ParseResult parseResult, 
+            ParseResult parseResult,
             string parameterName)
         {
-            var candidates = parseResult
-                             .CommandResult
-                             .Children
-                             .Where(s => s.Aliases.Any(Matching))
-                             .ToArray();
+            var aliases = parseResult
+                          .CommandResult
+                          .Children
+                          .SelectMany(c => c.Aliases)
+                          .Where(parameterName.IsMatch)
+                          .ToArray();
 
-            if (candidates.Length == 1)
+            if (aliases.Length == 1)
             {
-                return candidates[0].Aliases.Single(Matching);
+                return aliases[0];
             }
 
-            if (candidates.Length > 1)
+            if (aliases.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", candidates.ToString())}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", aliases.ToString())}");
             }
 
             return parameterName;
-
-            bool Matching(string alias)
-            {
-                return string.Equals(alias.RemovePrefix().Replace("-", ""),
-                                     parameterName,
-                                     StringComparison.OrdinalIgnoreCase);
-            }
         }
+
+        internal static bool IsMatch(this string parameterName, string alias) =>
+            string.Equals(alias.RemovePrefix()
+                               .FromKebabCase(),
+                          parameterName,
+                          StringComparison.OrdinalIgnoreCase);
 
         private static readonly HashSet<Type> _infrastructureTypes = new HashSet<Type>(
             new[]
             {
                 typeof(IConsole),
+                typeof(ITerminal),
                 typeof(InvocationContext),
                 typeof(ParseResult),
                 typeof(CancellationToken)

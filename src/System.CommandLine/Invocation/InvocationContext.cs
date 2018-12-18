@@ -42,6 +42,8 @@ namespace System.CommandLine.Invocation
 
         public IInvocationResult InvocationResult { get; set; }
 
+        internal IServiceProvider ServiceProvider => new InvocationContextServiceProvider(this);
+
         internal event Action<CancellationTokenSource> CancellationHandlingAdded
         {
             add
@@ -73,6 +75,42 @@ namespace System.CommandLine.Invocation
         public void Dispose()
         {
             _onDispose?.Dispose();
+        }
+
+        private class InvocationContextServiceProvider : IServiceProvider
+        {
+            private readonly InvocationContext _context;
+
+            public InvocationContextServiceProvider(InvocationContext context)
+            {
+                _context = context;
+            }
+
+            public object GetService(Type serviceType)
+            {
+                if (serviceType == typeof(ParseResult))
+                {
+                    return _context.ParseResult;
+                }
+                else if (serviceType == typeof(InvocationContext))
+                {
+                    return _context;
+                }
+                else if (serviceType == typeof(ITerminal))
+                {
+                    return _context.Console as ITerminal;
+                }
+                else if (serviceType == typeof(IConsole))
+                {
+                    return _context.Console;
+                }
+                else if (serviceType == typeof(CancellationToken))
+                {
+                    return _context.AddCancellationHandling();
+                }
+
+                return null;
+            }
         }
     }
 }

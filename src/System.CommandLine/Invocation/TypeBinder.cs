@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -37,28 +40,29 @@ namespace System.CommandLine.Invocation
         {
             foreach (var propertyInfo in GetSettableProperties())
             {
-                if (propertyInfo.PropertyType == typeof(ParseResult))
+                var typeToResolve = propertyInfo.PropertyType;
+
+                var value = context.ServiceProvider.GetService(typeToResolve);
+
+                if (value == null)
                 {
-                    propertyInfo.SetValue(instance, context.ParseResult);
+                    var optionName = Binder.FindMatchingOptionName(
+                        context.ParseResult,
+                        propertyInfo.Name);
+
+                    var commandResult = context.ParseResult.CommandResult;
+
+                    if (commandResult.Children.GetByAlias(optionName) is OptionResult optionResult)
+                    {
+                        value = optionResult.GetValueOrDefault();
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
-                else if (propertyInfo.PropertyType == typeof(InvocationContext))
-                {
-                    propertyInfo.SetValue(instance, context);
-                }
-                else if (propertyInfo.PropertyType == typeof(IConsole))
-                {
-                    propertyInfo.SetValue(instance, context.Console);
-                }
-                else
-                {
-                    var argument = context.ParseResult
-                                          .CommandResult
-                                          .ValueForOption(
-                                              Binder.FindMatchingOptionName(
-                                                  context.ParseResult,
-                                                  propertyInfo.Name));
-                    propertyInfo.SetValue(instance, argument);
-                }
+
+                propertyInfo.SetValue(instance, value);
             }
         }
 
