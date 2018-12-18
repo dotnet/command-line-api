@@ -347,10 +347,10 @@ namespace System.CommandLine
             {
                 usage.Add(subcommand.Name);
 
-                var subcommandArgHelp = GetArgumentHelp(subcommand);
-                if (subcommand != command && subcommandArgHelp != null)
+                if (subcommand != command &&
+                    ShouldDisplayArgumentHelp(subcommand, out var subcommandArgName))
                 {
-                    usage.Add($"<{subcommandArgHelp?.Name}>");
+                    usage.Add($"<{subcommandArgName}>");
                 }
             }
 
@@ -363,10 +363,9 @@ namespace System.CommandLine
                 usage.Add(Usage.Options);
             }
 
-            var commandArgHelp = GetArgumentHelp(command);
-            if (commandArgHelp != null)
+            if (ShouldDisplayArgumentHelp(command, out var commandArgName))
             {
-                usage.Add($"<{commandArgHelp?.Name}>");
+                usage.Add($"<{commandArgName}>");
             }
 
             var hasCommandHelp = command.Children
@@ -392,19 +391,19 @@ namespace System.CommandLine
         /// <param name="command"></param>
         protected virtual void AddArguments(ICommand command)
         {
-            var arguments = new List<ICommand>();
+            var commands = new List<ICommand>();
 
-            if (GetArgumentHelp(command.Parent) != null)
+            if (ShouldDisplayArgumentHelp(command.Parent, out var _))
             {
-                arguments.Add(command.Parent);
+                commands.Add(command.Parent);
             }
 
-            if (GetArgumentHelp(command) != null)
+            if (ShouldDisplayArgumentHelp(command, out var _))
             {
-                arguments.Add(command);
+                commands.Add(command);
             }
 
-            HelpSection.Write(this, Arguments.Title, arguments, ArgumentFormatter);
+            HelpSection.Write(this, Arguments.Title, commands, ArgumentFormatter);
         }
 
         /// <summary>
@@ -449,15 +448,19 @@ namespace System.CommandLine
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private static (string Name, string Description)? GetArgumentHelp(ISymbol symbol)
+        private static bool ShouldDisplayArgumentHelp(
+            ISymbol symbol,
+            out string name)
         {
             if (symbol?.Argument?.ShouldShowHelp() != true ||
                 string.IsNullOrWhiteSpace(symbol?.Argument?.Name))
             {
-                return null;
+                name = null;
+                return false;
             }
 
-            return (symbol.Argument.Name, symbol.Argument.Description);
+            name =  symbol.Argument.Name;
+            return true;
         }
 
         /// <summary>

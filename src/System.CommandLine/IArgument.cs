@@ -14,7 +14,5 @@ namespace System.CommandLine
         string Name { get; }
 
         string Description { get; }
-
-        bool IsHidden { get; }
     }
 }
