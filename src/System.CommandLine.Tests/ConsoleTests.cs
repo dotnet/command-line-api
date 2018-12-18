@@ -9,12 +9,12 @@ namespace System.CommandLine.Tests
 {
     public abstract class ConsoleTests
     {
-        protected abstract ITerminal GetConsole();
+        protected abstract ITerminal GetTerminal();
 
         [Fact]
         public void Setting_CursorLeft_below_zero_throws()
         {
-            var console = GetConsole();
+            var console = GetTerminal();
 
             console.Invoking(c => c.CursorLeft = -1)
                    .Should()
@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Setting_CursorTop_below_zero_throws()
         {
-            var console = GetConsole();
+            var console = GetTerminal();
 
             console.Invoking(c => c.CursorTop = -1)
                    .Should()
@@ -36,7 +36,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Virtual_terminal_mode_cannot_be_enabled_when_output_is_redirected()
         {
-            var console = GetConsole();
+            var console = GetTerminal();
 
             console.SetOut(new StringWriter());
 

@@ -1,12 +1,12 @@
-﻿using System.CommandLine.Rendering;
+﻿using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Tests
 {
     internal class SystemConsoleTests : ConsoleTests
     {
-        protected override ITerminal GetConsole()
+        protected override ITerminal GetTerminal()
         {
-            return new ConsoleRenderer().Console as ITerminal;
+            return SystemConsole.Create();
         }
     }
 }

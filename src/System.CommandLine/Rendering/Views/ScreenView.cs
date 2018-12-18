@@ -70,7 +70,7 @@ namespace System.CommandLine.Rendering.Views
 
         public void Render()
         {
-            var region = Renderer.Terminal.GetRegion();
+            var region = Renderer.GetRegion();
 
             Render(new Region(0, 0, region.Width, region.Height));
         }

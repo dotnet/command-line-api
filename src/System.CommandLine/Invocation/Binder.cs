@@ -59,7 +59,7 @@ namespace System.CommandLine.Invocation
 
             if (aliases.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", aliases.ToString())}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", aliases)}");
             }
 
             return parameterName;

@@ -8,24 +8,22 @@ namespace System.CommandLine.Rendering
     public class ConsoleRenderer
     {
         private readonly bool _resetAfterRender;
+        private readonly IConsole _console;
+        private readonly ITerminal _terminal;
 
         public ConsoleRenderer(
             IConsole console = null,
             OutputMode mode = OutputMode.Auto,
             bool resetAfterRender = false)
         {
-            Console = console ?? SystemConsole.Create();
-            Terminal = console as ITerminal;
+            _console = console ?? SystemConsole.Create();
+            _terminal = console as ITerminal;
             _resetAfterRender = resetAfterRender;
 
             Mode = mode == OutputMode.Auto
-                       ? Terminal.DetectOutputMode()
+                       ? _terminal.DetectOutputMode()
                        : mode;
         }
-
-        internal ITerminal Terminal { get; set; }
-
-        public IConsole Console { get; }
 
         public SpanFormatter Formatter { get; } = new SpanFormatter();
 
@@ -71,19 +69,19 @@ namespace System.CommandLine.Rendering
             {
                 case OutputMode.NonAnsi:
                     visitor = new NonAnsiRenderingSpanVisitor(
-                        Terminal,
+                        _terminal,
                         region);
                     break;
 
                 case OutputMode.Ansi:
                     visitor = new AnsiRenderingSpanVisitor(
-                        Console,
+                        _console,
                         region);
                     break;
 
                 case OutputMode.File:
                     visitor = new FileRenderingSpanVisitor(
-                        Console.Out,
+                        _console.Out,
                         new Region(region.Left,
                                    region.Top,
                                    region.Width,
@@ -103,6 +101,11 @@ namespace System.CommandLine.Rendering
             var measuringVisitor = new SpanMeasuringVisitor(new Region(0, 0, maxSize.Width, maxSize.Height));
             measuringVisitor.Visit(span);
             return new Size(measuringVisitor.Width, measuringVisitor.Height);
+        }
+
+        public Region GetRegion()
+        {
+            return _terminal?.GetRegion() ;
         }
     }
 }

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace System.CommandLine.Invocation
 {
-    internal class SystemConsole : ITerminal
+    public class SystemConsole : ITerminal
     {
         private VirtualTerminalMode _virtualTerminalMode;
         private readonly ConsoleColor _initialForegroundColor;
@@ -106,6 +106,6 @@ namespace System.CommandLine.Invocation
             ResetConsole();
         }
 
-        public static IConsole Create() => new SystemConsole();
+        public static ITerminal Create() => new SystemConsole();
     }
 }
