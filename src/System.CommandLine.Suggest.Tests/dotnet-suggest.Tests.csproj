@@ -39,12 +39,16 @@
         </TestAssetsPath>
       </PropertyGroup>
 
-      <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+      <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
         <Rid>win-x64</Rid>
       </PropertyGroup>
 
-      <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-        <Rid>ubuntu-x64</Rid>
+      <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
+        <Rid>osx-x64</Rid>
+      </PropertyGroup>
+
+      <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">
+        <Rid>linux-x64</Rid>
       </PropertyGroup>
 
       <MSBuild BuildInParallel="False" 

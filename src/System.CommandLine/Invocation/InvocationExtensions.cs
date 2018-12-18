@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static System.Environment;
 
@@ -14,6 +14,59 @@ namespace System.CommandLine.Invocation
 {
     public static class InvocationExtensions
     {
+        public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                bool cancellationHandlingAdded = false;
+                ManualResetEventSlim blockProcessExit = null;
+                ConsoleCancelEventHandler consoleHandler = null;
+                EventHandler processExitHandler = null;
+
+                context.CancellationHandlingAdded += (CancellationTokenSource cts) =>
+                {
+                    cancellationHandlingAdded = true;
+                    blockProcessExit = new ManualResetEventSlim(initialState: false);
+                    consoleHandler = (_, args) =>
+                    {
+                        cts.Cancel();
+                        // Stop the process from terminating.
+                        // Since the context was cancelled, the invocation should
+                        // finish and Main will return.
+                        args.Cancel = true;
+                    };
+                    processExitHandler = (_1, _2) =>
+                    {
+                        cts.Cancel();
+                        // The process exits as soon as the event handler returns.
+                        // We provide a return value using Environment.ExitCode
+                        // because Main will not finish executing.
+                        // Wait for the invocation to finish.
+                        blockProcessExit.Wait();
+                        Environment.ExitCode = context.ResultCode;
+                    };
+                    Console.CancelKeyPress += consoleHandler;
+                    AppDomain.CurrentDomain.ProcessExit += processExitHandler;
+                };
+
+                try
+                {
+                    await next(context);
+                }
+                finally
+                {
+                    if (cancellationHandlingAdded)
+                    {
+                        Console.CancelKeyPress -= consoleHandler;
+                        AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
+                        blockProcessExit.Set();
+                    }
+                }
+            }, CommandLineBuilder.MiddlewareOrder.ProcessExit);
+
+            return builder;
+        }
+
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
             InvocationMiddleware middleware)
@@ -178,22 +231,13 @@ namespace System.CommandLine.Invocation
             string[] args,
             IConsole console = null)
         {
-            CommandLineBuilder builder;
+            var parser = new CommandLineBuilder(command)
+                         .UseDefaults()
+                         .Build();
 
-            if (command is RootCommand rootCommand)
-            {
-                builder = new CommandLineBuilder(rootCommand);
-            }
-            else
-            {
-                builder = new CommandLineBuilder();
-                builder.AddCommand(command);
-            }
+            var parseResult = parser.Parse(args);
 
-            var parser = builder.UseDefaults()
-                                .Build();
-
-            return await new InvocationPipeline(parser, parser.Parse(args))
+            return await new InvocationPipeline(parser, parseResult)
                        .InvokeAsync(console);
         }
 

@@ -286,11 +286,9 @@ namespace System.CommandLine
         /// <returns>A new <see cref="HelpItem"/></returns>
         protected virtual HelpItem ArgumentFormatter(ISymbol commandDef)
         {
-            var argHelp = commandDef?.Argument?.Help;
-
             return new HelpItem {
-                Invocation = $"<{argHelp?.Name}>",
-                Description = argHelp?.Description ?? "",
+                Invocation = $"<{commandDef?.Argument?.Name}>",
+                Description = commandDef?.Argument?.Description ?? "",
             };
         }
 
@@ -307,14 +305,14 @@ namespace System.CommandLine
             var option = string.Join(", ", rawAliases);
 
             if (symbol?.ShouldShowHelp() == true && 
-                !string.IsNullOrWhiteSpace(symbol.Argument?.Help?.Name))
+                !string.IsNullOrWhiteSpace(symbol.Argument?.Name))
             {
-                option = $"{option} <{symbol.Argument?.Help?.Name}>";
+                option = $"{option} <{symbol.Argument?.Name}>";
             }
 
             return new HelpItem {
                 Invocation = option,
-                Description = symbol.Help?.Description ??  "",
+                Description = symbol.Description ??  ""
             };
         }
 
@@ -329,7 +327,7 @@ namespace System.CommandLine
                 return;
             }
 
-            var title = $"{command.Help.Name}:";
+            var title = $"{command.Name}:";
             HelpSection.Write(this, title, command.Description);
         }
 
@@ -349,10 +347,10 @@ namespace System.CommandLine
             {
                 usage.Add(subcommand.Name);
 
-                var subcommandArgHelp = GetArgumentHelp(subcommand);
-                if (subcommand != command && subcommandArgHelp != null)
+                if (subcommand != command &&
+                    ShouldDisplayArgumentHelp(subcommand, out var subcommandArgName))
                 {
-                    usage.Add($"<{subcommandArgHelp.Name}>");
+                    usage.Add($"<{subcommandArgName}>");
                 }
             }
 
@@ -365,10 +363,9 @@ namespace System.CommandLine
                 usage.Add(Usage.Options);
             }
 
-            var commandArgHelp = GetArgumentHelp(command);
-            if (commandArgHelp != null)
+            if (ShouldDisplayArgumentHelp(command, out var commandArgName))
             {
-                usage.Add($"<{commandArgHelp.Name}>");
+                usage.Add($"<{commandArgName}>");
             }
 
             var hasCommandHelp = command.Children
@@ -394,19 +391,19 @@ namespace System.CommandLine
         /// <param name="command"></param>
         protected virtual void AddArguments(ICommand command)
         {
-            var arguments = new List<ICommand>();
+            var commands = new List<ICommand>();
 
-            if (GetArgumentHelp(command.Parent) != null)
+            if (ShouldDisplayArgumentHelp(command.Parent, out var _))
             {
-                arguments.Add(command.Parent);
+                commands.Add(command.Parent);
             }
 
-            if (GetArgumentHelp(command) != null)
+            if (ShouldDisplayArgumentHelp(command, out var _))
             {
-                arguments.Add(command);
+                commands.Add(command);
             }
 
-            HelpSection.Write(this, Arguments.Title, arguments, ArgumentFormatter);
+            HelpSection.Write(this, Arguments.Title, commands, ArgumentFormatter);
         }
 
         /// <summary>
@@ -451,15 +448,19 @@ namespace System.CommandLine
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private static IHelpDetail GetArgumentHelp(ISymbol symbolDef)
+        private static bool ShouldDisplayArgumentHelp(
+            ISymbol symbol,
+            out string name)
         {
-            if (symbolDef?.Argument?.ShouldShowHelp() != true)
+            if (symbol?.Argument?.ShouldShowHelp() != true ||
+                string.IsNullOrWhiteSpace(symbol?.Argument?.Name))
             {
-                return null;
+                name = null;
+                return false;
             }
 
-            var argHelp = symbolDef.Argument.Help;
-            return string.IsNullOrEmpty(argHelp.Name) ? null : argHelp;
+            name =  symbol.Argument.Name;
+            return true;
         }
 
         /// <summary>

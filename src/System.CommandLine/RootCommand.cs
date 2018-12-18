@@ -29,7 +29,13 @@ namespace System.CommandLine
         {
         }
 
-        public static readonly Lazy<string> executableName =
+        public override string Name
+        {
+            get => ExeName;
+            set => throw new NotSupportedException("The root command's name cannot be changed.");
+        }
+
+        private static readonly Lazy<string> executableName =
             new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
 
         public static string ExeName { get; } = executableName.Value;

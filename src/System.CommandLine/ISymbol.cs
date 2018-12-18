@@ -15,8 +15,6 @@ namespace System.CommandLine
 
         string Description { get; }
 
-        IHelpDetail Help { get; }
-
         ICommand Parent { get; }
 
         bool HasAlias(string alias);

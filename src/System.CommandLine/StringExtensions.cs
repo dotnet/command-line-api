@@ -85,8 +85,8 @@ namespace System.CommandLine
                     continue;
                 }
 
-                if (!foundEndOfDirectives 
-                    && !string.Equals(configuration.RootCommand.Name, arg, StringComparison.OrdinalIgnoreCase))
+                if (!foundEndOfDirectives && 
+                    !configuration.RootCommand.HasRawAlias(arg))
                 {
                     foundEndOfDirectives = true;
                 }
@@ -148,7 +148,8 @@ namespace System.CommandLine
                         tokenList.Add(Argument(arg));
                     }
                 }
-                else if (configuration.EnablePosixBundling && arg.CanBeUnbundled(knownTokens))
+                else if (configuration.EnablePosixBundling && 
+                         arg.CanBeUnbundled(knownTokens))
                 {
                     foreach (var character in arg.Skip(1))
                     {
@@ -158,7 +159,7 @@ namespace System.CommandLine
                 }
                 else if (knownTokens.All(t => t.Value != arg) ||
                          // if token matches the current command name, consider it an argument
-                         currentSymbol?.Name == arg)
+                         currentSymbol?.HasRawAlias(arg) == true)
                 {
                     tokenList.Add(Argument(arg));
                 }

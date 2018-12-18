@@ -138,8 +138,7 @@ namespace System.CommandLine.Tests
                                       new[]
                                       {
                                           new Option("-x", "",
-                                                     new Argument<int>()
-                                                         .WithDefaultValue(() => "123"))
+                                                     new Argument<int>(123))
                                       });
 
             var result = command.Parse("something");
@@ -154,8 +153,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("something", "", new[] {
                 new Option("-x", "",
-                           new Argument<int>()
-                               .WithDefaultValue(() => "123"))
+                           new Argument<int>( 123))
             });
 
             var result = command.Parse("something -x 456");
@@ -174,8 +172,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command", "", new[] {
                 new Option("-x", "",
-                           new Argument<bool>()
-                               .WithDefaultValue(() => "false"))
+                           new Argument<bool>(false))
             });
 
             command
@@ -309,17 +306,20 @@ namespace System.CommandLine.Tests
         public void
             When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_and_there_is_a_default_then_getting_value_returns_default_in_an_empty_sequence_of_strings()
         {
+            var option = new Option(
+                "-x",
+                "",
+                new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                });
+
+            option.Argument.SetDefaultValue(() => "the-default");
+
             var command = new Command("the-command", "",
                                       new[]
                                       {
-                                          new Option(
-                                              "-x",
-                                              "",
-                                              new Argument
-                                                  {
-                                                      Arity = ArgumentArity.ZeroOrMore
-                                                  }
-                                                  .WithDefaultValue(() => "the-default"))
+                                          option
                                       });
 
             var result = command.Parse("the-command");
@@ -441,23 +441,16 @@ namespace System.CommandLine.Tests
                                       {
                                           new Option(
                                               "-x", "",
-                                              new Argument
-                                                  {
-                                                      Arity = ArgumentArity.ExactlyOne
-                                                  }
-                                                  .WithDefaultValue(() => "123"))
+                                              new Argument<string>("123"))
                                       });
 
             var result = command.Parse("something");
 
             var option = result.CommandResult["x"];
 
-            option.GetValueOrDefault<string>()
+            option.GetValueOrDefault()
                   .Should()
                   .Be("123");
-            option.GetValueOrDefault<int>()
-                  .Should()
-                  .Be(123);
         }
 
         [Fact]
@@ -469,11 +462,7 @@ namespace System.CommandLine.Tests
                 {
                     new Option(
                         "-x", "",
-                        new Argument
-                            {
-                                Arity = ArgumentArity.ExactlyOne
-                            }
-                            .WithDefaultValue(() => 123))
+                        new Argument<int>(123))
                 });
 
             var result = command.Parse("something");
@@ -488,26 +477,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_value_can_be_converted_to_the_requested_type()
         {
-            var command = new Command(
-                "something", "",
-                new[]
-                {
-                    new Option(
-                        "-x", "",
-                        new Argument
-                            {
-                                Arity = ArgumentArity.ExactlyOne
-                            }
-                            .WithDefaultValue(() => 123))
-                });
+            var command = new Command("something", "",
+                                      new[]
+                                      {
+                                          new Option(
+                                              "-x", "",
+                                              new Argument<string>("123"))
+                                      });
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["x"];
+            var value = result.CommandResult.ValueForOption<int>("x");
 
-            option.GetValueOrDefault<int>()
-                  .Should()
-                  .Be(123);
+            value.Should()
+                 .Be(123);
         }
 
         [Fact]
@@ -520,18 +503,14 @@ namespace System.CommandLine.Tests
                     new Option(
                         "-x",
                         "",
-                        new Argument
-                            {
-                                Arity = ArgumentArity.ExactlyOne
-                            }
-                            .WithDefaultValue(() => 123))
+                        new Argument<int>(123))
                 });
 
             var result = command.Parse("something -x 456");
 
-            var option = result.CommandResult["x"];
+            var value = result.CommandResult.ValueForOption<int>("x");
 
-            option.GetValueOrDefault<string>().Should().Be("456");
+            value.Should().Be(456);
         }
 
         [Fact]

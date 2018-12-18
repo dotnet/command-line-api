@@ -74,8 +74,8 @@ namespace System.CommandLine.Suggest.Tests
             Directory.CreateDirectory(_testRoot);
         }
 
-        [ReleaseBuildOnlyFact(Skip = "#273: CI fails possibly related to dotnet-suggest registration")]
-        public async Task Test_app_supplies_completions()
+        [ReleaseBuildOnlyFact]
+        public async Task Test_app_supplies_suggestions()
         {
             var stdOut = new StringBuilder();
 
@@ -90,8 +90,8 @@ namespace System.CommandLine.Suggest.Tests
                   .Be($"--apple{NewLine}--banana{NewLine}--durian{NewLine}");
         }
 
-        [ReleaseBuildOnlyFact(Skip = "#273: CI fails possibly related to dotnet-suggest registration")]
-        public async Task dotnet_suggest_provides_completions_for_app()
+        [ReleaseBuildOnlyFact]
+        public async Task dotnet_suggest_provides_suggestions_for_app()
         {
             // run once to trigger a call to dotnet-suggest register
             await Process.ExecuteAsync(
@@ -123,8 +123,8 @@ namespace System.CommandLine.Suggest.Tests
                   .Be($"--apple{NewLine}--banana{NewLine}--durian{NewLine}");
         }
 
-        [ReleaseBuildOnlyFact(Skip = "#273: CI fails possibly related to dotnet-suggest registration")]
-        public async Task dotnet_suggest_provides_completions_for_app_with_only_commandname()
+        [ReleaseBuildOnlyFact]
+        public async Task dotnet_suggest_provides_suggestions_for_app_with_only_commandname()
         {
             // run once to trigger a call to dotnet-suggest register
             await Process.ExecuteAsync(

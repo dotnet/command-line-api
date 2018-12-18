@@ -4,12 +4,37 @@
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace System.CommandLine
 {
     public static class CommandExtensions
     {
+        public static void ConfigureFromMethod(
+            this Command command,
+            MethodInfo method,
+            object target = null)
+        {
+            if (command == null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
+
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
+            var handler = new MethodBinder(method, target);
+
+            foreach (var option in handler.BuildOptions())
+            {
+                command.AddOption(option);
+            }
+
+            command.Handler = handler;
+        }
+
         public static TCommand Subcommand<TCommand>(
             this TCommand command,
             string name)

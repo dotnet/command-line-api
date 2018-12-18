@@ -222,7 +222,7 @@ namespace System.CommandLine
 
             var commandName = Configuration.RootCommand.Name;
 
-            if (string.Equals(firstArg, commandName, StringComparison.OrdinalIgnoreCase))
+            if (Configuration.RootCommand.HasRawAlias(firstArg))
             {
                 return args;
             }

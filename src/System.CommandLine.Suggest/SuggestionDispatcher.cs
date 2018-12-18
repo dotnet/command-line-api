@@ -24,17 +24,18 @@ namespace System.CommandLine.Suggest
             _suggestionStore = suggestionStore ?? new SuggestionStore();
 
             _parser = new CommandLineBuilder()
+                      .AddVersionOption()
                       .UseHelp()
-                      .UseExceptionHandler()
-                      .UseDebugDirective()
                       .UseParseDirective()
+                      .UseDebugDirective()
+                      .UseSuggestDirective()
                       .UseParseErrorReporting()
+                      .UseExceptionHandler()
 
                       .AddCommand(ListCommand())
                       .AddCommand(GetCommand())
                       .AddCommand(RegisterCommand())
                    
-                      .AddVersionOption()
                       .Build();
 
             Command GetCommand() =>
