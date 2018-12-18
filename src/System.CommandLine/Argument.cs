@@ -9,26 +9,15 @@ namespace System.CommandLine
     public class Argument : IArgument, ISuggestionSource
     {
         private Func<object> _defaultValue;
-        private HelpDetail _helpDetail;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity _arity;
         private HashSet<string> _validValues;
         private ConvertArgument _convertArguments;
 
-        public Argument()
-        {
-        }
+        public string Name {get;set;}
 
-        public Argument(IReadOnlyCollection<ValidateSymbol> symbolValidators)
-        {
-            if (symbolValidators == null)
-            {
-                throw new ArgumentNullException(nameof(symbolValidators));
-            }
-
-            SymbolValidators.AddRange(symbolValidators);
-        }
+        public string Description {get;set;}
 
         public IArgumentArity Arity
         {
@@ -90,8 +79,6 @@ namespace System.CommandLine
         public void SetDefaultValue(Func<object> value) => _defaultValue = value;
 
         public bool HasDefaultValue => _defaultValue != null;
-
-        public HelpDetail Help => _helpDetail ?? (_helpDetail = new HelpDetail());
 
         public static Argument None => new Argument { Arity = ArgumentArity.Zero };
 
@@ -263,7 +250,5 @@ namespace System.CommandLine
         }
 
         IArgumentArity IArgument.Arity => Arity;
-
-        IHelpDetail IArgument.Help => Help;
     }
 }

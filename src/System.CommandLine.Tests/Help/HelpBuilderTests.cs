@@ -112,10 +112,7 @@ namespace System.CommandLine.Tests.Help
         {
             var argument = new Argument
                            {
-                               Help =
-                               {
-                                   Name = "the-args"
-                               },
+                               Name = "the-args",
                                Arity = ArgumentArity.ZeroOrMore
                            };
             var command = new Command("the-command", "command help")
@@ -165,10 +162,7 @@ namespace System.CommandLine.Tests.Help
                             helpBuilder: _helpBuilder,
                             argument: new Argument<string[]>
                                       {
-                                          Help =
-                                          {
-                                              Name = "inner-args"
-                                          }
+                                          Name = "inner-args"
                                       })
                         {
                             new Option("-v", "Sets the verbosity")
@@ -177,10 +171,7 @@ namespace System.CommandLine.Tests.Help
             var outer = new Command("outer", "command help",
                                     argument: new Argument<string[]>
                                               {
-                                                  Help =
-                                                  {
-                                                      Name = "outer-args"
-                                                  }
+                                                  Name = "outer-args"
                                               })
                         {
                             inner
@@ -245,20 +236,14 @@ namespace System.CommandLine.Tests.Help
                                     "command help",
                                     argument: new Argument<string>
                                               {
-                                                  Help =
-                                                  {
-                                                      Name = "outer  args \twith  whitespace"
-                                                  }
+                                                  Name = "outer  args \twith  whitespace"
                                               })
                         {
                             new Command(
                                 "inner-command", "command help",
                                 argument: new Argument<string>
                                           {
-                                              Help =
-                                              {
-                                                  Name = "inner-args"
-                                              }
+                                              Name = "inner-args"
                                           }
                             )
                         };
@@ -280,20 +265,14 @@ namespace System.CommandLine.Tests.Help
                             "outer-command", "command help",
                             argument: new Argument<string[]>
                                       {
-                                          Help =
-                                          {
-                                              Name = $"outer args {NewLine}with new{NewLine}lines"
-                                          }
+                                          Name = $"outer args {NewLine}with new{NewLine}lines"
                                       })
                         {
                             new Command(
                                 "inner-command", "command help",
                                 argument: new Argument<string>
                                           {
-                                              Help =
-                                              {
-                                                  Name = "inner-args"
-                                              }
+                                              Name = "inner-args"
                                           }
                             )
                         };
@@ -317,7 +296,7 @@ namespace System.CommandLine.Tests.Help
                                    "command help",
                                    argument: new Argument<string[]>
                                              {
-                                                 Help = { Name = "outer args long enough to wrap to a new line" }
+                                                 Name = "outer args long enough to wrap to a new line" 
                                              }
                                )
                                {
@@ -326,7 +305,7 @@ namespace System.CommandLine.Tests.Help
                                        "command help",
                                        argument: new Argument<string[]>
                                                  {
-                                                     Help = { Name = "inner-args" }
+                                                     Name = "inner-args" 
                                                  })
                                };
 
@@ -406,11 +385,8 @@ namespace System.CommandLine.Tests.Help
                                       description: "command help",
                                       argument: new Argument
                                                 {
-                                                    Help =
-                                                    {
-                                                        Name = "arg command name",
-                                                        Description = "test"
-                                                    },
+                                                    Name = "arg command name",
+                                                    Description = "test",
                                                     Arity = ArgumentArity.ExactlyOne
                                                 });
 
@@ -445,7 +421,7 @@ namespace System.CommandLine.Tests.Help
                            "Sets the verbosity.",
                            new Argument
                            {
-                               Help = { Name = "argument for options" },
+                               Name = "argument for options",
                                Arity = ArgumentArity.ExactlyOne
                            }));
 
@@ -462,7 +438,7 @@ namespace System.CommandLine.Tests.Help
                                     "Sets the verbosity.",
                                     new Argument
                                     {
-                                        Help = { Name = "LEVEL" },
+                                        Name = "LEVEL",
                                         Arity = ArgumentArity.ExactlyOne
                                     });
             command.AddOption(option);
@@ -490,11 +466,8 @@ namespace System.CommandLine.Tests.Help
                 argument: new Argument
                           {
                               Arity = ArgumentArity.ExactlyOne,
-                              Help =
-                              {
-                                  Name = "the-arg",
-                                  Description = "Help text from HelpDetail"
-                              }
+                              Name = "the-arg",
+                              Description = "Help text from HelpDetail",
                           });
 
             var expected =
@@ -513,11 +486,8 @@ namespace System.CommandLine.Tests.Help
                           {
                               Argument = new Argument
                                          {
-                                             Help =
-                                             {
-                                                 Name = "test name",
-                                                 Description = "test desc"
-                                             }
+                                             Name = "test name",
+                                             Description = "test desc",
                                          },
                               IsHidden = true
                           };
@@ -537,11 +507,8 @@ namespace System.CommandLine.Tests.Help
                 "HelpDetail text for the inner command",
                 argument: new Argument<string>
                           {
-                              Help =
-                              {
-                                  Name = "the-inner-command-arg",
-                                  Description = "The argument for the inner command"
-                              }
+                              Name = "the-inner-command-arg",
+                              Description = "The argument for the inner command",
                           }
             );
             var outer = new Command(
@@ -549,14 +516,11 @@ namespace System.CommandLine.Tests.Help
                             "HelpDetail text for the outer command",
                             argument: new Argument<string>
                                       {
-                                          Help =
-                                          {
-                                              Name = "outer-command-arg",
-                                              Description = "The argument for the outer command"
-                                          }
+                                          Name = "outer-command-arg",
+                                          Description = "The argument for the outer command"
                                       }
-                        )
-                        { inner };
+                        );
+            outer.Add(inner);
 
             var expected =
                 $"Arguments:{NewLine}" +
@@ -588,26 +552,18 @@ namespace System.CommandLine.Tests.Help
                 "inner", "HelpDetail text for the inner command",
                 argument: new Argument<string>
                           {
-                              Help =
-                              {
-                                  Name = "",
-                                  Description = "The argument for the inner command"
-                              }
+                              Name = "",
+                              Description = "The argument for the inner command",
                           });
             var outer = new Command(
                             "outer",
                             "HelpDetail text for the outer command",
                             argument: new Argument<string>
                                       {
-                                          Help =
-                                          {
-                                              Name = "outer-command-arg",
-                                              Description = "The argument for the outer command"
-                                          }
-                                      })
-                        {
-                            inner
-                        };
+                                          Name = "outer-command-arg",
+                                          Description = "The argument for the outer command"
+                                      });
+            outer.Add(inner);
 
             var expected =
                 $"Arguments:{NewLine}" +
@@ -627,11 +583,8 @@ namespace System.CommandLine.Tests.Help
                 argument: new Argument
                           {
                               Arity = ArgumentArity.ExactlyOne,
-                              Help =
-                              {
-                                  Name = "outer-command-arg",
-                                  Description = "Argument\tfor the   inner command"
-                              }
+                              Name = "outer-command-arg",
+                              Description = "Argument\tfor the   inner command",
                           });
 
             outer.WriteHelp(_console);
@@ -650,11 +603,8 @@ namespace System.CommandLine.Tests.Help
                 "outer", "Help text for the outer command",
                 argument: new Argument
                           {
-                              Help =
-                              {
-                                  Name = "outer-command-arg",
-                                  Description = $"The argument{NewLine}for the{NewLine}inner command"
-                              },
+                              Name = "outer-command-arg",
+                              Description = $"The argument{NewLine}for the{NewLine}inner command",
                               Arity = ArgumentArity.ExactlyOne
                           });
 
@@ -680,11 +630,8 @@ namespace System.CommandLine.Tests.Help
                 argument: new Argument
                           {
                               Arity = ArgumentArity.ExactlyOne,
-                              Help =
-                              {
-                                  Name = "outer-command-arg",
-                                  Description = longCmdText
-                              }
+                              Name = "outer-command-arg",
+                              Description = longCmdText,
                           },
                 helpBuilder: GetHelpBuilder(SmallMaxWidth)
             );
@@ -934,10 +881,7 @@ namespace System.CommandLine.Tests.Help
                               "outer command help",
                               argument: new Argument<string[]>
                                         {
-                                            Help =
-                                            {
-                                                Name = "outer-args"
-                                            }
+                                            Name = "outer-args"
                                         })
                           {
                               new Command(
@@ -945,10 +889,7 @@ namespace System.CommandLine.Tests.Help
                                   "inner    command\t help  with whitespace",
                                   argument: new Argument<string[]>
                                             {
-                                                Help =
-                                                {
-                                                    Name = "inner-args"
-                                                }
+                                                Name = "inner-args"
                                             })
                           };
 
@@ -969,10 +910,7 @@ namespace System.CommandLine.Tests.Help
                               "outer command help",
                               argument: new Argument<string>
                                         {
-                                            Help =
-                                            {
-                                                Name = "outer-args"
-                                            }
+                                            Name = "outer-args"
                                         })
                           {
                               new Command(
@@ -981,10 +919,7 @@ namespace System.CommandLine.Tests.Help
                                   argument: new Argument<string>
 
                                             {
-                                                Help =
-                                                {
-                                                    Name = "inner-args"
-                                                }
+                                                Name = "inner-args"
                                             }
                               )
                           };
@@ -1013,10 +948,7 @@ namespace System.CommandLine.Tests.Help
                               "outer command help",
                               argument: new Argument<string[]>
                                         {
-                                            Help =
-                                            {
-                                                Name = "outer-args"
-                                            }
+                                            Name = "outer-args"
                                         })
                           {
                               new Command(
@@ -1024,10 +956,7 @@ namespace System.CommandLine.Tests.Help
                                   longSubcommandText,
                                   argument: new Argument<string[]>
                                             {
-                                                Help =
-                                                {
-                                                    Name = "inner-args"
-                                                }
+                                                Name = "inner-args"
                                             })
                               {
                                   new Option(new[] { "-v", "--verbosity" })

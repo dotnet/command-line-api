@@ -5,12 +5,14 @@ namespace System.CommandLine
 {
     public interface IArgument
     {
-        IHelpDetail Help { get; }
-
         IArgumentArity Arity { get; }
 
         bool HasDefaultValue { get; }
 
         object GetDefaultValue();
+
+        string Name { get; }
+
+        string Description { get; }
     }
 }
