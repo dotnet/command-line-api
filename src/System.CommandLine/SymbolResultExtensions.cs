@@ -17,7 +17,7 @@ namespace System.CommandLine
         {
             if (symbolResult == null)
             {
-                return default(T);
+                return default;
             }
 
             ArgumentParseResult result = symbolResult.Result;
@@ -26,7 +26,7 @@ namespace System.CommandLine
             {
                 if (!successfulResult.HasValue)
                 {
-                    return default(T);
+                    return default;
                 }
 
                 object value = ((dynamic)symbolResult.Result).Value;
@@ -56,7 +56,7 @@ namespace System.CommandLine
                             return (dynamic)true;
                         }
 
-                        return default(T);
+                        return default;
                 }
 
                 if (result is SuccessfulArgumentParseResult success &&

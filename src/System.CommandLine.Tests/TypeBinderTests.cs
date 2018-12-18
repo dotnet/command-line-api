@@ -93,6 +93,50 @@ namespace System.CommandLine.Tests
                    .Be("the default");
         }
 
+        [Fact]
+        public void Explicitly_configured_default_values_can_be_bound_to_constructor_parameters()
+        {
+            var argument = new Argument<string>(() => "the default");
+
+            var option = new Option("--string-option",
+                                    argument: argument);
+
+            var command = new Command("the-command");
+            command.AddOption(option);
+            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameter));
+
+            var parser = new Parser(command);
+            var invocationContext = new InvocationContext(
+                parser.Parse(""),
+                parser);
+
+            var instance = (ClassWithMultiLetterCtorParameter)binder.CreateInstance(invocationContext);
+
+            instance.StringOption.Should().Be("the default");
+        }
+
+        [Fact]
+        public void Explicitly_configured_default_values_can_be_bound_to_property_setters()
+        {
+            var argument = new Argument<string>(() => "the default");
+
+            var option = new Option("--string-option",
+                                    argument: argument);
+
+            var command = new Command("the-command");
+            command.AddOption(option);
+            var binder = new TypeBinder(typeof(ClassWithMultiLetterProperty));
+
+            var parser = new Parser(command);
+            var invocationContext = new InvocationContext(
+                parser.Parse(""),
+                parser);
+
+            var instance = (ClassWithMultiLetterProperty)binder.CreateInstance(invocationContext);
+
+            instance.StringOption.Should().Be("the default");
+        }
+
         [Theory]
         [InlineData(typeof(IConsole))]
         [InlineData(typeof(InvocationContext))]
@@ -140,9 +184,9 @@ namespace System.CommandLine.Tests
                 BooleanOption = booleanOption;
             }
 
-            int IntOption { get; }
-            string StringOption { get; }
-            bool BooleanOption { get; }
+            public int IntOption { get; }
+            public string StringOption { get; }
+            public bool BooleanOption { get; }
         }
 
         public class ClassWithMultiLetterProperty

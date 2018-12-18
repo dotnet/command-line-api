@@ -107,9 +107,11 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 new Option("--apple", "kinds of apples",
-                           new Argument().WithDefaultValue(() => "grannysmith")),
-                new Option("--banana", "kinds of bananas"),
-                new Option("--cherry", "kinds of cherries"));
+                           new Argument<string[]>(new[] { "cortland" })),
+                new Option("--banana", "kinds of bananas",
+                           new Argument<string[]>()),
+                new Option("--cherry", "kinds of cherries",
+                           new Argument<string>()));
 
             var result = parser.Parse("");
 
@@ -148,9 +150,9 @@ namespace System.CommandLine.Tests
         public void When_one_option_has_been_partially_specified_then_nonmatching_siblings_will_not_be_suggested()
         {
             var parser = new CommandLineBuilder()
-                         .AddOption("--apple")
-                         .AddOption("--banana")
-                         .AddOption("--cherry")
+                         .AddOption(new Option("--apple"))
+                         .AddOption(new Option("--banana"))
+                         .AddOption(new Option("--cherry"))
                          .Build();
 
             var result = parser.Parse("a");
@@ -166,7 +168,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_can_be_hidden_from_completions_by_setting_IsHidden_to_true()
+        public void An_option_can_be_hidden_from_suggestions_by_setting_IsHidden_to_true()
         {
             var command = new Command(
                 "the-command", "Does things.",
@@ -368,30 +370,31 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
         {
+            var command = new Command("outer");
+            command.AddOption(
+                new Option("one",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ExactlyOne
+                                     }.FromAmong("one-a", "one-b", "one-c"))
+            );
+            command.AddOption(
+                new Option("two",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ExactlyOne
+                                     }.FromAmong("two-a", "two-b", "two-c"))
+            );
+            command.AddOption(
+                new Option("three",
+                           argument: new Argument
+                                     {
+                                         Arity = ArgumentArity.ExactlyOne
+                                     }.FromAmong("three-a", "three-b", "three-c"))
+            );
+
             var parser = new CommandLineBuilder()
-                         .AddCommand(
-                             "outer", "",
-                             outer => outer.AddOption(
-                                               "one", "",
-                                               new Argument
-                                               {
-                                                   Arity = ArgumentArity.ExactlyOne
-                                               }.FromAmong("one-a", "one-b", "one-c")
-                                           )
-                                           .AddOption(
-                                               "two", "",
-                                               new Argument
-                                               {
-                                                   Arity = ArgumentArity.ExactlyOne
-                                               }.FromAmong("two-a", "two-b", "two-c")
-                                           )
-                                           .AddOption(
-                                               "three", "",
-                                               new Argument
-                                               {
-                                                   Arity = ArgumentArity.ExactlyOne
-                                               }.FromAmong("three-a", "three-b", "three-c")
-                                           ))
+                         .AddCommand(command)
                          .Build();
 
             ParseResult result = parser.Parse(new[] { "outer", "two", "b" });
@@ -404,33 +407,27 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(
-                             "outer", "",
-                             outer => outer.AddOption(
-                                               "one", "",
-                                               new Argument
-                                               {
-                                                   Arity = ArgumentArity.ExactlyOne
-                                               }.FromAmong("one-a", "one-b", "one-c")
-                                           )
-                                           .AddOption(
-                                               "two", "",
-                                               new Argument
-                                               {
-                                                   Arity = ArgumentArity.ExactlyOne
-                                               }.FromAmong("two-a", "two-b", "two-c")
-                                           )
-                                           .AddOption(
-                                               "three", "",
-                                               new Argument
-                                               {
-                                                   Arity = ArgumentArity.ExactlyOne
-                                               }.FromAmong("three-a", "three-b", "three-c")
-                                           ))
-                         .Build();
+            var command = new Command("outer");
+            command.AddOption(
+                new Option("one", "",
+                           new Argument
+                           {
+                               Arity = ArgumentArity.ExactlyOne
+                           }.FromAmong("one-a", "one-b", "one-c")));
+            command.AddOption(
+                new Option("two", "",
+                           new Argument
+                           {
+                               Arity = ArgumentArity.ExactlyOne
+                           }.FromAmong("two-a", "two-b", "two-c")));
+            command.AddOption(
+                new Option("three", "",
+                           new Argument
+                           {
+                               Arity = ArgumentArity.ExactlyOne
+                           }.FromAmong("three-a", "three-b", "three-c")));
 
-            ParseResult result = parser.Parse("outer two b");
+            var result = command.Parse("outer two b");
 
             result.Suggestions()
                   .Should()
@@ -440,30 +437,30 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(
-                             "outer", "",
-                             outer => outer.AddCommand(
-                                               new Command("one", "",
-                                                           argument: new Argument
-                                                                     {
-                                                                         Arity = ArgumentArity.ExactlyOne
-                                                                     }.FromAmong("one-a", "one-b", "one-c")))
-                                           .AddCommand(
-                                               new Command("two", "",
-                                                           argument: new Argument
-                                                                     {
-                                                                         Arity = ArgumentArity.ExactlyOne
-                                                                     }.FromAmong("two-a", "two-b", "two-c")))
-                                           .AddCommand(
-                                               new Command("three", "",
-                                                           argument: new Argument
-                                                                     {
-                                                                         Arity = ArgumentArity.ExactlyOne
-                                                                     }.FromAmong("three-a", "three-b", "three-c"))))
-                         .Build();
+            var outer = new Command("outer");
+            var one = new Command(
+                "one",
+                argument: new Argument
+                          {
+                              Arity = ArgumentArity.ExactlyOne
+                          }.FromAmong("one-a", "one-b", "one-c"));
+            var two = new Command(
+                "two",
+                argument: new Argument
+                          {
+                              Arity = ArgumentArity.ExactlyOne
+                          }.FromAmong("two-a", "two-b", "two-c"));
+            var three = new Command(
+                "three",
+                argument: new Argument
+                          {
+                              Arity = ArgumentArity.ExactlyOne
+                          }.FromAmong("three-a", "three-b", "three-c"));
+            outer.AddCommand(one);
+            outer.AddCommand(two);
+            outer.AddCommand(three);
 
-            ParseResult result = parser.Parse(new[] { "outer", "two", "b" });
+            ParseResult result = outer.Parse(new[] { "outer", "two", "b" });
 
             result.Suggestions()
                   .Should()
@@ -473,33 +470,29 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(
-                             "outer", "",
-                             outer => outer.AddCommand(
-                                               new Command(
-                                                   "one", "",
-                                                   argument: new Argument
-                                                             {
-                                                                 Arity = ArgumentArity.ExactlyOne
-                                                             }.FromAmong("one-a", "one-b", "one-c")))
-                                           .AddCommand(
-                                               new Command(
-                                                   "two", "",
-                                                   argument: new Argument
-                                                             {
-                                                                 Arity = ArgumentArity.ExactlyOne
-                                                             }.FromAmong("two-a", "two-b", "two-c")))
-                                           .AddCommand(
-                                               new Command(
-                                                   "three", "",
-                                                   argument: new Argument
-                                                             {
-                                                                 Arity = ArgumentArity.ExactlyOne
-                                                             }.FromAmong("three-a", "three-b", "three-c"))))
-                         .Build();
+            var outer = new Command("outer")
+                        {
+                            new Command(
+                                "one",
+                                argument: new Argument
+                                          {
+                                              Arity = ArgumentArity.ExactlyOne
+                                          }.FromAmong("one-a", "one-b", "one-c")),
+                            new Command(
+                                "two",
+                                argument: new Argument
+                                          {
+                                              Arity = ArgumentArity.ExactlyOne
+                                          }.FromAmong("two-a", "two-b", "two-c")),
+                            new Command(
+                                "three",
+                                argument: new Argument
+                                          {
+                                              Arity = ArgumentArity.ExactlyOne
+                                          }.FromAmong("three-a", "three-b", "three-c"))
+                        };
 
-            ParseResult result = parser.Parse("outer two b");
+            ParseResult result = outer.Parse("outer two b");
 
             result.Suggestions()
                   .Should()
@@ -604,12 +597,10 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.AddOption(
                 new Option("--implicit",
-                           argument: new Argument<string[]>()
-                               .WithDefaultValue(() => "the default")));
+                           argument: new Argument<string>(defaultValue: "the-default")));
             command.AddOption(
                 new Option("--not",
-                           argument: new Argument<string[]>()
-                               .WithDefaultValue(() => "the default")));
+                           argument: new Argument<string>("the-default")));
 
             var suggestions = command.Parse("m").Suggestions();
 

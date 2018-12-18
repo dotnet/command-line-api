@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Builder;
 using FluentAssertions;
 using Xunit;
 
@@ -177,12 +176,13 @@ namespace System.CommandLine.Tests
         [InlineData("/")]
         public void When_options_use_different_prefixes_they_still_work(string prefix)
         {
-            var result = new CommandLineBuilder()
-                         .AddOption(prefix + "a", "", ArgumentArity.ExactlyOne)
-                         .AddOption(prefix + "b")
-                         .AddOption(prefix + "c", "", ArgumentArity.ExactlyOne)
-                         .Build()
-                         .Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
+            var rootCommand = new RootCommand
+                              {
+                                  new Option(prefix + "a", "", new Argument<string>()),
+                                  new Option(prefix + "b"),
+                                  new Option(prefix + "c", "", new Argument<string>())
+                              };
+            var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
             result.ValueForOption(prefix + "a").Should().Be("value-for-a");
             result.ValueForOption(prefix + "c").Should().Be("value-for-c");
@@ -190,33 +190,14 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_option_not_explicitly_provide_help_will_use_default_help()
+        public void When_option_not_explicitly_provides_help_will_use_default_help()
         {
             var option = new Option(
                 new[] { "-o", "--option" }, "desc");
 
-            option.Help.Name.Should().Be("option");
-            option.Help.Description.Should().Be("desc");
-            option.Help.IsHidden.Should().BeFalse();
-        }
-
-        [Fact]
-        public void When_option_provide_help_from_ctor_the_exposed_help_is_correct()
-        {
-            var option = new Option(
-                new[] { "-o", "--option" },
-                "desc",
-                null,
-                new HelpDetail
-                {
-                    Name = "helpName",
-                    Description = "helpDesc",
-                    IsHidden = true,
-                });
-
-            option.Help.Name.Should().Be("helpName");
-            option.Help.Description.Should().Be("helpDesc");
-            option.Help.IsHidden.Should().BeTrue();
+            option.Name.Should().Be("option");
+            option.Description.Should().Be("desc");
+            option.IsHidden.Should().BeFalse();
         }
     }
 }

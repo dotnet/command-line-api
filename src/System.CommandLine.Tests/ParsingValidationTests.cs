@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -224,7 +225,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_there_are_subcommands_and_options_then_a_subcommand_must_be_provided()
+        public void A_command_with_subcommands_is_invalid_to_invoke_if_it_has_no_handler()
         {
             var outer = new Command("outer");
             var inner = new Command("inner");
@@ -239,6 +240,26 @@ namespace System.CommandLine.Tests
                   .ContainSingle(
                       e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
                            e.SymbolResult.Name.Equals("inner"));
+        }
+
+        [Fact]
+        public void A_command_with_subcommands_is_valid_to_invoke_if_it_has_a_handler()
+        {
+            var outer = new Command("outer");
+            var inner = new Command("inner")
+                        {
+                            Handler = CommandHandler.Create(() =>
+                            {
+                            })
+                        };
+            var innerer = new Command("inner-er");
+            outer.AddCommand(inner);
+            inner.AddCommand(innerer);
+
+            var result = outer.Parse("outer inner");
+
+            result.Errors.Should().BeEmpty();
+            result.CommandResult.Command.Should().Be(inner);
         }
 
         [Fact]
@@ -285,8 +306,7 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Option(
                     "-x", "",
-                    new Argument<int>()
-                        .WithDefaultValue(() => "123")));
+                    new Argument<int>(123)));
 
             var result = parser.Parse("-x");
 
@@ -303,13 +323,11 @@ namespace System.CommandLine.Tests
                 new Option(
                     "-x",
                     "",
-                    new Argument<int>()
-                        .WithDefaultValue(() => "123")),
+                    new Argument<int>(123)),
                 new Option(
                     "-y",
                     "",
-                    new Argument<int>()
-                        .WithDefaultValue(() => "456")));
+                    new Argument<int>(456)));
 
             var result = parser.Parse("");
 

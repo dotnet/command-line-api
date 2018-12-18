@@ -22,14 +22,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Parse_directive_writes_parse_diagram()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand("the-command", "",
-                                     cmd => cmd.AddOption(new[] { "-c", "--count" }, "",
-                                                          new Argument<int>()))
+            var rootCommand = new RootCommand();
+            var subcommand = new Command("subcommand");
+            rootCommand.AddCommand(subcommand);
+            var option = new Option(new[] { "-c", "--count" }, "",
+                                    new Argument<int>());
+            subcommand.AddOption(option);
+
+            var parser = new CommandLineBuilder(rootCommand)
                          .UseParseDirective()
                          .Build();
 
-            var result = parser.Parse("[parse] the-command -c 34 --nonexistent wat");
+            var result = parser.Parse("[parse] subcommand -c 34 --nonexistent wat");
 
             output.WriteLine(result.Diagram());
 
@@ -40,7 +44,7 @@ namespace System.CommandLine.Tests
             console.Out
                    .ToString()
                    .Should()
-                   .Be($"[ {RootCommand.ExeName} [ the-command [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
+                   .Be($"[ {RootCommand.ExeName} [ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
         }
 
         [Fact]

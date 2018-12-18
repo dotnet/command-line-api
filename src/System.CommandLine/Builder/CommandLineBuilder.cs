@@ -11,7 +11,7 @@ namespace System.CommandLine.Builder
     {
         private List<(InvocationMiddleware middleware, int order)> _middlewareList;
 
-        public CommandLineBuilder(RootCommand rootCommand = null)
+        public CommandLineBuilder(Command rootCommand = null)
             : base(rootCommand ?? new RootCommand())
         {
         }
@@ -55,7 +55,8 @@ namespace System.CommandLine.Builder
 
         internal static class MiddlewareOrder
         {
-            public const int ExceptionHandler = int.MinValue;
+            public const int ProcessExit = int.MinValue;
+            public const int ExceptionHandler = ProcessExit + 100;
             public const int Configuration = ExceptionHandler + 100;
             public const int Preprocessing = Configuration + 100;
             public const int AfterPreprocessing = Preprocessing + 100;

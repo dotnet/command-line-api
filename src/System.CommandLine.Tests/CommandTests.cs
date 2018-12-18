@@ -14,17 +14,17 @@ namespace System.CommandLine.Tests
         public CommandTests()
         {
             _parser = new Parser(
-                new Command("outer", "", new[] {
-                    new Command("inner", "", new[] {
-                        new Option(
-                            "--option",
-                            "",
-                            new Argument
-                            {
-                                Arity = ArgumentArity.ExactlyOne
-                            })
-                    })
-                }));
+                new Command("outer")
+                {
+                    new Command("inner")
+                    {
+                        new Option("--option",
+                                   argument: new Argument
+                                             {
+                                                 Arity = ArgumentArity.ExactlyOne
+                                             })
+                    }
+                });
         }
 
         [Fact]
@@ -165,17 +165,47 @@ namespace System.CommandLine.Tests
         [InlineData("outer arg inner arg inner-er arg", "inner-er")]
         public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand)
         {
-            var outer = new Command("outer");
-            var inner = new Command("inner");
-            outer.AddCommand(inner);
-            var sibling = new Command("sibling");
-            outer.AddCommand(sibling);
-            var innerer = new Command("inner-er");
-            inner.AddCommand(innerer);
+            var outer = new Command("outer")
+                        {
+                            new Command("inner")
+                            {
+                                new Command("inner-er")
+                            },
+                            new Command("sibling")
+                        };
 
             var result = outer.Parse(input);
 
             result.CommandResult.Name.Should().Be(expectedCommand);
+        }
+
+        [Fact]
+        public void Commands_can_have_aliases()
+        {
+            var command = new Command("this");
+            command.AddAlias("that");
+
+            var result = command.Parse("that");
+
+            result.CommandResult.Command.Should().Be(command);
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Subcommands_can_have_aliases()
+        {
+            var subcommand = new Command("this");
+            subcommand.AddAlias("that");
+
+            var rootCommand = new RootCommand
+                              {
+                                  subcommand
+                              };
+
+            var result = rootCommand.Parse("that");
+
+            result.CommandResult.Command.Should().Be(subcommand);
+            result.Errors.Should().BeEmpty();
         }
     }
 }

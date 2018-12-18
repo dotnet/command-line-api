@@ -84,7 +84,7 @@ namespace System.CommandLine.DragonFruit
 
                         if (option != null)
                         {
-                            option.Help.Description = parameterDescription.Value;
+                            option.Description = parameterDescription.Value;
                         }
                     }
 

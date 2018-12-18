@@ -22,7 +22,15 @@ namespace System.CommandLine.Invocation
 
         public Task<int> InvokeAsync(InvocationContext context)
         {
-            return  _methodBinder.InvokeAsync(context);
+            try
+            {
+                return  _methodBinder.InvokeAsync(context);
+            }
+            // InvokeAsync wraps exceptions thrown by the method in a TargetInvocationException
+            catch (TargetInvocationException te) when (te.InnerException != null)
+            {
+                throw te.InnerException;
+            }
         }
     }
 }
