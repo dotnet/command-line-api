@@ -15,20 +15,6 @@ namespace System.CommandLine
         private HashSet<string> _validValues;
         private ConvertArgument _convertArguments;
 
-        public Argument()
-        {
-        }
-
-        public Argument(IReadOnlyCollection<ValidateSymbol> symbolValidators)
-        {
-            if (symbolValidators == null)
-            {
-                throw new ArgumentNullException(nameof(symbolValidators));
-            }
-
-            SymbolValidators.AddRange(symbolValidators);
-        }
-
         public string Name {get;set;}
 
         public string Description {get;set;}
