@@ -6,56 +6,27 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.JackFruit
 {
-    public abstract class TypeCommandBinder : CommandBinder<Type, PropertyInfo>
+    public abstract class TypeCommandBinder<TImplementedBinder> 
+        : CommandBinder<TImplementedBinder, Type, PropertyInfo>
+         where TImplementedBinder : CommandBinder<TImplementedBinder, Type, PropertyInfo>
     {
-        private Stack<string> parentNames;
-
         public TypeCommandBinder(
                   IDescriptionProvider<Type> descriptionProvider = null,
-                  IHelpProvider<Type, PropertyInfo> helpProvider = null,
+                  IHelpProvider<Type> helpProvider = null,
                   IOptionBinder<Type, PropertyInfo> optionProvider = null,
                   IArgumentBinder<Type, PropertyInfo> argumentProvider = null,
-                  IInvocationProvider invocationProvider = null)
+                  IInvocationProvider invocationProvider = null,
+                    bool shouldRemoveParentNames = false)
             : base(descriptionProvider,
-                   helpProvider ?? new TypeHelpProvider(descriptionProvider),
+                   helpProvider,
                    optionProvider ?? new PropertyInfoOptionBinder(),
                    argumentProvider ?? new TypeArgumentBinder(),
-                   invocationProvider)
-        {
-            parentNames = new Stack<string>();
-        }
+                   invocationProvider,
+                   shouldRemoveParentNames)
+        { }
 
-        public override Command GetCommand(Type currentType)
-        {
-            var name = GetName(currentType);
-            parentNames.Push(name);
-            var command = FillCommand(currentType, new Command(name: name.ToKebabCase()));
-            parentNames.Pop();
-            return command;
-        }
-
-        public override RootCommand GetRootCommand(Type currentType)
-            => FillCommand(currentType, new RootCommand());
-
-        public string GetName(Type currentType)
-        {
-            var candidate = currentType.Name;
-            var reverseNames = parentNames.Reverse();
-            foreach (var name in reverseNames)
-            {
-                if (candidate.StartsWith(name))
-                {
-                    candidate = candidate.Substring(name.Length);
-                }
-            }
-            return candidate;
-        }
-
-        public override string GetHelp(Type currentType)
-        {
-            var attribute = currentType.GetCustomAttribute<HelpAttribute>(); ;
-            return Extensions.GetHelp(attribute, HelpProvider, currentType);
-        }
+        public override string GetName(Type currentType) 
+            => currentType.Name;
 
         public override IEnumerable<PropertyInfo> GetOptionSources(Type currentType)
             => currentType.GetProperties();
@@ -63,7 +34,7 @@ namespace System.CommandLine.JackFruit
         protected override void SetHandler(Command command, Type currentType)
         {
             var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var methodInfo = typeof(TypeCommandBinder).GetMethod(nameof(SetHandlerInternal), bindingFlags);
+            var methodInfo = typeof(TypeCommandBinder<TImplementedBinder>).GetMethod(nameof(SetHandlerInternal), bindingFlags);
             var constructedMethod = methodInfo.MakeGenericMethod(currentType);
             constructedMethod.Invoke(this, new object[] { command });
         }

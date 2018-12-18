@@ -7,11 +7,6 @@ namespace System.CommandLine.JackFruit
     public interface IHelpProvider<TSource>
     {
         string GetHelp(TSource source);
-        string GetHelp(TSource source, string name);
-    }
-
-    public interface IHelpProvider<TSource, TItem >: IHelpProvider<TSource>
-    {
-        string GetHelp(TSource source, TItem item);
+        string GetHelp<TItem>(TSource source, TItem item);
     }
 }

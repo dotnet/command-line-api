@@ -6,10 +6,6 @@ namespace System.CommandLine.JackFruit
     {
         Command GetCommand(TCommandSource source);
 
-        // It's a little weird to have these details used by the method above
-        // but it was sort of turning into a type explosion
-        IHelpProvider<TCommandSource> HelpProvider { get; set; }
-
         IEnumerable<TOptionSource> GetOptionSources(TCommandSource source);
         IEnumerable<TCommandSource> GetSubCommandSources(TCommandSource source);
 

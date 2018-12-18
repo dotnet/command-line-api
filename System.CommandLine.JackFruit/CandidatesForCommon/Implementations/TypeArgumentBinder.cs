@@ -29,25 +29,8 @@ namespace System.CommandLine.JackFruit
         }
 
         public string GetHelp(Type source)
-        {
-            var propertyInfo = GetArgumentPropertyInfo(source);
-            if (propertyInfo != null)
-            {
-                ;
-                return Extensions.GetHelp(
-                    propertyInfo.GetCustomAttribute<HelpAttribute>(), 
-                    HelpProvider, source, propertyInfo.Name);
-            }
-            var parameterInfo = GetArgumentParameterInfo(source);
-            if (parameterInfo == null)
-            {
-                return "";
-            }
-;
-            return Extensions.GetHelp(
-                parameterInfo.GetCustomAttribute<HelpAttribute>(), 
-                HelpProvider, source, parameterInfo.Name);
-        }
+            => HelpProvider?.GetHelp(source, GetArgumentPropertyInfo(source))
+                 ?? HelpProvider?.GetHelp(source, GetArgumentParameterInfo(source));
 
         public string GetName(Type source)
         {
@@ -99,7 +82,7 @@ namespace System.CommandLine.JackFruit
             argument.Name = property.Name.EndsWith("Arg")
                         ? property.Name.Substring(0, property.Name.Length - 3)
                         : property.Name;
-            argument.Description = HelpProvider.GetHelp(currentType, property.Name);
+            argument.Description = HelpProvider.GetHelp(currentType, property);
             return argument;
         }
 
@@ -110,7 +93,7 @@ namespace System.CommandLine.JackFruit
                 ArgumentType = parameter.ParameterType
             };
             argument.Name = parameter.Name;
-            argument.Description = HelpProvider.GetHelp(currentType, parameter.Name);
+            argument.Description = HelpProvider.GetHelp(currentType, parameter);
             return argument;
         }
 

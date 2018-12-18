@@ -25,7 +25,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Command_for_class_hiearchy_can_be_created_with_top_level_commands()
         {
-            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetCommandLine();
+            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetRootCommand();
             command.Should().NotBeNull();
             CheckSubCommands(command, "add", "list", "remove", "sln", "tool");
         }
@@ -33,7 +33,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Command_for_class_hiearchy_can_be_created_with_sub_commands()
         {
-            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetCommandLine();
+            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetRootCommand();
             command.Should().NotBeNull();
             var toolCommand = (Command)command.Children["tool"];
             CheckSubCommands(toolCommand, "install", "list", "update", "uninstall");
@@ -42,7 +42,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Command_for_class_hiearchy_can_be_created_with_sub_sub_commands()
         {
-            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetCommandLine();
+            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetRootCommand();
             command.Should().NotBeNull();
             var toolCommand = (Command)command.Children["tool"];
             var tool2Command = (Command)toolCommand.Children["uninstall"];
@@ -52,7 +52,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Options_created_for_command()
         {
-            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetCommandLine();
+            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetRootCommand();
             command.Should().NotBeNull();
             var toolCommand = (Command)command.Children["tool"];
             var toolInstallCommand = (Command)toolCommand.Children["install"];
@@ -70,7 +70,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Options_not_created_if_marked_for_skip()
         {
-            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetCommandLine();
+            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetRootCommand();
             command.Should().NotBeNull();
             var toolCommand = (Command)command.Children["tool"];
             var toolInstallCommand = (Command)toolCommand.Children["update"];

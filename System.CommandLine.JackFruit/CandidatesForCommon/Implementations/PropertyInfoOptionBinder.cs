@@ -6,13 +6,10 @@ namespace System.CommandLine.JackFruit
 {
     public class PropertyInfoOptionBinder : IOptionBinder<Type, PropertyInfo>
     {
-        public IHelpProvider<Type, PropertyInfo> HelpProvider { get; set; }
+        public IHelpProvider<Type> HelpProvider { get; set; }
 
         public string GetHelp(Type parentType, PropertyInfo propertyInfo)
-        {
-            var attribute = propertyInfo.GetCustomAttribute<HelpAttribute>(); ;
-            return Extensions.GetHelp(attribute, HelpProvider, parentType, propertyInfo);
-        }
+            => HelpProvider?.GetHelp(parentType, propertyInfo);
 
         public string GetName(Type parentType, PropertyInfo propertyInfo)
             => propertyInfo.Name;

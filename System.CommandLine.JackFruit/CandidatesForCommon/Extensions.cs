@@ -93,44 +93,44 @@ namespace System.CommandLine.JackFruit
             return aliases;
         }
 
-        // TODO: This is a helper method on string - an extension pollutes Intellisense. Where to put it?
-        public static string GetHelp<TSource, TItem>(HelpAttribute attribute,
-                IHelpProvider<TSource, TItem> helpProvider, TSource source, TItem item)
-        {
-            if (attribute != null)
-            {
-                return attribute.HelpText;
-            }
-            return helpProvider != null
-                ? helpProvider.GetHelp(source, item)
-                : "";
-        }
+        //// TODO: This is a helper method on string - an extension pollutes Intellisense. Where to put it?
+        //public static string GetHelp<TSource, TItem>(HelpAttribute attribute,
+        //        IHelpProvider<TSource, TItem> helpProvider, TSource source, TItem item)
+        //{
+        //    if (attribute != null)
+        //    {
+        //        return attribute.HelpText;
+        //    }
+        //    return helpProvider != null
+        //        ? helpProvider.GetHelp(source, item)
+        //        : "";
+        //}
 
-        // TODO: This is a helper method on string - an extension pollutes Intellisense. Where to put it?
-        public static string GetHelp<TSource>(HelpAttribute attribute,
-                IHelpProvider<TSource> helpProvider, TSource source)
-        {
-            if (attribute != null)
-            {
-                return attribute.HelpText;
-            }
-            return helpProvider != null
-                ? helpProvider.GetHelp(source)
-                : "";
-        }
+        //// TODO: This is a helper method on string - an extension pollutes Intellisense. Where to put it?
+        //public static string GetHelp<TSource>(HelpAttribute attribute,
+        //        IHelpProvider<TSource> helpProvider, TSource source)
+        //{
+        //    if (attribute != null)
+        //    {
+        //        return attribute.HelpText;
+        //    }
+        //    return helpProvider != null
+        //        ? helpProvider.GetHelp(source)
+        //        : "";
+        //}
 
-        // TODO: This is a helper method on string - an extension pollutes Intellisense. Where to put it?
-        public static string GetHelp<TSource>(HelpAttribute attribute,
-                IHelpProvider<TSource> helpProvider, TSource source, string name)
-        {
-            if (attribute != null)
-            {
-                return attribute.HelpText;
-            }
-            return helpProvider != null
-                ? helpProvider.GetHelp(source, name)
-                : "";
-        }
+        //// TODO: This is a helper method on string - an extension pollutes Intellisense. Where to put it?
+        //public static string GetHelp<TSource>(HelpAttribute attribute,
+        //        IHelpProvider<TSource> helpProvider, TSource source, string name)
+        //{
+        //    if (attribute != null)
+        //    {
+        //        return attribute.HelpText;
+        //    }
+        //    return helpProvider != null
+        //        ? helpProvider.GetHelp(source, name)
+        //        : "";
+        //}
 
     }
 }
