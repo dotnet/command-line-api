@@ -1,7 +1,7 @@
 System.CommandLine
 ==================
 
-This repository contains the code for System.CommandLine, a library for command line parsing, invocation, and rendering of terminal output.
+This repository contains the code for System.CommandLine, a library for command line parsing, invocation, and rendering of terminal output. For more information, please see [our wiki](https://github.com/dotnet/command-line-api/wiki).
 
 ## Packages
 
