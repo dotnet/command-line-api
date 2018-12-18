@@ -63,35 +63,23 @@ namespace System.CommandLine.Invocation
             {
                 var parameterInfo = parameters[index];
 
-                var parameterName = parameterInfo.Name;
+                var typeToResolve = parameterInfo.ParameterType;
 
-                if (parameterInfo.ParameterType == typeof(ParseResult))
+                var value = context.ServiceProvider
+                                   .GetService(typeToResolve);
+
+                if (value == null)
                 {
-                    arguments.Add(context.ParseResult);
+                    var optionName = Binder.FindMatchingOptionName(
+                        context.ParseResult,
+                        parameterInfo.Name);
+
+                    value = context.ParseResult
+                                   .CommandResult
+                                   .ValueForOption(optionName);
                 }
-                else if (parameterInfo.ParameterType == typeof(InvocationContext))
-                {
-                    arguments.Add(context);
-                }
-                else if (parameterInfo.ParameterType == typeof(IConsole))
-                {
-                    arguments.Add(context.Console);
-                }
-                else if (parameterInfo.ParameterType == typeof(CancellationToken))
-                {
-                    CancellationToken ct = context.AddCancellationHandling();
-                    arguments.Add(ct);
-                }
-                else
-                {
-                    var argument = context.ParseResult
-                                          .CommandResult
-                                          .ValueForOption(
-                                              Binder.FindMatchingOptionName(
-                                                  context.ParseResult,
-                                                  parameterName));
-                    arguments.Add(argument);
-                }
+
+                arguments.Add(value);
             }
 
             return arguments.ToArray();

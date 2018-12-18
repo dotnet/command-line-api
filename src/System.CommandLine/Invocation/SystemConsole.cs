@@ -6,7 +6,7 @@ using System.IO;
 
 namespace System.CommandLine.Invocation
 {
-    internal class SystemConsole : IConsole
+    public class SystemConsole : ITerminal
     {
         private VirtualTerminalMode _virtualTerminalMode;
         private readonly ConsoleColor _initialForegroundColor;
@@ -16,13 +16,15 @@ namespace System.CommandLine.Invocation
         {
             _initialForegroundColor = Console.ForegroundColor;
             _initialBackgroundColor = Console.BackgroundColor;
+            Error = StandardStreamWriter.Create(Console.Error);
+            Out = StandardStreamWriter.Create(Console.Out);
         }
 
         public void SetOut(TextWriter writer) => Console.SetOut(writer);
 
-        public TextWriter Error => Console.Error;
+        public IStandardStreamWriter Error { get; }
 
-        public TextWriter Out => Console.Out;
+        public IStandardStreamWriter Out { get; }
 
         public ConsoleColor BackgroundColor
         {
@@ -58,11 +60,7 @@ namespace System.CommandLine.Invocation
         public void SetCursorPosition(int left, int top) => Console.SetCursorPosition(left, top);
 
         public bool IsOutputRedirected => Console.IsOutputRedirected;
-
-        public bool IsErrorRedirected => Console.IsErrorRedirected;
-
-        public bool IsInputRedirected => Console.IsInputRedirected;
-
+        
         public bool IsVirtualTerminal
         {
             get
@@ -108,6 +106,6 @@ namespace System.CommandLine.Invocation
             ResetConsole();
         }
 
-        public static IConsole Create() => new SystemConsole();
+        public static ITerminal Create() => new SystemConsole();
     }
 }

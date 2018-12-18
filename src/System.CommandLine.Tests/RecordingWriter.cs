@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
-using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class RecordingWriter : TextWriter
+    public class RecordingWriter : TextWriter, IStandardStreamWriter
     {
         private readonly StringBuilder _stringBuilder = new StringBuilder();
 

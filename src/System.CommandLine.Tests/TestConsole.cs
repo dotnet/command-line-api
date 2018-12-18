@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace System.CommandLine.Tests
 {
-    public class TestConsole : IConsole
+    public class TestConsole : ITerminal
     {
         private int _cursorLeft;
         private int _cursorTop;
@@ -60,13 +60,13 @@ namespace System.CommandLine.Tests
 
         public void SetOut(TextWriter writer)
         {
-            Out = writer ?? throw new ArgumentNullException(nameof(writer));
+            Out = StandardStreamWriter.Create(writer ?? throw new ArgumentNullException(nameof(writer)));
             IsOutputRedirected = true;
         }
 
-        public TextWriter Error => _error;
+        public IStandardStreamWriter Error => _error;
 
-        public TextWriter Out { get; private set; }
+        public IStandardStreamWriter Out { get; private set; }
 
         public int Height { get; set; } = 100;
 

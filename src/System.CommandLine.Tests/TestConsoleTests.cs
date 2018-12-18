@@ -1,5 +1,7 @@
-﻿using System.CommandLine.Rendering;
-using System.CommandLine.Tests.Rendering;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Rendering;
 using System.Drawing;
 using FluentAssertions;
 using System.Linq;
@@ -10,7 +12,7 @@ namespace System.CommandLine.Tests
 {
     public class TestConsoleTests : ConsoleTests
     {
-        protected override IConsole GetConsole() => new TestConsole();
+        protected override ITerminal GetTerminal() => new TestConsole();
 
         [Fact]
         public void When_CursorLeft_is_set_then_a_cursor_position_is_recorded()

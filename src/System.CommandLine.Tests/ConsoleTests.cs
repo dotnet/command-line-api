@@ -1,3 +1,7 @@
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.IO;
 using FluentAssertions;
 using Xunit;
 
@@ -5,12 +9,12 @@ namespace System.CommandLine.Tests
 {
     public abstract class ConsoleTests
     {
-        protected abstract IConsole GetConsole();
+        protected abstract ITerminal GetTerminal();
 
         [Fact]
         public void Setting_CursorLeft_below_zero_throws()
         {
-            var console = GetConsole();
+            var console = GetTerminal();
 
             console.Invoking(c => c.CursorLeft = -1)
                    .Should()
@@ -21,7 +25,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Setting_CursorTop_below_zero_throws()
         {
-            var console = GetConsole();
+            var console = GetTerminal();
 
             console.Invoking(c => c.CursorTop = -1)
                    .Should()
@@ -32,9 +36,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Virtual_terminal_mode_cannot_be_enabled_when_output_is_redirected()
         {
-            var console = GetConsole();
+            var console = GetTerminal();
 
-            console.SetOut(console.Out);
+            console.SetOut(new StringWriter());
 
             console.TryEnableVirtualTerminal();
 

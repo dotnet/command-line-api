@@ -1,41 +1,41 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Rendering;
-using System.IO;
-
 namespace System.CommandLine
 {
-    public interface IConsole : IDisposable
+    public interface IConsole : 
+        IStandardOut, 
+        IStandardError, 
+        IStandardIn
     {
-        TextWriter Out { get; }
+    }
 
-        void SetOut(TextWriter writer);
-
-        TextWriter Error { get; }
-
-        Region GetRegion();
-
-        ConsoleColor BackgroundColor { get; set; }
-
-        ConsoleColor ForegroundColor { get; set; }
-
-        void ResetColor();
-
-        int CursorLeft { get; set; }
-
-        int CursorTop { get; set; }
-
-        void SetCursorPosition(int left, int top);
+    public interface IStandardOut 
+    {
+        IStandardStreamWriter Out { get; }
 
         bool IsOutputRedirected { get; }
+    }
 
-        bool IsErrorRedirected { get; }
+    public interface IStandardError 
+    {
+        IStandardStreamWriter Error { get; }
+    }
 
-        bool IsInputRedirected { get; }
+    public interface IStandardStream
+    {
+    }
 
-        bool IsVirtualTerminal { get; }
+    public interface IStandardIn : IStandardStream
+    {
+    }
 
-        void TryEnableVirtualTerminal();
+    public interface IStandardStreamWriter : IStandardStream
+    {
+        void Write(string value);
+    }
+
+    public interface IStandardStreamReader : IStandardStream
+    {
     }
 }

@@ -43,13 +43,16 @@ namespace RenderingPlayground
                                     height ?? Console.WindowHeight,
                                     overwrite);
 
-            if (virtualTerminalMode)
-            {
-                console.TryEnableVirtualTerminal();
+            var terminal = console as ITerminal;
 
-                if (overwrite && !console.IsOutputRedirected)
+            if (virtualTerminalMode &&
+                terminal != null)
+            {
+                terminal.TryEnableVirtualTerminal();
+
+                if (overwrite && !terminal.IsOutputRedirected)
                 {
-                    console.Clear();
+                    terminal.Clear();
                 }
             }
 
@@ -71,7 +74,7 @@ namespace RenderingPlayground
 
                 case SampleName.Dir:
                     var directoryTableView = new DirectoryTableView(new DirectoryInfo(Directory.GetCurrentDirectory()));
-                    directoryTableView.Render(consoleRenderer, console.GetRegion());
+                    directoryTableView.Render(consoleRenderer, terminal?.GetRegion());
 
                     break;
 

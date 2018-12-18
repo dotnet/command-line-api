@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.IO;
 using System.Text;
 
 namespace System.CommandLine.Rendering
@@ -16,14 +15,14 @@ namespace System.CommandLine.Rendering
         private int _cursorTop = -1;
 
         protected ContentRenderingSpanVisitor(
-            TextWriter writer,
+            IStandardStreamWriter writer,
             Region region)
         {
             Writer = writer ?? throw new ArgumentNullException(nameof(writer));
             Region = region ?? throw new ArgumentNullException(nameof(region));
         }
 
-        protected TextWriter Writer { get; }
+        protected IStandardStreamWriter Writer { get; }
 
         protected int LinesWritten { get; private set; }
 

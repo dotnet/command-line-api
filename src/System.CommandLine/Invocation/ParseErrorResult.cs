@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace System.CommandLine.Invocation
@@ -7,8 +7,13 @@ namespace System.CommandLine.Invocation
     {
         public void Apply(InvocationContext context)
         {
-            context.Console.ResetColor();
-            context.Console.ForegroundColor = ConsoleColor.Red;
+            var terminal = context.Terminal;
+
+            if (terminal != null)
+            {
+                terminal.ResetColor();
+                terminal.ForegroundColor = ConsoleColor.Red;
+            }
 
             foreach (var error in context.ParseResult.Errors)
             {
@@ -19,7 +24,7 @@ namespace System.CommandLine.Invocation
 
             context.ResultCode = 1;
 
-            context.Console.ResetColor();
+            terminal?.ResetColor();
 
             context.ParseResult.CommandResult.Command.WriteHelp(context.Console);
         }

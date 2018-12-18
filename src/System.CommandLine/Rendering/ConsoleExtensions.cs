@@ -14,21 +14,24 @@ namespace System.CommandLine.Rendering
                 throw new ArgumentNullException(nameof(console));
             }
 
-            if (console.IsOutputRedirected)
+            if (console is ITerminal terminal && 
+                !terminal.IsOutputRedirected)
+            {
+                return terminal.IsVirtualTerminal
+                           ? OutputMode.Ansi
+                           : OutputMode.NonAnsi;
+            }
+            else
             {
                 return OutputMode.File;
             }
-
-            return console.IsVirtualTerminal
-                       ? OutputMode.Ansi
-                       : OutputMode.NonAnsi;
         }
 
-        public static void Clear(this IConsole console)
+        public static void Clear(this ITerminal console)
         {
-            if (console.IsVirtualTerminal)
+            if (console is ITerminal terminal && terminal.IsVirtualTerminal)
             {
-                console.Out.WriteLine(Ansi.Clear.EntireScreen);
+                console.Out.WriteLine(Ansi.Clear.EntireScreen.EscapeSequence);
             }
             else
             {

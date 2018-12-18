@@ -43,12 +43,14 @@ namespace System.CommandLine.Tests.Rendering
             int width,
             int height)
         {
+            var consoleWithoutAnsiCodes = new TestConsole();
             var rendererWithoutAnsiCodes = new ConsoleRenderer(
-                new TestConsole(),
+                consoleWithoutAnsiCodes,
                 OutputMode.NonAnsi);
 
+            var consoleWithAnsiCodes = new TestConsole();
             var rendererWithAnsiCodes = new ConsoleRenderer(
-                new TestConsole(),
+                consoleWithAnsiCodes,
                 OutputMode.NonAnsi);
 
             FormattableString formattableString =
@@ -66,8 +68,8 @@ namespace System.CommandLine.Tests.Rendering
                 stringWithoutCodes,
                 region);
 
-            var outputFromInputWithoutAnsiCodes = rendererWithoutAnsiCodes.Console.Out.ToString();
-            var outputFromInputWithAnsiCodes = rendererWithAnsiCodes.Console.Out.ToString();
+            var outputFromInputWithoutAnsiCodes = consoleWithoutAnsiCodes.Out.ToString();
+            var outputFromInputWithAnsiCodes = consoleWithAnsiCodes.Out.ToString();
 
             outputFromInputWithAnsiCodes
                 .Should()
