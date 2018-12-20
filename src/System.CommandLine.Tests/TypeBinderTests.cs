@@ -5,6 +5,7 @@ using System.CommandLine.Invocation;
 using FluentAssertions;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -12,7 +13,7 @@ namespace System.CommandLine.Tests
     public class TypeBinderTests
     {
         [Fact]
-        public void Single_character_constructor_arguments_generate_aliases_that_accept_a_single_dash_prefix()
+        public void Single_character_constructor_arguments_generate_aliases_with_a_single_dash_prefix()
         {
             var binder = new TypeBinder(typeof(ClassWithSingleLetterCtorParameter));
 
@@ -25,7 +26,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Multi_character_constructor_arguments_generate_aliases_that_accept_a_double_dash_prefix()
         {
-            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameter));
+            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameters));
 
             var options = binder.BuildOptions().ToArray();
 
@@ -76,7 +77,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Default_option_values_are_based_on_constructor_parameter_defaults()
         {
-            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameter));
+            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameters));
 
             var options = binder.BuildOptions().ToArray();
 
@@ -94,7 +95,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Parsed_values_can_be_bound_to_constructor_parameters()
+        public void Option_arguments_are_bound_by_name_to_constructor_parameters()
         {
             var argument = new Argument<string>("the default");
 
@@ -103,16 +104,46 @@ namespace System.CommandLine.Tests
 
             var command = new Command("the-command");
             command.AddOption(option);
-            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameter));
+            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameters));
 
             var parser = new Parser(command);
             var invocationContext = new InvocationContext(
                 parser.Parse("--string-option not-the-default"),
                 parser);
 
-            var instance = (ClassWithMultiLetterCtorParameter)binder.CreateInstance(invocationContext);
+            var instance = (ClassWithMultiLetterCtorParameters)binder.CreateInstance(invocationContext);
 
             instance.StringOption.Should().Be("not-the-default");
+        }
+
+        [Theory]
+        [InlineData(typeof(string), "hello", "hello")]
+        [InlineData(typeof(int), "123", 123)]
+        public void Command_arguments_are_bound_by_name_to_constructor_parameters(
+            Type type,
+            string commandLine,
+            object expectedValue)
+        {
+            var targetType = typeof(ClassWithCtorParameter<>).MakeGenericType(type);
+            var binder = new TypeBinder(targetType);
+
+            var command = new Command("the-command")
+                          {
+                              Argument = new Argument
+                                         {
+                                             Name = "value",
+                                             ArgumentType = type
+                                         }
+                          };
+            var parser = new Parser(command);
+
+            var invocationContext = new InvocationContext(parser.Parse(commandLine), parser);
+
+            var instance = binder.CreateInstance(invocationContext);
+
+            object valueReceivedValue = ((dynamic)instance).Value;
+
+            valueReceivedValue.Should().Be(expectedValue);
         }
 
         [Fact]
@@ -125,20 +156,20 @@ namespace System.CommandLine.Tests
 
             var command = new Command("the-command");
             command.AddOption(option);
-            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameter));
+            var binder = new TypeBinder(typeof(ClassWithMultiLetterCtorParameters));
 
             var parser = new Parser(command);
             var invocationContext = new InvocationContext(
                 parser.Parse(""),
                 parser);
 
-            var instance = (ClassWithMultiLetterCtorParameter)binder.CreateInstance(invocationContext);
+            var instance = (ClassWithMultiLetterCtorParameters)binder.CreateInstance(invocationContext);
 
             instance.StringOption.Should().Be("the default");
         }
 
         [Fact]
-        public void Parsed_values_can_be_bound_to_property_setters()
+        public void Option_arguments_are_bound_by_name_to_property_setters()
         {
             var argument = new Argument<bool>();
 
@@ -157,6 +188,36 @@ namespace System.CommandLine.Tests
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(invocationContext);
 
             instance.BoolOption.Should().BeTrue();
+        }
+
+        [Theory]
+        [InlineData(typeof(string), "hello", "hello")]
+        [InlineData(typeof(int), "123", 123)]
+        public void Command_arguments_are_bound_by_name_to_property_setters(
+            Type type,
+            string commandLine,
+            object expectedValue)
+        {
+            var targetType = typeof(ClassWithSetter<>).MakeGenericType(type);
+            var binder = new TypeBinder(targetType);
+
+            var command = new Command("the-command")
+                          {
+                              Argument = new Argument
+                                         {
+                                             Name = "value",
+                                             ArgumentType = type
+                                         }
+                          };
+            var parser = new Parser(command);
+
+            var invocationContext = new InvocationContext(parser.Parse(commandLine), parser);
+
+            var instance = binder.CreateInstance(invocationContext);
+
+            object valueReceivedValue = ((dynamic)instance).Value;
+
+            valueReceivedValue.Should().Be(expectedValue);
         }
 
         [Fact]
@@ -239,9 +300,9 @@ namespace System.CommandLine.Tests
             public int Y { get; set; }
         }
 
-        public class ClassWithMultiLetterCtorParameter
+        public class ClassWithMultiLetterCtorParameters
         {
-            public ClassWithMultiLetterCtorParameter(
+            public ClassWithMultiLetterCtorParameters(
                 int intOption = 123,
                 string stringOption = "the default",
                 bool boolOption = false)
@@ -295,6 +356,13 @@ namespace System.CommandLine.Tests
             public int IntOption { get; set; }
             public string StringOption { get; set; }
             public bool BoolOption { get; set; }
+        }
+
+        public class ClassWithCtorParameter<T>
+        {
+            public ClassWithCtorParameter(T value) => Value = value;
+
+            public T Value { get; }
         }
 
         public class ClassWithSetter<T>

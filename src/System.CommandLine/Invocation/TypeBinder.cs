@@ -38,6 +38,8 @@ namespace System.CommandLine.Invocation
             InvocationContext context,
             object instance)
         {
+            var commandResult = context.ParseResult.CommandResult;
+
             foreach (var propertyInfo in GetSettableProperties())
             {
                 var typeToResolve = propertyInfo.PropertyType;
@@ -46,15 +48,17 @@ namespace System.CommandLine.Invocation
 
                 if (value == null)
                 {
-                    var optionName = Binder.FindMatchingOptionName(
-                        context.ParseResult,
+                    var optionResult = Binder.FindMatchingOption(
+                        commandResult,
                         propertyInfo.Name);
 
-                    var commandResult = context.ParseResult.CommandResult;
-
-                    if (commandResult.Children.GetByAlias(optionName) is OptionResult optionResult)
+                    if (optionResult != null)
                     {
                         value = optionResult.GetValueOrDefault();
+                    }
+                    else if (propertyInfo.Name.IsMatch(commandResult.Command?.Argument?.Name))
+                    {
+                        value = commandResult.GetValueOrDefault();
                     }
                     else
                     {
