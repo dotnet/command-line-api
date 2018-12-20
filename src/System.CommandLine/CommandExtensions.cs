@@ -13,7 +13,13 @@ namespace System.CommandLine
         public static void ConfigureFromMethod(
             this Command command,
             MethodInfo method,
-            object target = null)
+            object target = null) =>
+            command.ConfigureFromMethod(method, () => target);
+
+        public static void ConfigureFromMethod(
+            this Command command,
+            MethodInfo method,
+            Func<object> target)
         {
             if (command == null)
             {
@@ -33,6 +39,14 @@ namespace System.CommandLine
             }
 
             command.Handler = handler;
+        }
+
+        public static void ConfigureFrom(this Command command, IOptionBuilder optionBuilder)
+        {
+            foreach (var option in optionBuilder.BuildOptions())
+            {
+                command.AddOption(option);
+            }
         }
 
         public static TCommand Subcommand<TCommand>(

@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace System.CommandLine.Invocation
 {
-    public class TypeBinder
+    public class TypeBinder : IOptionBuilder
     {
         private readonly Type _type;
         private IReadOnlyCollection<PropertyInfo> _settableProperties;

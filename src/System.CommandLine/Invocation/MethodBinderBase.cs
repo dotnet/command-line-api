@@ -4,12 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public abstract class MethodBinderBase : ICommandHandler
+    public abstract class MethodBinderBase : ICommandHandler, IOptionBuilder
     {
         private ParameterInfo[] _parameters;
 

@@ -15,7 +15,7 @@ namespace System.CommandLine.Invocation
             _methodBinder = new DelegateBinder(@delegate);
         }
 
-        public MethodBindingCommandHandler(MethodInfo method, object target = null)
+        public MethodBindingCommandHandler(MethodInfo method, Func<object> target = null)
         {
             _methodBinder = new MethodBinder(method, target);
         }

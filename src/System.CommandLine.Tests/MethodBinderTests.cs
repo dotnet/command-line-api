@@ -33,17 +33,42 @@ namespace System.CommandLine.Tests
                    .NotContain(o => o.Argument.ArgumentType == type);
         }
 
+        [Fact]
+        public async Task Target_can_be_created_lazily_upon_invocation()
+        {
+            var target = new Lazy<ClassWithMethodHavingParameter<string>>(() => new ClassWithMethodHavingParameter<string>());
+
+            var targetType = typeof(ClassWithMethodHavingParameter<string>);
+
+            var binder = new MethodBinder(
+                targetType.GetMethod(nameof(ClassWithMethodHavingParameter<int>.HandleAsync)),
+                () => target.Value);
+
+            target.IsValueCreated.Should().BeFalse();
+
+            var command = new Command("the-command");
+            command.ConfigureFrom(binder);
+            var parser = new Parser(command);
+            await binder.InvokeAsync(new InvocationContext(parser.Parse("--value hello"), parser));
+
+            target.Value.ReceivedValue.Should().Be("hello");
+        }
+
         public class ClassWithMethodHavingParameter<T>
         {
             public int Handle(T value)
             {
+                ReceivedValue = value;
                 return 0;
             }
 
             public Task<int> HandleAsync(T value)
             {
-                return Task.FromResult(0);
+               
+                return Task.FromResult(Handle(value));
             }
+
+            public T ReceivedValue { get; set; }
         }
     }
 }
