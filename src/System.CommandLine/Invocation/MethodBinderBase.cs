@@ -4,12 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public abstract class MethodBinderBase : ICommandHandler
+    public abstract class MethodBinderBase : ICommandHandler, IOptionBuilder
     {
         private ParameterInfo[] _parameters;
 
@@ -59,24 +58,31 @@ namespace System.CommandLine.Invocation
         {
             var arguments = new List<object>();
 
+            var commandResult = context.ParseResult.CommandResult;
+
             for (var index = 0; index < parameters.Length; index++)
             {
                 var parameterInfo = parameters[index];
 
                 var typeToResolve = parameterInfo.ParameterType;
 
-                var value = context.ServiceProvider
-                                   .GetService(typeToResolve);
+                var value = context.ServiceProvider.GetService(typeToResolve);
 
                 if (value == null)
                 {
-                    var optionName = Binder.FindMatchingOptionName(
-                        context.ParseResult,
+                    var optionResult = Binder.FindMatchingOption(
+                        commandResult,
                         parameterInfo.Name);
 
-                    value = context.ParseResult
-                                   .CommandResult
-                                   .ValueForOption(optionName);
+                    if (optionResult != null)
+                    {
+                        value = optionResult.GetValueOrDefault();
+                    }
+                    else if (parameterInfo.Name.IsMatch(
+                        commandResult.Command?.Argument?.Name))
+                    {
+                        value = commandResult.GetValueOrDefault();
+                    }
                 }
 
                 arguments.Add(value);

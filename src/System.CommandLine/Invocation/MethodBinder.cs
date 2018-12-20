@@ -7,15 +7,17 @@ namespace System.CommandLine.Invocation
 {
     public class MethodBinder : MethodBinderBase
     {
-        private readonly object _target;
+        private readonly Func<object> _getTarget;
 
-        public MethodBinder(MethodInfo method, object target = null) :
+        public MethodBinder(
+            MethodInfo method,
+            Func<object> getTarget = null) :
             base(method)
         {
-            _target = target;
+            _getTarget = getTarget;
         }
 
         protected override object InvokeMethod(object[] arguments) =>
-            Method.Invoke(_target, arguments);
+            Method.Invoke(_getTarget?.Invoke(), arguments);
     }
 }
