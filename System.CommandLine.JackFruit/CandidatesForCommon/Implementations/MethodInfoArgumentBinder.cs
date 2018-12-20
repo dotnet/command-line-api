@@ -6,12 +6,13 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class TypeArgumentBinder : IArgumentBinder<Type, PropertyInfo>
+    public class MethodInfoArgumentBinder : IArgumentBinder<MethodInfo, ParameterInfo>
     {
         // TODO: Extract into IEnumerable(ArgumentStrategy) with IArgumentStrategy having 
         // CanHandle, GetArgument, GetName, GetHelp. GetArgument(Type, Name, Description)
         // And figure out rules, etc. 
         public IHelpProvider<Type> HelpProvider { get; set; }
+        IHelpProvider<MethodInfo> IArgumentBinder<MethodInfo, ParameterInfo>.HelpProvider { get; set; }
 
         public Argument GetArgument(Type source)
         {
@@ -86,16 +87,35 @@ namespace System.CommandLine.JackFruit
             return argument;
         }
 
-        private Argument GetArgument(Type currentType, ParameterInfo parameter)
+        private Argument GetArgument(MethodInfo methodInfo, ParameterInfo parameter)
         {
             var argument = new Argument
             {
                 ArgumentType = parameter.ParameterType
             };
             argument.Name = parameter.Name;
-            argument.Description = HelpProvider.GetHelp(currentType, parameter);
+            argument.Description = HelpProvider.GetHelp(methodInfo, parameter);
             return argument;
         }
 
+        public Argument GetArgument(MethodInfo source)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetName(MethodInfo source)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetHelp(MethodInfo source)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsArgument(MethodInfo source, ParameterInfo item)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

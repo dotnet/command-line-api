@@ -25,7 +25,7 @@ namespace System.CommandLine.JackFruit
             {
                 return await contextInvocation(context);
             }
-            else if (consoleOnlyInvocation!= null)
+            else if (consoleOnlyInvocation != null)
             {
                 return 512;
             }

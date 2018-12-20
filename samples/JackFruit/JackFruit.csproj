@@ -11,4 +11,8 @@
     <ProjectReference Include="..\..\System.CommandLine.JackFruit\System.CommandLine.JackFruit.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
 </Project>

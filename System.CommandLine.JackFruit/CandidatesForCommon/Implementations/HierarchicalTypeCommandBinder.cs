@@ -12,6 +12,7 @@ namespace System.CommandLine.JackFruit
     {
         private readonly IEnumerable<IGrouping<Type, Type>> typesByBase;
 
+        // Generally you do not need to pass anything, except whether to remove parent names
         public HierarchicalTypeCommandBinder(
                     IDescriptionProvider<Type> descriptionProvider = null,
                     IHelpProvider<Type> helpProvider = null,
@@ -43,23 +44,10 @@ namespace System.CommandLine.JackFruit
             return commandProvider.GetRootCommand(typeof(TRootType));
         }
 
-        // TODO: This is the wrong place for this method
-        public static async Task<int> RunAsync(string[] args,
-                   IDescriptionProvider<Type> descriptionProvider = null,
-                   IInvocationProvider invocationProvider = null,
-                   IRuleProvider ruleProvider = null)
+        public async Task<int> InvokeAsync(string[] args)
         {
-            var commandProvider = new HierarchicalTypeCommandBinder<TRootType>(
-                        descriptionProvider, invocationProvider: invocationProvider);
-            // TODO: Consider Get vs Create naming
-            var command = commandProvider.GetRootCommand(typeof(TRootType));
-            var builder = new CommandLineBuilder(command)
-                .AddStandardDirectives()
-                .UseExceptionHandler();
-
-            var parser = builder.Build();
-            return await parser.InvokeAsync(args);
+            var command = GetRootCommand(typeof(TRootType));
+            return await command.InvokeAsync(args);
         }
-
     }
 }

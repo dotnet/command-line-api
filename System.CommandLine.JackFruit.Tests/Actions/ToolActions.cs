@@ -6,10 +6,12 @@ namespace System.CommandLine.JackFruit
 {
     internal static class ToolActions
     {
+        public static string Captured;
+
         public static async Task<int> InstallAsync(string packageId, bool global, DirectoryInfo toolPath, string version, FileInfo configFile, string addSource,
             string framework, StandardVerbosity verbosity)
         {
-            Console.WriteLine(
+            Captured =
             $@"Tool/Install(
         Package Id: {packageId}
         Global: {global}
@@ -19,28 +21,28 @@ namespace System.CommandLine.JackFruit
         Add Source: {addSource}
         Framework: {framework}
         Verbosity: {verbosity.ToString()}
-    )");
+    )";
             return await Task.FromResult(0);
         }
 
         public static async Task<int> ListAsync(bool global, DirectoryInfo toolPath)
         {
-            Console.WriteLine(
+            Captured =
            $@"Tool/List(
         Global: {global}
         Tool Path: {toolPath}
-    )");
+    )";
             return await Task.FromResult(0);
         }
 
         public static async Task<int> UninstallAsync(string packageId, bool global, DirectoryInfo toolPath)
         {
-            Console.WriteLine(
+            Captured =
            $@"Tool/Uninstall(
         Package Id: {packageId}
         Global: {global}
         Tool Path: {toolPath}
-    )");
+    )";
             return await Task.FromResult(0);
         }
 
@@ -48,7 +50,7 @@ namespace System.CommandLine.JackFruit
         public static async Task<int> UpdateAsync(string packageId, bool global, DirectoryInfo toolPath, FileInfo configFile, string addSource, string framework,
             StandardVerbosity verbosity)
         {
-            Console.WriteLine(
+            Captured =
            $@"Tool/Update(
         Package Id: {packageId}
         Global: {global}
@@ -57,7 +59,7 @@ namespace System.CommandLine.JackFruit
         Add Source: {addSource}
         Framework: {framework}
         Verbosity: {verbosity.ToString()}
-    )");
+    )";
             return await Task.FromResult(0);
         }
     }

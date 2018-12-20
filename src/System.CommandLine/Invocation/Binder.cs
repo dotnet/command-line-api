@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
-    internal static class Binder
+    public static class Binder
     {
         public static Option BuildOption(this ParameterInfo parameter)
         {

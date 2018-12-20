@@ -22,7 +22,7 @@ namespace System.CommandLine.JackFruit
         private protected readonly bool shouldRemoveParentNames;
         private Stack<(string Raw, string Munged)> parentNames;
 
-        public CommandBinder(
+        protected CommandBinder(
                     IDescriptionProvider<TCommandSource> descriptionProvider = null,
                     IHelpProvider<TCommandSource> helpProvider = null,
                     IOptionBinder<TCommandSource, TOptionSource> optionProvider = null,
@@ -43,17 +43,23 @@ namespace System.CommandLine.JackFruit
             this.shouldRemoveParentNames = shouldRemoveParentNames;
         }
 
+        public abstract string GetName(TCommandSource current);
+        protected abstract void SetHandler(Command command, TCommandSource current);
+        public abstract IEnumerable<TOptionSource> GetOptionSources(TCommandSource source);
+        public abstract IEnumerable<TCommandSource> GetSubCommandSources(TCommandSource source);
+
         public Command GetCommand(TCommandSource current)
         {
             var name = GetName(current);
             var mungedName = RemoveParentNames(name);
+            var useName = shouldRemoveParentNames
+                            ? mungedName
+                            : name;
+
             parentNames.Push((name, mungedName));
-            if (shouldRemoveParentNames)
-            {
-                name = mungedName;
-            }
-            var command = FillCommand(current, new Command(name: name.ToKebabCase()));
+            var command = FillCommand(current, new Command(name: useName.ToKebabCase()));
             parentNames.Pop();
+
             return command;
         }
 
@@ -62,45 +68,33 @@ namespace System.CommandLine.JackFruit
             var reverseNames = parentNames.Reverse();
             foreach (var parentName in reverseNames)
             {
-                if (candidate.StartsWith(parentName.Raw))
+                if (candidate.StartsWith(parentName.Munged))
                 {
-                    candidate = candidate.Substring(parentName.Raw.Length);
+                    candidate = candidate.Substring(parentName.Munged.Length);
                 }
             }
             return candidate;
         }
 
         public Argument GetArgument(TCommandSource source)
-        {
-            return argumentProvider.GetArgument(source);
-        }
-
-        public abstract string GetName(TCommandSource current);
+            => argumentProvider.GetArgument(source);
 
         public RootCommand GetRootCommand(TCommandSource current)
              => FillCommand(current, new RootCommand());
 
         public IEnumerable<Option> GetOptions(TCommandSource current)
             => GetOptionSources(current)
-                .Where(p => argumentProvider.IsArgument(current, p))
                 .Select(x => optionProvider.GetOption(current, x));
 
         public IEnumerable<Command> GetSubCommands(TCommandSource current)
-        {
-            var subCommandSources = GetSubCommandSources(current);
-            return subCommandSources == null
-                ? null
-                : subCommandSources
-                    .Select(t => GetCommand(t));
-        }
+            => GetSubCommandSources(current)
+                    ?.Select(t => GetCommand(t));
 
         public string GetHelp(TCommandSource current)
             => helpProvider.GetHelp(current);
 
         public string GetHelp(TCommandSource current, TOptionSource optionSource)
             => helpProvider.GetHelp(current, optionSource);
-
-        protected abstract void SetHandler(Command command, TCommandSource current);
 
         protected TCommand FillCommand<TCommand>(TCommandSource current, TCommand command)
                 where TCommand : Command
@@ -115,8 +109,5 @@ namespace System.CommandLine.JackFruit
                 .AddCommands(GetSubCommands(current));
         }
 
-        public abstract IEnumerable<TOptionSource> GetOptionSources(TCommandSource source);
-
-        public abstract IEnumerable<TCommandSource> GetSubCommandSources(TCommandSource source);
     }
 }

@@ -12,7 +12,7 @@ namespace System.CommandLine.JackFruit
             //var commandLine = new string[] { "tool", "-h" };
             var retValue = await HierarchicalTypeCommandBinder<DotnetJackFruit>.RunAsync(
                         args, new DescriptionProvider(), new InvocationProvider());
-
+            Console.Read();
             return retValue;
 
             // Notes - ignore

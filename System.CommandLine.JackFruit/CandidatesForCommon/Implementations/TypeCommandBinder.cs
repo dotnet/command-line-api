@@ -29,12 +29,15 @@ namespace System.CommandLine.JackFruit
             => currentType.Name;
 
         public override IEnumerable<PropertyInfo> GetOptionSources(Type currentType)
-            => currentType.GetProperties();
+            => currentType.GetProperties()
+                  .Where(p => !argumentProvider.IsArgument(currentType, p)
+                            && !p.IgnoreProperty());
 
         protected override void SetHandler(Command command, Type currentType)
         {
             var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var methodInfo = typeof(TypeCommandBinder<TImplementedBinder>).GetMethod(nameof(SetHandlerInternal), bindingFlags);
+            var methodInfo = typeof(TypeCommandBinder<TImplementedBinder>)
+                                .GetMethod(nameof(SetHandlerInternal), bindingFlags);
             var constructedMethod = methodInfo.MakeGenericMethod(currentType);
             constructedMethod.Invoke(this, new object[] { command });
         }
@@ -62,18 +65,19 @@ namespace System.CommandLine.JackFruit
             }
         }
 
-        private Task<int> InvokeMethodWithResult<TResult>(InvocationContext context, Func<TResult, Task<int>> invocation)
+        private async Task<int>  InvokeMethodWithResult<TResult>(
+            InvocationContext context, Func<TResult, Task<int>> invocation)
         {
             var result = Activator.CreateInstance<TResult>();
             var binder = new TypeBinder(typeof(TResult));
             binder.SetProperties(context, result);
-            return invocation(result);
+            return await invocation(result);
         }
 
-        private async Task<int> InvokeAsync(InvocationContext x,
-            Func<Task<int>> invocation)
-        {
-            return await invocation();
-        }
+        //private async Task<int> InvokeAsync(InvocationContext x,
+        //    Func<Task<int>> invocation)
+        //{
+        //    return await invocation();
+        //}
     }
 }

@@ -83,6 +83,34 @@ namespace System.CommandLine.JackFruit.Tests
                     ("verbosity", typeof(StandardVerbosity)));
         }
 
+
+        [Fact]
+        public void Argument_created()
+        {
+            var command = HierarchicalTypeCommandBinder<DotnetJackFruit>.GetRootCommand();
+            command.Should().NotBeNull();
+            var toolCommand = (Command)command.Children["tool"];
+            var toolInstallCommand = (Command)toolCommand.Children["update"];
+            CheckArgument(toolInstallCommand, ("PackageId", typeof(string)));
+
+        }
+
+        private void CheckArgument(Command command, (string Name, Type Type) argumentInfo)
+        {
+            command.Argument.Name.Should().Be(argumentInfo.Name);
+            command.Argument.ArgumentType.Should().Be(argumentInfo.Type);
+        }
+
+        [Fact]
+        public async void Invocation_successful()
+        {
+            string[] args = { "tool", "install", "-g", "foo" };
+            var binder  = new HierarchicalTypeCommandBinder<DotnetJackFruit>();
+            var ret = await binder.InvokeAsync(args);
+            ret.Should().Be(0);
+            ToolActions.Captured.Should().Contain("Package Id: foo");
+        }
+
         private static void CheckSubCommands(Command command, params string[] subCommandNames)
         {
             var childCommands = command.Children.OfType<Command>();

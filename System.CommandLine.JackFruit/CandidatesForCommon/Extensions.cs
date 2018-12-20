@@ -76,6 +76,11 @@ namespace System.CommandLine.JackFruit
                 .CustomAttributes
                 .Any(x => x.AttributeType == typeof(IgnoreAttribute));
 
+        public static bool IgnoreParameter(this ParameterInfo propertyInfo)
+         => propertyInfo
+            .CustomAttributes
+            .Any(x => x.AttributeType == typeof(IgnoreAttribute));
+
 
         // TODO: This is a helper method on string - an extension pollutes Intellisense. Where to put it?
         public static  IEnumerable<string> AliasesFromUnderscores ( string name)
