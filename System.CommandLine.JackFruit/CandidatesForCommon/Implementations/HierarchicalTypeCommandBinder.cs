@@ -44,9 +44,10 @@ namespace System.CommandLine.JackFruit
             return commandProvider.GetRootCommand(typeof(TRootType));
         }
 
-        public async Task<int> InvokeAsync(string[] args)
+        public static async Task<int> InvokeAsync(string[] args,
+                   IDescriptionProvider<Type> descriptionProvider = null)
         {
-            var command = GetRootCommand(typeof(TRootType));
+            var command = GetRootCommand(descriptionProvider);
             return await command.InvokeAsync(args);
         }
     }

@@ -10,8 +10,8 @@ namespace System.CommandLine.JackFruit
         static async Task<int> Main(string[] args)
         {
             //var commandLine = new string[] { "tool", "-h" };
-            var retValue = await HierarchicalTypeCommandBinder<DotnetJackFruit>.RunAsync(
-                        args, new DescriptionProvider(), new InvocationProvider());
+            var retValue = await HierarchicalTypeCommandBinder<DotnetJackFruit>.InvokeAsync(
+                        args, new DescriptionProvider());
             Console.Read();
             return retValue;
 

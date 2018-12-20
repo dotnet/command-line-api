@@ -105,8 +105,7 @@ namespace System.CommandLine.JackFruit.Tests
         public async void Invocation_successful()
         {
             string[] args = { "tool", "install", "-g", "foo" };
-            var binder  = new HierarchicalTypeCommandBinder<DotnetJackFruit>();
-            var ret = await binder.InvokeAsync(args);
+            var ret = await HierarchicalTypeCommandBinder<DotnetJackFruit>.InvokeAsync(args);
             ret.Should().Be(0);
             ToolActions.Captured.Should().Contain("Package Id: foo");
         }

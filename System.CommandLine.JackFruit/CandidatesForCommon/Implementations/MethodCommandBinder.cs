@@ -32,43 +32,12 @@ namespace System.CommandLine.JackFruit
                   .Where(p => !argumentProvider.IsArgument(current, p)
                             && !p.IgnoreParameter());
 
+        public override IEnumerable<MethodInfo> GetSubCommandSources(MethodInfo source) 
+            => null;
+
         protected override void SetHandler(Command command, MethodInfo current)
         {
            command.Handler = CommandHandler.Create(current);
         }
-
-        //private void SetHandlerInternal(Command command)
-        //{
-        //    Func<TResult, Task<int>> invocation = null;
-        //    if (invocationProvider != null)
-        //    {
-        //        invocation = invocationProvider.InvokeAsyncFunc<TResult>();
-        //    }
-        //    else
-        //    {
-        //        var methodInfo = typeof(TResult).GetMethod("InvokeAsync");
-        //        if (methodInfo != null)
-        //        {
-        //            invocation = x => (Task<int>)methodInfo.Invoke(x, null);
-        //        }
-        //    }
-        //    if (invocation != null)
-        //    {
-        //        Func<InvocationContext, Task<int>> invocationWrapper
-        //            = context => InvokeMethodWithResult(context, invocation);
-        //        command.Handler = new SimpleCommandHandler(invocationWrapper);
-        //    }
-        //}
-
-        //private async Task<int>  InvokeMethodWithResult<TResult>(
-        //    InvocationContext context, Func<TResult, Task<int>> invocation)
-        //{
-        //}
-
-        //private async Task<int> InvokeAsync(InvocationContext x,
-        //    Func<Task<int>> invocation)
-        //{
-        //    return await invocation();
-        //}
-    }
+   }
 }

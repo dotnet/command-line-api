@@ -30,7 +30,8 @@ namespace System.CommandLine.JackFruit
                     IInvocationProvider invocationProvider = null,
                     bool shouldRemoveParentNames = false)
         {
-            this.helpProvider = helpProvider ?? new GeneralHelpProvider<TCommandSource>(descriptionProvider);
+            this.helpProvider = helpProvider 
+                ?? HelpProvider<TCommandSource>.GeneralHelpProvider (descriptionProvider);
             this.optionProvider = optionProvider;
             this.argumentProvider = argumentProvider;
             this.invocationProvider = invocationProvider;
