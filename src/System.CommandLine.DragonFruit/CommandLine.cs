@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -78,14 +79,7 @@ namespace System.CommandLine.DragonFruit
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
                     {
-                        var kebabCasedParameterName = parameterDescription.Key.ToKebabCase();
-
-                        var option = options.FirstOrDefault(o => o.HasAlias(kebabCasedParameterName));
-
-                        if (option != null)
-                        {
-                            option.Description = parameterDescription.Value;
-                        }
+                        ConfigureOption(parameterDescription, options);
                     }
 
                     metadata.Name = assembly.GetName().Name;
@@ -93,6 +87,39 @@ namespace System.CommandLine.DragonFruit
             }
 
             return builder;
+        }
+
+        private static void ConfigureOption(ParameterMetadata parameterDescription, IEnumerable<Option> options)
+        {
+            var parameterName = BuildAlias(parameterDescription.Name);
+
+            var option = options.FirstOrDefault(o => o.HasAlias(parameterName));
+
+            if (option != null)
+            {
+                option.Description = parameterDescription.Description;
+
+                if (!string.IsNullOrWhiteSpace(parameterDescription.Alias))
+                {
+                    var aliasName = BuildAlias(parameterDescription.Alias);
+                    if (!option.HasAlias(aliasName))
+                    {
+                        option.AddAlias(aliasName);
+                    }
+                }
+            }
+        }
+
+        private static string BuildAlias(string parameterName)
+        {
+            if (string.IsNullOrWhiteSpace(parameterName))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(parameterName));
+            }
+
+            return parameterName.Length > 1
+                ? $"--{parameterName.ToKebabCase()}"
+                : $"-{parameterName.ToLowerInvariant()}";
         }
     }
 }

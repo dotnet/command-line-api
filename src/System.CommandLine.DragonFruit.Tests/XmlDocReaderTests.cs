@@ -1,6 +1,7 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -26,11 +27,12 @@ namespace System.CommandLine.DragonFruit.Tests
         <name>DragonFruit</name>
     </assembly>
     <members>
-        <member name=""M:System.CommandLine.DragonFruit.Tests." + nameof(XmlDocReaderTests) + @".Program.Main(System.Boolean,System.String,System.Nullable{System.Int32})"">
+        <member name=""M:System.CommandLine.DragonFruit.Tests." + nameof(XmlDocReaderTests) +
+                               @".Program.Main(System.Boolean,System.String,System.Nullable{System.Int32})"">
             <summary>
             Hello
             </summary>
-            <param name=""verbose"">Show verbose output</param>
+            <param name=""verbose"" alias=""v"">Show verbose output</param>
             <param name=""flavor"">Which flavor to use</param>
             <param name=""count"">How many smoothies?</param>
         </member>
@@ -43,9 +45,11 @@ namespace System.CommandLine.DragonFruit.Tests
 
             docReader.TryGetMethodDescription(action.Method, out var helpMetadata).Should().BeTrue();
             helpMetadata.Description.Should().Be("Hello");
-            helpMetadata.ParameterDescriptions["verbose"].Should().Be("Show verbose output");
-            helpMetadata.ParameterDescriptions["flavor"].Should().Be("Which flavor to use");
-            helpMetadata.ParameterDescriptions["count"].Should().Be("How many smoothies?");
+            helpMetadata.ParameterDescriptions.Should().HaveCount(3);
+            helpMetadata.ParameterDescriptions.Should().BeEquivalentTo(
+                new ParameterMetadata("verbose", "Show verbose output", "v"),
+                new ParameterMetadata("flavor", "Which flavor to use"),
+                new ParameterMetadata("count", "How many smoothies?"));
         }
     }
 }
