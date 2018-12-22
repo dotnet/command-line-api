@@ -5,7 +5,6 @@ using System.CommandLine.Invocation;
 using FluentAssertions;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -266,7 +265,6 @@ namespace System.CommandLine.Tests
 
         [Theory]
         [InlineData(typeof(IConsole))]
-        [InlineData(typeof(ITerminal))]
         [InlineData(typeof(InvocationContext))]
         [InlineData(typeof(ParseResult))]
         [InlineData(typeof(CancellationToken))]

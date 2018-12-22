@@ -36,8 +36,6 @@ namespace System.CommandLine.Invocation
 
         public IConsole Console { get; }
 
-        internal ITerminal Terminal => Console as ITerminal;
-
         public int ResultCode { get; set; }
 
         public IInvocationResult InvocationResult { get; set; }
@@ -95,10 +93,6 @@ namespace System.CommandLine.Invocation
                 else if (serviceType == typeof(InvocationContext))
                 {
                     return _context;
-                }
-                else if (serviceType == typeof(ITerminal))
-                {
-                    return _context.Console as ITerminal;
                 }
                 else if (serviceType == typeof(IConsole))
                 {

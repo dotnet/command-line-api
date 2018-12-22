@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\System.CommandLine.DragonFruit\System.CommandLine.DragonFruit.csproj" />
+    <ProjectReference Include="..\..\src\System.CommandLine.Rendering\System.CommandLine.Rendering.csproj" />
   </ItemGroup>
 
 </Project>
