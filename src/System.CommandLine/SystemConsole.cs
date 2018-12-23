@@ -3,64 +3,7 @@
 
 namespace System.CommandLine
 {
-    internal interface ISystemConsoleColorShim
-    {
-        ConsoleColor BackgroundColor { get; set; }
-
-        ConsoleColor ForegroundColor { get; set; }
-
-        void ResetColor();
-    }
-
-    internal class SystemTerminalShim : SystemConsole, ISystemConsoleColorShim, IDisposable
-    {
-        private readonly ConsoleColor _initialForegroundColor;
-        private readonly ConsoleColor _initialBackgroundColor;
-
-        internal SystemTerminalShim()
-        {
-            _initialForegroundColor = Console.ForegroundColor;
-            _initialBackgroundColor = Console.BackgroundColor;
-        }
-
-        public ConsoleColor BackgroundColor
-        {
-            get => Console.BackgroundColor;
-            set => Console.BackgroundColor = value;
-        }
-
-        public ConsoleColor ForegroundColor
-        {
-            get => Console.ForegroundColor;
-            set => Console.ForegroundColor = value;
-        }
-
-        public void ResetColor() => Console.ResetColor();
-
-        private void ResetConsole()
-        {
-            Console.ForegroundColor = _initialForegroundColor;
-            Console.BackgroundColor = _initialBackgroundColor;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            ResetConsole();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~SystemTerminalShim()
-        {
-            Dispose(false);
-        }
-    }
-
-    internal class SystemConsole : IConsole
+    public class SystemConsole : IConsole
     {
         public SystemConsole()
         {
@@ -86,7 +29,7 @@ namespace System.CommandLine
             }
             else
             {
-                return new SystemTerminalShim();
+                return new SystemTerminal();
             }
         }
     }

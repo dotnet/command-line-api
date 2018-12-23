@@ -129,7 +129,7 @@ namespace System.CommandLine.Invocation
                 }
                 catch (Exception exception)
                 {
-                    var terminal = context.Console as ISystemConsoleColorShim;
+                    var terminal = context.Console as ITerminal;
 
                     if (terminal != null)
                     {

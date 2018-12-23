@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace System.CommandLine.Rendering
 {
-    public class VirtualTerminalMode : IDisposable
+    public sealed class VirtualTerminalMode : IDisposable
     {
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
 
@@ -108,7 +108,7 @@ namespace System.CommandLine.Rendering
             return new VirtualTerminalMode(true);
         }
 
-        public void Dispose()
+        private void RestoreConsoleMode()
         {
             if (IsEnabled)
             {
@@ -116,11 +116,23 @@ namespace System.CommandLine.Rendering
                 {
                     SetConsoleMode(_stdOutHandle, _originalOutputMode);
                 }
+
                 // if (_stdInHandle != IntPtr.Zero)
                 // {
                 //    SetConsoleMode(_stdInHandle, _originalInputMode);
                 // }
             }
+        }
+
+        public void Dispose()
+        {
+            RestoreConsoleMode();
+            GC.SuppressFinalize(this);
+        }
+
+        ~VirtualTerminalMode()
+        {
+            RestoreConsoleMode();
         }
     }
 }

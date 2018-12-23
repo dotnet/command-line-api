@@ -12,7 +12,7 @@ namespace System.CommandLine.Rendering
     public class TestTerminal : 
         TestConsole, 
         ITerminal, 
-        CommandLine.ISystemConsoleColorShim
+        CommandLine.ITerminal
     {
         private int _cursorLeft;
         private int _cursorTop;
@@ -24,7 +24,7 @@ namespace System.CommandLine.Rendering
 
         public TestTerminal()
         {
-            var @out = new RecordingWriter();
+            var @out = new SystemTerminal.RecordingWriter();
             @out.CharWritten += OnCharWrittenToOut;
             Out = @out;
         }

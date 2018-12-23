@@ -6,18 +6,12 @@ using System.IO;
 namespace System.CommandLine.Rendering
 {
     public interface ITerminal :
-        IConsole,
+        System.CommandLine.ITerminal,
         IDisposable
     {
         Region GetRegion();
 
         void SetOut(TextWriter writer);
-
-        ConsoleColor BackgroundColor { get; set; }
-
-        ConsoleColor ForegroundColor { get; set; }
-
-        void ResetColor();
 
         int CursorLeft { get; set; }
 

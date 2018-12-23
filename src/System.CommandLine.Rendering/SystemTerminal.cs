@@ -2,11 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
+using System.Text;
 
 namespace System.CommandLine.Rendering
 {
     internal class SystemTerminal :
-        SystemTerminalShim,
+        CommandLine.SystemTerminal,
         ITerminal
     {
         private VirtualTerminalMode _virtualTerminalMode;
@@ -60,9 +61,27 @@ namespace System.CommandLine.Rendering
 
         protected override void Dispose(bool disposing)
         {
-            _virtualTerminalMode?.Dispose();
+            if (disposing)
+            {
+                _virtualTerminalMode?.Dispose();
+            }
+        }
 
-            base.Dispose(disposing);
+        internal class RecordingWriter : TextWriter, IStandardStreamWriter
+        {
+            private readonly StringBuilder _stringBuilder = new StringBuilder();
+
+            public event Action<char> CharWritten;
+
+            public override void Write(char value)
+            {
+                _stringBuilder.Append(value);
+                CharWritten?.Invoke(value);
+            }
+
+            public override Encoding Encoding { get; } = Encoding.Unicode;
+
+            public override string ToString() => _stringBuilder.ToString();
         }
     }
 }

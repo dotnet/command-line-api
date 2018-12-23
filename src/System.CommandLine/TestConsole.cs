@@ -10,8 +10,8 @@ namespace System.CommandLine
     {
         public TestConsole()
         {
-            Out = new RecordingWriter();
-            Error = new RecordingWriter();
+            Out = new StandardStreamWriter();
+            Error = new StandardStreamWriter();
         }
 
         public IStandardStreamWriter Error { get; protected set; }
@@ -24,16 +24,13 @@ namespace System.CommandLine
 
         public bool IsInputRedirected { get; protected set; }
 
-        internal class RecordingWriter : TextWriter, IStandardStreamWriter
+        internal class StandardStreamWriter : TextWriter, IStandardStreamWriter
         {
             private readonly StringBuilder _stringBuilder = new StringBuilder();
-
-            public event Action<char> CharWritten;
 
             public override void Write(char value)
             {
                 _stringBuilder.Append(value);
-                CharWritten?.Invoke(value);
             }
 
             public override Encoding Encoding { get; } = Encoding.Unicode;
