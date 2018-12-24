@@ -5,6 +5,7 @@
         "strongName": "MsSharedLib72",
         "values": [
           "bin/System.CommandLine/*/System.CommandLine.dll",
+          "bin/System.CommandLine.Rendering/*/System.CommandLine.Rendering.dll",
           "bin/System.CommandLine.DragonFruit/*/System.CommandLine.DragonFruit.dll",
           "bin/dotnet-suggest/*/dotnet-suggest.dll"
       ]
