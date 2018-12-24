@@ -33,19 +33,23 @@ namespace System.CommandLine.JackFruit
                 DerivedTypeFinder derivedTypeFinder, Type baseType)
         {
             var derivedTypes = derivedTypeFinder.GetDerivedTypes(baseType)
-                                    .Select(t => GetCommand(t));
-            return derivedTypeFinder != null
-                             ? (true,
-                                derivedTypes
-                                  )
-                             : (false, null);
+                                    ?.Select(t => GetCommand(t))
+                                    .ToList();
+            return (derivedTypes == null || derivedTypes.Any(), derivedTypes);
         }
 
         // TODO: Filter this for Ignore methods
         private static (bool, IEnumerable<Command>) FromMethod(Type baseType)
         {
-            var method = baseType.GetMethod("InvokeAsync", Reflection.Constants.PublicAndInstance);
-            return (method != null, PreBinderContext.Current.SubCommandFinder.Get(method)) ;
+            var methods = baseType.GetMethods(Reflection.Constants.PublicThisInstance)
+                            .Where(m => !m.IsSpecialName);
+            var commands = methods
+                            .Select(m => GetCommand(m))
+                            .ToList();
+            return ((commands != null && commands.Any(), commands));
+
+            //var method = baseType.GetMethod("InvokeAsync", Reflection.Constants.PublicAndInstance);
+            //return (method != null, PreBinderContext.Current.SubCommandFinder.Get(method)) ;
         }
 
         // Command is passed in for Root command

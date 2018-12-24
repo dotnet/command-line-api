@@ -19,6 +19,8 @@ namespace System.CommandLine.JackFruit
             {
                 case Type type:
                     return GetName(type.GetCustomAttribute<AliasAttribute>(), type.Name);
+                case MethodInfo methodInfo:
+                    return GetName(methodInfo.GetCustomAttribute<AliasAttribute>(), methodInfo.Name);
                 case PropertyInfo propertyInfo:
                     return GetName(propertyInfo.GetCustomAttribute<AliasAttribute>(), propertyInfo.Name);
                 case ParameterInfo parameterInfo:

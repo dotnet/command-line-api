@@ -7,6 +7,6 @@ namespace System.CommandLine.JackFruit.Reflection
 {
     public class Constants
     {
-        public static readonly BindingFlags PublicAndInstance = BindingFlags.Public & BindingFlags.Instance;
+        public static readonly BindingFlags PublicThisInstance = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
     }
 }

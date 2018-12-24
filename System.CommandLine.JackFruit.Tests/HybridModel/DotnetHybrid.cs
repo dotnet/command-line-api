@@ -10,22 +10,16 @@ namespace System.CommandLine.JackFruit.Tests
             [Argument]
             public FileInfo ProjectFile { get; }
 
-            public class Package
+            public Task<int> Package(FileInfo ProjectFile, string PackageName,
+                    string _Framework, string _Source, bool _NoRestore, bool Interactive,
+                    DirectoryInfo PackageDirectory)
             {
-                public Task<int> InvokeAsync(FileInfo ProjectFile, string PackageName,
-                        string _Framework, string _Source, bool _NoRestore, bool Interactive,
-                        DirectoryInfo PackageDirectory)
-                {
-                    return null; // actually do stuff}
-                }
+                return null; // actually do stuff}
             }
-            public class Reference
+            public Task<int> Reference(FileInfo ProjectFile, string ProjectPath,
+              string _Framework)
             {
-                public Task<int> InvokeAsync(FileInfo ProjectFile, string ProjectPath,
-                  string _Framework)
-                {
-                    return null; // actually do stuff                    }
-                }
+                return null; // actually do stuff                    }
             }
         }
 
@@ -64,7 +58,7 @@ namespace System.CommandLine.JackFruit.Tests
                 }
             }
 
-            internal class Reference 
+            internal class Reference
             {
                 public FileInfo ProjectPathArg { get; set; }
 

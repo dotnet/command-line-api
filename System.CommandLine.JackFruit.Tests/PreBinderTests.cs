@@ -66,14 +66,34 @@ namespace System.CommandLine.JackFruit.Tests
         }
 
         [Fact]
-        public void Can_retrieve_subcommands_for_type()
+        public void Can_retrieve_subCommands_for_type()
         {
             var commands = PreBinderContext.Current.SubCommandFinder.Get(typeof(DotnetJackFruit));
             CheckSubCommands(commands, "add", "list", "remove", "sln", "tool");
         }
 
         [Fact]
-        public void Can_create_root_command()
+        public void Can_retrieve_subcCmmands_via_methodInfo()
+        {
+            var commands = PreBinderContext.Current.SubCommandFinder.Get(typeof(DotnetHybrid.Add));
+            CheckSubCommands(commands, "package", "reference");
+            var packageCommand = commands.Where(c => c.Name == "package").First();
+            CheckAliasList(packageCommand.Aliases, new string[] { "package" });
+ //           CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "project-file" });
+            CheckHelp(packageCommand.Description, "");
+            CheckSubCommands(packageCommand, new string[] { });
+            CheckOptions(packageCommand, 
+                            ("package-name", typeof(string)),
+                            ("framework", typeof(string)),
+                            ("source", typeof(string)),
+                            ("no-restore", typeof(string)),
+                            ("Interactive", typeof(bool)),
+                            ("PackageDirectory", typeof(DirectoryInfo))
+                        );
+        }
+
+        [Fact]
+        public void Can_create_root_commands_for_()
         {
             var command = CommandPreBinder.ParserTreeFromDerivedTypes<DotnetJackFruit>(new DescriptionFinder());
             command.Should().NotBeNull();
@@ -103,14 +123,25 @@ namespace System.CommandLine.JackFruit.Tests
 
         private static void CheckHelp(string actual, string expectedStart)
         {
-            actual.Should().NotBeNull();
+            if  (string.IsNullOrWhiteSpace(expectedStart ))
+            {
+                actual.Should().BeNullOrWhiteSpace();
+                return;
+            }
+            actual.Should().NotBeNullOrWhiteSpace();
+            if (expectedStart.Length < 15)
+            {
+                actual.Should().Be(expectedStart);
+                return;
+            }
             actual.StartsWith(expectedStart).Should().BeTrue();
         }
 
         private static void CheckSubCommands(Command command, params string[] subCommandNames)
         {
+
             var childCommands = command.Children.OfType<Command>();
-            CheckSubCommands(childCommands, subCommandNames);
+            CheckSubCommands(childCommands);
         }
 
         private static void CheckSubCommands(IEnumerable<Command> childCommands, params string[] subCommandNames)
@@ -119,15 +150,14 @@ namespace System.CommandLine.JackFruit.Tests
             childCommands.Count().Should().Be(subCommandNames.Length);
             foreach (var cmdName in subCommandNames)
             {
-                childCommands.Any(x=>x.Name== cmdName).Should().BeTrue();
+                childCommands.Any(x => x.Name == cmdName).Should().BeTrue();
             }
         }
 
         private static void CheckOptions(Command command, params (string Name, Type Type)[] optionInfos)
         {
-
             var childOptions = command.Children.OfType<Option>();
-            CheckOptions(childOptions);
+            CheckOptions(childOptions, optionInfos);
         }
 
         private static void CheckOptions(IEnumerable<Option> options, params (string Name, Type Type)[] optionInfos)
