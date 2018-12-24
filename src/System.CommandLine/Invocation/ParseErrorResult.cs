@@ -7,8 +7,8 @@ namespace System.CommandLine.Invocation
     {
         public void Apply(InvocationContext context)
         {
-            var terminal = context.Terminal;
-
+            var terminal = context.Console as ITerminal;
+            
             if (terminal != null)
             {
                 terminal.ResetColor();

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Subjects;
+using ITerminal = System.CommandLine.Rendering.ITerminal;
 
 namespace RenderingPlayground
 {

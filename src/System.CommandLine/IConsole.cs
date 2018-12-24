@@ -17,9 +17,11 @@ namespace System.CommandLine
         bool IsOutputRedirected { get; }
     }
 
-    public interface IStandardError 
+    public interface IStandardError
     {
         IStandardStreamWriter Error { get; }
+
+        bool IsErrorRedirected { get; }
     }
 
     public interface IStandardStream
@@ -28,6 +30,7 @@ namespace System.CommandLine
 
     public interface IStandardIn : IStandardStream
     {
+        bool IsInputRedirected { get; }
     }
 
     public interface IStandardStreamWriter : IStandardStream

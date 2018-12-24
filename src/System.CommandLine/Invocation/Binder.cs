@@ -77,7 +77,6 @@ namespace System.CommandLine.Invocation
             new[]
             {
                 typeof(IConsole),
-                typeof(ITerminal),
                 typeof(InvocationContext),
                 typeof(ParseResult),
                 typeof(CancellationToken)

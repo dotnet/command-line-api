@@ -129,7 +129,7 @@ namespace System.CommandLine.Invocation
                 }
                 catch (Exception exception)
                 {
-                    var terminal = context.Terminal;
+                    var terminal = context.Console as ITerminal;
 
                     if (terminal != null)
                     {
@@ -139,7 +139,9 @@ namespace System.CommandLine.Invocation
 
                     context.Console.Error.Write("Unhandled exception: ");
                     context.Console.Error.WriteLine(exception.ToString());
+                    
                     terminal?.ResetColor();
+
                     context.ResultCode = 1;
                 }
             }, order: CommandLineBuilder.MiddlewareOrder.ExceptionHandler);

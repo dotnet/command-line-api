@@ -13,7 +13,6 @@ namespace System.CommandLine.Tests
     {
         [Theory]
         [InlineData(typeof(IConsole))]
-        [InlineData(typeof(ITerminal))]
         [InlineData(typeof(InvocationContext))]
         [InlineData(typeof(ParseResult))]
         [InlineData(typeof(CancellationToken))]
