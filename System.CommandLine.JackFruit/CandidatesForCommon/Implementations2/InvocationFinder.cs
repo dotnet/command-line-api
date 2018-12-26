@@ -13,12 +13,12 @@ namespace System.CommandLine.JackFruit
             : base(approaches: approaches)
         { }
 
-        private static (bool, ICommandHandler) FromMethod(MethodInfo method)
+        private static (bool, ICommandHandler) FromMethod(object parent, MethodInfo method)
             => method != null
                   ? (true, CommandHandler.Create(method))
                   : (false, null);
 
-        private static (bool, ICommandHandler) FromInvokeOnType(Type type)
+        private static (bool, ICommandHandler) FromInvokeOnType(object parent, Type type)
         {
             var invokeMethod = type.GetMethod("InvokeAsync");
             return type != null && invokeMethod != null
@@ -28,11 +28,11 @@ namespace System.CommandLine.JackFruit
 
         public static Approach<ICommandHandler> MethodApproach()
              => Approach<ICommandHandler>.CreateApproach<object>(
-                 x=>FromMethod(x as MethodInfo));
+                 (p,x)=>FromMethod(p,x as MethodInfo));
 
         public static Approach<ICommandHandler> InvokeOnTypeApproach()
              => Approach<ICommandHandler>.CreateApproach<object>(
-                 x=> FromInvokeOnType(x as Type));
+                 (p,x)=> FromInvokeOnType(p,x as Type));
 
         public static HandlerFinder Default() 
             => new HandlerFinder(MethodApproach(), InvokeOnTypeApproach());

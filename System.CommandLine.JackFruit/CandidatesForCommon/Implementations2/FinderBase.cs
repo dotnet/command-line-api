@@ -12,25 +12,25 @@ namespace System.CommandLine.JackFruit
         private Func<object, object> initialCheck;
         private Func<T, T> finalTransform;
 
+        public void AddApproach(Approach<T> approach)
+            => approaches.Add(approach);
+
         protected FinderBase(Func<object, object> initialCheck = null,
                             Func<T, T> finalTransform = null,
                             params Approach<T>[] approaches)
         {
             this.initialCheck = initialCheck;
             this.finalTransform = finalTransform;
-            this.approaches = new ApproachSet<T>(approaches);
+            this.approaches =  ApproachSet<T>.Create (approaches);
         }
 
-        public void AddApproach(Approach<T> approach)
-            => approaches.Add(approach);
-
-        public T Get<TSource>(TSource source)
+        public T Get<TSource>(object parent, TSource source)
         {
             if (initialCheck != null)
             {
                 source = (TSource)initialCheck(source);
             }
-            T ret = approaches.Do(source);
+            T ret = approaches.Do(parent, source);
             if (finalTransform != null)
             {
                 ret = finalTransform(ret);
@@ -38,46 +38,13 @@ namespace System.CommandLine.JackFruit
             return ret;
         }
 
-        public T Get<TSource, TItem>(TSource source, TItem item)
+        public T Get<TSource, TItem>(object parent, TSource source, TItem item)
         {
             if (initialCheck != null)
             {
                 source = (TSource)initialCheck(source);
             }
-            T ret = approaches.Do(source, item);
-            if (finalTransform != null)
-            {
-                ret = finalTransform(ret);
-            }
-            return ret;
-        }
-    }
-
-    public abstract class FinderForListBase<T> : IListFinder<T>
-    {
-        private ApproachSetForList<T> approaches;
-        private Func<object, object> initialCheck;
-        private Func<IEnumerable<T>, IEnumerable<T>> finalTransform;
-
-        public void AddApproach(Approach<IEnumerable<T>> approach)
-            => approaches.Add(approach);
-
-        protected FinderForListBase(Func<object, object> initialCheck = null,
-                     Func<IEnumerable<T>, IEnumerable<T>> finalTransform = null,
-                     params Approach<IEnumerable<T>>[] approaches)
-        {
-            this.initialCheck = initialCheck;
-            this.finalTransform = finalTransform;
-            this.approaches = new ApproachSetForList<T>(approaches);
-        }
-
-        public IEnumerable<T> Get<TSource>(TSource source)
-        {
-            if (initialCheck != null)
-            {
-                source = (TSource)initialCheck(source);
-            }
-            IEnumerable<T> ret = approaches.Do(source);
+            T ret = approaches.Do(parent, source, item);
             if (finalTransform != null)
             {
                 ret = finalTransform(ret);

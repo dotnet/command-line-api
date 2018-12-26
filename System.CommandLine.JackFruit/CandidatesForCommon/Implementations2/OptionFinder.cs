@@ -7,18 +7,18 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class OptionFinder : FinderForListBase<Option>
+    public class OptionFinder : FinderBase<IEnumerable<Option>>
     {
         public OptionFinder(params Approach<IEnumerable<Option>>[] approaches)
             : base (approaches: approaches )
         { }
 
-        private static (bool, IEnumerable<Option>) FromProperties(Type baseType)
+        private static (bool, IEnumerable<Option>) FromProperties(object parent, Type baseType)
             => (true, baseType
                  .GetProperties()
                  .Select(m => TypeBinder.BuildOption(m)));
 
-        private static (bool, IEnumerable<Option>) FromParameters(MethodInfo method)
+        private static (bool, IEnumerable<Option>) FromParameters(object parent, MethodInfo method)
             => (true, method
                  .GetParameters()
                  .Select(m => Invocation.Binder.BuildOption(m)));
@@ -42,11 +42,11 @@ namespace System.CommandLine.JackFruit
 
         public static Approach<IEnumerable<Option>> PropertyApproach()
             => Approach<IEnumerable<Option>>.CreateApproach<Type>(
-                           t => FromProperties(t));
+                          (p, t) => FromProperties(p,t));
 
         public static Approach<IEnumerable<Option>> ParameterApproach()
              => Approach<IEnumerable<Option>>.CreateApproach<MethodInfo>(
-                            t => FromParameters(t));
+                            (p, t) => FromParameters(p,t));
 
 
         public static OptionFinder Default()

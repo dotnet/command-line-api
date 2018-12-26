@@ -1,4 +1,5 @@
-﻿using System.CommandLine.Invocation;
+﻿using System.Collections.Generic;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.JackFruit
 {
@@ -16,15 +17,15 @@ namespace System.CommandLine.JackFruit
                 return current;
             }
         }
-        private IListFinder<Command> subCommandFinder;
-        public IListFinder<Command> SubCommandFinder
+        private IFinder<IEnumerable<Command>> subCommandFinder;
+        public IFinder<IEnumerable<Command>> SubCommandFinder
         {
             get => subCommandFinder ?? (subCommandFinder = JackFruit.CommandFinder.Default());
             set => subCommandFinder = value;
         }
 
-        private IListFinder<string> aliasFinder;
-        public IListFinder<string> AliasFinder
+        private IFinder<IEnumerable<string>> aliasFinder;
+        public IFinder<IEnumerable<string>> AliasFinder
         {
             get => aliasFinder ?? (aliasFinder = JackFruit.AliasFinder.Default());
             set => aliasFinder = value;
@@ -37,15 +38,15 @@ namespace System.CommandLine.JackFruit
             set => helpFinder = value;
         }
 
-        private IListFinder<Argument> argumentFinder;
-        public IListFinder<Argument> ArgumentFinder
+        private IFinder<IEnumerable<Argument>> argumentFinder;
+        public IFinder<IEnumerable<Argument>> ArgumentFinder
         {
             get => argumentFinder ?? (argumentFinder = JackFruit.ArgumentFinder.Default());
             set => argumentFinder = value;
         }
 
-        private IListFinder<Option> optionFinder;
-        public IListFinder<Option> OptionFinder
+        private IFinder<IEnumerable<Option>> optionFinder;
+        public IFinder<IEnumerable<Option>> OptionFinder
         {
             get => optionFinder ?? (optionFinder = JackFruit.OptionFinder.Default());
             set => optionFinder = value;

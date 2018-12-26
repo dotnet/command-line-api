@@ -6,7 +6,7 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class CommandFinder : FinderForListBase<Command>
+    public class CommandFinder : FinderBase<IEnumerable<Command>>
     {
         public CommandFinder(params Approach<IEnumerable<Command>>[] approaches)
             : base(approaches: approaches)
@@ -30,21 +30,21 @@ namespace System.CommandLine.JackFruit
         }
 
         private static (bool, IEnumerable<Command>) FromDerivedTypes(
-                DerivedTypeFinder derivedTypeFinder, Type baseType)
+                 DerivedTypeFinder derivedTypeFinder,object parent, Type baseType)
         {
             var derivedTypes = derivedTypeFinder.GetDerivedTypes(baseType)
-                                    ?.Select(t => GetCommand(t))
+                                    ?.Select(t => GetCommand(parent, t))
                                     .ToList();
             return (derivedTypes == null || derivedTypes.Any(), derivedTypes);
         }
 
         // TODO: Filter this for Ignore methods
-        private static (bool, IEnumerable<Command>) FromMethod(Type baseType)
+        private static (bool, IEnumerable<Command>) FromMethod(object parent, Type baseType)
         {
             var methods = baseType.GetMethods(Reflection.Constants.PublicThisInstance)
                             .Where(m => !m.IsSpecialName);
             var commands = methods
-                            .Select(m => GetCommand(m))
+                            .Select(m => GetCommand(parent, m))
                             .ToList();
             return ((commands != null && commands.Any(), commands));
 
@@ -53,20 +53,23 @@ namespace System.CommandLine.JackFruit
         }
 
         // Command is passed in for Root command
-        internal static Command GetCommand<T>(T source, Command command = null)
+        internal static Command GetCommand<T>(object parent, T source, Command command = null)
         {
-            var names = PreBinderContext.Current.AliasFinder.Get(source);
-            var help = PreBinderContext.Current.HelpFinder.Get(source);
-            var arguments = PreBinderContext.Current.ArgumentFinder.Get(source);
-            var options = PreBinderContext.Current.OptionFinder.Get(source);
-            var handler = PreBinderContext.Current.HandlerFinder.Get(source);
+            // Arguments vs. Options - Fix has to handle args defined in parent type for hybrid: 
+            // Approach - create both and remove the option after creation - extra work, but no order dependency
+            // Alternate - add the options to the command earlier and pass to OptionFinder
+            var names = PreBinderContext.Current.AliasFinder.Get(parent, source);
+            var help = PreBinderContext.Current.HelpFinder.Get(parent, source);
+            var arguments = PreBinderContext.Current.ArgumentFinder.Get(parent, source);
+            var options = PreBinderContext.Current.OptionFinder.Get(parent, source);
+            var handler = PreBinderContext.Current.HandlerFinder.Get(parent, source);
             command = command ?? new Command(names?.First(), help);
-            // TODO: When multi-arguments merged, update this
             if (arguments.Any())
             {
+                // TODO: When multi-arguments merged, update this
                 command.Argument = arguments.First();
             }
-            var subCommands = PreBinderContext.Current.SubCommandFinder.Get(source);
+            var subCommands = PreBinderContext.Current.SubCommandFinder.Get(parent, source);
             command.Handler = handler;
             command.AddOptions(options);
             return command;
@@ -74,7 +77,7 @@ namespace System.CommandLine.JackFruit
 
         public static Approach<IEnumerable<Command>> DerivedTypeApproach(Type rootType)
             => Approach<IEnumerable<Command>>.CreateApproach<Type>(
-                           t => FromDerivedTypes(new DerivedTypeFinder(rootType), t));
+                          (p,t) => FromDerivedTypes(new DerivedTypeFinder(rootType), p,t));
 
         public static Approach<IEnumerable<Command>> MethodApproach()
             => Approach<IEnumerable<Command>>.CreateApproach<Type>(FromMethod);

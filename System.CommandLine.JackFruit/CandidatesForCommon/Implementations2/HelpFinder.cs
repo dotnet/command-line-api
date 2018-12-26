@@ -9,12 +9,12 @@ namespace System.CommandLine.JackFruit
             : base(approaches: approaches)
         { }
 
-        protected static (bool, string) HelpFromAttribute(object source, object item)
+        protected static (bool, string) HelpFromAttribute(object parent, object source, object item)
         {
             switch (item)
             {
                 case Object _ when source == item:
-                    return HelpFromAttribute(source, null);
+                    return HelpFromAttribute(parent,source, null);
                 case null when source is Type sourceType:
                     return GetHelp(sourceType.GetCustomAttribute<HelpAttribute>(), sourceType.Name);
                 case Type type:
@@ -34,7 +34,7 @@ namespace System.CommandLine.JackFruit
         }
 
         protected static (bool, string) HelpFromDescription<TSource, TItem>
-            (IDescriptionFinder descriptionProvider, TSource source, TItem item)
+            (IDescriptionFinder descriptionProvider, object parent, TSource source, TItem item)
         {
             var ret = (descriptionProvider != null && (source.Equals(item) || item == null)
                    ? descriptionProvider?.Description(source)
@@ -58,13 +58,13 @@ namespace System.CommandLine.JackFruit
 
         public static Approach<string> AttributeApproach()
             => Approach<string>.CreateApproach<object, object>(HelpFromAttribute,
-                    source=> HelpFromAttribute(source, source));
+                    (parent,source)=> HelpFromAttribute(parent,source, source));
 
         public static Approach<string> DescriptionFinderApproach(
                     IDescriptionFinder descriptionFinder = null)
              => Approach<string>.CreateApproach<object, object>(
-                 (source, item) => HelpFromDescription(descriptionFinder, source, item),
-                 source => HelpFromDescription(descriptionFinder, source, source));
+                 (parent,source, item) => HelpFromDescription(descriptionFinder, parent,source, item),
+                 (parent,source) => HelpFromDescription(descriptionFinder, parent,source, source));
 
         public static HelpFinder Default() 
             => new HelpFinder(AttributeApproach());

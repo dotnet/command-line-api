@@ -6,46 +6,46 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class ArgumentFinder : FinderForListBase <Argument>
+    public class ArgumentFinder : FinderBase <IEnumerable<Argument>>
     {
 
         public ArgumentFinder(params Approach<IEnumerable<Argument>>[] approaches)
             : base(approaches: approaches)
         { }
 
-        private static (bool, IEnumerable<Argument>) FromAttributedProperties(Type baseType)
+        private static (bool, IEnumerable<Argument>) FromAttributedProperties(object parent, Type baseType)
             => (true, baseType
                         .GetProperties()
                         .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                        .Select(m => GetArgument(m)));
+                        .Select(m => GetArgument(parent, m)));
 
-        private static (bool, IEnumerable<Argument>) FromSuffixedProperties(Type baseType)
+        private static (bool, IEnumerable<Argument>) FromSuffixedProperties(object parent, Type baseType)
             => (true, baseType
                     .GetProperties()
                     .Where(p => NameIsSuffixed(p.Name))
-                    .Select(m => GetArgument(m)));
+                    .Select(m => GetArgument(parent, m)));
 
-        private static (bool, IEnumerable<Argument>) FromAttributedParameters(MethodInfo method)
+        private static (bool, IEnumerable<Argument>) FromAttributedParameters(object parent, MethodInfo method)
             => (true, method
                  .GetParameters()
                  .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                 .Select(m => GetArgument(m)));
+                 .Select(m => GetArgument(parent, m)));
 
-        private static (bool, IEnumerable<Argument>) FromSuffixedParameters(MethodInfo method)
+        private static (bool, IEnumerable<Argument>) FromSuffixedParameters(object parent, MethodInfo method)
             => (true, method
                  .GetParameters()
                     .Where(p => NameIsSuffixed(p.Name))
-                    .Select(m => GetArgument(m)));
+                    .Select(m => GetArgument(parent,m)));
 
         // TODO: Also need to update the name to remove Args, and this is a can of worms
         private static bool NameIsSuffixed(string name)
             => name.EndsWith("Args");
 
-        private static Argument GetArgument<T>(T source)
+        private static Argument GetArgument<T>(object parent, T source)
         {
             var argument = new Argument();
-            argument.Name = PreBinderContext.Current.AliasFinder.Get(source).First();
-            argument.Description = PreBinderContext.Current.HelpFinder.Get(source);
+            argument.Name = PreBinderContext.Current.AliasFinder.Get(parent, source).First();
+            argument.Description = PreBinderContext.Current.HelpFinder.Get(parent, source);
             argument.ArgumentType = GetType(source);
             return argument;
         }
@@ -65,18 +65,18 @@ namespace System.CommandLine.JackFruit
 
         public static Approach<IEnumerable<Argument>> AttributedPropertyApproach() 
             => Approach<IEnumerable<Argument>>.CreateApproach<Type>(
-                           t => FromAttributedProperties(t));
+                           (p,t) => FromAttributedProperties(p,t));
         public static Approach<IEnumerable<Argument>> SuffixedPropertyApproach()
              => Approach<IEnumerable<Argument>>.CreateApproach<Type>(
-                            t => FromSuffixedProperties(t));
+                           (p, t) => FromSuffixedProperties(p,t));
 
         public static Approach<IEnumerable<Argument>> AttributedParameterApproach()
              => Approach<IEnumerable<Argument>>.CreateApproach<MethodInfo>(
-                            t => FromAttributedParameters(t));
+                           (m, t) => FromAttributedParameters(m,t));
 
         public static Approach<IEnumerable<Argument>> SuffixedParameterApproach()
              => Approach<IEnumerable<Argument>>.CreateApproach<MethodInfo>(
-                            t => FromSuffixedParameters(t));
+                           (m, t) => FromSuffixedParameters(m,t));
 
         public static ArgumentFinder Default() 
             => new ArgumentFinder(AttributedPropertyApproach(), SuffixedPropertyApproach(),

@@ -14,7 +14,7 @@ namespace System.CommandLine.JackFruit
                 CommandFinder.DerivedTypeApproach(typeof(TRootType)));
             PreBinderContext.Current.HelpFinder.AddApproach(
                 HelpFinder.DescriptionFinderApproach(descriptionFinder));
-            var command = CommandFinder.GetCommand(typeof(TRootType), new RootCommand());
+            var command = CommandFinder.GetCommand(null, typeof(TRootType), new RootCommand());
             return command;
         }
     }
