@@ -47,8 +47,25 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_retrieve_arguments_for_type()
         {
+            var arguments = PreBinderContext.Current.ArgumentFinder.Get(typeof(ToolInstall ));
+            CheckArguments(arguments, new List<string>());
+        }
+
+        [Fact]
+        public void Doesnt_find_arguments_when_there_arent_any()
+        {
             var arguments = PreBinderContext.Current.ArgumentFinder.Get(typeof(Tool));
             CheckArguments(arguments, new List<string>());
+        }
+
+        [Fact]
+        public void Can_retrieve_parent_arguments_for_subcommands()
+        {
+            // SubCommands 
+            var commands = PreBinderContext.Current.SubCommandFinder.Get(typeof(DotnetHybrid.Add));
+            CheckSubCommands(commands, "package", "reference");
+            var packageCommand = commands.Where(c => c.Name == "package").First();
+            CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "project-file" }); var arguments = PreBinderContext.Current.ArgumentFinder.Get(typeof(Tool));
         }
 
         [Fact]
@@ -79,7 +96,8 @@ namespace System.CommandLine.JackFruit.Tests
             CheckSubCommands(commands, "package", "reference");
             var packageCommand = commands.Where(c => c.Name == "package").First();
             CheckAliasList(packageCommand.Aliases, new string[] { "package" });
- //           CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "project-file" });
+            // TODO: START HERE Get argument working, then have option check names against argument
+            CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "project-file" });
             CheckHelp(packageCommand.Description, "");
             CheckSubCommands(packageCommand, new string[] { });
             CheckOptions(packageCommand, 
