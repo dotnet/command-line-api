@@ -13,25 +13,25 @@ namespace System.CommandLine.JackFruit
             : base(approaches: approaches)
         { }
 
-        private static (bool, IEnumerable<Argument>) FromAttributedProperties(object parent, Type baseType)
+        private static (bool, IEnumerable<Argument>) FromAttributedProperties(Command parent, Type baseType)
             => (true, baseType
                         .GetProperties()
                         .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
                         .Select(m => GetArgument(parent, m)));
 
-        private static (bool, IEnumerable<Argument>) FromSuffixedProperties(object parent, Type baseType)
+        private static (bool, IEnumerable<Argument>) FromSuffixedProperties(Command parent, Type baseType)
             => (true, baseType
                     .GetProperties()
                     .Where(p => NameIsSuffixed(p.Name))
                     .Select(m => GetArgument(parent, m)));
 
-        private static (bool, IEnumerable<Argument>) FromAttributedParameters(object parent, MethodInfo method)
+        private static (bool, IEnumerable<Argument>) FromAttributedParameters(Command parent, MethodInfo method)
             => (true, method
                  .GetParameters()
                  .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
                  .Select(m => GetArgument(parent, m)));
 
-        private static (bool, IEnumerable<Argument>) FromSuffixedParameters(object parent, MethodInfo method)
+        private static (bool, IEnumerable<Argument>) FromSuffixedParameters(Command parent, MethodInfo method)
             => (true, method
                  .GetParameters()
                     .Where(p => NameIsSuffixed(p.Name))
@@ -41,7 +41,7 @@ namespace System.CommandLine.JackFruit
         private static bool NameIsSuffixed(string name)
             => name.EndsWith("Args");
 
-        private static Argument GetArgument<T>(object parent, T source)
+        private static Argument GetArgument<T>(Command parent, T source)
         {
             var argument = new Argument();
             argument.Name = PreBinderContext.Current.AliasFinder.Get(parent, source).First();

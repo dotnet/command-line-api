@@ -13,12 +13,12 @@ namespace System.CommandLine.JackFruit
             : base(approaches: approaches)
         { }
 
-        private static (bool, ICommandHandler) FromMethod(object parent, MethodInfo method)
+        private static (bool, ICommandHandler) FromMethod(Command parent, MethodInfo method)
             => method != null
                   ? (true, CommandHandler.Create(method))
                   : (false, null);
 
-        private static (bool, ICommandHandler) FromInvokeOnType(object parent, Type type)
+        private static (bool, ICommandHandler) FromInvokeOnType(Command parent, Type type)
         {
             var invokeMethod = type.GetMethod("InvokeAsync");
             return type != null && invokeMethod != null

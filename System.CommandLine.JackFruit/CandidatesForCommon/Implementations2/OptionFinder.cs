@@ -13,12 +13,12 @@ namespace System.CommandLine.JackFruit
             : base (approaches: approaches )
         { }
 
-        private static (bool, IEnumerable<Option>) FromProperties(object parent, Type baseType)
+        private static (bool, IEnumerable<Option>) FromProperties(Command parent, Type baseType)
             => (true, baseType
                  .GetProperties()
                  .Select(m => TypeBinder.BuildOption(m)));
 
-        private static (bool, IEnumerable<Option>) FromParameters(object parent, MethodInfo method)
+        private static (bool, IEnumerable<Option>) FromParameters(Command parent, MethodInfo method)
             => (true, method
                  .GetParameters()
                  .Select(m => Invocation.Binder.BuildOption(m)));

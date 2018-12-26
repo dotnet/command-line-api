@@ -24,7 +24,7 @@ namespace System.CommandLine.JackFruit
             this.approaches =  ApproachSet<T>.Create (approaches);
         }
 
-        public T Get<TSource>(object parent, TSource source)
+        public T Get<TSource>(Command parent, TSource source)
         {
             if (initialCheck != null)
             {
@@ -38,7 +38,7 @@ namespace System.CommandLine.JackFruit
             return ret;
         }
 
-        public T Get<TSource, TItem>(object parent, TSource source, TItem item)
+        public T Get<TSource, TItem>(Command parent, TSource source, TItem item)
         {
             if (initialCheck != null)
             {

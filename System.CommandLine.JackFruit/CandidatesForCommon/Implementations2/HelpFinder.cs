@@ -9,7 +9,7 @@ namespace System.CommandLine.JackFruit
             : base(approaches: approaches)
         { }
 
-        protected static (bool, string) HelpFromAttribute(object parent, object source, object item)
+        protected static (bool, string) HelpFromAttribute(Command parent, object source, object item)
         {
             switch (item)
             {
@@ -34,7 +34,7 @@ namespace System.CommandLine.JackFruit
         }
 
         protected static (bool, string) HelpFromDescription<TSource, TItem>
-            (IDescriptionFinder descriptionProvider, object parent, TSource source, TItem item)
+            (IDescriptionFinder descriptionProvider, Command parent, TSource source, TItem item)
         {
             var ret = (descriptionProvider != null && (source.Equals(item) || item == null)
                    ? descriptionProvider?.Description(source)

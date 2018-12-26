@@ -13,7 +13,7 @@ namespace System.CommandLine.JackFruit
               : base(initialCheck, finalTransform, approaches)
         { }
 
-        protected static (bool, IEnumerable<string>) AliasesFromAttribute(object parent, object source, object item)
+        protected static (bool, IEnumerable<string>) AliasesFromAttribute(Command parent, object source, object item)
         {
             switch (source)
             {

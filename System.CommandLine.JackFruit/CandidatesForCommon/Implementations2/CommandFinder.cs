@@ -30,7 +30,7 @@ namespace System.CommandLine.JackFruit
         }
 
         private static (bool, IEnumerable<Command>) FromDerivedTypes(
-                 DerivedTypeFinder derivedTypeFinder,object parent, Type baseType)
+                 DerivedTypeFinder derivedTypeFinder,Command parent, Type baseType)
         {
             var derivedTypes = derivedTypeFinder.GetDerivedTypes(baseType)
                                     ?.Select(t => GetCommand(parent, t))
@@ -39,7 +39,7 @@ namespace System.CommandLine.JackFruit
         }
 
         // TODO: Filter this for Ignore methods
-        private static (bool, IEnumerable<Command>) FromMethod(object parent, Type baseType)
+        private static (bool, IEnumerable<Command>) FromMethod(Command parent, Type baseType)
         {
             var methods = baseType.GetMethods(Reflection.Constants.PublicThisInstance)
                             .Where(m => !m.IsSpecialName);
@@ -53,7 +53,7 @@ namespace System.CommandLine.JackFruit
         }
 
         // Command is passed in for Root command
-        internal static Command GetCommand<T>(object parent, T source, Command command = null)
+        internal static Command GetCommand<T>(Command parent, T source, Command command = null)
         {
             // Arguments vs. Options - Fix has to handle args defined in parent type for hybrid: 
             // Approach - create both and remove the option after creation - extra work, but no order dependency
