@@ -45,8 +45,8 @@ namespace System.CommandLine.JackFruit
                            t => FromProperties(t));
 
         public static Approach<IEnumerable<Option>> ParameterApproach()
-             => Approach<IEnumerable<Option>>.CreateApproach<Type>(
-                            t => FromProperties(t));
+             => Approach<IEnumerable<Option>>.CreateApproach<MethodInfo>(
+                            t => FromParameters(t));
 
 
         public static OptionFinder Default()
