@@ -3,17 +3,14 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace System.CommandLine.Rendering
 {
-    public class TestTerminal : 
-        TestConsole, 
-        ITerminal, 
-        CommandLine.ITerminal
+    public class TestTerminal : ITerminal
     {
+        private readonly ITerminal _inner;
         private int _cursorLeft;
         private int _cursorTop;
         private readonly List<ConsoleEvent> _events = new List<ConsoleEvent>();
@@ -21,13 +18,22 @@ namespace System.CommandLine.Rendering
         private readonly StringBuilder _ansiCodeBuffer = new StringBuilder();
         private ConsoleColor _backgroundColor = ConsoleColor.Black;
         private ConsoleColor _foregroundColor = ConsoleColor.White;
+        private readonly RecordingWriter _out = new RecordingWriter();
+        private readonly RecordingWriter _error = new RecordingWriter();
 
         public TestTerminal()
         {
-            var @out = new SystemTerminal.RecordingWriter();
-            @out.CharWritten += OnCharWrittenToOut;
-            Out = @out;
+            _out.CharWritten += OnCharWrittenToOut;
+
+            _inner = new SystemConsoleTerminal(this);
         }
+
+        public IStandardStreamWriter Out => _out;
+        public IStandardStreamWriter Error => _error;
+
+        public bool IsOutputRedirected => _inner.IsOutputRedirected;
+        public bool IsErrorRedirected => _inner.IsErrorRedirected;
+        public bool IsInputRedirected => _inner.IsInputRedirected;
 
         private void OnCharWrittenToOut(char c)
         {
@@ -56,12 +62,6 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public void SetOut(TextWriter writer)
-        {
-            Out = StandardStreamWriter.Create(writer ?? throw new ArgumentNullException(nameof(writer)));
-            IsOutputRedirected = true;
-        }
-
         public int Height { get; set; } = 100;
 
         public int Width { get; set; } = 100;
@@ -76,6 +76,11 @@ namespace System.CommandLine.Rendering
                        0,
                        Width,
                        Height);
+
+        public void Clear()
+        {
+            RecordEvent(new Cleared());
+        }
 
         public int CursorLeft
         {
@@ -174,10 +179,6 @@ namespace System.CommandLine.Rendering
 
         private string UnflushedOutput => _outBuffer.ToString();
 
-        public bool IsVirtualTerminal { get; private set; }
-
-        public void TryEnableVirtualTerminal() => IsVirtualTerminal = !IsOutputRedirected;
-
         public virtual ConsoleColor BackgroundColor
         {
             get => _backgroundColor;
@@ -266,6 +267,10 @@ namespace System.CommandLine.Rendering
             }
 
             public ConsoleColor BackgroundColor { get; }
+        }
+
+        public class Cleared : ConsoleEvent
+        {
         }
 
         public class ColorReset : ConsoleEvent

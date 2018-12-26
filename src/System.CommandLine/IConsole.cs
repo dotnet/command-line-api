@@ -41,4 +41,15 @@ namespace System.CommandLine
     public interface IStandardStreamReader : IStandardStream
     {
     }
+
+    public interface IConsoleFactory
+    {
+        IConsole CreateConsole();
+    }
+
+
+
+
+
+
 }

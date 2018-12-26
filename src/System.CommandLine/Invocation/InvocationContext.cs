@@ -7,9 +7,10 @@ namespace System.CommandLine.Invocation
 {
     public sealed class InvocationContext : IDisposable
     {
-        private readonly IDisposable _onDispose;
+        private  IDisposable _onDispose;
         private CancellationTokenSource _cts;
         private Action<CancellationTokenSource> _cancellationHandlingAddedEvent;
+        private readonly Lazy<IConsole> _console;
 
         public InvocationContext(
             ParseResult parseResult,
@@ -19,26 +20,32 @@ namespace System.CommandLine.Invocation
             ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
 
-            if (console != null)
+            _console = new Lazy<IConsole>(() =>
             {
-                Console = console;
-            }
-            else
-            {
-                Console = SystemConsole.Create();
-                _onDispose = Console as IDisposable;
-            }
+                if (console != null)
+                {
+                    return console;
+                }
+                else
+                {
+                    var createdConsole = ConsoleFactory?.CreateConsole();
+                    _onDispose = createdConsole as IDisposable;
+                    return createdConsole;
+                }
+            });
         }
 
         public Parser Parser { get; }
 
         public ParseResult ParseResult { get; set; }
 
-        public IConsole Console { get; }
+        public IConsole Console => _console.Value;
 
         public int ResultCode { get; set; }
 
         public IInvocationResult InvocationResult { get; set; }
+
+        internal IConsoleFactory ConsoleFactory { get; set; } = new DefaultConsoleFactory();
 
         internal IServiceProvider ServiceProvider => new InvocationContextServiceProvider(this);
 

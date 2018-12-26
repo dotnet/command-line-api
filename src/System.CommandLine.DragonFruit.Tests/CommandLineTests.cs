@@ -10,7 +10,7 @@ namespace System.CommandLine.DragonFruit.Tests
 {
     public class CommandLineTests
     {
-        private readonly TestTerminal _terminal;
+        private readonly ITerminal _terminal;
         private readonly TestProgram _testProgram;
 
         public CommandLineTests()
@@ -28,7 +28,7 @@ namespace System.CommandLine.DragonFruit.Tests
                                TestProgram.TestMainMethodInfo,
                                _testProgram);
             exitCode.Should().Be(0);
-            _testProgram.Captured.Should().Be("Wayne");
+            _terminal.Out.ToString().Should().Be("Wayne");
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace System.CommandLine.DragonFruit.Tests
                                _testProgram);
 
             exitCode.Should().Be(0);
-            _testProgram.Captured.Should().Be("Bruce");
+            _terminal.Out.ToString().Should().Be("Bruce");
         }
 
         private void TestMainThatThrows() => throw new InvalidOperationException("This threw an error");
