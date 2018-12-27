@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.JackFruit
 {
-    public class CommandPreBinder
+    public class PreBinder
     {
-        public static Command ParserTreeFromDerivedTypes<TRootType>(IDescriptionFinder descriptionFinder)
+        public static Command RootCommand<TRootType>(IDescriptionFinder descriptionFinder)
         {
             PreBinderContext.Current.HelpFinder.AddApproach(
                 HelpFinder.DescriptionFinderApproach(descriptionFinder));

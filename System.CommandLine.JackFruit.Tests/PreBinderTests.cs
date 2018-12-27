@@ -23,6 +23,8 @@ namespace System.CommandLine.JackFruit.Tests
             _testProgram = new TestProgram();
             PreBinderContext.Current.HelpFinder.AddApproach(
                 HelpFinder.DescriptionFinderApproach(new DescriptionFinder()));
+            PreBinderContext.Current.HelpFinder.AddApproach(
+                HelpFinder.DescriptionFinderApproach(new HybridModelDescriptionFinder()));
             testParent = new Command("test");
         }
 
@@ -40,6 +42,13 @@ namespace System.CommandLine.JackFruit.Tests
         public void Can_retrieve_help_for_command_from_description_file()
         {
             var help = PreBinderContext.Current.HelpFinder.Get(testParent, typeof(Tool));
+            CheckHelp(help, "Install or manage tools");
+        }
+
+        [Fact]
+        public void Can_retrieve_help_for_command_from_hybrid_description_file()
+        {
+            var help = PreBinderContext.Current.HelpFinder.Get(testParent, typeof(DotnetHybrid.Tool));
             CheckHelp(help, "Install or manage tools");
         }
 
@@ -96,21 +105,22 @@ namespace System.CommandLine.JackFruit.Tests
             CheckSubCommands(commands, "package", "reference");
             var packageCommand = commands.Where(c => c.Name == "package").First();
             CheckAliasList(packageCommand.Aliases, new string[] { "package" });
-            CheckHelp(packageCommand.Description, "");
+            CheckHelp(packageCommand.Description, "Add a NuGet package reference");
             CheckSubCommands(packageCommand, new string[] { });
         }
 
 
-        [Fact(Skip = "Ignoring because not sure how this should work")]
+        [Fact]
         public void Can_retrieve_command_structure()
         {
-            var commands = PreBinderContext.Current.SubCommandFinder.Get(testParent, typeof(DotnetHybrid.Add));
-            CheckSubCommands(commands, "package", "reference");
-            var packageCommand = commands.Where(c => c.Name == "package").First();
-            CheckAliasList(packageCommand.Aliases, new string[] { "package" });
-            // TODO: START HERE Get argument working, then have option check names against argument
-            CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "project-file" });
-            CheckHelp(packageCommand.Description, "");
+            var rootCommand = PreBinder.RootCommand<DotnetHybrid>(new HybridModelDescriptionFinder());
+
+            CheckSubCommands(rootCommand, "add", "list", "remove", "sln", "tool");
+            var addCommand = rootCommand.Children.OfType<Command>().Single(x=>x.Name == "add");
+            CheckSubCommands(addCommand, "package", "reference");
+            var packageCommand = addCommand.Children.OfType<Command>().Single(x => x.Name == "package");
+            CheckArguments(new Argument[] { addCommand.Argument }, new string[] { "project-file" });
+            CheckHelp(packageCommand.Description, "Add a NuGet package reference to the project.");
             CheckSubCommands(packageCommand, new string[] { });
             CheckOptions(packageCommand,
                             ("package-name", typeof(string)),
@@ -125,7 +135,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_create_root_commands()
         {
-            var command = CommandPreBinder.ParserTreeFromDerivedTypes<DotnetJackFruit>(new DescriptionFinder());
+            var command = PreBinder.RootCommand<DotnetJackFruit>(new DescriptionFinder());
             command.Should().NotBeNull();
         }
 
@@ -175,7 +185,7 @@ namespace System.CommandLine.JackFruit.Tests
 
         private static void CheckSubCommands(Command command, params string[] subCommandNames)
         {
-
+            command.Should().NotBeNull();
             var childCommands = command.Children.OfType<Command>();
             CheckSubCommands(childCommands, subCommandNames);
         }

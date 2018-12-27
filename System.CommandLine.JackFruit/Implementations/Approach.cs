@@ -116,7 +116,10 @@ namespace System.CommandLine.JackFruit
             {
 
                 (endEvaluation, value) = operation(approach);
-                if (endEvaluation || shortCircuit && value != default)
+                if (endEvaluation || shortCircuit && 
+                    (value is string s 
+                       ? !string.IsNullOrWhiteSpace(s)
+                       : value != default))
                 {
                     break;
                 }
