@@ -1,6 +1,6 @@
 ﻿namespace System.CommandLine.JackFruit
 {
-    public interface IRuleProvider
+    public class ArgumentAttribute : Attribute
     {
     }
 }

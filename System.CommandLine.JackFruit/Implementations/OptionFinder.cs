@@ -27,19 +27,6 @@ namespace System.CommandLine.JackFruit
         private static bool NameIsSuffixed(string name)
             => name.EndsWith("Args");
 
-        private static Type GetType<T>(T source)
-        {
-            switch (source)
-            {
-                case PropertyInfo property:
-                    return property.PropertyType;
-                case ParameterInfo parameter:
-                    return parameter.ParameterType;
-                default:
-                    return null;
-            }
-        }
-
         public static Approach<IEnumerable<Option>> PropertyApproach()
             => Approach<IEnumerable<Option>>.CreateApproach<Type>(
                           (p, t) => FromProperties(p,t));

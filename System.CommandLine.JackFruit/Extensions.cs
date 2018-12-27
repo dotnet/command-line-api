@@ -61,25 +61,25 @@ namespace System.CommandLine.JackFruit
             return option;
         }
 
-        public static CommandLineBuilder AddStandardDirectives(this CommandLineBuilder builder)
-            => builder
-                .UseDebugDirective()
-                .UseParseErrorReporting()
-                .UseParseDirective()
-                .UseHelp()
-                .UseSuggestDirective()
-                .RegisterWithDotnetSuggest()
-                .UseExceptionHandler();
+        //public static CommandLineBuilder AddStandardDirectives(this CommandLineBuilder builder)
+        //    => builder
+        //        .UseDebugDirective()
+        //        .UseParseErrorReporting()
+        //        .UseParseDirective()
+        //        .UseHelp()
+        //        .UseSuggestDirective()
+        //        .RegisterWithDotnetSuggest()
+        //        .UseExceptionHandler();
 
-        public static bool IgnoreProperty(this PropertyInfo propertyInfo)
-             => propertyInfo
-                .CustomAttributes
-                .Any(x => x.AttributeType == typeof(IgnoreAttribute));
+        //public static bool IgnoreProperty(this PropertyInfo propertyInfo)
+        //     => propertyInfo
+        //        .CustomAttributes
+        //        .Any(x => x.AttributeType == typeof(IgnoreAttribute));
 
-        public static bool IgnoreParameter(this ParameterInfo propertyInfo)
-         => propertyInfo
-            .CustomAttributes
-            .Any(x => x.AttributeType == typeof(IgnoreAttribute));
+        //public static bool IgnoreParameter(this ParameterInfo propertyInfo)
+        // => propertyInfo
+        //    .CustomAttributes
+        //    .Any(x => x.AttributeType == typeof(IgnoreAttribute));
 
 
         // TODO: This is a helper method on string - an extension pollutes Intellisense. Where to put it?

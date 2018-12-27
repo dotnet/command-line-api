@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace System.CommandLine.JackFruit
+﻿namespace System.CommandLine.JackFruit
 {
     public interface IFinder<T>
     {

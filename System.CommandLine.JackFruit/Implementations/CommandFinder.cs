@@ -50,7 +50,7 @@ namespace System.CommandLine.JackFruit
         private static (bool, IEnumerable<Command>) FromNestedTypes(
                  Command parent, Type baseType)
         {
-            var nestedTypes = baseType.GetNestedTypes(Constants.PublicThisInstance)
+            var nestedTypes = baseType.GetNestedTypes(Constants.PublicDeclaredInInstance)
                                      ?.Select(t => GetCommand(parent, t))
                                      .ToList();
             return (false, nestedTypes);
@@ -59,7 +59,7 @@ namespace System.CommandLine.JackFruit
         // TODO: Filter this for Ignore methods
         private static (bool, IEnumerable<Command>) FromMethod(Command parent, Type baseType)
         {
-            var methods = baseType.GetMethods(Reflection.Constants.PublicThisInstance)
+            var methods = baseType.GetMethods(Reflection.Constants.PublicDeclaredInInstance)
                             .Where(m => !m.IsSpecialName);
             var commands = methods
                             .Select(m => GetCommand(parent, m))

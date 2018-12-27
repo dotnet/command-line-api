@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace System.CommandLine.JackFruit
 {
-    // TODO: CLenaup or collapse FinderForList into Finder
-    // TODO: Consider making initialCheck and finalTransform not optional and requiring derived to pass null
     public abstract class FinderBase<T> : IFinder<T>
     {
         private ApproachSet<T> approaches;

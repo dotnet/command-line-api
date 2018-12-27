@@ -10,10 +10,11 @@ namespace System.CommandLine.JackFruit
         static async Task<int> Main(string[] args)
         {
             //var commandLine = new string[] { "tool", "-h" };
-            var retValue = await HierarchicalTypeCommandBinder<DotnetJackFruit>.InvokeAsync(
-                        args, new DescriptionProvider());
-            Console.Read();
-            return retValue;
+            //var retValue = await HierarchicalTypeCommandBinder<DotnetJackFruit>.InvokeAsync(
+            //            args, new DescriptionProvider());
+            //Console.Read();
+            //return retValue;
+            return await Task.FromResult(42);
 
             // Notes - ignore
             // Help: Provider or attributes. If an attribute exists, provider is not called
@@ -29,13 +30,5 @@ namespace System.CommandLine.JackFruit
             // - Simple expects unique class names and strips ancestors from class names when creating command names.
             // - AbosluteSimple does neither. 
         }
-    }
-
-    internal class RuleProvider : IRuleProvider
-    {
-    }
-
-    internal class NuGet
-    {
     }
 }
