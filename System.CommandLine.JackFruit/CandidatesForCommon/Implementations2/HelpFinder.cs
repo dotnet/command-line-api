@@ -29,7 +29,7 @@ namespace System.CommandLine.JackFruit
 
             (bool, string) GetHelp(HelpAttribute attribute, string name)
                 => attribute != null
-                    ? (true, attribute.HelpText)
+                    ? (false, attribute.HelpText)
                     : (false, null);
         }
 
@@ -40,7 +40,7 @@ namespace System.CommandLine.JackFruit
                    ? descriptionProvider?.Description(source)
                    : descriptionProvider?.Description(source, NameFromItem()))
                       ?? null;
-            return (ret != null, ret);
+            return (false, ret);
 
             string NameFromItem()
             {

@@ -140,17 +140,15 @@ namespace System.CommandLine.JackFruit
         protected override IEnumerable<T> DoInternal(Func<Approach<IEnumerable<T>>, (bool, IEnumerable<T>)> operation)
         {
             // TODO: Does try go around for each or around evaluation?
-            bool handled = false;
             var value = new List<T>();
             foreach (var approach in approaches)
             {
-                (var newHandled, var newList) = operation(approach);
+                (var endEvaluation, var newList) = operation(approach);
                 if (newList != null && newList.Any())
                 {
                     value.AddRange(newList);
                 }
-                handled = newHandled;
-                if (handled || (shortCircuit && newList.Any()))
+                if (endEvaluation || (shortCircuit && newList.Any()))
                 {
                     break;
                 }

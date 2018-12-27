@@ -10,8 +10,6 @@ namespace System.CommandLine.JackFruit
     {
         public static Command ParserTreeFromDerivedTypes<TRootType>(IDescriptionFinder descriptionFinder)
         {
-            PreBinderContext.Current.SubCommandFinder.AddApproach(
-                CommandFinder.DerivedTypeApproach(typeof(TRootType)));
             PreBinderContext.Current.HelpFinder.AddApproach(
                 HelpFinder.DescriptionFinderApproach(descriptionFinder));
             var command = CommandFinder.GetCommand(null, typeof(TRootType), new RootCommand());

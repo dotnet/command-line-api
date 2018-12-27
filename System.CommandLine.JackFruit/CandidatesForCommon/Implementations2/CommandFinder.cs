@@ -15,28 +15,36 @@ namespace System.CommandLine.JackFruit
 
         private class DerivedTypeFinder
         {
-            private IEnumerable<IGrouping<Type, Type>> typesByBase;
+            private static List<Assembly> assemblies = new List<Assembly>();
+            private static List<IGrouping<Type, Type>> typesByBase = new List<IGrouping<Type, Type>>();
 
-            internal DerivedTypeFinder(Type rootType)
+            internal static void LoadAssemblyFromType(Type baseType)
             {
-                typesByBase = rootType.Assembly
-                                  .GetTypes()
-                                  .GroupBy(x => x.BaseType);
+                if (!assemblies.Contains(baseType.Assembly))
+                {
+                    typesByBase.AddRange(baseType.Assembly
+                                        .GetTypes()
+                                        .GroupBy(x => x.BaseType));
+                    assemblies.Add(baseType.Assembly);
+                }
             }
 
-            internal IEnumerable<Type> GetDerivedTypes(Type baseType)
-            => typesByBase
+            internal static IEnumerable<Type> GetDerivedTypes(Type baseType)
+            {
+                LoadAssemblyFromType(baseType);
+                return typesByBase
                         .Where(x => x.Key == baseType)
                         .SingleOrDefault();
+            }
         }
 
         private static (bool, IEnumerable<Command>) FromDerivedTypes(
-                 DerivedTypeFinder derivedTypeFinder,Command parent, Type baseType)
+                  Command parent, Type baseType)
         {
-            var derivedTypes = derivedTypeFinder.GetDerivedTypes(baseType)
+            var derivedTypes = DerivedTypeFinder.GetDerivedTypes(baseType)
                                     ?.Select(t => GetCommand(parent, t))
                                     .ToList();
-            return (derivedTypes == null || derivedTypes.Any(), derivedTypes);
+            return (false, derivedTypes);
         }
 
         private static (bool, IEnumerable<Command>) FromNestedTypes(
@@ -45,7 +53,7 @@ namespace System.CommandLine.JackFruit
             var nestedTypes = baseType.GetNestedTypes(Constants.PublicThisInstance)
                                      ?.Select(t => GetCommand(parent, t))
                                      .ToList();
-            return (nestedTypes == null || nestedTypes.Any(), nestedTypes);
+            return (false, nestedTypes);
         }
 
         // TODO: Filter this for Ignore methods
@@ -56,7 +64,7 @@ namespace System.CommandLine.JackFruit
             var commands = methods
                             .Select(m => GetCommand(parent, m))
                             .ToList();
-            return ((commands != null && commands.Any(), commands));
+            return (false, commands);
 
             //var method = baseType.GetMethod("InvokeAsync", Reflection.Constants.PublicAndInstance);
             //return (method != null, PreBinderContext.Current.SubCommandFinder.Get(method)) ;
@@ -86,18 +94,16 @@ namespace System.CommandLine.JackFruit
             return command;
         }
 
-        public static Approach<IEnumerable<Command>> DerivedTypeApproach(Type rootType)
-            => Approach<IEnumerable<Command>>.CreateApproach<Type>(
-                          (p,t) => FromDerivedTypes(new DerivedTypeFinder(rootType), p,t));
+        public static Approach<IEnumerable<Command>> DerivedTypeApproach()
+            => Approach<IEnumerable<Command>>.CreateApproach<Type>(FromDerivedTypes);
 
         public static Approach<IEnumerable<Command>> NestedTypeApproach()
-           => Approach<IEnumerable<Command>>.CreateApproach<Type>(
-                         (p, t) => FromNestedTypes( p, t));
+           => Approach<IEnumerable<Command>>.CreateApproach<Type>(FromNestedTypes);
 
         public static Approach<IEnumerable<Command>> MethodApproach()
             => Approach<IEnumerable<Command>>.CreateApproach<Type>(FromMethod);
 
         public static CommandFinder Default()
-            => new CommandFinder(MethodApproach(), NestedTypeApproach());
+            => new CommandFinder(DerivedTypeApproach(), MethodApproach(), NestedTypeApproach());
     }
 }

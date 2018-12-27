@@ -23,8 +23,6 @@ namespace System.CommandLine.JackFruit.Tests
             _testProgram = new TestProgram();
             PreBinderContext.Current.HelpFinder.AddApproach(
                 HelpFinder.DescriptionFinderApproach(new DescriptionFinder()));
-            PreBinderContext.Current.SubCommandFinder.AddApproach(
-                CommandFinder.DerivedTypeApproach(typeof(DotnetJackFruit)));
             testParent = new Command("test");
         }
 

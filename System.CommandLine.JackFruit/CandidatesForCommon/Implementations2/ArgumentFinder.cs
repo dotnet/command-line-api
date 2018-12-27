@@ -17,27 +17,27 @@ namespace System.CommandLine.JackFruit
         {
             var properties = baseType.GetProperties();
             var attributedProperties = properties.Where(x => x.GetCustomAttribute<ArgumentAttribute>() !=null);
-            return (true, baseType
-                                   .GetProperties()
-                                   .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                                   .Select(m => GetArgument(parent, m)));
+            return (false, baseType
+                    .GetProperties()
+                    .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
+                    .Select(m => GetArgument(parent, m)));
         }
 
         private static (bool, IEnumerable<Argument>) FromSuffixedProperties(Command parent, Type baseType)
-            => (true, baseType
+            => (false, baseType
                     .GetProperties()
                     .Where(p => NameIsSuffixed(p.Name))
                     .Select(m => GetArgument(parent, m)));
 
         private static (bool, IEnumerable<Argument>) FromAttributedParameters(Command parent, MethodInfo method)
-            => (true, method
+            => (false, method
                  .GetParameters()
                  .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
                  .Select(m => GetArgument(parent, m)));
 
         private static (bool, IEnumerable<Argument>) FromSuffixedParameters(Command parent, MethodInfo method)
-            => (true, method
-                 .GetParameters()
+            => (false, method
+                    .GetParameters()
                     .Where(p => NameIsSuffixed(p.Name))
                     .Select(m => GetArgument(parent,m)));
 

@@ -15,14 +15,14 @@ namespace System.CommandLine.JackFruit
 
         private static (bool, ICommandHandler) FromMethod(Command parent, MethodInfo method)
             => method != null
-                  ? (true, CommandHandler.Create(method))
+                  ? (false, CommandHandler.Create(method))
                   : (false, null);
 
         private static (bool, ICommandHandler) FromInvokeOnType(Command parent, Type type)
         {
             var invokeMethod = type.GetMethod("InvokeAsync");
             return type != null && invokeMethod != null
-                             ? (true, CommandHandler.Create(invokeMethod))
+                             ? (false, CommandHandler.Create(invokeMethod))
                              : (false, null);
         }
 
