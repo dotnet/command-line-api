@@ -49,7 +49,7 @@ namespace System.CommandLine.JackFruit.Tests
         public void Can_retrieve_arguments_for_type()
         {
             var arguments = PreBinderContext.Current.ArgumentFinder.Get(testParent, typeof(ToolInstall ));
-            CheckArguments(arguments, new List<string>());
+            CheckArguments(arguments, new List<string>() { "package-id" });
         }
 
         [Fact]
@@ -60,13 +60,14 @@ namespace System.CommandLine.JackFruit.Tests
         }
 
         [Fact]
-        public void Can_retrieve_parent_arguments_for_subcommands()
+        public void Can_retrieve_parent_arguments_for_subcommands_for_hybrid()
         {
             // SubCommands 
-            var commands = PreBinderContext.Current.SubCommandFinder.Get(testParent, typeof(DotnetHybrid.Add));
-            CheckSubCommands(commands, "package", "reference");
-            var packageCommand = commands.Where(c => c.Name == "package").First();
-            CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "project-file" }); var arguments = PreBinderContext.Current.ArgumentFinder.Get(testParent, typeof(Tool));
+            var commands = PreBinderContext.Current.SubCommandFinder.Get(testParent, typeof(DotnetHybrid));
+            var addCommand = commands.Where(x => x.Name == "add").First();
+            CheckSubCommands(addCommand, "package", "reference");
+            var packageCommand = addCommand.Children.OfType<Command>().Where(c => c.Name == "package").First();
+            CheckArguments(addCommand, new string[] { "project-file" });
         }
 
         [Fact]
@@ -91,17 +92,29 @@ namespace System.CommandLine.JackFruit.Tests
         }
 
         [Fact]
-        public void Can_retrieve_subcCmmands_via_methodInfo()
+        public void Can_retrieve_subCommands_via_methodInfo()
+        {
+            var commands = PreBinderContext.Current.SubCommandFinder.Get(testParent, typeof(DotnetHybrid.Add));
+            CheckSubCommands(commands, "package", "reference");
+            var packageCommand = commands.Where(c => c.Name == "package").First();
+            CheckAliasList(packageCommand.Aliases, new string[] { "package" });
+            CheckHelp(packageCommand.Description, "");
+            CheckSubCommands(packageCommand, new string[] { });
+        }
+
+
+        [Fact(Skip = "Ignoring because not sure how this should work")]
+        public void Can_retrieve_command_structure()
         {
             var commands = PreBinderContext.Current.SubCommandFinder.Get(testParent, typeof(DotnetHybrid.Add));
             CheckSubCommands(commands, "package", "reference");
             var packageCommand = commands.Where(c => c.Name == "package").First();
             CheckAliasList(packageCommand.Aliases, new string[] { "package" });
             // TODO: START HERE Get argument working, then have option check names against argument
-            //CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "project-file" });
+            CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "project-file" });
             CheckHelp(packageCommand.Description, "");
             CheckSubCommands(packageCommand, new string[] { });
-            CheckOptions(packageCommand, 
+            CheckOptions(packageCommand,
                             ("package-name", typeof(string)),
                             ("framework", typeof(string)),
                             ("source", typeof(string)),
@@ -112,7 +125,7 @@ namespace System.CommandLine.JackFruit.Tests
         }
 
         [Fact]
-        public void Can_create_root_commands_for_()
+        public void Can_create_root_commands()
         {
             var command = CommandPreBinder.ParserTreeFromDerivedTypes<DotnetJackFruit>(new DescriptionFinder());
             command.Should().NotBeNull();
@@ -127,6 +140,12 @@ namespace System.CommandLine.JackFruit.Tests
                 actual.Should().Contain(s);
             }
         }
+
+        private static void CheckArguments(Command actual, IEnumerable<string> expected)
+        {
+            CheckArguments(new List<Argument>() { actual.Argument }, expected);
+        }
+
 
         private static void CheckArguments(IEnumerable<Argument> actual, IEnumerable<string> expected)
         {
@@ -160,7 +179,7 @@ namespace System.CommandLine.JackFruit.Tests
         {
 
             var childCommands = command.Children.OfType<Command>();
-            CheckSubCommands(childCommands);
+            CheckSubCommands(childCommands, subCommandNames);
         }
 
         private static void CheckSubCommands(IEnumerable<Command> childCommands, params string[] subCommandNames)

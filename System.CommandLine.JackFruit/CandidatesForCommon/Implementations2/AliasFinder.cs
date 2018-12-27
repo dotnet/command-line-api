@@ -5,7 +5,7 @@ using System.Reflection;
 namespace System.CommandLine.JackFruit
 {
 
-    public class AliasFinder : FinderBase<IEnumerable<string>>
+    public class AliasFinder : FinderBaseForList<string>
     {
         public AliasFinder(Func<object, object> initialCheck = null,
                            Func<IEnumerable<string>, IEnumerable<string>> finalTransform = null, 

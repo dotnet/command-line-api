@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CommandLine.JackFruit.Reflection;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class CommandFinder : FinderBase<IEnumerable<Command>>
+    public class CommandFinder : FinderBaseForList<Command>
     {
         public CommandFinder(params Approach<IEnumerable<Command>>[] approaches)
             : base(approaches: approaches)
@@ -36,6 +37,15 @@ namespace System.CommandLine.JackFruit
                                     ?.Select(t => GetCommand(parent, t))
                                     .ToList();
             return (derivedTypes == null || derivedTypes.Any(), derivedTypes);
+        }
+
+        private static (bool, IEnumerable<Command>) FromNestedTypes(
+                 Command parent, Type baseType)
+        {
+            var nestedTypes = baseType.GetNestedTypes(Constants.PublicThisInstance)
+                                     ?.Select(t => GetCommand(parent, t))
+                                     .ToList();
+            return (nestedTypes == null || nestedTypes.Any(), nestedTypes);
         }
 
         // TODO: Filter this for Ignore methods
@@ -70,6 +80,7 @@ namespace System.CommandLine.JackFruit
                 command.Argument = arguments.First();
             }
             var subCommands = PreBinderContext.Current.SubCommandFinder.Get(parent, source);
+            command.AddCommands(subCommands);
             command.Handler = handler;
             command.AddOptions(options);
             return command;
@@ -79,10 +90,14 @@ namespace System.CommandLine.JackFruit
             => Approach<IEnumerable<Command>>.CreateApproach<Type>(
                           (p,t) => FromDerivedTypes(new DerivedTypeFinder(rootType), p,t));
 
+        public static Approach<IEnumerable<Command>> NestedTypeApproach()
+           => Approach<IEnumerable<Command>>.CreateApproach<Type>(
+                         (p, t) => FromNestedTypes( p, t));
+
         public static Approach<IEnumerable<Command>> MethodApproach()
             => Approach<IEnumerable<Command>>.CreateApproach<Type>(FromMethod);
 
         public static CommandFinder Default()
-            => new CommandFinder(MethodApproach());
+            => new CommandFinder(MethodApproach(), NestedTypeApproach());
     }
 }

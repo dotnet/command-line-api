@@ -7,7 +7,7 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class OptionFinder : FinderBase<IEnumerable<Option>>
+    public class OptionFinder : FinderBaseForList<Option>
     {
         public OptionFinder(params Approach<IEnumerable<Option>>[] approaches)
             : base (approaches: approaches )

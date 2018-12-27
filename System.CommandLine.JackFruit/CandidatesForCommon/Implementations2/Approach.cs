@@ -72,28 +72,24 @@ namespace System.CommandLine.JackFruit
             => new Approach<TProduce>(
                 new Approach<TProduce>.ApproachInternal<TSource>(operation));
 
-        internal (bool endEvaluation, TProduce value) Do(Command parent, object source, object item)
+        internal (bool EndEvaluation, TProduce Value) Do(Command parent, object source, object item)
             => approachInternal.Do(parent, item, source);
 
-        internal (bool endEvaluation, TProduce value) Do(Command parent, object source)
+        internal (bool EndEvaluation, TProduce Value) Do(Command parent, object source)
             => approachInternal.Do(parent, objSource: source);
     }
 
-    public class ApproachSet<TProduce>
+    internal class ApproachSet<TProduce>
     {
-        private List<Approach<TProduce>> approaches;
-        private bool shortCircuit;
+        protected readonly List<Approach<TProduce>> approaches;
+        protected readonly bool shortCircuit;
 
-        public static ApproachSet<TProduce> Create(IEnumerable<Approach<TProduce>> approaches, bool? shortCircuit = null)
+        public static ApproachSet<TProduce> Create(IEnumerable<Approach<TProduce>> approaches, bool shortCircuit = true)
         {
-            if (!shortCircuit.HasValue)
-            {
-                shortCircuit = !typeof(IEnumerable).IsAssignableFrom(typeof(TProduce));
-            }
-            return new ApproachSet<TProduce>(approaches, shortCircuit.Value);
+            return new ApproachSet<TProduce>(approaches, shortCircuit);
         }
 
-        private ApproachSet(IEnumerable<Approach<TProduce>> approaches, bool shortCircuit = true)
+        protected ApproachSet(IEnumerable<Approach<TProduce>> approaches, bool shortCircuit = true)
         {
             this.approaches = approaches.ToList();
             this.shortCircuit = shortCircuit;
@@ -104,39 +100,63 @@ namespace System.CommandLine.JackFruit
 
         public TProduce Do(Command parent, object objSource, object objItem)
         {
-            // TODO: Does try go around for each or around evaluation?
-            bool handled = false;
-            TProduce value = default;
-            foreach (var approach in approaches)
-            {
-                (handled, value) = approach.Do(parent, objSource, objItem);
-                // TODO: value can be a value type, in which case the following may not be right
-                if (handled || (shortCircuit && value != default))
-                {
-                    break;
-                }
-            }
-            return value;
+            return DoInternal(a => a.Do(parent, objSource, objItem));
         }
-
 
         public TProduce Do(Command parent, object objSource)
         {
-            // TODO: Does try go around for each or around evaluation?
-            bool handled = false;
+            return DoInternal( a => a.Do(parent, objSource));
+        }
+
+        protected virtual TProduce DoInternal( Func<Approach<TProduce>,( bool, TProduce)> operation)
+        {
+            bool endEvaluation = false;
             TProduce value = default;
             foreach (var approach in approaches)
             {
-                (handled, value) = approach.Do(parent, objSource);
-                // TODO: value can be a value type, in which case the following may not be right
-                if (handled || (shortCircuit && value != default))
+
+                (endEvaluation, value) = operation(approach);
+                if (endEvaluation || shortCircuit && value != default)
                 {
                     break;
                 }
             }
             return value;
         }
+    }
 
+    internal class ApproachSetForList<T> : ApproachSet<IEnumerable<T>>
+    {
+
+        public new static ApproachSet<IEnumerable<T>> Create(IEnumerable<Approach<IEnumerable<T>>> approaches, bool shortCircuit = false)
+        {
+            return new ApproachSetForList<T>(approaches, shortCircuit);
+        }
+
+        private ApproachSetForList(IEnumerable<Approach<IEnumerable<T>>> approaches, bool shortCircuit = true)
+            :base(approaches, shortCircuit)
+        {  }
+
+        protected override IEnumerable<T> DoInternal(Func<Approach<IEnumerable<T>>, (bool, IEnumerable<T>)> operation)
+        {
+            // TODO: Does try go around for each or around evaluation?
+            bool handled = false;
+            var value = new List<T>();
+            foreach (var approach in approaches)
+            {
+                (var newHandled, var newList) = operation(approach);
+                if (newList != null && newList.Any())
+                {
+                    value.AddRange(newList);
+                }
+                handled = newHandled;
+                if (handled || (shortCircuit && newList.Any()))
+                {
+                    break;
+                }
+            }
+            return value;
+        }
     }
 
     //public class ApproachSetForList<T> : ApproachSet<IEnumerable<T>>

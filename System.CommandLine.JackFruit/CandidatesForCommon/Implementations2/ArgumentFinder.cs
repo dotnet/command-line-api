@@ -6,7 +6,7 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class ArgumentFinder : FinderBase <IEnumerable<Argument>>
+    public class ArgumentFinder : FinderBaseForList <Argument>
     {
 
         public ArgumentFinder(params Approach<IEnumerable<Argument>>[] approaches)
@@ -14,10 +14,14 @@ namespace System.CommandLine.JackFruit
         { }
 
         private static (bool, IEnumerable<Argument>) FromAttributedProperties(Command parent, Type baseType)
-            => (true, baseType
-                        .GetProperties()
-                        .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                        .Select(m => GetArgument(parent, m)));
+        {
+            var properties = baseType.GetProperties();
+            var attributedProperties = properties.Where(x => x.GetCustomAttribute<ArgumentAttribute>() !=null);
+            return (true, baseType
+                                   .GetProperties()
+                                   .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
+                                   .Select(m => GetArgument(parent, m)));
+        }
 
         private static (bool, IEnumerable<Argument>) FromSuffixedProperties(Command parent, Type baseType)
             => (true, baseType

@@ -21,7 +21,17 @@ namespace System.CommandLine.JackFruit
         {
             this.initialCheck = initialCheck;
             this.finalTransform = finalTransform;
-            this.approaches =  ApproachSet<T>.Create (approaches);
+            this.approaches = ApproachSet<T>.Create(approaches);
+        }
+
+
+        private protected FinderBase(Func<object, object> initialCheck,
+                            Func<T, T> finalTransform,
+                            ApproachSet<T> approaches)
+        {
+            this.initialCheck = initialCheck;
+            this.finalTransform = finalTransform;
+            this.approaches = approaches;
         }
 
         public T Get<TSource>(Command parent, TSource source)
@@ -51,5 +61,14 @@ namespace System.CommandLine.JackFruit
             }
             return ret;
         }
+    }
+
+    public abstract class FinderBaseForList<T> : FinderBase<IEnumerable<T>>
+    {
+        protected FinderBaseForList(Func<object, object> initialCheck = null,
+                     Func<IEnumerable<T>, IEnumerable< T>> finalTransform = null,
+                     params Approach<IEnumerable<T>>[] approaches)
+            : base(initialCheck,finalTransform, ApproachSetForList<T>.Create(approaches))
+        {      }
     }
 }
