@@ -60,5 +60,18 @@ namespace System.CommandLine.JackFruit
             return aliases;
         }
 
+        public static bool AreNamesEqual(this string name1, string name2)
+        {
+            if (name1.Contains("-"))
+            {
+                name1 = name1.Replace("-", "");
+            }
+            if (name2.Contains("-"))
+            {
+                name2 = name2.Replace("-", "");
+            }
+            // StringComparison crashes the following line. Switch to that when VS doesn't hate me (I tried to do this right six times)
+            return name1.ToLower().Equals(name2.ToLower());
+        }
     }
 }

@@ -8,6 +8,7 @@ namespace System.CommandLine.JackFruit
 {
     public class OptionFinder : FinderBaseForList<OptionFinder, Option>
     {
+        // TODO: Do not add options for current items argument, or any parent arguments or options
         private static (bool, IEnumerable<Option>) FromProperties(Command parent, Type baseType)
             => (false, baseType
                  .GetProperties()

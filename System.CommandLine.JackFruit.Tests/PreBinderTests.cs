@@ -31,38 +31,38 @@ namespace System.CommandLine.JackFruit.Tests
         public void Can_retrieve_alias_from_a_type_name()
         {
             var aliases = PreBinderContext.Current.AliasFinder.Get(testParent, typeof(Tool));
-            CheckAliasList(aliases, new string[] { "tool" });
+            TestUtils.CheckAliasList(aliases, new string[] { "tool" });
             aliases = PreBinderContext.Current.AliasFinder.Get(testParent, typeof(ToolInstall));
             // Without context, this is the correct answer
-            CheckAliasList(aliases, new string[] { "tool-install" });
+            TestUtils.CheckAliasList(aliases, new string[] { "tool-install" });
         }
 
         [Fact]
         public void Can_retrieve_help_for_command_from_description_file()
         {
             var help = PreBinderContext.Current.HelpFinder.Get(testParent, typeof(Tool));
-            CheckHelp(help, "Install or manage tools");
+            TestUtils.CheckHelp(help, "Install or manage tools");
         }
 
         [Fact]
         public void Can_retrieve_help_for_command_from_hybrid_description_file()
         {
             var help = PreBinderContext.Current.HelpFinder.Get(testParent, typeof(DotnetHybrid.Tool));
-            CheckHelp(help, "Install or manage tools");
+            TestUtils.CheckHelp(help, "Install or manage tools");
         }
 
         [Fact]
         public void Can_retrieve_arguments_for_type()
         {
             var arguments = PreBinderContext.Current.ArgumentFinder.Get(testParent, typeof(ToolInstall ));
-            CheckArguments(arguments, new List<string>() { "package-id" });
+            TestUtils.CheckArguments(arguments, new List<string>() { "package-id" });
         }
 
         [Fact]
         public void Doesnt_find_arguments_when_there_arent_any()
         {
             var arguments = PreBinderContext.Current.ArgumentFinder.Get(testParent, typeof(Tool));
-            CheckArguments(arguments, new List<string>());
+            TestUtils.CheckArguments(arguments, new List<string>());
         }
 
         [Fact]
@@ -71,16 +71,16 @@ namespace System.CommandLine.JackFruit.Tests
             // SubCommands 
             var commands = PreBinderContext.Current.SubCommandFinder.Get(testParent, typeof(DotnetHybrid));
             var addCommand = commands.Where(x => x.Name == "add").First();
-            CheckSubCommands(addCommand, "package", "reference");
+            TestUtils.CheckSubCommands(addCommand, "package", "reference");
             var packageCommand = addCommand.Children.OfType<Command>().Where(c => c.Name == "package").First();
-            CheckArguments(addCommand, new string[] { "project-file" });
+            TestUtils.CheckArguments(addCommand, new string[] { "project-file" });
         }
 
         [Fact]
         public void Can_retrieve_options_for_type()
         {
             var options = PreBinderContext.Current.OptionFinder.Get(testParent, typeof(Tool));
-            CheckOptions(options, new (string, Type)[] { });
+            TestUtils.CheckOptions(options, new (string, Type)[] { });
         }
 
         [Fact]
@@ -94,18 +94,18 @@ namespace System.CommandLine.JackFruit.Tests
         public void Can_retrieve_subCommands_for_type()
         {
             var commands = PreBinderContext.Current.SubCommandFinder.Get(testParent, typeof(DotnetJackFruit));
-            CheckSubCommands(commands, "add", "list", "remove", "sln", "tool");
+            TestUtils.CheckSubCommands(commands, "add", "list", "remove", "sln", "tool");
         }
 
         [Fact]
         public void Can_retrieve_subCommands_via_methodInfo()
         {
             var commands = PreBinderContext.Current.SubCommandFinder.Get(testParent, typeof(DotnetHybrid.Add));
-            CheckSubCommands(commands, "package", "reference");
+            TestUtils.CheckSubCommands(commands, "package", "reference");
             var packageCommand = commands.Where(c => c.Name == "package").First();
-            CheckAliasList(packageCommand.Aliases, new string[] { "package" });
-            CheckHelp(packageCommand.Description, "Add a NuGet package reference");
-            CheckSubCommands(packageCommand, new string[] { });
+            TestUtils.CheckAliasList(packageCommand.Aliases, new string[] { "package" });
+            TestUtils.CheckHelp(packageCommand.Description, "Add a NuGet package reference");
+            TestUtils.CheckSubCommands(packageCommand, new string[] { });
         }
 
 
@@ -114,14 +114,14 @@ namespace System.CommandLine.JackFruit.Tests
         {
             var rootCommand = PreBinder.RootCommand<DotnetHybrid>(new HybridModelDescriptionFinder());
 
-            CheckSubCommands(rootCommand, "add", "list", "remove", "sln", "tool");
+            TestUtils.CheckSubCommands(rootCommand, "add", "list", "remove", "sln", "tool");
             var addCommand = rootCommand.Children.OfType<Command>().Single(x=>x.Name == "add");
-            CheckSubCommands(addCommand, "package", "reference");
+            TestUtils.CheckSubCommands(addCommand, "package", "reference");
             var packageCommand = addCommand.Children.OfType<Command>().Single(x => x.Name == "package");
-            CheckArguments(new Argument[] { addCommand.Argument }, new string[] { "project-file" });
-            CheckHelp(packageCommand.Description, "Add a NuGet package reference to the project.");
-            CheckSubCommands(packageCommand, new string[] { });
-            CheckOptions(packageCommand,
+            TestUtils.CheckArguments(new Argument[] { addCommand.Argument }, new string[] { "project-file" });
+            TestUtils.CheckHelp(packageCommand.Description, "Add a NuGet package reference to the project.");
+            TestUtils.CheckSubCommands(packageCommand, new string[] { });
+            TestUtils.CheckOptions(packageCommand,
                             ("package-name", typeof(string)),
                             ("framework", typeof(string)),
                             ("source", typeof(string)),
@@ -138,83 +138,5 @@ namespace System.CommandLine.JackFruit.Tests
             command.Should().NotBeNull();
         }
 
-        private static void CheckAliasList(IEnumerable<string> actual, IEnumerable<string> expected)
-        {
-            actual.Should().NotBeNull();
-            expected.Count().Should().Be(actual.Count());
-            foreach (var s in expected)
-            {
-                actual.Should().Contain(s);
-            }
-        }
-
-        private static void CheckArguments(Command actual, IEnumerable<string> expected)
-        {
-            CheckArguments(new List<Argument>() { actual.Argument }, expected);
-        }
-
-
-        private static void CheckArguments(IEnumerable<Argument> actual, IEnumerable<string> expected)
-        {
-            actual.Should().NotBeNull();
-            expected.Count().Should().Be(actual.Count());
-            foreach (var s in expected)
-            {
-                actual
-                   .Any(x => x.Name == s)
-                   .Should().BeTrue();
-            }
-        }
-
-        private static void CheckHelp(string actual, string expectedStart)
-        {
-            if  (string.IsNullOrWhiteSpace(expectedStart ))
-            {
-                actual.Should().BeNullOrWhiteSpace();
-                return;
-            }
-            actual.Should().NotBeNullOrWhiteSpace();
-            if (expectedStart.Length < 15)
-            {
-                actual.Should().Be(expectedStart);
-                return;
-            }
-            actual.StartsWith(expectedStart).Should().BeTrue();
-        }
-
-        private static void CheckSubCommands(Command command, params string[] subCommandNames)
-        {
-            command.Should().NotBeNull();
-            var childCommands = command.Children.OfType<Command>();
-            CheckSubCommands(childCommands, subCommandNames);
-        }
-
-        private static void CheckSubCommands(IEnumerable<Command> childCommands, params string[] subCommandNames)
-        {
-            childCommands.Should().NotBeNull();
-            childCommands.Count().Should().Be(subCommandNames.Length);
-            foreach (var cmdName in subCommandNames)
-            {
-                childCommands.Any(x => x.Name == cmdName).Should().BeTrue();
-            }
-        }
-
-        private static void CheckOptions(Command command, params (string Name, Type Type)[] optionInfos)
-        {
-            var childOptions = command.Children.OfType<Option>();
-            CheckOptions(childOptions, optionInfos);
-        }
-
-        private static void CheckOptions(IEnumerable<Option> options, params (string Name, Type Type)[] optionInfos)
-        {
-            options.Should().NotBeNull();
-            options.Count().Should().Be(optionInfos.Length);
-            foreach (var opt in optionInfos)
-            {
-                var option = options.Where(x => x.Name == opt.Name).SingleOrDefault();
-                option.Should().NotBeNull();
-                option.Argument.ArgumentType.Should().Be(opt.Type);
-            }
-        }
     }
 }

@@ -69,24 +69,25 @@ namespace System.CommandLine.JackFruit
         // Command is passed in for Root command
         internal static Command GetCommand<T>(Command parent, T source, Command command = null)
         {
+            // There are order depednecies in this method
             // Arguments vs. Options - Fix has to handle args defined in parent type for hybrid: 
             // Approach - create both and remove the option after creation - extra work, but no order dependency
             // Alternate - add the options to the command earlier and pass to OptionFinder
             var names = PreBinderContext.Current.AliasFinder.Get(parent, source);
             var help = PreBinderContext.Current.HelpFinder.Get(parent, source);
             var arguments = PreBinderContext.Current.ArgumentFinder.Get(parent, source);
-            var options = PreBinderContext.Current.OptionFinder.Get(parent, source);
-            var handler = PreBinderContext.Current.HandlerFinder.Get(parent, source);
             command = command ?? new Command(names?.First(), help);
             if (arguments.Any())
             {
                 // TODO: When multi-arguments merged, update this
                 command.Argument = arguments.First();
             }
+            var options = PreBinderContext.Current.OptionFinder.Get(parent, source);
+            var handler = PreBinderContext.Current.HandlerFinder.Get(parent, source);
             var subCommands = PreBinderContext.Current.SubCommandFinder.Get(command, source);
+            command.AddOptions(options);
             command.AddCommands(subCommands);
             command.Handler = handler;
-            command.AddOptions(options);
             return command;
         }
 
