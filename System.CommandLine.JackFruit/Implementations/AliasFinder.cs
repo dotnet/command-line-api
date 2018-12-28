@@ -12,21 +12,26 @@ namespace System.CommandLine.JackFruit
             switch (source)
             {
                 case Type type:
-                    return GetName(type.GetCustomAttribute<AliasAttribute>(), type.Name);
+                    return GetNames(type.GetCustomAttributes<AliasAttribute>(), type.Name);
                 case MethodInfo methodInfo:
-                    return GetName(methodInfo.GetCustomAttribute<AliasAttribute>(), methodInfo.Name);
+                    return GetNames(methodInfo.GetCustomAttributes<AliasAttribute>(), methodInfo.Name);
                 case PropertyInfo propertyInfo:
-                    return GetName(propertyInfo.GetCustomAttribute<AliasAttribute>(), propertyInfo.Name);
+                    return GetNames(propertyInfo.GetCustomAttributes<AliasAttribute>(), propertyInfo.Name);
                 case ParameterInfo parameterInfo:
-                    return GetName(parameterInfo.GetCustomAttribute<AliasAttribute>(), parameterInfo.Name);
+                    return GetNames(parameterInfo.GetCustomAttributes<AliasAttribute>(), parameterInfo.Name);
                 default:
                     return (false, null);
             }
 
-            (bool, IEnumerable<string>) GetName(AliasAttribute attribute, string name)
-                => attribute != null
-                    ? (true, attribute.Aliases)
-                    : (false, new string[] { name });
+            (bool, IEnumerable<string>) GetNames(IEnumerable<AliasAttribute> attributes, string name)
+            {
+                var candidates = attributes.SelectMany(a => a.Aliases).ToList();
+                if (!candidates.Contains(name))
+                {
+                    candidates.Insert(0, name);
+                }
+                return (false, candidates);
+            }
         }
 
         // TODO: Add approach for underscore. Anything else?

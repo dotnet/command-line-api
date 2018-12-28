@@ -150,7 +150,7 @@ namespace System.CommandLine.JackFruit.Tests
             var invocation = toolInstallCommand.Handler;
             invocation.Should().NotBeNull();
 
-            var task = rootCommand.InvokeAsync("tool install --global foo");
+            var task = rootCommand.InvokeAsync("tool install foo --g");
             task.Result.Should().Be(3);
         }
     }

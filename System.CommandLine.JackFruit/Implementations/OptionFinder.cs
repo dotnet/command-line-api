@@ -26,14 +26,17 @@ namespace System.CommandLine.JackFruit
 
         private static Option GetOption(Command[] parents, object source)
         {
-            var names = PreBinderContext.Current.AliasFinder.Get(parents, source);
-            // Argument Type must be property or parameter type
+            var names = PreBinderContext.Current.AliasFinder.Get(parents, source)
+                            .Select((x, n) => x.StartsWith("-")
+                                              ? x
+                                              : (n == 0 ? "--" : "-") + x);
             var arguments = PreBinderContext.Current.ArgumentFinder.Get(parents, source);
             var help = PreBinderContext.Current.HelpFinder.Get(parents, source);
             // TODO: Support IsHidden
             // TODO: Harvest default values from properties and parameters
             return new Option(new ReadOnlyCollection<string>(names.ToList()), help, arguments.FirstOrDefault());
         }
+
 
         // TODO: Also need to update the name to remove Args, and this is a can of worms
         private static bool NameIsSuffixed(string name)

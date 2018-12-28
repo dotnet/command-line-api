@@ -1,6 +1,6 @@
 ﻿namespace System.CommandLine.JackFruit
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Parameter)]
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public sealed class AliasAttribute : Attribute
     {
 
