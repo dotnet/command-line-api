@@ -83,7 +83,7 @@ namespace System.CommandLine.JackFruit
                 // TODO: When multi-arguments merged, update this
                 command.Argument = arguments.First();
             }
-            var subCommands = PreBinderContext.Current.SubCommandFinder.Get(parent, source);
+            var subCommands = PreBinderContext.Current.SubCommandFinder.Get(command, source);
             command.AddCommands(subCommands);
             command.Handler = handler;
             command.AddOptions(options);
