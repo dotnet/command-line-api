@@ -44,7 +44,7 @@ namespace System.CommandLine.JackFruit
         {
             var argument = new Argument();
             argument.Name = PreBinderContext.Current.AliasFinder.Get(parent, item).First();
-            argument.Description = PreBinderContext.Current.HelpFinder.Get(parent, source, item);
+            argument.Description = PreBinderContext.Current.HelpFinder.Get(parent, (source, item));
             argument.ArgumentType = GetType(item);
             return argument;
         }

@@ -67,19 +67,6 @@ namespace System.CommandLine.JackFruit
             return ret;
         }
 
-        public TReturn Get<TSource, TItem>(Command parent, TSource source, TItem item)
-        {
-            if (initialCheck != null)
-            {
-                source = (TSource)initialCheck(source);
-            }
-            TReturn ret = approaches.Do(parent, source, item);
-            if (finalTransform != null)
-            {
-                ret = finalTransform(ret);
-            }
-            return ret;
-        }
     }
 
     public abstract class FinderBaseForList<TDerived, TReturn> : FinderBase<TDerived, IEnumerable<TReturn>>
