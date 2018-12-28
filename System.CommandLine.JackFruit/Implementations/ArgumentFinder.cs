@@ -15,42 +15,42 @@ namespace System.CommandLine.JackFruit
             return (false, baseType
                     .GetProperties()
                     .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                    .Select(m => GetArgument(parent, baseType, m)));
+                    .Select(m => GetArgument(parent, m)));
         }
 
         private static (bool, IEnumerable<Argument>) FromSuffixedProperties(Command parent, Type baseType)
             => (false, baseType
                     .GetProperties()
                     .Where(p => NameIsSuffixed(p.Name))
-                    .Select(m => GetArgument(parent, baseType, m)));
+                    .Select(m => GetArgument(parent,  m)));
 
         private static (bool, IEnumerable<Argument>) FromAttributedParameters(Command parent, MethodInfo method)
             => (false, method
                  .GetParameters()
                  .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                 .Select(p => GetArgument(parent, method, p)));
+                 .Select(p => GetArgument(parent,  p)));
 
         private static (bool, IEnumerable<Argument>) FromSuffixedParameters(Command parent, MethodInfo method)
             => (false, method
                     .GetParameters()
                     .Where(p => NameIsSuffixed(p.Name))
-                    .Select(m => GetArgument(parent, method, m)));
+                    .Select(m => GetArgument(parent,  m)));
 
         private static (bool, IEnumerable<Argument>) FromParameter(Command parent, ParameterInfo parameter)
-            => (false, new List<Argument>() { GetArgument(parent, parameter.Member, parameter) });
+            => (false, new List<Argument>() { GetArgument(parent,  parameter) });
 
         private static (bool, IEnumerable<Argument>) FromProperty(Command parent, PropertyInfo property)
-            => (false, new List<Argument>() { GetArgument(parent, property.DeclaringType, property) });
+            => (false, new List<Argument>() { GetArgument(parent,  property) });
 
         // TODO: Also need to update the name to remove Args, and this is a can of worms
         private static bool NameIsSuffixed(string name)
             => name.EndsWith("Args");
 
-        private static Argument GetArgument<T>(Command parent, object source, T item)
+        private static Argument GetArgument<T>(Command parent,  T item)
         {
             var argument = new Argument();
             argument.Name = PreBinderContext.Current.AliasFinder.Get(parent, item).First();
-            argument.Description = PreBinderContext.Current.HelpFinder.Get(parent, (source, item));
+            argument.Description = PreBinderContext.Current.HelpFinder.Get(parent, item);
             argument.ArgumentType = GetType(item);
             return argument;
         }

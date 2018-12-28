@@ -27,15 +27,26 @@ namespace System.CommandLine.JackFruit
         }
 
         protected static (bool, string) FromDescription
-            (IDescriptionFinder descriptionProvider, Command parent, object source, object item)
+            (IDescriptionFinder descriptionProvider, Command parent, object source)
         {
-            var ret = (descriptionProvider != null && (source.Equals(item) || item == null)
-                   ? descriptionProvider?.Description(source)
-                   : descriptionProvider?.Description(source, NameFromItem()))
-                      ?? null;
-            return (false, ret);
+            if (descriptionProvider == null)
+            {
+                return (false, null);
+            }
+            switch (source)
+            {
+                case ValueTuple<object, object> tuple:
+                    var ret = ( (source.Equals(tuple.Item1) || tuple.Item2 == null)
+                                      ? descriptionProvider?.Description(source)
+                                      : descriptionProvider?.Description(source, NameFromItem(tuple.Item2)))
+                                         ?? null;
+                    return (false, ret);
+                default:
+                    ret =  descriptionProvider?.Description(source);
+                    return (false, ret);
+            }
 
-            string NameFromItem()
+            string NameFromItem(object item)
             {
                 switch (item)
                 {
@@ -49,15 +60,15 @@ namespace System.CommandLine.JackFruit
             }
         }
 
-        public static HelpFinder Default() 
+        public static HelpFinder Default()
             => new HelpFinder()
                 .AddApproachFromFunc<object>(FromAttribute);
 
-       
+
         public HelpFinder AddDescriptionFinder(IDescriptionFinder descriptionFinder)
         {
             AddApproachFromFunc<object>(
-                   (parent, source) => FromDescription(descriptionFinder, parent, source, source));
+                   (parent, source) => FromDescription(descriptionFinder, parent, source));
             return this;
         }
     }

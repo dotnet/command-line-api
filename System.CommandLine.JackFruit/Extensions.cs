@@ -60,27 +60,10 @@ namespace System.CommandLine.JackFruit
             return aliases;
         }
 
-        public static bool IsNameEqual(this string name1, string name2)
-        {
-            if (name1 == null && name2 == null)
-            {
-                return true;
-            }
-            if (name1 == null || name2 == null)
-            {
-                return false;
-            }
-            if (name1.Contains("-"))
-            {
-                name1 = name1.Replace("-", "");
-            }
-            if (name2.Contains("-"))
-            {
-                name2 = name2.Replace("-", "");
-            }
-            // StringComparison crashes the following line. Switch to that when VS doesn't hate me (I tried to do this right six times)
-            return name1.ToLower().Equals(name2.ToLower());
-        }
+        private static bool IsNameEqual(this string name1, string name2)
+            => name1 == null || name2 == null
+                ? name1 == name2
+                : name1.ToKebabCase().ToLowerInvariant() == name2.ToKebabCase().ToLowerInvariant();
 
         public static object GetSymbolByName(this Command command, string name, bool lookHigher)
         {
