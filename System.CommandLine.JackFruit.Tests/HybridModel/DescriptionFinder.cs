@@ -115,18 +115,5 @@ namespace System.CommandLine.JackFruit.Tests
             symbolHelp.TryGetValue((type, name.ToLowerInvariant()), out help);
             return help;
         }
-
-        public string Description<TSource, TItem>(TSource source, TItem child)
-            => source is Type resultType
-                && symbolHelp.TryGetValue((resultType, (GetName(child))), out string help)
-                    ? help
-                    : "";
-
-        private string GetName<TItem>(TItem child)
-            => child is PropertyInfo property
-                ? property.Name
-                : child is ParameterInfo parameter
-                    ? parameter.Name
-                    : "";
     }
 }

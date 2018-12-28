@@ -33,31 +33,9 @@ namespace System.CommandLine.JackFruit
             {
                 return (false, null);
             }
-            switch (source)
-            {
-                case ValueTuple<object, object> tuple:
-                    var ret = ( (source.Equals(tuple.Item1) || tuple.Item2 == null)
-                                      ? descriptionProvider?.Description(source)
-                                      : descriptionProvider?.Description(source, NameFromItem(tuple.Item2)))
-                                         ?? null;
-                    return (false, ret);
-                default:
-                    ret =  descriptionProvider?.Description(source);
-                    return (false, ret);
-            }
 
-            string NameFromItem(object item)
-            {
-                switch (item)
-                {
-                    case PropertyInfo p:
-                        return p.Name;
-                    case ParameterInfo p:
-                        return p.Name;
-                    default:
-                        return null;
-                }
-            }
+            var ret = descriptionProvider?.Description(source);
+            return (false, ret);
         }
 
         public static HelpFinder Default()
