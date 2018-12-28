@@ -5,14 +5,11 @@ namespace System.CommandLine.JackFruit
 
     public class HelpFinder : FinderBase<HelpFinder, string>
     {
-        protected static (bool, string) FromAttribute(Command parent, object source, object item)
+        protected static (bool, string) FromAttribute(Command parent, object source)
         {
-            switch (item)
+            switch (source)
             {
-                case Object _ when source == item:
-                    return FromAttribute(parent,source, null);
-                case null when source is Type sourceType:
-                    return GetHelp(sourceType.GetCustomAttribute<HelpAttribute>(), sourceType.Name);
+                // This will need more work when source is a tuple with type/name, etc
                 case Type type:
                     return GetHelp(type.GetCustomAttribute<HelpAttribute>(), type.Name);
                 case PropertyInfo propertyInfo:
@@ -54,13 +51,12 @@ namespace System.CommandLine.JackFruit
 
         public static HelpFinder Default() 
             => new HelpFinder()
-                .AddApproachFromFunc<object, object>(FromAttribute, (c,o)=>FromAttribute(c,o,null));
+                .AddApproachFromFunc<object>(FromAttribute);
 
        
         public HelpFinder AddDescriptionFinder(IDescriptionFinder descriptionFinder)
         {
-            AddApproachFromFunc<object, object>(
-                   (parent, source, item) => FromDescription(descriptionFinder, parent, source, item),
+            AddApproachFromFunc<object>(
                    (parent, source) => FromDescription(descriptionFinder, parent, source, source));
             return this;
         }

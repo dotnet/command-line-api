@@ -17,8 +17,6 @@ namespace System.CommandLine.JackFruit
 
         private abstract class ApproachInternal
         {
-            // TODO: Consider private bool failFast = false;
-            internal abstract (bool endEvaluation, TProduce) Do(Command parent, object objSource, object objItem);
             internal abstract (bool endEvaluation, TProduce) Do(Command parent, object objSource);
         }
 
@@ -33,39 +31,12 @@ namespace System.CommandLine.JackFruit
                  => (operationWithoutItem != null && objSource is TSource source)
                     ? operationWithoutItem(parent, source)
                     : (false, default);
-
-            internal override (bool endEvaluation, TProduce) Do(Command parent, object objSource, object objItem)
-                => throw new InvalidOperationException();
-        }
-
-        private class ApproachInternal<TSource, TItem> : ApproachInternal<TSource>
-        {
-            private Func<Command, TSource, TItem, (bool, TProduce)> operation;
-
-            internal ApproachInternal(Func<Command, TSource, TItem, (bool, TProduce)> operation,
-                        Func<Command, TSource, (bool, TProduce)> operationWithoutItem = null)
-                : base(operationWithoutItem)
-                => this.operation = operation;
-
-            internal override (bool endEvaluation, TProduce) Do(Command parent, object objSource, object objItem)
-            {
-                if (operation != null && objSource is TSource source)
-                {
-                    if (objItem is TItem item)
-                    {
-                        return operation(parent, source, item);
-                    }
-                    return operation(parent, source, default);
-                }
-                throw new InvalidOperationException();
-            }
         }
 
         public static Approach<TProduce> CreateApproach<TSource, TItem>(
-                Func<Command, TSource, TItem, (bool, TProduce)> operation,
-                Func<Command, TSource, (bool, TProduce)> operationWithoutItem = null)
+                Func<Command, TSource, (bool, TProduce)> operation)
             => new Approach<TProduce>(
-                new Approach<TProduce>.ApproachInternal<TSource, TItem>(operation, operationWithoutItem));
+                new Approach<TProduce>.ApproachInternal<TSource>(operation));
 
         public static Approach<TProduce> CreateApproach<TSource>(
                 Func<Command, TSource, (bool, TProduce)> operation)
@@ -73,7 +44,7 @@ namespace System.CommandLine.JackFruit
                 new Approach<TProduce>.ApproachInternal<TSource>(operation));
 
         internal (bool EndEvaluation, TProduce Value) Do(Command parent, object source, object item)
-            => approachInternal.Do(parent, item, source);
+            => approachInternal.Do(parent, (item, source));
 
         internal (bool EndEvaluation, TProduce Value) Do(Command parent, object source)
             => approachInternal.Do(parent, objSource: source);

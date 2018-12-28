@@ -21,13 +21,6 @@ namespace System.CommandLine.JackFruit
             return this as TDerived;
         }
 
-        protected TDerived AddApproachFromFunc<TSource, TItem>(Func<Command, TSource, TItem, (bool, TReturn)> approachFuncWIthItem,
-                Func<Command, TSource, (bool, TReturn)> approachFunc)
-        {
-            approaches.Add(Approach<TReturn>.CreateApproach(approachFuncWIthItem, approachFunc));
-            return this as TDerived;
-        }
-
         protected TDerived SetInitialCheck(Func<object, object> initialCheck)
         {
             this.initialCheck = initialCheck;
