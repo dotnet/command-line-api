@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.CommandLine.Invocation;
-using System.Linq;
+﻿using System.CommandLine.Invocation;
 using System.Reflection;
-using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class HandlerFinder : FinderBase<ICommandHandler>
+    public class HandlerFinder : FinderBase<HandlerFinder, ICommandHandler>
     {
-        public HandlerFinder(params Approach<ICommandHandler>[] approaches)
-            : base(approaches: approaches)
-        { }
-
         private static (bool, ICommandHandler) FromMethod(Command parent, MethodInfo method)
             => method != null
                   ? (false, CommandHandler.Create(method))
@@ -26,16 +18,9 @@ namespace System.CommandLine.JackFruit
                              : (false, null);
         }
 
-        public static Approach<ICommandHandler> MethodApproach()
-             => Approach<ICommandHandler>.CreateApproach<object>(
-                 (p,x)=>FromMethod(p,x as MethodInfo));
-
-        public static Approach<ICommandHandler> InvokeOnTypeApproach()
-             => Approach<ICommandHandler>.CreateApproach<object>(
-                 (p,x)=> FromInvokeOnType(p,x as Type));
-
         public static HandlerFinder Default() 
-            => new HandlerFinder(MethodApproach(), InvokeOnTypeApproach());
-
+            => new HandlerFinder()
+                    .AddApproachFromFunc<MethodInfo>(FromMethod)
+                    .AddApproachFromFunc<Type>(FromInvokeOnType);
     }
 }

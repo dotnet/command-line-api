@@ -7,12 +7,8 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class CommandFinder : FinderBaseForList<Command>
+    public class CommandFinder : FinderBaseForList<CommandFinder, Command>
     {
-        public CommandFinder(params Approach<IEnumerable<Command>>[] approaches)
-            : base(approaches: approaches)
-        { }
-
         private class DerivedTypeFinder
         {
             private static List<Assembly> assemblies = new List<Assembly>();
@@ -57,7 +53,7 @@ namespace System.CommandLine.JackFruit
         }
 
         // TODO: Filter this for Ignore methods
-        private static (bool, IEnumerable<Command>) FromMethod(Command parent, Type baseType)
+        private static (bool, IEnumerable<Command>) FromMethods(Command parent, Type baseType)
         {
             var methods = baseType.GetMethods(Reflection.Constants.PublicDeclaredInInstance)
                             .Where(m => !m.IsSpecialName);
@@ -94,16 +90,10 @@ namespace System.CommandLine.JackFruit
             return command;
         }
 
-        public static Approach<IEnumerable<Command>> DerivedTypeApproach()
-            => Approach<IEnumerable<Command>>.CreateApproach<Type>(FromDerivedTypes);
-
-        public static Approach<IEnumerable<Command>> NestedTypeApproach()
-           => Approach<IEnumerable<Command>>.CreateApproach<Type>(FromNestedTypes);
-
-        public static Approach<IEnumerable<Command>> MethodApproach()
-            => Approach<IEnumerable<Command>>.CreateApproach<Type>(FromMethod);
-
         public static CommandFinder Default()
-            => new CommandFinder(DerivedTypeApproach(), MethodApproach(), NestedTypeApproach());
+            => new CommandFinder()
+                   .AddApproachFromFunc<Type>(FromDerivedTypes)
+                   .AddApproachFromFunc<Type>(FromNestedTypes)
+                   .AddApproachFromFunc<Type>(FromMethods);
     }
 }

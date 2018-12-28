@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine.Invocation;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class OptionFinder : FinderBaseForList<Option>
+    public class OptionFinder : FinderBaseForList<OptionFinder, Option>
     {
-        public OptionFinder(params Approach<IEnumerable<Option>>[] approaches)
-            : base (approaches: approaches )
-        { }
-
         private static (bool, IEnumerable<Option>) FromProperties(Command parent, Type baseType)
             => (false, baseType
                  .GetProperties()
@@ -27,16 +21,9 @@ namespace System.CommandLine.JackFruit
         private static bool NameIsSuffixed(string name)
             => name.EndsWith("Args");
 
-        public static Approach<IEnumerable<Option>> PropertyApproach()
-            => Approach<IEnumerable<Option>>.CreateApproach<Type>(
-                          (p, t) => FromProperties(p,t));
-
-        public static Approach<IEnumerable<Option>> ParameterApproach()
-             => Approach<IEnumerable<Option>>.CreateApproach<MethodInfo>(
-                            (p, t) => FromParameters(p,t));
-
-
         public static OptionFinder Default()
-            => new OptionFinder(PropertyApproach(), ParameterApproach());
+            => new OptionFinder()
+                    .AddApproachFromFunc<Type>(FromProperties)
+                    .AddApproachFromFunc<MethodInfo>(FromParameters);
     }
 }

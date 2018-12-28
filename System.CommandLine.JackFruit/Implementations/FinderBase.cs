@@ -2,41 +2,71 @@
 
 namespace System.CommandLine.JackFruit
 {
-    public abstract class FinderBase<T> : IFinder<T>
+    public abstract class FinderBase<TDerived, TReturn> : IFinder<TReturn>
+         where TDerived : FinderBase<TDerived, TReturn>
     {
-        private ApproachSet<T> approaches;
+        private ApproachSet<TReturn> approaches;
         private Func<object, object> initialCheck;
-        private Func<T, T> finalTransform;
+        private Func<TReturn, TReturn> finalTransform;
 
-        public void AddApproach(Approach<T> approach)
-            => approaches.Add(approach);
+        protected TDerived AddApproach(Approach<TReturn> approach)
+        {
+            approaches.Add(approach);
+            return this as TDerived;
+        }
+
+        protected TDerived AddApproachFromFunc<TSource>(Func<Command, TSource, (bool, TReturn)> approachFunc)
+        {
+            approaches.Add(Approach<TReturn>.CreateApproach(approachFunc));
+            return this as TDerived;
+        }
+
+        protected TDerived AddApproachFromFunc<TSource, TItem>(Func<Command, TSource, TItem, (bool, TReturn)> approachFuncWIthItem,
+                Func<Command, TSource, (bool, TReturn)> approachFunc)
+        {
+            approaches.Add(Approach<TReturn>.CreateApproach(approachFuncWIthItem, approachFunc));
+            return this as TDerived;
+        }
+
+        protected TDerived SetInitialCheck(Func<object, object> initialCheck)
+        {
+            this.initialCheck = initialCheck;
+            return this as TDerived;
+        }
+
+
+        protected TDerived SetFinalTransform(Func<TReturn, TReturn> finalTransform)
+        {
+            this.finalTransform = finalTransform;
+            return this as TDerived;
+        }
 
         protected FinderBase(Func<object, object> initialCheck = null,
-                            Func<T, T> finalTransform = null,
-                            params Approach<T>[] approaches)
+                            Func<TReturn, TReturn> finalTransform = null,
+                            params Approach<TReturn>[] approaches)
         {
             this.initialCheck = initialCheck;
             this.finalTransform = finalTransform;
-            this.approaches = ApproachSet<T>.Create(approaches);
+            this.approaches = ApproachSet<TReturn>.Create(approaches);
         }
 
 
         private protected FinderBase(Func<object, object> initialCheck,
-                            Func<T, T> finalTransform,
-                            ApproachSet<T> approaches)
+                            Func<TReturn, TReturn> finalTransform,
+                            ApproachSet<TReturn> approaches)
         {
             this.initialCheck = initialCheck;
             this.finalTransform = finalTransform;
             this.approaches = approaches;
         }
 
-        public T Get<TSource>(Command parent, TSource source)
+        public TReturn Get<TSource>(Command parent, TSource source)
         {
             if (initialCheck != null)
             {
                 source = (TSource)initialCheck(source);
             }
-            T ret = approaches.Do(parent, source);
+            TReturn ret = approaches.Do(parent, source);
             if (finalTransform != null)
             {
                 ret = finalTransform(ret);
@@ -44,13 +74,13 @@ namespace System.CommandLine.JackFruit
             return ret;
         }
 
-        public T Get<TSource, TItem>(Command parent, TSource source, TItem item)
+        public TReturn Get<TSource, TItem>(Command parent, TSource source, TItem item)
         {
             if (initialCheck != null)
             {
                 source = (TSource)initialCheck(source);
             }
-            T ret = approaches.Do(parent, source, item);
+            TReturn ret = approaches.Do(parent, source, item);
             if (finalTransform != null)
             {
                 ret = finalTransform(ret);
@@ -59,12 +89,13 @@ namespace System.CommandLine.JackFruit
         }
     }
 
-    public abstract class FinderBaseForList<T> : FinderBase<IEnumerable<T>>
+    public abstract class FinderBaseForList<TDerived, TReturn> : FinderBase<TDerived, IEnumerable<TReturn>>
+        where TDerived : FinderBaseForList<TDerived, TReturn>
     {
         protected FinderBaseForList(Func<object, object> initialCheck = null,
-                     Func<IEnumerable<T>, IEnumerable< T>> finalTransform = null,
-                     params Approach<IEnumerable<T>>[] approaches)
-            : base(initialCheck,finalTransform, ApproachSetForList<T>.Create(approaches))
-        {      }
+                     Func<IEnumerable<TReturn>, IEnumerable<TReturn>> finalTransform = null,
+                     params Approach<IEnumerable<TReturn>>[] approaches)
+            : base(initialCheck, finalTransform, ApproachSetForList<TReturn>.Create(approaches))
+        { }
     }
 }

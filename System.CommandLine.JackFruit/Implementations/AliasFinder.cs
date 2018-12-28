@@ -5,15 +5,9 @@ using System.Reflection;
 namespace System.CommandLine.JackFruit
 {
 
-    public class AliasFinder : FinderBaseForList<string>
+    public class AliasFinder : FinderBaseForList<AliasFinder, string>
     {
-        public AliasFinder(Func<object, object> initialCheck = null,
-                           Func<IEnumerable<string>, IEnumerable<string>> finalTransform = null, 
-                           params Approach<IEnumerable<string>>[] approaches)
-              : base(initialCheck, finalTransform, approaches)
-        { }
-
-        protected static (bool, IEnumerable<string>) AliasesFromAttribute(Command parent, object source, object item)
+        protected static (bool, IEnumerable<string>) FromAttribute(Command parent, object source)
         {
             switch (source)
             {
@@ -37,17 +31,9 @@ namespace System.CommandLine.JackFruit
 
         // TODO: Add approach for underscore. Anything else?
 
-        public static Approach<IEnumerable<string>> AttributeApproach()
-            => Approach<IEnumerable<string>>.CreateApproach< object, object>(AliasesFromAttribute,
-                    (parent, source)=>AliasesFromAttribute(parent,source, source));
-
-        private static IEnumerable<string> TransformNames(IEnumerable<string> names) 
-            => names.Select(TransformName);
-
-        private static string TransformName(string name) 
-            => name.ToKebabCase().ToLower();
-
         public static AliasFinder Default()
-            => new AliasFinder(null, TransformNames, AttributeApproach());
+            => new AliasFinder()
+                    .SetFinalTransform(x => x.Select(n => n.ToKebabCase().ToLower()))
+                    .AddApproachFromFunc<object>(FromAttribute);
     }
 }

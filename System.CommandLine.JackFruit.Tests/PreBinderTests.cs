@@ -21,10 +21,9 @@ namespace System.CommandLine.JackFruit.Tests
         {
             _console = new TestConsole();
             _testProgram = new TestProgram();
-            PreBinderContext.Current.HelpFinder.AddApproach(
-                HelpFinder.DescriptionFinderApproach(new DescriptionFinder()));
-            PreBinderContext.Current.HelpFinder.AddApproach(
-                HelpFinder.DescriptionFinderApproach(new HybridModelDescriptionFinder()));
+            var helpFinder = (HelpFinder)PreBinderContext.Current.HelpFinder;
+            helpFinder.AddDescriptionFinder(new DescriptionFinder());
+            helpFinder.AddDescriptionFinder(new HybridModelDescriptionFinder());
             testParent = new Command("test");
         }
 
