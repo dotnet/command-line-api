@@ -32,34 +32,6 @@ namespace System.CommandLine.JackFruit
             return command;
         }
 
-        public static Option AddAliases(this Option option, IEnumerable<string> aliases)
-        {
-            if (aliases == null)
-            {
-                return option;
-            }
-            foreach (var alias in aliases)
-            {
-                option.AddAlias (alias);
-            }
-            return option;
-        }
-
-         public static  IEnumerable<string> AliasesFromUnderscores ( string name)
-        {
-            var aliases = new List<string>();
-            aliases.Add(name.Replace("_",""));
-            // Note not iterating to end so remaining character is guaranteed
-            for (int i = 0; i < name.Length - 1; i++)
-            {
-                if (name[i] == '_')
-                {
-                    aliases.Add(name[i + 1].ToString());
-                }
-            }
-            return aliases;
-        }
-
         private static bool IsNameEqual(this string name1, string name2)
             => name1 == null || name2 == null
                 ? name1 == name2

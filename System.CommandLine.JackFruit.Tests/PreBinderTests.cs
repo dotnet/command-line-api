@@ -8,6 +8,7 @@ using Xunit;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.JackFruit.Tests
 {
@@ -54,7 +55,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_retrieve_arguments_for_type()
         {
-            var arguments = PreBinderContext.Current.ArgumentFinder.Get(testParent, typeof(ToolInstall ));
+            var arguments = PreBinderContext.Current.ArgumentFinder.Get(testParent, typeof(ToolInstall));
             TestUtils.CheckArguments(arguments, new List<string>() { "package-id" });
         }
 
@@ -114,14 +115,15 @@ namespace System.CommandLine.JackFruit.Tests
             var rootCommand = PreBinder.RootCommand<DotnetHybrid>(new HybridModelDescriptionFinder());
 
             TestUtils.CheckSubCommands(rootCommand, "add", "list", "remove", "sln", "tool");
-            var addCommand = rootCommand.Children.OfType<Command>().Single(x=>x.Name == "add");
+            var addCommand = rootCommand.Children.OfType<Command>().Single(x => x.Name == "add");
             TestUtils.CheckSubCommands(addCommand, "package", "reference");
-            var packageCommand = addCommand.Children.OfType<Command>().Single(x => x.Name == "package");
             TestUtils.CheckArguments(new Argument[] { addCommand.Argument }, new string[] { "project-file" });
+
+            var packageCommand = addCommand.Children.OfType<Command>().Single(x => x.Name == "package");
+            TestUtils.CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "package-name" });
             TestUtils.CheckHelp(packageCommand.Description, "Add a NuGet package reference to the project.");
             TestUtils.CheckSubCommands(packageCommand, new string[] { });
             TestUtils.CheckOptions(packageCommand,
-                            ("package-name", typeof(string)),
                             ("framework", typeof(string)),
                             ("source", typeof(string)),
                             ("no-restore", typeof(bool)),
@@ -137,5 +139,19 @@ namespace System.CommandLine.JackFruit.Tests
             command.Should().NotBeNull();
         }
 
+        [Fact]
+        public void Can_retrieve_invocation()
+        {
+            var rootCommand = PreBinder.RootCommand<DotnetHybrid>(new HybridModelDescriptionFinder());
+            var toolCommand = rootCommand.Children.OfType<Command>().Single(x => x.Name == "tool");
+            toolCommand.Should().NotBeNull();
+            var toolInstallCommand = toolCommand.Children.OfType<Command>().Single(x => x.Name == "install");
+            toolInstallCommand.Should().NotBeNull();
+            var invocation = toolInstallCommand.Handler;
+            invocation.Should().NotBeNull();
+
+            var task = rootCommand.InvokeAsync("tool install --global foo");
+            task.Result.Should().Be(3);
+        }
     }
 }

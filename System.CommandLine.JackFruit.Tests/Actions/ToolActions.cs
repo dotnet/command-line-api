@@ -22,7 +22,7 @@ namespace System.CommandLine.JackFruit
         Framework: {framework}
         Verbosity: {verbosity.ToString()}
     )";
-            return await Task.FromResult(0);
+            return await Task.FromResult(3);
         }
 
         public static async Task<int> ListAsync(bool global, DirectoryInfo toolPath)
