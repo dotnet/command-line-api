@@ -36,6 +36,12 @@ namespace System.CommandLine.JackFruit
                     .Where(p => NameIsSuffixed(p.Name))
                     .Select(m => GetArgument(parent, method, m)));
 
+        private static (bool, IEnumerable<Argument>) FromParameter(Command parent, ParameterInfo parameter)
+            => (false, new List<Argument>() { GetArgument(parent, parameter.Member, parameter) });
+
+        private static (bool, IEnumerable<Argument>) FromProperty(Command parent, PropertyInfo property)
+            => (false, new List<Argument>() { GetArgument(parent, property.DeclaringType, property) });
+
         // TODO: Also need to update the name to remove Args, and this is a can of worms
         private static bool NameIsSuffixed(string name)
             => name.EndsWith("Args");
@@ -67,6 +73,8 @@ namespace System.CommandLine.JackFruit
                     .AddApproachFromFunc<Type>(FromAttributedProperties)
                     .AddApproachFromFunc<Type>(FromSuffixedProperties)
                     .AddApproachFromFunc<MethodInfo>(FromAttributedParameters)
-                    .AddApproachFromFunc<MethodInfo>(FromSuffixedParameters);
+                    .AddApproachFromFunc<MethodInfo>(FromSuffixedParameters)
+                    .AddApproachFromFunc<ParameterInfo>(FromParameter)
+                    .AddApproachFromFunc<PropertyInfo >(FromProperty);
     }
 }

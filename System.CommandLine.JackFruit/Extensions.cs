@@ -60,8 +60,16 @@ namespace System.CommandLine.JackFruit
             return aliases;
         }
 
-        public static bool AreNamesEqual(this string name1, string name2)
+        public static bool IsNameEqual(this string name1, string name2)
         {
+            if (name1 == null && name2 == null)
+            {
+                return true;
+            }
+            if (name1 == null || name2 == null)
+            {
+                return false;
+            }
             if (name1.Contains("-"))
             {
                 name1 = name1.Replace("-", "");
@@ -72,6 +80,25 @@ namespace System.CommandLine.JackFruit
             }
             // StringComparison crashes the following line. Switch to that when VS doesn't hate me (I tried to do this right six times)
             return name1.ToLower().Equals(name2.ToLower());
+        }
+
+        public static object GetSymbolByName(this Command command, string name, bool lookHigher)
+        {
+            object symbol = null;
+            if (command.Argument.Name.IsNameEqual(name))
+            {
+                return command.Argument;
+            }
+            if (command.Children.Contains(name))
+            {
+                return command.Children[name];
+            }
+            if (lookHigher && command.Parent != null)
+            {
+                return GetSymbolByName(command.Parent, name, lookHigher);
+            }
+
+            return symbol;
         }
     }
 }

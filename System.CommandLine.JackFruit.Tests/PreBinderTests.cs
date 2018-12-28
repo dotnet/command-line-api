@@ -108,7 +108,6 @@ namespace System.CommandLine.JackFruit.Tests
             TestUtils.CheckSubCommands(packageCommand, new string[] { });
         }
 
-
         [Fact]
         public void Can_retrieve_command_structure()
         {
@@ -125,9 +124,9 @@ namespace System.CommandLine.JackFruit.Tests
                             ("package-name", typeof(string)),
                             ("framework", typeof(string)),
                             ("source", typeof(string)),
-                            ("no-restore", typeof(string)),
-                            ("Interactive", typeof(bool)),
-                            ("PackageDirectory", typeof(DirectoryInfo))
+                            ("no-restore", typeof(bool)),
+                            ("interactive", typeof(bool)),
+                            ("package-directory", typeof(DirectoryInfo))
                         );
         }
 

@@ -10,16 +10,20 @@ namespace System.CommandLine.JackFruit
     {
         // TODO: Do not add options for current items argument, or any parent arguments or options
         private static (bool, IEnumerable<Option>) FromProperties(Command parent, Type baseType)
-            => (false, baseType
-                 .GetProperties()
-                 .Where(p=>!parent.Children.Contains(p.Name))
-                 .Select(p => GetOption(parent, p)));
+        {
+            var propertyInfos = baseType.GetProperties();
+            var filtered = propertyInfos.Where(p => parent.GetSymbolByName(p.Name, true) == null);
+            var options = filtered.Select(p => GetOption(parent, p));
+            return (false, options);
+        }
 
         private static (bool, IEnumerable<Option>) FromParameters(Command parent, MethodInfo method)
-            => (false, method
-                 .GetParameters()
-                 .Where(p => !parent.Children.Contains(p.Name))
-                 .Select(p => GetOption(parent, p)));
+        {
+            var parameterInfos = method.GetParameters();
+            var filtered = parameterInfos.Where(p => parent.GetSymbolByName(p.Name, true) == null);
+            var options = filtered.Select(p => GetOption(parent, p));
+            return (false, options);
+        }
 
         private static Option GetOption(Command parent, object source)
         {
