@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace System.CommandLine.JackFruit
 {
@@ -37,20 +38,23 @@ namespace System.CommandLine.JackFruit
                 ? name1 == name2
                 : name1.ToKebabCase().ToLowerInvariant() == name2.ToKebabCase().ToLowerInvariant();
 
-        public static object GetSymbolByName(this Command command, string name, bool lookHigher)
+        public static object GetSymbolByName(this Command[] commands, string name, bool lookHigher)
         {
             object symbol = null;
-            if (command.Argument.Name.IsNameEqual(name))
+            foreach (var command in commands)
             {
-                return command.Argument;
-            }
-            if (command.Children.Contains(name))
-            {
-                return command.Children[name];
-            }
-            if (lookHigher && command.Parent != null)
-            {
-                return GetSymbolByName(command.Parent, name, lookHigher);
+                if (command.Argument.Name.IsNameEqual(name))
+                {
+                    return command.Argument;
+                }
+                if (command.Children.Contains(name))
+                {
+                    return command.Children[name];
+                }
+                if (lookHigher && command.Parent != null)
+                {
+                    return GetSymbolByName(commands.Skip(1).ToArray(), name, lookHigher);
+                }
             }
 
             return symbol;

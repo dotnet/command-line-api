@@ -2,6 +2,6 @@
 {
     public interface IFinder<T>
     {
-        T Get<TSource>(Command parent, TSource source);
+        T Get<TSource>(Command[] parents, TSource source);
     }
 }

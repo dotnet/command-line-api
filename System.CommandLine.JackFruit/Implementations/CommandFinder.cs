@@ -35,30 +35,30 @@ namespace System.CommandLine.JackFruit
         }
 
         private static (bool, IEnumerable<Command>) FromDerivedTypes(
-                  Command parent, Type baseType)
+                  Command[] parents, Type baseType)
         {
             var derivedTypes = DerivedTypeFinder.GetDerivedTypes(baseType)
-                                    ?.Select(t => GetCommand(parent, t))
+                                    ?.Select(t => GetCommand(parents, t))
                                     .ToList();
             return (false, derivedTypes);
         }
 
         private static (bool, IEnumerable<Command>) FromNestedTypes(
-                 Command parent, Type baseType)
+                 Command[] parents, Type baseType)
         {
             var nestedTypes = baseType.GetNestedTypes(Constants.PublicDeclaredInInstance)
-                                     ?.Select(t => GetCommand(parent, t))
+                                     ?.Select(t => GetCommand(parents, t))
                                      .ToList();
             return (false, nestedTypes);
         }
 
         // TODO: Filter this for Ignore methods
-        private static (bool, IEnumerable<Command>) FromMethods(Command parent, Type baseType)
+        private static (bool, IEnumerable<Command>) FromMethods(Command[] parents, Type baseType)
         {
             var methods = baseType.GetMethods(Reflection.Constants.PublicDeclaredInInstance)
                             .Where(m => !m.IsSpecialName);
             var commands = methods
-                            .Select(m => GetCommand(parent, m))
+                            .Select(m => GetCommand(parents, m))
                             .ToList();
             return (false, commands);
 
@@ -66,30 +66,42 @@ namespace System.CommandLine.JackFruit
             //return (method != null, PreBinderContext.Current.SubCommandFinder.Get(method)) ;
         }
 
-        // Command is passed in for Root command
-        internal static Command GetCommand<T>(Command parent, T source, Command command = null)
+        internal static Command GetCommand<T>(Command[] parents, T source)
         {
-            // There are order depednecies in this method
-            // Arguments vs. Options - Fix has to handle args defined in parent type for hybrid: 
-            // Approach - create both and remove the option after creation - extra work, but no order dependency
-            // Alternate - add the options to the command earlier and pass to OptionFinder
-            var names = PreBinderContext.Current.AliasFinder.Get(parent, source);
-            var help = PreBinderContext.Current.HelpFinder.Get(parent, source);
-            var arguments = PreBinderContext.Current.ArgumentFinder.Get(parent, source);
-            command = command ?? new Command(names?.First(), help);
+            // There are order dependencies in this method
+            var names = PreBinderContext.Current.AliasFinder.Get(parents, source);
+
+            var command = parents == null
+                ? new RootCommand(names?.First())
+                : new Command(names?.First(), PreBinderContext.Current.HelpFinder.Get(parents, source));
+
+            parents = parents == null
+                ? new Command[] { command }
+                : PrependParentsWithCommand();
+
+            var arguments = PreBinderContext.Current.ArgumentFinder.Get(parents, source);
             if (arguments.Any())
             {
                 // TODO: When multi-arguments merged, update this
                 command.Argument = arguments.First();
             }
-            var options = PreBinderContext.Current.OptionFinder.Get(parent, source);
-            var handler = PreBinderContext.Current.HandlerFinder.Get(parent, source);
-            var subCommands = PreBinderContext.Current.SubCommandFinder.Get(command, source);
+            var options = PreBinderContext.Current.OptionFinder.Get(parents, source);
+            var handler = PreBinderContext.Current.HandlerFinder.Get(parents, source);
+            var subCommands = PreBinderContext.Current.SubCommandFinder.Get(parents, source);
             command.AddOptions(options);
             command.AddCommands(subCommands);
             command.Handler = handler;
             return command;
+
+            Command[] PrependParentsWithCommand()
+            {
+                var parentList = parents.ToList();
+                parentList.Insert(0, command);
+                return parentList.ToArray();
+            }
         }
+
+
 
         public static CommandFinder Default()
             => new CommandFinder()

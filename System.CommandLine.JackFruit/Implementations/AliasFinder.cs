@@ -7,7 +7,7 @@ namespace System.CommandLine.JackFruit
 
     public class AliasFinder : FinderBaseForList<AliasFinder, string>
     {
-        protected static (bool, IEnumerable<string>) FromAttribute(Command parent, object source)
+        protected static (bool, IEnumerable<string>) FromAttribute(Command[] parents, object source)
         {
             switch (source)
             {

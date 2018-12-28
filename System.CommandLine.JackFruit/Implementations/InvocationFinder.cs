@@ -5,12 +5,12 @@ namespace System.CommandLine.JackFruit
 {
     public class HandlerFinder : FinderBase<HandlerFinder, ICommandHandler>
     {
-        private static (bool, ICommandHandler) FromMethod(Command parent, MethodInfo method)
+        private static (bool, ICommandHandler) FromMethod(Command[] parents, MethodInfo method)
             => method != null
                   ? (false, CommandHandler.Create(method))
                   : (false, null);
 
-        private static (bool, ICommandHandler) FromInvokeOnType(Command parent, Type type)
+        private static (bool, ICommandHandler) FromInvokeOnType(Command[] parents, Type type)
         {
             var invokeMethod = type.GetMethod("InvokeAsync");
             return type != null && invokeMethod != null

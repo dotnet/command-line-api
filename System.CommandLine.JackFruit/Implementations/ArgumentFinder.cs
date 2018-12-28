@@ -8,49 +8,49 @@ namespace System.CommandLine.JackFruit
 {
     public class ArgumentFinder : FinderBaseForList<ArgumentFinder, Argument>
     {
-        private static (bool, IEnumerable<Argument>) FromAttributedProperties(Command parent, Type baseType)
+        private static (bool, IEnumerable<Argument>) FromAttributedProperties(Command[] parents, Type baseType)
         {
             var properties = baseType.GetProperties();
             var attributedProperties = properties.Where(x => x.GetCustomAttribute<ArgumentAttribute>() != null);
             return (false, baseType
                     .GetProperties()
                     .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                    .Select(m => GetArgument(parent, m)));
+                    .Select(m => GetArgument(parents, m)));
         }
 
-        private static (bool, IEnumerable<Argument>) FromSuffixedProperties(Command parent, Type baseType)
+        private static (bool, IEnumerable<Argument>) FromSuffixedProperties(Command[] parents, Type baseType)
             => (false, baseType
                     .GetProperties()
                     .Where(p => NameIsSuffixed(p.Name))
-                    .Select(m => GetArgument(parent,  m)));
+                    .Select(m => GetArgument(parents,  m)));
 
-        private static (bool, IEnumerable<Argument>) FromAttributedParameters(Command parent, MethodInfo method)
+        private static (bool, IEnumerable<Argument>) FromAttributedParameters(Command[] parents, MethodInfo method)
             => (false, method
                  .GetParameters()
                  .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                 .Select(p => GetArgument(parent,  p)));
+                 .Select(p => GetArgument(parents,  p)));
 
-        private static (bool, IEnumerable<Argument>) FromSuffixedParameters(Command parent, MethodInfo method)
+        private static (bool, IEnumerable<Argument>) FromSuffixedParameters(Command[] parents, MethodInfo method)
             => (false, method
                     .GetParameters()
                     .Where(p => NameIsSuffixed(p.Name))
-                    .Select(m => GetArgument(parent,  m)));
+                    .Select(m => GetArgument(parents,  m)));
 
-        private static (bool, IEnumerable<Argument>) FromParameter(Command parent, ParameterInfo parameter)
-            => (false, new List<Argument>() { GetArgument(parent,  parameter) });
+        private static (bool, IEnumerable<Argument>) FromParameter(Command[] parents, ParameterInfo parameter)
+            => (false, new List<Argument>() { GetArgument(parents,  parameter) });
 
-        private static (bool, IEnumerable<Argument>) FromProperty(Command parent, PropertyInfo property)
-            => (false, new List<Argument>() { GetArgument(parent,  property) });
+        private static (bool, IEnumerable<Argument>) FromProperty(Command[] parents, PropertyInfo property)
+            => (false, new List<Argument>() { GetArgument(parents,  property) });
 
         // TODO: Also need to update the name to remove Args, and this is a can of worms
         private static bool NameIsSuffixed(string name)
             => name.EndsWith("Args");
 
-        private static Argument GetArgument<T>(Command parent,  T item)
+        private static Argument GetArgument<T>(Command[] parents,  T item)
         {
             var argument = new Argument();
-            argument.Name = PreBinderContext.Current.AliasFinder.Get(parent, item).First();
-            argument.Description = PreBinderContext.Current.HelpFinder.Get(parent, item);
+            argument.Name = PreBinderContext.Current.AliasFinder.Get(parents, item).First();
+            argument.Description = PreBinderContext.Current.HelpFinder.Get(parents, item);
             argument.ArgumentType = GetType(item);
             return argument;
         }

@@ -15,7 +15,7 @@ namespace System.CommandLine.JackFruit
             return this as TDerived;
         }
 
-        protected TDerived AddApproachFromFunc<TSource>(Func<Command, TSource, (bool, TReturn)> approachFunc)
+        protected TDerived AddApproachFromFunc<TSource>(Func<Command[], TSource, (bool, TReturn)> approachFunc)
         {
             approaches.Add(Approach<TReturn>.CreateApproach(approachFunc));
             return this as TDerived;
@@ -53,13 +53,13 @@ namespace System.CommandLine.JackFruit
             this.approaches = approaches;
         }
 
-        public TReturn Get<TSource>(Command parent, TSource source)
+        public TReturn Get<TSource>(Command[] parents, TSource source)
         {
             if (initialCheck != null)
             {
                 source = (TSource)initialCheck(source);
             }
-            TReturn ret = approaches.Do(parent, source);
+            TReturn ret = approaches.Do(parents, source);
             if (finalTransform != null)
             {
                 ret = finalTransform(ret);

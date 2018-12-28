@@ -5,7 +5,7 @@
         public static Command RootCommand<TRootType>(IDescriptionFinder descriptionFinder = null)
         {
             ((HelpFinder)PreBinderContext.Current.HelpFinder).AddDescriptionFinder(descriptionFinder);
-            var command = CommandFinder.GetCommand(null, typeof(TRootType), new RootCommand());
+            var command = CommandFinder.GetCommand(null, typeof(TRootType));
             return command;
         }
     }
