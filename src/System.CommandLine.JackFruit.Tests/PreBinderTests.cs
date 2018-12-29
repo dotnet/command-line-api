@@ -153,5 +153,13 @@ namespace System.CommandLine.JackFruit.Tests
            var task = rootCommand.InvokeAsync("tool install foo -g");
             task.Result.Should().Be(3);
         }
+
+        [Fact]
+        public void Can_get_report_on_command_structure()
+        {
+            var rootCommand = PreBinder.RootCommand<DotnetHybrid>(new HybridModelDescriptionFinder());
+            var report = Reporter.ReportCommand(rootCommand);
+            report.Should().NotBeNull();
+        }
     }
 }
