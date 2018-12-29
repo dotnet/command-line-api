@@ -19,7 +19,7 @@ namespace System.CommandLine
             bool enablePosixBundling = true,
             bool enablePositionalOptions = false,
             ValidationMessages validationMessages = null,
-            ResponseFileHandling responseFileHandling = default,
+            ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null)
             : this(
                 new[] { rootCommand },
@@ -44,7 +44,7 @@ namespace System.CommandLine
             bool enablePosixBundling = true,
             bool enablePositionalOptions = false,
             ValidationMessages validationMessages = null,
-            ResponseFileHandling responseFileHandling = default,
+            ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null)
         {
             if (symbols == null)

@@ -249,6 +249,8 @@ namespace System.CommandLine
             return sb.ToString();
         }
 
+        internal static string FromKebabCase(this string value) => value.Replace("-", "");
+
         private static Token Argument(string value) => new Token(value, TokenType.Argument);
 
         private static Token Command(string value) => new Token(value, TokenType.Command);

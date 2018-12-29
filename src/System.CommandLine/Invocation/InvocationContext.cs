@@ -26,7 +26,7 @@ namespace System.CommandLine.Invocation
             else
             {
                 Console = SystemConsole.Create();
-                _onDispose = Console;
+                _onDispose = Console as IDisposable;
             }
         }
 
@@ -39,6 +39,8 @@ namespace System.CommandLine.Invocation
         public int ResultCode { get; set; }
 
         public IInvocationResult InvocationResult { get; set; }
+
+        internal IServiceProvider ServiceProvider => new InvocationContextServiceProvider(this);
 
         internal event Action<CancellationTokenSource> CancellationHandlingAdded
         {
@@ -71,6 +73,38 @@ namespace System.CommandLine.Invocation
         public void Dispose()
         {
             _onDispose?.Dispose();
+        }
+
+        private class InvocationContextServiceProvider : IServiceProvider
+        {
+            private readonly InvocationContext _context;
+
+            public InvocationContextServiceProvider(InvocationContext context)
+            {
+                _context = context;
+            }
+
+            public object GetService(Type serviceType)
+            {
+                if (serviceType == typeof(ParseResult))
+                {
+                    return _context.ParseResult;
+                }
+                else if (serviceType == typeof(InvocationContext))
+                {
+                    return _context;
+                }
+                else if (serviceType == typeof(IConsole))
+                {
+                    return _context.Console;
+                }
+                else if (serviceType == typeof(CancellationToken))
+                {
+                    return _context.AddCancellationHandling();
+                }
+
+                return null;
+            }
         }
     }
 }

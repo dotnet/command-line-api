@@ -4,12 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public abstract class MethodBinderBase : ICommandHandler
+    public abstract class MethodBinderBase : ICommandHandler, IOptionBuilder
     {
         private ParameterInfo[] _parameters;
 
@@ -59,39 +58,34 @@ namespace System.CommandLine.Invocation
         {
             var arguments = new List<object>();
 
+            var commandResult = context.ParseResult.CommandResult;
+
             for (var index = 0; index < parameters.Length; index++)
             {
                 var parameterInfo = parameters[index];
 
-                var parameterName = parameterInfo.Name;
+                var typeToResolve = parameterInfo.ParameterType;
 
-                if (parameterInfo.ParameterType == typeof(ParseResult))
+                var value = context.ServiceProvider.GetService(typeToResolve);
+
+                if (value == null)
                 {
-                    arguments.Add(context.ParseResult);
+                    var optionResult = Binder.FindMatchingOption(
+                        commandResult,
+                        parameterInfo.Name);
+
+                    if (optionResult != null)
+                    {
+                        value = optionResult.GetValueOrDefault();
+                    }
+                    else if (parameterInfo.Name.IsMatch(
+                        commandResult.Command?.Argument?.Name))
+                    {
+                        value = commandResult.GetValueOrDefault();
+                    }
                 }
-                else if (parameterInfo.ParameterType == typeof(InvocationContext))
-                {
-                    arguments.Add(context);
-                }
-                else if (parameterInfo.ParameterType == typeof(IConsole))
-                {
-                    arguments.Add(context.Console);
-                }
-                else if (parameterInfo.ParameterType == typeof(CancellationToken))
-                {
-                    CancellationToken ct = context.AddCancellationHandling();
-                    arguments.Add(ct);
-                }
-                else
-                {
-                    var argument = context.ParseResult
-                                          .CommandResult
-                                          .ValueForOption(
-                                              Binder.FindMatchingOptionName(
-                                                  context.ParseResult,
-                                                  parameterName));
-                    arguments.Add(argument);
-                }
+
+                arguments.Add(value);
             }
 
             return arguments.ToArray();

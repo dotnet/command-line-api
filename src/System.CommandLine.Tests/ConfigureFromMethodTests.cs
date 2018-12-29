@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task Boolean_parameters_will_accept_zero_arguments()
+        public async Task Generated_boolean_parameters_will_accept_zero_arguments()
         {
             var rootCommand = new RootCommand();
             rootCommand.ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this);
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
         [InlineData("--value:false", false)]
         [InlineData("--value=true", true)]
         [InlineData("--value=false", false)]
-        public async Task Boolean_parameters_will_accept_one_argument(string commandLine, bool expected)
+        public async Task Generated_boolean_parameters_will_accept_one_argument(string commandLine, bool expected)
         {
             var rootCommand = new RootCommand();
             rootCommand.ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this);
@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task Single_parameter_arguments_generate_aliases_that_accept_a_single_dash_prefix()
+        public async Task Single_character_parameters_generate_aliases_that_accept_a_single_dash_prefix()
         {
             var command = new Command("the-command");
             command.ConfigureFromMethod(GetMethodInfo(nameof(Method_with_single_letter_parameters)), this);

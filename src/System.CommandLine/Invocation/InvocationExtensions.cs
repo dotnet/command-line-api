@@ -132,18 +132,27 @@ namespace System.CommandLine.Invocation
         public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) => {
+            builder.AddMiddleware(async (context, next) =>
+            {
                 try
                 {
                     await next(context);
                 }
                 catch (Exception exception)
                 {
-                    context.Console.ResetColor();
-                    context.Console.ForegroundColor = ConsoleColor.Red;
+                    var terminal = context.Console as ITerminal;
+
+                    if (terminal != null)
+                    {
+                        terminal.ResetColor();
+                        terminal.ForegroundColor = ConsoleColor.Red;
+                    }
+
                     context.Console.Error.Write("Unhandled exception: ");
                     context.Console.Error.WriteLine(exception.ToString());
-                    context.Console.ResetColor();
+                    
+                    terminal?.ResetColor();
+
                     context.ResultCode = 1;
                 }
             }, order: CommandLineBuilder.MiddlewareOrder.ExceptionHandler);

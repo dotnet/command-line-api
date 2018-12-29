@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace System.CommandLine.Invocation
 {
-    public class TypeBinder
+    public class TypeBinder : IOptionBuilder
     {
         private readonly Type _type;
         private IReadOnlyCollection<PropertyInfo> _settableProperties;
@@ -35,30 +38,35 @@ namespace System.CommandLine.Invocation
             InvocationContext context,
             object instance)
         {
+            var commandResult = context.ParseResult.CommandResult;
+
             foreach (var propertyInfo in GetSettableProperties())
             {
-                if (propertyInfo.PropertyType == typeof(ParseResult))
+                var typeToResolve = propertyInfo.PropertyType;
+
+                var value = context.ServiceProvider.GetService(typeToResolve);
+
+                if (value == null)
                 {
-                    propertyInfo.SetValue(instance, context.ParseResult);
+                    var optionResult = Binder.FindMatchingOption(
+                        commandResult,
+                        propertyInfo.Name);
+
+                    if (optionResult != null)
+                    {
+                        value = optionResult.GetValueOrDefault();
+                    }
+                    else if (propertyInfo.Name.IsMatch(commandResult.Command?.Argument?.Name))
+                    {
+                        value = commandResult.GetValueOrDefault();
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
-                else if (propertyInfo.PropertyType == typeof(InvocationContext))
-                {
-                    propertyInfo.SetValue(instance, context);
-                }
-                else if (propertyInfo.PropertyType == typeof(IConsole))
-                {
-                    propertyInfo.SetValue(instance, context.Console);
-                }
-                else
-                {
-                    var argument = context.ParseResult
-                                          .CommandResult
-                                          .ValueForOption(
-                                              Binder.FindMatchingOptionName(
-                                                  context.ParseResult,
-                                                  propertyInfo.Name));
-                    propertyInfo.SetValue(instance, argument);
-                }
+
+                propertyInfo.SetValue(instance, value);
             }
         }
 

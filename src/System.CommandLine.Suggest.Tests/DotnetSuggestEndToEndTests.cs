@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using static System.Environment;
-using System.Runtime.InteropServices;
 
 namespace System.CommandLine.Suggest.Tests
 {
@@ -69,7 +68,6 @@ namespace System.CommandLine.Suggest.Tests
 
         private void PrepareTestHomeDirectoryToAvoidPolluteBuildMachineHome()
         {
-            var tempDirectroy = Path.GetTempPath();
             _testRoot = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(_testRoot);
         }
