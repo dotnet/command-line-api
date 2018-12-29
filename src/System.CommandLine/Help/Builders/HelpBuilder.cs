@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -14,7 +13,6 @@ namespace System.CommandLine
     {
         protected const int DefaultColumnGutter = 4;
         protected const int DefaultIndentationSize = 2;
-        protected const int DefaultWindowWidth = 80;
 
         protected const int WindowMargin = 2;
         private int _indentationLevel;
@@ -45,7 +43,7 @@ namespace System.CommandLine
             _console = console ?? throw new ArgumentNullException(nameof(console));
             ColumnGutter = columnGutter ?? DefaultColumnGutter;
             IndentationSize = indentationSize ?? DefaultIndentationSize;
-            MaxWidth = maxWidth ?? GetWindowWidth();
+            MaxWidth = maxWidth ?? int.MaxValue;
         }
 
         /// <inheritdoc />
@@ -461,25 +459,6 @@ namespace System.CommandLine
 
             name =  symbol.Argument.Name;
             return true;
-        }
-
-        /// <summary>
-        /// Gets the number of characters of the current <see cref="IConsole"/> window if necessary
-        /// </summary>
-        /// <returns>
-        /// The current width (number of characters) of the configured <see cref="IConsole"/>,
-        /// or the <see cref="DefaultWindowWidth"/> if unavailable
-        /// </returns>
-        private int GetWindowWidth()
-        {
-            try
-            {
-                return _console.GetRegion().Width;
-            }
-            catch (Exception exception) when (exception is ArgumentOutOfRangeException || exception is IOException)
-            {
-                return DefaultWindowWidth;
-            }
         }
 
         protected class HelpItem

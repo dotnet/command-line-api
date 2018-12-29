@@ -10,7 +10,7 @@ namespace System.CommandLine.Invocation
     {
         public static ICommandHandler Create(
             MethodInfo method,
-            object target = null) =>
+            Func<object> target = null) =>
             new MethodBindingCommandHandler(method, target);
 
         public static ICommandHandler Create(Action action) =>

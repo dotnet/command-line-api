@@ -8,14 +8,14 @@ using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
-    public static class Binder
+    internal static class Binder
     {
         public static Option BuildOption(this ParameterInfo parameter)
         {
             var argument = new Argument
-            {
-                ArgumentType = parameter.ParameterType
-            };
+                           {
+                               ArgumentType = parameter.ParameterType
+                           };
 
             if (parameter.HasDefaultValue)
             {
@@ -41,35 +41,37 @@ namespace System.CommandLine.Invocation
                 });
         }
 
-        public static string FindMatchingOptionName(
-            ParseResult parseResult,
+        internal static OptionResult FindMatchingOption(
+            CommandResult result,
             string parameterName)
         {
-            var candidates = parseResult
-                             .CommandResult
-                             .Children
-                             .Where(s => s.Aliases.Any(Matching))
-                             .ToArray();
+            var options = result
+                          .Children
+                          .OfType<OptionResult>()
+                          .Where(o => parameterName.IsMatch(o.Option))
+                          .ToArray();
 
-            if (candidates.Length == 1)
+            if (options.Length == 1)
             {
-                return candidates[0].Aliases.Single(Matching);
+                return options[0];
             }
 
-            if (candidates.Length > 1)
+            if (options.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", candidates.ToString())}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", options.Select(o => o.Name))}");
             }
 
-            return "";
-
-            bool Matching(string alias)
-            {
-                return string.Equals(alias.RemovePrefix().Replace("-", ""),
-                                     parameterName,
-                                     StringComparison.OrdinalIgnoreCase);
-            }
+            return null;
         }
+
+        internal static bool IsMatch(this string parameterName, string alias) =>
+            string.Equals(alias?.RemovePrefix()
+                               .FromKebabCase(),
+                          parameterName,
+                          StringComparison.OrdinalIgnoreCase);
+
+        internal static bool IsMatch(this string parameterName, ISymbol symbol) =>
+            symbol.Aliases.Any(parameterName.IsMatch);
 
         private static readonly HashSet<Type> _infrastructureTypes = new HashSet<Type>(
             new[]
@@ -80,29 +82,6 @@ namespace System.CommandLine.Invocation
                 typeof(CancellationToken)
             }
         );
-
-        internal static bool TryGetValue(InvocationContext context, string name, out object value)
-        {
-            var commandResult = context.ParseResult.CommandResult;
-            var candidateArgument = commandResult.Command.Argument;
-            if (candidateArgument != null && candidateArgument.Name == name)
-            {
-                value = commandResult.GetValueOrDefault();
-                return true;
-            }
-            var optionName = Binder.FindMatchingOptionName(
-                                context.ParseResult,
-                                name);
-            if (string.IsNullOrWhiteSpace(optionName))
-            {
-                value = null;
-                return false;
-            }
-            value = context.ParseResult
-                        .CommandResult
-                        .ValueForOption(optionName);
-            return true;
-        }
 
         internal static IEnumerable<PropertyInfo> OmitInfrastructureTypes(
             this IEnumerable<PropertyInfo> source) =>

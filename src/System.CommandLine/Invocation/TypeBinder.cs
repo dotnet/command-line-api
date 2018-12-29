@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace System.CommandLine.Invocation
 {
-    public class TypeBinder
+    public class TypeBinder : IOptionBuilder
     {
         private readonly Type _type;
         private IReadOnlyCollection<PropertyInfo> _settableProperties;
@@ -35,32 +38,35 @@ namespace System.CommandLine.Invocation
             InvocationContext context,
             object instance)
         {
+            var commandResult = context.ParseResult.CommandResult;
+
             foreach (var propertyInfo in GetSettableProperties())
             {
-                SetProperty(context, instance, propertyInfo);
-            }
-        }
+                var typeToResolve = propertyInfo.PropertyType;
 
-        private static void SetProperty(InvocationContext context, object instance, PropertyInfo propertyInfo)
-        {
-            if (propertyInfo.PropertyType == typeof(ParseResult))
-            {
-                propertyInfo.SetValue(instance, context.ParseResult);
-            }
-            else if (propertyInfo.PropertyType == typeof(InvocationContext))
-            {
-                propertyInfo.SetValue(instance, context);
-            }
-            else if (propertyInfo.PropertyType == typeof(IConsole))
-            {
-                propertyInfo.SetValue(instance, context.Console);
-            }
-            else
-            {
-                if (Binder.TryGetValue(context, propertyInfo.Name, out object value))
+                var value = context.ServiceProvider.GetService(typeToResolve);
+
+                if (value == null)
                 {
-                    propertyInfo.SetValue(instance, value);
+                    var optionResult = Binder.FindMatchingOption(
+                        commandResult,
+                        propertyInfo.Name);
+
+                    if (optionResult != null)
+                    {
+                        value = optionResult.GetValueOrDefault();
+                    }
+                    else if (propertyInfo.Name.IsMatch(commandResult.Command?.Argument?.Name))
+                    {
+                        value = commandResult.GetValueOrDefault();
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
+
+                propertyInfo.SetValue(instance, value);
             }
         }
 
@@ -76,7 +82,7 @@ namespace System.CommandLine.Invocation
             foreach (var property in GetSettableProperties()
                 .OmitInfrastructureTypes())
             {
-                var option = BuildOption(property);
+                var option = property.BuildOption();
 
                 if (!optionSet.Contains(option.Name))
                 {
@@ -86,9 +92,6 @@ namespace System.CommandLine.Invocation
 
             return optionSet.Cast<Option>();
         }
-
-        public static Option BuildOption(PropertyInfo property)
-            => property.BuildOption();
 
         private IEnumerable<PropertyInfo> GetSettableProperties()
         {
