@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal class TypeBindingCommandHandler : ICommandHandler
+    public class TypeBindingCommandHandler : ICommandHandler
     {
         private readonly MethodInfo _onExecuteMethodInfo;
         private readonly TypeBinder _typeBinder;

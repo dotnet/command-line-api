@@ -37,7 +37,7 @@ namespace System.CommandLine.JackFruit.Tests
         private Dictionary<(Type, string), string> symbolHelp = new Dictionary<(Type, string), string>()
         {
             [(typeof(DotnetHybrid.Tool), nameof(DotnetHybrid.Tool.Install).ToKebabCase())] = "Install a tool for use on the command line.",
-            [(typeof(DotnetHybrid.Tool), nameof(DotnetHybrid.Tool.Uninstall))] = "Uninstall a tool from the current development environment.",
+            [(typeof(DotnetHybrid.Tool), nameof(DotnetHybrid.Tool.Uninstall).ToKebabCase())] = "Uninstall a tool from the current development environment.",
             [(typeof(DotnetHybrid.Tool), nameof(DotnetHybrid.Tool.Update).ToKebabCase())] = "Update a tool to the latest stable version.",
             [(typeof(DotnetHybrid.Tool), nameof(DotnetHybrid.Tool.List).ToKebabCase())] = "List tools installed in the current development environment. ",
             [(typeof(DotnetHybrid.Add), nameof(DotnetHybrid.Add.Package).ToKebabCase())] = "Add a NuGet package reference to the project.",
