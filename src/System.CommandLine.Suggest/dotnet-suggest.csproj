@@ -23,4 +23,15 @@
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="dotnet-suggest-shim.ps1" />
+    <Content Include="dotnet-suggest-shim.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="dotnet-suggest-shim.bash" />
+    <Content Include="dotnet-suggest-shim.bash">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
