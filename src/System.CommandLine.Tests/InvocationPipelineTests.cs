@@ -3,11 +3,9 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using FluentAssertions;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests
