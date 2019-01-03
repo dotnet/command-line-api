@@ -38,8 +38,6 @@ namespace System.CommandLine.Tests
                 this.message = message;
             }
 
-            public override string NoArgumentsAllowed(SymbolResult symbolResult) => message;
-
             public override string ExpectsOneArgument(SymbolResult symbolResult) => message;
 
             public override string FileDoesNotExist(string filePath) => message;
