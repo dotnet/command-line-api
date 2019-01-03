@@ -10,7 +10,7 @@ namespace System.CommandLine
     public class CommandLineConfiguration
     {
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
-        private Func<InvocationContext, IHelpBuilder> _helpProvider;
+        private IHelpBuilderFactory _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
         public CommandLineConfiguration(
@@ -22,7 +22,7 @@ namespace System.CommandLine
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
-            Func<InvocationContext, IHelpBuilder> helpProvider = null)
+            IHelpBuilderFactory helpBuilderFactory = null)
         {
             if (symbols == null)
             {
@@ -67,7 +67,7 @@ namespace System.CommandLine
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
             _middlewarePipeline = middlewarePipeline;
-            _helpProvider = helpProvider;
+            _helpBuilderFactory = helpBuilderFactory;
             Prefixes = prefixes;
 
             if (prefixes?.Count > 0)
@@ -100,9 +100,9 @@ namespace System.CommandLine
 
         public ValidationMessages ValidationMessages { get; }
 
-        internal Func<InvocationContext, IHelpBuilder> HelpProvider =>
-            _helpProvider ??
-            (_helpProvider = invocationContext => new HelpBuilder(invocationContext.Console));
+        internal IHelpBuilderFactory HelpBuilderFactory =>
+            _helpBuilderFactory ??
+            (_helpBuilderFactory = new HelpBuilderFactory());
 
         internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
             _middlewarePipeline ??

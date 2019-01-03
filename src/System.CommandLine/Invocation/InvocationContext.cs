@@ -54,8 +54,7 @@ namespace System.CommandLine.Invocation
 
         internal IServiceProvider ServiceProvider => new InvocationContextServiceProvider(this);
 
-        internal IHelpBuilder HelpBuilder => ServiceProvider.GetService(typeof(IHelpBuilder)) as IHelpBuilder ??
-                                             new HelpBuilder(Console);
+        internal IHelpBuilder HelpBuilder => (IHelpBuilder)ServiceProvider.GetService(typeof(IHelpBuilder));
 
         internal event Action<CancellationTokenSource> CancellationHandlingAdded
         {
@@ -121,7 +120,7 @@ namespace System.CommandLine.Invocation
                 }
                 if (serviceType == typeof(IHelpBuilder))
                 {
-                    return _context.Parser.Configuration.HelpProvider(_context);
+                    return _context.Parser.Configuration.HelpBuilderFactory.CreateHelpBuilder(_context);
                 }
 
                 return null;

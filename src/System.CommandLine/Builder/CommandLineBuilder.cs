@@ -24,7 +24,7 @@ namespace System.CommandLine.Builder
 
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
-        public Func<InvocationContext, IHelpBuilder> HelpProvider { get; set; }
+        public IHelpBuilderFactory HelpBuilderFactory { get; set; }
 
         public Parser Build()
         {
@@ -41,7 +41,7 @@ namespace System.CommandLine.Builder
                     middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
                                                        .ToArray(), 
-                    helpProvider: HelpProvider));
+                    helpBuilderFactory: HelpBuilderFactory));
         }
 
         internal void AddMiddleware(
