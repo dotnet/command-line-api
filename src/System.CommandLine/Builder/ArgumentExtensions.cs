@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -9,9 +8,10 @@ namespace System.CommandLine.Builder
 {
     public static class ArgumentExtensions
     {
-        public static Argument FromAmong(
-            this Argument argument,
+        public static TArgument FromAmong<TArgument>(
+            this TArgument argument,
             params string[] values)
+            where TArgument : Argument
         {
             argument.AddValidValues(values);
             argument.AddSuggestions(values);
@@ -19,25 +19,27 @@ namespace System.CommandLine.Builder
             return argument;
         }
 
-        public static Argument WithSuggestions(
-            this Argument argument,
+        public static TArgument WithSuggestions<TArgument>(
+            this TArgument argument,
             params string[] suggestions)
+            where TArgument : Argument
         {
             argument.AddSuggestions(suggestions);
 
             return argument;
         }
 
-        public static Argument WithSuggestionSource(
-            this Argument argument,
+        public static TArgument WithSuggestionSource<TArgument>(
+            this TArgument argument,
             Suggest suggest)
+            where TArgument : Argument
         {
             argument.AddSuggestionSource(suggest);
 
             return argument;
         }
 
-        public static Argument ExistingOnly(this Argument<FileInfo> argument)
+        public static Argument<FileInfo> ExistingOnly(this Argument<FileInfo> argument)
         {
             argument.AddValidator(symbol =>
                                       symbol.Arguments
@@ -47,7 +49,7 @@ namespace System.CommandLine.Builder
             return argument;
         }
 
-        public static Argument ExistingOnly(this Argument<DirectoryInfo> argument)
+        public static Argument<DirectoryInfo> ExistingOnly(this Argument<DirectoryInfo> argument)
         {
             argument.AddValidator(symbol =>
                                       symbol.Arguments
@@ -57,7 +59,9 @@ namespace System.CommandLine.Builder
             return argument;
         }
 
-        public static Argument LegalFilePathsOnly(this Argument argument)
+        public static TArgument LegalFilePathsOnly<TArgument>(
+            this TArgument argument)
+            where TArgument : Argument
         {
             argument.AddValidator(symbol =>
             {
