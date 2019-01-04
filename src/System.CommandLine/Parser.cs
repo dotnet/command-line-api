@@ -82,7 +82,7 @@ namespace System.CommandLine
                     var value = keyAndValue.Length == 2
                                     ? keyAndValue[1]
                                     : string.Empty;
-                    directives.Add(key, value);
+                    directives[key] = value;
                     continue;
                 }
 

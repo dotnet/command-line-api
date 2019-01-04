@@ -7,6 +7,7 @@ using FluentAssertions;
 using FluentAssertions.Equivalency;
 using System.Linq;
 using FluentAssertions.Common;
+using FluentAssertions.Primitives;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -564,6 +565,30 @@ namespace System.CommandLine.Tests
                        result4,
                        x => x.IgnoringCyclicReferences()
                              .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+        }
+
+        [Theory]
+        [InlineData("--one 1 --many 1 --many 2")]
+        [InlineData("--one 1 --many 1 --many 2 arg1 arg2")]
+        [InlineData("--many 1 --one 1 --many 2")]
+        [InlineData("--many 2 --many 1 --one 1")]
+        [InlineData("--many:2 --many=1 --one 1")]
+        [InlineData("[parse] --one 1 --many 1 --many 2")]
+        [InlineData("--one \"stuff in quotes\" this-is-arg1 \"this is arg2\"")]
+        [InlineData("not a valid command line --one 1")]
+        public void Original_order_of_tokens_is_preserved_in_ParseResult_Tokens(string commandLine)
+        {
+            var rawSplit = commandLine.Tokenize();
+
+            var command = new Command("the-command", argument: new Argument<string[]>())
+                          {
+                              new Option("--one", "", new Argument<string>()),
+                              new Option("--many", "", new Argument<string[]>()),
+                          };
+
+            var result = command.Parse(commandLine);
+
+            result.Tokens.Should().Equal(rawSplit);
         }
 
         [Fact]

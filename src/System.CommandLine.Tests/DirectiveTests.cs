@@ -114,5 +114,15 @@ namespace System.CommandLine.Tests
 
             result.Directives.Should().BeEmpty();
         }
+
+        [Fact]
+        public void When_a_directive_is_specified_more_than_once_then_its_value_is_overwritten()
+        {
+            var option = new Option("-a");
+
+            var result = option.Parse("[directive:one] [directive:two] -a");
+
+            result.Directives["directive"].Should().Be("two");
+        }
     }
 }
