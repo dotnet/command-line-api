@@ -62,17 +62,17 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("key:value", "key", "value")]
-        [InlineData("key:value:more", "key", "value:more")]
-        [InlineData("key:", "key", "")]
+        [InlineData("[key:value]", "key", "value")]
+        [InlineData("[key:value:more]", "key", "value:more")]
+        [InlineData("[key:]", "key", "")]
         public void Directives_can_have_a_value_which_is_everything_after_the_first_colon(
-            string directiveContent,
+            string directive,
             string expectedKey,
             string expectedValue)
         {
             var option = new Option("-y");
 
-            var result = option.Parse($"[{directiveContent}] -y");
+            var result = option.Parse($"{directive} -y");
 
             result.Directives
                   .Should()
