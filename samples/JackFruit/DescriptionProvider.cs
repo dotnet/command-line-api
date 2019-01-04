@@ -4,7 +4,7 @@ using System.CommandLine.JackFruit;
 
 namespace System.CommandLine.JackFruit
 {
-    internal class DescriptionProvider : IDescriptionProvider<Type>
+    internal class DescriptionProvider 
     {
         private Dictionary<Type, string> commandHelp = new Dictionary<Type, string>()
         {

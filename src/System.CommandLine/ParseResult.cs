@@ -60,7 +60,6 @@ namespace System.CommandLine
                 {
                     foreach (var symbol in command.Command.Children)
                     {
-                        // KAD: Error here appeared suddenly. Might represent different issue
                         if (symbol.Argument != null &&
                             symbol.Argument.HasDefaultValue &&
                             command.Children[symbol.Name] == null)
@@ -74,7 +73,6 @@ namespace System.CommandLine
                         }
                     }
 
-                    // KAD: Error here appeared suddenly. Might represent different issue
                     if (command.Command.Argument != null &&
                         command.Command.Argument.HasDefaultValue &&
                         command.Arguments.Count == 0)

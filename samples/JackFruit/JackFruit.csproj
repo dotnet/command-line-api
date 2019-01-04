@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\System.CommandLine.JackFruit\System.CommandLine.JackFruit.csproj" />
     <ProjectReference Include="..\..\src\System.CommandLine\System.CommandLine.csproj" />
-    <ProjectReference Include="..\..\System.CommandLine.JackFruit\System.CommandLine.JackFruit.csproj" />
   </ItemGroup>
 
   <ItemGroup>
