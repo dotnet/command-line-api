@@ -20,9 +20,9 @@ namespace System.CommandLine.JackFruit.Tests
         {
             _console = new TestConsole();
             _testProgram = new TestProgram();
-            var helpFinder = (DescriptionProvider)PreBinderContext.Current.HelpFinder;
-            helpFinder.AddDescriptionFinder( DescriptionFinder.Description);
-            helpFinder.AddDescriptionFinder( HybridModelDescriptionFinder.Description);
+            var helpFinder = PreBinderContext.Current.DescriptionFinder;
+            helpFinder.AddApproach<object>((c,s)=>(false, DescriptionFinder.Description(s)));
+            helpFinder.AddApproach<object>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
             testParents = new Command[] { new Command("test") };
         }
 
@@ -39,14 +39,14 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_retrieve_help_for_command_from_description_file()
         {
-            var help = PreBinderContext.Current.HelpFinder.Get(testParents, typeof(Tool));
+            var help = PreBinderContext.Current.DescriptionFinder.Get(testParents, typeof(Tool));
             TestUtils.CheckHelp(help, "Install or manage tools");
         }
 
         [Fact]
         public void Can_retrieve_help_for_command_from_hybrid_description_file()
         {
-            var help = PreBinderContext.Current.HelpFinder.Get(testParents, typeof(DotnetHybrid.Tool));
+            var help = PreBinderContext.Current.DescriptionFinder.Get(testParents, typeof(DotnetHybrid.Tool));
             TestUtils.CheckHelp(help, "Install or manage tools");
         }
 
@@ -110,7 +110,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_retrieve_command_structure()
         {
-            var rootCommand = PreBinder.RootCommand<DotnetHybrid>( HybridModelDescriptionFinder.Description);
+            var rootCommand = PreBinder.RootCommand<DotnetHybrid>((c,s)=> (false,HybridModelDescriptionFinder.Description(s)));
 
             TestUtils.CheckSubCommands(rootCommand, "add", "list", "remove", "sln", "tool");
             var addCommand = rootCommand.Children.OfType<Command>().Single(x => x.Name == "add");
@@ -133,14 +133,14 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_create_root_commands()
         {
-            var command = PreBinder.RootCommand<DotnetJackFruit>( DescriptionFinder.Description );
+            var command = PreBinder.RootCommand<DotnetJackFruit>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
             command.Should().NotBeNull();
         }
 
         [Fact]
         public void Can_retrieve_invocation()
         {
-            var rootCommand = PreBinder.RootCommand<DotnetHybrid>( HybridModelDescriptionFinder.Description);
+            var rootCommand = PreBinder.RootCommand<DotnetHybrid>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
             var toolCommand = rootCommand.Children.OfType<Command>().Single(x => x.Name == "tool");
             toolCommand.Should().NotBeNull();
             var toolInstallCommand = toolCommand.Children.OfType<Command>().Single(x => x.Name == "install");
@@ -155,7 +155,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_get_report_on_command_structure()
         {
-            var rootCommand = PreBinder.RootCommand<DotnetHybrid>( HybridModelDescriptionFinder.Description);
+            var rootCommand = PreBinder.RootCommand<DotnetHybrid>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
             var report = Reporter.ReportCommand(rootCommand);
             report.Should().NotBeNull();
         }

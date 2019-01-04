@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace System.CommandLine.JackFruit
 {
-    public class CommandProvider : FinderBaseForList<CommandProvider, Command>
+    public static class CommandStrategies
     {
         private class DerivedTypeFinder
         {
@@ -71,7 +71,7 @@ namespace System.CommandLine.JackFruit
 
             var command = parents == null
                 ? new RootCommand(names?.First())
-                : new Command(names?.First(), PreBinderContext.Current.HelpFinder.Get(parents, source));
+                : new Command(names?.First(), PreBinderContext.Current.DescriptionFinder.Get(parents, source));
 
             parents = parents == null
                 ? new Command[] { command }
@@ -98,11 +98,5 @@ namespace System.CommandLine.JackFruit
                 return parentList.ToArray();
             }
         }
-
-        public static CommandProvider Default()
-            => new CommandProvider()
-                   .AddApproach<Type>(FromDerivedTypes)
-                   .AddApproach<Type>(FromNestedTypes)
-                   .AddApproach<Type>(FromMethods);
     }
 }

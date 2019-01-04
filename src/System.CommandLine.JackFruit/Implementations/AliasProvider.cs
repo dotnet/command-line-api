@@ -5,9 +5,9 @@ using System.Reflection;
 namespace System.CommandLine.JackFruit
 {
 
-    public class AliasProvider : FinderBaseForList<AliasProvider, string>
+    public static class AliasStrategies
     {
-        protected static (bool, IEnumerable<string>) FromAttribute(Command[] parents, object source)
+        public static (bool, IEnumerable<string>) FromAttribute(Command[] parents, object source)
         {
             switch (source)
             {
@@ -35,10 +35,5 @@ namespace System.CommandLine.JackFruit
         }
 
         // TODO: Add approach for underscore. Anything else? Maybe XML Docs
-
-        public static AliasProvider Default()
-            => new AliasProvider()
-                    .SetFinalTransform(x => x.Select(n => n.ToKebabCase().ToLower()))
-                    .AddApproach<object>(FromAttribute);
     }
 }

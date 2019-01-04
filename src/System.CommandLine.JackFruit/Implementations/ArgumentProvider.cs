@@ -6,9 +6,9 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class ArgumentProvider : FinderBaseForList<ArgumentProvider, Argument>
+    public static class ArgumentStrategies
     {
-        private static (bool, IEnumerable<Argument>) FromAttributedProperties(Command[] parents, Type baseType)
+        public static (bool, IEnumerable<Argument>) FromAttributedProperties(Command[] parents, Type baseType)
         {
             var properties = baseType.GetProperties();
             var attributedProperties = properties.Where(x => x.GetCustomAttribute<ArgumentAttribute>() != null);
@@ -18,28 +18,28 @@ namespace System.CommandLine.JackFruit
                     .Select(m => GetArgument(parents, m)));
         }
 
-        private static (bool, IEnumerable<Argument>) FromSuffixedProperties(Command[] parents, Type baseType)
+        public static (bool, IEnumerable<Argument>) FromSuffixedProperties(Command[] parents, Type baseType)
             => (false, baseType
                     .GetProperties()
                     .Where(p => NameIsSuffixed(p.Name))
                     .Select(m => GetArgument(parents,  m)));
 
-        private static (bool, IEnumerable<Argument>) FromAttributedParameters(Command[] parents, MethodInfo method)
+        public static (bool, IEnumerable<Argument>) FromAttributedParameters(Command[] parents, MethodInfo method)
             => (false, method
                  .GetParameters()
                  .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
                  .Select(p => GetArgument(parents,  p)));
 
-        private static (bool, IEnumerable<Argument>) FromSuffixedParameters(Command[] parents, MethodInfo method)
+        public static (bool, IEnumerable<Argument>) FromSuffixedParameters(Command[] parents, MethodInfo method)
             => (false, method
                     .GetParameters()
                     .Where(p => NameIsSuffixed(p.Name))
                     .Select(m => GetArgument(parents,  m)));
 
-        private static (bool, IEnumerable<Argument>) FromParameter(Command[] parents, ParameterInfo parameter)
+        public static (bool, IEnumerable<Argument>) FromParameter(Command[] parents, ParameterInfo parameter)
             => (false, new List<Argument>() { GetArgument(parents,  parameter) });
 
-        private static (bool, IEnumerable<Argument>) FromProperty(Command[] parents, PropertyInfo property)
+        public static (bool, IEnumerable<Argument>) FromProperty(Command[] parents, PropertyInfo property)
             => (false, new List<Argument>() { GetArgument(parents,  property) });
 
         // TODO: Also need to update the name to remove Args, and this is a can of worms
@@ -50,7 +50,7 @@ namespace System.CommandLine.JackFruit
         {
             var argument = new Argument();
             argument.Name = PreBinderContext.Current.AliasFinder.Get(parents, item).First();
-            argument.Description = PreBinderContext.Current.HelpFinder.Get(parents, item);
+            argument.Description = PreBinderContext.Current.DescriptionFinder.Get(parents, item);
             argument.ArgumentType = GetType(item);
             return argument;
         }
@@ -67,14 +67,5 @@ namespace System.CommandLine.JackFruit
                     return null;
             }
         }
-
-        public static ArgumentProvider Default()
-            => new ArgumentProvider()
-                    .AddApproach<Type>(FromAttributedProperties)
-                    .AddApproach<Type>(FromSuffixedProperties)
-                    .AddApproach<MethodInfo>(FromAttributedParameters)
-                    .AddApproach<MethodInfo>(FromSuffixedParameters)
-                    .AddApproach<ParameterInfo>(FromParameter)
-                    .AddApproach<PropertyInfo >(FromProperty);
     }
 }

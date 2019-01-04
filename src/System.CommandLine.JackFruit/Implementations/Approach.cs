@@ -34,13 +34,10 @@ namespace System.CommandLine.JackFruit
         protected readonly List<IApproach<TProduce>> approaches;
         protected readonly bool shortCircuit;
 
-        public static ApproachSet<TProduce> Create(IEnumerable<IApproach<TProduce>> approaches, bool shortCircuit = true)
-            => new ApproachSet<TProduce>(approaches, shortCircuit);
-
-        protected ApproachSet(IEnumerable<IApproach<TProduce>> approaches, bool shortCircuit = true)
+        internal ApproachSet()
         {
-            this.approaches = approaches.ToList();
-            this.shortCircuit = shortCircuit;
+            approaches = new List<IApproach<TProduce>>();
+            shortCircuit = !typeof(Enumerable).IsAssignableFrom(typeof(TProduce));
         }
 
         public void Add(IApproach<TProduce> approach)
@@ -73,13 +70,8 @@ namespace System.CommandLine.JackFruit
     // This class exists because lists have a differnt algorithm for Do and need extra information <T>
     internal class ApproachSetForList<T> : ApproachSet<IEnumerable<T>>
     {
-
-        public static new ApproachSet<IEnumerable<T>> Create(
-                 IEnumerable<IApproach<IEnumerable<T>>> approaches, bool shortCircuit = false)
-            => new ApproachSetForList<T>(approaches, shortCircuit);
-
-        private ApproachSetForList(IEnumerable<IApproach<IEnumerable<T>>> approaches, bool shortCircuit = true)
-            : base(approaches, shortCircuit) { }
+        internal ApproachSetForList()
+            : base() { }
 
         // TProduce is IEnumerable<T>
         protected override IEnumerable<T> DoInternal(Func<IApproach<IEnumerable<T>>, (bool, IEnumerable<T>)> operation)
@@ -88,7 +80,11 @@ namespace System.CommandLine.JackFruit
             foreach (var approach in approaches)
             {
                 (var endEvaluation, var newList) = operation(approach);
-                if (newList != null && newList.Any())
+                if (newList == null)
+                {
+                    continue;
+                }
+                if (newList.Any())
                 {
                     value.AddRange(newList);
                 }

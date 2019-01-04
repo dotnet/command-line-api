@@ -3,9 +3,9 @@
 namespace System.CommandLine.JackFruit
 {
 
-    public class DescriptionProvider : FinderBase<DescriptionProvider, string>
+    public static class DescriptionStrategies 
     {
-        protected static (bool, string) FromAttribute(Command[] parents, object source)
+        public static (bool, string) FromAttribute(Command[] parents, object source)
         {
             switch (source)
             {
@@ -24,17 +24,6 @@ namespace System.CommandLine.JackFruit
                 => attribute != null
                     ? (false, attribute.HelpText)
                     : (false, null);
-        }
-
-        public static DescriptionProvider Default()
-            => new DescriptionProvider()
-                .AddApproach<object>(FromAttribute);
-
-        public DescriptionProvider AddDescriptionFinder(Func<object, string> descriptionFinder)
-        {
-            AddApproach<object>(
-                   (parents, source) => (false, descriptionFinder(source)));
-            return this;
         }
     }
 }

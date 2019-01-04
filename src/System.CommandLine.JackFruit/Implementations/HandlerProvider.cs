@@ -3,21 +3,21 @@ using System.Reflection;
 
 namespace System.CommandLine.JackFruit
 {
-    public class HandlerFinder : FinderBase<HandlerFinder, ICommandHandler>
+    public static class HandlerStrategies
     {
-        private static (bool, ICommandHandler) FromMethod(Command[] parents, MethodInfo methodInfo)
+        public static (bool, ICommandHandler) FromMethod(Command[] parents, MethodInfo methodInfo)
         {
             return GetHandler(methodInfo.DeclaringType, methodInfo);
 
         }
 
-        private static (bool, ICommandHandler) FromInvokeOnType(Command[] parents, Type type)
+        public static (bool, ICommandHandler) FromInvokeOnType(Command[] parents, Type type)
         {
             var invokeMethod = type.GetMethod("InvokeAsync");
             return GetHandler(type, invokeMethod);
         }
 
-        private static (bool, ICommandHandler) GetHandler(Type type, MethodInfo methodInfo)
+        public static (bool, ICommandHandler) GetHandler(Type type, MethodInfo methodInfo)
         {
             if(methodInfo == null)
             {
@@ -31,10 +31,5 @@ namespace System.CommandLine.JackFruit
                     ? (false, new TypeBindingCommandHandler(methodInfo, typeBinder))
                     : (false, null);
         }
-
-        public static HandlerFinder Default() 
-            => new HandlerFinder()
-                    .AddApproach<MethodInfo>(FromMethod)
-                    .AddApproach<Type>(FromInvokeOnType);
     }
 }
