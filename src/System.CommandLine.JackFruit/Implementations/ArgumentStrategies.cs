@@ -49,8 +49,8 @@ namespace System.CommandLine.JackFruit
         private static Argument GetArgument<T>(Command[] parents,  T item)
         {
             var argument = new Argument();
-            argument.Name = PreBinderContext.Current.AliasFinder.Get(parents, item).First();
-            argument.Description = PreBinderContext.Current.DescriptionFinder.Get(parents, item);
+            argument.Name = PreBinderContext.Current.AliasProvider.Get(parents, item).First();
+            argument.Description = PreBinderContext.Current.DescriptionProvider.Get(parents, item);
             argument.ArgumentType = GetType(item);
             return argument;
         }

@@ -8,6 +8,10 @@ namespace System.CommandLine.JackFruit
     public class PreBinderContext
     {
         private static PreBinderContext current;
+        public static void Empty()
+        {
+            current = new PreBinderContext();
+        }
         public static PreBinderContext Current
         {
             get
@@ -15,67 +19,48 @@ namespace System.CommandLine.JackFruit
                 if (current == null)
                 {
                     current = new PreBinderContext();
+                    current.SetDefaults();
                 }
                 return current;
             }
         }
-        private IFinder<IEnumerable<Command>> subCommandFinder;
-        public IFinder<IEnumerable<Command>> SubCommandFinder
+
+        private void SetDefaults()
         {
-            get => subCommandFinder ?? (subCommandFinder = FinderBase.Create<IEnumerable<Command>>()
-                                                           .AddStrategy<Type>(CommandStrategies.FromDerivedTypes)
-                                                           .AddStrategy<Type>(CommandStrategies.FromNestedTypes)
-                                                           .AddStrategy<Type>(CommandStrategies.FromMethods));
-            set => subCommandFinder = value;
+            SubCommandProvider = (SubCommandProvider ?? ProviderBase.Create<IEnumerable<Command>>())
+                                                    .AddStrategy<Type>(CommandStrategies.FromDerivedTypes)
+                                                    .AddStrategy<Type>(CommandStrategies.FromNestedTypes)
+                                                    .AddStrategy<Type>(CommandStrategies.FromMethods);
+
+            AliasProvider = (AliasProvider ?? ProviderBase.Create<IEnumerable<string>>())
+                                                    .SetFinalTransform(x => x.Select(n => n.ToKebabCase().ToLower()))
+                                                    .AddStrategy<object>(AliasStrategies.FromAttribute);
+
+            DescriptionProvider = (DescriptionProvider ?? ProviderBase.Create<string>())
+                                                    .AddStrategy<object>(DescriptionStrategies.FromAttribute);
+
+            ArgumentProvider = (ArgumentProvider ?? ProviderBase.Create<IEnumerable<Argument>>())
+                                                    .AddStrategy<Type>(ArgumentStrategies.FromAttributedProperties)
+                                                    .AddStrategy<Type>(ArgumentStrategies.FromSuffixedProperties)
+                                                    .AddStrategy<MethodInfo>(ArgumentStrategies.FromAttributedParameters)
+                                                    .AddStrategy<MethodInfo>(ArgumentStrategies.FromSuffixedParameters)
+                                                    .AddStrategy<ParameterInfo>(ArgumentStrategies.FromParameter)
+                                                    .AddStrategy<PropertyInfo>(ArgumentStrategies.FromProperty);
+
+            OptionProvider = (OptionProvider ?? ProviderBase.Create<IEnumerable<Option>>())
+                                                    .AddStrategy<Type>(OptionStrategies.FromProperties)
+                                                    .AddStrategy<MethodInfo>(OptionStrategies.FromParameters);
+
+            HandlerProvider = (HandlerProvider ?? ProviderBase.Create<ICommandHandler>())
+                                                    .AddStrategy<MethodInfo>(HandlerStrategies.FromMethod)
+                                                    .AddStrategy<Type>(HandlerStrategies.FromInvokeOnType);
         }
 
-        private IFinder<IEnumerable<string>> aliasFinder;
-        public IFinder<IEnumerable<string>> AliasFinder
-        {
-            get => aliasFinder ?? (aliasFinder = FinderBase.Create<IEnumerable<string>>()
-                                                            .SetFinalTransform(x => x.Select(n => n.ToKebabCase().ToLower()))
-                                                            .AddStrategy<object>(AliasStrategies.FromAttribute));
-            set => aliasFinder = value;
-        }
-
-        private IFinder<string> descriptionFinder;
-        public IFinder<string> DescriptionFinder
-        {
-            get => descriptionFinder ?? (descriptionFinder = FinderBase.Create<string>()
-                                                            .AddStrategy<object>(DescriptionStrategies.FromAttribute));
-            set => descriptionFinder = value;
-        }
-
-        private IFinder<IEnumerable<Argument>> argumentFinder;
-        public IFinder<IEnumerable<Argument>> ArgumentFinder
-        {
-            get => argumentFinder ?? (argumentFinder = FinderBase.Create<IEnumerable<Argument>>()
-                                                            .AddStrategy<Type>(ArgumentStrategies.FromAttributedProperties)
-                                                            .AddStrategy<Type>(ArgumentStrategies.FromSuffixedProperties)
-                                                            .AddStrategy<MethodInfo>(ArgumentStrategies.FromAttributedParameters)
-                                                            .AddStrategy<MethodInfo>(ArgumentStrategies.FromSuffixedParameters)
-                                                            .AddStrategy<ParameterInfo>(ArgumentStrategies.FromParameter)
-                                                            .AddStrategy<PropertyInfo>(ArgumentStrategies.FromProperty));
-            set => argumentFinder = value;
-        }
-
-        private IFinder<IEnumerable<Option>> optionFinder;
-        public IFinder<IEnumerable<Option>> OptionFinder
-        {
-            get => optionFinder ?? (optionFinder = FinderBase.Create<IEnumerable<Option>>()
-                                                            .AddStrategy<Type>(OptionStrategies.FromProperties)
-                                                            .AddStrategy<MethodInfo>(OptionStrategies.FromParameters));
-            set => optionFinder = value;
-        }
-
-        private IFinder<ICommandHandler> handlerFinder;
-        public IFinder<ICommandHandler> HandlerFinder
-        {
-            get => handlerFinder ?? (handlerFinder = FinderBase.Create<ICommandHandler>()
-                                                            .AddStrategy<MethodInfo>(HandlerStrategies.FromMethod)
-                                                            .AddStrategy<Type>(HandlerStrategies.FromInvokeOnType));
-            set => handlerFinder = value;
-        }
-
+        public IProvider<IEnumerable<Command>> SubCommandProvider { get; set; }
+        public IProvider<IEnumerable<string>> AliasProvider { get; set; }
+        public IProvider<string> DescriptionProvider { get; set; }
+        public IProvider<IEnumerable<Argument>> ArgumentProvider { get; set; }
+        public IProvider<IEnumerable<Option>> OptionProvider { get; set; }
+        public IProvider<ICommandHandler> HandlerProvider { get; set; }
     }
 }

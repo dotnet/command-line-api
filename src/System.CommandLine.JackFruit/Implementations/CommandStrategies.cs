@@ -60,32 +60,30 @@ namespace System.CommandLine.JackFruit
                             .ToList();
             return (false, commands);
 
-            //var method = baseType.GetMethod("InvokeAsync", Reflection.Constants.PublicAndInstance);
-            //return (method != null, PreBinderContext.Current.SubCommandFinder.Get(method)) ;
         }
 
         public static Command GetCommand<T>(Command[] parents, T source)
         {
             // There are order dependencies in this method
-            var names = PreBinderContext.Current.AliasFinder.Get(parents, source);
+            var names = PreBinderContext.Current.AliasProvider.Get(parents, source);
 
             var command = parents == null
                 ? new RootCommand(names?.First())
-                : new Command(names?.First(), PreBinderContext.Current.DescriptionFinder.Get(parents, source));
+                : new Command(names?.First(), PreBinderContext.Current.DescriptionProvider.Get(parents, source));
 
             parents = parents == null
                 ? new Command[] { command }
                 : PrependParentsWithCommand();
 
-            var arguments = PreBinderContext.Current.ArgumentFinder.Get(parents, source);
+            var arguments = PreBinderContext.Current.ArgumentProvider.Get(parents, source);
             if (arguments.Any())
             {
                 // TODO: When multi-arguments merged, update this
                 command.Argument = arguments.First();
             }
-            var options = PreBinderContext.Current.OptionFinder.Get(parents, source);
-            var handler = PreBinderContext.Current.HandlerFinder.Get(parents, source);
-            var subCommands = PreBinderContext.Current.SubCommandFinder.Get(parents, source);
+            var options = PreBinderContext.Current.OptionProvider.Get(parents, source);
+            var handler = PreBinderContext.Current.HandlerProvider.Get(parents, source);
+            var subCommands = PreBinderContext.Current.SubCommandProvider.Get(parents, source);
             command.AddOptions(options);
             command.AddCommands(subCommands);
             command.Handler = handler;

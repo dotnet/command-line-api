@@ -26,12 +26,12 @@ namespace System.CommandLine.JackFruit
 
         public static Option GetOption(Command[] parents, object source)
         {
-            var names = PreBinderContext.Current.AliasFinder.Get(parents, source)
+            var names = PreBinderContext.Current.AliasProvider.Get(parents, source)
                             .Select((x, n) => x.StartsWith("-")
                                               ? x
                                               : (n == 0 ? "--" : "-") + x);
-            var arguments = PreBinderContext.Current.ArgumentFinder.Get(parents, source);
-            var help = PreBinderContext.Current.DescriptionFinder.Get(parents, source);
+            var arguments = PreBinderContext.Current.ArgumentProvider.Get(parents, source);
+            var help = PreBinderContext.Current.DescriptionProvider.Get(parents, source);
             // TODO: Support IsHidden
             // TODO: Harvest default values from properties and parameters
             return new Option(new ReadOnlyCollection<string>(names.ToList()), help, arguments.FirstOrDefault());
