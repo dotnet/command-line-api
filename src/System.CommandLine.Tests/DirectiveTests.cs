@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
 
@@ -25,7 +26,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.Should().Contain("parse"); 
+            result.Directives.Keys.Should().Contain("parse");
             result.Tokens.Should().Contain("[parse]");
         }
 
@@ -36,7 +37,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.Should().Contain("parse");
+            result.Directives.Keys.Should().Contain("parse");
         }
 
         [Fact]
@@ -46,8 +47,8 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] [suggest] -y");
 
-            result.Directives.Should().Contain("parse");
-            result.Directives.Should().Contain("suggest"); 
+            result.Directives.Keys.Should().Contain("parse");
+            result.Directives.Keys.Should().Contain("suggest");
         }
 
         [Fact]
@@ -57,7 +58,61 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("-y [suggest]");
 
-            result.UnmatchedTokens.Should().Contain("[suggest]"); 
+            result.UnmatchedTokens.Should().Contain("[suggest]");
+        }
+
+        [Theory]
+        [InlineData("key:value", "key", "value")]
+        [InlineData("key:value:more", "key", "value:more")]
+        [InlineData("key:", "key", "")]
+        public void Directives_can_have_a_value_which_is_everything_after_the_first_colon(
+            string directiveContent,
+            string expectedKey,
+            string expectedValue)
+        {
+            var option = new Option("-y");
+
+            var result = option.Parse($"[{directiveContent}] -y");
+
+            result.Directives
+                  .Should()
+                  .Contain(new KeyValuePair<string, string>(expectedKey, expectedValue));
+        }
+
+        [Fact]
+        public void Directives_without_a_value_specified_have_a_value_of_empty_string()
+        {
+            var option = new Option("-y");
+
+            var result = option.Parse("[parse] -y");
+
+            result.Directives.Should().Contain(new KeyValuePair<string, string>("parse", ""));
+        }
+
+        [Theory]
+        [InlineData("[]")]
+        [InlineData("[:value]")]
+        public void Directives_must_have_a_non_empty_key(string directive)
+        {
+            var option = new Option("-a");
+
+            var result = option.Parse($"{directive} -a");
+
+            result.Directives.Should().BeEmpty();
+            result.UnmatchedTokens.Should().Contain(directive);
+        }
+
+        [Theory]
+        [InlineData("[par se]")]
+        [InlineData("[ parse]")]
+        [InlineData("[parse ]")]
+        public void Directives_cannot_contain_spaces(object value)
+        {
+            var option = new Option("-a");
+
+            var result = option.Parse($"{value} -a");
+
+            result.Directives.Should().BeEmpty();
         }
     }
 }

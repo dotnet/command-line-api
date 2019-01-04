@@ -79,16 +79,18 @@ namespace System.CommandLine
                     continue;
                 }
 
-                if (!foundEndOfDirectives && arg.StartsWith("[") && arg.EndsWith("]"))
+                if (!foundEndOfDirectives)
                 {
-                    tokenList.Add(Directive(arg));
-                    continue;
-                }
+                    if (arg.StartsWith("[") && arg.EndsWith("]") && arg[1] != ']' && arg[1] != ':')
+                    {
+                        tokenList.Add(Directive(arg));
+                        continue;
+                    }
 
-                if (!foundEndOfDirectives && 
-                    !configuration.RootCommand.HasRawAlias(arg))
-                {
-                    foundEndOfDirectives = true;
+                    if (!configuration.RootCommand.HasRawAlias(arg))
+                    {
+                        foundEndOfDirectives = true;
+                    }
                 }
 
                 if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&

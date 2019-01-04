@@ -30,7 +30,7 @@ namespace System.CommandLine
         {
             var rawTokens = arguments;  // allow a more user-friendly name for callers of Parse
             var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
-            var directives = new List<string>();
+            var directives = new Dictionary<string, string>();
             var unparsedTokens = new Queue<Token>(lexResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();
             var errors = new List<ParseError>(lexResult.Errors);
@@ -77,7 +77,12 @@ namespace System.CommandLine
                 if (token.Type == TokenType.Directive)
                 {
                     var withoutBrackets = token.Value.Substring(1, token.Value.Length - 2);
-                    directives.Add(withoutBrackets);
+                    var keyAndValue = withoutBrackets.Split(new[] { ':' }, 2);
+                    var key = keyAndValue[0];
+                    var value = keyAndValue.Length == 2
+                                    ? keyAndValue[1]
+                                    : string.Empty;
+                    directives.Add(key, value);
                     continue;
                 }
 
