@@ -34,6 +34,6 @@ namespace System.CommandLine.JackFruit
             }
         }
 
-        // TODO: Add approach for underscore. Anything else? Maybe XML Docs
+        // TODO: Add strategy for underscore. Anything else? Maybe XML Docs
     }
 }

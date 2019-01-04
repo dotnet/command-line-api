@@ -3,58 +3,58 @@ using System.Linq;
 
 namespace System.CommandLine.JackFruit
 {
-    public interface IApproach<TProduce>
+    public interface IStrategy<TProduce>
     {
         (bool EndEvaluation, TProduce Value) Do(Command[] parents, object source);
     }
 
-    public class Approach<TProduce>
+    public class Strategy<TProduce>
     {
-        public static Approach<TProduce, TSource> CreateApproach<TSource>(
+        public static Strategy<TProduce, TSource> CreateStrategy<TSource>(
                   Func<Command[], TSource, (bool, TProduce)> operation)
-              => new Approach<TProduce, TSource>(operation);
+              => new Strategy<TProduce, TSource>(operation);
     }
 
-    public class Approach<TProduce, TSource> : IApproach<TProduce>
+    public class Strategy<TProduce, TSource> : IStrategy<TProduce>
     {
         private Func<Command[], TSource, (bool, TProduce)> operation;
 
-        internal Approach(Func<Command[], TSource, (bool, TProduce)> operation)
+        internal Strategy(Func<Command[], TSource, (bool, TProduce)> operation)
             => this.operation = operation;
 
         // If the object is a different type, just do nothing. 
-        (bool EndEvaluation, TProduce Value) IApproach<TProduce>.Do(Command[] parents, object objSource)
+        (bool EndEvaluation, TProduce Value) IStrategy<TProduce>.Do(Command[] parents, object objSource)
         => (operation != null && objSource is TSource source)
                 ? operation(parents, source)
                 : (false, default);
     }
 
-    internal class ApproachSet<TProduce>
+    internal class StrategySet<TProduce>
     {
-        protected readonly List<IApproach<TProduce>> approaches;
+        protected readonly List<IStrategy<TProduce>> strategies;
         protected readonly bool shortCircuit;
 
-        internal ApproachSet()
+        internal StrategySet()
         {
-            approaches = new List<IApproach<TProduce>>();
+            strategies = new List<IStrategy<TProduce>>();
             shortCircuit = !typeof(Enumerable).IsAssignableFrom(typeof(TProduce));
         }
 
-        public void Add(IApproach<TProduce> approach)
-            => approaches.Add(approach);
+        public void Add(IStrategy<TProduce> strategy)
+            => strategies.Add(strategy);
 
         public TProduce Do(Command[] parents, object objSource)
             => DoInternal(a => a.Do(parents, objSource));
 
-        protected virtual TProduce DoInternal(Func<IApproach<TProduce>, (bool, TProduce)> operation)
+        protected virtual TProduce DoInternal(Func<IStrategy<TProduce>, (bool, TProduce)> operation)
         {
             // TODO: Does try go around for each or around evaluation?
             bool endEvaluation = false;
             TProduce value = default;
-            foreach (var approach in approaches)
+            foreach (var strategy in strategies)
             {
 
-                (endEvaluation, value) = operation(approach);
+                (endEvaluation, value) = operation(strategy);
                 if (endEvaluation || shortCircuit &&
                     (value is string s
                        ? !string.IsNullOrWhiteSpace(s)
@@ -68,18 +68,18 @@ namespace System.CommandLine.JackFruit
     }
 
     // This class exists because lists have a differnt algorithm for Do and need extra information <T>
-    internal class ApproachSetForList<T> : ApproachSet<IEnumerable<T>>
+    internal class StrategySetForList<T> : StrategySet<IEnumerable<T>>
     {
-        internal ApproachSetForList()
+        internal StrategySetForList()
             : base() { }
 
         // TProduce is IEnumerable<T>
-        protected override IEnumerable<T> DoInternal(Func<IApproach<IEnumerable<T>>, (bool, IEnumerable<T>)> operation)
+        protected override IEnumerable<T> DoInternal(Func<IStrategy<IEnumerable<T>>, (bool, IEnumerable<T>)> operation)
         {
             var value = new List<T>();
-            foreach (var approach in approaches)
+            foreach (var strategy in strategies)
             {
-                (var endEvaluation, var newList) = operation(approach);
+                (var endEvaluation, var newList) = operation(strategy);
                 if (newList == null)
                 {
                     continue;

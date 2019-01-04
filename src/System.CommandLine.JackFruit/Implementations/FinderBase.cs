@@ -11,31 +11,31 @@ namespace System.CommandLine.JackFruit
             if (typeof(T) != typeof(string) && typeof(IEnumerable).IsAssignableFrom(typeof(T)))
             {
                 var itemType = typeof(T).GetGenericArguments().First();
-                var typeDef = typeof(ApproachSetForList<>);
+                var typeDef = typeof(StrategySetForList<>);
                 var newType = typeDef.MakeGenericType(new Type[] { itemType });
-                var approachSet = Activator.CreateInstance(newType, true);
-                return new FinderBase<T>(approaches: approachSet);
+                var strategySet = Activator.CreateInstance(newType, true);
+                return new FinderBase<T>(strategies: strategySet);
             }
-            return new FinderBase<T>(approaches: new ApproachSet<T>());
+            return new FinderBase<T>(strategies: new StrategySet<T>());
         }
     }
 
     public class FinderBase<TReturn> :FinderBase, IFinder<TReturn>
     {
-        private ApproachSet<TReturn> approaches;
+        private StrategySet<TReturn> strategies;
         private Func<object, object> initialCheck;
         private Func<TReturn, TReturn> finalTransform;
 
    
-        internal FinderBase(object approaches)
-            => this.approaches = (ApproachSet<TReturn>)approaches;
+        internal FinderBase(object strategies)
+            => this.strategies = (StrategySet<TReturn>)strategies;
 
-        internal FinderBase(ApproachSet<TReturn> approaches)
-            => this.approaches = approaches;
+        internal FinderBase(StrategySet<TReturn> strategies)
+            => this.strategies = strategies;
 
-        public IFinder<TReturn> AddApproach<TSource>(Func<Command[], TSource, (bool, TReturn)> approachFunc)
+        public IFinder<TReturn> AddStrategy<TSource>(Func<Command[], TSource, (bool, TReturn)> strategy)
         {
-            approaches.Add(Approach<TReturn>.CreateApproach(approachFunc));
+            strategies.Add(Strategy<TReturn>.CreateStrategy(strategy));
             return this as FinderBase<TReturn>;
         }
 
@@ -57,7 +57,7 @@ namespace System.CommandLine.JackFruit
             {
                 source = (TSource)initialCheck(source);
             }
-            var ret = approaches.Do(parents, source);
+            var ret = strategies.Do(parents, source);
             if (finalTransform != null)
             {
                 ret = finalTransform(ret);

@@ -23,9 +23,9 @@ namespace System.CommandLine.JackFruit
         public IFinder<IEnumerable<Command>> SubCommandFinder
         {
             get => subCommandFinder ?? (subCommandFinder = FinderBase.Create<IEnumerable<Command>>()
-                                                           .AddApproach<Type>(CommandStrategies.FromDerivedTypes)
-                                                           .AddApproach<Type>(CommandStrategies.FromNestedTypes)
-                                                           .AddApproach<Type>(CommandStrategies.FromMethods));
+                                                           .AddStrategy<Type>(CommandStrategies.FromDerivedTypes)
+                                                           .AddStrategy<Type>(CommandStrategies.FromNestedTypes)
+                                                           .AddStrategy<Type>(CommandStrategies.FromMethods));
             set => subCommandFinder = value;
         }
 
@@ -34,7 +34,7 @@ namespace System.CommandLine.JackFruit
         {
             get => aliasFinder ?? (aliasFinder = FinderBase.Create<IEnumerable<string>>()
                                                             .SetFinalTransform(x => x.Select(n => n.ToKebabCase().ToLower()))
-                                                            .AddApproach<object>(AliasStrategies.FromAttribute));
+                                                            .AddStrategy<object>(AliasStrategies.FromAttribute));
             set => aliasFinder = value;
         }
 
@@ -42,7 +42,7 @@ namespace System.CommandLine.JackFruit
         public IFinder<string> DescriptionFinder
         {
             get => descriptionFinder ?? (descriptionFinder = FinderBase.Create<string>()
-                                                            .AddApproach<object>(DescriptionStrategies.FromAttribute));
+                                                            .AddStrategy<object>(DescriptionStrategies.FromAttribute));
             set => descriptionFinder = value;
         }
 
@@ -50,12 +50,12 @@ namespace System.CommandLine.JackFruit
         public IFinder<IEnumerable<Argument>> ArgumentFinder
         {
             get => argumentFinder ?? (argumentFinder = FinderBase.Create<IEnumerable<Argument>>()
-                                                            .AddApproach<Type>(ArgumentStrategies.FromAttributedProperties)
-                                                            .AddApproach<Type>(ArgumentStrategies.FromSuffixedProperties)
-                                                            .AddApproach<MethodInfo>(ArgumentStrategies.FromAttributedParameters)
-                                                            .AddApproach<MethodInfo>(ArgumentStrategies.FromSuffixedParameters)
-                                                            .AddApproach<ParameterInfo>(ArgumentStrategies.FromParameter)
-                                                            .AddApproach<PropertyInfo>(ArgumentStrategies.FromProperty));
+                                                            .AddStrategy<Type>(ArgumentStrategies.FromAttributedProperties)
+                                                            .AddStrategy<Type>(ArgumentStrategies.FromSuffixedProperties)
+                                                            .AddStrategy<MethodInfo>(ArgumentStrategies.FromAttributedParameters)
+                                                            .AddStrategy<MethodInfo>(ArgumentStrategies.FromSuffixedParameters)
+                                                            .AddStrategy<ParameterInfo>(ArgumentStrategies.FromParameter)
+                                                            .AddStrategy<PropertyInfo>(ArgumentStrategies.FromProperty));
             set => argumentFinder = value;
         }
 
@@ -63,8 +63,8 @@ namespace System.CommandLine.JackFruit
         public IFinder<IEnumerable<Option>> OptionFinder
         {
             get => optionFinder ?? (optionFinder = FinderBase.Create<IEnumerable<Option>>()
-                                                            .AddApproach<Type>(OptionStrategies.FromProperties)
-                                                            .AddApproach<MethodInfo>(OptionStrategies.FromParameters));
+                                                            .AddStrategy<Type>(OptionStrategies.FromProperties)
+                                                            .AddStrategy<MethodInfo>(OptionStrategies.FromParameters));
             set => optionFinder = value;
         }
 
@@ -72,8 +72,8 @@ namespace System.CommandLine.JackFruit
         public IFinder<ICommandHandler> HandlerFinder
         {
             get => handlerFinder ?? (handlerFinder = FinderBase.Create<ICommandHandler>()
-                                                            .AddApproach<MethodInfo>(HandlerStrategies.FromMethod)
-                                                            .AddApproach<Type>(HandlerStrategies.FromInvokeOnType));
+                                                            .AddStrategy<MethodInfo>(HandlerStrategies.FromMethod)
+                                                            .AddStrategy<Type>(HandlerStrategies.FromInvokeOnType));
             set => handlerFinder = value;
         }
 

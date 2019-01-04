@@ -4,7 +4,7 @@
     {
         public static Command RootCommand<TRootType>(Func<Command[], object,(bool, string)> descriptionFinder)
         {
-            PreBinderContext.Current.DescriptionFinder.AddApproach(descriptionFinder);
+            PreBinderContext.Current.DescriptionFinder.AddStrategy(descriptionFinder);
             var command = CommandStrategies.GetCommand(null, typeof(TRootType));
             return command;
         }

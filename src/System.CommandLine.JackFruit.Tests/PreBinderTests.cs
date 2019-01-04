@@ -21,8 +21,8 @@ namespace System.CommandLine.JackFruit.Tests
             _console = new TestConsole();
             _testProgram = new TestProgram();
             var helpFinder = PreBinderContext.Current.DescriptionFinder;
-            helpFinder.AddApproach<object>((c,s)=>(false, DescriptionFinder.Description(s)));
-            helpFinder.AddApproach<object>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
+            helpFinder.AddStrategy<object>((c,s)=>(false, DescriptionFinder.Description(s)));
+            helpFinder.AddStrategy<object>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
             testParents = new Command[] { new Command("test") };
         }
 
