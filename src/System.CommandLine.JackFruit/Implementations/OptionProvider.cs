@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace System.CommandLine.JackFruit
 {
-    public class OptionFinder : FinderBaseForList<OptionFinder, Option>
+    public class OptionProvider : FinderBaseForList<OptionProvider, Option>
     {
         // TODO: Do not add options for current items argument, or any parents arguments or options
         private static (bool, IEnumerable<Option>) FromProperties(Command[] parents, Type baseType)
@@ -37,14 +37,10 @@ namespace System.CommandLine.JackFruit
             return new Option(new ReadOnlyCollection<string>(names.ToList()), help, arguments.FirstOrDefault());
         }
 
+        public static OptionProvider Default()
+            => new OptionProvider()
+                    .AddApproach<Type>(FromProperties)
+                    .AddApproach<MethodInfo>(FromParameters);
 
-        // TODO: Also need to update the name to remove Args, and this is a can of worms
-        private static bool NameIsSuffixed(string name)
-            => name.EndsWith("Args");
-
-        public static OptionFinder Default()
-            => new OptionFinder()
-                    .AddApproachFromFunc<Type>(FromProperties)
-                    .AddApproachFromFunc<MethodInfo>(FromParameters);
     }
 }

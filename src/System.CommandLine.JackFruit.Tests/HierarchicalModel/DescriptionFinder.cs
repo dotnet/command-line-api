@@ -5,9 +5,9 @@ using System.Reflection;
 
 namespace System.CommandLine.JackFruit.Tests
 {
-    internal class DescriptionFinder : IDescriptionFinder
+    internal class DescriptionFinder 
     {
-        private Dictionary<Type, string> commandHelp = new Dictionary<Type, string>()
+        private static Dictionary<Type, string> commandHelp = new Dictionary<Type, string>()
         {
             [typeof(Tool)] = "Install or manage tools that extend the .NET experience.",
             [typeof(ToolInstall)] = "Install a tool for use on the command line.",
@@ -30,7 +30,7 @@ namespace System.CommandLine.JackFruit.Tests
         private const string projectFileHelp = "The project file to operate on. If a file is not specified, the command will search the current directory for one.";
         private const string addFrameworkHelp = "Add the reference only when targeting a specific framework.";
         private const string removeFrameworkHelp = "Remove the reference only when targeting a specific framework.";
-        private Dictionary<(Type, string), string> symbolHelp = new Dictionary<(Type, string), string>()
+        private static Dictionary<(Type, string), string> symbolHelp = new Dictionary<(Type, string), string>()
         {
             [(typeof(ToolInstall), nameof(ToolInstall.PackageId))] = "The NuGet Package Id of the tool to install.",
             [(typeof(ToolInstall), nameof(ToolInstall.Global))] = "Install a tool for use on the command line.",
@@ -68,23 +68,23 @@ namespace System.CommandLine.JackFruit.Tests
             [(typeof(Remove.Reference), nameof(Remove.Reference.Framework))] = removeFrameworkHelp,
         };
 
-        public string Description<TSource>(TSource source)
+        public static string Description<TSource>(TSource source)
             => source is Type resultType
                 && commandHelp.TryGetValue(resultType, out string help)
                     ? help
                     : "";
 
-        public string Description<TSource, TItem>(TSource source, TItem child)
-            => source is Type resultType
-                && symbolHelp.TryGetValue((resultType, (GetName(child))), out string help)
-                    ? help
-                    : "";
+        //public string Description<TSource, TItem>(TSource source, TItem child)
+        //    => source is Type resultType
+        //        && symbolHelp.TryGetValue((resultType, (GetName(child))), out string help)
+        //            ? help
+        //            : "";
 
-        private string GetName<TItem>(TItem child)
-            => child is PropertyInfo property
-                ? property.Name
-                : child is ParameterInfo parameter
-                    ? parameter.Name
-                    : "";
+        //private string GetName<TItem>(TItem child)
+        //    => child is PropertyInfo property
+        //        ? property.Name
+        //        : child is ParameterInfo parameter
+        //            ? parameter.Name
+        //            : "";
     }
 }

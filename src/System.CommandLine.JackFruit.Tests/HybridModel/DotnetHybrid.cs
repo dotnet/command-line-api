@@ -17,14 +17,14 @@ namespace System.CommandLine.JackFruit.Tests
 
             public async Task<int> Reference(FileInfo projectFile, string projectPath, string _framework)
                 => await Task.FromResult(42); // actually do stuff
-        }
+        } 
 
         public class List
         {
             [Argument]
             public FileInfo ProjectFile { get; set; }
 
-            public async Task<int> Package(FileInfo projectFile)
+            public async Task<int> Package(FileInfo projectFile)   
                 => await Task.FromResult(42); // actually do stuff
 
             public async Task<int> Reference(FileInfo projectFile)

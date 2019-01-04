@@ -3,7 +3,7 @@
 namespace System.CommandLine.JackFruit
 {
 
-    public class HelpFinder : FinderBase<HelpFinder, string>
+    public class DescriptionProvider : FinderBase<DescriptionProvider, string>
     {
         protected static (bool, string) FromAttribute(Command[] parents, object source)
         {
@@ -26,27 +26,14 @@ namespace System.CommandLine.JackFruit
                     : (false, null);
         }
 
-        protected static (bool, string) FromDescription
-            (IDescriptionFinder descriptionProvider, Command[] parents, object source)
+        public static DescriptionProvider Default()
+            => new DescriptionProvider()
+                .AddApproach<object>(FromAttribute);
+
+        public DescriptionProvider AddDescriptionFinder(Func<object, string> descriptionFinder)
         {
-            if (descriptionProvider == null)
-            {
-                return (false, null);
-            }
-
-            var ret = descriptionProvider?.Description(source);
-            return (false, ret);
-        }
-
-        public static HelpFinder Default()
-            => new HelpFinder()
-                .AddApproachFromFunc<object>(FromAttribute);
-
-
-        public HelpFinder AddDescriptionFinder(IDescriptionFinder descriptionFinder)
-        {
-            AddApproachFromFunc<object>(
-                   (parents, source) => FromDescription(descriptionFinder, parents, source));
+            AddApproach<object>(
+                   (parents, source) => (false, descriptionFinder(source)));
             return this;
         }
     }

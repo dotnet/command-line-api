@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.CommandLine.JackFruit;
+﻿using System.Collections.Generic;
 using System.Reflection;
 
 namespace System.CommandLine.JackFruit.Tests
 {
-    internal class HybridModelDescriptionFinder : IDescriptionFinder
+    internal class HybridModelDescriptionFinder
     {
-        private Dictionary<Type, string> commandHelp = new Dictionary<Type, string>()
+        private static readonly Dictionary<Type, string> commandHelp = new Dictionary<Type, string>()
         {
             [typeof(DotnetHybrid.Tool)] = "Install or manage tools that extend the .NET experience.",
             [typeof(DotnetHybrid.Add)] = "Add a package or reference to a .NET project.",
@@ -21,20 +19,7 @@ namespace System.CommandLine.JackFruit.Tests
         private const string addFrameworkHelp = "Add the reference only when targeting a specific framework.";
         private const string removeFrameworkHelp = "Remove the reference only when targeting a specific framework.";
 
-        //private class SpecialComparer : IEqualityComparer<(Type type, string name)>
-        //{
-        //    public bool Equals((Type type, string name) x, (Type type, string name ) y)
-        //    {
-        //        return x.type == y.type && x.name.ToUpperInvariant() == y.name.ToUpperInvariant();
-        //    }
-
-        //    public int GetHashCode((Type type, string name) obj)
-        //    {
-        //        return obj.type.GetHashCode() ^ obj.name.ToUpperInvariant().GetHashCode();
-        //    }
-        //}
-
-        private Dictionary<(Type, string), string> symbolHelp = new Dictionary<(Type, string), string>()
+        private static Dictionary<(Type, string), string> symbolHelp = new Dictionary<(Type, string), string>()
         {
             [(typeof(DotnetHybrid.Tool), nameof(DotnetHybrid.Tool.Install).ToKebabCase())] = "Install a tool for use on the command line.",
             [(typeof(DotnetHybrid.Tool), nameof(DotnetHybrid.Tool.Uninstall).ToKebabCase())] = "Uninstall a tool from the current development environment.",
@@ -82,7 +67,7 @@ namespace System.CommandLine.JackFruit.Tests
             [(typeof(DotnetHybrid.Remove), (nameof(DotnetHybrid.Remove.Reference) + ".Framework").ToKebabCase())] = removeFrameworkHelp,
         };
 
-        public string Description<TSource>(TSource source)
+        public static string Description<TSource>(TSource source)
         {
             string name = null;
             Type type = null;
@@ -106,7 +91,7 @@ namespace System.CommandLine.JackFruit.Tests
                     break;
             }
             name = name.Contains("_")
-                   ? name.Replace("_","")
+                   ? name.Replace("_", "")
                    : name;
             name = name.Contains("-")
                     ? name // already kebab case

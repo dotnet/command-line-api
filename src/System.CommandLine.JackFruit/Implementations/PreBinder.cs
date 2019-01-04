@@ -2,10 +2,10 @@
 {
     public class PreBinder
     {
-        public static Command RootCommand<TRootType>(IDescriptionFinder descriptionFinder = null)
+        public static Command RootCommand<TRootType>(Func<object, string> descriptionFinder)
         {
-            ((HelpFinder)PreBinderContext.Current.HelpFinder).AddDescriptionFinder(descriptionFinder);
-            var command = CommandFinder.GetCommand(null, typeof(TRootType));
+            ((DescriptionProvider)PreBinderContext.Current.HelpFinder).AddDescriptionFinder(descriptionFinder);
+            var command = CommandProvider.GetCommand(null, typeof(TRootType));
             return command;
         }
     }

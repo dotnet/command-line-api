@@ -5,7 +5,7 @@ using System.Reflection;
 namespace System.CommandLine.JackFruit
 {
 
-    public class AliasFinder : FinderBaseForList<AliasFinder, string>
+    public class AliasProvider : FinderBaseForList<AliasProvider, string>
     {
         protected static (bool, IEnumerable<string>) FromAttribute(Command[] parents, object source)
         {
@@ -34,11 +34,11 @@ namespace System.CommandLine.JackFruit
             }
         }
 
-        // TODO: Add approach for underscore. Anything else?
+        // TODO: Add approach for underscore. Anything else? Maybe XML Docs
 
-        public static AliasFinder Default()
-            => new AliasFinder()
+        public static AliasProvider Default()
+            => new AliasProvider()
                     .SetFinalTransform(x => x.Select(n => n.ToKebabCase().ToLower()))
-                    .AddApproachFromFunc<object>(FromAttribute);
+                    .AddApproach<object>(FromAttribute);
     }
 }

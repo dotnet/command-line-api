@@ -6,7 +6,7 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class ArgumentFinder : FinderBaseForList<ArgumentFinder, Argument>
+    public class ArgumentProvider : FinderBaseForList<ArgumentProvider, Argument>
     {
         private static (bool, IEnumerable<Argument>) FromAttributedProperties(Command[] parents, Type baseType)
         {
@@ -68,13 +68,13 @@ namespace System.CommandLine.JackFruit
             }
         }
 
-        public static ArgumentFinder Default()
-            => new ArgumentFinder()
-                    .AddApproachFromFunc<Type>(FromAttributedProperties)
-                    .AddApproachFromFunc<Type>(FromSuffixedProperties)
-                    .AddApproachFromFunc<MethodInfo>(FromAttributedParameters)
-                    .AddApproachFromFunc<MethodInfo>(FromSuffixedParameters)
-                    .AddApproachFromFunc<ParameterInfo>(FromParameter)
-                    .AddApproachFromFunc<PropertyInfo >(FromProperty);
+        public static ArgumentProvider Default()
+            => new ArgumentProvider()
+                    .AddApproach<Type>(FromAttributedProperties)
+                    .AddApproach<Type>(FromSuffixedProperties)
+                    .AddApproach<MethodInfo>(FromAttributedParameters)
+                    .AddApproach<MethodInfo>(FromSuffixedParameters)
+                    .AddApproach<ParameterInfo>(FromParameter)
+                    .AddApproach<PropertyInfo >(FromProperty);
     }
 }

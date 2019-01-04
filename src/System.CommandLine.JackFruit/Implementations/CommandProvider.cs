@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine.JackFruit.Reflection;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public class CommandFinder : FinderBaseForList<CommandFinder, Command>
+    public class CommandProvider : FinderBaseForList<CommandProvider, Command>
     {
         private class DerivedTypeFinder
         {
@@ -34,7 +32,7 @@ namespace System.CommandLine.JackFruit
             }
         }
 
-        private static (bool, IEnumerable<Command>) FromDerivedTypes(
+        public static (bool, IEnumerable<Command>) FromDerivedTypes(
                   Command[] parents, Type baseType)
         {
             var derivedTypes = DerivedTypeFinder.GetDerivedTypes(baseType)
@@ -43,7 +41,7 @@ namespace System.CommandLine.JackFruit
             return (false, derivedTypes);
         }
 
-        private static (bool, IEnumerable<Command>) FromNestedTypes(
+        public static (bool, IEnumerable<Command>) FromNestedTypes(
                  Command[] parents, Type baseType)
         {
             var nestedTypes = baseType.GetNestedTypes(Constants.PublicDeclaredInInstance)
@@ -53,7 +51,7 @@ namespace System.CommandLine.JackFruit
         }
 
         // TODO: Filter this for Ignore methods
-        private static (bool, IEnumerable<Command>) FromMethods(Command[] parents, Type baseType)
+        public static (bool, IEnumerable<Command>) FromMethods(Command[] parents, Type baseType)
         {
             var methods = baseType.GetMethods(Reflection.Constants.PublicDeclaredInInstance)
                             .Where(m => !m.IsSpecialName);
@@ -66,7 +64,7 @@ namespace System.CommandLine.JackFruit
             //return (method != null, PreBinderContext.Current.SubCommandFinder.Get(method)) ;
         }
 
-        internal static Command GetCommand<T>(Command[] parents, T source)
+        public static Command GetCommand<T>(Command[] parents, T source)
         {
             // There are order dependencies in this method
             var names = PreBinderContext.Current.AliasFinder.Get(parents, source);
@@ -101,12 +99,10 @@ namespace System.CommandLine.JackFruit
             }
         }
 
-
-
-        public static CommandFinder Default()
-            => new CommandFinder()
-                   .AddApproachFromFunc<Type>(FromDerivedTypes)
-                   .AddApproachFromFunc<Type>(FromNestedTypes)
-                   .AddApproachFromFunc<Type>(FromMethods);
+        public static CommandProvider Default()
+            => new CommandProvider()
+                   .AddApproach<Type>(FromDerivedTypes)
+                   .AddApproach<Type>(FromNestedTypes)
+                   .AddApproach<Type>(FromMethods);
     }
 }

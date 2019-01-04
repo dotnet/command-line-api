@@ -8,42 +8,25 @@ namespace System.CommandLine.JackFruit
         (bool EndEvaluation, TProduce Value) Do(Command[] parents, object source);
     }
 
-    public class Approach<TProduce> : IApproach<TProduce>
+    public class Approach<TProduce>
     {
-        private ApproachInternal approachInternal;
+        public static Approach<TProduce, TSource> CreateApproach<TSource>(
+                  Func<Command[], TSource, (bool, TProduce)> operation)
+              => new Approach<TProduce, TSource>(operation);
+    }
 
-        private Approach(ApproachInternal approachInternal)
-            => this.approachInternal = approachInternal;
+    public class Approach<TProduce, TSource> : IApproach<TProduce>
+    {
+        private Func<Command[], TSource, (bool, TProduce)> operation;
 
-        // This non-generic base allows different strategies to be in same list
-        private abstract class ApproachInternal
-        {
-            internal abstract (bool endEvaluation, TProduce) Do(Command[] parents, object objSource);
-        }
+        internal Approach(Func<Command[], TSource, (bool, TProduce)> operation)
+            => this.operation = operation;
 
-        // This derived class carries knowledge of the source, and only executes for correct type
-        private class ApproachInternal<TSource> : ApproachInternal
-        {
-            private Func<Command[], TSource, (bool, TProduce)> operation;
-
-            internal ApproachInternal(Func<Command[], TSource, (bool, TProduce)> operation)
-                => this.operation = operation;
-
-            // If the object is a different type, just do nothing. 
-            internal override (bool endEvaluation, TProduce) Do(Command[] parents, object objSource)
-                 => (operation != null && objSource is TSource source)
-                    ? operation(parents, source)
-                    : (false, default);
-        }
-
-        // TODO: Consider making this available only to ApproachSet
-        public static Approach<TProduce> CreateApproach<TSource>(
-                Func<Command[], TSource, (bool, TProduce)> operation)
-            => new Approach<TProduce>(
-                new ApproachInternal<TSource>(operation));
-
-        (bool EndEvaluation, TProduce Value) IApproach<TProduce>.Do(Command[] parents, object source)
-            => approachInternal.Do(parents, objSource: source);
+        // If the object is a different type, just do nothing. 
+        (bool EndEvaluation, TProduce Value) IApproach<TProduce>.Do(Command[] parents, object objSource)
+        => (operation != null && objSource is TSource source)
+                ? operation(parents, source)
+                : (false, default);
     }
 
     internal class ApproachSet<TProduce>
@@ -51,7 +34,7 @@ namespace System.CommandLine.JackFruit
         protected readonly List<IApproach<TProduce>> approaches;
         protected readonly bool shortCircuit;
 
-        public static ApproachSet<TProduce> Create(IEnumerable<IApproach<TProduce>> approaches, bool shortCircuit = true) 
+        public static ApproachSet<TProduce> Create(IEnumerable<IApproach<TProduce>> approaches, bool shortCircuit = true)
             => new ApproachSet<TProduce>(approaches, shortCircuit);
 
         protected ApproachSet(IEnumerable<IApproach<TProduce>> approaches, bool shortCircuit = true)
@@ -60,10 +43,10 @@ namespace System.CommandLine.JackFruit
             this.shortCircuit = shortCircuit;
         }
 
-        public void Add(Approach<TProduce> approach)
+        public void Add(IApproach<TProduce> approach)
             => approaches.Add(approach);
 
-        public TProduce Do(Command[] parents, object objSource) 
+        public TProduce Do(Command[] parents, object objSource)
             => DoInternal(a => a.Do(parents, objSource));
 
         protected virtual TProduce DoInternal(Func<IApproach<TProduce>, (bool, TProduce)> operation)
@@ -91,7 +74,7 @@ namespace System.CommandLine.JackFruit
     internal class ApproachSetForList<T> : ApproachSet<IEnumerable<T>>
     {
 
-        public new static ApproachSet<IEnumerable<T>> Create(
+        public static new ApproachSet<IEnumerable<T>> Create(
                  IEnumerable<IApproach<IEnumerable<T>>> approaches, bool shortCircuit = false)
             => new ApproachSetForList<T>(approaches, shortCircuit);
 

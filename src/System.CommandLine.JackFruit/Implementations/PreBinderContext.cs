@@ -20,35 +20,38 @@ namespace System.CommandLine.JackFruit
         private IFinder<IEnumerable<Command>> subCommandFinder;
         public IFinder<IEnumerable<Command>> SubCommandFinder
         {
-            get => subCommandFinder ?? (subCommandFinder = JackFruit.CommandFinder.Default());
+            get => subCommandFinder ?? (subCommandFinder = new CommandProvider()
+                                                           .AddApproach<Type>(CommandProvider.FromDerivedTypes)
+                                                           .AddApproach<Type>(CommandProvider.FromNestedTypes)
+                                                           .AddApproach<Type>(CommandProvider.FromMethods));
             set => subCommandFinder = value;
         }
 
         private IFinder<IEnumerable<string>> aliasFinder;
         public IFinder<IEnumerable<string>> AliasFinder
         {
-            get => aliasFinder ?? (aliasFinder = JackFruit.AliasFinder.Default());
+            get => aliasFinder ?? (aliasFinder = JackFruit.AliasProvider.Default());
             set => aliasFinder = value;
         }
 
         private IFinder<string> helpFinder;
         public IFinder<string> HelpFinder
         {
-            get => helpFinder ?? (helpFinder = JackFruit.HelpFinder.Default());
+            get => helpFinder ?? (helpFinder = JackFruit.DescriptionProvider.Default());
             set => helpFinder = value;
         }
 
         private IFinder<IEnumerable<Argument>> argumentFinder;
         public IFinder<IEnumerable<Argument>> ArgumentFinder
         {
-            get => argumentFinder ?? (argumentFinder = JackFruit.ArgumentFinder.Default());
+            get => argumentFinder ?? (argumentFinder = JackFruit.ArgumentProvider.Default());
             set => argumentFinder = value;
         }
 
         private IFinder<IEnumerable<Option>> optionFinder;
         public IFinder<IEnumerable<Option>> OptionFinder
         {
-            get => optionFinder ?? (optionFinder = JackFruit.OptionFinder.Default());
+            get => optionFinder ?? (optionFinder = JackFruit.OptionProvider.Default());
             set => optionFinder = value;
         }
 

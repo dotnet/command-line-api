@@ -34,7 +34,7 @@ namespace System.CommandLine.JackFruit
 
         public static HandlerFinder Default() 
             => new HandlerFinder()
-                    .AddApproachFromFunc<MethodInfo>(FromMethod)
-                    .AddApproachFromFunc<Type>(FromInvokeOnType);
+                    .AddApproach<MethodInfo>(FromMethod)
+                    .AddApproach<Type>(FromInvokeOnType);
     }
 }
