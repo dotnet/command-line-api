@@ -131,22 +131,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
         {
-            var command = new Command("the-command", "", 
+            var command = new Command("the-command", "",
                                       argument: new Argument
-                                      {
-                                          Arity = ArgumentArity.ZeroOrMore
-                                      }.LegalFilePathsOnly());
+                                                {
+                                                    Arity = ArgumentArity.ZeroOrMore
+                                                }.LegalFilePathsOnly());
 
-            var invalidCharacters = $"|{Path.GetInvalidPathChars().First()}|";
+            var invalidCharacter = Path.GetInvalidPathChars().First();
 
-            // Convert to ushort so the xUnit XML writer doesn't complain about invalid characters
-            _output.WriteLine(string.Join("\n", Path.GetInvalidPathChars().Select(c => (ushort)c)));
+            var result = command.Parse($"the-command {invalidCharacter}");
 
-            var result = command.Parse($"the-command {invalidCharacters}");
-
-            result.UnmatchedTokens
+            result.Errors
                   .Should()
-                  .BeEquivalentTo(invalidCharacters);
+                  .Contain(e => e.SymbolResult.Name == "the-command" &&
+                                e.Message == $"Character not allowed in a path: {invalidCharacter}");
         }
 
         [Fact]
@@ -171,10 +169,10 @@ namespace System.CommandLine.Tests
         {
             var command = new Command(
                 "move",
-                argument: new Argument
+                argument: new Argument<FileInfo>
                           {
                               Arity = ArgumentArity.ExactlyOne
-                          }.ExistingFilesOnly());
+                          }.ExistingOnly());
             command.AddOption(
                 new Option(
                     "--to",
@@ -183,14 +181,15 @@ namespace System.CommandLine.Tests
                                   Arity = ArgumentArity.ExactlyOne
                               }));
 
+            Guid guid = Guid.NewGuid();
             var result =
                 command.Parse(
-                    $@"move ""{Guid.NewGuid()}.txt"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+                    $@"move ""{guid}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
-            result.CommandResult
-                  .Arguments
+            result.Errors
                   .Should()
-                  .BeEmpty();
+                  .Contain(e => e.SymbolResult.Name == "move" &&
+                                e.Message == $"File does not exist: {guid}");
         }
 
         [Fact]
@@ -201,13 +200,13 @@ namespace System.CommandLine.Tests
                 argument: new Argument
                           {
                               Arity = ArgumentArity.ExactlyOne
-                          }.ExistingFilesOnly());
+                          });
             command.AddOption(
                 new Option("--to",
-                           argument: new Argument
+                           argument: new Argument<DirectoryInfo>
                                      {
                                          Arity = ArgumentArity.ExactlyOne
-                                     }));
+                                     }.ExistingOnly()));
 
             var currentDirectory = Directory.GetCurrentDirectory();
             var trash = Path.Combine(currentDirectory, ".trash");
@@ -218,10 +217,10 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.CommandResult
-                  .Arguments
+            result.Errors
                   .Should()
-                  .BeEquivalentTo(currentDirectory);
+                  .Contain(e => e.SymbolResult.Name == "to" &&
+                                e.Message == $"Directory does not exist: {trash}");
         }
 
         [Fact]

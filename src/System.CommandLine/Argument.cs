@@ -15,9 +15,9 @@ namespace System.CommandLine
         private HashSet<string> _validValues;
         private ConvertArgument _convertArguments;
 
-        public string Name {get;set;}
+        public string Name { get; set; }
 
-        public string Description {get;set;}
+        public string Description { get; set; }
 
         public IArgumentArity Arity
         {
@@ -241,7 +241,7 @@ namespace System.CommandLine
 
                     if (!string.IsNullOrWhiteSpace(errorMessage))
                     {
-                        return new ParseError(errorMessage, symbolResult);
+                        return new ParseError(errorMessage, symbolResult, false);
                     }
                 }
 

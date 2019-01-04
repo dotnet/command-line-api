@@ -79,7 +79,7 @@ namespace DotnetMetal
 
             Option ConfigFile() =>
                 new Option("--configfile", ConfigFileOptionDescription,
-                           new Argument<FileInfo>().ExistingFilesOnly());
+                           new Argument<FileInfo>().ExistingOnly());
 
             Option AddSource() =>
                 new Option("--add-source", AddSourceOptionDescription,
@@ -91,7 +91,7 @@ namespace DotnetMetal
 
             Option ToolPath() =>
                 new Option("--tool-path", ToolPathOptionDescription,
-                           new Argument<DirectoryInfo>().ExistingFilesOnly());
+                           new Argument<DirectoryInfo>().ExistingOnly());
         }
 
         private static Option StandardVerbosity()

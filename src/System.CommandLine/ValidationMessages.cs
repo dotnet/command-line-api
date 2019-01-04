@@ -30,11 +30,14 @@ namespace System.CommandLine
                 ? $"Command '{symbolResult.Token}' expects no more than {maximumNumberOfArguments} arguments, but {symbolResult.Arguments.Count} were provided."
                 : $"Option '{symbolResult.Token}' expects no more than {maximumNumberOfArguments} arguments, but {symbolResult.Arguments.Count} were provided.";
 
+        public virtual string DirectoryDoesNotExist(string path) =>
+            $"Directory does not exist: {path}";
+
         public virtual string FileDoesNotExist(string filePath) =>
             $"File does not exist: {filePath}";
 
-        public virtual string NoArgumentsAllowed(SymbolResult symbolResult) =>
-            $"Arguments not allowed for option: {symbolResult.Token}";
+        public virtual string InvalidCharactersInPath(char invalidChar) =>
+            $"Character not allowed in a path: {invalidChar}";
 
         public virtual string RequiredArgumentMissing(SymbolResult symbolResult) =>
             symbolResult is CommandResult
