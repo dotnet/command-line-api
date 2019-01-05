@@ -30,7 +30,7 @@ namespace System.CommandLine
         {
             var rawTokens = arguments;  // allow a more user-friendly name for callers of Parse
             var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
-            var directives = new Dictionary<string, string>();
+            var directives = new DirectiveCollection();
             var unparsedTokens = new Queue<Token>(lexResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();
             var errors = new List<ParseError>(lexResult.Errors);
@@ -82,7 +82,9 @@ namespace System.CommandLine
                     var value = keyAndValue.Length == 2
                                     ? keyAndValue[1]
                                     : string.Empty;
-                    directives[key] = value;
+
+                    directives.Add(key, value);
+
                     continue;
                 }
 
@@ -247,4 +249,9 @@ namespace System.CommandLine
             return args;
         }
     }
+
+
+    //
+    // Summary:
+    //     A collection of headers and their values as defined in RFC 2616.
 }

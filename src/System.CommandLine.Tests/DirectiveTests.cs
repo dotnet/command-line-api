@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
 
@@ -26,7 +25,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.Keys.Should().Contain("parse");
+            result.Directives.Contains("parse").Should().BeTrue();
             result.Tokens.Should().Contain("[parse]");
         }
 
@@ -37,7 +36,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.Keys.Should().Contain("parse");
+            result.Directives.Contains("parse").Should().BeTrue();
         }
 
         [Fact]
@@ -47,8 +46,8 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] [suggest] -y");
 
-            result.Directives.Keys.Should().Contain("parse");
-            result.Directives.Keys.Should().Contain("suggest");
+            result.Directives.Contains("parse").Should().BeTrue();
+            result.Directives.Contains("suggest").Should().BeTrue();
         }
 
         [Fact]
@@ -74,9 +73,8 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse($"{directive} -y");
 
-            result.Directives
-                  .Should()
-                  .Contain(new KeyValuePair<string, string>(expectedKey, expectedValue));
+            result.Directives.TryGetValues(expectedKey, out var values).Should().BeTrue();
+            values.Should().BeEquivalentTo(expectedValue);
         }
 
         [Fact]
@@ -86,7 +84,8 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.Should().Contain(new KeyValuePair<string, string>("parse", ""));
+            result.Directives.TryGetValues("parse", out var values).Should().BeTrue();
+            values.Should().BeEquivalentTo("");
         }
 
         [Theory]
@@ -116,13 +115,14 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_directive_is_specified_more_than_once_then_its_value_is_overwritten()
+        public void When_a_directive_is_specified_more_than_once_then_its_values_are_aggregated()
         {
             var option = new Option("-a");
 
             var result = option.Parse("[directive:one] [directive:two] -a");
 
-            result.Directives["directive"].Should().Be("two");
+            result.Directives.TryGetValues("directive", out var values).Should().BeTrue();
+            values.Should().BeEquivalentTo("one", "two");
         }
     }
 }

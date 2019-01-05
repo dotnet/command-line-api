@@ -13,7 +13,7 @@ namespace System.CommandLine
         internal ParseResult(
             CommandResult rootCommandResult,
             CommandResult commandResult,
-            IReadOnlyDictionary<string, string> directives,
+            IDirectiveCollection directives,
             IReadOnlyCollection<string> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
@@ -42,8 +42,8 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<ParseError> Errors => _errors;
 
-        public IReadOnlyDictionary<string, string> Directives { get; }
-        
+        public IDirectiveCollection Directives { get; }
+
         public IReadOnlyCollection<string> Tokens { get; }
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }

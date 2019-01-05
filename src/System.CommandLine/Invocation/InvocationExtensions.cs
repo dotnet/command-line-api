@@ -153,7 +153,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
-                if (context.ParseResult.Directives.ContainsKey("parse"))
+                if (context.ParseResult.Directives.Contains("parse"))
                 {
                     context.InvocationResult = new ParseDirectiveResult();
                 }
@@ -170,7 +170,7 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) => {
-                if (context.ParseResult.Directives.ContainsKey("suggest"))
+                if (context.ParseResult.Directives.Contains("suggest"))
                 {
                     context.InvocationResult = new SuggestDirectiveResult();
                 }
