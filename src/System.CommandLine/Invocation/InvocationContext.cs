@@ -12,8 +12,8 @@ namespace System.CommandLine.Invocation
         private IDisposable _onDispose;
         private CancellationTokenSource _cts;
         private Action<CancellationTokenSource> _cancellationHandlingAddedEvent;
-        private readonly Lazy<IConsole> _console;
-        private Lazy<IDictionary<string, object>> _items = new Lazy<IDictionary<string, object>>(() => new Dictionary<string, object>());
+        private readonly Lazy<IDictionary<string, object>> _items = new Lazy<IDictionary<string, object>>(() => new Dictionary<string, object>());
+        private IConsole _console;
 
         public InvocationContext(
             ParseResult parseResult,
@@ -22,27 +22,27 @@ namespace System.CommandLine.Invocation
         {
             ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
-
-            _console = new Lazy<IConsole>(() =>
-            {
-                if (console != null)
-                {
-                    return console;
-                }
-                else
-                {
-                    var createdConsole = ConsoleFactory?.CreateConsole(this);
-                    _onDispose = createdConsole as IDisposable;
-                    return createdConsole;
-                }
-            });
+            _console = console;
         }
 
         public Parser Parser { get; }
 
         public ParseResult ParseResult { get; set; }
 
-        public IConsole Console => _console.Value;
+        public IConsole Console
+        {
+            get
+            {
+                if (_console == null)
+                {
+                    _console = new SystemConsole();
+                    _console = ConsoleFactory.CreateConsole(this);
+                    _onDispose = _console as IDisposable;
+                }
+
+                return _console;
+            }
+        }
 
         public int ResultCode { get; set; }
 
