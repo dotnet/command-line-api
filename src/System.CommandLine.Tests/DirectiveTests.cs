@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.Should().Contain("parse"); 
+            result.Directives.Contains("parse").Should().BeTrue();
             result.Tokens.Should().Contain("[parse]");
         }
 
@@ -36,7 +36,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.Should().Contain("parse");
+            result.Directives.Contains("parse").Should().BeTrue();
         }
 
         [Fact]
@@ -46,8 +46,8 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] [suggest] -y");
 
-            result.Directives.Should().Contain("parse");
-            result.Directives.Should().Contain("suggest"); 
+            result.Directives.Contains("parse").Should().BeTrue();
+            result.Directives.Contains("suggest").Should().BeTrue();
         }
 
         [Fact]
@@ -57,7 +57,72 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("-y [suggest]");
 
-            result.UnmatchedTokens.Should().Contain("[suggest]"); 
+            result.UnmatchedTokens.Should().Contain("[suggest]");
+        }
+
+        [Theory]
+        [InlineData("[key:value]", "key", "value")]
+        [InlineData("[key:value:more]", "key", "value:more")]
+        [InlineData("[key:]", "key", "")]
+        public void Directives_can_have_a_value_which_is_everything_after_the_first_colon(
+            string directive,
+            string expectedKey,
+            string expectedValue)
+        {
+            var option = new Option("-y");
+
+            var result = option.Parse($"{directive} -y");
+
+            result.Directives.TryGetValues(expectedKey, out var values).Should().BeTrue();
+            values.Should().BeEquivalentTo(expectedValue);
+        }
+
+        [Fact]
+        public void Directives_without_a_value_specified_have_a_value_of_empty_string()
+        {
+            var option = new Option("-y");
+
+            var result = option.Parse("[parse] -y");
+
+            result.Directives.TryGetValues("parse", out var values).Should().BeTrue();
+            values.Should().BeEquivalentTo("");
+        }
+
+        [Theory]
+        [InlineData("[]")]
+        [InlineData("[:value]")]
+        public void Directives_must_have_a_non_empty_key(string directive)
+        {
+            var option = new Option("-a");
+
+            var result = option.Parse($"{directive} -a");
+
+            result.Directives.Should().BeEmpty();
+            result.UnmatchedTokens.Should().Contain(directive);
+        }
+
+        [Theory]
+        [InlineData("[par se]")]
+        [InlineData("[ parse]")]
+        [InlineData("[parse ]")]
+        public void Directives_cannot_contain_spaces(object value)
+        {
+            var option = new Option("-a");
+
+            var result = option.Parse($"{value} -a");
+
+            result.Directives.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void When_a_directive_is_specified_more_than_once_then_its_values_are_aggregated()
+        {
+            var option = new Option("-a");
+
+            var result = option.Parse("[directive:one] [directive:two] -a");
+
+            result.Directives.TryGetValues("directive", out var values).Should().BeTrue();
+            values.Should().BeEquivalentTo("one", "two");
         }
     }
 }
