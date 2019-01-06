@@ -15,10 +15,16 @@ namespace System.CommandLine.Rendering.Tests
         {
             var console = GetTerminal();
 
+            if (console.IsOutputRedirected)
+            {
+                return;
+            }
+
             console.Invoking(c => c.CursorLeft = -1)
                    .Should()
                    .Throw<ArgumentOutOfRangeException>()
-                   .WithMessage($"The value must be greater than or equal to zero and less than the console's buffer size in that dimension.{Environment.NewLine}Parameter name: left{Environment.NewLine}Actual value was -1.");
+                   .WithMessage(
+                       $"The value must be greater than or equal to zero and less than the console's buffer size in that dimension.{Environment.NewLine}Parameter name: left{Environment.NewLine}Actual value was -1.");
         }
 
         [Fact]
@@ -26,17 +32,21 @@ namespace System.CommandLine.Rendering.Tests
         {
             var console = GetTerminal();
 
+            if (console.IsOutputRedirected)
+            {
+                return;
+            }
+
             console.Invoking(c => c.CursorTop = -1)
                    .Should()
                    .Throw<ArgumentOutOfRangeException>()
-                   .WithMessage($"The value must be greater than or equal to zero and less than the console's buffer size in that dimension.{Environment.NewLine}Parameter name: top{Environment.NewLine}Actual value was -1.");
+                   .WithMessage(
+                       $"The value must be greater than or equal to zero and less than the console's buffer size in that dimension.{Environment.NewLine}Parameter name: top{Environment.NewLine}Actual value was -1.");
         }
 
         [Fact(Skip = "How to test?")]
         public void When_output_is_redirected_then_there_is_no_terminal()
         {
-         
-
             // var console = GetTerminal();
 
             // SetOut(new StringWriter());
