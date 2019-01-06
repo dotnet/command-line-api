@@ -109,15 +109,8 @@ namespace System.CommandLine.Invocation
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.Tokens.Contains("[debug]"))
+                if (context.ParseResult.Directives.Contains("debug"))
                 {
-                    var minusDirective = context.ParseResult
-                                                .Tokens
-                                                .Where(t => t != "[debug]")
-                                                .ToArray();
-
-                    context.ParseResult = context.Parser.Parse(minusDirective);
-
                     var processId = Diagnostics.Process.GetCurrentProcess().Id;
 
                     context.Console.Out.WriteLine($"Attach your debugger to process {processId} and then press any key.");
