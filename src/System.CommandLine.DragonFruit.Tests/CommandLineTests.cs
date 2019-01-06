@@ -24,9 +24,9 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--name", "Wayne" },
-                               _terminal,
                                TestProgram.TestMainMethodInfo,
-                               _testProgram);
+                               _testProgram, 
+                               _terminal);
             exitCode.Should().Be(0);
             _terminal.Out.ToString().Should().Be("Wayne");
         }
@@ -36,9 +36,9 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--help" },
-                               _terminal,
                                TestProgram.TestMainMethodInfo,
-                               _testProgram);
+                               _testProgram, 
+                               _terminal);
 
             exitCode.Should().Be(0);
 
@@ -56,9 +56,9 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                                Array.Empty<string>(),
-                               _terminal,
                                TestProgram.TestMainMethodInfoWithDefault,
-                               _testProgram);
+                               _testProgram, 
+                               _terminal);
 
             exitCode.Should().Be(0);
             _terminal.Out.ToString().Should().Be("Bruce");
@@ -73,9 +73,9 @@ namespace System.CommandLine.DragonFruit.Tests
 
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--unknown" },
-                               _terminal,
                                action.Method,
-                               this);
+                               this, 
+                               _terminal);
 
             exitCode.Should().Be(1);
             _terminal.Error.ToString()
@@ -92,9 +92,9 @@ namespace System.CommandLine.DragonFruit.Tests
 
             int exitCode = await CommandLine.InvokeMethodAsync(
                                Array.Empty<string>(),
-                               _terminal,
                                action.Method,
-                               this);
+                               this, 
+                               _terminal);
 
             exitCode.Should().Be(1);
             _terminal.Error.ToString()

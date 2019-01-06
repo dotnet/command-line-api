@@ -11,7 +11,18 @@ namespace System.CommandLine.Rendering
         public static CommandLineBuilder UseAnsiTerminalWhenAvailable(
             this CommandLineBuilder builder)
         {
-            builder.ConfigureConsole(context => GetTerminal(context.Console, true));
+            builder.ConfigureConsole(context =>
+            {
+
+
+
+
+
+
+
+
+                return GetTerminal(context.Console, true);
+            });
 
             return builder;
         }
@@ -30,21 +41,20 @@ namespace System.CommandLine.Rendering
             {
                 return terminal;
             }
-            else if (preferVirtualTerminal &&
-                     VirtualTerminalMode.TryEnable() is VirtualTerminalMode virtualTerminalMode &&
-                     virtualTerminalMode.IsEnabled)
+
+            if (preferVirtualTerminal &&
+                VirtualTerminalMode.TryEnable() is VirtualTerminalMode virtualTerminalMode &&
+                virtualTerminalMode.IsEnabled)
             {
                 return new VirtualTerminal(
-                    console,
-                    virtualTerminalMode)
+                           console,
+                           virtualTerminalMode)
                        {
                            OutputMode = outputMode
                        };
             }
-            else
-            {
-                return new SystemConsoleTerminal(console);
-            }
+
+            return new SystemConsoleTerminal(console);
         }
     }
 }
