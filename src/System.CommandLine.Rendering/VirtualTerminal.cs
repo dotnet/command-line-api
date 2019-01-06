@@ -9,9 +9,21 @@ namespace System.CommandLine.Rendering
 
         public VirtualTerminal(
             IConsole console,
-            VirtualTerminalMode virtualTerminalMode = null) : base(console)
+            VirtualTerminalMode virtualTerminalMode ) : base(console)
         {
             _virtualTerminalMode = virtualTerminalMode;
+        }
+
+        public override ConsoleColor BackgroundColor { get; set; }
+
+        public override ConsoleColor ForegroundColor { get; set; }
+
+        public override void ResetColor()
+        {
+            Console.Out.Write(
+                Ansi.Color.Background.Default.EscapeSequence);
+            Console.Out.Write(
+                Ansi.Color.Foreground.Default.EscapeSequence);
         }
 
         public override void Clear()
@@ -48,5 +60,6 @@ namespace System.CommandLine.Rendering
             Ansi.Cursor.Move
                 .ToLocation(left: left + 1, top: top + 1)
                 .EscapeSequence);
+
     }
 }

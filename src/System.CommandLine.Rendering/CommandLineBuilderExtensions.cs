@@ -3,7 +3,6 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using System.Linq;
 
 namespace System.CommandLine.Rendering
 {
@@ -12,32 +11,22 @@ namespace System.CommandLine.Rendering
         public static CommandLineBuilder UseAnsiTerminalWhenAvailable(
             this CommandLineBuilder builder)
         {
-            builder.UseMiddleware(context =>
-            {
-                // FIX: (UseAnsiTerminalWhenAvailable) 
-                // var outputMode = OutputMode.Auto;
-
-
-                    
-            });
+            builder.ConfigureConsole(context => GetTerminal(context.Console, true));
 
             return builder;
         }
 
         public static ITerminal GetTerminal(
             this IConsole console,
-            bool preferVirtualTerminal = true)
+            bool preferVirtualTerminal = true,
+            OutputMode outputMode = OutputMode.Auto)
         {
             if (console == null)
             {
                 throw new ArgumentNullException(nameof(console));
             }
 
-            if (console.IsOutputRedirected)
-            {
-                return null;
-            }
-            else if (console is ITerminal terminal)
+            if (console is ITerminal terminal)
             {
                 return terminal;
             }
@@ -47,7 +36,10 @@ namespace System.CommandLine.Rendering
             {
                 return new VirtualTerminal(
                     console,
-                    virtualTerminalMode);
+                    virtualTerminalMode)
+                       {
+                           OutputMode = outputMode
+                       };
             }
             else
             {

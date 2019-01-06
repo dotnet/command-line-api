@@ -10,7 +10,7 @@ namespace System.CommandLine.Rendering
 {
     public class TestTerminal : ITerminal
     {
-        private readonly ITerminal _inner;
+        private readonly ITerminal _innerTerminal;
         private int _cursorLeft;
         private int _cursorTop;
         private readonly List<ConsoleEvent> _events = new List<ConsoleEvent>();
@@ -25,15 +25,15 @@ namespace System.CommandLine.Rendering
         {
             _out.CharWritten += OnCharWrittenToOut;
 
-            _inner = new SystemConsoleTerminal(this);
+            _innerTerminal = new SystemConsoleTerminal(this);
         }
 
         public IStandardStreamWriter Out => _out;
         public IStandardStreamWriter Error => _error;
 
-        public bool IsOutputRedirected => _inner.IsOutputRedirected;
-        public bool IsErrorRedirected => _inner.IsErrorRedirected;
-        public bool IsInputRedirected => _inner.IsInputRedirected;
+        public bool IsOutputRedirected { get; set; }
+        public bool IsErrorRedirected { get; set; }
+        public bool IsInputRedirected { get; set; }
 
         private void OnCharWrittenToOut(char c)
         {

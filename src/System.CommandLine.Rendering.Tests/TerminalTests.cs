@@ -35,13 +35,15 @@ namespace System.CommandLine.Rendering.Tests
         [Fact(Skip = "How to test?")]
         public void When_output_is_redirected_then_there_is_no_terminal()
         {
-            var console = GetTerminal();
+         
+
+            // var console = GetTerminal();
 
             // SetOut(new StringWriter());
 
-            var terminal = console.GetTerminal(true);
+            // var terminal = console.GetTerminal(true);
 
-            terminal.Should().BeNull();
+            // terminal.Should().BeNull();
         }
     }
 }

@@ -3,10 +3,13 @@
 
 namespace System.CommandLine.Rendering
 {
-    public interface ITerminal :
-        CommandLine.ITerminal,
-        IDisposable
+    public interface ITerminal : IConsole
     {
+        ConsoleColor BackgroundColor { get; set; }
+
+        ConsoleColor ForegroundColor { get; set; }
+
+        void ResetColor();
 
         Region GetRegion();
 

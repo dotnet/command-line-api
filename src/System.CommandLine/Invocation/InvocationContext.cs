@@ -1,16 +1,19 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
     public sealed class InvocationContext : IDisposable
     {
-        private  IDisposable _onDispose;
+        private IDisposable _onDispose;
         private CancellationTokenSource _cts;
         private Action<CancellationTokenSource> _cancellationHandlingAddedEvent;
         private readonly Lazy<IConsole> _console;
+        private Lazy<IDictionary<string, object>> _items = new Lazy<IDictionary<string, object>>(() => new Dictionary<string, object>());
 
         public InvocationContext(
             ParseResult parseResult,
@@ -28,7 +31,7 @@ namespace System.CommandLine.Invocation
                 }
                 else
                 {
-                    var createdConsole = ConsoleFactory?.CreateConsole();
+                    var createdConsole = ConsoleFactory?.CreateConsole(this);
                     _onDispose = createdConsole as IDisposable;
                     return createdConsole;
                 }
@@ -45,7 +48,9 @@ namespace System.CommandLine.Invocation
 
         public IInvocationResult InvocationResult { get; set; }
 
-        internal IConsoleFactory ConsoleFactory { get; set; } = new DefaultConsoleFactory();
+        public IDictionary<string, object> Items => _items.Value;
+
+        internal IConsoleFactory ConsoleFactory { get; set; } = new SystemConsoleFactory();
 
         internal IServiceProvider ServiceProvider => new InvocationContextServiceProvider(this);
 
@@ -57,6 +62,7 @@ namespace System.CommandLine.Invocation
                 {
                     throw new InvalidOperationException($"Handlers must be added before adding cancellation handling.");
                 }
+
                 _cancellationHandlingAddedEvent += value;
             }
             remove => _cancellationHandlingAddedEvent -= value;
@@ -72,6 +78,7 @@ namespace System.CommandLine.Invocation
             {
                 throw new InvalidOperationException("Cancellation handling was already added.");
             }
+
             _cts = new CancellationTokenSource();
             _cancellationHandlingAddedEvent?.Invoke(_cts);
             return _cts.Token;

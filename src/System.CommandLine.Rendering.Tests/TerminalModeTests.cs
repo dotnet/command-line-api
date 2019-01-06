@@ -9,12 +9,12 @@ namespace System.CommandLine.Rendering.Tests
 {
     public class TerminalModeTests
     {
-        [Fact(Skip = "How to test?")]
+        [Fact]
         public void Sets_outputMode_to_file_when_output_is_redirected()
         {
             var terminal = new TestTerminal();
 
-            // terminal.SetOut(new StringWriter());
+            terminal.IsOutputRedirected = true;
 
             var outputMode = terminal.DetectOutputMode();
 

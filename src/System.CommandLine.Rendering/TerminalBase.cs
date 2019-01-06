@@ -4,8 +4,8 @@
 namespace System.CommandLine.Rendering
 {
     public abstract class TerminalBase :
-        SystemTerminal,
-        ITerminal
+        ITerminal,
+        IDisposable
     {
         private ConsoleRenderer renderer;
 
@@ -33,9 +33,35 @@ namespace System.CommandLine.Rendering
             renderer.RenderToRegion(span, region ?? GetRegion());
         }
 
+        public abstract ConsoleColor BackgroundColor { get; set; }
+
+        public abstract ConsoleColor ForegroundColor { get; set; }
+
+        public abstract void ResetColor();
+
         public Region GetRegion() =>
             IsOutputRedirected
                 ? new Region(0, 0, int.MaxValue, int.MaxValue, false)
                 : EntireConsoleRegion.Instance;
+
+        public IStandardStreamWriter Out => Console.Out;
+
+        public IStandardStreamWriter Error => Console.Error;
+
+        public bool IsOutputRedirected => Console.IsOutputRedirected;
+
+        public bool IsErrorRedirected => Console.IsErrorRedirected;
+
+        public bool IsInputRedirected => Console.IsInputRedirected;
+
+        protected virtual void Dispose(bool disposing)
+        {
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

@@ -97,7 +97,7 @@ namespace System.CommandLine.Rendering
             visitor.Visit(span);
         }
 
-        public static Size MeasureSpan(Span span, Size maxSize)
+        internal static Size MeasureSpan(Span span, Size maxSize)
         {
             var measuringVisitor = new SpanMeasuringVisitor(new Region(0, 0, maxSize.Width, maxSize.Height));
             measuringVisitor.Visit(span);

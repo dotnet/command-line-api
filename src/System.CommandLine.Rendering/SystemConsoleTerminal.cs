@@ -5,11 +5,28 @@ namespace System.CommandLine.Rendering
 {
     public class SystemConsoleTerminal : TerminalBase
     {
+        private readonly ConsoleColor _initialForegroundColor;
+        private readonly ConsoleColor _initialBackgroundColor;
+
         public SystemConsoleTerminal(IConsole console) : base(console)
         {
+            _initialForegroundColor = System.Console.ForegroundColor;
+            _initialBackgroundColor = System.Console.BackgroundColor;
         }
 
         public override void Clear() => System.Console.Clear();
+
+        public override ConsoleColor BackgroundColor
+        {
+            get => System.Console.BackgroundColor;
+            set => System.Console.BackgroundColor = value;
+        }
+
+        public override ConsoleColor ForegroundColor
+        {
+            get => System.Console.ForegroundColor;
+            set => System.Console.ForegroundColor = value;
+        }
 
         public override int CursorLeft
         {
@@ -23,6 +40,22 @@ namespace System.CommandLine.Rendering
             set => System.Console.CursorTop = value;
         }
 
+        public override void ResetColor() => System.Console.ResetColor();
+
+        private void RestoreConsoleSettings()
+        {
+            System.Console.ForegroundColor = _initialForegroundColor;
+            System.Console.BackgroundColor = _initialBackgroundColor;
+        }
+
         public override void SetCursorPosition(int left, int top) => System.Console.SetCursorPosition(left, top);
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                RestoreConsoleSettings();
+            }
+        }
     }
 }
