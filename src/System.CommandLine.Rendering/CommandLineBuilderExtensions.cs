@@ -13,21 +13,13 @@ namespace System.CommandLine.Rendering
         {
             builder.ConfigureConsole(context =>
             {
-
-
-
-
-
-
-
-
                 return GetTerminal(context.Console, true);
             });
 
             return builder;
         }
 
-        public static ITerminal GetTerminal(
+        private static ITerminal GetTerminal(
             this IConsole console,
             bool preferVirtualTerminal = true,
             OutputMode outputMode = OutputMode.Auto)

@@ -7,8 +7,6 @@ namespace System.CommandLine.Rendering
         ITerminal,
         IDisposable
     {
-        private ConsoleRenderer renderer;
-
         protected TerminalBase(IConsole console)
         {
             Console = console ?? throw new ArgumentNullException(nameof(console));
@@ -25,13 +23,6 @@ namespace System.CommandLine.Rendering
         public abstract void SetCursorPosition(int left, int top);
 
         public OutputMode OutputMode { get; set; } = OutputMode.Auto;
-
-        public virtual void Render(Span span, Region region = null)
-        {
-            renderer = renderer ?? new ConsoleRenderer(this, OutputMode);
-
-            renderer.RenderToRegion(span, region ?? GetRegion());
-        }
 
         public abstract ConsoleColor BackgroundColor { get; set; }
 

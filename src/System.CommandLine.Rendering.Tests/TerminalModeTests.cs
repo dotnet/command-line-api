@@ -24,9 +24,9 @@ namespace System.CommandLine.Rendering.Tests
         [WindowsOnlyFact(Skip = "How to test?")]
         public void Sets_outputMode_to_ansi_when_windows_and_virtual_terminal()
         {
-            var console = new TestConsole();
+            var terminal = new TestTerminal();
 
-            var outputMode = console.DetectOutputMode();
+            var outputMode = terminal.DetectOutputMode();
 
             outputMode.Should().Be(OutputMode.Ansi);
         }
