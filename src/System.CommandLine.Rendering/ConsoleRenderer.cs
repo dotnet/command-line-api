@@ -106,7 +106,7 @@ namespace System.CommandLine.Rendering
 
         public Region GetRegion()
         {
-            return _terminal?.GetRegion();
+            return (_terminal as IRenderable)?.GetRegion();
         }
     }
 }

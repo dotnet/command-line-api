@@ -29,24 +29,32 @@ namespace System.CommandLine.Rendering
                 throw new ArgumentNullException(nameof(console));
             }
 
-            if (console is ITerminal terminal)
+            if (console is ITerminal t)
             {
-                return terminal;
+                return t;
             }
+
+            ITerminal terminal;
 
             if (preferVirtualTerminal &&
                 VirtualTerminalMode.TryEnable() is VirtualTerminalMode virtualTerminalMode &&
                 virtualTerminalMode.IsEnabled)
             {
-                return new VirtualTerminal(
-                           console,
-                           virtualTerminalMode)
-                       {
-                           OutputMode = outputMode
-                       };
+                terminal = new VirtualTerminal(
+                    console,
+                    virtualTerminalMode);
+            }
+            else
+            {
+                terminal = new SystemConsoleTerminal(console);
             }
 
-            return new SystemConsoleTerminal(console);
+            if (terminal is TerminalBase terminalBase)
+            {
+                terminalBase.OutputMode = outputMode;
+            }
+
+            return terminal;
         }
     }
 }

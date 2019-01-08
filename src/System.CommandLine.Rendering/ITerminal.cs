@@ -11,8 +11,6 @@ namespace System.CommandLine.Rendering
 
         void ResetColor();
 
-        Region GetRegion();
-
         void Clear();
 
         int CursorLeft { get; set; }

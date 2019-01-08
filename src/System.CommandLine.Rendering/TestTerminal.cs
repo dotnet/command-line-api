@@ -8,9 +8,8 @@ using System.Text.RegularExpressions;
 
 namespace System.CommandLine.Rendering
 {
-    public class TestTerminal : ITerminal
+    public class TestTerminal : ITerminal, IRenderable
     {
-        private readonly ITerminal _innerTerminal;
         private int _cursorLeft;
         private int _cursorTop;
         private readonly List<ConsoleEvent> _events = new List<ConsoleEvent>();
@@ -24,8 +23,6 @@ namespace System.CommandLine.Rendering
         public TestTerminal()
         {
             _out.CharWritten += OnCharWrittenToOut;
-
-            _innerTerminal = new SystemConsoleTerminal(this);
         }
 
         public IStandardStreamWriter Out => _out;
@@ -34,6 +31,8 @@ namespace System.CommandLine.Rendering
         public bool IsOutputRedirected { get; set; }
         public bool IsErrorRedirected { get; set; }
         public bool IsInputRedirected { get; set; }
+
+        public OutputMode OutputMode { get; set; } = OutputMode.Auto;
 
         private void OnCharWrittenToOut(char c)
         {
@@ -240,11 +239,7 @@ namespace System.CommandLine.Rendering
                 yield return new TextRendered(buffer.ToString(), position);
             }
         }
-
-        public void Dispose()
-        {
-        }
-
+        
         public abstract class ConsoleEvent
         {
         }
