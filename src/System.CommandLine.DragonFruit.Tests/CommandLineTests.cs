@@ -10,7 +10,7 @@ namespace System.CommandLine.DragonFruit.Tests
 {
     public class CommandLineTests
     {
-        private readonly TestTerminal _terminal;
+        private readonly ITerminal _terminal;
         private readonly TestProgram _testProgram;
 
         public CommandLineTests()
@@ -24,11 +24,11 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--name", "Wayne" },
-                               _terminal,
                                TestProgram.TestMainMethodInfo,
-                               _testProgram);
+                               _testProgram, 
+                               _terminal);
             exitCode.Should().Be(0);
-            _testProgram.Captured.Should().Be("Wayne");
+            _terminal.Out.ToString().Should().Be("Wayne");
         }
 
         [Fact]
@@ -36,9 +36,9 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--help" },
-                               _terminal,
                                TestProgram.TestMainMethodInfo,
-                               _testProgram);
+                               _testProgram, 
+                               _terminal);
 
             exitCode.Should().Be(0);
 
@@ -56,12 +56,12 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                                Array.Empty<string>(),
-                               _terminal,
                                TestProgram.TestMainMethodInfoWithDefault,
-                               _testProgram);
+                               _testProgram, 
+                               _terminal);
 
             exitCode.Should().Be(0);
-            _testProgram.Captured.Should().Be("Bruce");
+            _terminal.Out.ToString().Should().Be("Bruce");
         }
 
         private void TestMainThatThrows() => throw new InvalidOperationException("This threw an error");
@@ -73,9 +73,9 @@ namespace System.CommandLine.DragonFruit.Tests
 
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--unknown" },
-                               _terminal,
                                action.Method,
-                               this);
+                               this, 
+                               _terminal);
 
             exitCode.Should().Be(1);
             _terminal.Error.ToString()
@@ -92,9 +92,9 @@ namespace System.CommandLine.DragonFruit.Tests
 
             int exitCode = await CommandLine.InvokeMethodAsync(
                                Array.Empty<string>(),
-                               _terminal,
                                action.Method,
-                               this);
+                               this, 
+                               _terminal);
 
             exitCode.Should().Be(1);
             _terminal.Error.ToString()

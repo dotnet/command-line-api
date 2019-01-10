@@ -5,7 +5,6 @@ using FluentAssertions;
 using System.Linq;
 using Xunit;
 using System.CommandLine.Rendering.Views;
-using System.CommandLine.Tests;
 
 namespace System.CommandLine.Rendering.Tests
 {

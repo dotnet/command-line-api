@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 using System.CommandLine;
 using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
@@ -6,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Subjects;
-using ITerminal = System.CommandLine.Rendering.ITerminal;
 
 namespace RenderingPlayground
 {
@@ -46,15 +48,9 @@ namespace RenderingPlayground
 
             var terminal = console as ITerminal;
 
-            if (virtualTerminalMode &&
-                terminal != null)
+            if (terminal != null && overwrite)
             {
-                terminal.TryEnableVirtualTerminal();
-
-                if (overwrite && !terminal.IsOutputRedirected)
-                {
-                    terminal.Clear();
-                }
+                terminal.Clear();
             }
 
             var consoleRenderer = new ConsoleRenderer(
@@ -75,7 +71,7 @@ namespace RenderingPlayground
 
                 case SampleName.Dir:
                     var directoryTableView = new DirectoryTableView(new DirectoryInfo(Directory.GetCurrentDirectory()));
-                    directoryTableView.Render(consoleRenderer, terminal?.GetRegion());
+                    directoryTableView.Render(consoleRenderer, region);
 
                     break;
 

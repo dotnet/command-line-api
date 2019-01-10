@@ -1,10 +1,18 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-namespace System.CommandLine.Rendering
+﻿namespace System.CommandLine.Rendering
 {
     public static class Terminal
     {
-        public static ITerminal Default() => new SystemTerminal();
+        public static void Render(
+            this ITerminal terminal,
+            Span span,
+            Region region = null)
+        {
+            if (terminal is IRenderable t)
+            {
+                var renderer = new ConsoleRenderer(terminal, t.OutputMode);
+
+                renderer.RenderToRegion(span, region ?? t.GetRegion());
+            }
+        }
     }
 }

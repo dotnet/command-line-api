@@ -3,6 +3,7 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Rendering;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,13 +19,9 @@ namespace System.CommandLine.DragonFruit
         /// <param name="entryAssembly">The entry assembly</param>
         /// <param name="args">The string arguments.</param>
         /// <returns>The exit code.</returns>
-        public static Task<int> ExecuteAssemblyAsync(Assembly entryAssembly, string[] args)
-            => ExecuteAssemblyAsync(entryAssembly, args, null);
-
-        internal static async Task<int> ExecuteAssemblyAsync(
-            Assembly entryAssembly,
-            string[] args,
-            IConsole console)
+        public static async Task<int> ExecuteAssemblyAsync(
+            Assembly entryAssembly, 
+            string[] args)
         {
             if (entryAssembly == null)
             {
@@ -37,21 +34,20 @@ namespace System.CommandLine.DragonFruit
 
             return await InvokeMethodAsync(
                        args,
-                       console,
-                       entryMethod,
-                       null /* this is a static method*/);
+                       entryMethod);
         }
 
         public static async Task<int> InvokeMethodAsync(
             string[] args,
-            IConsole console,
             MethodInfo method,
-            object @object)
+            object target = null,
+            IConsole console = null)
         {
             var builder = new CommandLineBuilder()
-                          .ConfigureFromMethod(method, @object)
+                          .ConfigureFromMethod(method, target)
                           .ConfigureHelpFromXmlComments(method)
-                          .UseDefaults();
+                          .UseDefaults()
+                          .UseAnsiTerminalWhenAvailable();
 
             Parser parser = builder.Build();
 

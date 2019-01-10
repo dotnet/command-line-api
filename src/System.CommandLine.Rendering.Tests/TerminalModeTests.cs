@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.CommandLine.Tests;
-using System.IO;
 using FluentAssertions;
 using Xunit;
 
@@ -15,7 +13,8 @@ namespace System.CommandLine.Rendering.Tests
         public void Sets_outputMode_to_file_when_output_is_redirected()
         {
             var terminal = new TestTerminal();
-            terminal.SetOut(new StringWriter());
+
+            terminal.IsOutputRedirected = true;
 
             var outputMode = terminal.DetectOutputMode();
 
@@ -25,9 +24,9 @@ namespace System.CommandLine.Rendering.Tests
         [WindowsOnlyFact(Skip = "How to test?")]
         public void Sets_outputMode_to_ansi_when_windows_and_virtual_terminal()
         {
-            var console = new TestConsole();
+            var terminal = new TestTerminal();
 
-            var outputMode = console.DetectOutputMode();
+            var outputMode = terminal.DetectOutputMode();
 
             outputMode.Should().Be(OutputMode.Ansi);
         }

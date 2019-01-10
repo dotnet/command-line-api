@@ -1,15 +1,19 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
     public sealed class InvocationContext : IDisposable
     {
-        private readonly IDisposable _onDispose;
+        private IDisposable _onDispose;
         private CancellationTokenSource _cts;
         private Action<CancellationTokenSource> _cancellationHandlingAddedEvent;
+        private readonly Lazy<IDictionary<string, object>> _items = new Lazy<IDictionary<string, object>>(() => new Dictionary<string, object>());
+        private IConsole _console;
 
         public InvocationContext(
             ParseResult parseResult,
@@ -18,27 +22,35 @@ namespace System.CommandLine.Invocation
         {
             ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
-
-            if (console != null)
-            {
-                Console = console;
-            }
-            else
-            {
-                Console = SystemConsole.Create();
-                _onDispose = Console as IDisposable;
-            }
+            _console = console;
         }
 
         public Parser Parser { get; }
 
         public ParseResult ParseResult { get; set; }
 
-        public IConsole Console { get; }
+        public IConsole Console
+        {
+            get
+            {
+                if (_console == null)
+                {
+                    _console = new SystemConsole();
+                    _console = ConsoleFactory.CreateConsole(this);
+                    _onDispose = _console as IDisposable;
+                }
+
+                return _console;
+            }
+        }
 
         public int ResultCode { get; set; }
 
         public IInvocationResult InvocationResult { get; set; }
+
+        public IDictionary<string, object> Items => _items.Value;
+
+        internal IConsoleFactory ConsoleFactory { get; set; } = new SystemConsoleFactory();
 
         internal IServiceProvider ServiceProvider => new InvocationContextServiceProvider(this);
 
@@ -50,6 +62,7 @@ namespace System.CommandLine.Invocation
                 {
                     throw new InvalidOperationException($"Handlers must be added before adding cancellation handling.");
                 }
+
                 _cancellationHandlingAddedEvent += value;
             }
             remove => _cancellationHandlingAddedEvent -= value;
@@ -65,6 +78,7 @@ namespace System.CommandLine.Invocation
             {
                 throw new InvalidOperationException("Cancellation handling was already added.");
             }
+
             _cts = new CancellationTokenSource();
             _cancellationHandlingAddedEvent?.Invoke(_cts);
             return _cts.Token;

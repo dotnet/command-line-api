@@ -7,18 +7,18 @@ namespace System.CommandLine.Rendering
 {
     internal class NonAnsiRenderingSpanVisitor : ContentRenderingSpanVisitor
     {
-        private ITerminal Console { get; }
+        private ITerminal Terminal { get; }
 
         public NonAnsiRenderingSpanVisitor(
-            ITerminal console,
-            Region region) : base(console?.Out, region)
+            ITerminal terminal,
+            Region region) : base(terminal?.Out, region)
         {
-            Console = console ?? throw new ArgumentNullException(nameof(console));
+            Terminal = terminal ?? throw new ArgumentNullException(nameof(terminal));
         }
 
         protected override void SetCursorPosition(int left, int top)
         {
-            Console.SetCursorPosition(left, top);
+            Terminal.SetCursorPosition(left, top);
         }
 
         public override void VisitForegroundColorSpan(ForegroundColorSpan span)
@@ -26,13 +26,13 @@ namespace System.CommandLine.Rendering
             if (span.RgbColor == null &&
                 _foregroundColorMappings.TryGetValue(span.Name, out var color))
             {
-                Console.ForegroundColor = color;
+                Terminal.ForegroundColor = color;
             }
             else
             {
-                var backgroundColor = Console.BackgroundColor;
-                Console.ResetColor();
-                Console.BackgroundColor = backgroundColor;
+                var backgroundColor = Terminal.BackgroundColor;
+                Terminal.ResetColor();
+                Terminal.BackgroundColor = backgroundColor;
             }
         }
 
@@ -41,13 +41,13 @@ namespace System.CommandLine.Rendering
             if (span.RgbColor == null &&
                 _backgroundColorMappings.TryGetValue(span.Name, out var color))
             {
-                Console.BackgroundColor = color;
+                Terminal.BackgroundColor = color;
             }
             else
             {
-                var foregroundColor = Console.ForegroundColor;
-                Console.ResetColor();
-                Console.ForegroundColor = foregroundColor;
+                var foregroundColor = Terminal.ForegroundColor;
+                Terminal.ResetColor();
+                Terminal.ForegroundColor = foregroundColor;
             }
         }
 

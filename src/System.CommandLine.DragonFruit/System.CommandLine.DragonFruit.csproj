@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine.Rendering\System.CommandLine.Rendering.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
     <Content Include="targets\*" PackagePath="build\$(TargetFramework)\" />
   </ItemGroup>

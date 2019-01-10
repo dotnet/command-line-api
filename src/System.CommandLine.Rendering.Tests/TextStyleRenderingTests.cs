@@ -25,10 +25,10 @@ namespace System.CommandLine.Rendering.Tests
             renderer.RenderToRegion(span, new Region(0, 0, 200, 1, false));
 
             _terminal.Out
-                    .ToString()
-                    .Should()
-                    .Contain(
-                        $"{Ansi.Color.Background.Red.EscapeSequence}red {Ansi.Color.Background.Blue.EscapeSequence}blue {Ansi.Color.Background.Green.EscapeSequence}green {Ansi.Color.Background.Default.EscapeSequence}or a {Ansi.Color.Background.Rgb(12, 34, 56).EscapeSequence}little of each.");
+                     .ToString()
+                     .Should()
+                     .Contain(
+                         $"{Ansi.Color.Background.Red.EscapeSequence}red {Ansi.Color.Background.Blue.EscapeSequence}blue {Ansi.Color.Background.Green.EscapeSequence}green {Ansi.Color.Background.Default.EscapeSequence}or a {Ansi.Color.Background.Rgb(12, 34, 56).EscapeSequence}little of each.");
         }
 
         [Fact]

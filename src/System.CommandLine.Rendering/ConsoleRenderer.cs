@@ -7,30 +7,23 @@ namespace System.CommandLine.Rendering
     {
         private readonly bool _resetAfterRender;
         private readonly IConsole _console;
+        private OutputMode _mode;
         private readonly ITerminal _terminal;
 
         public ConsoleRenderer(
-            IConsole console = null,
+            IConsole console,
             OutputMode mode = OutputMode.Auto,
             bool resetAfterRender = false)
         {
-            _console = console ?? new SystemTerminal();
+            _console = console ??
+                       throw new ArgumentNullException(nameof(console));
+            _mode = mode;
+
             _terminal = console as ITerminal;
             _resetAfterRender = resetAfterRender;
-
-            if (mode == OutputMode.Auto)
-            {
-                Mode = _terminal?.DetectOutputMode() ?? OutputMode.File;
-            }
-            else
-            {
-                Mode = mode;
-            }
         }
 
         public SpanFormatter Formatter { get; } = new SpanFormatter();
-
-        public OutputMode Mode { get; }
 
         public void RenderToRegion(
             object value,
@@ -54,8 +47,6 @@ namespace System.CommandLine.Rendering
             Span span,
             Region region)
         {
-            SpanVisitor visitor;
-
             if (span == null)
             {
                 span = Span.Empty();
@@ -68,7 +59,14 @@ namespace System.CommandLine.Rendering
                     BackgroundColorSpan.Reset());
             }
 
-            switch (Mode)
+            SpanVisitor visitor = null;
+
+            if (_mode == OutputMode.Auto)
+            {
+                _mode = _terminal?.DetectOutputMode() ?? OutputMode.File;
+            }
+
+            switch (_mode)
             {
                 case OutputMode.NonAnsi:
                     visitor = new NonAnsiRenderingSpanVisitor(
@@ -99,7 +97,7 @@ namespace System.CommandLine.Rendering
             visitor.Visit(span);
         }
 
-        public Size MeasureSpan(Span span, Size maxSize)
+        internal static Size MeasureSpan(Span span, Size maxSize)
         {
             var measuringVisitor = new SpanMeasuringVisitor(new Region(0, 0, maxSize.Width, maxSize.Height));
             measuringVisitor.Visit(span);
@@ -108,7 +106,7 @@ namespace System.CommandLine.Rendering
 
         public Region GetRegion()
         {
-            return _terminal?.GetRegion() ;
+            return (_terminal as IRenderable)?.GetRegion();
         }
     }
 }
