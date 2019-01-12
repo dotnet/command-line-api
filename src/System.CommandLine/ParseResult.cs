@@ -72,14 +72,17 @@ namespace System.CommandLine
                         }
                     }
 
-                    if (command.Command.Argument.HasDefaultValue &&
-                        command.Arguments.Count == 0)
+                    if (command.Command.Argument.HasDefaultValue)
                     {
-                        switch (command.Command.Argument.GetDefaultValue())
+                        var defaultValue = command.Command.Argument.GetDefaultValue();
+
+                        if (defaultValue is string stringArg)
                         {
-                            case string arg:
-                                command.TryTakeToken(new Token(arg, TokenType.Argument));
-                                break;
+                            command.TryTakeToken(new Token(stringArg, TokenType.Argument));
+                        }
+                        else
+                        {
+                            command.UseDefaultValue = true;
                         }
                     }
                 }
