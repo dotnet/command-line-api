@@ -371,7 +371,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
+        public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
             var parser = new Parser(
                 new Command("the-command", "", new[] {
@@ -444,7 +444,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_Command_option_is_not_respecified_then_the_following_token_is_considered_an_argument_to_the_outer_command()
+        public void When_an_option_is_not_respecified_then_the_following_token_is_considered_an_argument_to_the_parent_command()
         {
             var parser = new Parser(
                 new Command("the-command", "", new[] {

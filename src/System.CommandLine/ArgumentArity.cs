@@ -34,6 +34,11 @@ namespace System.CommandLine
         {
             if (symbolResult.Arguments.Count < minimumNumberOfArguments)
             {
+                if (symbolResult.UseDefaultValue)
+                {
+                    return null;
+                }
+
                 return new FailedArgumentArityResult(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
             }
 
