@@ -13,7 +13,7 @@ namespace System.CommandLine
 
         private ValidationMessages _validationMessages = ValidationMessages.Instance;
 
-        protected internal SymbolResult(
+        protected SymbolResult(
             ISymbol symbol, 
             string token, 
             CommandResult parent = null)
