@@ -74,10 +74,20 @@ namespace System.CommandLine.JackFruit
             parent?.AddCommand(command);
             var handler = PreBinderContext.Current.HandlerProvider.Get(command, source);
 
+            if (handler is ReflectionCommandHandler reflectionHandler)
+            {
+                var optionBindingActions = PreBinderContext.Current.OptionBindingActionProvider.Get(command, source);
+                reflectionHandler .AddBindings(optionBindingActions );
+
+            }
+
+
+
+
             var arguments = PreBinderContext.Current.ArgumentProvider.Get(command, source);
             if (arguments.Any())
             {
-                // TODO: When multi-arguments merged, update this
+              // TODO: When multi-arguments merged, update this
                 command.Argument = arguments.First();
             }
             var options = PreBinderContext.Current.OptionProvider.Get(command, source);

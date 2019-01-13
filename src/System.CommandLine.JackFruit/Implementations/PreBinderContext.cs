@@ -59,6 +59,10 @@ namespace System.CommandLine.JackFruit
             ChildProvider = (ChildProvider ?? ProviderBase.Create<IEnumerable<ISymbolBase>>())
                                                     .AddStrategy<MethodInfo>(ChildStrategies.FromMethod)
                                                     .AddStrategy<Type>(ChildStrategies.FromType);
+
+            OptionBindingActionProvider = (OptionBindingActionProvider ?? ProviderBase.Create<IEnumerable<SymbolBindingAction >>())
+                                         .AddStrategy<MethodInfo>(OptionStrategies2.FromParameters)
+                                         .AddStrategy<Type>(OptionStrategies2.FromProperties);
         }
 
         public IProvider<IEnumerable<Command>> SubCommandProvider { get; set; }
@@ -66,6 +70,7 @@ namespace System.CommandLine.JackFruit
         public IProvider<string> DescriptionProvider { get; set; }
         public IProvider<IEnumerable<Argument>> ArgumentProvider { get; set; }
         public IProvider<IEnumerable<Option>> OptionProvider { get; set; }
+        public IProvider<IEnumerable<SymbolBindingAction>> OptionBindingActionProvider { get; set; }
         public IProvider<ICommandHandler> HandlerProvider { get; set; }
         public IProvider<IEnumerable<ISymbolBase>> ChildProvider { get; set; }
     }

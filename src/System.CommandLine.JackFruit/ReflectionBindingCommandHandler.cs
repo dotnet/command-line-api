@@ -46,7 +46,6 @@ namespace System.CommandLine.JackFruit
             return handler;
         }
 
-
         public static ReflectionCommandHandler<TTarget> Create<TTarget>()
                 where TTarget : class
         {
@@ -56,6 +55,11 @@ namespace System.CommandLine.JackFruit
             return handler;
         }
 
+        public void AddBinding(BindingActionBase bindingAction) 
+            => BindActions.Add(bindingAction);
+
+        public void AddBindings(IEnumerable<BindingActionBase> bindingActions)
+            => BindActions.AddRange(bindingActions);
 
         public abstract Task<int> InvokeAsync(InvocationContext context);
 
@@ -71,32 +75,6 @@ namespace System.CommandLine.JackFruit
                                             | BindingFlags.NonPublic;
         private InvocationContext context;
         public Func<InvocationContext, TTarget> CreateTargetFunc { get; set; }
-
-        public ReflectionCommandHandler<TTarget> AddBinding<TValue>(PropertyInfo propertyInfo,
-            Func<TValue> valueFunc)
-        {
-            BindActions.Add(new FuncBindingAction<TTarget>(propertyInfo, typeof(TValue), (c, t) => valueFunc()));
-            return this;
-        }
-
-        public ReflectionCommandHandler<TTarget> AddBinding<TValue>(ParameterInfo parameterInfo,
-            Func<TValue> valueFunc)
-        {
-            BindActions.Add(new FuncBindingAction<TTarget>(parameterInfo, typeof(TValue), (c, t) => valueFunc()));
-            return this;
-        }
-
-        public ReflectionCommandHandler<TTarget> AddBinding(ParameterInfo paramInfo, ISymbolBase optionOrArgument)
-        {
-            BindActions.Add(new SymbolBindingAction(paramInfo, paramInfo.ParameterType, optionOrArgument));
-            return this;
-        }
-
-        public ReflectionCommandHandler<TTarget> AddBinding(PropertyInfo propertyInfo, ISymbolBase optionOrArgument)
-        {
-            BindActions.Add(new SymbolBindingAction(propertyInfo, propertyInfo.PropertyType, optionOrArgument));
-            return this;
-        }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         // TODO: How do we await this via reflection?
