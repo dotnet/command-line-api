@@ -7,7 +7,7 @@ namespace System.CommandLine.JackFruit
 
     public static class AliasStrategies
     {
-        public static (bool, IEnumerable<string>) FromAttribute(Command parent, object source)
+        public static IEnumerable<string> FromAttribute(Command parent, object source)
         {
             switch (source)
             {
@@ -20,17 +20,17 @@ namespace System.CommandLine.JackFruit
                 case ParameterInfo parameterInfo:
                     return GetNames(parameterInfo.GetCustomAttributes<AliasAttribute>(), parameterInfo.Name);
                 default:
-                    return (false, null);
+                    return  null;
             }
 
-            (bool, IEnumerable<string>) GetNames(IEnumerable<AliasAttribute> attributes, string name)
+            IEnumerable<string> GetNames(IEnumerable<AliasAttribute> attributes, string name)
             {
                 var candidates = attributes.SelectMany(a => a.Aliases).ToList();
                 if (!candidates.Contains(name))
                 {
                     candidates.Insert(0, name);
                 }
-                return (false, candidates);
+                return  candidates;
             }
         }
 

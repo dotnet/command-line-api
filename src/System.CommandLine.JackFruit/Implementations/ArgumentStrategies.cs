@@ -8,43 +8,45 @@ namespace System.CommandLine.JackFruit
 {
     public static class ArgumentStrategies
     {
-        public static (bool, IEnumerable<Argument>) FromAttributedProperties(Command parent, Type baseType)
+        public static IEnumerable<SymbolBinding> FromAttributedProperties(Command parent, Type baseType)
         {
             var properties = baseType.GetProperties();
             var attributedProperties = properties.Where(x => x.GetCustomAttribute<ArgumentAttribute>() != null);
-            return (false, baseType
-                    .GetProperties()
+            return baseType                    .GetProperties()
                     .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                    .Select(m => GetArgument(parent, m)));
+                    .Select(m => GetBindingAction(parent, m));
         }
 
-        public static (bool, IEnumerable<Argument>) FromSuffixedProperties(Command parent, Type baseType)
-            => (false, baseType
-                    .GetProperties()
+        public static IEnumerable<SymbolBinding> FromSuffixedProperties(Command parent, Type baseType)
+            => baseType                    .GetProperties()
                     .Where(p => NameIsSuffixed(p.Name))
-                    .Select(m => GetArgument(parent,  m)));
+                    .Select(m => GetBindingAction(parent,  m));
 
-        public static (bool, IEnumerable<Argument>) FromAttributedParameters(Command parent, MethodInfo method)
-            => (false, method
-                 .GetParameters()
+        public static IEnumerable<SymbolBinding> FromAttributedParameters(Command parent, MethodInfo method)
+            => method                 .GetParameters()
                  .Where(p => p.GetCustomAttribute<ArgumentAttribute>() != null)
-                 .Select(p => GetArgument(parent,  p)));
+                 .Select(p => GetBindingAction(parent,  p));
 
-        public static (bool, IEnumerable<Argument>) FromSuffixedParameters(Command parent, MethodInfo method)
-            => (false, method
-                    .GetParameters()
+        public static IEnumerable<SymbolBinding> FromSuffixedParameters(Command parent, MethodInfo method)
+            => method                    .GetParameters()
                     .Where(p => NameIsSuffixed(p.Name))
-                    .Select(m => GetArgument(parent,  m)));
+                    .Select(m => GetBindingAction(parent,  m));
 
-        public static (bool, IEnumerable<Argument>) FromParameter(Command parent, ParameterInfo parameter)
-            => (false, new List<Argument>() { GetArgument(parent,  parameter) });
+        public static IEnumerable<SymbolBinding> FromParameter(Command parent, ParameterInfo parameter)
+            =>  new List<SymbolBinding>() { GetBindingAction(parent,  parameter) };
 
-        public static (bool, IEnumerable<Argument>) FromProperty(Command parent, PropertyInfo property)
-            => (false, new List<Argument>() { GetArgument(parent,  property) });
+        public static IEnumerable<SymbolBinding> FromProperty(Command parent, PropertyInfo property)
+            =>  new List<SymbolBinding>() { GetBindingAction(parent,  property) };
 
         // TODO: Also need to update the name to remove Args, and this is a can of worms
         private static bool NameIsSuffixed(string name)
             => name.EndsWith("Args");
+
+        private static SymbolBinding GetBindingAction(Command parent, ParameterInfo source)
+           => SymbolBinding.Create(source, GetArgument(parent, source));
+
+        private static SymbolBinding GetBindingAction(Command parent, PropertyInfo source)
+            => SymbolBinding.Create(source, GetArgument(parent, source));
 
         private static Argument GetArgument<T>(Command parent,  T item)
         {

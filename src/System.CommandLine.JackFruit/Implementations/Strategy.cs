@@ -5,28 +5,28 @@ namespace System.CommandLine.JackFruit
 {
     public interface IStrategy<TProduce>
     {
-        (bool EndEvaluation, TProduce Value) Do(Command parent, object source);
+        TProduce Do(Command parent, object source);
     }
 
     public class Strategy<TProduce>
     {
         public static Strategy<TProduce, TSource> CreateStrategy<TSource>(
-                  Func<Command, TSource, (bool, TProduce)> operation)
+                  Func<Command, TSource, TProduce> operation)
               => new Strategy<TProduce, TSource>(operation);
     }
 
     public class Strategy<TProduce, TSource> : IStrategy<TProduce>
     {
-        private Func<Command, TSource, (bool, TProduce)> operation;
+        private Func<Command, TSource, TProduce> operation;
 
-        internal Strategy(Func<Command, TSource, (bool, TProduce)> operation)
+        internal Strategy(Func<Command, TSource, TProduce> operation)
             => this.operation = operation;
 
         // If the object is a different type, just do nothing. 
-        (bool EndEvaluation, TProduce Value) IStrategy<TProduce>.Do(Command parent, object objSource)
+        TProduce IStrategy<TProduce>.Do(Command parent, object objSource)
         => (operation != null && objSource is TSource source)
                 ? operation(parent, source)
-                : (false, default);
+                : default;
     }
 
     internal class StrategySet<TProduce>
@@ -46,7 +46,7 @@ namespace System.CommandLine.JackFruit
         public TProduce Do(Command parent, object objSource)
             => DoInternal(a => a.Do(parent, objSource));
 
-        protected virtual TProduce DoInternal(Func<IStrategy<TProduce>, (bool, TProduce)> operation)
+        protected virtual TProduce DoInternal(Func<IStrategy<TProduce>, TProduce> operation)
         {
             // TODO: Does try go around for each or around evaluation?
             bool endEvaluation = false;
@@ -54,7 +54,7 @@ namespace System.CommandLine.JackFruit
             foreach (var strategy in strategies)
             {
 
-                (endEvaluation, value) = operation(strategy);
+                value = operation(strategy);
                 if (endEvaluation || shortCircuit &&
                     (value is string s
                        ? !string.IsNullOrWhiteSpace(s)
@@ -74,12 +74,12 @@ namespace System.CommandLine.JackFruit
             : base() { }
 
         // TProduce is IEnumerable<T>
-        protected override IEnumerable<T> DoInternal(Func<IStrategy<IEnumerable<T>>, (bool, IEnumerable<T>)> operation)
+        protected override IEnumerable<T> DoInternal(Func<IStrategy<IEnumerable<T>>, IEnumerable<T>> operation)
         {
             var value = new List<T>();
             foreach (var strategy in strategies)
             {
-                (var endEvaluation, var newList) = operation(strategy);
+                var newList = operation(strategy);
                 if (newList == null)
                 {
                     continue;
@@ -88,7 +88,7 @@ namespace System.CommandLine.JackFruit
                 {
                     value.AddRange(newList);
                 }
-                if (endEvaluation || (shortCircuit && newList.Any()))
+                if (shortCircuit && newList.Any())
                 {
                     break;
                 }

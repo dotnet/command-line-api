@@ -21,8 +21,8 @@ namespace System.CommandLine.JackFruit.Tests
             _console = new TestConsole();
             _testProgram = new TestProgram();
             var helpFinder = PreBinderContext.Current.DescriptionProvider;
-            helpFinder.AddStrategy<object>((c,s)=>(false, DescriptionFinder.Description(s)));
-            helpFinder.AddStrategy<object>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
+            helpFinder.AddStrategy<object>((c,s)=>DescriptionFinder.Description(s));
+            helpFinder.AddStrategy<object>((c, s) =>  HybridModelDescriptionFinder.Description(s));
             testParent =  new Command("test") ;
         }
 
@@ -53,15 +53,15 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_retrieve_arguments_for_type()
         {
-            var arguments = PreBinderContext.Current.ArgumentProvider.Get(testParent, typeof(ToolInstall));
-            TestUtils.CheckArguments(arguments, new List<string>() { "package-id" });
+            var argumentBindings = PreBinderContext.Current.ArgumentBindingProvider.Get(testParent, typeof(ToolInstall));
+            TestUtils.CheckArgumentBindings(argumentBindings, new List<string>() { "package-id" });
         }
 
         [Fact]
         public void Doesnt_find_arguments_when_there_arent_any()
         {
-            var arguments = PreBinderContext.Current.ArgumentProvider.Get(testParent, typeof(Tool));
-            TestUtils.CheckArguments(arguments, new List<string>());
+            var argumentBindings = PreBinderContext.Current.ArgumentBindingProvider.Get(testParent, typeof(Tool));
+            TestUtils.CheckArgumentBindings(argumentBindings, new List<string>());
         }
 
         [Fact]
@@ -78,14 +78,14 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_retrieve_options_for_type()
         {
-            var options = PreBinderContext.Current.OptionProvider.Get(testParent, typeof(Tool));
-            TestUtils.CheckOptions(options, new (string, Type)[] { });
+            var optionBindings = PreBinderContext.Current.OptionBindingProvider.Get(testParent, typeof(Tool));
+            TestUtils.CheckOptions(optionBindings, new (string, Type)[] { });
         }
 
         [Fact]
         public void Can_retrieve_handler_for_type()
         {
-            var handler = PreBinderContext.Current.OptionProvider.Get(testParent, typeof(ToolInstall));
+            var handler = PreBinderContext.Current.OptionBindingProvider.Get(testParent, typeof(ToolInstall));
             handler.Should().NotBeNull();
         }
 
@@ -110,15 +110,15 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_retrieve_command_structure()
         {
-            var rootCommand = PreBinder.RootCommand<DotnetHybrid>((c,s)=> (false,HybridModelDescriptionFinder.Description(s)));
+            var rootCommand = PreBinder.RootCommand<DotnetHybrid>((c,s)=> HybridModelDescriptionFinder.Description(s));
 
             TestUtils.CheckSubCommands(rootCommand, "add", "list", "remove", "sln", "tool");
             var addCommand = rootCommand.Children.OfType<Command>().Single(x => x.Name == "add");
             TestUtils.CheckSubCommands(addCommand, "package", "reference");
-            TestUtils.CheckArguments(new Argument[] { addCommand.Argument }, new string[] { "project-file" });
+            TestUtils.CheckArgument( addCommand.Argument ,  "project-file" );
 
             var packageCommand = addCommand.Children.OfType<Command>().Single(x => x.Name == "package");
-            TestUtils.CheckArguments(new Argument[] { packageCommand.Argument }, new string[] { "package-name" });
+            TestUtils.CheckArgument( packageCommand.Argument,  "package-name" );
             TestUtils.CheckHelp(packageCommand.Description, "Add a NuGet package reference to the project.");
             TestUtils.CheckSubCommands(packageCommand, new string[] { });
             TestUtils.CheckOptions(packageCommand,
@@ -133,14 +133,14 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_create_root_commands()
         {
-            var command = PreBinder.RootCommand<DotnetJackFruit>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
+            var command = PreBinder.RootCommand<DotnetJackFruit>((c, s) =>  HybridModelDescriptionFinder.Description(s));
             command.Should().NotBeNull();
         }
 
         [Fact]
         public void Can_retrieve_invocation()
         {
-            var rootCommand = PreBinder.RootCommand<DotnetHybrid>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
+            var rootCommand = PreBinder.RootCommand<DotnetHybrid>((c, s) =>  HybridModelDescriptionFinder.Description(s));
             var toolCommand = rootCommand.Children.OfType<Command>().Single(x => x.Name == "tool");
             toolCommand.Should().NotBeNull();
             var toolInstallCommand = toolCommand.Children.OfType<Command>().Single(x => x.Name == "install");
@@ -155,7 +155,7 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_get_report_on_command_structure()
         {
-            var rootCommand = PreBinder.RootCommand<DotnetHybrid>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
+            var rootCommand = PreBinder.RootCommand<DotnetHybrid>((c, s) =>  HybridModelDescriptionFinder.Description(s));
             var report = Reporter.ReportCommand(rootCommand);
             report.Should().NotBeNull();
         }

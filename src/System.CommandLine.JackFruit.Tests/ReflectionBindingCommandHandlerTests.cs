@@ -26,8 +26,8 @@ namespace System.CommandLine.JackFruit.Tests
             _console = new TestConsole();
             _testProgram = new TestProgram();
             var helpFinder = PreBinderContext.Current.DescriptionProvider;
-            helpFinder.AddStrategy<object>((c, s) => (false, DescriptionFinder.Description(s)));
-            helpFinder.AddStrategy<object>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
+            helpFinder.AddStrategy<object>((c, s) =>  DescriptionFinder.Description(s));
+            helpFinder.AddStrategy<object>((c, s) =>  HybridModelDescriptionFinder.Description(s));
             testParent = new Command("test");
         }
 
@@ -42,11 +42,10 @@ namespace System.CommandLine.JackFruit.Tests
             handler.AddBinding(FuncBinding<Fruit>.Create( methodInfo.GetParameters()[1], () => true));
             handler.AddBinding(FuncBinding<Fruit>.Create( methodInfo.GetParameters()[2], () => 1_000_000));
             handler.AddBinding(FuncBinding<Fruit>.Create( methodInfo.GetParameters()[3], () => "Cavendish"));
-            handler.BindActions.Should().HaveCount(4);
-            CheckFuncBindAction<Fruit>(handler.BindActions[0], methodInfo.GetParameters()[0], typeof(string));
-            CheckFuncBindAction<Fruit>(handler.BindActions[1], methodInfo.GetParameters()[1], typeof(bool));
-            CheckFuncBindAction<Fruit>(handler.BindActions[2], methodInfo.GetParameters()[2], typeof(int));
-            CheckFuncBindAction<Fruit>(handler.BindActions[3], methodInfo.GetParameters()[3], typeof(string));
+            CheckFuncBindAction<Fruit>(handler.Binder, methodInfo.GetParameters()[0], typeof(string));
+            CheckFuncBindAction<Fruit>(handler.Binder, methodInfo.GetParameters()[1], typeof(bool));
+            CheckFuncBindAction<Fruit>(handler.Binder, methodInfo.GetParameters()[2], typeof(int));
+            CheckFuncBindAction<Fruit>(handler.Binder, methodInfo.GetParameters()[3], typeof(string));
             var task = handler.InvokeAsync(null);
             task.Should().NotBeNull();
             Fruit.Captured.Should().Be(@"Melon = Water
@@ -75,11 +74,10 @@ Banana = Cavendish");
             handler.AddBinding(SymbolBinding.Create(methodInfo.GetParameters()[3], bananaOption));
             command.AddOptions(new Option[] { melonOption, berryOption, mangoOption, bananaOption });
 
-            handler.BindActions.Should().HaveCount(4);
-            CheckOptionAction(handler.BindActions[0], methodInfo.GetParameters()[0].Name, methodInfo.GetParameters()[0], typeof(string));
-            CheckOptionAction(handler.BindActions[1], methodInfo.GetParameters()[1].Name, methodInfo.GetParameters()[1], typeof(bool));
-            CheckOptionAction(handler.BindActions[2], methodInfo.GetParameters()[2].Name, methodInfo.GetParameters()[2], typeof(int));
-            CheckOptionAction(handler.BindActions[3], methodInfo.GetParameters()[3].Name, methodInfo.GetParameters()[3], typeof(string));
+            CheckOptionAction(handler.Binder, methodInfo.GetParameters()[0].Name, methodInfo.GetParameters()[0], typeof(string));
+            CheckOptionAction(handler.Binder, methodInfo.GetParameters()[1].Name, methodInfo.GetParameters()[1], typeof(bool));
+            CheckOptionAction(handler.Binder, methodInfo.GetParameters()[2].Name, methodInfo.GetParameters()[2], typeof(int));
+            CheckOptionAction(handler.Binder, methodInfo.GetParameters()[3].Name, methodInfo.GetParameters()[3], typeof(string));
 
             var parser = new CommandLineBuilder(command).Build();
             var parseResult = parser.Parse("melon Cantalope berry true mango 62 banana ohYeah");
@@ -103,11 +101,10 @@ Banana = ohYeah";
             handler.AddBinding(FuncBinding<FruitType>.Create(type.GetProperties()[1], () => true));
             handler.AddBinding(FuncBinding<FruitType>.Create(type.GetProperties()[2], () => 1_000_000));
             handler.AddBinding(FuncBinding<FruitType>.Create(type.GetProperties()[3], () => "Cavendish"));
-            handler.BindActions.Should().HaveCount(4);
-            CheckFuncBindAction<FruitType>(handler.BindActions[0], type.GetProperties()[0], typeof(string));
-            CheckFuncBindAction<FruitType>(handler.BindActions[1], type.GetProperties()[1], typeof(bool));
-            CheckFuncBindAction<FruitType>(handler.BindActions[2], type.GetProperties()[2], typeof(int));
-            CheckFuncBindAction<FruitType>(handler.BindActions[3], type.GetProperties()[3], typeof(string));
+            CheckFuncBindAction<FruitType>(handler.Binder, type.GetProperties()[0], typeof(string));
+            CheckFuncBindAction<FruitType>(handler.Binder, type.GetProperties()[1], typeof(bool));
+            CheckFuncBindAction<FruitType>(handler.Binder, type.GetProperties()[2], typeof(int));
+            CheckFuncBindAction<FruitType>(handler.Binder, type.GetProperties()[3], typeof(string));
             var task = handler.InvokeAsync(null);
             task.Should().NotBeNull();
             FruitType.Captured.Should().Be(@"Melon = Water
@@ -135,11 +132,10 @@ Banana = Cavendish");
             handler.AddBinding(SymbolBinding.Create(type.GetProperties()[3], bananaOption));
             command.AddOptions(new Option[] { melonOption, berryOption, mangoOption, bananaOption });
 
-            handler.BindActions.Should().HaveCount(4);
-            CheckOptionAction(handler.BindActions[0], type.GetProperties()[0].Name, type.GetProperties()[0], typeof(string));
-            CheckOptionAction(handler.BindActions[1], type.GetProperties()[1].Name, type.GetProperties()[1], typeof(bool));
-            CheckOptionAction(handler.BindActions[2], type.GetProperties()[2].Name, type.GetProperties()[2], typeof(int));
-            CheckOptionAction(handler.BindActions[3], type.GetProperties()[3].Name, type.GetProperties()[3], typeof(string));
+            CheckOptionAction(handler.Binder, type.GetProperties()[0].Name, type.GetProperties()[0], typeof(string));
+            CheckOptionAction(handler.Binder, type.GetProperties()[1].Name, type.GetProperties()[1], typeof(bool));
+            CheckOptionAction(handler.Binder, type.GetProperties()[2].Name, type.GetProperties()[2], typeof(int));
+            CheckOptionAction(handler.Binder, type.GetProperties()[3].Name, type.GetProperties()[3], typeof(string));
 
             var parser = new CommandLineBuilder(command).Build();
             var parseResult = parser.Parse("melon Cantalope berry true mango 62 banana ohYeah");
@@ -166,9 +162,10 @@ Banana = ohYeah";
             bindAction.ReturnType.Should().Be(returnType);
         }
 
-        private void CheckOptionAction(BindingBase  bindAction,
+        private void CheckOptionAction(Binder binder,
                 string name, object reflectionThing, Type returnType)
         {
+            var bindAction = binder.Find(reflectionThing);
             bindAction.Should().NotBeNull();
             var optionBindAction = bindAction as SymbolBinding;
             optionBindAction.Should().NotBeNull();
@@ -189,10 +186,11 @@ Banana = ohYeah";
             bindAction.ReturnType.Should().Be(returnType);
         }
 
-        private void CheckFuncBindAction<T>(BindingBase bindAction,
+        private void CheckFuncBindAction<T>(Binder binder,
                 object reflectionThing, Type returnType)
             where T : class
         {
+            var bindAction = binder.Find(reflectionThing);
             bindAction.Should().NotBeNull();
             var funcBindAction = bindAction as FuncBinding<T>;
             funcBindAction.Should().NotBeNull();

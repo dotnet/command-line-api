@@ -26,16 +26,28 @@ namespace System.CommandLine.JackFruit
 
     public abstract class ReflectionCommandHandler : ICommandHandler
     {
-        public List<BindingBase> BindActions { get; } = new List<BindingBase>();
+        public Binder Binder { get; } = new Binder();
 
         public static ReflectionCommandHandler Create(MethodInfo methodInfo)
         {
-            var declaringType = methodInfo.DeclaringType;
-            var genericReflectionType = typeof(ReflectionCommandHandler<>);
-            var constructedType = genericReflectionType.MakeGenericType(genericReflectionType);
-            var handler = (ReflectionCommandHandler)Activator.CreateInstance(constructedType);
-            handler.InvocationMethodInfo = methodInfo;
+            var handler = CreateInternal(methodInfo.DeclaringType, methodInfo);
             return handler;
+        }
+
+        public static ReflectionCommandHandler Create(Type declaringType)
+        {
+            var handler = CreateInternal(declaringType, null);
+            return handler;
+        }
+
+        private static ReflectionCommandHandler CreateInternal(Type declaringType, MethodInfo methodInfo)
+        {
+            var genericMethod = typeof(ReflectionCommandHandler).GetMethods()
+                                    .Where(x => x.Name == "Create" && x.IsGenericMethod)
+                                    .First();
+            var constructedMethod = genericMethod.MakeGenericMethod(declaringType);
+            var handler = constructedMethod.Invoke(null, new object[] { methodInfo });
+            return (ReflectionCommandHandler)handler;
         }
 
         public static ReflectionCommandHandler<TTarget> Create<TTarget>(MethodInfo methodInfo)
@@ -50,16 +62,21 @@ namespace System.CommandLine.JackFruit
                 where TTarget : class
         {
             var methodInfo = typeof(TTarget).GetMethod("InvokeAsync");
-            var handler = Activator.CreateInstance<ReflectionCommandHandler<TTarget>>();
-            handler.InvocationMethodInfo = methodInfo;
-            return handler;
-        }
+            methodInfo = methodInfo ?? typeof(TTarget).GetMethods()
+                                    .Where(x => x.Name.StartsWith("Invoke"))
+                                    .FirstOrDefault();
+            if (methodInfo == null)
+            {
+                return null;
+            }
+            return Create<TTarget>(methodInfo);
+        }   
 
-        public void AddBinding(BindingBase bindingAction) 
-            => BindActions.Add(bindingAction);
+        public void AddBinding(BindingBase bindingAction)
+            => Binder.AddBinding(bindingAction);
 
         public void AddBindings(IEnumerable<BindingBase> bindingActions)
-            => BindActions.AddRange(bindingActions);
+            => Binder.AddBindings(bindingActions);
 
         public abstract Task<int> InvokeAsync(InvocationContext context);
 
@@ -136,9 +153,7 @@ namespace System.CommandLine.JackFruit
             var values = new List<object>();
             foreach (var param in parameters)
             {
-                var binding = BindActions
-                                .Where(x => x.ReflectionThing.Equals(param))
-                                .LastOrDefault();
+                var binding = Binder.Find(param);
                 var value = binding == null
                             ? param.HasDefaultValue
                                 ? param.DefaultValue
@@ -195,9 +210,7 @@ namespace System.CommandLine.JackFruit
         {
             foreach (var prop in properties)
             {
-                var binding = BindActions
-                                .Where(x => x.ReflectionThing.Equals(prop))
-                                .LastOrDefault();
+                var binding = Binder.Find(prop);
 
                 if (binding != null)
                 {

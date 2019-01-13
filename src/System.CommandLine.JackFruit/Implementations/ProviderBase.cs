@@ -33,7 +33,7 @@ namespace System.CommandLine.JackFruit
         internal ProviderBase(StrategySet<TReturn> strategies)
             => this.strategies = strategies;
 
-        public IProvider<TReturn> AddStrategy<TSource>(Func<Command, TSource, (bool, TReturn)> strategy)
+        public IProvider<TReturn> AddStrategy<TSource>(Func<Command, TSource, TReturn> strategy)
         {
             strategies.Add(Strategy<TReturn>.CreateStrategy(strategy));
             return this as ProviderBase<TReturn>;

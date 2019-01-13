@@ -19,18 +19,26 @@ namespace System.CommandLine.JackFruit.Tests
 
         public static void CheckArguments(Command actual, IEnumerable<string> expected)
         {
-            CheckArguments(new List<Argument>() { actual.Argument }, expected);
+            // Backwards but effective
+            expected.Should().Contain(actual.Argument.Name);
         }
 
-        public static void CheckArguments(IEnumerable<Argument> actual, IEnumerable<string> expected)
+        public static void CheckArgument(Argument actual, string expected)
         {
-            actual.Should().NotBeNull();
-            expected.Count().Should().Be(actual.Count());
+            actual.Name.Should().Be(expected);
+        }
+
+        public static void CheckArgumentBindings(IEnumerable<SymbolBinding> list, IEnumerable<string> expected)
+        {
+            list.Should().NotBeNull();
+            expected.Count().Should().Be(list.Count());
             foreach (var s in expected)
             {
-                actual
-                   .Any(x => x.Name == s)
-                   .Should().BeTrue();
+                list
+                    .Select(x => x.Symbol)
+                    .OfType<Argument>()
+                    .Any(x => x.Name == s)
+                    .Should().BeTrue();
             }
         }
 
@@ -83,6 +91,15 @@ namespace System.CommandLine.JackFruit.Tests
                 option.Should().NotBeNull();
                 option.Argument.ArgumentType.Should().Be(opt.Type);
             }
+        }
+
+        public static void CheckOptions(IEnumerable<SymbolBinding> optionBindings, params (string Name, Type Type)[] optionInfos)
+        {
+            optionBindings.Should().NotBeNull();
+            optionBindings.Count().Should().Be(optionInfos.Length);
+            CheckOptions(optionBindings
+                        .Select(x => x.Symbol)
+                        .OfType<Option>());
         }
     }
 }

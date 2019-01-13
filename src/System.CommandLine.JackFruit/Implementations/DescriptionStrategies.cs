@@ -5,7 +5,7 @@ namespace System.CommandLine.JackFruit
 
     public static class DescriptionStrategies 
     {
-        public static (bool, string) FromAttribute(Command parent, object source)
+        public static  string FromAttribute(Command parent, object source)
         {
             switch (source)
             {
@@ -17,13 +17,13 @@ namespace System.CommandLine.JackFruit
                 case ParameterInfo parameterInfo:
                     return GetHelp(parameterInfo.GetCustomAttribute<HelpAttribute>(), parameterInfo.Name);
                 default:
-                    return (false, null);
+                    return  null;
             }
 
-            (bool, string) GetHelp(HelpAttribute attribute, string name)
+             string GetHelp(HelpAttribute attribute, string name)
                 => attribute != null
-                    ? (false, attribute.HelpText)
-                    : (false, null);
+                    ?  attribute.HelpText
+                    :  null;
         }
     }
 }

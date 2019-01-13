@@ -1,35 +1,52 @@
 ﻿using System.CommandLine.Invocation;
+using System.Linq;
 using System.Reflection;
 
 namespace System.CommandLine.JackFruit
 {
     public static class HandlerStrategies
     {
-        public static (bool, ICommandHandler) FromMethod(Command parent, MethodInfo methodInfo)
+        public static  ICommandHandler FromMethod(Command parent, MethodInfo methodInfo)
         {
-            return GetHandler(methodInfo.DeclaringType, methodInfo);
-
+            return  ReflectionCommandHandler.Create(methodInfo);
         }
 
-        public static (bool, ICommandHandler) FromInvokeOnType(Command parent, Type type)
+        public static  ICommandHandler FromType(Command parent, Type type)
         {
-            var invokeMethod = type.GetMethod("InvokeAsync");
-            return GetHandler(type, invokeMethod);
+            return  ReflectionCommandHandler.Create(type);
         }
 
-        public static (bool, ICommandHandler) GetHandler(Type type, MethodInfo methodInfo)
+        private static MethodInfo FindInvokeMethod(Type type)
         {
-            if(methodInfo == null)
+            var methods = type.GetMethods()
+                .Where(x => !x.IsSpecialName && x.DeclaringType != typeof(object));
+            if (methods.Count() <= 1)
             {
-                return (false, null);
+                return methods.FirstOrDefault();
             }
-            var typeBinder = methodInfo.IsStatic
-                                ? null
-                                : new TypeBinder(type);
-            // TODO: This directly access the constructor of TypeBindingCOmmandHandler, which was not intended
-            return type != null && methodInfo != null
-                    ? (false, new TypeCreationCommandHandler(methodInfo, typeBinder))
-                    : (false, null);
+            var invokeMethods = methods
+                            .Where(x => x.Name.StartsWith("Invoke"));
+            switch (invokeMethods.Count())
+            {
+                case 0:
+                    // there are methods, but none contain "Invoke"
+                    throw new InvalidOperationException("Cannot determine Invoke method");
+                case 1:
+                    return invokeMethods.First();
+                default:
+                    var method = invokeMethods.Where(x => x.Name == "InvokeAsync").FirstOrDefault();
+                    if (method != null)
+                    {
+                        return method;
+                    }
+                    method = invokeMethods.Where(x => x.Name == "Invoke").FirstOrDefault();
+                    if (method != null)
+                    {
+                        return method;
+                    }
+                    throw new InvalidOperationException("Cannot decide between ambiguous Invoke methods");
+            }
         }
+
     }
 }
