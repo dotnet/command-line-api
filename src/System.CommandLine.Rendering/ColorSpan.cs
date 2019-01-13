@@ -17,7 +17,7 @@ namespace System.CommandLine.Rendering
 
         public RgbColor RgbColor { get; }
 
-        protected internal static string GetName(RgbColor rgbColor)
+        protected static string GetName(RgbColor rgbColor)
         {
             return rgbColor?.ToString();
         }

@@ -3,62 +3,59 @@
 
 using System.CommandLine.Tests;
 using System.Drawing;
-using System.Linq;
 using FluentAssertions;
+using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.Rendering.Tests
 {
     public class TestTerminalTests : TerminalTests
     {
-        protected override ITerminal GetTerminal() => new TestTerminal();
+        protected TestTerminal _terminal = new TestTerminal();
+
+        protected override ITerminal GetTerminal() => _terminal;
 
         [Fact]
         public void When_CursorLeft_is_set_then_a_cursor_position_is_recorded()
         {
-            var terminal = new TestTerminal();
+            var terminal = (TestTerminal)GetTerminal();
 
             terminal.CursorLeft = 19;
 
             terminal.Events
-                   .OfType<TestTerminal.CursorPositionChanged>()
-                   .Select(e => e.Position)
-                   .Should()
-                   .BeEquivalentSequenceTo(new Point(19, 0));
+                    .OfType<TestTerminal.CursorPositionChanged>()
+                    .Select(e => e.Position)
+                    .Should()
+                    .BeEquivalentSequenceTo(new Point(19, 0));
         }
 
         [Fact]
         public void When_CursorTop_is_set_then_a_cursor_position_is_recorded()
         {
-            var terminal = new TestTerminal();
+            var terminal = (TestTerminal)GetTerminal();
 
             terminal.CursorTop = 12;
 
             terminal.Events
-                   .OfType<TestTerminal.CursorPositionChanged>()
-                   .Select(e => e.Position)
-                   .Should()
-                   .BeEquivalentSequenceTo(new Point(0, 12));
-        }
-
-        [Fact]
-        public void When_SetCursorLocation_is_called_then_a_single_cursor_position_is_recorded()
-        {
+                    .OfType<TestTerminal.CursorPositionChanged>()
+                    .Select(e => e.Position)
+                    .Should()
+                    .BeEquivalentSequenceTo(new Point(0, 12));
         }
 
         [Fact]
         public void When_ANSI_sequences_are_used_to_set_cursor_positions_then_CursorPositionChanged_events_are_recorded()
         {
-            var terminal = new TestTerminal();
+            var terminal = (TestTerminal)GetTerminal();
 
             terminal.Out.Write($"before move{Ansi.Cursor.Move.ToLocation(3, 5).EscapeSequence}after move");
 
             terminal.Events
-                   .Should()
-                   .BeEquivalentSequenceTo(
-                       new TestTerminal.ContentWritten("before move"),
-                       new TestTerminal.CursorPositionChanged(new Point(2, 4)),
-                       new TestTerminal.ContentWritten("after move"));
+                    .Should()
+                    .BeEquivalentSequenceTo(
+                        new TestTerminal.ContentWritten("before move"),
+                        new TestTerminal.CursorPositionChanged(new Point(2, 4)),
+                        new TestTerminal.ContentWritten("after move"));
         }
 
         [Theory]
@@ -74,7 +71,7 @@ namespace System.CommandLine.Rendering.Tests
             OutputMode outputMode,
             string threeLinesOfText)
         {
-            var console = new TestTerminal();
+            var console = (TestTerminal)GetTerminal();
 
             var renderer = new ConsoleRenderer(console, outputMode);
 
@@ -95,7 +92,7 @@ namespace System.CommandLine.Rendering.Tests
         [InlineData(OutputMode.NonAnsi)]
         public void Timeline_allows_replay_of_content_rendering_and_cursor_positions(OutputMode outputMode)
         {
-            var terminal = new TestTerminal();
+            var terminal = (TestTerminal)GetTerminal();
 
             var renderer = new ConsoleRenderer(terminal, outputMode);
 
@@ -104,19 +101,19 @@ namespace System.CommandLine.Rendering.Tests
             renderer.RenderToRegion("first line\nsecond line", region);
 
             terminal.Events
-                   .Where(e => !(e is TestTerminal.AnsiControlCodeWritten))
-                   .Should()
-                   .BeEquivalentSequenceTo(
-                       new TestTerminal.CursorPositionChanged(new Point(1, 3)),
-                       new TestTerminal.ContentWritten("first line "),
-                       new TestTerminal.CursorPositionChanged(new Point(1, 4)),
-                       new TestTerminal.ContentWritten("second line"));
+                    .Where(e => !(e is TestTerminal.AnsiControlCodeWritten))
+                    .Should()
+                    .BeEquivalentSequenceTo(
+                        new TestTerminal.CursorPositionChanged(new Point(1, 3)),
+                        new TestTerminal.ContentWritten("first line "),
+                        new TestTerminal.CursorPositionChanged(new Point(1, 4)),
+                        new TestTerminal.ContentWritten("second line"));
         }
 
         [Fact]
         public void ContentWritten_events_do_not_include_escape_sequences()
         {
-            var terminal = new TestTerminal();
+            var terminal = (TestTerminal)GetTerminal();
 
             var renderer = new ConsoleRenderer(terminal, OutputMode.Ansi);
 
@@ -125,9 +122,9 @@ namespace System.CommandLine.Rendering.Tests
             renderer.RenderToRegion($"{ForegroundColorSpan.Red()}text{ForegroundColorSpan.Reset()}", region);
 
             terminal.Events
-                   .Should()
-                   .Contain(e => e is TestTerminal.ContentWritten &&
-                                 ((TestTerminal.ContentWritten)e).Content == "text");
+                    .Should()
+                    .Contain(e => e is TestTerminal.ContentWritten &&
+                                  ((TestTerminal.ContentWritten)e).Content == "text");
         }
     }
 }

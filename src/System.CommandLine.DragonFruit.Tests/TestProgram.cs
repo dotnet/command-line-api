@@ -15,16 +15,15 @@ namespace System.CommandLine.DragonFruit.Tests
         /// Help for the test program
         /// </summary>
         /// <param name="name">Specifies the name option</param>
-        public void TestMain(string name)
+        /// <param name="console"></param>
+        public void TestMain(string name, IConsole console)
         {
-            Captured = name;
+            console.Out.Write(name);
         }
 
-        public void TestMainWithDefault(string name = "Bruce")
+        public void TestMainWithDefault(string name = "Bruce", IConsole console = null)
         {
-            Captured = name;
+            console?.Out.Write(name);
         }
-
-        public string Captured { get; private set; }
     }
 }

@@ -1,26 +1,22 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.IO;
-
 namespace System.CommandLine.Rendering
 {
-    public interface ITerminal :
-        System.CommandLine.ITerminal,
-        IDisposable
+    public interface ITerminal : IConsole
     {
-        Region GetRegion();
+        ConsoleColor BackgroundColor { get; set; }
 
-        void SetOut(TextWriter writer);
+        ConsoleColor ForegroundColor { get; set; }
+
+        void ResetColor();
+
+        void Clear();
 
         int CursorLeft { get; set; }
 
         int CursorTop { get; set; }
 
         void SetCursorPosition(int left, int top);
-      
-        bool IsVirtualTerminal { get; }
-
-        void TryEnableVirtualTerminal();
     }
 }

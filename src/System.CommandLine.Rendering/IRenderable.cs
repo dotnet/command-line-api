@@ -3,11 +3,10 @@
 
 namespace System.CommandLine.Rendering
 {
-    public enum OutputMode
+    internal interface IRenderable
     {
-        Auto,
-        NonAnsi,
-        Ansi,
-        File // TODO: (OutputMode)  PlainText?
+        OutputMode OutputMode { get; }
+
+        Region GetRegion();
     }
 }

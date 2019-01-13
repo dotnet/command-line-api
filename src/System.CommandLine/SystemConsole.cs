@@ -20,17 +20,5 @@ namespace System.CommandLine
         public bool IsOutputRedirected => Console.IsOutputRedirected;
 
         public bool IsInputRedirected => Console.IsInputRedirected;
-
-        public static IConsole Create()
-        {
-            if (Console.IsOutputRedirected)
-            {
-                return new SystemConsole();
-            }
-            else
-            {
-                return new SystemTerminal();
-            }
-        }
     }
 }
