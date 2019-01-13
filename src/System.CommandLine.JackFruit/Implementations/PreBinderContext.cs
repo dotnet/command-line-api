@@ -16,6 +16,7 @@ namespace System.CommandLine.JackFruit
         {
             get
             {
+                // TODO : It will set defaults if you try to set values - thus there is no value to lateness
                 if (current == null)
                 {
                     current = new PreBinderContext();
@@ -54,6 +55,10 @@ namespace System.CommandLine.JackFruit
             HandlerProvider = (HandlerProvider ?? ProviderBase.Create<ICommandHandler>())
                                                     .AddStrategy<MethodInfo>(HandlerStrategies.FromMethod)
                                                     .AddStrategy<Type>(HandlerStrategies.FromInvokeOnType);
+
+            ChildProvider = (ChildProvider ?? ProviderBase.Create<IEnumerable<ISymbolBase>>())
+                                                    .AddStrategy<MethodInfo>(ChildStrategies.FromMethod)
+                                                    .AddStrategy<Type>(ChildStrategies.FromType);
         }
 
         public IProvider<IEnumerable<Command>> SubCommandProvider { get; set; }
@@ -62,5 +67,6 @@ namespace System.CommandLine.JackFruit
         public IProvider<IEnumerable<Argument>> ArgumentProvider { get; set; }
         public IProvider<IEnumerable<Option>> OptionProvider { get; set; }
         public IProvider<ICommandHandler> HandlerProvider { get; set; }
+        public IProvider<IEnumerable<ISymbolBase>> ChildProvider { get; set; }
     }
 }

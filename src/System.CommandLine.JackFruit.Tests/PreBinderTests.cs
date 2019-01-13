@@ -14,7 +14,7 @@ namespace System.CommandLine.JackFruit.Tests
     {
         private readonly TestConsole _console;
         private readonly TestProgram _testProgram;
-        private readonly Command[] testParents;
+        private readonly Command testParent;
 
         public PreBinderTests()
         {
@@ -23,15 +23,15 @@ namespace System.CommandLine.JackFruit.Tests
             var helpFinder = PreBinderContext.Current.DescriptionProvider;
             helpFinder.AddStrategy<object>((c,s)=>(false, DescriptionFinder.Description(s)));
             helpFinder.AddStrategy<object>((c, s) => (false, HybridModelDescriptionFinder.Description(s)));
-            testParents = new Command[] { new Command("test") };
+            testParent =  new Command("test") ;
         }
 
         [Fact]
         public void Can_retrieve_alias_from_a_type_name()
         {
-            var aliases = PreBinderContext.Current.AliasProvider.Get(testParents, typeof(Tool));
+            var aliases = PreBinderContext.Current.AliasProvider.Get(testParent, typeof(Tool));
             TestUtils.CheckAliasList(aliases, new string[] { "tool" });
-            aliases = PreBinderContext.Current.AliasProvider.Get(testParents, typeof(ToolInstall));
+            aliases = PreBinderContext.Current.AliasProvider.Get(testParent, typeof(ToolInstall));
             // Without context, this is the correct answer
             TestUtils.CheckAliasList(aliases, new string[] { "tool-install" });
         }
@@ -39,28 +39,28 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_retrieve_help_for_command_from_description_file()
         {
-            var help = PreBinderContext.Current.DescriptionProvider.Get(testParents, typeof(Tool));
+            var help = PreBinderContext.Current.DescriptionProvider.Get(testParent, typeof(Tool));
             TestUtils.CheckHelp(help, "Install or manage tools");
         }
 
         [Fact]
         public void Can_retrieve_help_for_command_from_hybrid_description_file()
         {
-            var help = PreBinderContext.Current.DescriptionProvider.Get(testParents, typeof(DotnetHybrid.Tool));
+            var help = PreBinderContext.Current.DescriptionProvider.Get(testParent, typeof(DotnetHybrid.Tool));
             TestUtils.CheckHelp(help, "Install or manage tools");
         }
 
         [Fact]
         public void Can_retrieve_arguments_for_type()
         {
-            var arguments = PreBinderContext.Current.ArgumentProvider.Get(testParents, typeof(ToolInstall));
+            var arguments = PreBinderContext.Current.ArgumentProvider.Get(testParent, typeof(ToolInstall));
             TestUtils.CheckArguments(arguments, new List<string>() { "package-id" });
         }
 
         [Fact]
         public void Doesnt_find_arguments_when_there_arent_any()
         {
-            var arguments = PreBinderContext.Current.ArgumentProvider.Get(testParents, typeof(Tool));
+            var arguments = PreBinderContext.Current.ArgumentProvider.Get(testParent, typeof(Tool));
             TestUtils.CheckArguments(arguments, new List<string>());
         }
 
@@ -68,7 +68,7 @@ namespace System.CommandLine.JackFruit.Tests
         public void Can_retrieve_parent_arguments_for_subcommands_for_hybrid()
         {
             // SubCommands 
-            var commands = PreBinderContext.Current.SubCommandProvider.Get(testParents, typeof(DotnetHybrid));
+            var commands = PreBinderContext.Current.SubCommandProvider.Get(testParent, typeof(DotnetHybrid));
             var addCommand = commands.Where(x => x.Name == "add").First();
             TestUtils.CheckSubCommands(addCommand, "package", "reference");
             var packageCommand = addCommand.Children.OfType<Command>().Where(c => c.Name == "package").First();
@@ -78,28 +78,28 @@ namespace System.CommandLine.JackFruit.Tests
         [Fact]
         public void Can_retrieve_options_for_type()
         {
-            var options = PreBinderContext.Current.OptionProvider.Get(testParents, typeof(Tool));
+            var options = PreBinderContext.Current.OptionProvider.Get(testParent, typeof(Tool));
             TestUtils.CheckOptions(options, new (string, Type)[] { });
         }
 
         [Fact]
         public void Can_retrieve_handler_for_type()
         {
-            var handler = PreBinderContext.Current.OptionProvider.Get(testParents, typeof(ToolInstall));
+            var handler = PreBinderContext.Current.OptionProvider.Get(testParent, typeof(ToolInstall));
             handler.Should().NotBeNull();
         }
 
         [Fact]
         public void Can_retrieve_subCommands_for_type()
         {
-            var commands = PreBinderContext.Current.SubCommandProvider.Get(testParents, typeof(DotnetJackFruit));
+            var commands = PreBinderContext.Current.SubCommandProvider.Get(testParent, typeof(DotnetJackFruit));
             TestUtils.CheckSubCommands(commands, "add", "list", "remove", "sln", "tool");
         }
 
         [Fact]
         public void Can_retrieve_subCommands_via_methodInfo()
         {
-            var commands = PreBinderContext.Current.SubCommandProvider.Get(testParents, typeof(DotnetHybrid.Add));
+            var commands = PreBinderContext.Current.SubCommandProvider.Get(testParent, typeof(DotnetHybrid.Add));
             TestUtils.CheckSubCommands(commands, "package", "reference");
             var packageCommand = commands.Where(c => c.Name == "package").First();
             TestUtils.CheckAliasList(packageCommand.Aliases, new string[] { "package" });

@@ -5,27 +5,27 @@ namespace System.CommandLine.JackFruit
 {
     public interface IStrategy<TProduce>
     {
-        (bool EndEvaluation, TProduce Value) Do(Command[] parents, object source);
+        (bool EndEvaluation, TProduce Value) Do(Command parent, object source);
     }
 
     public class Strategy<TProduce>
     {
         public static Strategy<TProduce, TSource> CreateStrategy<TSource>(
-                  Func<Command[], TSource, (bool, TProduce)> operation)
+                  Func<Command, TSource, (bool, TProduce)> operation)
               => new Strategy<TProduce, TSource>(operation);
     }
 
     public class Strategy<TProduce, TSource> : IStrategy<TProduce>
     {
-        private Func<Command[], TSource, (bool, TProduce)> operation;
+        private Func<Command, TSource, (bool, TProduce)> operation;
 
-        internal Strategy(Func<Command[], TSource, (bool, TProduce)> operation)
+        internal Strategy(Func<Command, TSource, (bool, TProduce)> operation)
             => this.operation = operation;
 
         // If the object is a different type, just do nothing. 
-        (bool EndEvaluation, TProduce Value) IStrategy<TProduce>.Do(Command[] parents, object objSource)
+        (bool EndEvaluation, TProduce Value) IStrategy<TProduce>.Do(Command parent, object objSource)
         => (operation != null && objSource is TSource source)
-                ? operation(parents, source)
+                ? operation(parent, source)
                 : (false, default);
     }
 
@@ -43,8 +43,8 @@ namespace System.CommandLine.JackFruit
         public void Add(IStrategy<TProduce> strategy)
             => strategies.Add(strategy);
 
-        public TProduce Do(Command[] parents, object objSource)
-            => DoInternal(a => a.Do(parents, objSource));
+        public TProduce Do(Command parent, object objSource)
+            => DoInternal(a => a.Do(parent, objSource));
 
         protected virtual TProduce DoInternal(Func<IStrategy<TProduce>, (bool, TProduce)> operation)
         {

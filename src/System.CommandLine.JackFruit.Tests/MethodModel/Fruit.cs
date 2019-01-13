@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace System.CommandLine.JackFruit.Tests.MethodModel
+﻿namespace System.CommandLine.JackFruit.Tests.MethodModel
 {
     public class Fruit
     {
@@ -15,7 +11,7 @@ namespace System.CommandLine.JackFruit.Tests.MethodModel
             string banana)
         {
             Captured =
-                $@"Melon: {melon}
+                $@"Melon = {melon}
 Berry = {berry}
 Mango = {mango}
 Banana = {banana}";

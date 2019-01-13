@@ -7,31 +7,31 @@ namespace System.CommandLine.JackFruit
 {
     public static class OptionStrategies 
     {
-        // TODO: Do not add options for current items argument, or any parents arguments or options
-        public static (bool, IEnumerable<Option>) FromProperties(Command[] parents, Type baseType)
+        // TODO: Do not add options for current items argument, or any parent arguments or options
+        public static (bool, IEnumerable<Option>) FromProperties(Command parent, Type baseType)
         {
             var propertyInfos = baseType.GetProperties();
-            var filtered = propertyInfos.Where(p => parents.GetSymbolByName(p.Name, true) == null);
-            var options = filtered.Select(p => GetOption(parents, p));
+            var filtered = propertyInfos.Where(p => parent.GetSymbolByName(p.Name, true) == null);
+            var options = filtered.Select(p => GetOption(parent, p));
             return (false, options);
         }
 
-        public static (bool, IEnumerable<Option>) FromParameters(Command[] parents, MethodInfo method)
+        public static (bool, IEnumerable<Option>) FromParameters(Command parent, MethodInfo method)
         {
             var parameterInfos = method.GetParameters();
-            var filtered = parameterInfos.Where(p => parents.GetSymbolByName(p.Name, true) == null);
-            var options = filtered.Select(p => GetOption(parents, p));
+            var filtered = parameterInfos.Where(p => parent.GetSymbolByName(p.Name, true) == null);
+            var options = filtered.Select(p => GetOption(parent, p));
             return (false, options);
         }
 
-        public static Option GetOption(Command[] parents, object source)
+        public static Option GetOption(Command parent, object source)
         {
-            var names = PreBinderContext.Current.AliasProvider.Get(parents, source)
+            var names = PreBinderContext.Current.AliasProvider.Get(parent, source)
                             .Select((x, n) => x.StartsWith("-")
                                               ? x
                                               : (n == 0 ? "--" : "-") + x);
-            var arguments = PreBinderContext.Current.ArgumentProvider.Get(parents, source);
-            var help = PreBinderContext.Current.DescriptionProvider.Get(parents, source);
+            var arguments = PreBinderContext.Current.ArgumentProvider.Get(parent, source);
+            var help = PreBinderContext.Current.DescriptionProvider.Get(parent, source);
             // TODO: Support IsHidden
             // TODO: Harvest default values from properties and parameters
             return new Option(new ReadOnlyCollection<string>(names.ToList()), help, arguments.FirstOrDefault());

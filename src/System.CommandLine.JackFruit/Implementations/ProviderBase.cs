@@ -33,7 +33,7 @@ namespace System.CommandLine.JackFruit
         internal ProviderBase(StrategySet<TReturn> strategies)
             => this.strategies = strategies;
 
-        public IProvider<TReturn> AddStrategy<TSource>(Func<Command[], TSource, (bool, TReturn)> strategy)
+        public IProvider<TReturn> AddStrategy<TSource>(Func<Command, TSource, (bool, TReturn)> strategy)
         {
             strategies.Add(Strategy<TReturn>.CreateStrategy(strategy));
             return this as ProviderBase<TReturn>;
@@ -51,13 +51,13 @@ namespace System.CommandLine.JackFruit
             return this as ProviderBase<TReturn>;
         }
 
-        public TReturn Get<TSource>(Command[] parents, TSource source)
+        public TReturn Get<TSource>(Command parent, TSource source)
         {
             if (initialCheck != null)
             {
                 source = (TSource)initialCheck(source);
             }
-            var ret = strategies.Do(parents, source);
+            var ret = strategies.Do(parent, source);
             if (finalTransform != null)
             {
                 ret = finalTransform(ret);

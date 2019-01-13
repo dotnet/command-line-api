@@ -3,16 +3,12 @@
 
 namespace System.CommandLine
 {
-    public interface IArgument
+    public interface IArgument : ISymbolBase
     {
         IArgumentArity Arity { get; }
 
         bool HasDefaultValue { get; }
 
         object GetDefaultValue();
-
-        string Name { get; }
-
-        string Description { get; }
     }
 }

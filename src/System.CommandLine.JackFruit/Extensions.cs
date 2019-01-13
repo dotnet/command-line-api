@@ -5,20 +5,46 @@ namespace System.CommandLine.JackFruit
 {
     public static class Extensions
     {
-        public static T AddCommands<T>(this T command, IEnumerable<Command> commands)
-            where T : Command
+        // Probably somewhere general
+        public static object GetDefaultValue(this Type type)
         {
-            if (commands == null)
-            {
-                return command;
-            }
-            foreach (var subCommand in commands)
-            {
-                command.AddCommand(subCommand);
-            }
-            return command;
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
 
+
+        // I think these methods probably belong in CommandResult
+        public static object GetValue(this ParseResult parseResult, Option option)
+        {
+            var result = parseResult.CommandResult.Children
+                                   .Where(c => c.Symbol == option)
+                                   .FirstOrDefault();
+            switch (result)
+            {
+                case OptionResult optionResult:
+                    return optionResult.GetValueOrDefault();
+                case null:
+                    var optionType = option.Argument.ArgumentType == null
+                                    ? typeof(bool)
+                                    : option.Argument.ArgumentType;
+                    return optionType.GetDefaultValue();
+                default:
+                    throw new InvalidOperationException("Internal: Unknown result type");
+            }
+        }
+
+        public static object GetValue(this ParseResult parseResult, Argument argument)
+        {
+            // TODO: Change when we support multiple arguments
+            return parseResult.CommandResult.GetValueOrDefault();
+        }
+
+        public static object GetValue(this ParseResult parseResult, string name)
+            => parseResult.CommandResult.Children
+                  .Where(c => MatchName(c.Symbol.Name, name))
+                  .FirstOrDefault();
+
+        private static bool MatchName(string first, string second) 
+            => first.ToKebabCase() == second.ToKebabCase();
 
         public static Command AddOptions(this Command command, IEnumerable<Option> options)
         {
@@ -38,10 +64,9 @@ namespace System.CommandLine.JackFruit
                 ? name1 == name2
                 : name1.ToKebabCase().ToLowerInvariant() == name2.ToKebabCase().ToLowerInvariant();
 
-        public static object GetSymbolByName(this Command[] commands, string name, bool lookHigher)
+        public static object GetSymbolByName(this Command command, string name, bool lookHigher)
         {
-            object symbol = null;
-            foreach (var command in commands)
+            while (command != null)
             {
                 if (command.Argument.Name.IsNameEqual(name))
                 {
@@ -51,13 +76,14 @@ namespace System.CommandLine.JackFruit
                 {
                     return command.Children[name];
                 }
-                if (lookHigher && command.Parent != null)
+                if (!lookHigher)
                 {
-                    return GetSymbolByName(commands.Skip(1).ToArray(), name, lookHigher);
+                    break;
                 }
+                command = command.Parent;
             }
 
-            return symbol;
+            return null;
         }
     }
 }

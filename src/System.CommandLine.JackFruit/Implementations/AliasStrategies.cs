@@ -7,7 +7,7 @@ namespace System.CommandLine.JackFruit
 
     public static class AliasStrategies
     {
-        public static (bool, IEnumerable<string>) FromAttribute(Command[] parents, object source)
+        public static (bool, IEnumerable<string>) FromAttribute(Command parent, object source)
         {
             switch (source)
             {

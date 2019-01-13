@@ -5,13 +5,13 @@ namespace System.CommandLine.JackFruit
 {
     public static class HandlerStrategies
     {
-        public static (bool, ICommandHandler) FromMethod(Command[] parents, MethodInfo methodInfo)
+        public static (bool, ICommandHandler) FromMethod(Command parent, MethodInfo methodInfo)
         {
             return GetHandler(methodInfo.DeclaringType, methodInfo);
 
         }
 
-        public static (bool, ICommandHandler) FromInvokeOnType(Command[] parents, Type type)
+        public static (bool, ICommandHandler) FromInvokeOnType(Command parent, Type type)
         {
             var invokeMethod = type.GetMethod("InvokeAsync");
             return GetHandler(type, invokeMethod);
@@ -28,7 +28,7 @@ namespace System.CommandLine.JackFruit
                                 : new TypeBinder(type);
             // TODO: This directly access the constructor of TypeBindingCOmmandHandler, which was not intended
             return type != null && methodInfo != null
-                    ? (false, new TypeBindingCommandHandler(methodInfo, typeBinder))
+                    ? (false, new TypeCreationCommandHandler(methodInfo, typeBinder))
                     : (false, null);
         }
     }

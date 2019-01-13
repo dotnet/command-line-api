@@ -33,68 +33,63 @@ namespace System.CommandLine.JackFruit
         }
 
         public static (bool, IEnumerable<Command>) FromDerivedTypes(
-                  Command[] parents, Type baseType)
+                  Command parent, Type baseType)
         {
             var derivedTypes = DerivedTypeFinder.GetDerivedTypes(baseType)
-                                    ?.Select(t => GetCommand(parents, t))
+                                    ?.Select(t => GetCommand(parent, t))
                                     .ToList();
             return (false, derivedTypes);
         }
 
         public static (bool, IEnumerable<Command>) FromNestedTypes(
-                 Command[] parents, Type baseType)
+                 Command parent, Type baseType)
         {
             var nestedTypes = baseType.GetNestedTypes(Constants.PublicDeclaredInInstance)
-                                     ?.Select(t => GetCommand(parents, t))
+                                     ?.Select(t => GetCommand(parent, t))
                                      .ToList();
             return (false, nestedTypes);
         }
 
         // TODO: Filter this for Ignore methods
-        public static (bool, IEnumerable<Command>) FromMethods(Command[] parents, Type baseType)
+        public static (bool, IEnumerable<Command>) FromMethods(Command parent, Type baseType)
         {
             var methods = baseType.GetMethods(Reflection.Constants.PublicDeclaredInInstance)
                             .Where(m => !m.IsSpecialName);
             var commands = methods
-                            .Select(m => GetCommand(parents, m))
+                            .Select(m => GetCommand(parent, m))
                             .ToList();
             return (false, commands);
 
         }
 
-        public static Command GetCommand<T>(Command[] parents, T source)
+        public static Command GetCommand<T>(Command parent, T source)
         {
             // There are order dependencies in this method
-            var names = PreBinderContext.Current.AliasProvider.Get(parents, source);
+            var names = PreBinderContext.Current.AliasProvider.Get(parent, source);
 
-            var command = parents == null
+            var command = parent == null
                 ? new RootCommand(names?.First())
-                : new Command(names?.First(), PreBinderContext.Current.DescriptionProvider.Get(parents, source));
+                : new Command(names?.First(), PreBinderContext.Current.DescriptionProvider.Get(parent, source));
 
-            parents = parents == null
-                ? new Command[] { command }
-                : PrependParentsWithCommand();
+            if (parent != null)
+            {
+                parent.AddCommand(command);
+            }
 
-            var arguments = PreBinderContext.Current.ArgumentProvider.Get(parents, source);
+            var arguments = PreBinderContext.Current.ArgumentProvider.Get(command, source);
             if (arguments.Any())
             {
                 // TODO: When multi-arguments merged, update this
                 command.Argument = arguments.First();
             }
-            var options = PreBinderContext.Current.OptionProvider.Get(parents, source);
-            var handler = PreBinderContext.Current.HandlerProvider.Get(parents, source);
-            var subCommands = PreBinderContext.Current.SubCommandProvider.Get(parents, source);
+            var options = PreBinderContext.Current.OptionProvider.Get(command, source);
+            var handler = PreBinderContext.Current.HandlerProvider.Get(command, source);
+            var subCommands = PreBinderContext.Current.SubCommandProvider.Get(command, source);
             command.AddOptions(options);
-            command.AddCommands(subCommands);
+            // Commands add themselves, thus no command.AddCommands(subCommands);
             command.Handler = handler;
             return command;
 
-            Command[] PrependParentsWithCommand()
-            {
-                var parentList = parents.ToList();
-                parentList.Insert(0, command);
-                return parentList.ToArray();
-            }
         }
     }
 }

@@ -5,7 +5,7 @@ namespace System.CommandLine.JackFruit
 
     public static class DescriptionStrategies 
     {
-        public static (bool, string) FromAttribute(Command[] parents, object source)
+        public static (bool, string) FromAttribute(Command parent, object source)
         {
             switch (source)
             {

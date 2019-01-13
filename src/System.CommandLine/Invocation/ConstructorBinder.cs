@@ -9,7 +9,8 @@ namespace System.CommandLine.Invocation
     {
         private readonly ConstructorInfo _constructor;
 
-        public ConstructorBinder(ConstructorInfo constructor) : base(constructor)
+        public ConstructorBinder(ConstructorInfo constructor) 
+            : base(constructor)
         {
             _constructor = constructor;
         }
