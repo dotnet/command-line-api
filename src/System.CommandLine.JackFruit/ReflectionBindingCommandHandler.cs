@@ -26,7 +26,7 @@ namespace System.CommandLine.JackFruit
 
     public abstract class ReflectionCommandHandler : ICommandHandler
     {
-        public List<BindingActionBase> BindActions { get; } = new List<BindingActionBase>();
+        public List<BindingBase> BindActions { get; } = new List<BindingBase>();
 
         public static ReflectionCommandHandler Create(MethodInfo methodInfo)
         {
@@ -55,10 +55,10 @@ namespace System.CommandLine.JackFruit
             return handler;
         }
 
-        public void AddBinding(BindingActionBase bindingAction) 
+        public void AddBinding(BindingBase bindingAction) 
             => BindActions.Add(bindingAction);
 
-        public void AddBindings(IEnumerable<BindingActionBase> bindingActions)
+        public void AddBindings(IEnumerable<BindingBase> bindingActions)
             => BindActions.AddRange(bindingActions);
 
         public abstract Task<int> InvokeAsync(InvocationContext context);
@@ -149,15 +149,15 @@ namespace System.CommandLine.JackFruit
             return values.ToArray();
         }
 
-        private object ValueFromBinding(TTarget target, BindingActionBase binding)
+        private object ValueFromBinding(TTarget target, BindingBase binding)
         {
             object value;
             switch (binding)
             {
-                case FuncBindingAction<TTarget> funcBinding:
+                case FuncBinding<TTarget> funcBinding:
                     value = funcBinding.ValueFunc(context, target);
                     break;
-                case SymbolBindingAction symbolBinding:
+                case SymbolBinding symbolBinding:
                     switch (symbolBinding.Symbol)
                     {
                         case Option option:

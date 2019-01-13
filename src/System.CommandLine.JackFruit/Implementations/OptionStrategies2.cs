@@ -7,7 +7,7 @@ namespace System.CommandLine.JackFruit
 {
     public static class OptionStrategies2
     {
-        public static (bool, IEnumerable<SymbolBindingAction >) FromProperties(Command parent, Type baseType)
+        public static (bool, IEnumerable<SymbolBinding >) FromProperties(Command parent, Type baseType)
         {
             var propertyInfos = baseType.GetProperties();
             var filtered = propertyInfos.Where(p => parent.GetSymbolByName(p.Name, true) == null);
@@ -15,7 +15,7 @@ namespace System.CommandLine.JackFruit
             return (false, bindingActions);
         }
 
-        public static (bool, IEnumerable<SymbolBindingAction>) FromParameters(Command parent, MethodInfo method)
+        public static (bool, IEnumerable<SymbolBinding>) FromParameters(Command parent, MethodInfo method)
         {
             var parameterInfos = method.GetParameters();
             var filtered = parameterInfos.Where(p => parent.GetSymbolByName(p.Name, true) == null);
@@ -23,11 +23,11 @@ namespace System.CommandLine.JackFruit
             return (false, bindingActions);
         }
 
-        public static SymbolBindingAction GetBindingAction(Command parent, ParameterInfo source) 
-            => SymbolBindingAction.Create(source, GetOption(parent, source));
+        public static SymbolBinding GetBindingAction(Command parent, ParameterInfo source) 
+            => SymbolBinding.Create(source, GetOption(parent, source));
 
-        public static SymbolBindingAction GetBindingAction(Command parent, PropertyInfo source)
-            => SymbolBindingAction.Create(source, GetOption(parent, source));
+        public static SymbolBinding GetBindingAction(Command parent, PropertyInfo source)
+            => SymbolBinding.Create(source, GetOption(parent, source));
 
         public static Option GetOption(Command parent, object source)
         {

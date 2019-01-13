@@ -38,10 +38,10 @@ namespace System.CommandLine.JackFruit.Tests
             var methodInfo = type.GetMethod(nameof(Fruit.Bowl));
             var handler = ReflectionCommandHandler.Create<Fruit>(methodInfo);
             handler.Should().NotBeNull();
-            handler.AddBinding(FuncBindingAction<Fruit>.Create( methodInfo.GetParameters()[0], () => "Water"));
-            handler.AddBinding(FuncBindingAction<Fruit>.Create( methodInfo.GetParameters()[1], () => true));
-            handler.AddBinding(FuncBindingAction<Fruit>.Create( methodInfo.GetParameters()[2], () => 1_000_000));
-            handler.AddBinding(FuncBindingAction<Fruit>.Create( methodInfo.GetParameters()[3], () => "Cavendish"));
+            handler.AddBinding(FuncBinding<Fruit>.Create( methodInfo.GetParameters()[0], () => "Water"));
+            handler.AddBinding(FuncBinding<Fruit>.Create( methodInfo.GetParameters()[1], () => true));
+            handler.AddBinding(FuncBinding<Fruit>.Create( methodInfo.GetParameters()[2], () => 1_000_000));
+            handler.AddBinding(FuncBinding<Fruit>.Create( methodInfo.GetParameters()[3], () => "Cavendish"));
             handler.BindActions.Should().HaveCount(4);
             CheckFuncBindAction<Fruit>(handler.BindActions[0], methodInfo.GetParameters()[0], typeof(string));
             CheckFuncBindAction<Fruit>(handler.BindActions[1], methodInfo.GetParameters()[1], typeof(bool));
@@ -69,10 +69,10 @@ Banana = Cavendish");
             var berryOption = new Option("berry", "", new Argument<bool>());
             var mangoOption = new Option("mango", "", new Argument<int>());
             var bananaOption = new Option("banana", "", new Argument<string>());
-            handler.AddBinding(SymbolBindingAction.Create(methodInfo.GetParameters()[0], melonOption));
-            handler.AddBinding(SymbolBindingAction.Create(methodInfo.GetParameters()[1], berryOption));
-            handler.AddBinding(SymbolBindingAction.Create(methodInfo.GetParameters()[2], mangoOption));
-            handler.AddBinding(SymbolBindingAction.Create(methodInfo.GetParameters()[3], bananaOption));
+            handler.AddBinding(SymbolBinding.Create(methodInfo.GetParameters()[0], melonOption));
+            handler.AddBinding(SymbolBinding.Create(methodInfo.GetParameters()[1], berryOption));
+            handler.AddBinding(SymbolBinding.Create(methodInfo.GetParameters()[2], mangoOption));
+            handler.AddBinding(SymbolBinding.Create(methodInfo.GetParameters()[3], bananaOption));
             command.AddOptions(new Option[] { melonOption, berryOption, mangoOption, bananaOption });
 
             handler.BindActions.Should().HaveCount(4);
@@ -99,10 +99,10 @@ Banana = ohYeah";
             var type = typeof(FruitType);
             var handler = ReflectionCommandHandler.Create<FruitType>();
             handler.Should().NotBeNull();
-            handler.AddBinding(FuncBindingAction<FruitType>.Create(type.GetProperties()[0], () => "Water"));
-            handler.AddBinding(FuncBindingAction<FruitType>.Create(type.GetProperties()[1], () => true));
-            handler.AddBinding(FuncBindingAction<FruitType>.Create(type.GetProperties()[2], () => 1_000_000));
-            handler.AddBinding(FuncBindingAction<FruitType>.Create(type.GetProperties()[3], () => "Cavendish"));
+            handler.AddBinding(FuncBinding<FruitType>.Create(type.GetProperties()[0], () => "Water"));
+            handler.AddBinding(FuncBinding<FruitType>.Create(type.GetProperties()[1], () => true));
+            handler.AddBinding(FuncBinding<FruitType>.Create(type.GetProperties()[2], () => 1_000_000));
+            handler.AddBinding(FuncBinding<FruitType>.Create(type.GetProperties()[3], () => "Cavendish"));
             handler.BindActions.Should().HaveCount(4);
             CheckFuncBindAction<FruitType>(handler.BindActions[0], type.GetProperties()[0], typeof(string));
             CheckFuncBindAction<FruitType>(handler.BindActions[1], type.GetProperties()[1], typeof(bool));
@@ -129,10 +129,10 @@ Banana = Cavendish");
             var berryOption = new Option("berry", "", new Argument<bool>());
             var mangoOption = new Option("mango", "", new Argument<int>());
             var bananaOption = new Option("banana", "", new Argument<string>());
-            handler.AddBinding(SymbolBindingAction.Create(type.GetProperties()[0], melonOption));
-            handler.AddBinding(SymbolBindingAction.Create(type.GetProperties()[1], berryOption));
-            handler.AddBinding(SymbolBindingAction.Create(type.GetProperties()[2], mangoOption));
-            handler.AddBinding(SymbolBindingAction.Create(type.GetProperties()[3], bananaOption));
+            handler.AddBinding(SymbolBinding.Create(type.GetProperties()[0], melonOption));
+            handler.AddBinding(SymbolBinding.Create(type.GetProperties()[1], berryOption));
+            handler.AddBinding(SymbolBinding.Create(type.GetProperties()[2], mangoOption));
+            handler.AddBinding(SymbolBinding.Create(type.GetProperties()[3], bananaOption));
             command.AddOptions(new Option[] { melonOption, berryOption, mangoOption, bananaOption });
 
             handler.BindActions.Should().HaveCount(4);
@@ -153,7 +153,7 @@ Banana = ohYeah";
             Fruit.Captured.Should().Be(expected);
         }
 
-        private void CheckArgumentAction(SymbolBindingAction bindAction,
+        private void CheckArgumentAction(SymbolBinding bindAction,
                  ParameterInfo parameterInfo, Type returnType)
         {
             bindAction.Should().NotBeNull();
@@ -166,11 +166,11 @@ Banana = ohYeah";
             bindAction.ReturnType.Should().Be(returnType);
         }
 
-        private void CheckOptionAction(BindingActionBase  bindAction,
+        private void CheckOptionAction(BindingBase  bindAction,
                 string name, object reflectionThing, Type returnType)
         {
             bindAction.Should().NotBeNull();
-            var optionBindAction = bindAction as SymbolBindingAction;
+            var optionBindAction = bindAction as SymbolBinding;
             optionBindAction.Should().NotBeNull();
             optionBindAction.ReflectionThing.Should().Be(reflectionThing);
             optionBindAction.Symbol.Should().NotBeNull();
@@ -189,12 +189,12 @@ Banana = ohYeah";
             bindAction.ReturnType.Should().Be(returnType);
         }
 
-        private void CheckFuncBindAction<T>(BindingActionBase bindAction,
+        private void CheckFuncBindAction<T>(BindingBase bindAction,
                 object reflectionThing, Type returnType)
             where T : class
         {
             bindAction.Should().NotBeNull();
-            var funcBindAction = bindAction as FuncBindingAction<T>;
+            var funcBindAction = bindAction as FuncBinding<T>;
             funcBindAction.Should().NotBeNull();
             funcBindAction.ReflectionThing.Should().Be(reflectionThing);
             funcBindAction.ValueFunc.Should().NotBeNull();

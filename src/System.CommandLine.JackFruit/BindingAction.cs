@@ -6,9 +6,9 @@ using System.Text;
 
 namespace System.CommandLine.JackFruit
 {
-    public abstract class BindingActionBase
+    public abstract class BindingBase
     {
-        private protected BindingActionBase(object reflectionThing, Type returnType)
+        private protected BindingBase(object reflectionThing, Type returnType)
         {
             ReflectionThing = reflectionThing;
             ReturnType = returnType;
@@ -19,36 +19,36 @@ namespace System.CommandLine.JackFruit
 
     }
 
-    public class SymbolBindingAction : BindingActionBase
+    public class SymbolBinding : BindingBase
     {
-        internal SymbolBindingAction(object reflectionThing, Type returnType, ISymbolBase symbol)
+        internal SymbolBinding(object reflectionThing, Type returnType, ISymbolBase symbol)
             : base(reflectionThing, returnType)
             => Symbol = symbol;
 
         // In case of redundancy, last one wins. If
         public ISymbolBase Symbol { get; }
 
-        public static SymbolBindingAction Create(ParameterInfo paramInfo, ISymbolBase optionOrArgument)
-            => new SymbolBindingAction(paramInfo, paramInfo.ParameterType, optionOrArgument);
+        public static SymbolBinding Create(ParameterInfo paramInfo, ISymbolBase optionOrArgument)
+            => new SymbolBinding(paramInfo, paramInfo.ParameterType, optionOrArgument);
 
-        public static SymbolBindingAction Create(PropertyInfo propertyInfo, ISymbolBase optionOrArgument)
-            => new SymbolBindingAction(propertyInfo, propertyInfo.PropertyType, optionOrArgument);
+        public static SymbolBinding Create(PropertyInfo propertyInfo, ISymbolBase optionOrArgument)
+            => new SymbolBinding(propertyInfo, propertyInfo.PropertyType, optionOrArgument);
     }
 
-    public class FuncBindingAction<TTarget> : BindingActionBase
+    public class FuncBinding<TTarget> : BindingBase
     {
-        internal FuncBindingAction(object reflectionThing, Type returnType,
+        internal FuncBinding(object reflectionThing, Type returnType,
               Func<InvocationContext, TTarget, object> valueFunc)
                  : base(reflectionThing, returnType)
              => ValueFunc = valueFunc;
 
         public Func<InvocationContext, TTarget, object> ValueFunc { get; set; }
 
-        public static FuncBindingAction<TTarget> Create<TValue>(PropertyInfo propertyInfo, Func<TValue> valueFunc) 
-            => new FuncBindingAction<TTarget>(propertyInfo, typeof(TValue), (c, t) => valueFunc());
+        public static FuncBinding<TTarget> Create<TValue>(PropertyInfo propertyInfo, Func<TValue> valueFunc) 
+            => new FuncBinding<TTarget>(propertyInfo, typeof(TValue), (c, t) => valueFunc());
 
-        public static FuncBindingAction<TTarget> Create<TValue>(ParameterInfo parameterInfo, Func<TValue> valueFunc) 
-            => new FuncBindingAction<TTarget>(parameterInfo, typeof(TValue), (c, t) => valueFunc());
+        public static FuncBinding<TTarget> Create<TValue>(ParameterInfo parameterInfo, Func<TValue> valueFunc) 
+            => new FuncBinding<TTarget>(parameterInfo, typeof(TValue), (c, t) => valueFunc());
 
     }
 }
