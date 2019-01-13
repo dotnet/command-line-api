@@ -7,7 +7,6 @@ namespace System.CommandLine.JackFruit
 {
     public static class OptionStrategies 
     {
-        // TODO: Do not add options for current items argument, or any parent arguments or options
         public static (bool, IEnumerable<Option>) FromProperties(Command parent, Type baseType)
         {
             var propertyInfos = baseType.GetProperties();

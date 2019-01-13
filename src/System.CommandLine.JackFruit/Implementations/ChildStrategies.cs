@@ -7,6 +7,9 @@ namespace System.CommandLine.JackFruit
     {
         internal static (bool, IEnumerable<ISymbolBase>) FromMethod(Command command, MethodInfo methodInfo)
         {
+            //var parameterInfos = methodInfo.GetParameters();
+            //var options = filtered.Select(p => GetOption(parent, p));
+            //return (false, options);
             throw new NotImplementedException();
         }
 

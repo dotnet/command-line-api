@@ -26,6 +26,8 @@ namespace System.CommandLine.JackFruit
 
     public abstract class ReflectionCommandHandler : ICommandHandler
     {
+        public List<BindingActionBase> BindActions { get; } = new List<BindingActionBase>();
+
         public static ReflectionCommandHandler Create(MethodInfo methodInfo)
         {
             var declaringType = methodInfo.DeclaringType;
@@ -58,25 +60,6 @@ namespace System.CommandLine.JackFruit
         public abstract Task<int> InvokeAsync(InvocationContext context);
 
         protected MethodInfo InvocationMethodInfo { get; set; }
-
-        public class BindAction
-        {
-
-            internal BindAction(object reflectionThing, Type returnType)
-            {
-                ReflectionThing = reflectionThing;
-                ReturnType = returnType;
-            }
-
-            protected BindAction(object reflectionThing, Type returnType, ISymbolBase symbol)
-                : this(reflectionThing, returnType)
-                => Symbol = symbol;
-
-            // In case of redundancy, last one wins. If
-            public ISymbolBase Symbol { get; }
-            public object ReflectionThing { get; } // ParameterInfo, PropertyInfo or other
-            public Type ReturnType { get; }
-        }
     }
 
     public class ReflectionCommandHandler<TTarget> : ReflectionCommandHandler
@@ -87,46 +70,31 @@ namespace System.CommandLine.JackFruit
                                             | BindingFlags.Public
                                             | BindingFlags.NonPublic;
         private InvocationContext context;
-        public List<BindAction> BindActions { get; } = new List<BindAction>();
         public Func<InvocationContext, TTarget> CreateTargetFunc { get; set; }
-
-        public new class BindAction : ReflectionCommandHandler.BindAction
-        {
-            internal BindAction(object reflectionThing, Type returnType, ISymbolBase symbol)
-                : base(reflectionThing, returnType, symbol)
-            { }
-
-            internal BindAction(object reflectionThing, Type returnType,
-                  Func<InvocationContext, TTarget, object> valueFunc)
-             : base(reflectionThing, returnType)
-             => ValueFunc = valueFunc;
-
-            public Func<InvocationContext, TTarget, object> ValueFunc { get; set; }
-        }
 
         public ReflectionCommandHandler<TTarget> AddBinding<TValue>(PropertyInfo propertyInfo,
             Func<TValue> valueFunc)
         {
-            BindActions.Add(new BindAction(propertyInfo, typeof(TValue), (c, t) => valueFunc()));
+            BindActions.Add(new FuncBindingAction<TTarget>(propertyInfo, typeof(TValue), (c, t) => valueFunc()));
             return this;
         }
 
         public ReflectionCommandHandler<TTarget> AddBinding<TValue>(ParameterInfo parameterInfo,
             Func<TValue> valueFunc)
         {
-            BindActions.Add(new BindAction(parameterInfo, typeof(TValue), (c, t) => valueFunc()));
+            BindActions.Add(new FuncBindingAction<TTarget>(parameterInfo, typeof(TValue), (c, t) => valueFunc()));
             return this;
         }
 
         public ReflectionCommandHandler<TTarget> AddBinding(ParameterInfo paramInfo, ISymbolBase optionOrArgument)
         {
-            BindActions.Add(new BindAction(paramInfo, paramInfo.ParameterType, optionOrArgument));
+            BindActions.Add(new SymbolBindingAction(paramInfo, paramInfo.ParameterType, optionOrArgument));
             return this;
         }
 
         public ReflectionCommandHandler<TTarget> AddBinding(PropertyInfo propertyInfo, ISymbolBase optionOrArgument)
         {
-            BindActions.Add(new BindAction(propertyInfo, propertyInfo.PropertyType, optionOrArgument));
+            BindActions.Add(new SymbolBindingAction(propertyInfo, propertyInfo.PropertyType, optionOrArgument));
             return this;
         }
 
@@ -203,30 +171,29 @@ namespace System.CommandLine.JackFruit
             return values.ToArray();
         }
 
-        private object ValueFromBinding(TTarget target, BindAction binding)
+        private object ValueFromBinding(TTarget target, BindingActionBase binding)
         {
             object value;
-            if (binding.ValueFunc != null)
+            switch (binding)
             {
-                value = binding.ValueFunc(context, target);
-            }
-            else if (binding.Symbol != null)
-            {
-                switch (binding.Symbol)
-                {
-                    case Option option:
-                        value = context.ParseResult.GetValue(option);
-                        break;
-                    case Argument argument:
-                        value = context.ParseResult.GetValue(argument);
-                        break;
-                    default:
-                        throw new InvalidOperationException("Internal: Unknown symbol type encountered");
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException("Internal: Symbol or value func missing in BindAction");
+                case FuncBindingAction<TTarget> funcBinding:
+                    value = funcBinding.ValueFunc(context, target);
+                    break;
+                case SymbolBindingAction symbolBinding:
+                    switch (symbolBinding.Symbol)
+                    {
+                        case Option option:
+                            value = context.ParseResult.GetValue(option);
+                            break;
+                        case Argument argument:
+                            value = context.ParseResult.GetValue(argument);
+                            break;
+                        default:
+                            throw new InvalidOperationException("Internal: Unknown symbol type encountered");
+                    }
+                    break;
+                default:
+                    throw new InvalidOperationException("Internal: Symbol or value func missing in BindAction");
             }
             // TODO: Handle conversion errors - needs to propagate so needs thought
             var typedValue = Convert.ChangeType(value, binding.ReturnType);
