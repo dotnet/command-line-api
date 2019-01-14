@@ -173,7 +173,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task When_help_builder_factory_is_specified_it_is_used_to_create_then_help_builder()
+        public async Task When_help_builder_factory_is_specified_it_is_used_to_create_the_help_builder()
         {
             bool handlerWasCalled = false;
             bool factoryWasCalled = false;
