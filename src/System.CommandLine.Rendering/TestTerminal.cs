@@ -36,7 +36,7 @@ namespace System.CommandLine.Rendering
 
         private void OnCharWrittenToOut(char c)
         {
-            if (VirtualTerminalMode)
+            if (IsVirtualTerminalModeEnabled)
             {
                 if (_ansiCodeBuffer.Length == 0 &&
                     c != Ansi.Esc[0])
@@ -207,7 +207,7 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public bool VirtualTerminalMode { get; set; } = true;
+        public bool IsVirtualTerminalModeEnabled { get; set; } = true;
 
         public IEnumerable<TextRendered> RenderOperations()
         {
