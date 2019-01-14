@@ -29,5 +29,43 @@
                 renderer.RenderToRegion(span, region ?? t.GetRegion());
             }
         }
+
+        public static ITerminal GetTerminal(
+            this IConsole console,
+            bool preferVirtualTerminal = true,
+            OutputMode outputMode = OutputMode.Auto)
+        {
+            if (console == null)
+            {
+                throw new ArgumentNullException(nameof(console));
+            }
+
+            if (console is ITerminal t)
+            {
+                return t;
+            }
+
+            ITerminal terminal;
+
+            if (preferVirtualTerminal &&
+                VirtualTerminalMode.TryEnable() is VirtualTerminalMode virtualTerminalMode &&
+                virtualTerminalMode.IsEnabled)
+            {
+                terminal = new VirtualTerminal(
+                    console,
+                    virtualTerminalMode);
+            }
+            else
+            {
+                terminal = new SystemConsoleTerminal(console);
+            }
+
+            if (terminal is TerminalBase terminalBase)
+            {
+                terminalBase.OutputMode = outputMode;
+            }
+
+            return terminal;
+        }
     }
 }
