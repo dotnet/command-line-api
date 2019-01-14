@@ -178,9 +178,9 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
                               {
-                                  new Option(prefix + "a", "", new Argument<string>()),
+                                  new Option(prefix + "a", "", new Argument<string>() { Name = "a" }),
                                   new Option(prefix + "b"),
-                                  new Option(prefix + "c", "", new Argument<string>())
+                                  new Option(prefix + "c", "", new Argument<string>() { Name = "c"})
                               };
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 

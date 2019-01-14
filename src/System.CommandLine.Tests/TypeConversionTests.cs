@@ -138,7 +138,7 @@ namespace System.CommandLine.Tests
                                       new[]
                                       {
                                           new Option("-x", "",
-                                                     new Argument<int>(123))
+                                                     new Argument<int>(123) { Name = "argx" })
                                       });
 
             var result = command.Parse("something");
@@ -153,7 +153,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("something", "", new[] {
                 new Option("-x", "",
-                           new Argument<int>( 123))
+                           new Argument<int>(123) { Name = "argx" })
             });
 
             var result = command.Parse("something -x 456");
@@ -172,7 +172,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command", "", new[] {
                 new Option("-x", "",
-                           new Argument<bool>(false))
+                           new Argument<bool>(false) { Name = "argx" })
             });
 
             command
@@ -197,7 +197,7 @@ namespace System.CommandLine.Tests
                             }
 
                             return ArgumentParseResult.Failure($"'{symbol.Token}' is not an integer");
-                        }))
+                        }) { Name = "one" })
             });
 
             var result = command.Parse("the-command -o not-an-int");
@@ -222,6 +222,7 @@ namespace System.CommandLine.Tests
                     "",
                     new Argument
                     {
+                        Name = "x",
                         Arity = ArgumentArity.ZeroOrOne
                     })});
 
@@ -242,6 +243,7 @@ namespace System.CommandLine.Tests
                     "",
                     new Argument
                     {
+                        Name = "argx",
                         Arity = ArgumentArity.ExactlyOne
                     })});
 
@@ -259,6 +261,7 @@ namespace System.CommandLine.Tests
             var option = new Option("-x", "",
                                     new Argument
                                     {
+                                        Name = "argx",
                                         Arity = ArgumentArity.ExactlyOne
                                     });
 
@@ -287,6 +290,7 @@ namespace System.CommandLine.Tests
                     "",
                     new Argument
                     {
+                        Name = "argx",
                         Arity = ArgumentArity.ZeroOrMore
                     })
             });
@@ -311,6 +315,7 @@ namespace System.CommandLine.Tests
                 "",
                 new Argument
                 {
+                    Name = "argx",
                     Arity = ArgumentArity.ZeroOrMore
                 });
 
@@ -341,6 +346,7 @@ namespace System.CommandLine.Tests
                 "",
                 new Argument
                 {
+                    Name = "argx",
                     Arity = ArgumentArity.OneOrMore
                 });
 
@@ -369,6 +375,7 @@ namespace System.CommandLine.Tests
                     "",
                     new Argument
                     {
+                        Name = "argx",
                         Arity = ArgumentArity.ZeroOrMore
                     })
             });
@@ -388,6 +395,7 @@ namespace System.CommandLine.Tests
                     "-x", "",
                     new Argument
                     {
+                        Name = "argx",
                         Arity = ArgumentArity.ZeroOrMore
                     })
             });
@@ -441,7 +449,7 @@ namespace System.CommandLine.Tests
                                       {
                                           new Option(
                                               "-x", "",
-                                              new Argument<string>("123"))
+                                              new Argument<string>("123") { Name = "argx" })
                                       });
 
             var result = command.Parse("something");
@@ -462,7 +470,7 @@ namespace System.CommandLine.Tests
                 {
                     new Option(
                         "-x", "",
-                        new Argument<int>(123))
+                        new Argument<int>(123) { Name = "argx" })
                 });
 
             var result = command.Parse("something");
@@ -485,7 +493,7 @@ namespace System.CommandLine.Tests
                 {
                     new Option(
                         "-x", "",
-                        new Argument<DirectoryInfo>(directoryInfo))
+                        new Argument<DirectoryInfo>(directoryInfo) { Name = "argx" })
                 });
 
             var result = command.Parse("something");
@@ -521,7 +529,7 @@ namespace System.CommandLine.Tests
                                       {
                                           new Option(
                                               "-x", "",
-                                              new Argument<string>("123"))
+                                              new Argument<string>("123") { Name = "argx" })
                                       });
 
             var result = command.Parse("something");
@@ -554,7 +562,7 @@ namespace System.CommandLine.Tests
                     new Option(
                         "-x",
                         "",
-                        new Argument<int>(123))
+                        new Argument<int>(123) { Name = "argx" })
                 });
 
             var result = command.Parse("something -x 456");
@@ -585,7 +593,10 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command", argument: new Argument<string>());
 
             command.AddOption(new Option("-x",
-                                         argument: new Argument<string>(_ => ArgumentParseResult.Failure("No thank you"))));
+                                         argument: new Argument<string>(_ => ArgumentParseResult.Failure("No thank you"))
+                                         {
+                                             Name = "argx"
+                                         }));
 
             var result = command.Parse("the-command -x nope yep");
 

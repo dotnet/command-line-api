@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests
         public async Task When_there_are_no_errors_then_parse_directive_sets_exit_code_0()
         {
             var command = new RootCommand();
-            command.AddOption(new Option("-x", argument: new Argument<int>()));
+            command.AddOption(new Option("-x", argument: new Argument<int>() { Name = "x" }));
 
             var exitCode = await command.InvokeAsync("[parse] -x 123");
 
@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests
         public async Task When_there_are_errors_then_parse_directive_sets_exit_code_1()
         {
             var command = new RootCommand();
-            command.AddOption(new Option("-x", argument: new Argument<int>()));
+            command.AddOption(new Option("-x", argument: new Argument<int>() { Name = "x" }));
 
             var exitCode = await command.InvokeAsync("[parse] -x not-an-int");
 

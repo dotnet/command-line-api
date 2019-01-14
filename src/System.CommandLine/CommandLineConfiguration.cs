@@ -36,6 +36,17 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
+                foreach (var childSymbol in symbol.Children)
+                {
+                    if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0)
+                    {
+                        if (string.IsNullOrEmpty(childSymbol.Argument.Name))
+                        {
+                            throw new ArgumentException("Name must be set for command arguments.");
+                        }
+                    }
+                }
+
                 foreach (var alias in symbol.RawAliases)
                 {
                     foreach (var delimiter in ArgumentDelimiters)

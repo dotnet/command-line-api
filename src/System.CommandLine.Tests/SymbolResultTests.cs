@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command", "", new[] {
                 new Option(
                     new[] { "-c", "--count" }, "",
-                    new Argument<int>(5))
+                    new Argument<int>(5) { Name = "count" })
             });
 
             var result = command.Parse("the-command");

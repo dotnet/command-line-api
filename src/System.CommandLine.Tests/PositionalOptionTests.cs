@@ -170,7 +170,7 @@ namespace System.CommandLine.Tests
         {
             var result = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddOption(new Option("-a", "", new Argument<string>()))
+                         .AddOption(new Option("-a", "", new Argument<string>() { Name = "a" }))
                          .Build()
                          .Parse("value-for-a");
 
@@ -182,9 +182,9 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
                               {
-                                  new Option("-a", "", new Argument<string>()),
+                                  new Option("-a", "", new Argument<string>() { Name = "a" }),
                                   new Option("-b"),
-                                  new Option("-c", "", new Argument<string>())
+                                  new Option("-c", "", new Argument<string>() { Name = "c" })
                               };
             var result = new CommandLineBuilder(rootCommand)
                          .EnablePositionalOptions()
@@ -201,9 +201,9 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
                               {
-                                  new Option("-a", "", new Argument<string>()),
+                                  new Option("-a", "", new Argument<string>() { Name = "a" }),
                                   new Option("-b"),
-                                  new Option("-c", "", new Argument<string>())
+                                  new Option("-c", "", new Argument<string>() { Name = "c" })
                               };
             var result = new CommandLineBuilder(rootCommand)
                          .EnablePositionalOptions()
@@ -220,9 +220,9 @@ namespace System.CommandLine.Tests
         {
             var result = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddOption(new Option("-a", "", new Argument<string>()))
+                         .AddOption(new Option("-a", "", new Argument<string>() { Name = "a" }))
                          .AddOption(new Option("-b"))
-                         .AddOption(new Option("-c", "", new Argument<string>()))
+                         .AddOption(new Option("-c", "", new Argument<string>() { Name = "c" }))
                          .Build()
                          .Parse("-c value-for-c value-for-a");
 

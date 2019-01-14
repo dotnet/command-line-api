@@ -95,12 +95,14 @@ namespace System.CommandLine.Tests
             var outer = new Command("outer", 
                 argument: new Argument
                           {
+                              Name = "outer",
                               Arity = ArgumentArity.ExactlyOne
                           });
             outer.AddCommand(
                 new Command("inner",
                             argument: new Argument
                                       {
+                                          Name = "inner",
                                           Arity = ArgumentArity.ZeroOrMore
                                       }));
 
