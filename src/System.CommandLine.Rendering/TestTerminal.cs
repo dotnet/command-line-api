@@ -36,28 +36,35 @@ namespace System.CommandLine.Rendering
 
         private void OnCharWrittenToOut(char c)
         {
-            if (_ansiCodeBuffer.Length == 0 &&
-                c != Ansi.Esc[0])
+            if (VirtualTerminalMode)
             {
-                _outBuffer.Append(c);
+                if (_ansiCodeBuffer.Length == 0 &&
+                    c != Ansi.Esc[0])
+                {
+                    _outBuffer.Append(c);
+                }
+                else
+                {
+                    _ansiCodeBuffer.Append(c);
+
+                    if (char.IsLetter(c))
+                    {
+                        // terminate the in-progress ANSI sequence
+
+                        var escapeSequence = _ansiCodeBuffer.ToString();
+
+                        _ansiCodeBuffer.Clear();
+
+                        RecordEvent(
+                            new AnsiControlCodeWritten(
+                                new AnsiControlCode(
+                                    escapeSequence)));
+                    }
+                }
             }
             else
             {
-                _ansiCodeBuffer.Append(c);
-
-                if (char.IsLetter(c))
-                {
-                    // terminate the in-progress ANSI sequence
-
-                    var escapeSequence = _ansiCodeBuffer.ToString();
-
-                    _ansiCodeBuffer.Clear();
-
-                    RecordEvent(
-                        new AnsiControlCodeWritten(
-                            new AnsiControlCode(
-                                escapeSequence)));
-                }
+                _outBuffer.Append(c);
             }
         }
 
@@ -199,6 +206,8 @@ namespace System.CommandLine.Rendering
                 RecordEvent(new ForegroundColorChanged(value));
             }
         }
+
+        public bool VirtualTerminalMode { get; set; } = true;
 
         public IEnumerable<TextRendered> RenderOperations()
         {

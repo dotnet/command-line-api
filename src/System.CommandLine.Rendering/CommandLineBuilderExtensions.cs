@@ -19,7 +19,7 @@ namespace System.CommandLine.Rendering
             return builder;
         }
 
-        private static ITerminal GetTerminal(
+        public static ITerminal GetTerminal(
             this IConsole console,
             bool preferVirtualTerminal = true,
             OutputMode outputMode = OutputMode.Auto)
