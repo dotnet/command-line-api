@@ -9,6 +9,36 @@ namespace System.CommandLine
 {
     public static class ParseResultExtensions
     {
+        public static object GetDefaultValue(this Type type)
+        {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
+        }
+
+        public static object GetValue(this ParseResult parseResult, Option option)
+        {
+            var result = parseResult.CommandResult.Children
+                                   .Where(c => c.Symbol == option)
+                                   .FirstOrDefault();
+            switch (result)
+            {
+                case OptionResult optionResult:
+                    return optionResult.GetValueOrDefault();
+                case null:
+                    var optionType = option.Argument.ArgumentType == null
+                                    ? typeof(bool)
+                                    : option.Argument.ArgumentType;
+                    return optionType.GetDefaultValue();
+                default:
+                    throw new InvalidOperationException("Internal: Unknown result type");
+            }
+        }
+
+        public static object GetValue(this ParseResult parseResult, Argument argument)
+        {
+            // TODO: Change when we support multiple arguments
+            return parseResult.CommandResult.GetValueOrDefault();
+        }
+
         public static string TextToMatch(
             this ParseResult source,
             int? position = null)

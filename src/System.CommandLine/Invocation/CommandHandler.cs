@@ -18,7 +18,7 @@ namespace System.CommandLine.Invocation
 
         public static ICommandHandler Create<T>(
             Action<T> action) =>
-            new MethodBindingCommandHandler(action);
+            ReflectionCommandHandler.Create(action.Method, action.Target);
 
         public static ICommandHandler Create<T1, T2>(
             Action<T1, T2> action) =>
