@@ -13,7 +13,7 @@ namespace System.CommandLine
 
         private ValidationMessages _validationMessages = ValidationMessages.Instance;
 
-        protected internal SymbolResult(
+        protected SymbolResult(
             ISymbol symbol, 
             string token, 
             CommandResult parent = null)
@@ -43,8 +43,6 @@ namespace System.CommandLine
         public ISymbol Symbol { get; }
 
         public string Token { get; }
-
-        public IReadOnlyCollection<string> Aliases => Symbol.Aliases;
 
         public bool HasAlias(string alias) => Symbol.HasAlias(alias);
 
@@ -81,26 +79,24 @@ namespace System.CommandLine
                 return null;
             }
 
-            if (!OptionWasRespecified &&
-                Symbol is IOption)
+            if (!OptionWasRespecified)
             {
-                // Options must be respecified in order to accept additional arguments. This is
-                // not the case for command.
-                return null;
-            }
-
-            foreach (var child in Children)
-            {
-                var a = child.TryTakeToken(token);
-                if (a != null)
+                if (Symbol is IOption)
                 {
-                    return a;
+                    // Options must be respecified in order to accept additional arguments. This is not the case for command.
+                    return null;
+                }
+           
+                if (IsArgumentLimitReached)
+                {
+                    return null;
                 }
             }
 
             _arguments.Add(token.Value);
 
             var parseError = Validate();
+
             if (parseError == null)
             {
                 OptionWasRespecified = false;
@@ -109,11 +105,12 @@ namespace System.CommandLine
 
             if (!parseError.CanTokenBeRetried)
             {
+                OptionWasRespecified = false;
                 return this;
             }
 
             _arguments.RemoveAt(_arguments.Count - 1);
-            
+
             return null;
         }
 
@@ -155,6 +152,8 @@ namespace System.CommandLine
             }
             protected set => _result = value;
         }
+
+        internal bool UseDefaultValue { get; set; }
 
         public override string ToString() => $"{GetType().Name}: {Token}";
     }

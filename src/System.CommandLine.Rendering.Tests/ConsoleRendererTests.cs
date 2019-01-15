@@ -265,9 +265,9 @@ namespace System.CommandLine.Rendering.Tests
             _terminal.Events
                     .Should()
                     .BeEquivalentSequenceTo(
-                        new TestTerminal.CursorPositionChanged(new Point(0, 0)),
-                        new TestTerminal.ContentWritten("hello"),
-                        new TestTerminal.AnsiControlCodeWritten(Ansi.Color.Foreground.Default),
+                        new CursorPositionChanged(new Point(0, 0)),
+                        new ContentWritten("hello"),
+                        new AnsiControlCodeWritten(Ansi.Color.Foreground.Default),
                         new TestTerminal.AnsiControlCodeWritten(Ansi.Color.Background.Default));
         }
 

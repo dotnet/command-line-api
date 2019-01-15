@@ -104,8 +104,13 @@ namespace System.CommandLine.Rendering
                                                originalInputMode);
             }
 
+            var terminalName = Environment.GetEnvironmentVariable("TERM");
+
+            var isXterm = !string.IsNullOrEmpty(terminalName)
+                          && terminalName.StartsWith("xterm", StringComparison.OrdinalIgnoreCase);
+
             // TODO: Is this a reasonable default?
-            return new VirtualTerminalMode(true);
+            return new VirtualTerminalMode(isXterm);
         }
 
         private void RestoreConsoleMode()

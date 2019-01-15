@@ -13,7 +13,7 @@ namespace System.CommandLine
         private string _longestAlias = "";
         private string _specifiedName;
 
-        protected internal Symbol(
+        protected Symbol(
             IReadOnlyCollection<string> aliases,
             string description = null,
             Argument argument = null,
@@ -68,7 +68,7 @@ namespace System.CommandLine
             }
         }
 
-        public Command Parent { get; private set; }
+        public Command Parent { get; private protected set; }
 
         private protected void AddSymbol(Symbol symbol)
         {

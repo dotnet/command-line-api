@@ -44,7 +44,7 @@ namespace System.CommandLine.Rendering.Views
                 return new Size(0, 0);
             }
 
-            return renderer.MeasureSpan(Span, maxSize);
+            return ConsoleRenderer.MeasureSpan(Span, maxSize);
         }
 
         protected void Observe<T>(IObservable<T> observable, Func<T, FormattableString> formatProvider)

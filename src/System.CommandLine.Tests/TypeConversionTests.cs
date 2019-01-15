@@ -475,7 +475,46 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_with_a_default_value_can_be_converted_to_the_requested_type()
+        public void A_default_value_with_a_custom_constructor_can_be_specified_for_an_option_argument()
+        {
+            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+            var command = new Command(
+                "something", "",
+                new[]
+                {
+                    new Option(
+                        "-x", "",
+                        new Argument<DirectoryInfo>(directoryInfo))
+                });
+
+            var result = command.Parse("something");
+
+            var option = result.CommandResult["x"];
+
+            option.GetValueOrDefault<DirectoryInfo>().Should().Be(directoryInfo);
+        }
+
+        [Fact]
+        public void A_default_value_with_a_custom_constructor_can_be_specified_for_a_command_argument()
+        {
+            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+            var command = new Command(
+                "something", "",
+                argument: new Argument<DirectoryInfo>(directoryInfo));
+
+            var result = command.Parse("something");
+
+            result.Errors.Should().BeEmpty();
+
+            var value = result.CommandResult.GetValueOrDefault();
+
+            value.Should().Be(directoryInfo);
+        }
+
+        [Fact]
+        public void An_option_argument_with_a_default_argument_can_be_converted_to_the_requested_type()
         {
             var command = new Command("something", "",
                                       new[]
@@ -489,8 +528,20 @@ namespace System.CommandLine.Tests
 
             var value = result.CommandResult.ValueForOption<int>("x");
 
-            value.Should()
-                 .Be(123);
+            value.Should().Be(123);
+        }
+
+        [Fact]
+        public void A_command_argument_with_a_default_value_can_be_converted_to_the_requested_type()
+        {
+            var command = new Command("something", "",
+                                      argument: new Argument<string>("123"));
+
+            var result = command.Parse("something");
+
+            var value = result.CommandResult.GetValueOrDefault<int>();
+
+            value.Should().Be(123);
         }
 
         [Fact]
@@ -526,6 +577,20 @@ namespace System.CommandLine.Tests
                   .Select(e => e.Message)
                   .Should()
                   .Contain("Could not parse int");
+        }
+
+        [Fact]
+        public void When_custom_conversion_fails_then_an_option_does_not_accept_further_arguments()
+        {
+            var command = new Command("the-command", argument: new Argument<string>());
+
+            command.AddOption(new Option("-x",
+                                         argument: new Argument<string>(_ => ArgumentParseResult.Failure("No thank you"))));
+
+            var result = command.Parse("the-command -x nope yep");
+
+            result.CommandResult.Arguments.Count.Should().Be(1);
+            result.Errors.Should().Contain(e => e.Message == "No thank you");
         }
 
         [Fact]

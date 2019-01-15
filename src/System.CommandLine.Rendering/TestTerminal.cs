@@ -3,16 +3,12 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace System.CommandLine.Rendering
 {
-    public class TestTerminal : 
-        TestConsole, 
-        ITerminal, 
-        CommandLine.ITerminal
+    public class TestTerminal : ITerminal, IRenderable
     {
         private int _cursorLeft;
         private int _cursorTop;
@@ -21,45 +17,55 @@ namespace System.CommandLine.Rendering
         private readonly StringBuilder _ansiCodeBuffer = new StringBuilder();
         private ConsoleColor _backgroundColor = ConsoleColor.Black;
         private ConsoleColor _foregroundColor = ConsoleColor.White;
+        private readonly RecordingWriter _out = new RecordingWriter();
+        private readonly RecordingWriter _error = new RecordingWriter();
 
         public TestTerminal()
         {
-            var @out = new SystemTerminal.RecordingWriter();
-            @out.CharWritten += OnCharWrittenToOut;
-            Out = @out;
+            _out.CharWritten += OnCharWrittenToOut;
         }
+
+        public IStandardStreamWriter Out => _out;
+        public IStandardStreamWriter Error => _error;
+
+        public bool IsOutputRedirected { get; set; }
+        public bool IsErrorRedirected { get; set; }
+        public bool IsInputRedirected { get; set; }
+
+        public OutputMode OutputMode { get; set; } = OutputMode.Auto;
 
         private void OnCharWrittenToOut(char c)
         {
-            if (_ansiCodeBuffer.Length == 0 &&
-                c != Ansi.Esc[0])
+            if (IsVirtualTerminalModeEnabled)
             {
-                _outBuffer.Append(c);
+                if (_ansiCodeBuffer.Length == 0 &&
+                    c != Ansi.Esc[0])
+                {
+                    _outBuffer.Append(c);
+                }
+                else
+                {
+                    _ansiCodeBuffer.Append(c);
+
+                    if (char.IsLetter(c))
+                    {
+                        // terminate the in-progress ANSI sequence
+
+                        var escapeSequence = _ansiCodeBuffer.ToString();
+
+                        _ansiCodeBuffer.Clear();
+
+                        RecordEvent(
+                            new AnsiControlCodeWritten(
+                                new AnsiControlCode(
+                                    escapeSequence)));
+                    }
+                }
             }
             else
             {
-                _ansiCodeBuffer.Append(c);
-
-                if (char.IsLetter(c))
-                {
-                    // terminate the in-progress ANSI sequence
-
-                    var escapeSequence = _ansiCodeBuffer.ToString();
-
-                    _ansiCodeBuffer.Clear();
-
-                    RecordEvent(
-                        new AnsiControlCodeWritten(
-                            new AnsiControlCode(
-                                escapeSequence)));
-                }
+                _outBuffer.Append(c);
             }
-        }
-
-        public void SetOut(TextWriter writer)
-        {
-            Out = StandardStreamWriter.Create(writer ?? throw new ArgumentNullException(nameof(writer)));
-            IsOutputRedirected = true;
         }
 
         public int Height { get; set; } = 100;
@@ -76,6 +82,11 @@ namespace System.CommandLine.Rendering
                        0,
                        Width,
                        Height);
+
+        public void Clear()
+        {
+            RecordEvent(new Cleared());
+        }
 
         public int CursorLeft
         {
@@ -174,10 +185,6 @@ namespace System.CommandLine.Rendering
 
         private string UnflushedOutput => _outBuffer.ToString();
 
-        public bool IsVirtualTerminal { get; private set; }
-
-        public void TryEnableVirtualTerminal() => IsVirtualTerminal = !IsOutputRedirected;
-
         public virtual ConsoleColor BackgroundColor
         {
             get => _backgroundColor;
@@ -199,6 +206,8 @@ namespace System.CommandLine.Rendering
                 RecordEvent(new ForegroundColorChanged(value));
             }
         }
+
+        public bool IsVirtualTerminalModeEnabled { get; set; } = true;
 
         public IEnumerable<TextRendered> RenderOperations()
         {
@@ -239,11 +248,7 @@ namespace System.CommandLine.Rendering
                 yield return new TextRendered(buffer.ToString(), position);
             }
         }
-
-        public void Dispose()
-        {
-        }
-
+        
         public abstract class ConsoleEvent
         {
         }
@@ -266,6 +271,10 @@ namespace System.CommandLine.Rendering
             }
 
             public ConsoleColor BackgroundColor { get; }
+        }
+
+        public class Cleared : ConsoleEvent
+        {
         }
 
         public class ColorReset : ConsoleEvent

@@ -13,7 +13,7 @@ namespace System.CommandLine
         internal ParseResult(
             CommandResult rootCommandResult,
             CommandResult commandResult,
-            IReadOnlyCollection<string> directives,
+            IDirectiveCollection directives,
             IReadOnlyCollection<string> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
@@ -42,8 +42,8 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<ParseError> Errors => _errors;
 
-        public IReadOnlyCollection<string> Directives { get; }
-        
+        public IDirectiveCollection Directives { get; }
+
         public IReadOnlyCollection<string> Tokens { get; }
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
@@ -72,14 +72,17 @@ namespace System.CommandLine
                         }
                     }
 
-                    if (command.Command.Argument.HasDefaultValue &&
-                        command.Arguments.Count == 0)
+                    if (command.Command.Argument.HasDefaultValue)
                     {
-                        switch (command.Command.Argument.GetDefaultValue())
+                        var defaultValue = command.Command.Argument.GetDefaultValue();
+
+                        if (defaultValue is string stringArg)
                         {
-                            case string arg:
-                                command.TryTakeToken(new Token(arg, TokenType.Argument));
-                                break;
+                            command.TryTakeToken(new Token(stringArg, TokenType.Argument));
+                        }
+                        else
+                        {
+                            command.UseDefaultValue = true;
                         }
                     }
                 }
