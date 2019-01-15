@@ -3,11 +3,11 @@
 
 namespace System.CommandLine.Rendering.Tests
 {
-    internal class SystemConsoleTerminalTests : TerminalTests
+    public class SystemConsoleTerminalTests : TerminalTests
     {
         protected override ITerminal GetTerminal()
         {
-            return Terminal.Default();
+            return new SystemConsoleTerminal(new SystemConsole());
         }
     }
 }

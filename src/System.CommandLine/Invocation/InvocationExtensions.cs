@@ -67,6 +67,19 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
+        public static CommandLineBuilder ConfigureConsole(
+            this CommandLineBuilder builder,
+            Func<InvocationContext, IConsole> createConsole)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                context.ConsoleFactory = new AnonymousConsoleFactory(createConsole);
+                await next(context);
+            }, CommandLineBuilder.MiddlewareOrder.Middle);
+
+            return builder;
+        }
+
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
             InvocationMiddleware middleware)
@@ -96,15 +109,8 @@ namespace System.CommandLine.Invocation
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.Tokens.Contains("[debug]"))
+                if (context.ParseResult.Directives.Contains("debug"))
                 {
-                    var minusDirective = context.ParseResult
-                                                .Tokens
-                                                .Where(t => t != "[debug]")
-                                                .ToArray();
-
-                    context.ParseResult = context.Parser.Parse(minusDirective);
-
                     var processId = Diagnostics.Process.GetCurrentProcess().Id;
 
                     context.Console.Out.WriteLine($"Attach your debugger to process {processId} and then press any key.");
@@ -129,18 +135,13 @@ namespace System.CommandLine.Invocation
                 }
                 catch (Exception exception)
                 {
-                    var terminal = context.Console as ITerminal;
-
-                    if (terminal != null)
-                    {
-                        terminal.ResetColor();
-                        terminal.ForegroundColor = ConsoleColor.Red;
-                    }
+                    context.Console.ResetTerminalForegroundColor();
+                    context.Console.SetTerminalForegroundRed();
 
                     context.Console.Error.Write("Unhandled exception: ");
                     context.Console.Error.WriteLine(exception.ToString());
-                    
-                    terminal?.ResetColor();
+
+                    context.Console.ResetTerminalForegroundColor();
 
                     context.ResultCode = 1;
                 }

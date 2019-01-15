@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-
 namespace System.CommandLine.Rendering
 {
     public static class ConsoleExtensions
@@ -17,7 +15,7 @@ namespace System.CommandLine.Rendering
             if (console is ITerminal terminal &&
                 !terminal.IsOutputRedirected)
             {
-                return terminal.IsVirtualTerminal
+                return terminal is VirtualTerminal
                            ? OutputMode.Ansi
                            : OutputMode.NonAnsi;
             }

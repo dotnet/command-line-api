@@ -15,7 +15,7 @@ namespace System.CommandLine.Rendering.Tests
     public class OutputFormattingTests
     {
         private readonly ITestOutputHelper _output;
-        private readonly TestConsole _terminal;
+        private readonly ITerminal _terminal;
         private readonly ConsoleRenderer _renderer;
 
         public OutputFormattingTests(ITestOutputHelper output)

@@ -142,7 +142,7 @@ namespace System.CommandLine
                    .Containing(parseResult.TextToMatch());
         }
 
-        internal ArgumentParseResult Parse(SymbolResult symbolResult)
+        private ArgumentParseResult Parse(SymbolResult symbolResult)
         {
             var failedResult = ArgumentArity.Validate(symbolResult,
                                                       Arity.MinimumNumberOfArguments,
@@ -151,6 +151,11 @@ namespace System.CommandLine
             if (failedResult != null)
             {
                 return failedResult;
+            }
+
+            if (symbolResult.UseDefaultValue)
+            {
+                return ArgumentParseResult.Success(symbolResult.Symbol.Argument.GetDefaultValue());
             }
 
             if (ConvertArguments != null)

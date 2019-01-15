@@ -51,8 +51,8 @@ namespace System.CommandLine
                     type,
                     _ => arg =>
                     {
-                        var inst = singleStringConstructor.Invoke(new object[] { arg });
-                        return Success(inst);
+                        var instance = singleStringConstructor.Invoke(new object[] { arg });
+                        return Success(instance);
                     });
 
                 return convert(value);

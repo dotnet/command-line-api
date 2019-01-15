@@ -12,9 +12,9 @@ namespace System.CommandLine.Tests
 {
     public class SuggestDirectiveTests
     {
-        protected internal Option _fruitOption;
+        protected Option _fruitOption;
 
-        protected internal Option _vegetableOption;
+        protected Option _vegetableOption;
 
         private readonly Command _eatCommand;
 

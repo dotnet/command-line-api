@@ -1,6 +1,8 @@
 System.CommandLine
 ==================
 
+[![Join the chat at https://gitter.im/dotnet/command-line-api](https://badges.gitter.im/dotnet/command-line-api.svg)](https://gitter.im/dotnet/command-line-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This repository contains the code for System.CommandLine, a library for command line parsing, invocation, and rendering of terminal output. For more information, please see [our wiki](https://github.com/dotnet/command-line-api/wiki).
 
 ## Packages

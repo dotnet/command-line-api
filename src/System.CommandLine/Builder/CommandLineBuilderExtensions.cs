@@ -30,10 +30,18 @@ namespace System.CommandLine.Builder
         }
 
         private static readonly Lazy<string> _assemblyVersion =
-            new Lazy<string>(() =>
-                                 Assembly.GetEntryAssembly()
-                                         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                         .InformationalVersion);
+            new Lazy<string>(() => {
+                var assembly = Assembly.GetEntryAssembly();
+                var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                if (assemblyVersionAttribute == null)
+                {
+                    return assembly.GetName().Version.ToString();
+                }
+                else
+                {
+                    return assemblyVersionAttribute.InformationalVersion;
+                }
+            });
 
         public static CommandLineBuilder AddVersionOption(
             this CommandLineBuilder builder)

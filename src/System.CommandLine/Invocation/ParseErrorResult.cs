@@ -7,13 +7,8 @@ namespace System.CommandLine.Invocation
     {
         public void Apply(InvocationContext context)
         {
-            var terminal = context.Console as ITerminal;
-            
-            if (terminal != null)
-            {
-                terminal.ResetColor();
-                terminal.ForegroundColor = ConsoleColor.Red;
-            }
+            context.Console.ResetTerminalForegroundColor();
+            context.Console.SetTerminalForegroundRed();
 
             foreach (var error in context.ParseResult.Errors)
             {
@@ -24,7 +19,7 @@ namespace System.CommandLine.Invocation
 
             context.ResultCode = 1;
 
-            terminal?.ResetColor();
+            context.Console.ResetTerminalForegroundColor();
 
             context.ParseResult.CommandResult.Command.WriteHelp(context.Console);
         }
