@@ -12,9 +12,9 @@ namespace System.CommandLine.Suggest.Tests
         public void When_shellName_does_not_support_it_should_print_error()
         {
             var console = new TestConsole();
-            Action a = () => SuggestionShellScriptHandler.Handle(console, "fish");
+            Action a = () => SuggestionShellScriptHandler.Handle(console, "notsupported");
             a.Should().Throw<SuggestionShellScriptException>().And.Message.Should()
-                .Contain("fish shell is not supported.");
+                .Contain("notsupported shell is not supported.");
         }
 
         [Fact]

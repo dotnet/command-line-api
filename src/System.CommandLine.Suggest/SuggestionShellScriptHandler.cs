@@ -31,19 +31,4 @@ namespace System.CommandLine.Suggest
             console.Out.Write(File.ReadAllText(Path.Combine(directory, scriptName)));
         }
     }
-
-    public class SuggestionShellScriptException : Exception
-    {
-        public SuggestionShellScriptException()
-        {
-        }
-
-        public SuggestionShellScriptException(string message) : base(message)
-        {
-        }
-
-        public SuggestionShellScriptException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-    }
 }
