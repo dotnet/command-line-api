@@ -818,6 +818,7 @@ namespace System.CommandLine.Tests
                                       "",
                                       new Argument
                                       {
+                                          Name = "x",
                                           Arity = ArgumentArity.ExactlyOne
                                       })
                               }
@@ -841,6 +842,7 @@ namespace System.CommandLine.Tests
                                       "",
                                       new Argument
                                       {
+                                          Name = "x",
                                           Arity = ArgumentArity.ExactlyOne
                                       })
                               }

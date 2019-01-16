@@ -71,13 +71,13 @@ namespace System.CommandLine.Tests
                          .AddCommand(
                              new Command("command1")
                              {
-                                 new Option("-anon", "", new Argument<string>())
+                                 new Option("-anon", "", new Argument<string>() { Name = "anon" })
                              }
                          )
                          .AddCommand(
                              new Command("command2")
                              {
-                                 new Option("-anon", "", new Argument<string>())
+                                 new Option("-anon", "", new Argument<string>() { Name = "anon" })
                              }
                          )
                          .Build();
@@ -100,14 +100,14 @@ namespace System.CommandLine.Tests
             var subcommand1 = new Command("subcommand1");
             foreach (int optionIndex in Enumerable.Range(1, subcommand1Options))
             {
-                subcommand1.AddOption(new Option($"-anon{optionIndex}", "", new Argument<string>()));
+                subcommand1.AddOption(new Option($"-anon{optionIndex}", "", new Argument<string>() { Name = "anon" }));
             }
 
             var subcommand2 = new Command("subcommand2");
             subcommand1.AddCommand(subcommand2);
             foreach (int optionIndex in Enumerable.Range(1, subcommand2Options))
             {
-                subcommand2.AddOption(new Option($"-anon{optionIndex}", "", new Argument<string>()));
+                subcommand2.AddOption(new Option($"-anon{optionIndex}", "", new Argument<string>() { Name = "anon" }));
             }
 
             var parser = new CommandLineBuilder()
@@ -152,8 +152,8 @@ namespace System.CommandLine.Tests
                          .EnablePositionalOptions()
                          .AddCommand(new Command("subcommand")
                                      {
-                                         new Option("-anon1", "", new Argument<string>()),
-                                         new Option("-anon2", "", new Argument<string>())
+                                         new Option("-anon1", "", new Argument<string>() { Name = "anon1" }),
+                                         new Option("-anon2", "", new Argument<string>() { Name = "anon2" })
                                      }
                          )
                          .Build();

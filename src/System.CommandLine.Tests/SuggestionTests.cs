@@ -377,6 +377,7 @@ namespace System.CommandLine.Tests
                 new Option("one",
                            argument: new Argument
                                      {
+                                         Name = "one",
                                          Arity = ArgumentArity.ExactlyOne
                                      }.FromAmong("one-a", "one-b", "one-c"))
             );
@@ -384,6 +385,7 @@ namespace System.CommandLine.Tests
                 new Option("two",
                            argument: new Argument
                                      {
+                                         Name = "two",
                                          Arity = ArgumentArity.ExactlyOne
                                      }.FromAmong("two-a", "two-b", "two-c"))
             );
@@ -391,6 +393,7 @@ namespace System.CommandLine.Tests
                 new Option("three",
                            argument: new Argument
                                      {
+                                         Name = "three",
                                          Arity = ArgumentArity.ExactlyOne
                                      }.FromAmong("three-a", "three-b", "three-c"))
             );

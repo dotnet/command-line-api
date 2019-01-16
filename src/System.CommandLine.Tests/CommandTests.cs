@@ -21,6 +21,7 @@ namespace System.CommandLine.Tests
                         new Option("--option",
                                    argument: new Argument
                                              {
+                                                 Name = "option",
                                                  Arity = ArgumentArity.ExactlyOne
                                              })
                     }

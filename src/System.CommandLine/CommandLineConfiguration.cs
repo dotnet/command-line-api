@@ -36,7 +36,7 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
-                foreach (var childSymbol in symbol.Children)
+                foreach (var childSymbol in ((ISymbolSet)symbol.Children).FlattenBreadthFirst(o => o.Children))
                 {
                     if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0)
                     {

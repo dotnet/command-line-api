@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
             var subcommand = new Command("subcommand");
             rootCommand.AddCommand(subcommand);
             var option = new Option(new[] { "-c", "--count" }, "",
-                                    new Argument<int>());
+                                    new Argument<int>() { Name = "count" });
             subcommand.AddOption(option);
 
             var parser = new CommandLineBuilder(rootCommand)
