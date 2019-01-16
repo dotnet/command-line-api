@@ -44,9 +44,11 @@ namespace System.CommandLine.Rendering.Tests
         }
 
         [Fact]
-        public void When_ANSI_sequences_are_used_to_set_cursor_positions_then_CursorPositionChanged_events_are_recorded()
+        public void When_in_ANSI_mode_and_ANSI_sequences_are_used_to_set_cursor_positions_then_a_CursorPositionChanged_events_is_recorded()
         {
             var terminal = (TestTerminal)GetTerminal();
+
+            terminal.IsVirtualTerminalModeEnabled = true;
 
             terminal.Out.Write($"before move{Ansi.Cursor.Move.ToLocation(3, 5).EscapeSequence}after move");
 
@@ -56,6 +58,22 @@ namespace System.CommandLine.Rendering.Tests
                         new TestTerminal.ContentWritten("before move"),
                         new TestTerminal.CursorPositionChanged(new Point(2, 4)),
                         new TestTerminal.ContentWritten("after move"));
+        }
+
+        [Fact]
+        public void When_not_in_ANSI_mode_and_ANSI_sequences_are_used_to_set_cursor_positions_then_a_CursorPositionChanged_events_is_recorded()
+        {
+            var terminal = (TestTerminal)GetTerminal();
+            
+            terminal.IsVirtualTerminalModeEnabled = false;
+
+            var stringWithEscapeSequence = $"before move{Ansi.Cursor.Move.ToLocation(3, 5).EscapeSequence}after move";
+
+            terminal.Out.Write(stringWithEscapeSequence);
+
+            terminal.Events
+                    .Should()
+                    .BeEquivalentSequenceTo(new TestTerminal.ContentWritten(stringWithEscapeSequence));
         }
 
         [Theory]
@@ -71,13 +89,13 @@ namespace System.CommandLine.Rendering.Tests
             OutputMode outputMode,
             string threeLinesOfText)
         {
-            var console = (TestTerminal)GetTerminal();
+            var terminal = (TestTerminal)GetTerminal();
 
-            var renderer = new ConsoleRenderer(console, outputMode);
+            var renderer = new ConsoleRenderer(terminal, outputMode);
 
             renderer.RenderToRegion(threeLinesOfText, new Region(2, 5, 13, 3));
 
-            console.Events
+            terminal.Events
                    .OfType<TestTerminal.CursorPositionChanged>()
                    .Select(e => e.Position)
                    .Should()
@@ -111,7 +129,7 @@ namespace System.CommandLine.Rendering.Tests
         }
 
         [Fact]
-        public void ContentWritten_events_do_not_include_escape_sequences()
+        public void When_in_ANSI_mode_then_ContentWritten_events_do_not_include_escape_sequences()
         {
             var terminal = (TestTerminal)GetTerminal();
 

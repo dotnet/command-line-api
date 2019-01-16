@@ -3,13 +3,13 @@
 
 namespace System.CommandLine.Rendering
 {
-    internal class VirtualTerminal : TerminalBase
+    public class VirtualTerminal : TerminalBase
     {
         private readonly VirtualTerminalMode _virtualTerminalMode;
 
         public VirtualTerminal(
             IConsole console,
-            VirtualTerminalMode virtualTerminalMode ) : base(console)
+            VirtualTerminalMode virtualTerminalMode) : base(console)
         {
             _virtualTerminalMode = virtualTerminalMode;
         }
