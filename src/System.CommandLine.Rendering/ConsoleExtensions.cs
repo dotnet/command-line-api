@@ -21,7 +21,7 @@ namespace System.CommandLine.Rendering
             }
             else
             {
-                return OutputMode.File;
+                return OutputMode.PlainText;
             }
         }
     }

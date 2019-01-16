@@ -18,7 +18,7 @@ namespace System.CommandLine.Rendering.Tests
 
             var outputMode = terminal.DetectOutputMode();
 
-            outputMode.Should().Be(OutputMode.File);
+            outputMode.Should().Be(OutputMode.PlainText);
         }
 
         [WindowsOnlyFact(Skip = "How to test?")]

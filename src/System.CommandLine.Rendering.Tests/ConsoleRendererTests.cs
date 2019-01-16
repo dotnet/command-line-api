@@ -66,7 +66,7 @@ namespace System.CommandLine.Rendering.Tests
         {
             var writer = new ConsoleRenderer(
                 _terminal,
-                OutputMode.File
+                OutputMode.PlainText
             );
 
             writer.RenderToRegion(
@@ -85,7 +85,7 @@ namespace System.CommandLine.Rendering.Tests
         {
             var writer = new ConsoleRenderer(
                 _terminal,
-                OutputMode.File
+                OutputMode.PlainText
             );
 
             new DirectoryView(new DirectoryInfo(Directory.GetCurrentDirectory())).Render(writer, new Region(0, 0, 100, 100));
