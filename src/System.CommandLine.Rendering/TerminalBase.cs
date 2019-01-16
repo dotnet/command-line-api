@@ -30,11 +30,6 @@ namespace System.CommandLine.Rendering
 
         public abstract void ResetColor();
 
-        public Region GetRegion() =>
-            IsOutputRedirected
-                ? new Region(0, 0, int.MaxValue, int.MaxValue, false)
-                : EntireConsoleRegion.Instance;
-
         public IStandardStreamWriter Out => Console.Out;
 
         public IStandardStreamWriter Error => Console.Error;
