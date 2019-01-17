@@ -38,16 +38,12 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
-                foreach (var childSymbol in ((ISymbolSet)symbol.Children).FlattenBreadthFirst(o => o.Children))
+                foreach (var childSymbol in symbol.Children.FlattenBreadthFirst<Symbol>(o => o.Children))
                 {
-                    if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0)
+                    if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0 && string.IsNullOrEmpty(childSymbol.Argument.Name))
                     {
-                        if (string.IsNullOrEmpty(childSymbol.Argument.Name))
-                        {
-                            throw new ArgumentException(
-                                $"Name must be set for arguments with an arity above zero. "
-                                + $"The argument missing a name has the alias '{childSymbol.Aliases.FirstOrDefault()}'.");
-                        }
+                        throw new ArgumentException(
+                            ValidationMessages.RequiredArgumentNameMissing(childSymbol.Aliases.FirstOrDefault()));
                     }
                 }
 

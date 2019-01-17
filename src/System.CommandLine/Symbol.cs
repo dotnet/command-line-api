@@ -54,7 +54,7 @@ namespace System.CommandLine
             }
             set
             {
-                if (value != null && value.Arity.MaximumNumberOfArguments > 0 && string.IsNullOrEmpty(value.Name))
+                if (value?.Arity.MaximumNumberOfArguments > 0 && string.IsNullOrEmpty(value.Name))
                 {
                     value.Name = _aliases.First().ToUpper();
                 }
