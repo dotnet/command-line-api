@@ -46,7 +46,7 @@ namespace System.CommandLine
                         {
                             throw new ArgumentException(
                                 $"Name must be set for arguments with an arity above zero. "
-                                + $"The argument missing a name has the alias '{childSymbol.Aliases.FirstOrDefault()}'");
+                                + $"The argument missing a name has the alias '{childSymbol.Aliases.FirstOrDefault()}'.");
                         }
                     }
                 }
