@@ -54,7 +54,7 @@ namespace System.CommandLine.Suggest
             Option PositionOption() =>
                 new Option(new[] { "-p", "--position" },
                            "The current character position on the command line",
-                           new Argument<int>() { Name = "position" });
+                           new Argument<int>());
 
             Command ListCommand() =>
                 new Command(

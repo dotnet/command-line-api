@@ -44,7 +44,7 @@ namespace System.CommandLine
                     {
                         if (string.IsNullOrEmpty(childSymbol.Argument.Name))
                         {
-                            //throw new ArgumentException("Name must be set for command arguments.");
+                            throw new ArgumentException("Name must be set for command arguments.");
                         }
                     }
                 }

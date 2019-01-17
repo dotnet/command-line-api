@@ -12,6 +12,7 @@ namespace System.CommandLine
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string _longestAlias = "";
         private string _specifiedName;
+        private Argument _argument;
 
         protected Symbol(
             IReadOnlyCollection<string> aliases,
@@ -38,10 +39,6 @@ namespace System.CommandLine
 
             IsHidden = isHidden;
 
-            if (argument != null && string.IsNullOrEmpty(argument.Name))
-            {
-                argument.Name = _aliases.First().ToUpper();
-            }
             Argument = argument ?? Argument.None;
         }
 
@@ -49,7 +46,21 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
-        public Argument Argument { get; set; }
+        public Argument Argument 
+        { 
+            get
+            {
+                return _argument;
+            }
+            set
+            {
+                if (value != null && value.Arity.MaximumNumberOfArguments > 0 && string.IsNullOrEmpty(value.Name))
+                {
+                    value.Name = _aliases.First().ToUpper();
+                }
+                _argument = value; 
+            } 
+        }
 
         public string Description { get; set; }
 

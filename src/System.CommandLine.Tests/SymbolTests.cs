@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Symbol_defaults_argument_to_alias_name_when_it_is_not_provided()
         {
-            var symbol = new TestSymbol(new[] { "-alias" }, "", new Argument());
+            var symbol = new TestSymbol(new[] { "-alias" }, "", new Argument() { Arity = ArgumentArity.ZeroOrOne });
 
             symbol.Argument.Name.Should().Be("ALIAS");
         }
@@ -86,9 +86,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Symbol_retains_argument_name_when_it_is_provided()
         {
-            var symbol = new TestSymbol(new[] { "-alias" }, "", new Argument() { Name = "arg" });
+            var symbol = new TestSymbol(new[] { "-alias" }, "", new Argument() { Name = "arg", Arity = ArgumentArity.ZeroOrOne });
 
             symbol.Argument.Name.Should().Be("arg");
+        }
+
+        [Fact]
+        public void Symbol_does_not_default_argument_name_when_arity_is_zero()
+        {
+            var symbol = new TestSymbol(new[] { "-alias" }, "", new Argument());
+
+            symbol.Argument.Name.Should().BeNull();
         }
 
         private class TestSymbol : Symbol

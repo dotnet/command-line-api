@@ -207,21 +207,5 @@ namespace System.CommandLine.Tests
             result.CommandResult.Command.Should().Be(subcommand);
             result.Errors.Should().BeEmpty();
         }
-
-        [Fact]
-        public void Command_defaults_argument_name_when_it_is_not_provided()
-        {
-            var command = new Command("this", argument: new Argument());
-
-            command.Argument.Name.Should().Be("THIS");
-        }
-
-        [Fact]
-        public void Command_retains_argument_name_when_it_is_provided()
-        {
-            var command = new Command("this", argument: new Argument() { Name = "arg"});
-
-            command.Argument.Name.Should().Be("arg");
-        }
     }
 }
