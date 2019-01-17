@@ -38,6 +38,10 @@ namespace System.CommandLine
 
             IsHidden = isHidden;
 
+            if (argument != null && string.IsNullOrEmpty(argument.Name))
+            {
+                argument.Name = _aliases.First().ToUpper();
+            }
             Argument = argument ?? Argument.None;
         }
 

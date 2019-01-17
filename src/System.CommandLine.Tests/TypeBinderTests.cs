@@ -96,7 +96,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_arguments_are_bound_by_name_to_constructor_parameters()
         {
-            var argument = new Argument<string>("the default") { Name = "default" };
+            var argument = new Argument<string>("the default");
 
             var option = new Option("--string-option",
                                     argument: argument);
@@ -148,7 +148,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Explicitly_configured_default_values_can_be_bound_to_constructor_parameters()
         {
-            var argument = new Argument<string>("the default") { Name = "default" };
+            var argument = new Argument<string>("the default");
 
             var option = new Option("--string-option",
                                     argument: argument);
@@ -170,7 +170,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_arguments_are_bound_by_name_to_property_setters()
         {
-            var argument = new Argument<bool>() { Name = "bool-option" };
+            var argument = new Argument<bool>();
 
             var option = new Option("--bool-option",
                                     argument: argument);
@@ -222,7 +222,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Explicitly_configured_default_values_can_be_bound_to_property_setters()
         {
-            var argument = new Argument<string>("the default") { Name = "default" };
+            var argument = new Argument<string>("the default");
 
             var option = new Option("--string-option",
                                     argument: argument);

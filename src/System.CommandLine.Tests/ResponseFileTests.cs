@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests
             }
             var result = new CommandLineBuilder()
                 .AddOption(new Option("--flag"))
-                .AddOption(new Option("--flag2", argument: new Argument<int>() { Name = "flag2" }))
+                .AddOption(new Option("--flag2", argument: new Argument<int>()))
                 .Build()
                 .Parse("@" + FilePath);
             result.HasOption("--flag").Should().BeTrue();
@@ -137,8 +137,8 @@ namespace System.CommandLine.Tests
             }
 
             var rootCommand = new RootCommand();
-            rootCommand.AddOption(new Option("--flag", "", new Argument<string>() { Name = "flag" }));
-            rootCommand.AddOption(new Option("--flag2", "", new Argument<int>() { Name = "flag2" }));
+            rootCommand.AddOption(new Option("--flag", "", new Argument<string>()));
+            rootCommand.AddOption(new Option("--flag2", "", new Argument<int>()));
             var parser = new CommandLineBuilder(rootCommand)
                          .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
                          .Build();

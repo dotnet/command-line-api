@@ -171,7 +171,6 @@ namespace System.CommandLine.Tests
                 "move",
                 argument: new Argument<FileInfo>
                           {
-                              Name = "move",
                               Arity = ArgumentArity.ExactlyOne
                           }.ExistingOnly());
             command.AddOption(
@@ -179,7 +178,6 @@ namespace System.CommandLine.Tests
                     "--to",
                     argument: new Argument
                               {
-                                  Name = "to",
                                   Arity = ArgumentArity.ExactlyOne
                               }));
 
@@ -201,14 +199,12 @@ namespace System.CommandLine.Tests
                 "move",
                 argument: new Argument
                           {
-                              Name = "move",
                               Arity = ArgumentArity.ExactlyOne
                           });
             command.AddOption(
                 new Option("--to",
                            argument: new Argument<DirectoryInfo>
                                      {
-                                         Name = "to",
                                          Arity = ArgumentArity.ExactlyOne
                                      }.ExistingOnly()));
 

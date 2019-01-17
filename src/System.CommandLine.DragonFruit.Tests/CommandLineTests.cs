@@ -45,7 +45,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var stdOut = _terminal.Out.ToString();
 
             stdOut.Should()
-                  .Contain("--name <name>    Specifies the name option")
+                  .Contain("--name <NAME>    Specifies the name option")
                   .And.Contain("Options:");
             stdOut.Should()
                   .Contain("Help for the test program");

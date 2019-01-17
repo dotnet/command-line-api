@@ -21,7 +21,6 @@ namespace System.CommandLine.Tests
                             "Specifies value x",
                             new Argument
                             {
-                                Name = "x",
                                 Arity = ArgumentArity.ExactlyOne
                             }),
                         new Option(
@@ -52,7 +51,6 @@ namespace System.CommandLine.Tests
                                     "",
                                     new Argument
                                     {
-                                        Name = "x",
                                         Arity = ArgumentArity.ExactlyOne
                                     }
                                     .FromAmong("arg1", "arg2", "arg3"))
@@ -70,7 +68,7 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand();
             command.AddOption(new Option("-f", "",
-                                         new Argument<int>() { Name = "f" }));
+                                         new Argument<int>()));
 
             var result = command.Parse("-f not-an-int");
 
@@ -85,11 +83,11 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand();
 
             rootCommand.AddOption(new Option(new[] { "-h", "--height" }, "",
-                                             new Argument<int>(defaultValue: 10) { Name = "height"}));
+                                             new Argument<int>(defaultValue: 10)));
             rootCommand.AddOption(new Option(new[] { "-w", "--width" }, "",
-                                             new Argument<int>(defaultValue: 15) { Name = "width" }));
+                                             new Argument<int>(defaultValue: 15)));
             rootCommand.AddOption(new Option(new[] { "-c", "--color" }, "",
-                                             new Argument<ConsoleColor>(() => ConsoleColor.Cyan) { Name = "color" }));
+                                             new Argument<ConsoleColor>(() => ConsoleColor.Cyan)));
 
             var result = rootCommand.Parse("-w 9000");
 

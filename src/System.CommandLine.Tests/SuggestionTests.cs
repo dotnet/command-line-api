@@ -289,11 +289,11 @@ namespace System.CommandLine.Tests
                             {
                                 new Option(
                                     "--one",
-                                    argument: new Argument { Name = "one", Arity = ArgumentArity.ExactlyOne }
+                                    argument: new Argument { Arity = ArgumentArity.ExactlyOne }
                                         .FromAmong("one-a", "one-b")),
                                 new Option(
                                     "--two",
-                                    argument: new Argument { Name = "two", Arity = ArgumentArity.ExactlyOne }
+                                    argument: new Argument { Arity = ArgumentArity.ExactlyOne }
                                         .FromAmong("two-a", "two-b"))
                             }));
 
@@ -328,7 +328,6 @@ namespace System.CommandLine.Tests
                     new Option("-t", "",
                                new Argument
                                    {
-                                       Name = "t",
                                        Arity = ArgumentArity.ExactlyOne
                                    }
                                    .WithSuggestions("vegetable", "mineral", "animal"))
@@ -353,7 +352,6 @@ namespace System.CommandLine.Tests
                         "one", "",
                         argument: new Argument
                             {
-                                Name = "one",
                                 Arity = ArgumentArity.ExactlyOne
                             }
                             .WithSuggestionSource((parseResult, pos) => new[] {
@@ -377,7 +375,6 @@ namespace System.CommandLine.Tests
                 new Option("one",
                            argument: new Argument
                                      {
-                                         Name = "one",
                                          Arity = ArgumentArity.ExactlyOne
                                      }.FromAmong("one-a", "one-b", "one-c"))
             );
@@ -385,7 +382,6 @@ namespace System.CommandLine.Tests
                 new Option("two",
                            argument: new Argument
                                      {
-                                         Name = "two",
                                          Arity = ArgumentArity.ExactlyOne
                                      }.FromAmong("two-a", "two-b", "two-c"))
             );
@@ -393,7 +389,6 @@ namespace System.CommandLine.Tests
                 new Option("three",
                            argument: new Argument
                                      {
-                                         Name = "three",
                                          Arity = ArgumentArity.ExactlyOne
                                      }.FromAmong("three-a", "three-b", "three-c"))
             );
@@ -417,21 +412,18 @@ namespace System.CommandLine.Tests
                 new Option("one", "",
                            new Argument
                            {
-                               Name = "one",
                                Arity = ArgumentArity.ExactlyOne
                            }.FromAmong("one-a", "one-b", "one-c")));
             command.AddOption(
                 new Option("two", "",
                            new Argument
                            {
-                               Name = "two",
                                Arity = ArgumentArity.ExactlyOne
                            }.FromAmong("two-a", "two-b", "two-c")));
             command.AddOption(
                 new Option("three", "",
                            new Argument
                            {
-                               Name = "three",
                                Arity = ArgumentArity.ExactlyOne
                            }.FromAmong("three-a", "three-b", "three-c")));
 
@@ -450,21 +442,18 @@ namespace System.CommandLine.Tests
                 "one",
                 argument: new Argument
                           {
-                              Name = "one",
                               Arity = ArgumentArity.ExactlyOne
                           }.FromAmong("one-a", "one-b", "one-c"));
             var two = new Command(
                 "two",
                 argument: new Argument
                           {
-                              Name = "two",
                               Arity = ArgumentArity.ExactlyOne
                           }.FromAmong("two-a", "two-b", "two-c"));
             var three = new Command(
                 "three",
                 argument: new Argument
                           {
-                              Name = "three",
                               Arity = ArgumentArity.ExactlyOne
                           }.FromAmong("three-a", "three-b", "three-c"));
             outer.AddCommand(one);
@@ -487,21 +476,18 @@ namespace System.CommandLine.Tests
                                 "one",
                                 argument: new Argument
                                           {
-                                              Name = "one",
                                               Arity = ArgumentArity.ExactlyOne
                                           }.FromAmong("one-a", "one-b", "one-c")),
                             new Command(
                                 "two",
                                 argument: new Argument
                                           {
-                                              Name = "two",
                                               Arity = ArgumentArity.ExactlyOne
                                           }.FromAmong("two-a", "two-b", "two-c")),
                             new Command(
                                 "three",
                                 argument: new Argument
                                           {
-                                              Name = "three",
                                               Arity = ArgumentArity.ExactlyOne
                                           }.FromAmong("three-a", "three-b", "three-c"))
                         };
@@ -582,9 +568,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command");
             command.AddOption(new Option("--allows-one",
-                                         argument: new Argument<string>() { Name = "one" }));
+                                         argument: new Argument<string>()));
             command.AddOption(new Option("--allows-many",
-                                         argument: new Argument<string[]>() { Name = "many" }));
+                                         argument: new Argument<string[]>()));
 
             var suggestions = command.Parse("--allows-one x ").Suggestions();
 
@@ -595,8 +581,8 @@ namespace System.CommandLine.Tests
         public void When_current_symbol_is_an_option_that_requires_arguments_then_parent_symbol_suggestions_are_omitted()
         {
             var parser = new CommandLineBuilder()
-                         .AddOption(new Option("--allows-one", argument: new Argument<string>() { Name = "one" }))
-                         .AddOption(new Option("--allows-many", argument: new Argument<string[]>() { Name = "many" }))
+                         .AddOption(new Option("--allows-one", argument: new Argument<string>()))
+                         .AddOption(new Option("--allows-many", argument: new Argument<string[]>()))
                          .UseSuggestDirective()
                          .Build();
 
@@ -611,10 +597,10 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.AddOption(
                 new Option("--implicit",
-                           argument: new Argument<string>(defaultValue: "the-default") { Name = "implicit" }));
+                           argument: new Argument<string>(defaultValue: "the-default")));
             command.AddOption(
                 new Option("--not",
-                           argument: new Argument<string>("the-default") { Name = "not" }));
+                           argument: new Argument<string>("the-default")));
 
             var suggestions = command.Parse("m").Suggestions();
 

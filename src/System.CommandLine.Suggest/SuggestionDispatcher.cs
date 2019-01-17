@@ -49,7 +49,7 @@ namespace System.CommandLine.Suggest
             Option ExecutableOption() =>
                 new Option(new[] { "-e", "--executable" },
                            "The executable to call for suggestions",
-                           new Argument<string>() { Name = "executable" }.LegalFilePathsOnly());
+                           new Argument<string>().LegalFilePathsOnly());
 
             Option PositionOption() =>
                 new Option(new[] { "-p", "--position" },
@@ -69,7 +69,7 @@ namespace System.CommandLine.Suggest
             Option DetailedOption() =>
                 new Option("--detailed",
                            "Provides detailed output about registered completions",
-                           new Argument<bool>() { Name = "detailed" });
+                           new Argument<bool>());
 
             Command RegisterCommand() =>
                 new Command("register",
@@ -82,12 +82,12 @@ namespace System.CommandLine.Suggest
             Option CommandPathOption() =>
                 new Option("--command-path",
                            "The path to the command for which to register suggestions",
-                           new Argument<string>() { Name = "command-path" });
+                           new Argument<string>());
 
             Option SuggestionCommandOption() =>
                 new Option("--suggestion-command",
                            "The command to invoke to retrieve suggestions",
-                           new Argument<string>() { Name = "suggestion-command" });
+                           new Argument<string>());
         }
 
         public Task<int> InvokeAsync(string[] args, IConsole console = null) =>

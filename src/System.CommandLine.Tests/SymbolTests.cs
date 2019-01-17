@@ -75,6 +75,22 @@ namespace System.CommandLine.Tests
                   .WithMessage($"Property {typeof(TestSymbol).Name}.Name cannot have a prefix.");
         }
 
+        [Fact]
+        public void Symbol_defaults_argument_to_alias_name_when_it_is_not_provided()
+        {
+            var symbol = new TestSymbol(new[] { "-alias" }, "", new Argument());
+
+            symbol.Argument.Name.Should().Be("ALIAS");
+        }
+
+        [Fact]
+        public void Symbol_retains_argument_name_when_it_is_provided()
+        {
+            var symbol = new TestSymbol(new[] { "-alias" }, "", new Argument() { Name = "arg" });
+
+            symbol.Argument.Name.Should().Be("arg");
+        }
+
         private class TestSymbol : Symbol
         {
             internal TestSymbol(IReadOnlyCollection<string> aliases, string description, Argument argDef = null)

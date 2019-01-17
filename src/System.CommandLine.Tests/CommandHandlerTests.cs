@@ -43,10 +43,10 @@ namespace System.CommandLine.Tests
             var command = new Command("command");
             command.AddOption(
                 new Option("--name",
-                           argument: new Argument { Name = "name", Arity = ArgumentArity.ExactlyOne }));
+                           argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
             command.AddOption(
                 new Option("--age",
-                           argument: new Argument<int>() { Name = "age" }));
+                           argument: new Argument<int>()));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
@@ -67,11 +67,7 @@ namespace System.CommandLine.Tests
 
             var command = new Command("command");
             command.AddOption(new Option("--first-name",
-                                         argument: new Argument 
-                                         { 
-                                             Name = "first-name",
-                                             Arity = ArgumentArity.ExactlyOne 
-                                         }));
+                                         argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
             command.Handler = CommandHandler.Create<string>(Execute);
 
             await command.InvokeAsync("command --first-name Gandalf", _console);
@@ -92,13 +88,8 @@ namespace System.CommandLine.Tests
             }
 
             var command = new Command("command");
-            command.AddOption(new Option("--NAME", 
-                argument: new Argument 
-                { 
-                    Name = "NAME",
-                    Arity = ArgumentArity.ExactlyOne 
-                }));
-            command.AddOption(new Option("--age", argument: new Argument<int>() { Name = "age" }));
+            command.AddOption(new Option("--NAME", argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            command.AddOption(new Option("--age", argument: new Argument<int>()));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command --age 425 --NAME Gandalf", _console);
@@ -119,13 +110,8 @@ namespace System.CommandLine.Tests
             }
 
             var command = new Command("command");
-            command.AddOption(new Option("--name", 
-                argument: new Argument 
-                { 
-                    Name = "name",
-                    Arity = ArgumentArity.ExactlyOne 
-                }));
-            command.AddOption(new Option("--age", argument: new Argument<int>() { Name = "age" }));
+            command.AddOption(new Option("--name", argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            command.AddOption(new Option("--age", argument: new Argument<int>()));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command", _console);
@@ -146,17 +132,8 @@ namespace System.CommandLine.Tests
             }
 
             var command = new Command("command");
-            command.AddOption(new Option(new[] { "-n", "--NAME" }, 
-                argument: new Argument 
-                { 
-                    Name = "name",
-                    Arity = ArgumentArity.ExactlyOne 
-                }));
-            command.AddOption(new Option(new[] { "-a", "--age" }, 
-                argument: new Argument<int>()
-                {
-                    Name = "age"
-                }));
+            command.AddOption(new Option(new[] { "-n", "--NAME" }, argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            command.AddOption(new Option(new[] { "-a", "--age" }, argument: new Argument<int>()));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command -a 425 -n Gandalf", _console);
@@ -170,8 +147,8 @@ namespace System.CommandLine.Tests
             var wasCalled = false;
 
             var command = new Command("command");
-            command.AddOption(new Option("--name", "", new Argument<string>() { Name = "name" }));
-            command.AddOption(new Option("--age", "", new Argument<int>() { Name = "age" }));
+            command.AddOption(new Option("--name", "", new Argument<string>()));
+            command.AddOption(new Option("--age", "", new Argument<int>()));
             command.Handler = CommandHandler.Create<string, int>((name, age) =>
             {
                 wasCalled = true;
@@ -190,7 +167,7 @@ namespace System.CommandLine.Tests
             var wasCalled = false;
 
             var command = new Command("command");
-            command.AddOption(new Option("-x", "", new Argument<int>() { Name = "argx" }));
+            command.AddOption(new Option("-x", "", new Argument<int>()));
             command.Handler = CommandHandler.Create<ParseResult>(result =>
                                {
                                    wasCalled = true;
@@ -208,7 +185,7 @@ namespace System.CommandLine.Tests
             var wasCalled = false;
 
             var command = new Command("command");
-            command.AddOption(new Option("-x", "", new Argument<int>() { Name = "argx" }));
+            command.AddOption(new Option("-x", "", new Argument<int>()));
             command.Handler = CommandHandler.Create<IConsole>(console =>
             {
                 wasCalled = true;
@@ -227,7 +204,7 @@ namespace System.CommandLine.Tests
             var wasCalled = false;
 
             var command = new Command("command");
-            command.AddOption(new Option("-x", "", new Argument<int>() { Name = "argx" }));
+            command.AddOption(new Option("-x", "", new Argument<int>()));
             command.Handler = CommandHandler.Create<InvocationContext>(context =>
             {
                 wasCalled = true;

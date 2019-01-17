@@ -24,6 +24,10 @@ namespace System.CommandLine
             Handler = handler;
             symbols = symbols ?? Array.Empty<Symbol>();
 
+            if (argument != null && string.IsNullOrEmpty(argument.Name))
+            {
+                argument.Name = name.ToUpper();
+            }
             Argument = argument ??
                        new Argument
                        {

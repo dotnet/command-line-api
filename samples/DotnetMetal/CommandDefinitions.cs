@@ -44,7 +44,7 @@ namespace DotnetMetal
                             },
                             handler: CommandHandler.Create<bool, DirectoryInfo, string, FileInfo,
                                 string, string, StandardVerbosity>(ToolActions.Install),
-                            argument: new Argument<string>() { Name = "install" });
+                            argument: new Argument<string>());
 
             Command Update() =>
                 new Command("update", ToolUpdateDescription,
@@ -59,7 +59,7 @@ namespace DotnetMetal
                             },
                             handler: CommandHandler.Create<bool, DirectoryInfo, FileInfo, string,
                                 string, StandardVerbosity>(ToolActions.Update),
-                            argument: new Argument<string>() { Name = "update" });
+                            argument: new Argument<string>());
 
             Command Uninstall() =>
                 new Command("uninstall", ToolUninstallDescription,
@@ -75,27 +75,27 @@ namespace DotnetMetal
 
             Option Version() =>
                 new Option("--version", VersionOptionDescription,
-                           new Argument<string>() { Name = "version" });
+                           new Argument<string>());
 
             Option ConfigFile() =>
                 new Option("--configfile", ConfigFileOptionDescription,
-                           new Argument<FileInfo>(){ Name = "configfile" }.ExistingOnly());
+                           new Argument<FileInfo>().ExistingOnly());
 
             Option AddSource() =>
                 new Option("--add-source", AddSourceOptionDescription,
-                           new Argument<string>() { Name = "add-source" });
+                           new Argument<string>());
 
             Option Framework() =>
                 new Option("--framework", FrameworkOptionDescription,
-                           new Argument<string>() { Name = "framework" });
+                           new Argument<string>());
 
             Option ToolPath() =>
                 new Option("--tool-path", ToolPathOptionDescription,
-                           new Argument<DirectoryInfo>() { Name = "tool-path" }.ExistingOnly());
+                           new Argument<DirectoryInfo>().ExistingOnly());
         }
 
         private static Option StandardVerbosity()
             => new Option(new[] { "--verbosity", "-v" }, VerbosityOptionDescription,
-                          new Argument<StandardVerbosity>() { Name = "verbosity" });
+                          new Argument<StandardVerbosity>());
     }
 }

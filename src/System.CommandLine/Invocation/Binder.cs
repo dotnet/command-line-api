@@ -14,7 +14,6 @@ namespace System.CommandLine.Invocation
         {
             var argument = new Argument
                            {
-                               Name = parameter.Name,
                                ArgumentType = parameter.ParameterType
                            };
 
@@ -38,7 +37,6 @@ namespace System.CommandLine.Invocation
                 property.Name,
                 new Argument
                 {
-                    Name = property.Name,
                     ArgumentType = property.PropertyType
                 });
         }

@@ -318,7 +318,6 @@ namespace System.CommandLine.Tests
                         {
                             Argument = new Argument
                                        {
-                                           Name = "innerarg",
                                            Arity = ArgumentArity.ZeroOrMore
                                        }
                         };
@@ -381,7 +380,6 @@ namespace System.CommandLine.Tests
                         "",
                         argument: new Argument
                                   {
-                                      Name = "animalarg",
                                       Arity = ArgumentArity.ZeroOrMore
                                   }.FromAmong("dog", "cat", "sheep")),
                     new Option(
@@ -389,7 +387,6 @@ namespace System.CommandLine.Tests
                         "",
                         new Argument
                         {
-                            Name = "vegetablearg",
                             Arity = ArgumentArity.ZeroOrMore
                         })
                 }));
@@ -455,20 +452,17 @@ namespace System.CommandLine.Tests
                                               new[] { "-a", "--animals" }, "",
                                               new Argument
                                               {
-                                                Name = "animalarg",  
                                                 Arity = ArgumentArity.ZeroOrMore
                                               }),
                                           new Option(
                                               new[] { "-v", "--vegetables" }, "",
                                               new Argument
                                               {
-                                                Name = "vegetablearg",
                                                 Arity = ArgumentArity.ZeroOrMore
                                               })
                                       },
                                       new Argument
                                       {
-                                          Name = "otherarg",
                                           Arity = ArgumentArity.ZeroOrMore
                                       }));
 
@@ -501,14 +495,12 @@ namespace System.CommandLine.Tests
                                                        "--inner1", "",
                                                        new Argument
                                                        {
-                                                           Name = "innerarg1",
                                                            Arity = ArgumentArity.ExactlyOne
                                                        }),
                                                    new Option(
                                                        "--inner2", "",
                                                        new Argument
                                                        {
-                                                           Name = "innerarg2",
                                                            Arity = ArgumentArity.ExactlyOne
                                                        })
                                                });
@@ -536,9 +528,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Relative_order_of_arguments_and_options_does_not_matter()
         {
-            var command = new Command("move", argument: new Argument<string[]>() { Name = "movearg" })
+            var command = new Command("move", argument: new Argument<string[]>())
                          {
-                             new Option("-X", "", new Argument<string>() { Name = "argx" })
+                             new Option("-X", "", new Argument<string>())
                          };
 
             // option before args
@@ -588,10 +580,10 @@ namespace System.CommandLine.Tests
         {
             var rawSplit = commandLine.Tokenize();
 
-            var command = new Command("the-command", argument: new Argument<string[]>(){ Name="oneormany" })
+            var command = new Command("the-command", argument: new Argument<string[]>())
                           {
-                              new Option("--one", "", new Argument<string>() { Name = "argone" }),
-                              new Option("--many", "", new Argument<string[]>() { Name = "argmany" }),
+                              new Option("--one", "", new Argument<string>()),
+                              new Option("--many", "", new Argument<string[]>()),
                           };
 
             var result = command.Parse(commandLine);
@@ -644,11 +636,7 @@ namespace System.CommandLine.Tests
                                         })
                           {
                               new Command("inner",
-                                          argument: new Argument 
-                                          { 
-                                              Name = "innerarg",
-                                              Arity = ArgumentArity.ZeroOrMore 
-                                          })
+                                          argument: new Argument { Arity = ArgumentArity.ZeroOrMore })
                           };
 
             ParseResult result = command.Parse("outer arg1 inner arg2");
@@ -663,18 +651,18 @@ namespace System.CommandLine.Tests
         {
             var command = new Command(
                               "outer", "",
-                              argument: new Argument<string>() { Name = "outerarg" })
+                              argument: new Argument<string>())
                           {
                               new Command(
                                   "non-unique",
-                                  argument: new Argument<string>() { Name = "non-uniquearg"}),
+                                  argument: new Argument<string>()),
                               new Command(
                                   "inner", "",
-                                  argument: new Argument<string>() { Name = "innerarg" })
+                                  argument: new Argument<string>())
                               {
                                   new Command(
                                       "non-unique",
-                                      argument: new Argument<string>() { Name = "non-uniqueinnerarg" })
+                                      argument: new Argument<string>())
                               }
                           };
 
@@ -703,7 +691,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command",
                                       argument: Argument.None)
                           {
-                              new Option("-x", "", new Argument<string>() { Name = "argx" })
+                              new Option("-x", "", new Argument<string>())
                           };
 
             var result = command.Parse("the-command -x the-argument");
@@ -764,7 +752,7 @@ namespace System.CommandLine.Tests
         {
             var outer = new Command("outer", argument: new Argument<string>())
             {
-                new Command("inner", argument: new Argument<string>(){ Name = "arg"})
+                new Command("inner", argument: new Argument<string>())
             };
 
             ParseResult result = outer.Parse("outer inner arg1 arg2");
@@ -787,10 +775,10 @@ namespace System.CommandLine.Tests
         public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
             var command = new Command("the-command");
-            var complete = new Command("complete", argument: new Argument<string>() { Name = "complete" });
+            var complete = new Command("complete", argument: new Argument<string>());
             command.AddCommand(complete);
             var position = new Option("--position",
-                                      argument: new Argument<int>() { Name = "position" });
+                                      argument: new Argument<int>());
             complete.AddOption(position);
 
             ParseResult result = command.Parse("the-command",
@@ -818,7 +806,6 @@ namespace System.CommandLine.Tests
                                       "",
                                       new Argument
                                       {
-                                          Name = "x",
                                           Arity = ArgumentArity.ExactlyOne
                                       })
                               }
@@ -842,7 +829,6 @@ namespace System.CommandLine.Tests
                                       "",
                                       new Argument
                                       {
-                                          Name = "x",
                                           Arity = ArgumentArity.ExactlyOne
                                       })
                               }
@@ -916,7 +902,7 @@ namespace System.CommandLine.Tests
             command.AddOption(
                 new Option(
                     new[] { "-o", "--option" },
-                    argument: new Argument<string>("the-default") { Name = "the-defaultarg" }));
+                    argument: new Argument<string>("the-default")));
 
             ParseResult result = command.Parse("command");
 
@@ -936,7 +922,6 @@ namespace System.CommandLine.Tests
                 new Command("inner",
                             argument: new Argument
                                       {
-                                          Name = "innerarg",
                                           Arity = ArgumentArity.OneOrMore
                                       }));
 
@@ -979,7 +964,6 @@ namespace System.CommandLine.Tests
                     "",
                     new Argument
                     {
-                        Name = "argone",
                         Arity = ArgumentArity.ExactlyOne
                     })});
 
@@ -999,7 +983,6 @@ namespace System.CommandLine.Tests
                 symbols: null,
                 new Argument
                 {
-                    Name = "innerarg",
                     Arity = ArgumentArity.ZeroOrMore
                 });
 
@@ -1013,7 +996,6 @@ namespace System.CommandLine.Tests
                 },
                 new Argument
                 {
-                    Name = "outerarg",
                     Arity = ArgumentArity.ZeroOrMore
                 });
 
@@ -1097,14 +1079,12 @@ namespace System.CommandLine.Tests
                 new Option("-x",
                            argument: new Argument
                                      {
-                                         Name = "argx",
                                          Arity = ArgumentArity.ZeroOrOne
                                      }));
             command.AddOption(
                 new Option("-z",
                            argument: new Argument
                                      {
-                                         Name = "argz",
                                          Arity = ArgumentArity.ZeroOrOne
                                      }));
 
@@ -1124,13 +1104,11 @@ namespace System.CommandLine.Tests
             command.AddOption(
                 new Option("-x", argument: new Argument
                                            {
-                                               Name = "argx",
                                                Arity = ArgumentArity.ZeroOrOne
                                            }));
             command.AddOption(
                 new Option("-y", argument: new Argument
                                            {
-                                               Name = "argy",
                                                Arity = ArgumentArity.ZeroOrOne
                                            }));
 
@@ -1188,7 +1166,7 @@ namespace System.CommandLine.Tests
             var command = new Command("command");
             command.AddOption(
                 new Option("-v",
-                           argument: new Argument<bool>(){ Name = "arg" }));
+                           argument: new Argument<bool>()));
 
             var result = command.Parse("-v an-argument");
 
@@ -1205,14 +1183,12 @@ namespace System.CommandLine.Tests
                 new Option("-x",
                            argument: new Argument
                                      {
-                                         Name = "argx",
                                          Arity = ArgumentArity.ExactlyOne
                                      }));
             command.AddOption(
                 new Option("-y",
                            argument: new Argument
                                      {
-                                         Name = "argy",
                                          Arity = ArgumentArity.ExactlyOne
                                      }));
 
