@@ -44,9 +44,8 @@ namespace System.CommandLine
                 ? $"Required argument missing for command: {symbolResult.Token}"
                 : $"Required argument missing for option: {symbolResult.Token}";
 
-        public virtual string RequiredArgumentNameMissing(string symbolAlias) =>
-            $"Name must be set for arguments with an arity above zero. "
-            + $"The symbol with the argument missing a name has the alias '{symbolAlias}'.";
+        public virtual string RequiredArgumentNameMissing(string argumentAlias) =>
+            $"Name must be set for arguments with an arity above zero. The argument missing a name has the alias '{argumentAlias}'.";
 
         public virtual string RequiredCommandWasNotProvided() =>
             "Required command was not provided.";
