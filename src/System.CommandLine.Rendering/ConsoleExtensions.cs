@@ -18,7 +18,7 @@ namespace System.CommandLine.Rendering
                 if (terminal is IRenderable renderable &&
                     renderable.OutputMode != OutputMode.Auto)
                 {
-                    return renderable.OutputMode;
+                     return renderable.OutputMode;
                 }
 
                 return terminal is VirtualTerminal

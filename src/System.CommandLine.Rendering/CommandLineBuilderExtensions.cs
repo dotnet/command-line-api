@@ -14,30 +14,48 @@ namespace System.CommandLine.Rendering
         {
             builder.ConfigureConsole(context =>
             {
-                var outputMode = OutputMode.Auto;
-                var preferVirtualTerminal = true;
-
-                if (context.ParseResult.Directives.TryGetValues("output", out var value))
-                {
-                    if (Enum.TryParse<OutputMode>(
-                        value.FirstOrDefault(),
-                        true,
-                        out var mode))
-                    {
-                        outputMode = mode;
-                    }
-                }
-
                 var console = context.Console;
 
                 var terminal = console.GetTerminal(
-                    preferVirtualTerminal: preferVirtualTerminal,
-                    outputMode: outputMode);
+                    PreferVirtualTerminal(context),
+                    OutputMode(context));
 
                 return terminal ?? console;
             });
 
             return builder;
+        }
+
+        internal static bool PreferVirtualTerminal(
+            this InvocationContext context)
+        {
+            if (context.ParseResult.Directives.TryGetValues(
+                    "enable-vt",
+                    out var pvtString) &&
+                bool.TryParse(
+                    pvtString.FirstOrDefault(),
+                    out var pvt))
+            {
+                return pvt;
+            }
+
+            return true;
+        }
+
+        public static OutputMode OutputMode(this InvocationContext context)
+        {
+            if (context.ParseResult.Directives.TryGetValues(
+                    "output",
+                    out var modeString) &&
+                Enum.TryParse<OutputMode>(
+                    modeString.FirstOrDefault(),
+                    true,
+                    out var mode))
+            {
+                return mode;
+            }
+
+            return context.Console.DetectOutputMode();
         }
     }
 }
