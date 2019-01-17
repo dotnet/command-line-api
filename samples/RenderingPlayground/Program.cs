@@ -48,15 +48,35 @@ namespace RenderingPlayground
 
             var terminal = console as ITerminal;
 
+
             if (terminal != null && overwrite)
             {
-                terminal.Clear();
+                try
+                {
+                    terminal.Clear();
+                }
+                catch (Exception)
+                {
+                }
             }
 
-            var consoleRenderer = new ConsoleRenderer(
-                console,
-                mode: outputMode,
-                resetAfterRender: true);
+            ConsoleRenderer consoleRenderer;
+
+            if (!virtualTerminalMode)
+            {
+                terminal = new SystemConsoleTerminal(console);
+                consoleRenderer = new ConsoleRenderer(
+                    terminal,
+                    mode: outputMode,
+                    resetAfterRender: true);
+            }
+            else
+            {
+                consoleRenderer = new ConsoleRenderer(
+                    console,
+                    mode: outputMode,
+                    resetAfterRender: true);
+            }
 
             switch (sample)
             {

@@ -63,7 +63,8 @@ namespace System.CommandLine.Rendering
 
             if (_mode == OutputMode.Auto)
             {
-                _mode = _terminal?.DetectOutputMode() ?? OutputMode.PlainText;
+                _mode = _terminal?.DetectOutputMode() ??
+                        OutputMode.PlainText;
             }
 
             switch (_mode)
