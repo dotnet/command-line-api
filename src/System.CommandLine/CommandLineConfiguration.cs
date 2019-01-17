@@ -10,6 +10,7 @@ namespace System.CommandLine
     public class CommandLineConfiguration
     {
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
+        private IHelpBuilderFactory _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
         public CommandLineConfiguration(
@@ -20,7 +21,8 @@ namespace System.CommandLine
             bool enablePositionalOptions = false,
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
-            IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null)
+            IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
+            IHelpBuilderFactory helpBuilderFactory = null)
         {
             if (symbols == null)
             {
@@ -76,6 +78,7 @@ namespace System.CommandLine
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
             _middlewarePipeline = middlewarePipeline;
+            _helpBuilderFactory = helpBuilderFactory;
             Prefixes = prefixes;
 
             if (prefixes?.Count > 0)
@@ -107,6 +110,10 @@ namespace System.CommandLine
         public bool EnablePosixBundling { get; }
 
         public ValidationMessages ValidationMessages { get; }
+
+        internal IHelpBuilderFactory HelpBuilderFactory =>
+            _helpBuilderFactory ??
+            (_helpBuilderFactory = new HelpBuilderFactory());
 
         internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
             _middlewarePipeline ??

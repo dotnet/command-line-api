@@ -6,7 +6,5 @@ namespace System.CommandLine
     public interface ICommand : ISymbol
     {
         bool TreatUnmatchedTokensAsErrors { get; }
-
-        void WriteHelp(IConsole console);
     }
 }

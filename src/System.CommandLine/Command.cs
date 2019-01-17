@@ -17,13 +17,11 @@ namespace System.CommandLine
             Argument argument = null,
             bool treatUnmatchedTokensAsErrors = true,
             ICommandHandler handler = null,
-            IHelpBuilder helpBuilder = null,
             bool isHidden = false) :
             base(new[] { name }, description, isHidden: isHidden)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
             Handler = handler;
-            HelpBuilder = helpBuilder;
             symbols = symbols ?? Array.Empty<Symbol>();
 
             Argument = argument ??
@@ -47,24 +45,6 @@ namespace System.CommandLine
         public bool TreatUnmatchedTokensAsErrors { get; set; }
 
         public ICommandHandler Handler { get; set; }
-
-        public IHelpBuilder HelpBuilder { get; set; }
-
-        public void WriteHelp(IConsole console)
-        {
-            IHelpBuilder helpBuilder;
-
-            if (HelpBuilder != null)
-            {
-                helpBuilder = HelpBuilder;
-            }
-            else
-            {
-                helpBuilder = new HelpBuilder(console);
-            }
-
-            helpBuilder.Write(this);
-        }
 
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
