@@ -24,6 +24,8 @@ namespace System.CommandLine.Builder
 
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
+        public IHelpBuilderFactory HelpBuilderFactory { get; set; }
+
         public Parser Build()
         {
             var rootCommand = Command;
@@ -38,7 +40,8 @@ namespace System.CommandLine.Builder
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
-                                                       .ToArray()));
+                                                       .ToArray(), 
+                    helpBuilderFactory: HelpBuilderFactory));
         }
 
         internal void AddMiddleware(

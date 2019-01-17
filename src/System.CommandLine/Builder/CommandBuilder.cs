@@ -24,12 +24,6 @@ namespace System.CommandLine.Builder
             set => Command.Handler = value;
         }
 
-        public IHelpBuilder HelpBuilder
-        {
-            get => Command.HelpBuilder;
-            set => Command.HelpBuilder = value;
-        }
-
         internal void AddCommand(Command command) => Command.AddCommand(command);
 
         internal void AddOption(Option option) => Command.AddOption(option);
