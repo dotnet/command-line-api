@@ -530,6 +530,7 @@ namespace System.CommandLine.Tests.Help
                 "outer",
                 argument: new Argument<string>());
 
+            command.Argument.Name = null;
             _helpBuilder.Write(command);
 
             _console.Out.ToString().Should().NotContain("Arguments:");
@@ -554,6 +555,7 @@ namespace System.CommandLine.Tests.Help
                                           Name = "outer-command-arg",
                                           Description = "The argument for the outer command"
                                       });
+            inner.Argument.Name = "";
             outer.Add(inner);
 
             var expected =

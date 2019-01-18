@@ -38,6 +38,15 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
+                foreach (var childSymbol in symbol.Children.FlattenBreadthFirst<Symbol>(o => o.Children))
+                {
+                    if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0 && string.IsNullOrEmpty(childSymbol.Argument.Name))
+                    {
+                        throw new ArgumentException(
+                            ValidationMessages.RequiredArgumentNameMissing(childSymbol.Aliases.FirstOrDefault()));
+                    }
+                }
+
                 foreach (var alias in symbol.RawAliases)
                 {
                     foreach (var delimiter in ArgumentDelimiters)

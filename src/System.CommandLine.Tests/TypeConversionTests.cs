@@ -153,7 +153,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("something", "", new[] {
                 new Option("-x", "",
-                           new Argument<int>( 123))
+                           new Argument<int>(123))
             });
 
             var result = command.Parse("something -x 456");
