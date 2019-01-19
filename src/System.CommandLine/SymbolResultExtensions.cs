@@ -20,16 +20,16 @@ namespace System.CommandLine
                 return default;
             }
 
-            ArgumentParseResult result = symbolResult.Result;
+            ArgumentResult result = symbolResult.ArgumentResult;
 
-            if (result is SuccessfulArgumentParseResult successfulResult)
+            if (result is SuccessfulArgumentResult successfulResult)
             {
                 if (!successfulResult.HasValue)
                 {
                     return default;
                 }
 
-                object value = ((dynamic)symbolResult.Result).Value;
+                object value = ((dynamic)symbolResult.ArgumentResult).Value;
 
                 switch (value)
                 {
@@ -59,7 +59,7 @@ namespace System.CommandLine
                         return default;
                 }
 
-                if (result is SuccessfulArgumentParseResult success &&
+                if (result is SuccessfulArgumentResult success &&
                     success.HasValue)
                 {
                     value = ((dynamic)result).Value;
@@ -71,7 +71,7 @@ namespace System.CommandLine
                 }
             }
 
-            if (result is FailedArgumentParseResult failed)
+            if (result is FailedArgumentResult failed)
             {
                 throw new InvalidOperationException(failed.ErrorMessage);
             }

@@ -57,7 +57,7 @@ namespace System.CommandLine
                         break;
 
                     default:
-                        result.Result = ArgumentParseResult.Success(value);
+                        result.ArgumentResult = ArgumentResult.Success(value);
                         break;
                 }
             }
