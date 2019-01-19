@@ -5,7 +5,7 @@ namespace System.CommandLine
 {
     public abstract class ArgumentResult
     {
-        internal ArgumentResult()
+        private protected ArgumentResult()
         {
         }
 

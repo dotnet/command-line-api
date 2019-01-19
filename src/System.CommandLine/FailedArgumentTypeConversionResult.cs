@@ -3,10 +3,10 @@
 
 namespace System.CommandLine
 {
-    public class FailedArgumentTypeConversionResult : FailedArgumentResult
+    internal class FailedArgumentTypeConversionResult : FailedArgumentResult
     {
         // TODO: (FailedArgumentTypeConversionResult) localize
-        public FailedArgumentTypeConversionResult(Type type, string value) : 
+        internal FailedArgumentTypeConversionResult(Type type, string value) : 
             base($"Cannot parse argument '{value}' as {type}.")
         {
         }
