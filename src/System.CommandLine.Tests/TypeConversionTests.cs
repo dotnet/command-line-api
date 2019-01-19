@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests
                                    custom.Add(a);
                                }
 
-                               return ArgumentParseResult.Success(custom);
+                               return ArgumentResult.Success(custom);
                            })
                            {
                                Arity = ArgumentArity.ZeroOrMore
@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_defaults_arity_to_One_for_non_IEnumerable_types()
         {
-            var argument = new Argument<int>(s => ArgumentParseResult.Success(1));
+            var argument = new Argument<int>(s => ArgumentResult.Success(1));
 
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
@@ -121,9 +121,9 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .BeEmpty();
-            result["x"].Result
+            result["x"].ArgumentResult
                        .Should()
-                       .BeOfType<SuccessfulArgumentParseResult<bool>>()
+                       .BeOfType<SuccessfulArgumentResult<bool>>()
                        .Which
                        .Value
                        .Should()
@@ -193,10 +193,10 @@ namespace System.CommandLine.Tests
                     new Argument<int>(symbol => {
                             if (int.TryParse(symbol.Arguments.Single(), out int intValue))
                             {
-                                return ArgumentParseResult.Success(intValue);
+                                return ArgumentResult.Success(intValue);
                             }
 
-                            return ArgumentParseResult.Failure($"'{symbol.Token}' is not an integer");
+                            return ArgumentResult.Failure($"'{symbol.Token}' is not an integer");
                         }))
             });
 
@@ -569,7 +569,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command(
                 "tally", "",
-                argument: new Argument<int>(a => ArgumentParseResult.Failure("Could not parse int")));
+                argument: new Argument<int>(a => ArgumentResult.Failure("Could not parse int")));
 
             var result = command.Parse("tally one");
 
@@ -585,7 +585,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command", argument: new Argument<string>());
 
             command.AddOption(new Option("-x",
-                                         argument: new Argument<string>(_ => ArgumentParseResult.Failure("No thank you"))));
+                                         argument: new Argument<string>(_ => ArgumentResult.Failure("No thank you"))));
 
             var result = command.Parse("the-command -x nope yep");
 

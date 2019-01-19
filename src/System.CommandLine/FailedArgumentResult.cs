@@ -4,9 +4,9 @@
 
 namespace System.CommandLine
 {
-    public class FailedArgumentParseResult : ArgumentParseResult
+    public class FailedArgumentResult : ArgumentResult
     {
-        public FailedArgumentParseResult(string errorMessage)
+        public FailedArgumentResult(string errorMessage)
         {
             if (string.IsNullOrWhiteSpace(errorMessage))
             {

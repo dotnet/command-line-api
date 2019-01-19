@@ -3,7 +3,7 @@
 
 namespace System.CommandLine
 {
-    internal class FailedArgumentArityResult : FailedArgumentParseResult
+    internal class FailedArgumentArityResult : FailedArgumentResult
     {
         public FailedArgumentArityResult(string errorMessage) : base(errorMessage)
         {
