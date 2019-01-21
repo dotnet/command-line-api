@@ -16,7 +16,7 @@ namespace System.CommandLine
 
         public IOption Option { get; }
 
-        internal bool IsImplicit { get; private set; }
+        public bool IsImplicit { get; private set; }
 
         private protected override int RemainingArgumentCapacity
         {

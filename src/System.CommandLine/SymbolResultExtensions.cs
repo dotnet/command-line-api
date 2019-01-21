@@ -20,16 +20,11 @@ namespace System.CommandLine
                 return default;
             }
 
-            ArgumentResult result = symbolResult.ArgumentResult;
+            var result = symbolResult.ArgumentResult;
 
-            if (result is SuccessfulArgumentResult successfulResult)
+            if (result is SuccessfulArgumentResult)
             {
-                if (!successfulResult.HasValue)
-                {
-                    return default;
-                }
-
-                object value = ((dynamic)symbolResult.ArgumentResult).Value;
+                object value = ((dynamic)result).Value;
 
                 switch (value)
                 {
@@ -59,8 +54,7 @@ namespace System.CommandLine
                         return default;
                 }
 
-                if (result is SuccessfulArgumentResult success &&
-                    success.HasValue)
+                if (result is SuccessfulArgumentResult)
                 {
                     value = ((dynamic)result).Value;
                 }

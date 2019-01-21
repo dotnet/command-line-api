@@ -7,7 +7,6 @@ using FluentAssertions;
 using FluentAssertions.Equivalency;
 using System.Linq;
 using FluentAssertions.Common;
-using FluentAssertions.Primitives;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -910,6 +909,24 @@ namespace System.CommandLine.Tests
             result.HasOption("option").Should().BeTrue();
             result["o"].GetValueOrDefault<string>().Should().Be("the-default");
             result.CommandResult.ValueForOption("o").Should().Be("the-default");
+        }
+
+        [Fact]
+        public void When_an_option_with_a_default_value_is_not_matched_then_the_option_result_is_implicit()
+        {
+            var command = new Command("command");
+            command.AddOption(
+                new Option(
+                    new[] { "-o", "--option" },
+                    argument: new Argument<string>("the-default")));
+
+            ParseResult result = command.Parse("command");
+
+            result.CommandResult
+                  .OptionResult("o")
+                  .IsImplicit
+                  .Should()
+                  .BeTrue();
         }
 
         [Fact]
