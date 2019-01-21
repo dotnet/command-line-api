@@ -9,7 +9,7 @@ namespace System.CommandLine
     public abstract class SymbolResult
     {
         private readonly List<string> _arguments = new List<string>();
-        private ArgumentParseResult _result;
+        private ArgumentResult _result;
 
         private ValidationMessages _validationMessages = ValidationMessages.Instance;
 
@@ -139,7 +139,7 @@ namespace System.CommandLine
             }
         }
 
-        public ArgumentParseResult Result
+        public ArgumentResult ArgumentResult
         {
             get
             {

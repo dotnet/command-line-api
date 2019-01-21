@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using static System.CommandLine.ArgumentParseResult;
+using static System.CommandLine.ArgumentResult;
 
 namespace System.CommandLine
 {
@@ -13,7 +13,7 @@ namespace System.CommandLine
     {
         private static readonly ConcurrentDictionary<Type, ConvertString> _stringConverters = new ConcurrentDictionary<Type, ConvertString>();
 
-        public static ArgumentParseResult Parse(Type type, string value)
+        public static ArgumentResult Parse(Type type, string value)
         {
             if (_stringConverters.TryGetValue(type, out var convert))
             {
@@ -61,27 +61,27 @@ namespace System.CommandLine
             return Failure(type, value);
         }
 
-        public static ArgumentParseResult Parse<T>(string value)
+        public static ArgumentResult Parse<T>(string value)
         {
             var result = Parse(typeof(T), value);
 
             switch (result)
             {
-                case SuccessfulArgumentParseResult<object> successful:
-                    return new SuccessfulArgumentParseResult<T>((T)successful.Value);
-                case FailedArgumentParseResult failed:
+                case SuccessfulArgumentResult<object> successful:
+                    return new SuccessfulArgumentResult<T>((T)successful.Value);
+                case FailedArgumentResult failed:
                     return failed;
             }
 
             return result;
         }
 
-        public static ArgumentParseResult ParseMany<T>(IReadOnlyCollection<string> arguments)
+        public static ArgumentResult ParseMany<T>(IReadOnlyCollection<string> arguments)
         {
             return ParseMany(typeof(T), arguments);
         }
 
-        public static ArgumentParseResult ParseMany(Type type, IReadOnlyCollection<string> arguments)
+        public static ArgumentResult ParseMany(Type type, IReadOnlyCollection<string> arguments)
         {
             if (type == null)
             {
@@ -106,7 +106,7 @@ namespace System.CommandLine
                                   .ToArray();
 
             var successfulParseResults = allParseResults
-                                         .OfType<SuccessfulArgumentParseResult>()
+                                         .OfType<SuccessfulArgumentResult>()
                                          .ToArray();
 
             if (successfulParseResults.Length == arguments.Count)
@@ -126,11 +126,11 @@ namespace System.CommandLine
             }
             else
             {
-                return allParseResults.OfType<FailedArgumentParseResult>().First();
+                return allParseResults.OfType<FailedArgumentResult>().First();
             }
         }
 
-        private static FailedArgumentParseResult Failure(Type type, string value)
+        private static FailedArgumentResult Failure(Type type, string value)
         {
             return new FailedArgumentTypeConversionResult(type, value);
         }

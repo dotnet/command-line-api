@@ -10,6 +10,7 @@ namespace System.CommandLine
     public class CommandLineConfiguration
     {
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
+        private IHelpBuilderFactory _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
         public CommandLineConfiguration(
@@ -20,7 +21,8 @@ namespace System.CommandLine
             bool enablePositionalOptions = false,
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
-            IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null)
+            IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
+            IHelpBuilderFactory helpBuilderFactory = null)
         {
             if (symbols == null)
             {
@@ -36,6 +38,15 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
+                foreach (var childSymbol in symbol.Children.FlattenBreadthFirst<Symbol>(o => o.Children))
+                {
+                    if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0 && string.IsNullOrEmpty(childSymbol.Argument.Name))
+                    {
+                        throw new ArgumentException(
+                            ValidationMessages.RequiredArgumentNameMissing(childSymbol.Aliases.FirstOrDefault()));
+                    }
+                }
+
                 foreach (var alias in symbol.RawAliases)
                 {
                     foreach (var delimiter in ArgumentDelimiters)
@@ -65,6 +76,7 @@ namespace System.CommandLine
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
             _middlewarePipeline = middlewarePipeline;
+            _helpBuilderFactory = helpBuilderFactory;
             Prefixes = prefixes;
 
             if (prefixes?.Count > 0)
@@ -96,6 +108,10 @@ namespace System.CommandLine
         public bool EnablePosixBundling { get; }
 
         public ValidationMessages ValidationMessages { get; }
+
+        internal IHelpBuilderFactory HelpBuilderFactory =>
+            _helpBuilderFactory ??
+            (_helpBuilderFactory = new HelpBuilderFactory());
 
         internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
             _middlewarePipeline ??

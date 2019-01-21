@@ -16,7 +16,6 @@ namespace System.CommandLine
             Argument argument = null,
             bool treatUnmatchedTokensAsErrors = true,
             ICommandHandler handler = null,
-            IHelpBuilder helpBuilder = null,
             bool isHidden = false) :
             base(ExeName,
                  description,
@@ -24,7 +23,6 @@ namespace System.CommandLine
                  argument,
                  treatUnmatchedTokensAsErrors,
                  handler,
-                 helpBuilder,
                  isHidden)
         {
         }
