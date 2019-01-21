@@ -9,12 +9,12 @@ namespace System.CommandLine
 {
     public static class ParseResultExtensions
     {
-        public static object GetDefaultValue(this Type type)
+        public static object GetDefaultValueForType(this Type type)
         {
             return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
 
-        public static object GetValue(this ParseResult parseResult, Option option)
+        public static object GetValueOrDefault(this ParseResult parseResult, Option option)
         {
             var result = parseResult.CommandResult.Children
                                    .Where(c => c.Symbol == option)
@@ -27,13 +27,13 @@ namespace System.CommandLine
                     var optionType = option.Argument.ArgumentType == null
                                     ? typeof(bool)
                                     : option.Argument.ArgumentType;
-                    return optionType.GetDefaultValue();
+                    return optionType.GetDefaultValueForType();
                 default:
                     throw new InvalidOperationException("Internal: Unknown result type");
             }
         }
 
-        public static object GetValue(this ParseResult parseResult, Argument argument)
+        public static object GetValueOrDefault(this ParseResult parseResult, Argument argument)
         {
             // TODO: Change when we support multiple arguments
             return parseResult.CommandResult.GetValueOrDefault();

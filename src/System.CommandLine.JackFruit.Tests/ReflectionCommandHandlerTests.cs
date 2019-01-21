@@ -3,12 +3,7 @@
 
 using FluentAssertions;
 using Xunit;
-using System.Linq;
-using System.Collections.Generic;
-using System.IO;
 using System.CommandLine.Invocation;
-using System.Threading.Tasks;
-using System.Reflection;
 using System.CommandLine.JackFruit.Tests.MethodModel;
 using System.CommandLine.Builder;
 
@@ -38,22 +33,17 @@ namespace System.CommandLine.JackFruit.Tests
             var methodInfo = type.GetMethod(nameof(Fruit.Bowl));
             var handler = ReflectionCommandHandler.Create(methodInfo);
             handler.Should().NotBeNull();
+            var command = new RootCommand();
+            command.Handler = handler;
             handler.Binder.AddBinding(methodInfo.GetParameters()[0], ValueBindingSide.Create(() => "Water"));
             handler.Binder.AddBinding(methodInfo.GetParameters()[1], ValueBindingSide.Create(() => true));
             handler.Binder.AddBinding(methodInfo.GetParameters()[2], ValueBindingSide.Create(() => 1_000_000));
             handler.Binder.AddBinding(methodInfo.GetParameters()[3], ValueBindingSide.Create(() => "Cavendish"));
 
-            // TODO: Figure out how to assert
-            //CheckFuncBindAction<Fruit>(handler.Binder, methodInfo.GetParameters()[0], typeof(string));
-            //CheckFuncBindAction<Fruit>(handler.Binder, methodInfo.GetParameters()[1], typeof(bool));
-            //CheckFuncBindAction<Fruit>(handler.Binder, methodInfo.GetParameters()[2], typeof(int));
-            //CheckFuncBindAction<Fruit>(handler.Binder, methodInfo.GetParameters()[3], typeof(string));
-            var task = handler.InvokeAsync(null);
-            task.Should().NotBeNull();
-            Fruit.Captured.Should().Be(@"Melon = Water
-Berry = True
-Mango = 1000000
-Banana = Cavendish");
+            const string commandLine = "";
+            var arguments = ((command.Handler as IBoundCommandHandler).Binder as ReflectionBinder)
+                            .GetInvocationArguments(GetInvocationContext(commandLine, command));
+            arguments.Should().BeEquivalentTo("Water", true, 1_000_000, "Cavendish");
         }
 
         [Fact]
@@ -76,22 +66,10 @@ Banana = Cavendish");
             handler.Binder.AddBinding(methodInfo.GetParameters()[3], SymbolBindingSide.Create(bananaOption));
             command.AddOptions(new Option[] { melonOption, berryOption, mangoOption, bananaOption });
 
-            // TODO: Figure out what internals you want to be able to test 
-            //CheckOptionAction(handler.Binder, methodInfo.GetParameters()[0].Name, methodInfo.GetParameters()[0], typeof(string));
-            //CheckOptionAction(handler.Binder, methodInfo.GetParameters()[1].Name, methodInfo.GetParameters()[1], typeof(bool));
-            //CheckOptionAction(handler.Binder, methodInfo.GetParameters()[2].Name, methodInfo.GetParameters()[2], typeof(int));
-            //CheckOptionAction(handler.Binder, methodInfo.GetParameters()[3].Name, methodInfo.GetParameters()[3], typeof(string));
-
-            var parser = new CommandLineBuilder(command).Build();
-            var parseResult = parser.Parse("melon Cantalope berry true mango 62 banana ohYeah");
-            var task = parser.InvokeAsync(parseResult);
-
-            task.Should().NotBeNull();
-            const string expected = @"Melon = Cantalope
-Berry = True
-Mango = 62
-Banana = ohYeah";
-            Fruit.Captured.Should().Be(expected);
+            const string commandLine = "melon Cantalope berry true mango 62 banana ohYeah";
+            var arguments = ((command.Handler as IBoundCommandHandler).Binder as ReflectionBinder)
+                            .GetInvocationArguments(GetInvocationContext(commandLine, command));
+            arguments.Should().BeEquivalentTo("Cantalope", true, 62, "ohYeah");
         }
 
         [Fact]
@@ -132,73 +110,25 @@ Banana = ohYeah";
             handler.Binder.AddBinding(type.GetProperties()[3], SymbolBindingSide.Create(bananaOption));
             command.AddOptions(new Option[] { melonOption, berryOption, mangoOption, bananaOption });
 
-            // TODO: Figure out how to assert
-            //CheckOptionAction(handler.Binder, type.GetProperties()[0].Name, type.GetProperties()[0], typeof(string));
-            //CheckOptionAction(handler.Binder, type.GetProperties()[1].Name, type.GetProperties()[1], typeof(bool));
-            //CheckOptionAction(handler.Binder, type.GetProperties()[2].Name, type.GetProperties()[2], typeof(int));
-            //CheckOptionAction(handler.Binder, type.GetProperties()[3].Name, type.GetProperties()[3], typeof(string));
-
-            var parser = new CommandLineBuilder(command).Build();
-            var parseResult = parser.Parse("melon Cantalope berry true mango 62 banana ohYeah");
-            var task = parser.InvokeAsync(parseResult);
-
-            task.Should().NotBeNull();
-            const string expected = @"Melon = Cantalope
-Berry = True
-Mango = 62
-Banana = ohYeah";
-            Fruit.Captured.Should().Be(expected);
+            var commandLine ="melon Cantalope berry true mango 62 banana ohYeah";
+            var target = ((command.Handler as IBoundCommandHandler).Binder as ReflectionBinder)
+                            .GetTarget (GetInvocationContext(commandLine, command))
+                            as FruitType;
+            target.Should().NotBeNull();
+            target.Melon.Should().Be("Cantalope");
+            target.Berry.Should().Be(true);
+            target.Mango.Should().Be(62);
+            target.Banana.Should().Be("ohYeah");
         }
 
-        //private void CheckArgumentAction(SymbolBindingSide bindAction,
-        //         ParameterInfo parameterInfo, Type returnType)
-        //{
-        //    bindAction.Should().NotBeNull();
-        //    bindAction.ReflectionThing.Should().Be(parameterInfo);
-        //    bindAction.Symbol.Should().NotBeNull();
-        //    var argument = bindAction.Symbol as Argument;
-        //    argument.Should().NotBeNull();
-        //    argument.Name.Should().BeEquivalentTo(parameterInfo.Name);
-        //    argument.ArgumentType.Should().Be(parameterInfo.ParameterType);
-        //    bindAction.ReturnType.Should().Be(returnType);
-        //}
-
-        //private void CheckOptionAction(ReflectionBinder binder,
-        //        string name, object reflectionThing, Type returnType)
-        //{
-        //    var bindAction = binder.Find(reflectionThing);
-        //    bindAction.Should().NotBeNull();
-        //    var optionBindAction = bindAction as SymbolBindingSide;
-        //    optionBindAction.Should().NotBeNull();
-        //    optionBindAction.ReflectionThing.Should().Be(reflectionThing);
-        //    optionBindAction.Symbol.Should().NotBeNull();
-        //    var option = optionBindAction.Symbol as Option;
-        //    option.Should().NotBeNull();
-        //    option.Name.Should().BeEquivalentTo(name);
-        //    if (returnType == typeof(bool))
-        //    {
-        //        // backwards but effective
-        //        new Type[] { null, typeof(bool) }.Should().Contain(option.Argument.ArgumentType);
-        //    }
-        //    else
-        //    {
-        //        option.Argument.ArgumentType.Should().Be(returnType);
-        //    }
-        //    bindAction.ReturnType.Should().Be(returnType);
-        //}
-
-        //private void CheckFuncBindAction<T>(ReflectionBinder binder,
-        //        object reflectionThing, Type returnType)
-        //    where T : class
-        //{
-        //    var bindAction = binder.Find(reflectionThing);
-        //    bindAction.Should().NotBeNull();
-        //    var funcBindAction = bindAction as FuncBinding<T>;
-        //    funcBindAction.Should().NotBeNull();
-        //    funcBindAction.ReflectionThing.Should().Be(reflectionThing);
-        //    funcBindAction.ValueFunc.Should().NotBeNull();
-        //    funcBindAction.ReturnType.Should().Be(returnType);
-
-        //}
-    }
+        private static InvocationContext GetInvocationContext(string commandLine, Command command)
+        {
+            var parser = new CommandLineBuilder(command)
+                         .UseDefaults()
+                         .Build();
+            var parseResult = parser.Parse(commandLine);
+            var invocationContext = new InvocationContext(parseResult, parser);
+            return invocationContext;
+        }
+    } 
 }

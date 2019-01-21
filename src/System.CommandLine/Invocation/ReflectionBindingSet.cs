@@ -26,7 +26,7 @@ namespace System.CommandLine.Invocation
                 // Note, the first is the default value for parameter, if set. The second is the default for the type
                 _arguments[i] = _parameters[i].HasDefaultValue
                                 ? _arguments[i] = _parameters[i].DefaultValue
-                                : _parameters[i].ParameterType.GetDefaultValue();
+                                : _parameters[i].ParameterType.GetDefaultValueForType();
             }
         }
 

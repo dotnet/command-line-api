@@ -74,9 +74,7 @@ namespace System.CommandLine
                     }
 
 
-                    // *** Please review. Test for null is in response to a bug. Less confident on check of Command.Arguments ***
-                    if (command.Command.Argument != null &&
-                        command.Command.Argument.HasDefaultValue &&
+                    if (command.Command.Argument.HasDefaultValue &&
                         command.Arguments.Count == 0)
                     {
                         var defaultValue = command.Command.Argument.GetDefaultValue();
@@ -101,7 +99,7 @@ namespace System.CommandLine
             }
 
             if (CommandResult.Command is Command cmd &&
-                cmd.Handler == null && 
+                cmd.Handler == null &&
                 cmd.Children.OfType<ICommand>().Any())
             {
                 _errors.Insert(0,

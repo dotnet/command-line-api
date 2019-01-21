@@ -63,13 +63,13 @@ namespace System.CommandLine.Invocation
         public ISymbolBase Symbol { get; }
 
         private static BindingGetter GetOptionRetrieve(Option option)
-            => (context, target) => context.ParseResult.GetValue(option);
+            => (context, target) => context.ParseResult.GetValueOrDefault(option);
 
         private static BindingSetter GetOptionAssign(Option option)
             => (context, target, value) => option.Argument.SetDefaultValue(value);
 
         private static BindingGetter GetArgumentRetrieve(Argument argument)
-            => (context, target) => context.ParseResult.GetValue(argument);
+            => (context, target) => context.ParseResult.GetValueOrDefault(argument);
 
         private static BindingSetter GetArgumentAssign(Argument argument)
             => (context, target, value) => argument.SetDefaultValue(value);
