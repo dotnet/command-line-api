@@ -154,5 +154,16 @@ namespace System.CommandLine.Builder
             builder.Prefixes = prefixes;
             return builder;
         }
+
+        public static TBuilder UseHelpBuilderFactory<TBuilder>(this TBuilder builder, IHelpBuilderFactory helpBuilderFactory)
+            where TBuilder : CommandLineBuilder
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+            builder.HelpBuilderFactory = helpBuilderFactory;
+            return builder;
+        }
     }
 }

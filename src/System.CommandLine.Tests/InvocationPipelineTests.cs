@@ -3,11 +3,9 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using FluentAssertions;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -77,9 +75,9 @@ namespace System.CommandLine.Tests
             command.Handler = CommandHandler.Create(() =>
                 {
                     throw new Exception("oops!");
-                // Help the compiler pick a CommandHandler.Create overload.
+                    // Help the compiler pick a CommandHandler.Create overload.
 #pragma warning disable CS0162 // Unreachable code detected
-                return 0;
+                    return 0;
 #pragma warning restore CS0162
                 });
 
@@ -151,6 +149,73 @@ namespace System.CommandLine.Tests
 
             middlewareWasCalled.Should().BeTrue();
             handlerWasCalled.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task When_no_help_builder_is_specified_it_uses_default_implementation()
+        {
+            bool handlerWasCalled = false;
+
+            var command = new Command("help-command");
+            command.Handler = CommandHandler.Create((IHelpBuilder helpBuilder) =>
+            {
+                handlerWasCalled = true;
+                helpBuilder.Should().NotBeNull();
+            });
+
+            var parser = new CommandLineBuilder()
+                         .AddCommand(command)
+                         .Build();
+
+            await parser.InvokeAsync("help-command", new TestConsole());
+
+            handlerWasCalled.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task When_help_builder_factory_is_specified_it_is_used_to_create_the_help_builder()
+        {
+            bool handlerWasCalled = false;
+            bool factoryWasCalled = false;
+
+            HelpBuilder createdHelpBuilder = null;
+
+            var helpBuilderFactory = new DelegateHelpBuilderFactory(context =>
+            {
+                factoryWasCalled = true;
+                return createdHelpBuilder = new HelpBuilder(context.Console);
+            });
+
+            var command = new Command("help-command");
+            command.Handler = CommandHandler.Create((IHelpBuilder helpBuilder) =>
+            {
+                handlerWasCalled = true;
+                createdHelpBuilder.Should().NotBeNull();
+                helpBuilder.Should().Be(createdHelpBuilder);
+            });
+
+            var parser = new CommandLineBuilder()
+                         .UseHelpBuilderFactory(helpBuilderFactory)
+                         .AddCommand(command)
+                         .Build();
+
+            await parser.InvokeAsync("help-command", new TestConsole());
+
+            handlerWasCalled.Should().BeTrue();
+            factoryWasCalled.Should().BeTrue();
+        }
+
+        private class DelegateHelpBuilderFactory : IHelpBuilderFactory
+        {
+            public DelegateHelpBuilderFactory(Func<InvocationContext, IHelpBuilder> callback)
+            {
+                Callback = callback ?? throw new ArgumentNullException(nameof(callback));
+            }
+
+            private Func<InvocationContext, IHelpBuilder> Callback { get; }
+
+            public IHelpBuilder CreateHelpBuilder(InvocationContext invocationContext)
+                => Callback(invocationContext);
         }
     }
 }

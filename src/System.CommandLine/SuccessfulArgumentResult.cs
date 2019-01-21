@@ -3,14 +3,14 @@
 
 namespace System.CommandLine
 {
-    public class SuccessfulArgumentParseResult : ArgumentParseResult
+    public class SuccessfulArgumentResult : ArgumentResult
     {
-        protected SuccessfulArgumentParseResult()
+        protected SuccessfulArgumentResult()
         {
         }
 
         internal virtual bool HasValue => false;
 
-        internal static ArgumentParseResult Empty { get; } = new SuccessfulArgumentParseResult();
+        internal static ArgumentResult Empty { get; } = new SuccessfulArgumentResult();
     }
 }

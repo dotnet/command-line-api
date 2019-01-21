@@ -142,7 +142,7 @@ namespace System.CommandLine
                    .Containing(parseResult.TextToMatch());
         }
 
-        private ArgumentParseResult Parse(SymbolResult symbolResult)
+        private ArgumentResult Parse(SymbolResult symbolResult)
         {
             var failedResult = ArgumentArity.Validate(symbolResult,
                                                       Arity.MinimumNumberOfArguments,
@@ -155,7 +155,7 @@ namespace System.CommandLine
 
             if (symbolResult.UseDefaultValue)
             {
-                return ArgumentParseResult.Success(symbolResult.Symbol.Argument.GetDefaultValue());
+                return ArgumentResult.Success(symbolResult.Symbol.Argument.GetDefaultValue());
             }
 
             if (ConvertArguments != null)
@@ -166,19 +166,19 @@ namespace System.CommandLine
             switch (Arity.MaximumNumberOfArguments)
             {
                 case 0:
-                    return ArgumentParseResult.Success((string)null);
+                    return ArgumentResult.Success((string)null);
 
                 case 1:
-                    return ArgumentParseResult.Success(symbolResult.Arguments.SingleOrDefault());
+                    return ArgumentResult.Success(symbolResult.Arguments.SingleOrDefault());
 
                 default:
-                    return ArgumentParseResult.Success(symbolResult.Arguments);
+                    return ArgumentResult.Success(symbolResult.Arguments);
             }
         }
 
-        internal (ArgumentParseResult, ParseError) Validate(SymbolResult symbolResult)
+        internal (ArgumentResult, ParseError) Validate(SymbolResult symbolResult)
         {
-            ArgumentParseResult result = null;
+            ArgumentResult result = null;
 
             var error = UnrecognizedArgumentError() ??
                         CustomError();
@@ -207,7 +207,7 @@ namespace System.CommandLine
                                                canTokenBeRetried);
                         break;
 
-                    case FailedArgumentParseResult general:
+                    case FailedArgumentResult general:
 
                         error = new ParseError(general.ErrorMessage,
                                                symbolResult,

@@ -128,8 +128,8 @@ namespace System.CommandLine
             }
             else
             {
-                var result = symbolResult.Result;
-                if (result is SuccessfulArgumentParseResult _)
+                var result = symbolResult.ArgumentResult;
+                if (result is SuccessfulArgumentResult _)
                 {
                     var value = symbolResult.GetValueOrDefault();
                     
