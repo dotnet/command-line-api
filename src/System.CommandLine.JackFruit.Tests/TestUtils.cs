@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.Linq;
 using FluentAssertions;
 
@@ -28,16 +29,14 @@ namespace System.CommandLine.JackFruit.Tests
             actual.Name.Should().Be(expected);
         }
 
-        public static void CheckArgumentBindings(IEnumerable<SymbolBinding> list, IEnumerable<string> expected)
+        public static void CheckArgumentBindings(IEnumerable<(object Source, Argument Argument)> list, IEnumerable<string> expected)
         {
             list.Should().NotBeNull();
             expected.Count().Should().Be(list.Count());
             foreach (var s in expected)
             {
                 list
-                    .Select(x => x.Symbol)
-                    .OfType<Argument>()
-                    .Any(x => x.Name == s)
+                    .Any(x => x.Argument.Name == s)
                     .Should().BeTrue();
             }
         }
@@ -93,7 +92,7 @@ namespace System.CommandLine.JackFruit.Tests
             }
         }
 
-        public static void CheckOptions(IEnumerable<SymbolBinding> optionBindings, params (string Name, Type Type)[] optionInfos)
+        public static void CheckOptions(IEnumerable<SymbolBindingSide> optionBindings, params (string Name, Type Type)[] optionInfos)
         {
             optionBindings.Should().NotBeNull();
             optionBindings.Count().Should().Be(optionInfos.Length);

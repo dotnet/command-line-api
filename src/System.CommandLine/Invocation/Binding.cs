@@ -1,54 +1,104 @@
-﻿using System;
-using System.Collections.Generic;
-using System.CommandLine.Invocation;
+﻿using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace System.CommandLine.Invocation
 {
-    public abstract class BindingBase
+
+    public delegate void BindingSetter(InvocationContext context, object target, object value);
+    public delegate object BindingGetter(InvocationContext context, object target);
+
+    public abstract class BindingSide
     {
-        private protected BindingBase(object reflectionThing, Type returnType)
+        public BindingSide(BindingGetter get, BindingSetter set)
         {
-            ReflectionThing = reflectionThing;
-            ReturnType = returnType;
+            Set = set;
+            Get = get;
+        }
+        public BindingSetter Set { get; }
+        public BindingGetter Get { get; }
+    }
+
+    public class Binding
+    {
+
+        public BindingSide TargetSide { get; }
+        public BindingSide ParserSide { get; }
+
+        public Binding(BindingSide targetSide, BindingSide parserSide)
+        {
+            TargetSide = targetSide;
+            ParserSide = parserSide;
         }
 
-        public object ReflectionThing { get; } // ParameterInfo, PropertyInfo or other
-        public Type ReturnType { get; }
+        public void BindDefaults(InvocationContext context = null, object target = null)
+        {
+            var value = TargetSide.Get(context, target);
+            ParserSide.Set(context, target, value);
+        }
+
+        public void Bind(InvocationContext context = null, object target = null)
+        {
+            var value = ParserSide.Get(context, target);
+            TargetSide.Set(context, target, value);
+        }
+
 
     }
 
-    public class SymbolBinding : BindingBase
+    public class SymbolBindingSide : BindingSide
     {
-        internal SymbolBinding(object reflectionThing, Type returnType, ISymbolBase symbol)
-            : base(reflectionThing, returnType)
-            => Symbol = symbol;
+        private SymbolBindingSide(Option option)
+            : base(GetOptionRetrieve(option), GetOptionAssign(option))
+            => Symbol = option;
+        public SymbolBindingSide(Argument argument)
+            : base(GetArgumentRetrieve(argument), GetArgumentAssign(argument))
+            => Symbol = argument;
 
-        // In case of redundancy, last one wins. If
+        public static SymbolBindingSide Create(Option symbol)
+            => new SymbolBindingSide(symbol);
+
+        public static SymbolBindingSide Create(Argument argument)
+            => new SymbolBindingSide(argument);
+
         public ISymbolBase Symbol { get; }
 
-        public static SymbolBinding Create(ParameterInfo paramInfo, ISymbolBase optionOrArgument)
-            => new SymbolBinding(paramInfo, paramInfo.ParameterType, optionOrArgument);
+        private static BindingGetter GetOptionRetrieve(Option option)
+            => (context, target) => context.ParseResult.GetValue(option);
 
-        public static SymbolBinding Create(PropertyInfo propertyInfo, ISymbolBase optionOrArgument)
-            => new SymbolBinding(propertyInfo, propertyInfo.PropertyType, optionOrArgument);
+        private static BindingSetter GetOptionAssign(Option option)
+            => (context, target, value) => option.Argument.SetDefaultValue(value);
+
+        private static BindingGetter GetArgumentRetrieve(Argument argument)
+            => (context, target) => context.ParseResult.GetValue(argument);
+
+        private static BindingSetter GetArgumentAssign(Argument argument)
+            => (context, target, value) => argument.SetDefaultValue(value);
     }
 
-    public class FuncBinding<TTarget> : BindingBase
+    public class ValueBindingSide : BindingSide
     {
-        internal FuncBinding(object reflectionThing, Type returnType,
-              Func<InvocationContext, TTarget, object> valueFunc)
-                 : base(reflectionThing, returnType)
-             => ValueFunc = valueFunc;
+        private ValueBindingSide(BindingGetter getter, BindingSetter setter)
+               : base(getter, setter)
+        { }
 
-        public Func<InvocationContext, TTarget, object> ValueFunc { get; set; }
+        public static ValueBindingSide Create(Expression<Func<object>> valueExpression)
+            => throw new NotImplementedException();
 
-        public static FuncBinding<TTarget> Create<TValue>(PropertyInfo propertyInfo, Func<TValue> valueFunc) 
-            => new FuncBinding<TTarget>(propertyInfo, typeof(TValue), (c, t) => valueFunc());
+        public static ValueBindingSide Create<T>(Func<T> valueGetter, Action<object> valueSetter)
+             => new ValueBindingSide((c, t) => valueGetter(), (c, t, value) => valueSetter(value));
 
-        public static FuncBinding<TTarget> Create<TValue>(ParameterInfo parameterInfo, Func<TValue> valueFunc) 
-            => new FuncBinding<TTarget>(parameterInfo, typeof(TValue), (c, t) => valueFunc());
+        public static ValueBindingSide Create<T>(Func<T> valueGetter)
+             => new ValueBindingSide((c, t) => valueGetter(), null);
+    }
+
+    public class ServiceBindingSide : BindingSide
+    {
+        private ServiceBindingSide(BindingGetter getter, BindingSetter setter)
+           : base(getter, setter)
+        { }
+
+        public static ServiceBindingSide Create(Type serviceType)
+             => new ServiceBindingSide((c, t) => c.ServiceProvider.GetService(serviceType),  null);
 
     }
 }

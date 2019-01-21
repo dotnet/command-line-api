@@ -6,6 +6,7 @@ using FluentAssertions;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using System.CommandLine.Builder;
 
 namespace System.CommandLine.Tests
 {
@@ -110,7 +111,7 @@ namespace System.CommandLine.Tests
             }
 
             var command = new Command("command");
-            command.AddOption(new Option("--name", argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            command.AddOption(new Option("--name", argument: new Argument<string>() { Arity = ArgumentArity.ExactlyOne }));
             command.AddOption(new Option("--age", argument: new Argument<int>()));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
@@ -142,9 +143,15 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task Method_parameters_on_the_invoked_lambda_are_bound_to_matching_option_names()
+        // TODO: Talk to Jon about this syntax
+        // - value of early bind for testing
+        // - could pass command to Create (*)
+        // - could bind explicitly after attaching
+        // - could bind on InvokeAsync 
+        public void Method_parameters_on_the_invoked_lambda_are_bound_to_matching_option_names()
         {
             var wasCalled = false;
+            const string commandLine = "command --age 425 --name Gandalf";
 
             var command = new Command("command");
             command.AddOption(new Option("--name", "", new Argument<string>()));
@@ -154,11 +161,34 @@ namespace System.CommandLine.Tests
                 wasCalled = true;
                 name.Should().Be("Gandalf");
                 age.Should().Be(425);
-            });
+            }, command);
 
-            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+            var arguments = ((command.Handler as IBoundCommandHandler).Binder as ReflectionBinder)
+                            .GetInvocationArguments(GetInvocationContext(commandLine, command));
+            arguments.Should().BeEquivalentTo("Gandalf", 425);
+            // Suggest test pattern for users:
+            // - Create parse tree, with handlers
+            // - Create many command lines
+            // - Binder.GetTarget() and check proeprties
+            // - Binder.GetArguments() and compare arguments 
+            // Need better access to ReflectionBinder
+
+
+            // Can't also call InvokeAsync because adding version a second time crashes. Probably fix as bug.
+            // If pipeline isn't idempotent/reentrant, then throw more specific error
+            //await command.InvokeAsync(commandLine, _console);
 
             wasCalled.Should().BeTrue();
+        }
+
+        private static InvocationContext GetInvocationContext(string commandLine, Command command)
+        {
+            var parser = new CommandLineBuilder(command)
+                         .UseDefaults()
+                         .Build();
+            var parseResult = parser.Parse(commandLine);
+            var invocationContext = new InvocationContext(parseResult, parser);
+            return invocationContext;
         }
 
         [Fact]

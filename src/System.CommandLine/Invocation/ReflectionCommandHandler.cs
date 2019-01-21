@@ -21,46 +21,54 @@ namespace System.CommandLine.Invocation
     // I am designing for the class containing the method to be special purpose 
     //      and call into the rest of the app, for exammple, demanding one constructor
 
-    public abstract class ReflectionCommandHandler : ICommandHandler
+    public class ReflectionCommandHandler : IBoundCommandHandler
     {
+        private ReflectionCommandHandler(Type targetType)
+        {
+            TargetType = targetType;
+            Binder = new ReflectionBinder(TargetType);
+        }
 
         public static ReflectionCommandHandler Create(MethodInfo methodInfo)
         {
-            var handler = CreateInternal(methodInfo.DeclaringType, methodInfo, null);
+            var handler = Create(methodInfo.DeclaringType, methodInfo, null);
             return handler;
         }
 
         public static ReflectionCommandHandler Create(Type declaringType)
         {
-            var handler = CreateInternal(declaringType, null, null);
+            var handler = Create(declaringType, null, null);
             return handler;
         }
 
         public static ReflectionCommandHandler Create(MethodInfo methodInfo, object target)
         {
-            var handler = CreateInternal(methodInfo.DeclaringType, methodInfo, target);
+            var handler = Create(methodInfo.DeclaringType, methodInfo, target);
             return handler;
         }
 
-        private static ReflectionCommandHandler CreateInternal(Type declaringType, MethodInfo methodInfo, object target)
+        public static ReflectionCommandHandler Create(Type type, MethodInfo methodInfo, object target = null)
         {
-            var genericMethod = typeof(ReflectionCommandHandler).GetMethods()
-                                    .Where(x => x.Name == "Create" && x.IsGenericMethod
-                                            && x.GetParameters().FirstOrDefault()?.ParameterType == typeof(MethodInfo))
-                                    .First();
-            var constructedMethod = genericMethod.MakeGenericMethod(declaringType);
-            var handler = constructedMethod.Invoke(null, new object[] { methodInfo, target });
-            return (ReflectionCommandHandler)handler;
+            var handler = new ReflectionCommandHandler(type);
+            handler.Binder.SetTarget(target);
+            methodInfo = methodInfo ?? GetInvokeMethod(type);
+            handler.Binder.SetInvocationMethod(methodInfo);
+            return handler;
         }
 
-        public static ReflectionCommandHandler<TTarget> Create<TTarget>(MethodInfo methodInfo = null, TTarget target = null)
-                where TTarget : class
+        public Type TargetType { get; }
+
+        public ReflectionBinder Binder { get; }
+        IBinder IBoundCommandHandler.Binder
+            => this.Binder;
+
+        public Task<int> InvokeAsync(InvocationContext context)
         {
-            var handler = Activator.CreateInstance<ReflectionCommandHandler<TTarget>>();
-            handler.Binder.Target = target;
-            methodInfo = methodInfo ?? GetInvokeMethod(typeof(TTarget));
-            handler.InvocationMethodInfo = methodInfo;
-            return handler;
+            // Can we get an easier way to get the handler's owner - which only matters
+            // for invocation
+            Binder.AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
+            var value = Binder.InvokeAsync(context);
+            return CommandHandler.GetResultCodeAsync(value, context);
         }
 
         private static MethodInfo GetInvokeMethod(Type type)
@@ -71,28 +79,5 @@ namespace System.CommandLine.Invocation
                                      .FirstOrDefault();
         }
 
-        public abstract Task<int> InvokeAsync(InvocationContext context);
-
-        protected MethodInfo InvocationMethodInfo { get; set; }
     }
-
-    public class ReflectionCommandHandler<TTarget> : ReflectionCommandHandler
-        where TTarget : class
-    {
-        public ReflectionBinder<TTarget> Binder { get; set; } = new ReflectionBinder<TTarget>();
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        // TODO: How do we await this via reflection?
-        public override Task<int> InvokeAsync(InvocationContext context)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-        {
-            var target = Binder.CreateInstance(context);
-            var methodArguments = Binder.GetParameterValues(context,target, InvocationMethodInfo);
-
-            var value = InvocationMethodInfo.Invoke(target, methodArguments);
-
-            return CommandHandler.GetResultCodeAsync(value, context);
-        }
-
- }
 }

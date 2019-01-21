@@ -3,7 +3,7 @@
 namespace System.CommandLine.JackFruit
 {
 
-    public static class DescriptionStrategies 
+    public static class DescriptionProvider 
     {
         public static  string FromAttribute(Command parent, object source)
         {

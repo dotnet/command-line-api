@@ -3,152 +3,386 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public class ReflectionBinder
+    public class ReflectionBinder : IBinder
     {
+        public ReflectionBinder(Type type)
+            => Type = type;
+
         protected const BindingFlags CommonBindingFlags = BindingFlags.FlattenHierarchy
                                     | BindingFlags.IgnoreCase
                                     | BindingFlags.Public
                                     | BindingFlags.NonPublic;
 
-    }
+        protected const BindingFlags IgnorePrivateBindingFlags = BindingFlags.FlattenHierarchy
+                                | BindingFlags.IgnoreCase
+                                | BindingFlags.Public
+                                | BindingFlags.NonPublic;
 
-    public class ReflectionBinder<TTarget> : ReflectionBinder
-        where TTarget : class
-    {
-        public BindingSet BindingSet { get; } = new BindingSet();
-        public Func<InvocationContext, TTarget> CreateTargetFunc { get; set; }
-        public TTarget Target { get; set; }
+        private object _explicitlySetTarget;
+        private Type Type { get; }
+        protected internal MethodInfo InvocationMethodInfo { get; private set; }
+        // I really hate the location of these. I think we need a reflection binding set that incorporates these
+        protected ParameterCollection InvocationParameterCollection { get; private set; }
+        protected ParameterCollection ConstructorParameterCollection { get; private set; }
 
-        public void AddBinding(BindingBase bindingAction)
-            => BindingSet.AddBinding(bindingAction);
+        protected BindingSet ConstructorBindingSet = new BindingSet();
+        protected BindingSet InvocationBindingSet = new BindingSet();
+        private bool IsBoundToCommand;
 
-        public void AddBindings(IEnumerable<BindingBase> bindingActions)
-            => BindingSet.AddBindings(bindingActions);
-
-        public BindingBase Find(object reflectionObject)
-            => BindingSet.Find(reflectionObject);
-
-        public TTarget CreateInstance(InvocationContext context)
+        public void AddBinding(object source, Option option)
         {
-            SetStaticProperties(context);
-            var target = Target
-                         ?? (CreateTargetFunc == null
-                            ? CreateTarget(context)
-                            : CreateTargetFunc?.Invoke(context));
+            switch (source)
+            {
+                case ParameterInfo parameterInfo:
+                    AddBinding(parameterInfo, option);
+                    break;
+                case PropertyInfo propertyInfo:
+                    AddBinding(propertyInfo, option);
+                    break;
+                default:
+                    throw new InvalidOperationException("Internal: Unexpected source type");
+            }
+        }
 
-            SetTargetProperties(context,target);
+        public void AddBinding(object source, Argument argument)
+        {
+            switch (source)
+            {
+                case ParameterInfo parameterInfo:
+                    AddBinding(parameterInfo, argument);
+                    break;
+                case PropertyInfo propertyInfo:
+                    AddBinding(propertyInfo, argument);
+                    break;
+                default:
+                    throw new InvalidOperationException("Internal: Unexpected source type");
+            }
+        }
+
+        internal void SetInvocationMethod(MethodInfo methodInfo)
+            => InvocationMethodInfo = methodInfo;
+
+        public void AddBinding<T>(object source, Func<T> valueFunc)
+        {
+            switch (source)
+            {
+                case ParameterInfo parameterInfo:
+                    AddBinding(parameterInfo, valueFunc);
+                    break;
+                case PropertyInfo propertyInfo:
+                    AddBinding(propertyInfo, valueFunc);
+                    break;
+                default:
+                    throw new InvalidOperationException("Internal: Unexpected source type");
+            }
+        }
+
+        public void AddBinding(ParameterInfo parameterInfo, Option option)
+            => AddBinding(parameterInfo, SymbolBindingSide.Create(option));
+
+        public void AddBinding(ParameterInfo parameterInfo, Argument argument)
+            => AddBinding(parameterInfo, SymbolBindingSide.Create(argument));
+
+        public void AddBinding<T>(ParameterInfo parameterInfo, Func<T> valueFunc)
+            => AddBinding(parameterInfo, ValueBindingSide.Create(valueFunc));
+
+        public void AddBinding(ParameterInfo parameterInfo, BindingSide parserBindingSide)
+        {
+            var temp = parameterInfo.Member.Name.ToString() == "Install";
+            switch (parameterInfo.Member)
+            {
+                case MethodInfo methodInfo:
+                    InvocationMethodInfo = InvocationMethodInfo
+                                            ?? methodInfo;
+                    InvocationParameterCollection = InvocationParameterCollection
+                                            ?? new ParameterCollection(methodInfo);
+                    InvocationBindingSet.AddBinding(ParameterBindingSide.Create(
+                                parameterInfo, InvocationParameterCollection), parserBindingSide);
+                    return;
+                case ConstructorInfo constructorInfo:
+                    ConstructorParameterCollection = ConstructorParameterCollection
+                                            ?? new ParameterCollection(constructorInfo);
+                    ConstructorBindingSet.AddBinding(ParameterBindingSide.Create(parameterInfo, ConstructorParameterCollection), parserBindingSide);
+                    return;
+                default:
+                    throw new InvalidOperationException("Internal: Unexpected parameter location");
+            }
+        }
+
+        public void AddBinding(PropertyInfo propertyInfo, Option option)
+           => AddBinding(propertyInfo, SymbolBindingSide.Create(option));
+
+        public void AddBinding(PropertyInfo propertyInfo, Argument argument)
+            => AddBinding(propertyInfo, SymbolBindingSide.Create(argument));
+
+        public void AddBinding<T>(PropertyInfo propertyInfo, Func<T> valueFunc)
+            => AddBinding(propertyInfo, ValueBindingSide.Create(valueFunc));
+
+        public void AddBinding(PropertyInfo propertyInfo, BindingSide parserBindingSide)
+        {
+            if (propertyInfo.GetAccessors(true)[0].IsStatic)
+            {
+                ConstructorBindingSet.AddBinding(PropertyBindingSide.Create(propertyInfo), parserBindingSide);
+            }
+            else
+            {
+                InvocationBindingSet.AddBinding(PropertyBindingSide.Create(propertyInfo), parserBindingSide);
+            }
+        }
+
+        /// <summary>
+        /// Create funcioning handler from a method info and it's executing context. Binding can be to services
+        /// method defaults and optionally a command that is already populated with symbols.
+        /// 
+        /// All bindable items are bound - iow, if a symbol could be bound to a property and a parameter, it will be
+        /// bound to both
+        /// 
+        /// After this binding is complete, an attempt will be made to bind unbound parameters to a service by type.
+        /// We could do this for properties as well, but are not yet doing that. 
+        /// 
+        /// Any unbound parameters at this point will attempt to be bound to properties on the target by case  
+        /// insensitive name. 
+        /// 
+        /// If not found, the parameter will be reported as unbound. 
+        /// 
+        /// Unbound parameters do not result in an error, because there is always a value. If the parameter has a
+        /// default value, that is used. If not, the  default value of the type is used
+        /// 
+        /// This approach was chosen because for explictly bound objects, multiple binding targets are allowed, so
+        /// it was desirable to do that here and to say that binding never fails. 
+        /// 
+        /// When a missing binding should fail, use GetUnboundParameters. There is not yet a GetUnboundConstructorParameters,
+        /// partly because that would be problematic if someone has set up DI. But then we don't yet understand the DI 
+        /// interaction.
+        /// 
+        /// </summary>
+        /// <param name="methodInfo">The method to be bound</param>
+        /// <param name="command">A command containing symbols that can be bound to.</param>
+        /// <returns></returns>
+        public void AddBindings(MethodInfo methodInfo, ICommand command, bool ignorePrivate = false)
+        {
+            if (command == null)
+            {
+                return;
+            }
+            var type = methodInfo.DeclaringType;
+            var bindingFlags = ignorePrivate
+                                ? IgnorePrivateBindingFlags
+                                : CommonBindingFlags;
+            // bind in same order as invocation. not sure this matters
+            AddBindingForStaticPropertiesToCommand(type, command, bindingFlags);
+            AddBindingForConstructorParametersToCommand(type, command, bindingFlags);
+            AddBindingForPropertiesToCommand(type, command, bindingFlags);
+            AddBindingForParametersToCommand(methodInfo, command, bindingFlags);
+            var unboundParameters = GetUnboundParameters(methodInfo, InvocationBindingSet);
+            AddBindingForServiceParameters(unboundParameters);
+            unboundParameters = GetUnboundParameters(methodInfo, InvocationBindingSet); // drop any that are now bound
+            AddBindingForPropertyParameters(type, unboundParameters);
+            IsBoundToCommand = true;
+        }
+
+        internal void AddBindingsIfNeeded(ICommand command)
+        {
+            // I am not crazy about using a boolean. It won't play nice with mixed 
+            // mode binding (manual and automatic)
+            if (!IsBoundToCommand)
+            {
+                AddBindings(InvocationMethodInfo, command);
+            }
+        }
+
+        public void SetTarget(object target)
+            => _explicitlySetTarget = target;
+
+        public object GetTarget(InvocationContext context = null)
+        {
+            ConstructorBindingSet.Bind(context, null);
+            var target = _explicitlySetTarget != null
+                         ? _explicitlySetTarget
+                         : Activator.CreateInstance(Type,
+                            JustGetConstructorArguments());
+            InvocationBindingSet.Bind(context, target);
             return target;
         }
 
-        private void SetTargetProperties(InvocationContext context, TTarget target)
+        private object[] JustGetConstructorArguments()
+            => HandleNullArguments(ConstructorParameterCollection?.GetArguments());
+
+        private object[] JustGetInvocationArguments()
+            => HandleNullArguments(InvocationParameterCollection?.GetArguments());
+
+        public object[] GetConstructorArguments(InvocationContext context = null)
         {
-            var type = typeof(TTarget);
-            var properties = type.GetProperties(CommonBindingFlags | BindingFlags.Instance);
-            SetProperties(context, target, properties);
+            ConstructorBindingSet.Bind(context, null);
+            return JustGetConstructorArguments();
         }
 
-        private TTarget CreateTarget(InvocationContext context)
+        private object[] HandleNullArguments(object[] arguments)
+            => arguments
+               ?? Array.Empty<object>();
+
+        public object[] GetInvocationArguments(InvocationContext context)
         {
-            var type = typeof(TTarget);
-            // TODO: Figure out if we should restrict to public constructors
-            var ctors = type.GetConstructors();
-            if (ctors.Count() > 1)
+            // It may not be necessary to get the target first
+            var target = GetTarget(context);
+            return JustGetInvocationArguments();
+        }
+
+        public object InvokeAsync(InvocationContext context)
+        {
+            var target = GetTarget(context);
+            // Invocation bind is done during Target construction (to allow dependency on properties)
+            var arguments = JustGetInvocationArguments();
+            var value = InvocationMethodInfo.Invoke(target, arguments);
+            return CommandHandler.GetResultCodeAsync(value, context);
+        }
+
+        // If a corresponding symbol isn't fuond, that's fine Invocation should use default
+        // Add a way to include an explicit default from parameter info when there is no option
+        // Add a "strict" method test that warns on missing symbols. Levels including ignore static properties
+        private void AddBindingForPropertyParameters(Type type, IEnumerable<ParameterInfo> unboundParameters)
+        {
+            foreach (var parameterInfo in unboundParameters)
             {
-                throw new InvalidOperationException("Target cannot have multiple constructors");
+                var matchingProperties = type.GetProperties(CommonBindingFlags | BindingFlags.Static | BindingFlags.Instance)
+                                        .Where(p => p.Name.Equals(parameterInfo.Name, StringComparison.InvariantCultureIgnoreCase));
+                matchingProperties = matchingProperties.Count() <= 1
+                                     ? matchingProperties
+                                     : matchingProperties
+                                                .Where(p => p.Name == parameterInfo.Name);
+                if (matchingProperties.Any())
+                {
+                    AddBinding(parameterInfo, PropertyBindingSide.Create(matchingProperties.First()));
+                }
             }
-            var ctor = ctors.FirstOrDefault();
-            return ctor.GetParameters().Count() == 0
-                    ? Activator.CreateInstance<TTarget>()
-                    : GetTargetFromConstructor(context, ctor);
         }
 
-        private TTarget GetTargetFromConstructor(InvocationContext context, ConstructorInfo constructorInfo)
+        private void AddBindingForServiceParameters(IEnumerable<ParameterInfo> unboundParameters)
         {
-            var type = typeof(TTarget);
-            var paramValues = GetParameterValues(context, null, constructorInfo);
-            return (TTarget)Activator.CreateInstance(type, paramValues);
-        }
-
-        public object[] GetParameterValues(InvocationContext context, TTarget target, MethodBase methodInfo)
-        {
-            var parameters = methodInfo.GetParameters();
-            var values = new List<object>();
-            foreach (var param in parameters)
+            var bindable = unboundParameters
+                            .Where(p => InvocationContext.AvailableServiceTypes
+                                        .Contains(p.ParameterType));
+            foreach (var parameterInfo in bindable)
             {
-                var binding = BindingSet.Find(param);
-                values.Add(GetParameterValue(context, target, param, binding));
+                AddBinding(parameterInfo, ServiceBindingSide.Create(parameterInfo.ParameterType));
             }
-            return values.ToArray();
         }
 
-        private object GetParameterValue(InvocationContext context,TTarget target,  ParameterInfo param, BindingBase binding)
+        public IEnumerable<ParameterInfo> GetUnboundParameters(MethodInfo methodInfo,
+                    BindingSet bindingSet, bool considerParameterDefaults = false)
+            => methodInfo.GetParameters()
+                    .Where(p => (considerParameterDefaults && p.HasDefaultValue) // always considered bound
+                                || bindingSet.FindTargetBinding<ParameterBindingSide>(pbs => pbs.ParameterInfo == p)
+                                    .None());
+
+        private void AddBindingForParametersToCommand(MethodInfo methodInfo, ICommand command, BindingFlags bindingFlags)
         {
-            if (binding != null)
+            AddBindingForMethodBase(methodInfo, command, bindingFlags);
+        }
+
+        private void AddBindingForPropertiesToCommand(Type type, ICommand command, BindingFlags bindingFlags)
+        {
+            var properties = type.GetProperties(bindingFlags)
+                                  .Where(p => !(p.GetAccessors().FirstOrDefault()?.IsStatic).GetValueOrDefault());
+            foreach (var property in properties)
             {
-                return ValueFromBinding(context, target, binding);
+                AddBinding(property, command);
             }
-            var value = context.ServiceProvider.GetService(param.ParameterType);
-            return value ?? (param.HasDefaultValue
-                                ? param.DefaultValue
-                                : param.ParameterType.GetDefaultValue());
         }
 
-        private object ValueFromBinding(InvocationContext context, TTarget target, BindingBase binding)
+        private void AddBindingForConstructorParametersToCommand(Type type, ICommand command, BindingFlags bindingFlags)
         {
-            object value;
-            switch (binding)
+            var ctors = type.GetConstructors(bindingFlags);
+            switch (ctors.Count())
             {
-                case FuncBinding<TTarget> funcBinding:
-                    value = funcBinding.ValueFunc(context, target);
-                    break;
-                case SymbolBinding symbolBinding:
-                    switch (symbolBinding.Symbol)
-                    {
-                        case Option option:
-                            value = context.ParseResult.GetValue(option);
-                            break;
-                        case Argument argument:
-                            value = context.ParseResult.GetValue(argument);
-                            break;
-                        default:
-                            throw new InvalidOperationException("Internal: Unknown symbol type encountered");
-                    }
+                case 0: // do not need constructor
+                    return;
+                case 1:
+                    AddBindingForMethodBase(ctors.First(), command, bindingFlags);
                     break;
                 default:
-                    throw new InvalidOperationException("Internal: Symbol or value func missing in BindAction");
+                    // TODO: This is probably wrong. We should have picking rules I think 
+                    throw new InvalidOperationException("Internal: Currently bound types can have only one constructor");
             }
-            // TODO: Handle conversion errors - needs to propagate so needs thought
-            var typedValue = Convert.ChangeType(value, binding.ReturnType);
-            return typedValue;
+
         }
 
-        private void SetStaticProperties(InvocationContext context)
+        private void AddBindingForMethodBase(MethodBase methodBase, ICommand command, BindingFlags bindingFlags)
         {
-            var bindingFlags = CommonBindingFlags | BindingFlags.Static;
-            var type = typeof(TTarget);
-            var staticProperties = type.GetProperties(bindingFlags);
-            SetProperties(context, null, staticProperties);
-            if (type.IsNested)
+            var parameters = methodBase.GetParameters();
+            foreach (var parameterInfo in parameters)
             {
-                // TODO: How do you find a nested types parent?
-                // TODO: Set nested parents static properties
+                AddBinding(parameterInfo, command);
             }
         }
 
-        private void SetProperties(InvocationContext context, object target, IEnumerable<PropertyInfo> properties)
+        private void AddBindingForStaticPropertiesToCommand(Type type, ICommand command, BindingFlags bindingFlags)
         {
-            foreach (var prop in properties)
+            var properties = type.GetProperties(bindingFlags)
+                              .Where(p => (p.GetAccessors().FirstOrDefault()?.IsStatic).GetValueOrDefault());
+            foreach (var property in properties)
             {
-                var binding = BindingSet.Find(prop);
-                object value = binding == null
-                                ? context.ServiceProvider.GetService(prop.PropertyType)
-                                : ValueFromBinding(context, null, binding);
-                prop.SetValue(target, value);
+                AddBinding(property, command);
             }
         }
 
+        // TODO: Candidates for a base class
+        private void AddBinding(PropertyInfo propertyInfo, ICommand command)
+        {
+            var symbol = FindMatchingSymbol(propertyInfo.Name, command);
+            switch (symbol)
+            {
+                case null:
+                    return;
+                case Argument argument:
+                    AddBinding(propertyInfo, argument);
+                    break;
+                case Option option:
+                    AddBinding(propertyInfo, option);
+                    break;
+                default:
+                    throw new InvalidOperationException("Internal: Unexpected symbol type");
+            }
+        }
+
+        private void AddBinding(ParameterInfo parameterInfo, ICommand command)
+        {
+            var symbol = FindMatchingSymbol(parameterInfo.Name, command);
+            switch (symbol)
+            {
+                case null:
+                    return;
+                case Argument argument:
+                    AddBinding(parameterInfo, argument);
+                    break;
+                case Option option:
+                    AddBinding(parameterInfo, option);
+                    break;
+                default:
+                    throw new InvalidOperationException("Internal: Unexpected symbol type");
+            }
+        }
+
+        private static ISymbolBase FindMatchingSymbol(string name, ICommand command)
+           => command?.Children.GetByAlias(name.ToKebabCase().ToLowerInvariant());
+
+        internal static bool IsMatch(string parameterName, string alias) =>
+            string.Equals(alias?.RemovePrefix()
+                               .FromKebabCase(),
+                          parameterName,
+                          StringComparison.OrdinalIgnoreCase);
+
+        internal static bool IsMatch(string parameterName, ISymbol symbol) =>
+            symbol.Aliases.Any(parameterName.IsMatch);
+
+        void IBinder.AddBinding(Binding binding)
+            => InvocationBindingSet.AddBinding(binding);
+
+        void IBinder.AddBinding(BindingSide targetSide, BindingSide parserSide)
+            => InvocationBindingSet.AddBinding(targetSide, parserSide);
     }
 }

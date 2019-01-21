@@ -5,7 +5,7 @@ using System.Reflection;
 namespace System.CommandLine.JackFruit
 {
 
-    public static class AliasStrategies
+    public static class AliasProvider
     {
         public static IEnumerable<string> FromAttribute(Command parent, object source)
         {

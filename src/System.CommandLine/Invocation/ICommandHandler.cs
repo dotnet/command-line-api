@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
+
+    public interface IBoundCommandHandler : ICommandHandler
+    {
+        IBinder Binder { get;  }
+    }
     public interface ICommandHandler
     {
         Task<int> InvokeAsync(InvocationContext context);

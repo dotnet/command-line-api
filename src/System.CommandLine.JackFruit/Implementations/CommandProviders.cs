@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.CommandLine.JackFruit.Reflection;
 using System.Linq;
 using System.Reflection;
 
 namespace System.CommandLine.JackFruit
 {
-    public static class CommandStrategies
+    public static class CommandProvider
     {
         private class DerivedTypeFinder
         {
@@ -32,63 +33,60 @@ namespace System.CommandLine.JackFruit
             }
         }
 
-        public static IEnumerable<Command> FromDerivedTypes(
-                  Command parent, Type baseType)
+        public static IEnumerable<Command> FromDerivedTypes(Command parent, Type baseType)
             => DerivedTypeFinder.GetDerivedTypes(baseType)
                                     ?.Select(t => GetCommand(parent, t))
                                     .ToList();
 
-        public static IEnumerable<Command> FromNestedTypes(
-                 Command parent, Type baseType) 
+        public static IEnumerable<Command> FromNestedTypes(Command parent, Type baseType)
             => baseType.GetNestedTypes(Constants.PublicDeclaredInInstance)
                                      ?.Select(t => GetCommand(parent, t))
                                      .ToList();
 
         // TODO: Filter this for Ignore methods
-        public static  IEnumerable<Command> FromMethods(Command parent, Type baseType)
+        public static IEnumerable<Command> FromMethods(Command parent, Type baseType)
         {
             var methods = baseType.GetMethods(Reflection.Constants.PublicDeclaredInInstance)
                             .Where(m => !m.IsSpecialName);
             var commands = methods
-                            .Select(m => GetCommand(parent, m))
+                            .Select(m => GetCommand(parent, ReflectionCommandHandler.Create(m), m))
                             .ToList();
             return commands;
 
         }
 
-        public static Command GetCommand<T>(Command parent, T source)
+        public static Command GetCommand(Command parent, Type type)
+            => GetCommand(parent, ReflectionCommandHandler.Create(type), type);
+
+        public static Command GetCommand<T>(Command parent, ReflectionCommandHandler handler, T source)
         {
             // There are order dependencies in this method
-            var names = PreBinderContext.Current.AliasProvider.Get(parent, source);
+            var names = PreBinderContext.Current.AliasStrategies.Get(parent, source);
 
             var command = parent == null
                 ? new RootCommand(names?.First())
-                : new Command(names?.First(), PreBinderContext.Current.DescriptionProvider.Get(parent, source));
+                : new Command(names?.First(), PreBinderContext.Current.DescriptionStrategies.Get(parent, source));
 
             parent?.AddCommand(command);
-            var handler = PreBinderContext.Current.HandlerProvider.Get(command, source);
 
-            if (handler is ReflectionCommandHandler reflectionHandler)
-            {
-                var arguments = PreBinderContext.Current.ArgumentBindingProvider.Get(command, source);
-                if (arguments.Any())
-                {
-                    // TODO: When multi-arguments merged, update this
-                    var argumentBinding = arguments.First();
-                    reflectionHandler.Binder.AddBinding(argumentBinding);
-                    command.Argument = argumentBinding.Symbol as Argument;
-                }
+            var sourceAndArguments = PreBinderContext.Current.ArgumentBindingStrategies.Get(command, source);
 
-                var optionBindingActions = PreBinderContext.Current.OptionBindingProvider.Get(command, source);
-                reflectionHandler .AddBindings(optionBindingActions );
-                command.AddOptions(optionBindingActions.Select(x => (Option)x.Symbol));
-            }
-            else
+            if (sourceAndArguments.Any())
             {
-                throw new NotImplementedException("Internal: Currently CommandStrategies only supports ReflectionCommandHandler");
+                // TODO: When multi-arguments merged, update this
+                var (argSource, argument) = sourceAndArguments.First();
+                handler.Binder.AddBinding(argSource, argument);
+                command.Argument = argument;
             }
- 
-            var subCommands = PreBinderContext.Current.SubCommandProvider.Get(command, source);
+
+            var sourceAndOptions = PreBinderContext.Current.OptionBindingStrategies.Get(command, source);
+            foreach ((object optionSource, Option option) in sourceAndOptions)
+            {
+                handler.Binder.AddBinding(optionSource, option);
+                command.AddOption(option);
+            }
+
+            var subCommands = PreBinderContext.Current.SubCommandStrategies.Get(command, source);
             // Commands add themselves, thus no command.AddCommands(subCommands);
             command.Handler = handler;
             return command;

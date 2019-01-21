@@ -28,41 +28,36 @@ namespace System.CommandLine.JackFruit
 
         private void SetDefaults()
         {
-            SubCommandProvider = (SubCommandProvider ?? ProviderBase.Create<IEnumerable<Command>>())
-                                        .AddStrategy<Type>(CommandStrategies.FromDerivedTypes)
-                                        .AddStrategy<Type>(CommandStrategies.FromNestedTypes)
-                                        .AddStrategy<Type>(CommandStrategies.FromMethods);
+            SubCommandStrategies = (SubCommandStrategies ?? ProviderBase.Create<IEnumerable<Command>>())
+                                        .AddStrategy<Type>(CommandProvider.FromDerivedTypes)
+                                        .AddStrategy<Type>(CommandProvider.FromNestedTypes)
+                                        .AddStrategy<Type>(CommandProvider.FromMethods);
 
-            AliasProvider = (AliasProvider ?? ProviderBase.Create<IEnumerable<string>>())
-                                        .SetFinalTransform(x => x.Select(n => n.ToKebabCase().ToLower()))
-                                        .AddStrategy<object>(AliasStrategies.FromAttribute);
+            AliasStrategies = (AliasStrategies ?? ProviderBase.Create<IEnumerable<string>>())
+                                        .SetFinalTransform((IEnumerable<string> x) => x.Select(n => n.ToKebabCase().ToLower()))
+                                        .AddStrategy<object>(JackFruit.AliasProvider.FromAttribute);
 
-            DescriptionProvider = (DescriptionProvider ?? ProviderBase.Create<string>())
-                                        .AddStrategy<object>(DescriptionStrategies.FromAttribute);
+            DescriptionStrategies = (DescriptionStrategies ?? ProviderBase.Create<string>())
+                                        .AddStrategy<object>(JackFruit.DescriptionProvider.FromAttribute);
 
-            OptionBindingProvider = (OptionBindingProvider ?? ProviderBase.Create<IEnumerable<SymbolBinding>>())
-                                         .AddStrategy<MethodInfo>(OptionStrategies.FromParameters)
-                                         .AddStrategy<Type>(OptionStrategies.FromProperties);
+            OptionBindingStrategies = (OptionBindingStrategies ?? ProviderBase.Create<IEnumerable<(object Source, Option Option)>>())
+                                         .AddStrategy<MethodInfo>(OptionProvider.FromParameters)
+                                         .AddStrategy<Type>(OptionProvider.FromProperties);
 
-            ArgumentBindingProvider = (ArgumentBindingProvider ?? ProviderBase.Create<IEnumerable<SymbolBinding>>())
-                                        .AddStrategy<Type>(ArgumentStrategies.FromAttributedProperties)
-                                        .AddStrategy<Type>(ArgumentStrategies.FromSuffixedProperties)
-                                        .AddStrategy<MethodInfo>(ArgumentStrategies.FromAttributedParameters)
-                                        .AddStrategy<MethodInfo>(ArgumentStrategies.FromSuffixedParameters)
-                                        .AddStrategy<ParameterInfo>(ArgumentStrategies.FromParameter)
-                                        .AddStrategy<PropertyInfo>(ArgumentStrategies.FromProperty);
-
-            HandlerProvider = (HandlerProvider ?? ProviderBase.Create<ICommandHandler>())
-                                        .AddStrategy<MethodInfo>(HandlerStrategies.FromMethod)
-                                        .AddStrategy<Type>(HandlerStrategies.FromType);
+            ArgumentBindingStrategies = (ArgumentBindingStrategies ?? ProviderBase.Create<IEnumerable<(object Source, Argument Argument)>>())
+                                        .AddStrategy<Type>(ArgumentProvider.FromAttributedProperties)
+                                        .AddStrategy<Type>(ArgumentProvider.FromSuffixedProperties)
+                                        .AddStrategy<MethodInfo>(ArgumentProvider.FromAttributedParameters)
+                                        .AddStrategy<MethodInfo>(ArgumentProvider.FromSuffixedParameters)
+                                        .AddStrategy<ParameterInfo>(ArgumentProvider.FromParameter)
+                                        .AddStrategy<PropertyInfo>(ArgumentProvider.FromProperty);
 
         }
 
-        public IProvider<IEnumerable<Command>> SubCommandProvider { get; set; }
-        public IProvider<IEnumerable<string>> AliasProvider { get; set; }
-        public IProvider<string> DescriptionProvider { get; set; }
-        public IProvider<IEnumerable<SymbolBinding>> ArgumentBindingProvider { get; set; }
-        public IProvider<IEnumerable<SymbolBinding>> OptionBindingProvider { get; set; }
-        public IProvider<ICommandHandler> HandlerProvider { get; set; }
+        public IStrategySet<IEnumerable<Command>> SubCommandStrategies { get; set; }
+        public IStrategySet<IEnumerable<string>> AliasStrategies { get; set; }
+        public IStrategySet<string> DescriptionStrategies { get; set; }
+        public IStrategySet<IEnumerable<(object Source, Argument Argument)>> ArgumentBindingStrategies { get; set; }
+        public IStrategySet<IEnumerable<(object Source, Option Option)>> OptionBindingStrategies { get; set; }
     }
 }

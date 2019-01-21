@@ -1,10 +1,10 @@
 ﻿namespace System.CommandLine.JackFruit
 {
-    public interface IProvider<T>
+    public interface IStrategySet<T>
     {
-        IProvider<T> AddStrategy<TSource>(Func<Command, TSource,  T> getFunc);
-        ProviderBase<T> SetInitialCheck(Func<object, object> initialCheck);
-        ProviderBase<T> SetFinalTransform(Func<T, T> finalTransform);
+        IStrategySet<T> AddStrategy<TSource>(Func<Command, TSource,  T> getFunc);
+        StrategySetBase<T> SetInitialCheck(Func<object, object> initialCheck);
+        StrategySetBase<T> SetFinalTransform(Func<T, T> finalTransform);
         T Get<TSource>(Command parent, TSource source);
     }
 }
