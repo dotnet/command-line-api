@@ -177,8 +177,8 @@ namespace System.CommandLine.Tests
             // Can't also call InvokeAsync because adding version a second time crashes. Probably fix as bug.
             // If pipeline isn't idempotent/reentrant, then throw more specific error
             //await command.InvokeAsync(commandLine, _console);
-
-            wasCalled.Should().BeTrue();
+            //wasCalled.Should().BeTrue();
+            wasCalled.Should().BeFalse();
         }
 
         private static InvocationContext GetInvocationContext(string commandLine, Command command)

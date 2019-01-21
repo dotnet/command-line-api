@@ -19,6 +19,7 @@ namespace System.CommandLine.Invocation
         public static IReadOnlyCollection<Type> AvailableServiceTypes
             => new Type[]  {
                     typeof(ParseResult),
+                    typeof(IHelpBuilder),
                     typeof(InvocationContext),
                     typeof(IConsole),
                     typeof(CancellationToken)  };
