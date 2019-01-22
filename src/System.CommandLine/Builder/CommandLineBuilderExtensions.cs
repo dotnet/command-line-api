@@ -143,6 +143,7 @@ namespace System.CommandLine.Builder
                    .UseDebugDirective()
                    .UseSuggestDirective()
                    .RegisterWithDotnetSuggest()
+                   .UseTypoCorrections()
                    .UseParseErrorReporting()
                    .UseExceptionHandler()
                    .CancelOnProcessTermination();
