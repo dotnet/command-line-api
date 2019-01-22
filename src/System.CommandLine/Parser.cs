@@ -93,7 +93,7 @@ namespace System.CommandLine
                 foreach (var topLevelSymbol in Enumerable.Reverse(allSymbolResults))
                 {
                     var symbolForToken = topLevelSymbol.TryTakeToken(token);
-                    
+
                     if (symbolForToken != null)
                     {
                         allSymbolResults.Add(symbolForToken);

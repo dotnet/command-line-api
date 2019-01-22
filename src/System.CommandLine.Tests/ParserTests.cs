@@ -563,6 +563,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo("some-arg");
         }
+
         [Fact]
         public void Option_with_multiple_nested_options_allowed_is_parsed_correctly()
         {
