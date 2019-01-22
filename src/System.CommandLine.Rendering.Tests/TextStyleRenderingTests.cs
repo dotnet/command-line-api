@@ -112,7 +112,7 @@ namespace System.CommandLine.Rendering.Tests
             var span = _spanFormatter.ParseToSpan(
                 $"{BackgroundColorSpan.Red()}red {BackgroundColorSpan.Blue()}blue {BackgroundColorSpan.Green()}green {BackgroundColorSpan.Reset()}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
-            var renderer = new ConsoleRenderer(_terminal, OutputMode.File);
+            var renderer = new ConsoleRenderer(_terminal, OutputMode.PlainText);
 
             var expected = "red blue green or a little of each.";
 
@@ -127,7 +127,7 @@ namespace System.CommandLine.Rendering.Tests
             var span = _spanFormatter.ParseToSpan(
                 $"{ForegroundColorSpan.Red()}red {ForegroundColorSpan.Blue()}blue {ForegroundColorSpan.Green()}green {ForegroundColorSpan.Reset()}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
-            var renderer = new ConsoleRenderer(_terminal, OutputMode.File);
+            var renderer = new ConsoleRenderer(_terminal, OutputMode.PlainText);
 
             var expected = "red blue green or a little of each.";
 

@@ -63,7 +63,8 @@ namespace System.CommandLine.Rendering
 
             if (_mode == OutputMode.Auto)
             {
-                _mode = _terminal?.DetectOutputMode() ?? OutputMode.File;
+                _mode = _terminal?.DetectOutputMode() ??
+                        OutputMode.PlainText;
             }
 
             switch (_mode)
@@ -80,7 +81,7 @@ namespace System.CommandLine.Rendering
                         region);
                     break;
 
-                case OutputMode.File:
+                case OutputMode.PlainText:
                     visitor = new FileRenderingSpanVisitor(
                         _console.Out,
                         new Region(region.Left,

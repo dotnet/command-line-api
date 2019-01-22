@@ -63,7 +63,7 @@ namespace System.CommandLine.Rendering.Tests
 
             var view = new OptionsHelpView(options);
 
-            view.Render(new ConsoleRenderer(_terminal, OutputMode.File), new Region(0, 0, 30, 3));
+            view.Render(new ConsoleRenderer(_terminal, OutputMode.PlainText), new Region(0, 0, 30, 3));
 
             _terminal.Out
                     .ToString()
@@ -107,7 +107,7 @@ namespace System.CommandLine.Rendering.Tests
 
             var view = new OptionsHelpView(options);
 
-            view.Render(new ConsoleRenderer(_terminal, OutputMode.File), new Region(0,0, 30, 3));
+            view.Render(new ConsoleRenderer(_terminal, OutputMode.PlainText), new Region(0,0, 30, 3));
 
             var lines = _terminal.Out.ToString()
                                 .Split(NewLine)

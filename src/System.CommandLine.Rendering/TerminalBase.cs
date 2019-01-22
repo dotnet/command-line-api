@@ -5,6 +5,7 @@ namespace System.CommandLine.Rendering
 {
     public abstract class TerminalBase :
         ITerminal,
+        IRenderable,
         IDisposable
     {
         protected TerminalBase(IConsole console)
@@ -23,6 +24,8 @@ namespace System.CommandLine.Rendering
         public abstract void SetCursorPosition(int left, int top);
 
         public OutputMode OutputMode { get; set; } = OutputMode.Auto;
+
+        public virtual Region GetRegion() => EntireConsoleRegion.Instance;
 
         public abstract ConsoleColor BackgroundColor { get; set; }
 

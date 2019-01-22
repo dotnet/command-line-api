@@ -1,14 +1,25 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.CommandLine.Tests;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace System.CommandLine.Rendering.Tests
 {
     public class TerminalModeTests
     {
+        private readonly ITestOutputHelper _output;
+
+        public TerminalModeTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public void Sets_outputMode_to_file_when_output_is_redirected()
         {
@@ -18,7 +29,33 @@ namespace System.CommandLine.Rendering.Tests
 
             var outputMode = terminal.DetectOutputMode();
 
-            outputMode.Should().Be(OutputMode.File);
+            outputMode.Should().Be(OutputMode.PlainText);
+        }
+
+        [Theory]
+        [InlineData(OutputMode.Ansi)]
+        [InlineData(OutputMode.NonAnsi)]
+        [InlineData(OutputMode.PlainText)]
+        public async Task Sets_output_mode_to_Ansi_when_specified_by_output_directive(OutputMode specifiedOutputMode)
+        {
+            var console = new TestConsole();
+            OutputMode detectedOutputMode = OutputMode.Auto;
+
+            var command = new Command("hello")
+                          {
+                              Handler = CommandHandler.Create((IConsole c) =>
+                              {
+                                  detectedOutputMode = c.DetectOutputMode();
+                              })
+                          };
+
+            var parser = new CommandLineBuilder(command)
+                         .UseAnsiTerminalWhenAvailable()
+                         .Build();
+
+            await parser.InvokeAsync($"[output:{specifiedOutputMode}]", console);
+
+            detectedOutputMode.Should().Be(specifiedOutputMode);
         }
 
         [WindowsOnlyFact(Skip = "How to test?")]
