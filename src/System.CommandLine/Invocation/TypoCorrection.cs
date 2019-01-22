@@ -9,6 +9,11 @@ namespace System.CommandLine.Invocation
 
         public TypoCorrection(int maxLevenshteinDistance)
         {
+            if (maxLevenshteinDistance <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxLevenshteinDistance));
+            }
+
             _maxLevenshteinDistance = maxLevenshteinDistance;
         }
 
@@ -17,7 +22,7 @@ namespace System.CommandLine.Invocation
             foreach (var token in result.UnmatchedTokens)
             {
                 string suggestions = string.Join(", or ", GetPossibleTokens(result.CommandResult.Command, token).Select(x => $"'{x}'"));
-                console.Out.Write($"'{token}' was not matched, did you mean {suggestions}?");
+                console.Out.Write($"'{token}' was not matched. Did you mean {suggestions}?");
             }
         }
 
@@ -25,7 +30,13 @@ namespace System.CommandLine.Invocation
         {
             IEnumerable<string> possibleMatches = targetSymbol.Children
                 .Where(x => !x.IsHidden)
-                .Select(GetSymbolMatchValue);
+                .Select(symbol => 
+                    symbol.RawAliases
+                        .Union(symbol.Aliases)
+                        .OrderBy(x => GetDistance(token, x))
+                        .ThenByDescending(x => GetStartsWithDistance(token, x))
+                        .First()
+                );
             
             int? bestDistance = null;
             return possibleMatches
@@ -35,21 +46,14 @@ namespace System.CommandLine.Invocation
                 .ThenByDescending(tuple => GetStartsWithDistance(token, tuple.possibleMatch))
                 .TakeWhile(tuple =>
                 {
+                    var (_, distance) = tuple;
                     if (bestDistance == null)
                     {
-                        bestDistance = tuple.distance;
+                        bestDistance = distance;
                     }
-                    return tuple.distance == bestDistance;
+                    return distance == bestDistance;
                 })
                 .Select(tuple => tuple.possibleMatch);
-
-            string GetSymbolMatchValue(ISymbol symbol)
-            {
-                return symbol.RawAliases.Union(symbol.Aliases)
-                       .OrderBy(x => GetDistance(token, x))
-                       .ThenByDescending(x => GetStartsWithDistance(token, x))
-                       .First();
-            }
         }
 
         private static int GetStartsWithDistance(string first, string second)
