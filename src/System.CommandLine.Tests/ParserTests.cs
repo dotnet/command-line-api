@@ -406,7 +406,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_Parser_root_option_is_not_respecified_then_the_following_token_is_unmatched()
+        public void When_a_Parser_root_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_used_as_value()
         {
             var parser = new Parser(
                 new Option(
@@ -415,6 +415,43 @@ namespace System.CommandLine.Tests
                     new Argument
                     {
                         Arity = ArgumentArity.ZeroOrMore
+                    }),
+                new Option(
+                    new[] { "-v", "--vegetables" },
+                    "",
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }));
+
+            ParseResult result = parser.Parse("-a cat dog -v carrot");
+
+            result["animals"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo(new[]{"cat", "dog"});
+
+            result["vegetables"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("carrot");
+
+            result
+                .UnmatchedTokens
+                .Should()
+                .BeNullOrEmpty();
+        }
+
+        [Fact]
+        public void When_a_Parser_root_option_is_not_respecified_and_limit_is_reached_then_the_following_token_is_unmatched()
+        {
+            var parser = new Parser(
+                new Option(
+                    new[] { "-a", "--animals" },
+                    "",
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrOne
                     }),
                 new Option(
                     new[] { "-v", "--vegetables" },
@@ -443,7 +480,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_an_option_is_not_respecified_then_the_following_token_is_considered_an_argument_to_the_parent_command()
+        public void When_an_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_considered_as_value()
         {
             var parser = new Parser(
                 new Command("the-command", "", new[] {
@@ -465,6 +502,48 @@ namespace System.CommandLine.Tests
                                           Arity = ArgumentArity.ZeroOrMore
                                       }));
 
+            ParseResult result = parser.Parse("the-command -a cat dog -v carrot");
+
+            var command = result.CommandResult;
+
+            command["animals"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo(new[]{"cat", "dog"});
+
+            command["vegetables"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("carrot");
+
+            command
+                .Arguments
+                .Should()
+                .BeNullOrEmpty();
+        }
+        [Fact]
+        public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
+        {
+            var parser = new Parser(
+                new Command("the-command", "", new[] {
+                        new Option(
+                            new[] { "-a", "--animals" }, "",
+                            new Argument
+                            {
+                                Arity = ArgumentArity.ZeroOrOne
+                            }),
+                        new Option(
+                            new[] { "-v", "--vegetables" }, "",
+                            new Argument
+                            {
+                                Arity = ArgumentArity.ZeroOrMore
+                            })
+                    },
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }));
+
             ParseResult result = parser.Parse("the-command -a cat some-arg -v carrot");
 
             var command = result.CommandResult;
@@ -484,7 +563,6 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo("some-arg");
         }
-
         [Fact]
         public void Option_with_multiple_nested_options_allowed_is_parsed_correctly()
         {

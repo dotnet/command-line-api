@@ -80,13 +80,7 @@ namespace System.CommandLine
             }
 
             if (!OptionWasRespecified)
-            {
-                if (Symbol is IOption)
-                {
-                    // Options must be respecified in order to accept additional arguments. This is not the case for command.
-                    return null;
-                }
-           
+            {          
                 if (IsArgumentLimitReached)
                 {
                     return null;
