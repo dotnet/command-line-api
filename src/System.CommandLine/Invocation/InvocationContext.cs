@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace System.CommandLine.Invocation
@@ -22,7 +21,7 @@ namespace System.CommandLine.Invocation
         {
             ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
             Parser = parser ?? throw new ArgumentNullException(nameof(parser));
-            _console = console;
+            _console = console ?? new SystemConsole();
         }
 
         public Parser Parser { get; }
@@ -33,10 +32,11 @@ namespace System.CommandLine.Invocation
         {
             get
             {
-                if (_console == null)
+                if (ConsoleFactory != null)
                 {
-                    _console = new SystemConsole();
-                    _console = ConsoleFactory.CreateConsole(this);
+                    var consoleFactory = ConsoleFactory;
+                    ConsoleFactory = null;
+                    _console = consoleFactory.CreateConsole(this);
                     _onDispose = _console as IDisposable;
                 }
 
@@ -50,11 +50,11 @@ namespace System.CommandLine.Invocation
 
         public IDictionary<string, object> Items => _items.Value;
 
-        internal IConsoleFactory ConsoleFactory { get; set; } = new SystemConsoleFactory();
-
-        internal IServiceProvider ServiceProvider => new InvocationContextServiceProvider(this);
+        internal IConsoleFactory ConsoleFactory { get; set; } 
 
         internal IHelpBuilder HelpBuilder => (IHelpBuilder)ServiceProvider.GetService(typeof(IHelpBuilder));
+
+        internal IServiceProvider ServiceProvider => new InvocationContextServiceProvider(this);
 
         internal event Action<CancellationTokenSource> CancellationHandlingAdded
         {
@@ -106,18 +106,22 @@ namespace System.CommandLine.Invocation
                 {
                     return _context.ParseResult;
                 }
+
                 if (serviceType == typeof(InvocationContext))
                 {
                     return _context;
                 }
+
                 if (serviceType == typeof(IConsole))
                 {
                     return _context.Console;
                 }
+
                 if (serviceType == typeof(CancellationToken))
                 {
                     return _context.AddCancellationHandling();
                 }
+
                 if (serviceType == typeof(IHelpBuilder))
                 {
                     return _context.Parser.Configuration.HelpBuilderFactory.CreateHelpBuilder(_context);
