@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().Contain("'niof' was not matched, did you mean 'info'?");
+            _console.Out.ToString().Should().Contain("'niof' was not matched. Did you mean 'info'?");
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().Contain("'sertor' was not matched, did you mean 'restore'?");
+            _console.Out.ToString().Should().Contain("'sertor' was not matched. Did you mean 'restore'?");
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().Contain("'een' was not matched, did you mean 'seen', or 'been'?");
+            _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'seen', or 'been'?");
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().Contain("'een' was not matched, did you mean 'been'?");
+            _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'been'?");
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().Contain("'een' was not matched, did you mean 'been'?");
+            _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'been'?");
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().Contain("'-all' was not matched, did you mean '-call'?");
+            _console.Out.ToString().Should().Contain("'-all' was not matched. Did you mean '-call'?");
         }
     }
 }
