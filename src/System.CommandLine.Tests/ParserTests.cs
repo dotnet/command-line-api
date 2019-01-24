@@ -2,10 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.IO;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -1006,6 +1008,29 @@ namespace System.CommandLine.Tests
                   .IsImplicit
                   .Should()
                   .BeTrue();
+        }
+
+        [Fact]
+        public void Command_default_argument_value_does_not_override_parsed_value()
+        {
+            DirectoryInfo receivedArg = null;
+
+            var command = new Command("inner")
+            {
+                Argument = new Argument<DirectoryInfo>(() => new DirectoryInfo(Directory.GetCurrentDirectory()))
+                {
+                    Name = "arg"
+                },
+                Handler = CommandHandler.Create<DirectoryInfo>(arg => receivedArg = arg)
+            };
+
+            var result = command.Parse("c:\\temp");
+
+            result.CommandResult
+                  .GetValueOrDefault<DirectoryInfo>()
+                  .FullName
+                  .Should()
+                  .Be("c:\\temp");
         }
 
         [Fact]
