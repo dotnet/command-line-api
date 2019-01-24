@@ -1011,6 +1011,29 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Command_default_argument_value_does_not_override_parsed_value()
+        {
+            DirectoryInfo receivedArg = null;
+
+            var command = new Command("inner")
+            {
+                Argument = new Argument<DirectoryInfo>(() => new DirectoryInfo(Directory.GetCurrentDirectory()))
+                {
+                    Name = "arg"
+                },
+                Handler = CommandHandler.Create<DirectoryInfo>(arg => receivedArg = arg)
+            };
+
+            var result = command.Parse("c:\\temp");
+
+            result.CommandResult
+                  .GetValueOrDefault<DirectoryInfo>()
+                  .FullName
+                  .Should()
+                  .Be("c:\\temp");
+        }
+
+        [Fact]
         public void Unmatched_options_are_not_split_into_smaller_tokens()
         {
             var outer = new Command("outer");

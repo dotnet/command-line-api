@@ -72,7 +72,8 @@ namespace System.CommandLine
                         }
                     }
 
-                    if (command.Command.Argument.HasDefaultValue)
+                    if (!command.IsArgumentLimitReached &&
+                        command.Command.Argument.HasDefaultValue)
                     {
                         var defaultValue = command.Command.Argument.GetDefaultValue();
 
