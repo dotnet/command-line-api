@@ -47,6 +47,11 @@ namespace System.CommandLine.Rendering
             Span span,
             Region region)
         {
+            if (region == null)
+            {
+                throw new ArgumentNullException(nameof(region));
+            }
+
             if (span == null)
             {
                 span = Span.Empty();
