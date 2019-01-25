@@ -13,7 +13,7 @@ namespace System.CommandLine.Tests
 {
     public class VersionOptionTests
     {
-        private static readonly string version = Assembly.GetEntryAssembly()
+        private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
                                                          .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                                                          .InformationalVersion;
 
