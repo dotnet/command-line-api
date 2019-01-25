@@ -14,6 +14,15 @@ namespace System.CommandLine.Invocation
         private readonly Lazy<IDictionary<string, object>> _items = new Lazy<IDictionary<string, object>>(() => new Dictionary<string, object>());
         private IConsole _console;
 
+        // This is a total hack until we figure out where to retrieve this information from 
+        public static IReadOnlyCollection<Type> AvailableServiceTypes
+            => new Type[]  {
+                    typeof(ParseResult),
+                    typeof(IHelpBuilder),
+                    typeof(InvocationContext),
+                    typeof(IConsole),
+                    typeof(CancellationToken)  };
+
         public InvocationContext(
             ParseResult parseResult,
             Parser parser,

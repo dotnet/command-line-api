@@ -89,7 +89,7 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [ReleaseBuildOnlyFact]
-        public async Task dotnet_suggest_provides_suggestions_for_app()
+        public async Task Dotnet_suggest_provides_suggestions_for_app()
         {
             // run once to trigger a call to dotnet-suggest register
             await Process.ExecuteAsync(
@@ -122,7 +122,7 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [ReleaseBuildOnlyFact]
-        public async Task dotnet_suggest_provides_suggestions_for_app_with_only_commandname()
+        public async Task Dotnet_suggest_provides_suggestions_for_app_with_only_commandname()
         {
             // run once to trigger a call to dotnet-suggest register
             await Process.ExecuteAsync(
