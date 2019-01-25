@@ -60,8 +60,7 @@ namespace System.CommandLine
                 {
                     foreach (var symbol in command.Command.Children)
                     {
-                        if (symbol.Argument != null &&
-                            symbol.Argument.HasDefaultValue &&
+                        if (symbol.Argument.HasDefaultValue &&
                             command.Children[symbol.Name] == null)
                         {
                             switch (symbol)
@@ -73,9 +72,8 @@ namespace System.CommandLine
                         }
                     }
 
-
-                    if (command.Command.Argument.HasDefaultValue &&
-                        command.Arguments.Count == 0)
+                    if (!command.IsArgumentLimitReached &&
+                        command.Command.Argument.HasDefaultValue)
                     {
                         var defaultValue = command.Command.Argument.GetDefaultValue();
 
@@ -99,7 +97,7 @@ namespace System.CommandLine
             }
 
             if (CommandResult.Command is Command cmd &&
-                cmd.Handler == null &&
+                cmd.Handler == null && 
                 cmd.Children.OfType<ICommand>().Any())
             {
                 _errors.Insert(0,

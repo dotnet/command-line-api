@@ -10,8 +10,6 @@ namespace System.CommandLine
             Value = value;
         }
 
-        internal override bool HasValue => true;
-
         public T Value { get; }
     }
 }
