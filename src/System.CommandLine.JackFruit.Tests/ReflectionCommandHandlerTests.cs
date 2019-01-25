@@ -6,6 +6,7 @@ using Xunit;
 using System.CommandLine.Invocation;
 using System.CommandLine.JackFruit.Tests.MethodModel;
 using System.CommandLine.Builder;
+using System.CommandLine.Binding;
 
 namespace System.CommandLine.JackFruit.Tests
 {

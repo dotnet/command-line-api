@@ -156,24 +156,19 @@ namespace System.CommandLine.Tests
             var command = new Command("command");
             command.AddOption(new Option("--name", "", new Argument<string>()));
             command.AddOption(new Option("--age", "", new Argument<int>()));
-            command.Handler = CommandHandler.Create<string, int>((name, age) =>
+            var handler = CommandHandler.Create<string, int>((name, age) =>
             {
-                wasCalled = true;
-                name.Should().Be("Gandalf");
-                age.Should().Be(425);
+                //wasCalled = true;
+                //name.Should().Be("Gandalf");
+                //age.Should().Be(425);
             }, command);
 
-            var arguments = ((command.Handler as IBoundCommandHandler).Binder as ReflectionBinder)
+
+            var arguments = handler.Binder
                             .GetInvocationArguments(GetInvocationContext(commandLine, command));
-            arguments.Should().BeEquivalentTo("Gandalf", 425);
-            // Suggest test pattern for users:
-            // - Create parse tree, with handlers
-            // - Create many command lines
-            // - Binder.GetTarget() and check proeprties
-            // - Binder.GetArguments() and compare arguments 
-            // Need better access to ReflectionBinder
+            arguments.Should().BeEquivalentSequenceTo("Gandalf", 425);
 
-
+            command.Handler = handler;
             // Can't also call InvokeAsync because adding version a second time crashes. Probably fix as bug.
             // If pipeline isn't idempotent/reentrant, then throw more specific error
             //await command.InvokeAsync(commandLine, _console);

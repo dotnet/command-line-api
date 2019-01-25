@@ -1,26 +1,13 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Binding;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    // You can get data from at least the following places
-    // - unrelated to CommandLine, like an environment variable
-    // - somewhere else in the result tree
-    // - options and arguments (symbols) on this command
-
-    // You always invoke in a context that is
-    // - an operating system environment, including environment variables
-    // - a running application and any statics on other classes, icnluding service provider/DI
-    // - a type, it's properties, static properties and partent prporties/static properties
-    //   - the type was created with a constructor that may have had parameters
-    // - a method and it's parameters
-
-    // In the case where we have a method info, everything else is available
-    // I am designing for the class containing the method to be special purpose 
-    //      and call into the rest of the app, for exammple, demanding one constructor
-
     public class ReflectionCommandHandler : IBoundCommandHandler
     {
         private ReflectionCommandHandler(Type targetType)

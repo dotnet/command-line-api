@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace System.CommandLine.Invocation
+namespace System.CommandLine.Binding
 {
-    public class ReflectionBindingSet : BindingSet
-    { }
     public class ParameterCollection
     {
         private object[] _arguments;
