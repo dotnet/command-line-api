@@ -2,12 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.IO;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions.Common;
-using FluentAssertions.Primitives;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -407,7 +408,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_Parser_root_option_is_not_respecified_then_the_following_token_is_unmatched()
+        public void When_a_Parser_root_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_used_as_value()
         {
             var parser = new Parser(
                 new Option(
@@ -416,6 +417,43 @@ namespace System.CommandLine.Tests
                     new Argument
                     {
                         Arity = ArgumentArity.ZeroOrMore
+                    }),
+                new Option(
+                    new[] { "-v", "--vegetables" },
+                    "",
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }));
+
+            ParseResult result = parser.Parse("-a cat dog -v carrot");
+
+            result["animals"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo(new[]{"cat", "dog"});
+
+            result["vegetables"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("carrot");
+
+            result
+                .UnmatchedTokens
+                .Should()
+                .BeNullOrEmpty();
+        }
+
+        [Fact]
+        public void When_a_Parser_root_option_is_not_respecified_and_limit_is_reached_then_the_following_token_is_unmatched()
+        {
+            var parser = new Parser(
+                new Option(
+                    new[] { "-a", "--animals" },
+                    "",
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrOne
                     }),
                 new Option(
                     new[] { "-v", "--vegetables" },
@@ -444,7 +482,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_an_option_is_not_respecified_then_the_following_token_is_considered_an_argument_to_the_parent_command()
+        public void When_an_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_considered_as_value()
         {
             var parser = new Parser(
                 new Command("the-command", "", new[] {
@@ -465,6 +503,48 @@ namespace System.CommandLine.Tests
                                       {
                                           Arity = ArgumentArity.ZeroOrMore
                                       }));
+
+            ParseResult result = parser.Parse("the-command -a cat dog -v carrot");
+
+            var command = result.CommandResult;
+
+            command["animals"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo(new[]{"cat", "dog"});
+
+            command["vegetables"]
+                .Arguments
+                .Should()
+                .BeEquivalentTo("carrot");
+
+            command
+                .Arguments
+                .Should()
+                .BeNullOrEmpty();
+        }
+        [Fact]
+        public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
+        {
+            var parser = new Parser(
+                new Command("the-command", "", new[] {
+                        new Option(
+                            new[] { "-a", "--animals" }, "",
+                            new Argument
+                            {
+                                Arity = ArgumentArity.ZeroOrOne
+                            }),
+                        new Option(
+                            new[] { "-v", "--vegetables" }, "",
+                            new Argument
+                            {
+                                Arity = ArgumentArity.ZeroOrMore
+                            })
+                    },
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }));
 
             ParseResult result = parser.Parse("the-command -a cat some-arg -v carrot");
 
@@ -910,6 +990,47 @@ namespace System.CommandLine.Tests
             result.HasOption("option").Should().BeTrue();
             result["o"].GetValueOrDefault<string>().Should().Be("the-default");
             result.CommandResult.ValueForOption("o").Should().Be("the-default");
+        }
+
+        [Fact]
+        public void When_an_option_with_a_default_value_is_not_matched_then_the_option_result_is_implicit()
+        {
+            var command = new Command("command");
+            command.AddOption(
+                new Option(
+                    new[] { "-o", "--option" },
+                    argument: new Argument<string>("the-default")));
+
+            ParseResult result = command.Parse("command");
+
+            result.CommandResult
+                  .OptionResult("o")
+                  .IsImplicit
+                  .Should()
+                  .BeTrue();
+        }
+
+        [Fact]
+        public void Command_default_argument_value_does_not_override_parsed_value()
+        {
+            DirectoryInfo receivedArg = null;
+
+            var command = new Command("inner")
+            {
+                Argument = new Argument<DirectoryInfo>(() => new DirectoryInfo(Directory.GetCurrentDirectory()))
+                {
+                    Name = "arg"
+                },
+                Handler = CommandHandler.Create<DirectoryInfo>(arg => receivedArg = arg)
+            };
+
+            var result = command.Parse("c:\\temp");
+
+            result.CommandResult
+                  .GetValueOrDefault<DirectoryInfo>()
+                  .FullName
+                  .Should()
+                  .Be("c:\\temp");
         }
 
         [Fact]

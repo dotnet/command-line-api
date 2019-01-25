@@ -2,13 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Subjects;
+using Process = System.Diagnostics.Process;
 
 namespace RenderingPlayground
 {
@@ -17,27 +17,24 @@ namespace RenderingPlayground
         /// <summary>
         /// Demonstrates various rendering capabilities.
         /// </summary>
+        /// <param name="invocationContext"></param>
         /// <param name="sample">&lt;colors|dir&gt; Renders a specified sample</param>
         /// <param name="height">The height of the rendering area</param>
         /// <param name="width">The width of the rendering area</param>
         /// <param name="top">The top position of the render area</param>
         /// <param name="left">The left position of the render area</param>
-        /// <param name="virtualTerminalMode">Enable virtual terminal mode</param>
         /// <param name="text">The text to render</param>
-        /// <param name="outputMode">&lt;Ansi|NonAnsi|File&gt; Sets the output mode</param>
         /// <param name="overwrite">Overwrite the specified region. (If not, scroll.)</param>
         public static void Main(
+#pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
+            InvocationContext invocationContext,
             SampleName sample = SampleName.Dir,
             int? height = null,
             int? width = null,
             int top = 0,
             int left = 0,
-            bool virtualTerminalMode = true,
             string text = null,
-            OutputMode outputMode = OutputMode.Auto,
-            bool overwrite = true,
-#pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
-            IConsole console = null)
+            bool overwrite = true)
 #pragma warning restore CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
         {
             var region = new Region(left,
@@ -46,16 +43,15 @@ namespace RenderingPlayground
                                     height ?? Console.WindowHeight,
                                     overwrite);
 
-            var terminal = console as ITerminal;
-
-            if (terminal != null && overwrite)
+            if (overwrite && 
+                invocationContext.Console is ITerminal terminal)
             {
                 terminal.Clear();
             }
 
             var consoleRenderer = new ConsoleRenderer(
-                console,
-                mode: outputMode,
+                invocationContext.Console,
+                mode: invocationContext.OutputMode(),
                 resetAfterRender: true);
 
             switch (sample)

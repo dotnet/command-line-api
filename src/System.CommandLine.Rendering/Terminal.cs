@@ -45,6 +45,11 @@
                 return t;
             }
 
+            if (console.IsOutputRedirected)
+            {
+                return null;
+            }
+
             ITerminal terminal;
 
             if (preferVirtualTerminal &&

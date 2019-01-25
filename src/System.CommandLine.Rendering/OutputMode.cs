@@ -8,6 +8,6 @@ namespace System.CommandLine.Rendering
         Auto,
         NonAnsi,
         Ansi,
-        File // TODO: (OutputMode)  PlainText?
+        PlainText 
     }
 }
