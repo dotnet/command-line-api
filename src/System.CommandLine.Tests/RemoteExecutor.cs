@@ -1,6 +1,7 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -96,8 +97,9 @@ namespace System.CommandLine.Tests
 
             string dotnetExecutable = Process.GetCurrentProcess().MainModule.FileName;
             string thisAssembly = typeof(RemoteExecutor).Assembly.Location;
-            string entryAssemblyWithoutExtension = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                                                                Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
+            var assembly = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
+            string entryAssemblyWithoutExtension = Path.Combine(Path.GetDirectoryName(assembly.Location),
+                                                                Path.GetFileNameWithoutExtension(assembly.Location));
             string runtimeConfig = GetApplicationArgument("--runtimeconfig");
             if (runtimeConfig == null)
             {
@@ -114,13 +116,16 @@ namespace System.CommandLine.Tests
                 psi = new ProcessStartInfo();
             }
             psi.FileName = dotnetExecutable;
-            psi.ArgumentList.AddRange(new[] { "exec", "--runtimeconfig", runtimeConfig, "--depsfile", depsFile, thisAssembly,
+
+            var argumentList = new List<string>();
+            argumentList.AddRange(new[] { "exec", "--runtimeconfig", runtimeConfig, "--depsfile", depsFile, thisAssembly,
                                                className, methodName, exceptionFile });
             if (args != null)
             {
-                psi.ArgumentList.AddRange(args);
+                argumentList.AddRange(args);
             }
 
+            psi.Arguments = string.Join(" ", argumentList);
             Process process = Process.Start(psi);
 
             return new RemoteExecution(process, className, methodName, exceptionFile);
