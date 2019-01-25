@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -136,14 +137,36 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("--apple grannysmith ");
 
-            _output.WriteLine(result.ToString());
-
-            _output.WriteLine(string.Join(Environment.NewLine, result.Suggestions()));
-
             result.Suggestions()
                   .Should()
                   .BeEquivalentTo("--banana",
                                   "--cherry");
+        }
+
+        [Fact]
+        public void When_a_subcommand_has_been_specified_then_its_siblings_will_not_be_suggested()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Command("apple")
+                {
+                    new Option("--cortland")
+                },
+                new Command("banana")
+                {
+                    new Option("--cavendish")
+                },
+                new Command("cherry")
+                {
+                    new Option("--rainier")
+                }
+            };
+
+            var result = rootCommand.Parse("cherry ");
+
+            result.Suggestions()
+                  .Should()
+                  .BeEquivalentTo("--rainier");
         }
 
         [Fact]
