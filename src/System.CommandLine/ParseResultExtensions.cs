@@ -150,21 +150,6 @@ namespace System.CommandLine
         {
             var currentSymbolResult = parseResult.CurrentSymbol();
             var currentSymbol = currentSymbolResult.Symbol;
-            var includeParentSuggestions = true;
-
-            if (currentSymbolResult is OptionResult optionResult)
-            {
-                var maxNumberOfArguments =
-                    optionResult.Option
-                                .Argument
-                                .Arity
-                                .MaximumNumberOfArguments;
-
-                if (currentSymbolResult.Arguments.Count < maxNumberOfArguments)
-                {
-                    includeParentSuggestions = false;
-                }
-            }
 
             var currentSymbolSuggestions =
                 currentSymbol is ISuggestionSource currentSuggestionSource
@@ -187,15 +172,7 @@ namespace System.CommandLine
                 currentSymbolSuggestions = currentSymbolSuggestions.Except(exclude);
             }
 
-            var parentSymbolSuggestions =
-                includeParentSuggestions &&
-                currentSymbol?.Parent is ISuggestionSource parentSuggestionSource
-                    ? parentSuggestionSource.Suggest(parseResult, position).Except(currentSymbol.RawAliases)
-                    : Array.Empty<string>();
-
-            return parentSymbolSuggestions
-                   .Concat(currentSymbolSuggestions)
-                   .ToArray();
+            return currentSymbolSuggestions;
         }
     }
 }
