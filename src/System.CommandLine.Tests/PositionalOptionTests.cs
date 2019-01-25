@@ -115,7 +115,7 @@ namespace System.CommandLine.Tests
                          .AddCommand(subcommand1)
                          .Build();
 
-            string commandLine = string.Join(' ', GetCommandLineParts());
+            string commandLine = string.Join(" ", GetCommandLineParts());
 
             ParseResult result = parser.Parse(commandLine);
 
