@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;net462</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
