@@ -108,7 +108,7 @@ namespace System.CommandLine.Builder
                 builder.AddOption(option);
             }
 
-            builder.Handler = new TypeCreationCommandHandler(
+            builder.Handler = new TypeBindingCommandHandler(
                 onExecuteMethod,
                 typeBinder);
 
