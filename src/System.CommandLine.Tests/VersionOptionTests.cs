@@ -70,6 +70,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_not_added_if_it_exists()
         {
+            // Adding an option multiple times can occur two ways in 
+            // real world scenarios - invocation can be invoked twice 
+            // or the author may have their own version switch but 
+            // still want other defaults. 
             var parser = new CommandLineBuilder()
                          .AddVersionOption()
                          .AddVersionOption()
