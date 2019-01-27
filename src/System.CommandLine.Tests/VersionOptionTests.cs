@@ -66,5 +66,24 @@ namespace System.CommandLine.Tests
                    .Should()
                    .Match("*Options:*--version*Display version information*");
         }
+
+        [Fact]
+        public async Task Version_not_added_if_it_exists()
+        {
+            // Adding an option multiple times can occur two ways in 
+            // real world scenarios - invocation can be invoked twice 
+            // or the author may have their own version switch but 
+            // still want other defaults. 
+            var parser = new CommandLineBuilder()
+                         .AddVersionOption()
+                         .AddVersionOption()
+                         .Build();
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync("--version", console);
+
+            console.Out.ToString().Should().Be($"{version}{NewLine}");
+        }
     }
 }
