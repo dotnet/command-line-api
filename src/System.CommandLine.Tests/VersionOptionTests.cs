@@ -66,5 +66,20 @@ namespace System.CommandLine.Tests
                    .Should()
                    .Match("*Options:*--version*Display version information*");
         }
+
+        [Fact]
+        public async Task Version_not_added_if_it_exists()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddVersionOption()
+                         .AddVersionOption()
+                         .Build();
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync("--version", console);
+
+            console.Out.ToString().Should().Be($"{version}{NewLine}");
+        }
     }
 }

@@ -46,6 +46,11 @@ namespace System.CommandLine.Builder
         public static CommandLineBuilder AddVersionOption(
             this CommandLineBuilder builder)
         {
+            if (builder.Command.Children.GetByAlias("--version") != null)
+            {
+                return builder;
+            }
+
             var versionOption = new Option("--version", "Display version information");
 
             builder.AddOption(versionOption);
@@ -103,7 +108,7 @@ namespace System.CommandLine.Builder
                 builder.AddOption(option);
             }
 
-            builder.Handler = new TypeBindingCommandHandler(
+            builder.Handler = new TypeCreationCommandHandler(
                 onExecuteMethod,
                 typeBinder);
 
