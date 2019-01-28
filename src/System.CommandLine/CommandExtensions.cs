@@ -74,5 +74,13 @@ namespace System.CommandLine
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
             new Parser(command).Parse(commandLine);
+
+        public static Option AddOption<T>(this Command command, params string[] aliases)
+        {
+            var option = new Option(aliases,
+                             argument: new Argument<T>());
+            command.AddOption(option);
+            return option;
+        }
     }
 }

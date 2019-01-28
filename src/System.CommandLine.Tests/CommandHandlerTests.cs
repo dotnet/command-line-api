@@ -215,5 +215,28 @@ namespace System.CommandLine.Tests
 
             wasCalled.Should().BeTrue();
         }
+
+        [Fact]
+        public async Task AddOption_extension_method_simplifies_adding_options()
+        {
+            var wasCalled = false;
+
+            void Execute(string name, int age)
+            {
+                wasCalled = true;
+                name.Should().Be("Gandalf");
+                age.Should().Be(425);
+            }
+
+            var command = new Command("command");
+            command.AddOption<string>("--name");
+            var option = command.AddOption<int>("--age");
+            option.Description = "My amazing age option";
+            command.Handler = CommandHandler.Create<string, int>(Execute);
+
+            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+
+            wasCalled.Should().BeTrue();
+        }
     }
 }
