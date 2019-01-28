@@ -14,20 +14,38 @@ namespace System.CommandLine.Invocation
             Func<object> target = null, Command command = null) =>
             CreateHandler(command, method, target);
 
+        public static ReflectionCommandHandler Create<T>(Command command = null)
+        {
+            return CreateHandler(command, typeof(T), null, null);
+        }
+
+        public static ReflectionCommandHandler Create<T>(string methodName, Command command = null)
+        {
+            var type = typeof(T);
+            var methodInfo = type.GetMethod(methodName);
+            return CreateHandler(command,type, methodInfo, null);
+        }
+
         public static ReflectionCommandHandler Create(Action action, Command command = null) =>
             CreateHandler(command, action.Method, action.Target);
 
         private static ReflectionCommandHandler CreateHandler(
-            Command command, MethodInfo method, object target)
+            Command command, Type type, MethodInfo method, object target)
         {
-            var handler = ReflectionCommandHandler.Create(method, target);
+            var handler = ReflectionCommandHandler.Create(type, method, target);
             handler.Binder.AddBindings(method, command);
             return handler;
         }
 
+        private static ReflectionCommandHandler CreateHandler(
+         Command command,  MethodInfo method, object target)
+        {
+            return CreateHandler(command, method.DeclaringType, method, target);
+        }
+
         public static ReflectionCommandHandler Create<T>(
             Action<T> action, Command command = null) =>
-            CreateHandler(command, action.Method, action.Target);
+            CreateHandler(command,  action.Method, action.Target);
 
         public static ReflectionCommandHandler Create<T1, T2>(
             Action<T1, T2> action, Command command = null) =>

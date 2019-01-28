@@ -8,7 +8,7 @@ namespace System.CommandLine.Binding
 {
     public static class BindingExtensions
     {
-        public static InvocationContext MakeSimpleInvocationContext(this Command command, string commandLine)
+        public static InvocationContext MakeDefaultInvocationContext(this Command command, string commandLine)
         {
             var parser = new CommandLineBuilder(command)
                          .UseDefaults()
@@ -20,7 +20,7 @@ namespace System.CommandLine.Binding
 
         public static InvocationContext MakeSimpleInvocationContext(this Command command, string[] commandLine)
         {
-            return MakeSimpleInvocationContext(command, string.Join("", commandLine));
+            return MakeDefaultInvocationContext(command, string.Join("", commandLine));
         }
     }
 }

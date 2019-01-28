@@ -201,6 +201,7 @@ namespace System.CommandLine.Binding
 
         public object GetTarget(InvocationContext context = null)
         {
+            AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
             ConstructorBindingSet.Bind(context, null);
             var target = _explicitlySetTarget != null
                          ? _explicitlySetTarget
@@ -218,6 +219,7 @@ namespace System.CommandLine.Binding
 
         public object[] GetConstructorArguments(InvocationContext context = null)
         {
+            AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
             ConstructorBindingSet.Bind(context, null);
             return JustGetConstructorArguments();
         }
@@ -228,6 +230,7 @@ namespace System.CommandLine.Binding
 
         public object[] GetInvocationArguments(InvocationContext context)
         {
+            AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
             // It may not be necessary to get the target first
             var target = GetTarget(context);
             return JustGetInvocationArguments();
@@ -235,6 +238,7 @@ namespace System.CommandLine.Binding
 
         public object InvokeAsync(InvocationContext context)
         {
+            AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
             var target = GetTarget(context);
             // Invocation bind is done during Target construction (to allow dependency on properties)
             var arguments = JustGetInvocationArguments();
@@ -287,17 +291,20 @@ namespace System.CommandLine.Binding
 
         private void AddBindingForPropertiesToCommand(Type type, ICommand command, BindingFlags bindingFlags)
         {
-            var properties = type.GetProperties(bindingFlags)
-                                  .Where(p => !(p.GetAccessors().FirstOrDefault()?.IsStatic).GetValueOrDefault());
+            PropertyInfo[] propertyInfos = type.GetProperties(bindingFlags | BindingFlags.Instance);
+            var properties = propertyInfos
+                            .Where(p => !IsStatic(p) && p.CanWrite);
             foreach (var property in properties)
             {
                 AddBinding(property, command);
             }
+            bool IsStatic(PropertyInfo p) => (p.GetAccessors().FirstOrDefault()?.IsStatic).GetValueOrDefault();
         }
+
 
         private void AddBindingForConstructorParametersToCommand(Type type, ICommand command, BindingFlags bindingFlags)
         {
-            var ctors = type.GetConstructors(bindingFlags);
+            var ctors = type.GetConstructors(bindingFlags | BindingFlags.Instance);
             switch (ctors.Count())
             {
                 case 0: // do not need constructor
@@ -323,7 +330,7 @@ namespace System.CommandLine.Binding
 
         private void AddBindingForStaticPropertiesToCommand(Type type, ICommand command, BindingFlags bindingFlags)
         {
-            var properties = type.GetProperties(bindingFlags)
+            var properties = type.GetProperties(bindingFlags | BindingFlags.Static)
                               .Where(p => (p.GetAccessors().FirstOrDefault()?.IsStatic).GetValueOrDefault());
             foreach (var property in properties)
             {
@@ -369,16 +376,26 @@ namespace System.CommandLine.Binding
         }
 
         private static ISymbolBase FindMatchingSymbol(string name, ICommand command)
-           => command?.Children.GetByAlias(name.ToKebabCase().ToLowerInvariant());
-
-        internal static bool IsMatch(string parameterName, string alias) =>
-            string.Equals(alias?.RemovePrefix()
-                               .FromKebabCase(),
-                          parameterName,
-                          StringComparison.OrdinalIgnoreCase);
-
-        internal static bool IsMatch(string parameterName, ISymbol symbol) =>
-            symbol.Aliases.Any(parameterName.IsMatch);
+        {
+            if (command.Argument.Name == name)
+            {
+                return command.Argument;
+            }
+            var options = command
+                          .Children
+                          .OfType<Option>()
+                          .Where(o => name.IsMatch(o))
+                          .ToArray();
+            switch (options.Length)
+            {
+                case 1:
+                    return options[0];
+                case 0:
+                    return null;
+                default:
+                    throw new ArgumentException($"Ambiguous match while trying to bind parameter {name} among: {string.Join(",", options.Select(o => o.Name))}");
+            }
+        }
 
         void IBinder.AddBinding(Binding binding)
             => InvocationBindingSet.AddBinding(binding);
