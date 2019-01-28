@@ -43,9 +43,14 @@ namespace System.CommandLine.Builder
                 }
             });
 
-        public static CommandLineBuilder AddVersionOption(
+        public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder)
         {
+            if (builder.Command.Children.GetByAlias("--version") != null)
+            {
+                return builder;
+            }
+
             var versionOption = new Option("--version", "Display version information");
 
             builder.AddOption(versionOption);
@@ -137,7 +142,7 @@ namespace System.CommandLine.Builder
         public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
         {
             return builder
-                   .AddVersionOption()
+                   .UseVersionOption()
                    .UseHelp()
                    .UseParseDirective()
                    .UseDebugDirective()

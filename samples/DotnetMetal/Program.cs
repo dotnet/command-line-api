@@ -11,7 +11,7 @@ namespace DotnetMetal
             var parser = new CommandLineBuilder()
                          // parser
                          .AddCommand(CommandDefinitions.Tool())
-                         .AddVersionOption()
+                         .UseVersionOption()
 
                          // middleware
                          .UseHelp()
