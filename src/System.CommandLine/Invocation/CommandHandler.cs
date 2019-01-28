@@ -33,7 +33,7 @@ namespace System.CommandLine.Invocation
             Command command, Type type, MethodInfo method, object target)
         {
             var handler = ReflectionCommandHandler.Create(type, method, target);
-            handler.Binder.AddBindings(method, command);
+            handler.Binder.AddBindings(type, method, command);
             return handler;
         }
 

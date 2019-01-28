@@ -164,13 +164,13 @@ namespace System.CommandLine.Binding
         /// <param name="methodInfo">The method to be bound</param>
         /// <param name="command">A command containing symbols that can be bound to.</param>
         /// <returns></returns>
-        public void AddBindings(MethodInfo methodInfo, ICommand command, bool ignorePrivate = false)
+        public void AddBindings(Type type, MethodInfo methodInfo, ICommand command, bool ignorePrivate = false)
         {
             if (command == null)
             {
                 return;
             }
-            var type = methodInfo.DeclaringType;
+            type =type ??  methodInfo.DeclaringType;
             var bindingFlags = ignorePrivate
                                 ? IgnorePrivateBindingFlags
                                 : CommonBindingFlags;
@@ -192,7 +192,7 @@ namespace System.CommandLine.Binding
             // mode binding (manual and automatic)
             if (!IsBoundToCommand)
             {
-                AddBindings(InvocationMethodInfo, command);
+                AddBindings(Type, InvocationMethodInfo, command);
             }
         }
 
@@ -279,10 +279,16 @@ namespace System.CommandLine.Binding
 
         public IEnumerable<ParameterInfo> GetUnboundParameters(MethodInfo methodInfo,
                     BindingSet bindingSet, bool considerParameterDefaults = false)
-            => methodInfo.GetParameters()
-                    .Where(p => (considerParameterDefaults && p.HasDefaultValue) // always considered bound
-                                || bindingSet.FindTargetBinding<ParameterBindingSide>(pbs => pbs.ParameterInfo == p)
-                                    .None());
+        {
+            if (methodInfo == null)
+            {
+                return new List<ParameterInfo>();
+            }
+            return methodInfo.GetParameters()
+                               .Where(p => (considerParameterDefaults && p.HasDefaultValue) // always considered bound
+                                           || bindingSet.FindTargetBinding<ParameterBindingSide>(pbs => pbs.ParameterInfo == p)
+                                               .None());
+        }
 
         private void AddBindingForParametersToCommand(MethodInfo methodInfo, ICommand command, BindingFlags bindingFlags)
         {
@@ -321,6 +327,10 @@ namespace System.CommandLine.Binding
 
         private void AddBindingForMethodBase(MethodBase methodBase, ICommand command, BindingFlags bindingFlags)
         {
+            if (methodBase == null)
+            {
+                return;
+            }
             var parameters = methodBase.GetParameters();
             foreach (var parameterInfo in parameters)
             {
@@ -395,6 +405,7 @@ namespace System.CommandLine.Binding
                 default:
                     throw new ArgumentException($"Ambiguous match while trying to bind parameter {name} among: {string.Join(",", options.Select(o => o.Name))}");
             }
+
         }
 
         void IBinder.AddBinding(Binding binding)
