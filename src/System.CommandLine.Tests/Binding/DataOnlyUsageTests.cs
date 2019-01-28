@@ -138,8 +138,7 @@ namespace System.CommandLine.Tests.Binding
             addPackageCheck.Interactive.Should().BeFalse();
             addPackageCheck.NoRestore.Should().BeTrue();
             addPackageCheck.PackageId.Should().Be("Newtonsoft");
-            // The following line is disabled until we resolve whether arguments can know their parents. 
-           // addPackageCheck.ProjectName.Should().Be("MyProject");
+            addPackageCheck.ProjectName.Should().Be("MyProject");
             addReferenceCheck.Should().BeNull();
         }
 

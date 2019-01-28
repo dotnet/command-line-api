@@ -8,8 +8,9 @@ namespace System.CommandLine.Binding
         private SymbolBindingSide(Option option)
             : base(GetOptionRetrieve(option), GetOptionAssign(option))
             => Symbol = option;
+
         public SymbolBindingSide(Argument argument)
-            : base(GetArgumentRetrieve(argument), GetArgumentAssign(argument))
+            : base(GetArgumentRetrieve(argument), GetArgumentAssign(argument)) 
             => Symbol = argument;
 
         public static SymbolBindingSide Create(Option symbol)
@@ -21,13 +22,13 @@ namespace System.CommandLine.Binding
         public ISymbolBase Symbol { get; }
 
         private static BindingGetter GetOptionRetrieve(Option option)
-            => (context, target) => context.ParseResult.GetValueOrDefault(option);
+            => (context, target) => context.ParseResult.GetValueOrDefault(option, true);
 
         private static BindingSetter GetOptionAssign(Option option)
             => (context, target, value) => option.Argument.SetDefaultValue(value);
 
         private static BindingGetter GetArgumentRetrieve(Argument argument)
-            => (context, target) => context.ParseResult.GetValueOrDefault(argument);
+            => (context, target) => context.ParseResult.GetValueOrDefault(argument, true);
 
         private static BindingSetter GetArgumentAssign(Argument argument)
             => (context, target, value) => argument.SetDefaultValue(value);

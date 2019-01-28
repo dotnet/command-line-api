@@ -351,7 +351,7 @@ namespace System.CommandLine.Binding
         // TODO: Candidates for a base class
         private void AddBinding(PropertyInfo propertyInfo, ICommand command)
         {
-            var symbol = FindMatchingSymbol(propertyInfo.Name, command);
+            var ( symbolCommand, symbol) = FindMatchingSymbol(propertyInfo.Name, command);
             switch (symbol)
             {
                 case null:
@@ -369,7 +369,7 @@ namespace System.CommandLine.Binding
 
         private void AddBinding(ParameterInfo parameterInfo, ICommand command)
         {
-            var symbol = FindMatchingSymbol(parameterInfo.Name, command);
+            var (symbolCommand, symbol) = FindMatchingSymbol(parameterInfo.Name, command);
             switch (symbol)
             {
                 case null:
@@ -385,11 +385,11 @@ namespace System.CommandLine.Binding
             }
         }
 
-        private static ISymbolBase FindMatchingSymbol(string name, ICommand command)
+        private static (ICommand, ISymbolBase) FindMatchingSymbol(string name, ICommand command)
         {
             if (command.Argument.Name == name)
             {
-                return command.Argument;
+                return (command, command.Argument);
             }
             var options = command
                           .Children
@@ -399,13 +399,15 @@ namespace System.CommandLine.Binding
             switch (options.Length)
             {
                 case 1:
-                    return options[0];
+                    return (command, options[0]);
                 case 0:
-                    return null;
+                    break;
                 default:
                     throw new ArgumentException($"Ambiguous match while trying to bind parameter {name} among: {string.Join(",", options.Select(o => o.Name))}");
             }
-
+            return command.Parent != null 
+                ? FindMatchingSymbol(name, command.Parent) 
+                : (null, null);
         }
 
         void IBinder.AddBinding(Binding binding)

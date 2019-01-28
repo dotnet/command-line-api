@@ -14,30 +14,39 @@ namespace System.CommandLine
             return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
 
-        public static object GetValueOrDefault(this ParseResult parseResult, Option option)
+        public static object GetValueOrDefault(this ParseResult parseResult, Option option, bool searchHierarchy)
         {
-            var result = parseResult.CommandResult.Children
-                                   .Where(c => c.Symbol == option)
-                                   .FirstOrDefault();
-            switch (result)
-            {
-                case OptionResult optionResult:
-                    return optionResult.GetValueOrDefault();
-                case null:
-                    var optionType = option.Argument.ArgumentType == null
-                                    ? typeof(bool)
-                                    : option.Argument.ArgumentType;
-                    return optionType.GetDefaultValueForType();
-                default:
-                    throw new InvalidOperationException("Internal: Unknown result type");
-            }
+            var optionResult = GetOptionResult(parseResult.CommandResult, option, searchHierarchy);
+            return optionResult == null
+                    ? GetDefaultValueForType(option.Argument.ArgumentType ?? typeof(bool))
+                    : optionResult.GetValueOrDefault();
         }
 
-        public static object GetValueOrDefault(this ParseResult parseResult, Argument argument)
+        private static SymbolResult GetOptionResult(CommandResult commandResult, Option option, bool searchHierarchy)
         {
-            // TODO: Change when we support multiple arguments
-            return parseResult.CommandResult.GetValueOrDefault();
+            var optionResult = commandResult.Children
+                                .Where(c => c.Symbol == option)
+                                .FirstOrDefault();
+            return optionResult == null && searchHierarchy && commandResult.Parent != null
+                ? GetOptionResult(commandResult.Parent, option, searchHierarchy)
+                : optionResult;
         }
+
+        public static object GetValueOrDefault(this ParseResult parseResult, Argument argument, bool searchHierarchy)
+        {
+            var commandResult = GetCommandResultForArgument(parseResult.CommandResult, argument, searchHierarchy);
+            // TODO: Change when we support multiple arguments
+            return commandResult == null
+                ? GetDefaultValueForType(argument.ArgumentType ?? typeof(bool))
+                : commandResult.GetValueOrDefault();
+        }
+
+        private static CommandResult GetCommandResultForArgument(CommandResult commandResult, Argument argument, bool searchHierarchy)
+            => commandResult.Command.Argument == argument
+                ? commandResult
+                : (commandResult.Parent == null
+                    ? null
+                    : GetCommandResultForArgument(commandResult.Parent, argument, searchHierarchy));
 
         public static string TextToMatch(
             this ParseResult source,
@@ -100,7 +109,7 @@ namespace System.CommandLine
             {
                 builder.Append("!");
             }
-            
+
             if (symbolResult is OptionResult option &&
                 option.IsImplicit)
             {
@@ -132,7 +141,7 @@ namespace System.CommandLine
                 if (result is SuccessfulArgumentResult _)
                 {
                     var value = symbolResult.GetValueOrDefault();
-                    
+
                     switch (value)
                     {
                         case null:
