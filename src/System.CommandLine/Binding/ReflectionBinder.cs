@@ -170,7 +170,7 @@ namespace System.CommandLine.Binding
             {
                 return;
             }
-            type =type ??  methodInfo.DeclaringType;
+            type = type ?? methodInfo.DeclaringType;
             var bindingFlags = ignorePrivate
                                 ? IgnorePrivateBindingFlags
                                 : CommonBindingFlags;
@@ -199,20 +199,8 @@ namespace System.CommandLine.Binding
         public void SetTarget(object target)
             => _explicitlySetTarget = target;
 
-        public object GetTarget(InvocationContext context = null)
-        {
-            AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
-            ConstructorBindingSet.Bind(context, null);
-            var target = _explicitlySetTarget != null
-                         ? _explicitlySetTarget
-                         : Activator.CreateInstance(Type,
-                            JustGetConstructorArguments());
-            InvocationBindingSet.Bind(context, target);
-            return target;
-        }
-
         private object[] JustGetConstructorArguments()
-            => HandleNullArguments(ConstructorParameterCollection?.GetArguments());
+          => HandleNullArguments(ConstructorParameterCollection?.GetArguments());
 
         private object[] JustGetInvocationArguments()
             => HandleNullArguments(InvocationParameterCollection?.GetArguments());
@@ -227,6 +215,18 @@ namespace System.CommandLine.Binding
         private object[] HandleNullArguments(object[] arguments)
             => arguments
                ?? Array.Empty<object>();
+
+        public object GetTarget(InvocationContext context = null)
+        {
+            AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
+            ConstructorBindingSet.Bind(context, null);
+            var target = _explicitlySetTarget != null
+                         ? _explicitlySetTarget
+                         : Activator.CreateInstance(Type,
+                            JustGetConstructorArguments());
+            InvocationBindingSet.Bind(context, target);
+            return target;
+        }
 
         public object[] GetInvocationArguments(InvocationContext context)
         {
@@ -307,7 +307,6 @@ namespace System.CommandLine.Binding
             bool IsStatic(PropertyInfo p) => (p.GetAccessors().FirstOrDefault()?.IsStatic).GetValueOrDefault();
         }
 
-
         private void AddBindingForConstructorParametersToCommand(Type type, ICommand command, BindingFlags bindingFlags)
         {
             var ctors = type.GetConstructors(bindingFlags | BindingFlags.Instance);
@@ -351,7 +350,7 @@ namespace System.CommandLine.Binding
         // TODO: Candidates for a base class
         private void AddBinding(PropertyInfo propertyInfo, ICommand command)
         {
-            var ( symbolCommand, symbol) = FindMatchingSymbol(propertyInfo.Name, command);
+            var (symbolCommand, symbol) = FindMatchingSymbol(propertyInfo.Name, command);
             switch (symbol)
             {
                 case null:
@@ -405,8 +404,8 @@ namespace System.CommandLine.Binding
                 default:
                     throw new ArgumentException($"Ambiguous match while trying to bind parameter {name} among: {string.Join(",", options.Select(o => o.Name))}");
             }
-            return command.Parent != null 
-                ? FindMatchingSymbol(name, command.Parent) 
+            return command.Parent != null
+                ? FindMatchingSymbol(name, command.Parent)
                 : (null, null);
         }
 

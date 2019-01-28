@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
             var parser = new CommandLineBuilder()
-                         .AddVersionOption()
+                         .UseVersionOption()
                          .Build();
 
             var console = new TestConsole();
@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
             rootCommand.Handler = CommandHandler.Create(() => wasCalled = true);
 
             var parser = new CommandLineBuilder(rootCommand)
-                         .AddVersionOption()
+                         .UseVersionOption()
                          .Build();
 
             var console = new TestConsole();
@@ -54,7 +54,7 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .UseHelp()
-                         .AddVersionOption()
+                         .UseVersionOption()
                          .Build();
 
             var console = new TestConsole();
@@ -75,8 +75,8 @@ namespace System.CommandLine.Tests
             // or the author may have their own version switch but 
             // still want other defaults. 
             var parser = new CommandLineBuilder()
-                         .AddVersionOption()
-                         .AddVersionOption()
+                         .UseVersionOption()
+                         .UseVersionOption()
                          .Build();
 
             var console = new TestConsole();
