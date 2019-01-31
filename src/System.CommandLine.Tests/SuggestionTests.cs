@@ -228,6 +228,32 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_a_subcommand_has_been_specified_then_its_sibling_commands_will_not_be_suggested()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Command("apple")
+                {
+                    new Command("cortland")
+                },
+                new Command("banana")
+                {
+                    new Command("cavendish")
+                },
+                new Command("cherry")
+                {
+                    new Command("rainier")
+                }
+            };
+
+            var result = rootCommand.Parse("cherry ");
+
+            result.Suggestions()
+                  .Should()
+                  .BeEquivalentTo("rainier");
+        }
+
+        [Fact]
         public void When_one_option_has_been_partially_specified_then_nonmatching_siblings_will_not_be_suggested()
         {
             var parser = new CommandLineBuilder()

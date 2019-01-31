@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
@@ -27,19 +28,35 @@ namespace System.CommandLine.Tests
             _vegetableOption = new Option("--vegetable",
                                           argument: new Argument<string>()
                                               .WithSuggestions("asparagus", "broccoli", "carrot"));
-            _eatCommand = new Command("eat",
-                                      symbols: new[] { _fruitOption, _vegetableOption });
+
+            _eatCommand = new Command("eat")
+                          {
+                              _fruitOption,
+                              _vegetableOption
+                          };
         }
 
-        [Fact]
-        public async Task Suggest_directive_writes_suggestions_for_option_arguments_when_under_subcommand()
+        public static IEnumerable<object[]> Exes()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(_eatCommand)
-                         .UseSuggestDirective()
+            yield return new[] { "" };
+            yield return new[] { RootCommand.ExeName };
+            yield return new[] { RootCommand.ExePath };
+        }
+
+        [Theory]
+        [MemberData(nameof(Exes))]
+        public async Task Suggest_directive_writes_suggestions_for_option_arguments_when_under_subcommand(string exe)
+        {
+            var rootCommand = new RootCommand
+                              {
+                                  _eatCommand
+                              };
+
+            var parser = new CommandLineBuilder(rootCommand)
+                         .UseDefaults()
                          .Build();
 
-            var result = parser.Parse("[suggest] eat --fruit ");
+            var result = parser.Parse($"{exe} [suggest] eat --fruit ");
 
             var console = new TestConsole();
 
@@ -51,16 +68,21 @@ namespace System.CommandLine.Tests
                    .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
         }
 
-        [Fact]
-        public async Task Suggest_directive_writes_suggestions_for_option_arguments_when_under_root_command()
+        [Theory]
+        [MemberData(nameof(Exes))]
+        public async Task Suggest_directive_writes_suggestions_for_option_arguments_when_under_root_command(string exe)
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption(_fruitOption)
-                         .AddOption(_vegetableOption)
+            var rootCommand = new RootCommand
+                              {
+                                  _fruitOption,
+                                  _vegetableOption
+                              };
+
+            var parser = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
 
-            var result = parser.Parse("[suggest] --fruit ");
+            var result = parser.Parse($"{exe} [suggest] --fruit ");
 
             var console = new TestConsole();
 
@@ -72,15 +94,20 @@ namespace System.CommandLine.Tests
                    .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
         }
 
-        [Fact]
-        public async Task Suggest_directive_writes_suggestions_for_option_aliases_under_subcommand()
+        [Theory]
+        [MemberData(nameof(Exes))]
+        public async Task Suggest_directive_writes_suggestions_for_option_aliases_under_subcommand(string exe)
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(_eatCommand)
+            var rootCommand = new RootCommand
+                              {
+                                  _eatCommand
+                              };
+
+            var parser = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
 
-            var result = parser.Parse("[suggest] eat ");
+            var result = parser.Parse($"{exe} [suggest] eat ");
 
             var console = new TestConsole();
 
@@ -92,16 +119,21 @@ namespace System.CommandLine.Tests
                    .Be($"--fruit{NewLine}--vegetable{NewLine}");
         }
 
-        [Fact]
-        public async Task Suggest_directive_writes_suggestions_for_option_aliases_under_root_command()
+        [Theory]
+        [MemberData(nameof(Exes))]
+        public async Task Suggest_directive_writes_suggestions_for_option_aliases_under_root_command(string exe)
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption(_vegetableOption)
-                         .AddOption(_fruitOption)
+            var rootCommand = new RootCommand
+                              {
+                                  _vegetableOption,
+                                  _fruitOption
+                              };
+
+            var parser = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
 
-            var result = parser.Parse("[suggest] ");
+            var result = parser.Parse($"{exe} [suggest] ");
 
             var console = new TestConsole();
 
@@ -113,15 +145,20 @@ namespace System.CommandLine.Tests
                    .Be($"--fruit{NewLine}--vegetable{NewLine}");
         }
 
-        [Fact]
-        public async Task Suggest_directive_writes_suggestions_for_subcommand_aliases_under_root_command()
+        [Theory]
+        [MemberData(nameof(Exes))]
+        public async Task Suggest_directive_writes_suggestions_for_subcommand_aliases_under_root_command(string exe)
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(_eatCommand)
+            var rootCommand = new RootCommand
+                              {
+                                  _eatCommand
+                              };
+
+            var parser = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
 
-            var result = parser.Parse("[suggest] ");
+            var result = parser.Parse($"{exe} [suggest] ");
 
             var console = new TestConsole();
 
@@ -133,16 +170,21 @@ namespace System.CommandLine.Tests
                    .Be($"eat{NewLine}");
         }
 
-        [Fact]
-        public async Task Suggest_directive_writes_suggestions_for_partial_option_aliases_under_root_command()
+        [Theory]
+        [MemberData(nameof(Exes))]
+        public async Task Suggest_directive_writes_suggestions_for_partial_option_aliases_under_root_command(string exe)
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption(_vegetableOption)
-                         .AddOption(_fruitOption)
+            var rootCommand = new RootCommand
+                              {
+                                  _fruitOption,
+                                  _vegetableOption
+                              };
+
+            var parser = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
 
-            var result = parser.Parse("[suggest] f");
+            var result = parser.Parse($"{exe} [suggest] f");
 
             var console = new TestConsole();
 
@@ -154,8 +196,9 @@ namespace System.CommandLine.Tests
                    .Be($"--fruit{NewLine}");
         }
 
-        [Fact]
-        public async Task Suggest_directive_writes_suggestions_for_partial_subcommand_aliases_under_root_command()
+        [Theory]
+        [MemberData(nameof(Exes))]
+        public async Task Suggest_directive_writes_suggestions_for_partial_subcommand_aliases_under_root_command(string exe)
         {
             var parser = new CommandLineBuilder()
                          .AddCommand(_eatCommand)

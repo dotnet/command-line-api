@@ -9,6 +9,7 @@ namespace System.CommandLine
     public class ParseResult
     {
         private readonly List<ParseError> _errors = new List<ParseError>();
+        private readonly string _rawInput;
 
         internal ParseResult(
             Parser parser,
@@ -19,7 +20,7 @@ namespace System.CommandLine
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
             IReadOnlyCollection<ParseError> errors,
-            string rawInput)
+            string rawInput =  null)
         {
             Parser = parser;
             RootCommandResult = rootCommandResult;
@@ -28,7 +29,9 @@ namespace System.CommandLine
             Tokens = tokens;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
-            RawInput = rawInput;
+
+            // FIX: (ParseResult) Trim this for better fidelity with Environment.CommandLine
+            _rawInput = rawInput;
 
             if (errors != null)
             {
@@ -52,7 +55,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 
-        internal string RawInput { get; }
+        internal string RawInput => _rawInput ?? Environment.CommandLine;
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
