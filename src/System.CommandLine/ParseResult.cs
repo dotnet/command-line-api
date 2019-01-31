@@ -9,6 +9,7 @@ namespace System.CommandLine
     public class ParseResult
     {
         private readonly List<ParseError> _errors = new List<ParseError>();
+        private readonly string _rawInput;
 
         internal ParseResult(
             Parser parser,
@@ -28,7 +29,9 @@ namespace System.CommandLine
             Tokens = tokens;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
-            RawInput = rawInput;
+
+            // FIX: (ParseResult) Trim this for better fidelity with Environment.CommandLine
+            _rawInput = rawInput;
 
             if (tokenizeErrors?.Count > 0)
             {
@@ -53,7 +56,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 
-        internal string RawInput { get; }
+        internal string RawInput => _rawInput ?? Environment.CommandLine;
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
