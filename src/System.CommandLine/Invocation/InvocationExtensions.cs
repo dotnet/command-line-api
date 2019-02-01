@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -111,11 +112,16 @@ namespace System.CommandLine.Invocation
             {
                 if (context.ParseResult.Directives.Contains("debug"))
                 {
-                    var processId = Diagnostics.Process.GetCurrentProcess().Id;
+                    var process = Diagnostics.Process.GetCurrentProcess();
 
-                    context.Console.Out.WriteLine($"Attach your debugger to process {processId} and then press any key.");
+                    var processId = process.Id;
 
-                    Console.ReadKey();
+                    context.Console.Out.WriteLine($"Attach your debugger to process {processId} ({process.ProcessName}).");
+
+                    while (!Debugger.IsAttached)
+                    {
+                        await Task.Delay(500);
+                    }
                 }
 
                 await next(context);
