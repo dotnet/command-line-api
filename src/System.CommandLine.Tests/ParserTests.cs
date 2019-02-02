@@ -1023,13 +1023,13 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create<DirectoryInfo>(arg => receivedArg = arg)
             };
 
-            var result = command.Parse("c:\\temp");
+            var result = command.Parse("the-directory");
 
             result.CommandResult
                   .GetValueOrDefault<DirectoryInfo>()
-                  .FullName
+                  .Name
                   .Should()
-                  .Be("c:\\temp");
+                  .Be("the-directory");
         }
 
         [Fact]
