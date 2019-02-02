@@ -3,9 +3,9 @@
 
 namespace System.CommandLine
 {
-    internal class Token
+    public class Token
     {
-        public Token(string value, TokenType type)
+        internal Token(string value, TokenType type)
         {
             Value = value ?? "";
             Type = type;

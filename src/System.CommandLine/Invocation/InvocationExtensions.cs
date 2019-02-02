@@ -361,7 +361,7 @@ namespace System.CommandLine.Invocation
         {
             var lastToken = context.ParseResult.Tokens.LastOrDefault();
 
-            if (helpOptionAliases.Contains(lastToken) &&
+            if (helpOptionAliases.Contains(lastToken?.Value) &&
                 !TokenIsDefinedInSyntax())
             {
                 context.InvocationResult = new HelpResult();

@@ -25,7 +25,7 @@ namespace System.CommandLine
                 // assume the cursor is at the end of the input
                 if (!source.RawInput.EndsWith(" "))
                 {
-                    return lastToken;
+                    return lastToken.Value;
                 }
                 else
                 {
