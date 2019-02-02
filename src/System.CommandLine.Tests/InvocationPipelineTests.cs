@@ -111,7 +111,12 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .UseMiddleware(async (context, next) =>
                          {
-                             var tokens = context.ParseResult.Tokens.Concat(new[] { "implicit-inner-command" }).ToArray();
+                             var tokens = context.ParseResult
+                                                 .Tokens
+                                                 .Select(t => t.Value)
+                                                 .Concat(new[] { "implicit-inner-command" })
+                                                 .ToArray();
+
                              context.ParseResult = context.Parser.Parse(tokens);
                              await next(context);
                          })

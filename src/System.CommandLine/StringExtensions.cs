@@ -192,10 +192,7 @@ namespace System.CommandLine
                 }
             }
 
-            return new LexResult {
-                Tokens = tokenList,
-                Errors = errorList
-            };
+            return new LexResult(tokenList, errorList);
         }
 
         internal static string[] SplitTokenByArgumentDelimiter(string arg, char[] argumentDelimiters) => arg.Split(argumentDelimiters, 2);

@@ -652,7 +652,6 @@ namespace System.CommandLine.Tests
         [InlineData("--one 1 --many 1 --many 2 arg1 arg2")]
         [InlineData("--many 1 --one 1 --many 2")]
         [InlineData("--many 2 --many 1 --one 1")]
-        [InlineData("--many:2 --many=1 --one 1")]
         [InlineData("[parse] --one 1 --many 1 --many 2")]
         [InlineData("--one \"stuff in quotes\" this-is-arg1 \"this is arg2\"")]
         [InlineData("not a valid command line --one 1")]
@@ -668,7 +667,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse(commandLine);
 
-            result.Tokens.Should().Equal(rawSplit);
+            result.Tokens.Select(t => t.Value).Should().Equal(rawSplit);
         }
 
         [Fact]
@@ -1024,13 +1023,13 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create<DirectoryInfo>(arg => receivedArg = arg)
             };
 
-            var result = command.Parse("c:\\temp");
+            var result = command.Parse("the-directory");
 
             result.CommandResult
                   .GetValueOrDefault<DirectoryInfo>()
-                  .FullName
+                  .Name
                   .Should()
-                  .Be("c:\\temp");
+                  .Be("the-directory");
         }
 
         [Fact]
