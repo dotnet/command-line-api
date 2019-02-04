@@ -199,41 +199,46 @@ namespace System.CommandLine.Binding
         public void SetTarget(object target)
             => _explicitlySetTarget = target;
 
-        private object[] JustGetConstructorArguments()
+        private object[] GetNullHandledConstructorArguments()
           => HandleNullArguments(ConstructorParameterCollection?.GetArguments());
 
-        private object[] JustGetInvocationArguments()
+        private object[] GetNullHandledInvocationArguments()
             => HandleNullArguments(InvocationParameterCollection?.GetArguments());
+
+        private void BindConstructor(InvocationContext context) 
+            => ConstructorBindingSet.Bind(context, null);
+
+        private void BindInvocation(InvocationContext context, object target) 
+            => InvocationBindingSet.Bind(context, target);
 
         public object[] GetConstructorArguments(InvocationContext context = null)
         {
             AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
-            ConstructorBindingSet.Bind(context, null);
-            return JustGetConstructorArguments();
+            BindConstructor(context);
+            return GetNullHandledConstructorArguments();
         }
-
-        private static object[] HandleNullArguments(object[] arguments)
-            => arguments
-               ?? Array.Empty<object>();
 
         public object GetTarget(InvocationContext context = null)
         {
             AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
-            ConstructorBindingSet.Bind(context, null);
+            // Allow for the possibility that constructor binding explicitly sets the target. 
+            BindConstructor(context);
             var target = _explicitlySetTarget != null
                          ? _explicitlySetTarget
                          : Activator.CreateInstance(Type,
-                            JustGetConstructorArguments());
-            InvocationBindingSet.Bind(context, target);
+                            GetNullHandledConstructorArguments());
+            BindInvocation(context, target);
             return target;
         }
 
         public object[] GetInvocationArguments(InvocationContext context)
         {
             AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
-            // TODO: There is currently a side effect of GetTarget that needs to be remmoved, but this is currently needed
-            var target = GetTarget(context);
-            return JustGetInvocationArguments();
+            // Because of the relationship between targets and invocation arguments, the target
+            // needs to be created and the invocation bound in GetTarget. 
+            // Invocation arguments can depend on properties, which are set by binding the invocation. 
+            GetTarget(context);
+            return GetNullHandledInvocationArguments();
         }
 
         public object InvokeAsync(InvocationContext context)
@@ -241,10 +246,26 @@ namespace System.CommandLine.Binding
             AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
             var target = GetTarget(context);
             // Invocation bind is done during Target construction (to allow dependency on properties)
-            var arguments = JustGetInvocationArguments();
-            var value = InvocationMethodInfo.Invoke(target, arguments);
+            var value = InvocationMethodInfo.Invoke(target, GetNullHandledInvocationArguments());
             return CommandHandler.GetResultCodeAsync(value, context);
         }
+
+        public IEnumerable<ParameterInfo> GetUnboundParameters(MethodInfo methodInfo,
+                    BindingSet bindingSet, bool considerParameterDefaults = false)
+        {
+            if (methodInfo == null)
+            {
+                return new List<ParameterInfo>();
+            }
+            return methodInfo.GetParameters()
+                               .Where(p => (considerParameterDefaults && p.HasDefaultValue) // always considered bound
+                                           || bindingSet.FindTargetBinding<ParameterBindingSide>(pbs => pbs.ParameterInfo == p)
+                                               .None());
+        }
+
+        private static object[] HandleNullArguments(object[] arguments)
+            => arguments
+               ?? Array.Empty<object>();
 
         // If a corresponding symbol isn't fuond, that's fine Invocation should use default
         // Add a way to include an explicit default from parameter info when there is no option
@@ -277,19 +298,6 @@ namespace System.CommandLine.Binding
             {
                 AddBinding(parameterInfo, ServiceBindingSide.Create(parameterInfo.ParameterType));
             }
-        }
-
-        public IEnumerable<ParameterInfo> GetUnboundParameters(MethodInfo methodInfo,
-                    BindingSet bindingSet, bool considerParameterDefaults = false)
-        {
-            if (methodInfo == null)
-            {
-                return new List<ParameterInfo>();
-            }
-            return methodInfo.GetParameters()
-                               .Where(p => (considerParameterDefaults && p.HasDefaultValue) // always considered bound
-                                           || bindingSet.FindTargetBinding<ParameterBindingSide>(pbs => pbs.ParameterInfo == p)
-                                               .None());
         }
 
         private void AddBindingForParametersToCommand(MethodInfo methodInfo, ICommand command, BindingFlags bindingFlags)
