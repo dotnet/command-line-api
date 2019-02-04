@@ -15,9 +15,9 @@ namespace System.CommandLine.Binding
             => throw new NotImplementedException();
 
         public static ValueBindingSide Create<T>(Func<T> valueGetter, Action<object> valueSetter)
-             => new ValueBindingSide((c, t) => valueGetter(), (c, t, value) => valueSetter(value));
+             => new ValueBindingSide((context, target) => valueGetter(), (context, target, value) => valueSetter(value));
 
         public static ValueBindingSide Create<T>(Func<T> valueGetter)
-             => new ValueBindingSide((c, t) => valueGetter(), null);
+             => new ValueBindingSide((context, target) => valueGetter(), null);
     }
 }

@@ -13,26 +13,26 @@ namespace System.CommandLine.Binding
         public ReflectionBinder(Type type)
             => Type = type;
 
-        protected const BindingFlags CommonBindingFlags = BindingFlags.FlattenHierarchy
+        private const BindingFlags CommonBindingFlags = BindingFlags.FlattenHierarchy
                                     | BindingFlags.IgnoreCase
                                     | BindingFlags.Public
                                     | BindingFlags.NonPublic;
 
-        protected const BindingFlags IgnorePrivateBindingFlags = BindingFlags.FlattenHierarchy
+        private const BindingFlags IgnorePrivateBindingFlags = BindingFlags.FlattenHierarchy
                                 | BindingFlags.IgnoreCase
                                 | BindingFlags.Public
                                 | BindingFlags.NonPublic;
 
         private object _explicitlySetTarget;
         private Type Type { get; }
-        protected internal MethodInfo InvocationMethodInfo { get; private set; }
+        private  MethodInfo InvocationMethodInfo { get;  set; }
         // I really hate the location of these. I think we need a reflection binding set that incorporates these
-        protected ParameterCollection InvocationParameterCollection { get; private set; }
-        protected ParameterCollection ConstructorParameterCollection { get; private set; }
+        private ParameterCollection InvocationParameterCollection { get;  set; }
+        private ParameterCollection ConstructorParameterCollection { get;  set; }
 
-        protected BindingSet ConstructorBindingSet = new BindingSet();
-        protected BindingSet InvocationBindingSet = new BindingSet();
-        private bool IsBoundToCommand;
+        private readonly BindingSet ConstructorBindingSet = new BindingSet();
+        private readonly BindingSet InvocationBindingSet = new BindingSet();
+        private bool isBoundToCommand;
 
         public void AddBinding(object source, Option option)
         {
@@ -45,7 +45,7 @@ namespace System.CommandLine.Binding
                     AddBinding(propertyInfo, option);
                     break;
                 default:
-                    throw new InvalidOperationException("Internal: Unexpected source type");
+                    throw new InvalidOperationException("Unexpected source type");
             }
         }
 
@@ -60,7 +60,7 @@ namespace System.CommandLine.Binding
                     AddBinding(propertyInfo, argument);
                     break;
                 default:
-                    throw new InvalidOperationException("Internal: Unexpected source type");
+                    throw new InvalidOperationException("Unexpected source type");
             }
         }
 
@@ -78,7 +78,7 @@ namespace System.CommandLine.Binding
                     AddBinding(propertyInfo, valueFunc);
                     break;
                 default:
-                    throw new InvalidOperationException("Internal: Unexpected source type");
+                    throw new InvalidOperationException("Unexpected source type");
             }
         }
 
@@ -93,7 +93,6 @@ namespace System.CommandLine.Binding
 
         public void AddBinding(ParameterInfo parameterInfo, BindingSide parserBindingSide)
         {
-            var temp = parameterInfo.Member.Name.ToString() == "Install";
             switch (parameterInfo.Member)
             {
                 case MethodInfo methodInfo:
@@ -110,7 +109,7 @@ namespace System.CommandLine.Binding
                     ConstructorBindingSet.AddBinding(ParameterBindingSide.Create(parameterInfo, ConstructorParameterCollection), parserBindingSide);
                     return;
                 default:
-                    throw new InvalidOperationException("Internal: Unexpected parameter location");
+                    throw new InvalidOperationException("Unexpected parameter location");
             }
         }
 
@@ -125,13 +124,14 @@ namespace System.CommandLine.Binding
 
         public void AddBinding(PropertyInfo propertyInfo, BindingSide parserBindingSide)
         {
+            var propertyBindingSide = new PropertyBindingSide(propertyInfo);
             if (propertyInfo.GetAccessors(true)[0].IsStatic)
             {
-                ConstructorBindingSet.AddBinding(PropertyBindingSide.Create(propertyInfo), parserBindingSide);
+                ConstructorBindingSet.AddBinding(propertyBindingSide, parserBindingSide);
             }
             else
             {
-                InvocationBindingSet.AddBinding(PropertyBindingSide.Create(propertyInfo), parserBindingSide);
+                InvocationBindingSet.AddBinding(propertyBindingSide, parserBindingSide);
             }
         }
 
@@ -183,14 +183,14 @@ namespace System.CommandLine.Binding
             AddBindingForServiceParameters(unboundParameters);
             unboundParameters = GetUnboundParameters(methodInfo, InvocationBindingSet); // drop any that are now bound
             AddBindingForPropertyParameters(type, unboundParameters);
-            IsBoundToCommand = true;
+            isBoundToCommand = true;
         }
 
         internal void AddBindingsIfNeeded(ICommand command)
         {
             // I am not crazy about using a boolean. It won't play nice with mixed 
             // mode binding (manual and automatic)
-            if (!IsBoundToCommand)
+            if (!isBoundToCommand)
             {
                 AddBindings(Type, InvocationMethodInfo, command);
             }
@@ -212,7 +212,7 @@ namespace System.CommandLine.Binding
             return JustGetConstructorArguments();
         }
 
-        private object[] HandleNullArguments(object[] arguments)
+        private static object[] HandleNullArguments(object[] arguments)
             => arguments
                ?? Array.Empty<object>();
 
@@ -231,7 +231,7 @@ namespace System.CommandLine.Binding
         public object[] GetInvocationArguments(InvocationContext context)
         {
             AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
-            // It may not be necessary to get the target first
+            // TODO: There is currently a side effect of GetTarget that needs to be remmoved, but this is currently needed
             var target = GetTarget(context);
             return JustGetInvocationArguments();
         }
@@ -253,15 +253,17 @@ namespace System.CommandLine.Binding
         {
             foreach (var parameterInfo in unboundParameters)
             {
-                var matchingProperties = type.GetProperties(CommonBindingFlags | BindingFlags.Static | BindingFlags.Instance)
-                                        .Where(p => p.Name.Equals(parameterInfo.Name, StringComparison.InvariantCultureIgnoreCase));
+                const BindingFlags bindingFlags = CommonBindingFlags | BindingFlags.Static | BindingFlags.Instance;
+                IEnumerable<PropertyInfo> matchingProperties = type.GetProperties(bindingFlags)
+                                        .Where(p => p.Name.Equals(parameterInfo.Name, StringComparison.InvariantCultureIgnoreCase))
+                                        .ToList();
                 matchingProperties = matchingProperties.Count() <= 1
                                      ? matchingProperties
                                      : matchingProperties
                                                 .Where(p => p.Name == parameterInfo.Name);
                 if (matchingProperties.Any())
                 {
-                    AddBinding(parameterInfo, PropertyBindingSide.Create(matchingProperties.First()));
+                    AddBinding(parameterInfo, new PropertyBindingSide(matchingProperties.First()));
                 }
             }
         }
@@ -319,7 +321,7 @@ namespace System.CommandLine.Binding
                     break;
                 default:
                     // TODO: This is probably wrong. We should have picking rules I think 
-                    throw new InvalidOperationException("Internal: Currently bound types can have only one constructor");
+                    throw new InvalidOperationException("Currently bound types can have only one constructor");
             }
 
         }
@@ -362,7 +364,7 @@ namespace System.CommandLine.Binding
                     AddBinding(propertyInfo, option);
                     break;
                 default:
-                    throw new InvalidOperationException("Internal: Unexpected symbol type");
+                    throw new InvalidOperationException("Unexpected symbol type");
             }
         }
 
@@ -380,7 +382,7 @@ namespace System.CommandLine.Binding
                     AddBinding(parameterInfo, option);
                     break;
                 default:
-                    throw new InvalidOperationException("Internal: Unexpected symbol type");
+                    throw new InvalidOperationException("Unexpected symbol type");
             }
         }
 
@@ -412,7 +414,5 @@ namespace System.CommandLine.Binding
         void IBinder.AddBinding(Binding binding)
             => InvocationBindingSet.AddBinding(binding);
 
-        void IBinder.AddBinding(BindingSide targetSide, BindingSide parserSide)
-            => InvocationBindingSet.AddBinding(targetSide, parserSide);
     }
 }

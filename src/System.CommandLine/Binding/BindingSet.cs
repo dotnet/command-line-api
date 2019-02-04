@@ -10,7 +10,7 @@ namespace System.CommandLine.Binding
     // This should be named Binder, but that name was taken at present
     public class BindingSet 
     {
-        private List<Binding> _bindings { get; } = new List<Binding>();
+        private List<Binding> _bindings  = new List<Binding>();
 
         public void AddBinding(BindingSide targetSide, BindingSide parserSide)
             => _bindings.Add(new Binding(targetSide, parserSide));

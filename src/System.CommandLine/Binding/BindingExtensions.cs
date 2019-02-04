@@ -18,9 +18,11 @@ namespace System.CommandLine.Binding
             return invocationContext;
         }
 
-        public static InvocationContext MakeSimpleInvocationContext(this Command command, string[] commandLine)
-        {
-            return MakeDefaultInvocationContext(command, string.Join("", commandLine));
-        }
+        public static InvocationContext MakeSimpleInvocationContext(this Command command, string[] commandLine) 
+            => MakeDefaultInvocationContext(command, string.Join("", commandLine));
+
+        public static void AddBinding(IBinder binder, BindingSide targetSide, BindingSide parserSide) 
+            => binder.AddBinding(new Binding(targetSide, parserSide));
+
     }
 }

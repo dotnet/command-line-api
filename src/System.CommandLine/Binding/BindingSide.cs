@@ -7,8 +7,9 @@ namespace System.CommandLine.Binding
     {
         public BindingSide(BindingGetter get, BindingSetter set)
         {
+            // Set is null in some key scenarios like services
             Set = set;
-            Get = get;
+            Get = get ?? throw new InvalidOperationException("Invalid Binding Side");
         }
         public BindingSetter Set { get; }
         public BindingGetter Get { get; }

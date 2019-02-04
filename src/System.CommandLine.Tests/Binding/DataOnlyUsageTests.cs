@@ -115,7 +115,8 @@ namespace System.CommandLine.Tests.Binding
             // Rich, is this the code you are looking for?
             var command = GetAddAndChildren();
             var target = TargetFrromInvocation(command, commandLine);
-            switch (target)
+            command = null;
+             switch (target)
             {
                 case AddReferenceData addReferenceData:
                     CodeThatAddsReferences(addReferenceData);

@@ -10,6 +10,5 @@ namespace System.CommandLine.Binding
         object GetTarget(InvocationContext context);
         void SetTarget(object target);
         void AddBinding(Binding binding);
-        void AddBinding(BindingSide targetSide, BindingSide parserSide);
     }
 }

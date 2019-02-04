@@ -14,7 +14,9 @@ namespace System.CommandLine.Binding
 
         public ParameterCollection(MethodBase methodBase)
         {
-            _methodBase = methodBase;
+            _methodBase = methodBase 
+                ?? throw new InvalidOperationException("Parameter collection must be initialized with a method")
+;
             _parameters = methodBase.GetParameters();
             _arguments = new object[_parameters.Count()];
 
@@ -28,10 +30,24 @@ namespace System.CommandLine.Binding
         }
 
         public void SetParameter(ParameterInfo parameterInfo, object value)
-            => _arguments[Array.IndexOf(_parameters, parameterInfo)] = value;
+        {
+            var pos = Array.IndexOf(_parameters, parameterInfo);
+            if (pos < 0)
+            {
+                throw new InvalidOperationException("Unexpected Parameter");
+            }
+            _arguments[pos] = value;
+        }
 
         public object GetParameter(ParameterInfo parameterInfo)
-            => _arguments[Array.IndexOf(_parameters, parameterInfo)];
+        {
+            var pos = Array.IndexOf(_parameters, parameterInfo);
+            if (pos < 0)
+            {
+                throw new InvalidOperationException("Unexpected Parameter");
+            }
+            return _arguments[pos];
+        }
 
         public object[] GetArguments()
             => _arguments;

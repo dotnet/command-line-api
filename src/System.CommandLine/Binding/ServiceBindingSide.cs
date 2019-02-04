@@ -10,7 +10,7 @@ namespace System.CommandLine.Binding
         { }
 
         public static ServiceBindingSide Create(Type serviceType)
-             => new ServiceBindingSide((c, t) => c.ServiceProvider.GetService(serviceType),  null);
+             => new ServiceBindingSide((context, target) => context.ServiceProvider.GetService(serviceType),  null);
 
     }
 }

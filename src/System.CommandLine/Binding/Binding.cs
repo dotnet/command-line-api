@@ -17,6 +17,10 @@ namespace System.CommandLine.Binding
 
         public Binding(BindingSide targetSide, BindingSide parserSide)
         {
+            if( targetSide == null || parserSide == null)
+            {
+                throw new InvalidOperationException("Invalid binding");
+            }
             TargetSide = targetSide;
             ParserSide = parserSide;
         }

@@ -7,12 +7,9 @@ namespace System.CommandLine.Binding
 {
     public class PropertyBindingSide : BindingSide
     {
-        private PropertyBindingSide(PropertyInfo propertyInfo)
+        public PropertyBindingSide(PropertyInfo propertyInfo)
             : base(GetGetter(propertyInfo), GetSetter(propertyInfo))
             => PropertyInfo = propertyInfo;
-
-        public static PropertyBindingSide Create(PropertyInfo propertyInfo)
-            => new PropertyBindingSide(propertyInfo);
 
         public PropertyInfo PropertyInfo { get; }
 
