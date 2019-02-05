@@ -1,14 +1,12 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace System.CommandLine
+using System.CommandLine.Invocation;
+
+namespace System.CommandLine.Binding
 {
-    public interface IArgument : ISymbolBase
+    public interface IBoundCommandHandler : ICommandHandler
     {
-        IArgumentArity Arity { get; }
-
-        bool HasDefaultValue { get; }
-
-        object GetDefaultValue();
+        IBinder Binder { get;  }
     }
 }

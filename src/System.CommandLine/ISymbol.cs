@@ -5,15 +5,18 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public interface ISymbol
+    public interface ISymbolBase
+    {
+        string Name { get; }
+
+        string Description { get; }
+    }
+
+    public interface ISymbol :ISymbolBase
     {
         IReadOnlyCollection<string> Aliases { get; }
 
         IReadOnlyCollection<string> RawAliases { get; }
-
-        string Name { get; }
-
-        string Description { get; }
 
         ICommand Parent { get; }
 
