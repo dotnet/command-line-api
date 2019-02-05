@@ -16,6 +16,7 @@ namespace System.CommandLine
         }
 
         public IReadOnlyCollection<Token> Tokens { get; }
+
         public IReadOnlyCollection<ParseError> Errors { get; }
     }
 }

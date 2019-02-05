@@ -206,7 +206,7 @@ namespace System.CommandLine.Tests
                          .UseSuggestDirective()
                          .Build();
 
-            var result = parser.Parse("[suggest] d");
+            var result = parser.Parse($"{exe} [suggest] d");
 
             var console = new TestConsole();
 

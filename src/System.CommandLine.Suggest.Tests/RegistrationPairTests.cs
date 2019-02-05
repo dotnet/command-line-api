@@ -7,7 +7,7 @@ using Xunit;
 namespace System.CommandLine.Suggest.Tests
 {
     
-    public class SuggestionRegistrationTests
+    public class RegistrationPairTests
     {
         [Fact]
         public void Constructor_with_badly_formatted_suggestion_provider_throws()

@@ -1,11 +1,10 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Tests;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -22,15 +21,54 @@ namespace System.CommandLine.Suggest.Tests
         private static string CurrentExeFullPath() => Path.GetFullPath(_currentExeName);
 
         [Fact]
-        public async Task InvokeAsync_executes_suggestion_command_for_executable()
+        public async Task InvokeAsync_executes_registered_executable()
         {
+            string receivedTargetExeName = null;
+
             string[] args = $@"get -p 12 -e ""{CurrentExeFullPath()}"" -- {_currentExeName} add".Tokenize().ToArray();
 
-            var suggestions = await InvokeAsync(args, new TestSuggestionRegistration(CurrentExeRegistrationPair()));
+            var suggestions = await InvokeAsync(
+                                  args,
+                                  new TestSuggestionRegistration(CurrentExeRegistrationPair()),
+                                  new AnonymousSuggestionStore(
+                                      (targetExeName, targetExeArgs, _) =>
+                                      {
+                                          receivedTargetExeName = targetExeName;
 
-            suggestions
-                .Should()
-                .Be($"package{Environment.NewLine}reference{Environment.NewLine}");
+                                          return "";
+                                      }));
+
+            receivedTargetExeName.Should().Be(CurrentExeFullPath());
+
+            
+        }
+
+        [Fact]
+        public async Task InvokeAsync_executes_suggestion_command_for_executable()
+        {
+            string receivedTargetExeArgs = null;
+
+            var args = PrepareArgs($@"get -p 12 -e ""{CurrentExeFullPath()}"" -- {_currentExeName} add");
+
+            await InvokeAsync(
+                args.args,
+                new TestSuggestionRegistration(CurrentExeRegistrationPair()),
+                new AnonymousSuggestionStore(
+                    (targetExeName, targetExeArgs, _) =>
+                    {
+                        receivedTargetExeArgs = targetExeArgs;
+
+                        return "";
+                    }));
+
+            receivedTargetExeArgs.Should().Be("[suggest:12] add");
+        }
+
+        private static (string[] args, int cursorPosition) PrepareArgs(string args)
+        {
+            var formattableString = args.Replace("$", "");
+            var cursorPosition = args.IndexOf("$");
+            return (formattableString.Tokenize().ToArray(), cursorPosition);
         }
 
         [Fact]
@@ -40,21 +78,6 @@ namespace System.CommandLine.Suggest.Tests
             (await InvokeAsync(args, new TestSuggestionRegistration()))
                 .Should()
                 .BeEmpty();
-        }
-
-        [Fact]
-        public async Task When_command_suggestions_use_process_that_remains_open_it_returns_empty_string()
-        {
-            var provider = new TestSuggestionRegistration(new RegistrationPair(CurrentExeFullPath(), $"{_currentExeName} {Assembly.GetExecutingAssembly().Location}"));
-            var dispatcher = new SuggestionDispatcher(provider, new TestSuggestionStore());
-            dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
-            var testConsole = new TestConsole();
-
-            var args = $@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add".Tokenize().ToArray();
-
-            await dispatcher.InvokeAsync(args, testConsole);
-
-            testConsole.Out.ToString().Should().BeEmpty();
         }
 
         [Fact]
@@ -118,9 +141,10 @@ namespace System.CommandLine.Suggest.Tests
 
         private static async Task<string> InvokeAsync(
             string[] args,
-            ISuggestionRegistration suggestionProvider)
+            ISuggestionRegistration suggestionProvider,
+            ISuggestionStore suggestionStore = null)
         {
-            var dispatcher = new SuggestionDispatcher(suggestionProvider, new TestSuggestionStore());
+            var dispatcher = new SuggestionDispatcher(suggestionProvider, suggestionStore ?? new TestSuggestionStore());
             var testConsole = new TestConsole();
             await dispatcher.InvokeAsync(args, testConsole);
             return testConsole.Out.ToString();
@@ -140,12 +164,27 @@ namespace System.CommandLine.Suggest.Tests
                     return $"unexpected value for {nameof(exeFileName)}: {exeFileName}";
                 }
 
-                if (suggestionTargetArguments != $"[suggest] add")
+                if (!Regex.IsMatch(suggestionTargetArguments, @"\[suggest:\d+\] add"))
                 {
                     return $"unexpected value for {nameof(suggestionTargetArguments)}: {suggestionTargetArguments}";
                 }
 
                 return $"package{Environment.NewLine}reference{Environment.NewLine}";
+            }
+        }
+
+        private class AnonymousSuggestionStore : ISuggestionStore
+        {
+            private Func<string, string, TimeSpan, string> _getSuggestions;
+
+            public AnonymousSuggestionStore(Func<string, string, TimeSpan, string> getSuggestions)
+            {
+                _getSuggestions = getSuggestions;
+            }
+
+            public string GetSuggestions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
+            {
+                return _getSuggestions(exeFileName, suggestionTargetArguments, timeout);
             }
         }
     }

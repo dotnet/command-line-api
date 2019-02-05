@@ -41,7 +41,7 @@ namespace System.CommandLine.Suggest
             }
 
             return _filesNameWithoutExtensionUnderDotnetProfileTools.Select(p =>
-                new RegistrationPair(Path.Combine(_nullableToolsShimPath, p), $"{p} [suggest]"));
+                new RegistrationPair(Path.Combine(_nullableToolsShimPath, p), $"{p}"));
         }
 
         public RegistrationPair FindRegistration(FileInfo soughtExecutable)
@@ -59,7 +59,7 @@ namespace System.CommandLine.Suggest
             }
 
             return new RegistrationPair(soughtExecutable.FullName,
-                $"{Path.GetFileNameWithoutExtension(soughtExecutable.FullName)} [suggest]");
+                $"{Path.GetFileNameWithoutExtension(soughtExecutable.FullName)}");
         }
     }
 }

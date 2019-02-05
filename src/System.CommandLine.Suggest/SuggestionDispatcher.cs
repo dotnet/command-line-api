@@ -133,6 +133,8 @@ namespace System.CommandLine.Suggest
         {
             var commandPath = parseResult.ValueForOption<FileInfo>("-e");
 
+            var position = parseResult.CommandResult["position"]?.GetValueOrDefault<int?>();
+
             var suggestionRegistration =
                 _suggestionRegistration.FindRegistration(commandPath);
 
@@ -149,6 +151,7 @@ namespace System.CommandLine.Suggest
 
             string targetArgs = FormatSuggestionArguments(
                 parseResult,
+                position,
                 targetExePath);
 
             string suggestions = _suggestionStore.GetSuggestions(
@@ -180,12 +183,19 @@ namespace System.CommandLine.Suggest
 
         private static string FormatSuggestionArguments(
             ParseResult parseResult,
+            int? position,
             string targetExeName)
         {
-            var outboundArgs = new List<string>
-                               {
-                                   "[suggest]"
-                               };
+            var outboundArgs = new List<string>();
+
+            if (position == null)
+            {
+                outboundArgs.Add($"[suggest]");
+            }
+            else
+            {
+                outboundArgs.Add($"[suggest:{position}]");
+            }
 
             var tokens = parseResult.UnparsedTokens;
 

@@ -228,7 +228,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_subcommand_has_been_specified_then_its_sibling_commands_will_not_be_suggested()
+        public void When_a_subcommand_with_subcommands_has_been_specified_then_its_sibling_commands_will_not_be_suggested()
         {
             var rootCommand = new RootCommand
             {
@@ -715,7 +715,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void When_position_is_unspecified_in_array_command_line_and_final_token_is_matches_an_command_then_it_returns_empty()
+            public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_command_then_it_returns_empty()
             {
                 Command command = new Command("the-command", "",
                                               new[]
@@ -731,7 +731,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void When_position_is_unspecified_in_array_command_line_and_final_token_is_matches_an_option_then_it_returns_empty()
+            public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_option_then_it_returns_empty()
             {
                 Command command = new Command("the-command", "",
                                               new[]
@@ -747,7 +747,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void When_position_is_unspecified_in_array_command_line_and_final_token_is_matches_an_argument_then_it_returns_empty()
+            public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_argument_then_it_returns_empty()
             {
                 Command command = new Command("the-command", "",
                                               new[]
