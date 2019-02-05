@@ -90,6 +90,7 @@ namespace System.CommandLine.Tests
             invoke.Should()
                   .Throw<Exception>()
                   .Which
+                  .InnerException
                   .Message
                   .Should()
                   .Be("oops!");

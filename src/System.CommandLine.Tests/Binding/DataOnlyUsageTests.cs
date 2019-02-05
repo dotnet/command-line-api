@@ -113,21 +113,21 @@ namespace System.CommandLine.Tests.Binding
             AddReferenceData addReferenceCheck = null;
 
             // Rich, is this the code you are looking for?
-            var command = GetAddAndChildren();
-            var target = TargetFrromInvocation(command, commandLine);
-            command = null;
-             switch (target)
-            {
-                case AddReferenceData addReferenceData:
-                    CodeThatAddsReferences(addReferenceData);
-                    break;
-                case AddPackageData addPackageData:
-                    CodeThatAddsPackages(addPackageData);
-                    break;
-                case AddData oops:
-                    // if this is what you want, we need work to ensure you don't get here
-                    throw new InvalidOperationException("oops");
-            }
+                var command = GetAddAndChildren();
+                var target = TargetFrromInvocation(command, commandLine);
+                command = null;
+                 switch (target)
+                {
+                    case AddReferenceData addReferenceData:
+                        CodeThatAddsReferences(addReferenceData);
+                        break;
+                    case AddPackageData addPackageData:
+                        CodeThatAddsPackages(addPackageData);
+                        break;
+                    case AddData oops:
+                        // if this is what you want, we need work to ensure you don't get here
+                        throw new InvalidOperationException("oops");
+                }
 
             void CodeThatAddsPackages(AddPackageData addPackageData)
                 => addPackageCheck = addPackageData;

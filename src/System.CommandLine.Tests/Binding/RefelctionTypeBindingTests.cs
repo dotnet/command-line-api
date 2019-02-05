@@ -11,7 +11,7 @@ using System.CommandLine.Builder;
 
 namespace System.CommandLine.Tests.Binding
 {
-    public class RefelctionTypeBindingTests
+    public class ReflectionTypeBindingTests
     {
         private readonly TestConsole _console = new TestConsole();
 
@@ -37,7 +37,6 @@ namespace System.CommandLine.Tests.Binding
             var arguments = binder.GetInvocationArguments(invocationContext);
             var target = binder.GetTarget(invocationContext);
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
-            target.Should().NotBeNull();
             target.Should().BeOfType<TypeWithInvokeNoCtor>();
             var typedTarget = target as TypeWithInvokeNoCtor;
             typedTarget.IntProperty.Should().Be(default);

@@ -91,7 +91,7 @@ namespace System.CommandLine.Binding
         public void AddBinding<T>(ParameterInfo parameterInfo, Func<T> valueFunc)
             => AddBinding(parameterInfo, ValueBindingSide.Create(valueFunc));
 
-        public void AddBinding(ParameterInfo parameterInfo, BindingSide parserBindingSide)
+        private void AddBinding(ParameterInfo parameterInfo, BindingSide parserBindingSide)
         {
             switch (parameterInfo.Member)
             {
