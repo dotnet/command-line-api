@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -17,17 +17,11 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.3.0" />
-    <PackageReference Include="xunit" Version="2.4.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\System.CommandLine.Suggest\dotnet-suggest.csproj" />
-    <ProjectReference Include="..\System.CommandLine.Tests\System.CommandLine.Tests.csproj" />
+    <ProjectReference Include="../../src/System.CommandLine.Suggest/dotnet-suggest.csproj" />
+    <ProjectReference Include="../System.CommandLine.Tests/System.CommandLine.Tests.csproj" />
   </ItemGroup>
 
   <Target Name="DotnetSuggestIntegrationTestAssets" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
@@ -51,13 +45,13 @@
       </PropertyGroup>
 
       <MSBuild BuildInParallel="False" 
-               Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj" 
+               Projects="../../src/System.CommandLine.Suggest/dotnet-suggest.csproj" 
                Targets="Restore" 
                Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);ForceRestoreToEvaluateSeparately=1;Configuration=Release">
       </MSBuild>
 
       <MSBuild BuildInParallel="False" 
-               Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj"
+               Projects="../../src/System.CommandLine.Suggest/dotnet-suggest.csproj"
                Targets="Build;Publish"
                Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath);Configuration=Release">
       </MSBuild>

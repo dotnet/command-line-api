@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -13,18 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\System.CommandLine.Rendering\WrappingExtensions.cs" Link="WrappingExtensions.cs" />
+    <Compile Include="../../src/System.CommandLine.Rendering/WrappingExtensions.cs" Link="WrappingExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit" Version="2.4.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\System.CommandLine.Rendering\System.CommandLine.Rendering.csproj" />
-    <ProjectReference Include="..\System.CommandLine.Tests\System.CommandLine.Tests.csproj" />
-    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="../../src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj" />
+    <ProjectReference Include="../System.CommandLine.Tests/System.CommandLine.Tests.csproj" />
+    <ProjectReference Include="../../src/System.CommandLine/System.CommandLine.csproj" />
   </ItemGroup>
 
 </Project>
