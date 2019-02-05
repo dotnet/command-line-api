@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the MIT license. See License.txt in the project root for full license information. -->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+  <!-- Repo Version Information -->
+  <PropertyGroup>
+    <VersionBase>0.2.1</VersionBase>
+    <PreReleaseVersionLabel>preview</PreReleaseVersionLabel>
+  </PropertyGroup>
+  <!-- Repo Toolset Features -->
+  <PropertyGroup>
+    <UsingToolMicrosoftNetCompilers>false</UsingToolMicrosoftNetCompilers>
+  </PropertyGroup>
+  <!-- Toolset Dependencies -->
+  <PropertyGroup>
+    <DotNetCliProjectJsonVersion>1.0.0-preview2-1-003177</DotNetCliProjectJsonVersion>
+    <VSWhereVersion>2.2.7</VSWhereVersion>
+  </PropertyGroup>
+  <!-- Test Dependencies -->
+  <PropertyGroup>
+    <FluentAssertionsVersion>4.18.0</FluentAssertionsVersion>
+    <NewtonsoftJsonVersion>9.0.1</NewtonsoftJsonVersion>
+    <SystemNetHttpVersion>4.3.1</SystemNetHttpVersion>
+  </PropertyGroup>
+</Project>
