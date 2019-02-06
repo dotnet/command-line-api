@@ -18,11 +18,5 @@ namespace System.CommandLine.Tests.Binding
         {
             return Task.FromResult(86);
         }
-
-        public Task<int> SomethingElse()
-        {
-            return Task.FromResult(87);
-        }
-
     }
 }

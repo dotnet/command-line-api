@@ -11,6 +11,5 @@ namespace System.CommandLine.Binding
 
         public static ServiceBindingSide Create(Type serviceType)
              => new ServiceBindingSide((context, target) => context.ServiceProvider.GetService(serviceType),  null);
-
     }
 }

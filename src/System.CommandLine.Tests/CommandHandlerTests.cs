@@ -3,10 +3,8 @@
 
 using System.CommandLine.Invocation;
 using FluentAssertions;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using System.CommandLine.Builder;
 
 namespace System.CommandLine.Tests
 {

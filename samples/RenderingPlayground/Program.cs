@@ -51,7 +51,7 @@ namespace RenderingPlayground
 
             var consoleRenderer = new ConsoleRenderer(
                 invocationContext.Console,
-                mode: invocationContext.OutputMode(),
+                mode: invocationContext.BindingContext.OutputMode(),
                 resetAfterRender: true);
 
             switch (sample)

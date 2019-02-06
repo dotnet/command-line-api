@@ -1,16 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-// Sorry for temporarily naming this after someone, but it's an attempt at the 
-// way he wants to work with System.CommandLine
-
 using System.CommandLine.Invocation;
-using System.CommandLine.Binding;
 using FluentAssertions;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
-using System.CommandLine.Builder;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -40,10 +33,7 @@ namespace System.CommandLine.Tests.Binding
             public string ProjectPath { get; set; }
             public string Framework { get; set; }
         }
-
-
-
-        // OK, I regretted my choice of domain. You might do a "dotnet add -h" to help this make sense
+        
         private Command GetAddAndChildren()
         {
             var dotnetCommand = new Command("dotnet");
@@ -113,27 +103,27 @@ namespace System.CommandLine.Tests.Binding
             AddReferenceData addReferenceCheck = null;
 
             // Rich, is this the code you are looking for?
-                var command = GetAddAndChildren();
-                var target = TargetFrromInvocation(command, commandLine);
-                command = null;
-                 switch (target)
-                {
-                    case AddReferenceData addReferenceData:
-                        CodeThatAddsReferences(addReferenceData);
-                        break;
-                    case AddPackageData addPackageData:
-                        CodeThatAddsPackages(addPackageData);
-                        break;
-                    case AddData oops:
-                        // if this is what you want, we need work to ensure you don't get here
-                        throw new InvalidOperationException("oops");
-                }
+            var command = GetAddAndChildren();
+            var target = TargetFrromInvocation(command, commandLine);
+
+            switch (target)
+            {
+                case AddReferenceData addReferenceData:
+                    CodeThatAddsReferences(addReferenceData);
+                    break;
+                case AddPackageData addPackageData:
+                    CodeThatAddsPackages(addPackageData);
+                    break;
+                case AddData oops:
+                    // if this is what you want, we need work to ensure you don't get here
+                    throw new InvalidOperationException("oops");
+            }
 
             void CodeThatAddsPackages(AddPackageData addPackageData)
                 => addPackageCheck = addPackageData;
 
             void CodeThatAddsReferences(AddReferenceData addReferenceData)
-                 => addReferenceCheck = addReferenceData;
+                => addReferenceCheck = addReferenceData;
 
             addPackageCheck.Should().NotBeNull();
             addPackageCheck.Interactive.Should().BeFalse();
@@ -145,7 +135,7 @@ namespace System.CommandLine.Tests.Binding
 
         private static object TargetFrromInvocation(Command command, string commandLine)
         {
-            var invocationContext = command.MakeDefaultInvocationContext(commandLine);
+            var invocationContext = command.CreateBindingContext(commandLine);
             var resultCommand = invocationContext.ParseResult.CommandResult.Command;
             var binder = ((resultCommand as Command).Handler as ReflectionCommandHandler).Binder;
             var target = binder.GetTarget(invocationContext);

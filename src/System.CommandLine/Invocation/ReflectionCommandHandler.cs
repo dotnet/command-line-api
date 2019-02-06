@@ -8,63 +8,29 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public class ReflectionCommandHandler : IBoundCommandHandler
+    public class ReflectionCommandHandler : ICommandHandler
     {
-        private ReflectionCommandHandler(Type targetType)
+        public ReflectionCommandHandler(
+            Type targetType,
+            MethodInfo methodInfo,
+            object target = null)
         {
             TargetType = targetType;
             Binder = new ReflectionBinder(TargetType);
-        }
-
-        public static ReflectionCommandHandler Create(MethodInfo methodInfo)
-        {
-            var handler = Create(methodInfo.DeclaringType, methodInfo, null);
-            return handler;
-        }
-
-        public static ReflectionCommandHandler Create(Type declaringType)
-        {
-            var handler = Create(declaringType, null, null);
-            return handler;
-        }
-
-        public static ReflectionCommandHandler Create(MethodInfo methodInfo, object target)
-        {
-            var handler = Create(methodInfo.DeclaringType, methodInfo, target);
-            return handler;
-        }
-
-        public static ReflectionCommandHandler Create(Type type, MethodInfo methodInfo, object target = null)
-        {
-            var handler = new ReflectionCommandHandler(type);
-            handler.Binder.SetTarget(target);
-            methodInfo = methodInfo ?? GetInvokeMethod(type);
-            handler.Binder.SetInvocationMethod(methodInfo);
-            return handler;
+            Binder.SetTarget(target);
+            Binder.SetInvocationMethod(methodInfo);
         }
 
         public Type TargetType { get; }
 
         public ReflectionBinder Binder { get; }
-        IBinder IBoundCommandHandler.Binder
-            => this.Binder;
 
         public Task<int> InvokeAsync(InvocationContext context)
         {
             // Can we get an easier way to get the handler's owner - which only matters
             // for invocation
-            Binder.AddBindingsIfNeeded(context?.ParseResult?.CommandResult?.Command);
             var value = Binder.InvokeAsync(context);
             return CommandHandler.GetResultCodeAsync(value, context);
         }
-
-        private static MethodInfo GetInvokeMethod(Type type)
-        {
-            var methodInfo = type.GetMethod("InvokeAsync");
-            return methodInfo ?? type.GetMethods()
-                                     .Where(x => x.Name.StartsWith("Invoke"))
-                                     .FirstOrDefault();
-        }
-
     }
 }
