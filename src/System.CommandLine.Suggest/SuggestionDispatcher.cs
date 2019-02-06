@@ -35,6 +35,7 @@ namespace System.CommandLine.Suggest
                       .AddCommand(ListCommand())
                       .AddCommand(GetCommand())
                       .AddCommand(RegisterCommand())
+                      .AddCommand(CompleteScriptCommand())
                    
                       .Build();
 
@@ -64,6 +65,21 @@ namespace System.CommandLine.Suggest
                 {
                     Handler = CommandHandler.Create<IConsole, bool>(
                         (c, detailed) => c.Out.WriteLine(List(_suggestionRegistration, detailed)))
+                };
+
+            Command CompleteScriptCommand() =>
+                new Command(
+                    "complete-script",
+                    "Print complete script for specific shell",
+                    new[]
+                    {
+                        new Option("--shell",
+                            "Shell name",
+                            new Argument<string>())
+                    })
+                {
+                    Handler = CommandHandler.Create<IConsole, string>(
+                        SuggestionShellScriptHandler.Handle)
                 };
 
             Option DetailedOption() =>
