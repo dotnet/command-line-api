@@ -26,10 +26,5 @@ namespace System.CommandLine.Tests.Binding
         {
             return Task.FromResult(76);
         }
-
-        public Task<int> SomethingElse(int intParam, string stringParam)
-        {
-            return Task.FromResult(77);
-        }
     }
 }

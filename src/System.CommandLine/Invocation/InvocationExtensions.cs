@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.Diagnostics;
 using System.IO;
@@ -70,11 +71,11 @@ namespace System.CommandLine.Invocation
 
         public static CommandLineBuilder ConfigureConsole(
             this CommandLineBuilder builder,
-            Func<InvocationContext, IConsole> createConsole)
+            Func<BindingContext, IConsole> createConsole)
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                context.ConsoleFactory = new AnonymousConsoleFactory(createConsole);
+                context.BindingContext.ConsoleFactory = new AnonymousConsoleFactory(createConsole);
                 await next(context);
             }, CommandLineBuilder.MiddlewareOrder.Middle);
 

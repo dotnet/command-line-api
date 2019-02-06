@@ -3,11 +3,11 @@
 
 using System.CommandLine.Invocation;
 using System.CommandLine.Binding;
+using System.CommandLine.Tests.Binding;
 using FluentAssertions;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using System.CommandLine.Builder;
 
 namespace System.CommandLine.Tests
 {
@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
             var handler = CommandHandler.Create<string, int>(Execute);
             command.Handler = handler;
 
-            var arguments = handler.Binder.GetInvocationArguments(command.MakeDefaultInvocationContext(commandLine));
+            var arguments = handler.Binder.GetInvocationArguments(command.CreateBindingContext(commandLine));
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
 
             await command.InvokeAsync(commandLine, _console);
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests
             var handler = CommandHandler.Create<string>(Execute);
             command.Handler = handler;
 
-            var arguments = handler.Binder.GetInvocationArguments(command.MakeDefaultInvocationContext(commandLine));
+            var arguments = handler.Binder.GetInvocationArguments(command.CreateBindingContext(commandLine));
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
 
             await command.InvokeAsync(commandLine, _console);
@@ -94,7 +94,7 @@ namespace System.CommandLine.Tests
             var handler = CommandHandler.Create<string, int>(Execute);
             command.Handler = handler;
 
-            var arguments = handler.Binder.GetInvocationArguments(command.MakeDefaultInvocationContext(commandLine));
+            var arguments = handler.Binder.GetInvocationArguments(command.CreateBindingContext(commandLine));
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
 
             await command.InvokeAsync(commandLine, _console);
@@ -122,7 +122,7 @@ namespace System.CommandLine.Tests
             var handler = CommandHandler.Create<string, int>(Execute);
             command.Handler = handler;
 
-            var arguments = handler.Binder.GetInvocationArguments(command.MakeDefaultInvocationContext(commandLine));
+            var arguments = handler.Binder.GetInvocationArguments(command.CreateBindingContext(commandLine));
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
 
             await command.InvokeAsync(commandLine, _console);
@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests
             var handler = CommandHandler.Create<string, int>(Execute);
             command.Handler = handler;
 
-            var arguments = handler.Binder.GetInvocationArguments(command.MakeDefaultInvocationContext(commandLine));
+            var arguments = handler.Binder.GetInvocationArguments(command.CreateBindingContext(commandLine));
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
 
             await command.InvokeAsync(commandLine, _console);
@@ -177,7 +177,7 @@ namespace System.CommandLine.Tests
 
             var handler = command.Handler as ReflectionCommandHandler;
 
-            var arguments = handler.Binder.GetInvocationArguments(command.MakeDefaultInvocationContext(commandLine));
+            var arguments = handler.Binder.GetInvocationArguments(command.CreateBindingContext(commandLine));
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
 
             await command.InvokeAsync(commandLine, _console);
@@ -201,7 +201,7 @@ namespace System.CommandLine.Tests
 
             var handler = command.Handler as ReflectionCommandHandler;
 
-            var arguments = handler.Binder.GetInvocationArguments(command.MakeDefaultInvocationContext(commandLine));
+            var arguments = handler.Binder.GetInvocationArguments(command.CreateBindingContext(commandLine));
             arguments.Count().Should().Be(1);
             arguments.First().Should().NotBeNull();
             arguments.First().Should().BeOfType<ParseResult>();
@@ -225,45 +225,17 @@ namespace System.CommandLine.Tests
                 console.Out.Write("Hello!");
             });
 
-            var handler = command.Handler as ReflectionCommandHandler;
+            var handler = (ReflectionCommandHandler) command.Handler;
 
-            var arguments = handler.Binder.GetInvocationArguments(command.MakeDefaultInvocationContext(commandLine));
-            arguments.Count().Should().Be(1);
-            arguments.First().Should().NotBeNull();
-            arguments.First().Should().BeAssignableTo<IConsole>();
+            var arguments = handler.Binder.GetInvocationArguments(command.CreateBindingContext(commandLine));
 
+            arguments.Should()
+                     .ContainSingle(a => a is IConsole);
+           
             await command.InvokeAsync(commandLine, _console);
 
             wasCalled.Should().BeTrue();
             _console.Out.ToString().Should().Be("Hello!");
         }
-
-        [Fact]
-        public async Task Method_parameters_of_type_InvocationContext_receive_the_current_InvocationContext_instance()
-        {
-            var wasCalled = false;
-            const string commandLine = "command -x 123";
-
-            var command = new Command("command");
-            command.AddOption(new Option("-x", "", new Argument<int>()));
-            command.Handler = CommandHandler.Create<InvocationContext>(context =>
-            {
-                wasCalled = true;
-                context.ParseResult.ValueForOption("-x").Should().Be(123);
-            });
-
-            var handler = command.Handler as ReflectionCommandHandler;
-
-            var arguments = handler.Binder.GetInvocationArguments(command.MakeDefaultInvocationContext(commandLine));
-            arguments.Count().Should().Be(1);
-            arguments.First().Should().NotBeNull();
-            arguments.First().Should().BeOfType<InvocationContext>();
-
-            var ret =await command.InvokeAsync(commandLine, _console);
-
-            ret.Should().Be(0);
-            wasCalled.Should().BeTrue();
-        }
-
     }
 }

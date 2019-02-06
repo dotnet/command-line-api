@@ -2,31 +2,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine.Binding
 {
     // This should be named Binder, but that name was taken at present
-    public class BindingSet 
+    public class BindingSet
     {
-        private List<Binding> _bindings  = new List<Binding>();
+        private readonly List<Binding> _bindings = new List<Binding>();
 
         public void AddBinding(BindingSide targetSide, BindingSide parserSide)
             => _bindings.Add(new Binding(targetSide, parserSide));
 
-        public void AddBinding(Binding binding)
-            => _bindings.Add(binding);
-
-        public void BindDefaults(InvocationContext context, object target)
-        {
-            foreach (var binding in _bindings)
-            {
-                binding.BindDefaults(context, target);
-            }
-        }
-
-        public void Bind(InvocationContext context, object target)
+        public void Bind(BindingContext context, object target)
         {
             foreach (var binding in _bindings)
             {
@@ -34,13 +22,9 @@ namespace System.CommandLine.Binding
             }
         }
 
-        // To array forces copy so no changes can be made
-        public IEnumerable<Binding> Bindings
-            => _bindings.ToArray();
-
         public IEnumerable<Binding> FindTargetBinding<T>(Func<T, bool> predicate)
-            where T : BindingSide 
+            where T : BindingSide
             => _bindings
-                     .Where(b => b.TargetSide is T bs && predicate(bs));
+                .Where(b => b.TargetSide is T bs && predicate(bs));
     }
 }

@@ -21,14 +21,9 @@ namespace System.CommandLine.Tests.Binding
         public int IntProperty { get; set; }
         public string StringProperty { get; set; }
 
-        public Task<int> Invoke(string stringParam, int intParam)
+        public static Task<int> Invoke(string stringParam, int intParam)
         {
             return Task.FromResult(96);
-        }
-
-        public Task<int> SomethingElse(int intParam, string stringParam)
-        {
-            return Task.FromResult(97);
         }
     }
 }

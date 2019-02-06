@@ -1,9 +1,10 @@
-﻿using System.CommandLine.Invocation;
+﻿using System.CommandLine.Binding;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine
 {
     public interface IHelpBuilderFactory
     {
-        IHelpBuilder CreateHelpBuilder(InvocationContext invocationContext);
+        IHelpBuilder CreateHelpBuilder(BindingContext context);
     }
 }
