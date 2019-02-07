@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
             var result = option.Parse("[parse] -y");
 
             result.Directives.Contains("parse").Should().BeTrue();
-            result.Tokens.Should().Contain("[parse]");
+            result.Tokens.Should().Contain(t => t.Value == "[parse]");
         }
 
         [Fact]

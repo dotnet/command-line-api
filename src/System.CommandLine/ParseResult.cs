@@ -14,7 +14,7 @@ namespace System.CommandLine
             CommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
-            IReadOnlyCollection<string> tokens,
+            IReadOnlyCollection<Token> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
             IReadOnlyCollection<ParseError> errors,
@@ -44,7 +44,7 @@ namespace System.CommandLine
 
         public IDirectiveCollection Directives { get; }
 
-        public IReadOnlyCollection<string> Tokens { get; }
+        public IReadOnlyCollection<Token> Tokens { get; }
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 

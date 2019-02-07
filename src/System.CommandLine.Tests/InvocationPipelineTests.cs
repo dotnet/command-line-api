@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;
@@ -90,6 +91,7 @@ namespace System.CommandLine.Tests
             invoke.Should()
                   .Throw<Exception>()
                   .Which
+                  .InnerException
                   .Message
                   .Should()
                   .Be("oops!");
@@ -111,7 +113,12 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder()
                          .UseMiddleware(async (context, next) =>
                          {
-                             var tokens = context.ParseResult.Tokens.Concat(new[] { "implicit-inner-command" }).ToArray();
+                             var tokens = context.ParseResult
+                                                 .Tokens
+                                                 .Select(t => t.Value)
+                                                 .Concat(new[] { "implicit-inner-command" })
+                                                 .ToArray();
+
                              context.ParseResult = context.Parser.Parse(tokens);
                              await next(context);
                          })
@@ -207,15 +214,15 @@ namespace System.CommandLine.Tests
 
         private class DelegateHelpBuilderFactory : IHelpBuilderFactory
         {
-            public DelegateHelpBuilderFactory(Func<InvocationContext, IHelpBuilder> callback)
+            public DelegateHelpBuilderFactory(Func<BindingContext, IHelpBuilder> callback)
             {
                 Callback = callback ?? throw new ArgumentNullException(nameof(callback));
             }
 
-            private Func<InvocationContext, IHelpBuilder> Callback { get; }
+            private Func<BindingContext, IHelpBuilder> Callback { get; }
 
-            public IHelpBuilder CreateHelpBuilder(InvocationContext invocationContext)
-                => Callback(invocationContext);
+            public IHelpBuilder CreateHelpBuilder(BindingContext context)
+                => Callback(context);
         }
     }
 }

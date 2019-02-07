@@ -9,6 +9,45 @@ namespace System.CommandLine
 {
     public static class ParseResultExtensions
     {
+        public static object GetDefaultValueForType(this Type type)
+        {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
+        }
+
+        public static object GetValueOrDefault(this ParseResult parseResult, Option option, bool searchHierarchy)
+        {
+            var optionResult = GetOptionResult(parseResult.CommandResult, option, searchHierarchy);
+            return optionResult == null
+                    ? GetDefaultValueForType(option.Argument.ArgumentType ?? typeof(bool))
+                    : optionResult.GetValueOrDefault();
+        }
+
+        private static SymbolResult GetOptionResult(CommandResult commandResult, Option option, bool searchHierarchy)
+        {
+            var optionResult = commandResult.Children
+                                .Where(c => c.Symbol == option)
+                                .FirstOrDefault();
+            return optionResult == null && searchHierarchy && commandResult.Parent != null
+                ? GetOptionResult(commandResult.Parent, option, searchHierarchy)
+                : optionResult;
+        }
+
+        public static object GetValueOrDefault(this ParseResult parseResult, Argument argument, bool searchHierarchy)
+        {
+            var commandResult = GetCommandResultForArgument(parseResult.CommandResult, argument, searchHierarchy);
+            // TODO: Change when we support multiple arguments
+            return commandResult == null
+                ? GetDefaultValueForType(argument.ArgumentType ?? typeof(bool))
+                : commandResult.GetValueOrDefault();
+        }
+
+        private static CommandResult GetCommandResultForArgument(CommandResult commandResult, Argument argument, bool searchHierarchy)
+            => commandResult.Command.Argument == argument
+                ? commandResult
+                : (commandResult.Parent == null
+                    ? null
+                    : GetCommandResultForArgument(commandResult.Parent, argument, searchHierarchy));
+
         public static string TextToMatch(
             this ParseResult source,
             int? position = null)
@@ -25,7 +64,7 @@ namespace System.CommandLine
                 // assume the cursor is at the end of the input
                 if (!source.RawInput.EndsWith(" "))
                 {
-                    return lastToken;
+                    return lastToken.Value;
                 }
                 else
                 {
@@ -70,7 +109,7 @@ namespace System.CommandLine
             {
                 builder.Append("!");
             }
-            
+
             if (symbolResult is OptionResult option &&
                 option.IsImplicit)
             {
@@ -102,7 +141,7 @@ namespace System.CommandLine
                 if (result is SuccessfulArgumentResult _)
                 {
                     var value = symbolResult.GetValueOrDefault();
-                    
+
                     switch (value)
                     {
                         case null:

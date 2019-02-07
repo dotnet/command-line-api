@@ -20,8 +20,10 @@ namespace System.CommandLine.Invocation
             context.ResultCode = 1;
 
             context.Console.ResetTerminalForegroundColor();
-            
-            context.HelpBuilder.Write(context.ParseResult.CommandResult.Command);
+
+            context.BindingContext
+                   .HelpBuilder
+                   .Write(context.ParseResult.CommandResult.Command);
         }
     }
 }

@@ -8,134 +8,156 @@ namespace System.CommandLine.Invocation
 {
     public static class CommandHandler
     {
-        public static ICommandHandler Create(
+        public static ReflectionCommandHandler Create<T>()
+        {
+            return CreateHandler(typeof(T), null, null);
+        }
+
+        public static ReflectionCommandHandler Create<T>(string methodName)
+        {
+            var type = typeof(T);
+            var methodInfo = type.GetMethod(methodName);
+            return CreateHandler(type, methodInfo, null);
+        }
+
+        public static ReflectionCommandHandler Create(Action action) =>
+            CreateHandler(action.Method, action.Target);
+
+        private static ReflectionCommandHandler CreateHandler(
+            Type type,
             MethodInfo method,
-            Func<object> target = null) =>
-            new MethodBindingCommandHandler(method, target);
+            object target)
+        {
+            return new ReflectionCommandHandler(type, method, target);
+        }
 
-        public static ICommandHandler Create(Action action) =>
-            new MethodBindingCommandHandler(action);
+        private static ReflectionCommandHandler CreateHandler(
+            MethodInfo method,
+            object target)
+        {
+            return CreateHandler(method.DeclaringType, method, target);
+        }
 
-        public static ICommandHandler Create<T>(
+        public static ReflectionCommandHandler Create<T>(
             Action<T> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(null, action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2>(
+        public static ReflectionCommandHandler Create<T1, T2>(
             Action<T1, T2> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(null, action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3>(
+        public static ReflectionCommandHandler Create<T1, T2, T3>(
             Action<T1, T2, T3> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(null, action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4>(
             Action<T1, T2, T3, T4> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5>(
             Action<T1, T2, T3, T4, T5> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5, T6>(
             Action<T1, T2, T3, T4, T5, T6> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
             Action<T1, T2, T3, T4, T5, T6, T7> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create(Func<int> action) =>
-            new MethodBindingCommandHandler(action);
+        public static ReflectionCommandHandler Create(Func<int> action, Command command = null) =>
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T>(
+        public static ReflectionCommandHandler Create<T>(
             Func<T, int> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2>(
+        public static ReflectionCommandHandler Create<T1, T2>(
             Func<T1, T2, int> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3>(
+        public static ReflectionCommandHandler Create<T1, T2, T3>(
             Func<T1, T2, T3, int> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4>(
             Func<T1, T2, T3, T4, int> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5>(
             Func<T1, T2, T3, T4, T5, int> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5, T6>(
             Func<T1, T2, T3, T4, T5, T6, int> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
             Func<T1, T2, T3, T4, T5, T6, T7, int> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create(Func<Task> action) =>
-            new MethodBindingCommandHandler(action);
+        public static ReflectionCommandHandler Create(Func<Task> action) =>
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T>(
+        public static ReflectionCommandHandler Create<T>(
             Func<T, Task> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2>(
+        public static ReflectionCommandHandler Create<T1, T2>(
             Func<T1, T2, Task> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3>(
+        public static ReflectionCommandHandler Create<T1, T2, T3>(
             Func<T1, T2, T3, Task> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4>(
             Func<T1, T2, T3, T4, Task> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5>(
             Func<T1, T2, T3, T4, T5, Task> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5, T6>(
             Func<T1, T2, T3, T4, T5, T6, Task> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
             Func<T1, T2, T3, T4, T5, T6, T7, Task> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create(Func<Task<int>> action) =>
-            new MethodBindingCommandHandler(action);
+        public static ReflectionCommandHandler Create(Func<Task<int>> action) =>
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T>(
+        public static ReflectionCommandHandler Create<T>(
             Func<T, Task<int>> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2>(
+        public static ReflectionCommandHandler Create<T1, T2>(
             Func<T1, T2, Task<int>> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3>(
+        public static ReflectionCommandHandler Create<T1, T2, T3>(
             Func<T1, T2, T3, Task<int>> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4>(
             Func<T1, T2, T3, T4, Task<int>> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5>(
             Func<T1, T2, T3, T4, T5, Task<int>> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5, T6>(
             Func<T1, T2, T3, T4, T5, T6, Task<int>> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
+        public static ReflectionCommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
             Func<T1, T2, T3, T4, T5, T6, T7, Task<int>> action) =>
-            new MethodBindingCommandHandler(action);
+            CreateHandler(action.Method, action.Target);
 
         internal static async Task<int> GetResultCodeAsync(object value, InvocationContext context)
         {

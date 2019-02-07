@@ -24,18 +24,18 @@ namespace System.CommandLine
 
         internal CommandLineConfiguration Configuration { get; }
 
-        public virtual ParseResult Parse(
-            IReadOnlyCollection<string> arguments, 
+        public ParseResult Parse(
+            IReadOnlyCollection<string> arguments,
             string rawInput = null)
         {
-            var rawTokens = arguments;  // allow a more user-friendly name for callers of Parse
-            var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
+            var normalizedArgs = NormalizeRootCommand(arguments);
+            var lexResult = normalizedArgs.Lex(Configuration);
             var directives = new DirectiveCollection();
             var unparsedTokens = new Queue<Token>(lexResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();
             var errors = new List<ParseError>(lexResult.Errors);
             var unmatchedTokens = new List<Token>();
-            CommandResult rootCommand = null;   
+            CommandResult rootCommand = null;
             CommandResult innermostCommand = null;
 
             IList<IOption> optionQueue = GatherOptions(Configuration.Symbols);
@@ -65,7 +65,7 @@ namespace System.CommandLine
                         {
                             result = SymbolResult.Create(symbol, token.Value, validationMessages: Configuration.ValidationMessages);
 
-                            rootCommand = (CommandResult) result;
+                            rootCommand = (CommandResult)result;
                         }
 
                         allSymbolResults.Add(result);
@@ -143,7 +143,9 @@ namespace System.CommandLine
                 rootCommand,
                 innermostCommand ?? rootCommand,
                 directives,
-                rawTokens,
+                normalizedArgs.Count == arguments?.Count
+                 ? lexResult.Tokens
+                 : lexResult.Tokens.Skip(1).ToArray(),
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens.Select(t => t.Value).ToArray(),
                 errors,
@@ -249,9 +251,4 @@ namespace System.CommandLine
             return args;
         }
     }
-
-
-    //
-    // Summary:
-    //     A collection of headers and their values as defined in RFC 2616.
 }

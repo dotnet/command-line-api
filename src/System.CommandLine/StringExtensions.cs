@@ -192,10 +192,7 @@ namespace System.CommandLine
                 }
             }
 
-            return new LexResult {
-                Tokens = tokenList,
-                Errors = errorList
-            };
+            return new LexResult(tokenList, errorList);
         }
 
         internal static string[] SplitTokenByArgumentDelimiter(string arg, char[] argumentDelimiters) => arg.Split(argumentDelimiters, 2);
@@ -211,6 +208,7 @@ namespace System.CommandLine
             int i = 0;
             bool addDash = false;
 
+            // handles beginning of string, breaks onfirst letter or digit. addDash might be better named "canAddDash"
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
@@ -223,6 +221,7 @@ namespace System.CommandLine
                 }
             }
 
+            // reusing i, start at the same place
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
@@ -241,7 +240,7 @@ namespace System.CommandLine
                     addDash = true;
                     sb.Append(ch);
                 }
-                else
+                else  //this coverts all non letter/digits to dash - specifically periods and underscores. Is this needed?
                 {
                     addDash = false;
                     sb.Append('-');

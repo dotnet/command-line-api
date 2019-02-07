@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public abstract class MethodBinderBase : ICommandHandler, IOptionBuilder
+    public abstract class MethodBinderBase :ICommandHandler, IOptionBuilder
     {
         private ParameterInfo[] _parameters;
 
