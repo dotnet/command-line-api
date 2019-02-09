@@ -7,4 +7,14 @@ namespace System.CommandLine.Binding
     {
         object GetTarget(BindingContext context);
     }
+
+
+
+
+
+
+
+
+
+
 }

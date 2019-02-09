@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests.Invocation
 {
     public class InvocationExtensionsTests
     {

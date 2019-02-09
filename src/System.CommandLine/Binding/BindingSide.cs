@@ -5,7 +5,7 @@ namespace System.CommandLine.Binding
 {
     public abstract class BindingSide
     {
-        public BindingSide(BindingGetter get, BindingSetter set)
+        protected BindingSide(BindingGetter get, BindingSetter set)
         {
             // Set is null in some key scenarios like services
             Set = set;

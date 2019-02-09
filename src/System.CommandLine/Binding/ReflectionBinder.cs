@@ -12,13 +12,13 @@ namespace System.CommandLine.Binding
     public class ReflectionBinder : IBinder
     {
         public ReflectionBinder(Type type)
-            => _type = type ;
+            => _type = type;
 
-        private const BindingFlags CommonBindingFlags = BindingFlags.FlattenHierarchy
-                                                        | BindingFlags.IgnoreCase
-                                                        | BindingFlags.Public
-                                                        | BindingFlags.Instance;
-        
+        internal const BindingFlags CommonBindingFlags =
+            BindingFlags.IgnoreCase
+            | BindingFlags.Public
+            | BindingFlags.Instance;
+
         private object _explicitlySetTarget;
 
         private readonly Type _type;
@@ -77,7 +77,7 @@ namespace System.CommandLine.Binding
             => AddBinding(propertyInfo, ValueBindingSide.Create(valueFunc));
 
         public void AddBinding(PropertyInfo propertyInfo, BindingSide parserBindingSide)
-        {   
+        {
             var propertyBindingSide = new PropertyBindingSide(propertyInfo);
             if (propertyInfo.GetAccessors(true)[0].IsStatic)
             {
@@ -88,24 +88,12 @@ namespace System.CommandLine.Binding
                 _handlerBindingSet.AddBinding(propertyBindingSide, parserBindingSide);
             }
         }
- 
+
         public void AddBindings(Type type, MethodInfo methodInfo, ICommand command)
         {
             if (command == null)
             {
                 throw new ArgumentNullException(nameof(command));
-            }
-
-            if (type == null)
-            {
-            }
-
-            if ( methodInfo == null)
-            {
-            }
-
-            if (type != null && methodInfo != null)
-            {
             }
 
             type = type ?? methodInfo.DeclaringType;
@@ -115,7 +103,7 @@ namespace System.CommandLine.Binding
             AddBindingForPropertiesToCommand(type, command);
             AddBindingForParametersToCommand(methodInfo, command);
             AddBindingForServiceParameters();
-     
+
             _isBoundToCommand = true;
         }
 
@@ -141,13 +129,13 @@ namespace System.CommandLine.Binding
         private void BindConstructor(BindingContext context)
             => _constructorBindingSet.Bind(context, null);
 
-        private void BindInvocation(BindingContext context, object target)
+        private void BindProperties(BindingContext context, object target)
             => _handlerBindingSet.Bind(context, target);
 
         public object GetTarget(BindingContext context)
         {
             AddBindingsIfNeeded(context.ParseResult.CommandResult.Command);
-            
+
             // Allow for the possibility that constructor binding explicitly sets the target. 
             BindConstructor(context);
 
@@ -162,7 +150,8 @@ namespace System.CommandLine.Binding
                                                   GetNullHandledConstructorArguments());
             }
 
-            BindInvocation(context, target);
+            BindProperties(context, target);
+
             return target;
         }
 
@@ -188,6 +177,7 @@ namespace System.CommandLine.Binding
             var target = GetTarget(context.BindingContext);
             // Invocation bind is done during Target construction (to allow dependency on properties)
             var value = _handlerMethodInfo.Invoke(target, GetNullHandledInvocationArguments());
+
             return CommandHandler.GetResultCodeAsync(value, context);
         }
 
@@ -230,7 +220,8 @@ namespace System.CommandLine.Binding
         {
             foreach (var parameterInfo in unboundParameters)
             {
-                const BindingFlags bindingFlags = CommonBindingFlags | BindingFlags.Static | BindingFlags.Instance;
+                const BindingFlags bindingFlags = CommonBindingFlags;
+
                 IEnumerable<PropertyInfo> matchingProperties = type.GetProperties(bindingFlags)
                                                                    .Where(p => p.Name.Equals(parameterInfo.Name, StringComparison.InvariantCultureIgnoreCase))
                                                                    .ToList();
@@ -314,10 +305,10 @@ namespace System.CommandLine.Binding
                 AddBinding(parameterInfo, command);
             }
         }
-        
+
         private void AddBinding(PropertyInfo propertyInfo, ICommand command)
         {
-            var  symbol = FindMatchingSymbol(propertyInfo.Name, command);
+            var symbol = FindMatchingSymbol(propertyInfo.Name, command);
 
             switch (symbol)
             {

@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 using System.IO;
-using FluentAssertions;
 using System.Linq;
+using FluentAssertions;
 using Xunit;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests.Binding
 {
     public class TypeConversionTests
     {
