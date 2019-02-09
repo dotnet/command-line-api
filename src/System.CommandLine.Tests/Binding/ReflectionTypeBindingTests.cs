@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests.Binding
                 new Option("--intParam",
                            argument: new Argument<int>()));
 
-            command.Handler = CommandHandler.Create<TypeWithInvokeNoCtor>(nameof(TypeWithInvokeNoCtor.SomethingElse));
+            command.Handler = CommandHandler.Create<ClassWithInvokeAndDefaultCtor>(nameof(ClassWithInvokeAndDefaultCtor.SomethingElse));
             var binder = (command.Handler as ReflectionCommandHandler).Binder;
 
             var invocationContext = command.CreateBindingContext(commandLine);
@@ -35,8 +35,8 @@ namespace System.CommandLine.Tests.Binding
             var target = binder.GetTarget(invocationContext);
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
             target.Should().NotBeNull();
-            target.Should().BeOfType<TypeWithInvokeNoCtor>();
-            var typedTarget = target as TypeWithInvokeNoCtor;
+            target.Should().BeOfType<ClassWithInvokeAndDefaultCtor>();
+            var typedTarget = target as ClassWithInvokeAndDefaultCtor;
             typedTarget.IntProperty.Should().Be(default);
             typedTarget.StringProperty.Should().Be(default);
 
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests.Binding
                 new Option("--intProperty",
                            argument: new Argument<int>()));
 
-            command.Handler = CommandHandler.Create<TypeWithInvokeNoCtor>(nameof(TypeWithInvokeNoCtor.Invoke));
+            command.Handler = CommandHandler.Create<ClassWithInvokeAndDefaultCtor>(nameof(ClassWithInvokeAndDefaultCtor.Invoke));
             var binder = (command.Handler as ReflectionCommandHandler).Binder;
 
             var invocationContext = command.CreateBindingContext(commandLine);
@@ -75,8 +75,8 @@ namespace System.CommandLine.Tests.Binding
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
 
             target.Should().NotBeNull();
-            target.Should().BeOfType<TypeWithInvokeNoCtor>();
-            var typedTarget = target as TypeWithInvokeNoCtor;
+            target.Should().BeOfType<ClassWithInvokeAndDefaultCtor>();
+            var typedTarget = target as ClassWithInvokeAndDefaultCtor;
             typedTarget.IntProperty.Should().Be(111);
             typedTarget.StringProperty.Should().Be("Bilbo");
 
@@ -100,7 +100,7 @@ namespace System.CommandLine.Tests.Binding
                 new Option("--intProperty",
                            argument: new Argument<int>()));
 
-            command.Handler = CommandHandler.Create<TypeWithParameterlessInvokeAndCtor>(nameof(TypeWithParameterlessInvokeAndCtor.Invoke));
+            command.Handler = CommandHandler.Create<ClassWithParameterlessInvokeAndDefaultCtor>(nameof(ClassWithParameterlessInvokeAndDefaultCtor.Invoke));
             var binder = (command.Handler as ReflectionCommandHandler).Binder;
 
             var invocationContext = command.CreateBindingContext(commandLine);
@@ -109,8 +109,8 @@ namespace System.CommandLine.Tests.Binding
             arguments.Should().BeEquivalentSequenceTo(expectedArgumets);
 
             target.Should().NotBeNull();
-            target.Should().BeOfType<TypeWithParameterlessInvokeAndCtor>();
-            var typedTarget = target as TypeWithParameterlessInvokeAndCtor;
+            target.Should().BeOfType<ClassWithParameterlessInvokeAndDefaultCtor>();
+            var typedTarget = target as ClassWithParameterlessInvokeAndDefaultCtor;
             typedTarget.IntProperty.Should().Be(111);
             typedTarget.StringProperty.Should().Be("Bilbo");
 

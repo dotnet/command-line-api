@@ -96,16 +96,17 @@ namespace System.CommandLine.Tests.Binding
         public T Value { get; set; }
     }
 
-    internal class TypeWithInvokeAndCtor
+    public class TypeWithInvokeAndCtor
     {
-        public int IntValueFromCtor { get; }
-        public string StringValueFromCtor { get; }
-
         public TypeWithInvokeAndCtor(int intFromCtor, string stringFromCtor)
         {
             IntValueFromCtor = intFromCtor;
             StringValueFromCtor = stringFromCtor;
         }
+
+        public int IntValueFromCtor { get; }
+
+        public string StringValueFromCtor { get; }
 
         public int IntProperty { get; set; }
         public string StringProperty { get; set; }
@@ -116,7 +117,7 @@ namespace System.CommandLine.Tests.Binding
         }
     }
 
-    internal class TypeWithInvokeNoCtor
+    public class ClassWithInvokeAndDefaultCtor
     {
         public int IntProperty { get; set; }
         public string StringProperty { get; set; }
@@ -132,18 +133,21 @@ namespace System.CommandLine.Tests.Binding
         }
     }
 
-    internal class TypeWithStaticsInvokeAndCtor
+    public class ClassWithStaticsInvokeAndCtor
     {
-        public static int StaticIntProperty { get; set; } = 67;
-        public static string StaticStringProperty { get; set; }
-        public int IntValueFromCtor { get; }
-        public string StringValueFromCtor { get; }
-
-        public TypeWithStaticsInvokeAndCtor(int intFromCtor, string stringFromCtor)
+        public ClassWithStaticsInvokeAndCtor(int intFromCtor, string stringFromCtor)
         {
             IntValueFromCtor = intFromCtor;
             StringValueFromCtor = stringFromCtor;
         }
+
+        public static int StaticIntProperty { get; set; } = 67;
+
+        public static string StaticStringProperty { get; set; }
+
+        public int IntValueFromCtor { get; }
+
+        public string StringValueFromCtor { get; }
 
         public int IntProperty { get; set; }
         public string StringProperty { get; set; }
@@ -154,13 +158,8 @@ namespace System.CommandLine.Tests.Binding
         }
     }
 
-    internal class TypeWithParameterlessInvokeAndCtor
+    public class ClassWithParameterlessInvokeAndDefaultCtor
     {
-        // included for clarity
-        public TypeWithParameterlessInvokeAndCtor()
-        {
-        }
-
         public int IntProperty { get; set; }
         public string StringProperty { get; set; }
 
