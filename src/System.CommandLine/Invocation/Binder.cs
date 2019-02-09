@@ -66,7 +66,7 @@ namespace System.CommandLine.Invocation
 
         internal static bool IsMatch(this string parameterName, string alias) =>
             string.Equals(alias?.RemovePrefix()
-                               .FromKebabCase(),
+                               .Replace("-", ""),
                           parameterName,
                           StringComparison.OrdinalIgnoreCase);
 
