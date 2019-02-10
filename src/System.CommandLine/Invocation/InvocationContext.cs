@@ -15,17 +15,16 @@ namespace System.CommandLine.Invocation
 
         public InvocationContext(
             ParseResult parseResult,
-            Parser parser,
             IConsole console = null)
         {
-            BindingContext = new BindingContext(parseResult, parser, console);
+            BindingContext = new BindingContext(parseResult, console);
             BindingContext.ServiceProvider.AddService(AddCancellationHandling);
             BindingContext.ServiceProvider.AddService(() => this);
         }
 
         public IConsole Console => BindingContext.Console;
 
-        public Parser Parser => BindingContext.Parser;
+        public Parser Parser => BindingContext.ParseResult.Parser;
 
         public ParseResult ParseResult
         {

@@ -127,8 +127,7 @@ namespace System.CommandLine.Tests.Binding
 
                 var parser = new Parser(command);
                 var invocationContext = new InvocationContext(
-                    parser.Parse("--string-option not-the-default"),
-                    parser);
+                    parser.Parse("--string-option not-the-default"));
 
                 var instance = (ClassWithMultiLetterCtorParameters)binder.CreateInstance(invocationContext);
 
@@ -156,7 +155,7 @@ namespace System.CommandLine.Tests.Binding
                               };
                 var parser = new Parser(command);
 
-                var invocationContext = new InvocationContext(parser.Parse(commandLine), parser);
+                var invocationContext = new InvocationContext(parser.Parse(commandLine));
 
                 var instance = binder.CreateInstance(invocationContext);
 
@@ -179,8 +178,7 @@ namespace System.CommandLine.Tests.Binding
 
                 var parser = new Parser(command);
                 var invocationContext = new InvocationContext(
-                    parser.Parse(""),
-                    parser);
+                    parser.Parse(""));
 
                 var instance = (ClassWithMultiLetterCtorParameters)binder.CreateInstance(invocationContext);
 
@@ -201,8 +199,7 @@ namespace System.CommandLine.Tests.Binding
 
                 var parser = new Parser(command);
                 var invocationContext = new InvocationContext(
-                    parser.Parse("--bool-option"),
-                    parser);
+                    parser.Parse("--bool-option"));
 
                 var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(invocationContext);
 
@@ -230,7 +227,7 @@ namespace System.CommandLine.Tests.Binding
                               };
                 var parser = new Parser(command);
 
-                var invocationContext = new InvocationContext(parser.Parse(commandLine), parser);
+                var invocationContext = new InvocationContext(parser.Parse(commandLine));
 
                 var instance = binder.CreateInstance(invocationContext);
 
@@ -253,8 +250,7 @@ namespace System.CommandLine.Tests.Binding
 
                 var parser = new Parser(command);
                 var invocationContext = new InvocationContext(
-                    parser.Parse(""),
-                    parser);
+                    parser.Parse(""));
 
                 var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(invocationContext);
 
@@ -275,8 +271,7 @@ namespace System.CommandLine.Tests.Binding
 
                 var parser = new Parser(command);
                 var invocationContext = new InvocationContext(
-                    parser.Parse(""),
-                    parser);
+                    parser.Parse(""));
 
                 var instance = (ClassWithSettersAndCtorParametersWithDifferentNames)binder.CreateInstance(invocationContext);
 

@@ -11,19 +11,15 @@ namespace System.CommandLine.Binding
 
         public BindingContext(
             ParseResult parseResult,
-            Parser parser,
             IConsole console = null)
         {
             _console = console ?? new SystemConsole();
 
             ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
-            Parser = parser ?? throw new ArgumentNullException(nameof(parser));
             ServiceProvider = new ServiceProvider(this);
         }
 
         public ParseResult ParseResult { get; set; }
-
-        public Parser Parser { get; }
 
         internal IConsoleFactory ConsoleFactory { get; set; }
 

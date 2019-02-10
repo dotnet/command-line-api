@@ -215,7 +215,7 @@ namespace System.CommandLine.Invocation
             this Parser parser,
             ParseResult parseResult,
             IConsole console = null) =>
-            await new InvocationPipeline(parser, parseResult)
+            await new InvocationPipeline(parseResult)
                 .InvokeAsync(console);
 
         public static Task<int> InvokeAsync(
@@ -247,7 +247,7 @@ namespace System.CommandLine.Invocation
 
             var parseResult = parser.Parse(args);
 
-            return await new InvocationPipeline(parser, parseResult)
+            return await new InvocationPipeline(parseResult)
                        .InvokeAsync(console);
         }
 

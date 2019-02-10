@@ -18,7 +18,7 @@ namespace System.CommandLine.Tests.Binding
 
             var parseResult = parser.Parse(commandLine);
 
-            return new BindingContext(parseResult, parser);
+            return new BindingContext(parseResult);
         }
     }
 }

@@ -53,7 +53,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.ConfigureFrom(binder);
             var parser = new Parser(command);
-            await binder.InvokeAsync(new InvocationContext(parser.Parse(commandLine), parser));
+            await binder.InvokeAsync(new InvocationContext(parser.Parse(commandLine)));
 
             object valueReceivedValue = ((dynamic)target).ReceivedValue;
 
@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
                                          }
                           };
             var parser = new Parser(command);
-            await binder.InvokeAsync(new InvocationContext(parser.Parse(commandLine), parser));
+            await binder.InvokeAsync(new InvocationContext(parser.Parse(commandLine)));
 
             object valueReceivedValue = ((dynamic)target).ReceivedValue;
 
