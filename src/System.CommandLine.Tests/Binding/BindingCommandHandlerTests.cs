@@ -100,7 +100,7 @@ namespace System.CommandLine.Tests.Binding
             wasCalled.Should().BeTrue();
         }
 
-        [Fact(Skip = "Waiting for fix for nulls in BeEquivalentSequenceTo")]
+        [Fact]
         public async Task Method_parameters_on_the_invoked_method_do_not_need_to_be_matched()
         {
             var wasCalled = false;

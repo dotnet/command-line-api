@@ -17,15 +17,15 @@ namespace System.CommandLine.Tests
             var actualValues = assertions.Subject.ToArray();
 
             actualValues
-                .Select(a => a.GetType())
+                .Select(a => a?.GetType())
                 .Should()
-                .BeEquivalentTo(expectedValues.Select(e => e.GetType()));
+                .BeEquivalentTo(expectedValues.Select(e => e?.GetType()));
 
             using (new AssertionScope())
             {
                 foreach (var tuple in actualValues
                                       .Zip(expectedValues, (actual, expected) => (actual, expected))
-                                      .Where(t => t.expected.GetType().GetProperties().Any()))
+                                      .Where(t => t.expected == null || t.expected.GetType().GetProperties().Any()))
 
                 {
                     tuple.actual
