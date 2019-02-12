@@ -91,30 +91,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static CommandLineBuilder ConfigureFromType<T>(
-            this CommandLineBuilder builder,
-            MethodInfo onExecuteMethod = null)
-            where T : class
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            var typeBinder = new TypeBinder(typeof(T));
-
-            foreach (var option in typeBinder.BuildOptions())
-            {
-                builder.AddOption(option);
-            }
-
-            builder.Handler = new TypeCreationCommandHandler(
-                onExecuteMethod,
-                typeBinder);
-
-            return builder;
-        }
-
         public static CommandLineBuilder EnablePositionalOptions(
             this CommandLineBuilder builder,
             bool value = true)
