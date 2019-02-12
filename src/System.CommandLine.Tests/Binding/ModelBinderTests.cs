@@ -224,16 +224,14 @@ namespace System.CommandLine.Tests.Binding
                                     option,
                                     childCommand
                                 };
-            var parser = new Parser(parentCommand);
 
             var binder = new ModelBinder<ClassWithMultiLetterSetters>();
 
-            binder.BindPropertyFromOption(
+            binder.BindMemberFromOption(
                 c => c.IntOption,
                 option);
 
-            var bindingContext = new BindingContext(
-                parser.Parse("parent-command --int-option 123 child-command"));
+            var bindingContext = new BindingContext(parentCommand.Parse("parent-command --int-option 123 child-command"));
 
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -249,27 +247,36 @@ namespace System.CommandLine.Tests.Binding
                                 {
                                     childCommand
                                 };
-            var parser = new Parser(parentCommand);
 
             var binder = new ModelBinder<ClassWithMultiLetterSetters>();
 
-            binder.BindPropertyFromCommand(
+            binder.BindMemberFromCommand(
                 c => c.IntOption,
                 parentCommand);
 
-            var bindingContext = new BindingContext(
-                parser.Parse("parent-command 123 child-command"));
+            var bindingContext = new BindingContext(parentCommand.Parse("parent-command 123 child-command"));
 
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
             instance.IntOption.Should().Be(123);
         }
 
-        [Fact(Skip = "wip")]
-        public void Environment_variables_can_be_value_sources()
+        [Fact]
+        public void Arbitrary_values_can_be_bound()
         {
-            // TODO (Environment_variables_can_be_value_providers) write test
-            Assert.True(false, "Test Environment_variables_can_be_value_providers is not written yet.");
+            var command = new Command("the-command");
+
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
+
+            binder.BindMemberFromValue(
+                c => c.IntOption,
+                _ => 123);
+
+            var bindingContext = new BindingContext(command.Parse("the-command"));
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(123);
         }
     }
 }
