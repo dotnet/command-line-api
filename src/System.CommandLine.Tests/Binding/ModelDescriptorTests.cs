@@ -13,7 +13,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Model_descriptor_describes_the_properties_of_the_model_type()
         {
-            var descriptor = new ModelDescriptor<ClassWithMultiLetterSetters>();
+            var descriptor = ModelDescriptor.FromType<ClassWithMultiLetterSetters>();
 
             descriptor.PropertyDescriptors
                       .Select(p => p.Name)
@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Model_descriptor_describes_the_constructor_parameters_of_the_model_type()
         {
-            var descriptor = new ModelDescriptor<ClassWithSettersAndCtorParametersWithDifferentNames>();
+            var descriptor = ModelDescriptor.FromType<ClassWithSettersAndCtorParametersWithDifferentNames>();
 
             descriptor.ConstructorDescriptors
                       .SelectMany(p => p.ParameterDescriptors)

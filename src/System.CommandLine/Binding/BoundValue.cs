@@ -8,17 +8,16 @@ namespace System.CommandLine.Binding
         internal BoundValue(
             object value,
             IValueDescriptor valueDescriptor,
-            object valueSource)
+            IValueSource valueSource)
         {
             Value = value;
             ValueDescriptor = valueDescriptor;
             ValueSource = valueSource;
         }
 
-        // FIX: (BoundValue) change ValueSource to IValueSource
         public IValueDescriptor ValueDescriptor { get; }
 
-        public object ValueSource { get; }
+        public IValueSource ValueSource { get; }
 
         public object Value { get; }
 

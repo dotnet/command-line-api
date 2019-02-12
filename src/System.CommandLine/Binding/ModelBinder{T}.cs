@@ -11,25 +11,48 @@ namespace System.CommandLine.Binding
         {
         }
 
-        public void BindProperty<TValue>(
+        public void BindPropertyFromOption<TValue>(
             Expression<Func<TModel, TValue>> property,
-            IValueDescriptor valueDescriptor)
+            IOption option)
         {
-
+            NamedValueSources.Add(
+                property.MemberTypeAndName(),
+                new SpecificSymbolValueSource(option));
         }
 
-        public void BindProperty<TValue>(
+        public void BindPropertyFromCommand<TValue>(
             Expression<Func<TModel, TValue>> property,
-            Func<TValue> valueSource)
+            ICommand command)
         {
+            NamedValueSources.Add(
+                property.MemberTypeAndName(),
+                new SpecificSymbolValueSource(command));
+        }
+    }
 
+    public class SpecificSymbolValueSource : IValueSource
+    {
+        public SpecificSymbolValueSource(ISymbol symbol)
+        {
+            Symbol = symbol;
         }
 
-        public void BindPropertyOrParameter(
+        public ISymbol Symbol { get; }
 
-            Func<BoundValue> valueSource)
+        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object value)
         {
+            var optionResult = bindingContext.ParseResult.FindResultFor(Symbol);
 
+            if (optionResult == null)
+            {
+                value = null;
+                return false;
+            }
+            else
+            {
+                value = optionResult.GetValueOrDefault();
+                return true;
+            }
         }
     }
 }

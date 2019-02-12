@@ -31,11 +31,9 @@ namespace System.CommandLine.Invocation
                 throw new ArgumentNullException(nameof(type));
             }
 
-            var modelDescriptorType = typeof(ModelDescriptor<>).MakeGenericType(type);
+            _modelDescriptor = ModelDescriptor.FromType(type);
 
-            _modelDescriptor = (ModelDescriptor)Activator.CreateInstance(modelDescriptorType);
-
-            _modelBinder = BindingExtensions.CreateBinder((dynamic)_modelDescriptor);
+            _modelBinder =new ModelBinder(_modelDescriptor);
         }
 
         public object CreateInstance(InvocationContext context)

@@ -15,6 +15,10 @@ namespace System.CommandLine.Binding
             ModelDescriptor = modelDescriptor ?? throw new ArgumentNullException(nameof(modelDescriptor));
         }
 
+        public ModelBinder(Type modelType) : this(ModelDescriptor.FromType(modelType))
+        {
+        }
+
         public IReadOnlyCollection<BoundValue> GetConstructorArguments(BindingContext context)
         {
             return GetValues(context, ConstructorDescriptor.ParameterDescriptors);

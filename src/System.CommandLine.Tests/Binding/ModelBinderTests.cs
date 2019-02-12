@@ -1,4 +1,7 @@
-﻿using System.CommandLine.Binding;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Binding;
 using FluentAssertions;
 using Xunit;
 
@@ -6,6 +9,169 @@ namespace System.CommandLine.Tests.Binding
 {
     public class ModelBinderTests
     {
+        [Fact]
+        public void Option_arguments_are_bound_by_name_to_constructor_parameters()
+        {
+            var argument = new Argument<string>("the default");
+
+            var option = new Option("--string-option",
+                                    argument: argument);
+
+            var command = new Command("the-command");
+            command.AddOption(option);
+            var binder = new ModelBinder<ClassWithMultiLetterCtorParameters>();
+
+            var parser = new Parser(command);
+            var bindingContext = new BindingContext(
+                parser.Parse("--string-option not-the-default"));
+
+            var instance = (ClassWithMultiLetterCtorParameters)binder.CreateInstance(bindingContext);
+
+            instance.StringOption.Should().Be("not-the-default");
+        }
+
+        [Theory]
+        [InlineData(typeof(string), "hello", "hello")]
+        [InlineData(typeof(int), "123", 123)]
+        public void Command_arguments_are_bound_by_name_to_constructor_parameters(
+            Type type,
+            string commandLine,
+            object expectedValue)
+        {
+            var targetType = typeof(ClassWithCtorParameter<>).MakeGenericType(type);
+            var binder = new ModelBinder(targetType);
+
+            var command = new Command("the-command")
+                          {
+                              Argument = new Argument
+                                         {
+                                             Name = "value",
+                                             ArgumentType = type
+                                         }
+                          };
+            var parser = new Parser(command);
+
+            var bindingContext = new BindingContext(parser.Parse(commandLine));
+
+            var instance = binder.CreateInstance(bindingContext);
+
+            object valueReceivedValue = ((dynamic)instance).Value;
+
+            valueReceivedValue.Should().Be(expectedValue);
+        }
+
+        [Fact]
+        public void Explicitly_configured_default_values_can_be_bound_to_constructor_parameters()
+        {
+            var argument = new Argument<string>("the default");
+
+            var option = new Option("--string-option",
+                                    argument: argument);
+
+            var command = new Command("the-command");
+            command.AddOption(option);
+            var binder = new ModelBinder(typeof(ClassWithMultiLetterCtorParameters));
+
+            var parser = new Parser(command);
+            var bindingContext = new BindingContext(parser.Parse(""));
+
+            var instance = (ClassWithMultiLetterCtorParameters)binder.CreateInstance(bindingContext);
+
+            instance.StringOption.Should().Be("the default");
+        }
+
+        [Fact]
+        public void Option_arguments_are_bound_by_name_to_property_setters()
+        {
+            var argument = new Argument<bool>();
+
+            var option = new Option("--bool-option",
+                                    argument: argument);
+
+            var command = new Command("the-command");
+            command.AddOption(option);
+            var binder = new ModelBinder(typeof(ClassWithMultiLetterSetters));
+
+            var parser = new Parser(command);
+            var invocationContext = new BindingContext(
+                parser.Parse("--bool-option"));
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(invocationContext);
+
+            instance.BoolOption.Should().BeTrue();
+        }
+
+        [Theory]
+        [InlineData(typeof(string), "hello", "hello")]
+        [InlineData(typeof(int), "123", 123)]
+        public void Command_arguments_are_bound_by_name_to_property_setters(
+            Type type,
+            string commandLine,
+            object expectedValue)
+        {
+            var targetType = typeof(ClassWithSetter<>).MakeGenericType(type);
+            var binder = new ModelBinder(targetType);
+
+            var command = new Command("the-command")
+                          {
+                              Argument = new Argument
+                                         {
+                                             Name = "value",
+                                             ArgumentType = type
+                                         }
+                          };
+            var parser = new Parser(command);
+
+            var bindingContext = new BindingContext(parser.Parse(commandLine));
+
+            var instance = binder.CreateInstance(bindingContext);
+
+            object valueReceivedValue = ((dynamic)instance).Value;
+
+            valueReceivedValue.Should().Be(expectedValue);
+        }
+
+        [Fact]
+        public void Explicitly_configured_default_values_can_be_bound_to_property_setters()
+        {
+            var argument = new Argument<string>("the default");
+
+            var option = new Option("--string-option",
+                                    argument: argument);
+
+            var command = new Command("the-command");
+            command.AddOption(option);
+            var binder = new ModelBinder(typeof(ClassWithMultiLetterSetters));
+
+            var parser = new Parser(command);
+            var bindingContext = new BindingContext(
+                parser.Parse(""));
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.StringOption.Should().Be("the default");
+        }
+
+        [Fact]
+        public void Property_setters_with_no_default_value_and_no_matching_option_are_not_called()
+        {
+            var command = new Command("the-command")
+                          {
+                              new Option("-s", argument: new Argument<string>("the default")),
+                              new Option("--string-option", argument: new Argument<string>())
+                          };
+
+            var binder = new ModelBinder(typeof(ClassWithSettersAndCtorParametersWithDifferentNames));
+
+            var parser = new Parser(command);
+            var bindingContext = new BindingContext(
+                parser.Parse(""));
+
+            var instance = (ClassWithSettersAndCtorParametersWithDifferentNames)binder.CreateInstance(bindingContext);
+
+            instance.StringOption.Should().Be("the default");
+        }
+
         [Fact]
         public void Parse_result_can_be_used_to_create_an_instance_without_doing_handler_invocation()
         {
@@ -45,15 +211,8 @@ namespace System.CommandLine.Tests.Binding
             instance.IntOption.Should().Be(123);
         }
 
-        [Fact(Skip = "wip")]
-        public void Option_to_property_naming_conventions_can_be_specified_using_the_binder()
-        {
-            // TODO-JOSEQU (Option_to_property_naming_conventions_can_be_specified_using_the_binder) write test
-            Assert.True(false, "Test Option_to_property_naming_conventions_can_be_specified_using_the_binder is not written yet.");
-        }
-
-        [Fact(Skip = "wip")]
-        public void Values_from_parent_commands_can_be_bound()
+        [Fact]
+        public void Values_from_parent_options_on_parent_commands_can_be_bound()
         {
             var childCommand = new Command("child-command");
             var option = new Option("--int-option")
@@ -67,15 +226,39 @@ namespace System.CommandLine.Tests.Binding
                                 };
             var parser = new Parser(parentCommand);
 
-            var binder = ModelDescriptor.FromType<ClassWithMultiLetterSetters>()
-                                        .CreateBinder();
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
+
+            binder.BindPropertyFromOption(
+                c => c.IntOption,
+                option);
 
             var bindingContext = new BindingContext(
                 parser.Parse("parent-command --int-option 123 child-command"));
 
-            binder.BindProperty(
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(123);
+        }
+
+        [Fact]
+        public void Values_from_parent_parent_commands_can_be_bound()
+        {
+            var childCommand = new Command("child-command");
+
+            var parentCommand = new Command("parent-command", argument: new Argument<int>())
+                                {
+                                    childCommand
+                                };
+            var parser = new Parser(parentCommand);
+
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
+
+            binder.BindPropertyFromCommand(
                 c => c.IntOption,
-                option);
+                parentCommand);
+
+            var bindingContext = new BindingContext(
+                parser.Parse("parent-command 123 child-command"));
 
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -83,19 +266,10 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact(Skip = "wip")]
-        public void Environment_variables_can_be_value_providers()
+        public void Environment_variables_can_be_value_sources()
         {
             // TODO (Environment_variables_can_be_value_providers) write test
             Assert.True(false, "Test Environment_variables_can_be_value_providers is not written yet.");
-        }
-
-        [Fact(Skip = "wip")]
-        public void Parser_can_be_created_based_on_target_types()
-        {
-            // var parser = CreateParserFrom<>();
-
-            // TODO (Parser_can_be_created_based_on_target_types) write test
-            Assert.True(false, "Test Parser_can_be_created_based_on_target_types is not written yet.");
         }
     }
 }

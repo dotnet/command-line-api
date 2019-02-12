@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,7 +9,7 @@ namespace System.CommandLine.Binding
 {
     public class ModelDescriptor
     {
-        private static readonly Dictionary<Type, ModelDescriptor> _modelDescriptors = new Dictionary<Type, ModelDescriptor>();
+        private static readonly ConcurrentDictionary<Type, ModelDescriptor> _modelDescriptors = new ConcurrentDictionary<Type, ModelDescriptor>();
 
         private readonly List<PropertyDescriptor> _propertyDescriptors = new List<PropertyDescriptor>();
         private readonly List<ConstructorDescriptor> _constructorDescriptors = new List<ConstructorDescriptor>();
@@ -35,16 +36,14 @@ namespace System.CommandLine.Binding
 
         public Type ModelType { get; }
 
-        public static ModelDescriptor<T> FromType<T>()
-        {
-            return (ModelDescriptor<T>)_modelDescriptors.GetOrAdd(typeof(T), _ => new ModelDescriptor<T>());
-        }
+        public static ModelDescriptor FromType<T>() =>
+            _modelDescriptors.GetOrAdd(
+                typeof(T),
+                _ => new ModelDescriptor(typeof(T)));
 
-        public static ModelDescriptor FromType(Type type)
-        {
-            return _modelDescriptors.GetOrAdd(
+        public static ModelDescriptor FromType(Type type) =>
+            _modelDescriptors.GetOrAdd(
                 type,
                 _ => new ModelDescriptor(type));
-        }
     }
 }

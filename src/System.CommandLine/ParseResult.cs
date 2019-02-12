@@ -129,5 +129,9 @@ namespace System.CommandLine
         public SymbolResult this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
+
+        public SymbolResult FindResultFor(ISymbol symbol) =>
+            RootCommandResult.AllSymbolResults()
+                             .FirstOrDefault(s => s.Symbol == symbol);
     }
 }
