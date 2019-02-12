@@ -29,30 +29,4 @@ namespace System.CommandLine.Binding
                 new SpecificSymbolValueSource(command));
         }
     }
-
-    public class SpecificSymbolValueSource : IValueSource
-    {
-        public SpecificSymbolValueSource(ISymbol symbol)
-        {
-            Symbol = symbol;
-        }
-
-        public ISymbol Symbol { get; }
-
-        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object value)
-        {
-            var optionResult = bindingContext.ParseResult.FindResultFor(Symbol);
-
-            if (optionResult == null)
-            {
-                value = null;
-                return false;
-            }
-            else
-            {
-                value = optionResult.GetValueOrDefault();
-                return true;
-            }
-        }
-    }
 }
