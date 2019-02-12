@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine
@@ -255,5 +256,7 @@ namespace System.CommandLine
         }
 
         IArgumentArity IArgument.Arity => Arity;
+
+        Type IValueDescriptor.Type => ArgumentType;
     }
 }

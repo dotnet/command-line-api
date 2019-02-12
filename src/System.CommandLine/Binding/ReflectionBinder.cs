@@ -344,7 +344,7 @@ namespace System.CommandLine.Binding
             }
         }
 
-        private static ISymbolBase FindMatchingSymbol(string name, ICommand command)
+        private static IValueDescriptor FindMatchingSymbol(string name, ICommand command)
         {
             if (command.Argument.Name == name)
             {

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
 
@@ -9,16 +10,11 @@ namespace System.CommandLine
 {
     public static class ParseResultExtensions
     {
-        public static object GetDefaultValueForType(this Type type)
-        {
-            return type.IsValueType ? Activator.CreateInstance(type) : null;
-        }
-
         public static object GetValueOrDefault(this ParseResult parseResult, Option option, bool searchHierarchy)
         {
             var optionResult = GetOptionResult(parseResult.CommandResult, option, searchHierarchy);
             return optionResult == null
-                    ? GetDefaultValueForType(option.Argument.ArgumentType ?? typeof(bool))
+                    ? (option.Argument.ArgumentType ?? typeof(bool)).GetDefaultValueForType()
                     : optionResult.GetValueOrDefault();
         }
 
@@ -37,7 +33,7 @@ namespace System.CommandLine
             var commandResult = GetCommandResultForArgument(parseResult.CommandResult, argument, searchHierarchy);
             // TODO: Change when we support multiple arguments
             return commandResult == null
-                ? GetDefaultValueForType(argument.ArgumentType ?? typeof(bool))
+                ? (argument.ArgumentType ?? typeof(bool)).GetDefaultValueForType()
                 : commandResult.GetValueOrDefault();
         }
 

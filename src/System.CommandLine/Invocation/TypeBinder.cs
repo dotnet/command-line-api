@@ -2,87 +2,66 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
-using System.Reflection;
+using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
     public class TypeBinder : IOptionBuilder
     {
-        private readonly Type _type;
-        private IReadOnlyCollection<PropertyInfo> _settableProperties;
-        private readonly ConstructorBinder _constructorBinder;
+        private static readonly HashSet<Type> _typesThatDoNotGenerateOptions = new HashSet<Type>(
+            new[]
+            {
+                typeof(IConsole),
+                typeof(BindingContext),
+                typeof(InvocationContext),
+                typeof(ParseResult),
+                typeof(CancellationToken)
+            }
+        );
 
-        public TypeBinder(
-            Type type,
-            ConstructorBinder constructorBinder = null)
+        private readonly ModelBinder _modelBinder;
+        private readonly ModelDescriptor _modelDescriptor;
+
+        public TypeBinder(Type type)
         {
-            _type = type ?? throw new ArgumentNullException(nameof(type));
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
-            _constructorBinder =
-                constructorBinder ??
-                new ConstructorBinder(_type.GetConstructors().SingleOrDefault() ??
-                                      throw new ArgumentException($"No eligible constructor found to bind type {_type}"));
+            var modelDescriptorType = typeof(ModelDescriptor<>).MakeGenericType(type);
+
+            _modelDescriptor = (ModelDescriptor)Activator.CreateInstance(modelDescriptorType);
+
+            _modelBinder = BindingExtensions.CreateBinder((dynamic)_modelDescriptor);
         }
 
         public object CreateInstance(InvocationContext context)
         {
-            var instance = _constructorBinder.InvokeMethod(context);
-
-            SetProperties(context, instance);
-
-            return instance;
-        }
-
-        public void SetProperties(
-            InvocationContext context,
-            object instance)
-        {
-            var commandResult = context.ParseResult.CommandResult;
-
-            foreach (var propertyInfo in GetSettableProperties())
-            {
-                var typeToResolve = propertyInfo.PropertyType;
-
-                var value = context.ServiceProvider.GetService(typeToResolve);
-
-                if (value == null)
-                {
-                    var optionResult = Binder.FindMatchingOption(
-                        commandResult,
-                        propertyInfo.Name);
-
-                    if (optionResult != null)
-                    {
-                        value = optionResult.GetValueOrDefault();
-                    }
-                    else if (propertyInfo.Name.IsMatch(commandResult.Command?.Argument?.Name))
-                    {
-                        value = commandResult.GetValueOrDefault();
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                propertyInfo.SetValue(instance, value);
-            }
+            return _modelBinder.CreateInstance(context.BindingContext);
         }
 
         public IEnumerable<Option> BuildOptions()
         {
             var optionSet = new SymbolSet();
 
-            foreach (var parameter in _constructorBinder.BuildOptions())
+            if (_modelDescriptor.ConstructorDescriptors.Count == 1)
             {
-                optionSet.Add(parameter);
+                var ctorDescriptor = _modelDescriptor.ConstructorDescriptors[0];
+
+                foreach (var parameterDescriptor in ctorDescriptor.ParameterDescriptors
+                                                                  .Where(p => !_typesThatDoNotGenerateOptions.Contains(p.Type)))
+                {
+                    optionSet.Add(BuildOption(parameterDescriptor));
+                }
             }
 
-            foreach (var property in GetSettableProperties()
-                .OmitInfrastructureTypes())
+            foreach (var propertyDescriptor in _modelDescriptor.PropertyDescriptors
+                                                               .Where(p => !_typesThatDoNotGenerateOptions.Contains(p.Type)))
             {
-                var option = property.BuildOption();
+                var option = BuildOption(propertyDescriptor);
 
                 if (!optionSet.Contains(option.Name))
                 {
@@ -91,12 +70,26 @@ namespace System.CommandLine.Invocation
             }
 
             return optionSet.Cast<Option>();
-        }
 
-        private IEnumerable<PropertyInfo> GetSettableProperties()
-        {
-            return _settableProperties ??
-                   (_settableProperties = _type.GetProperties().Where(p => p.CanWrite).ToArray());
+            Option BuildOption(IValueDescriptor valueDescriptor)
+            {
+                var option = new Option(
+                                 Binder.BuildAlias(valueDescriptor.Name),
+                                 valueDescriptor.Name)
+                             {
+                                 Argument = new Argument
+                                            {
+                                                ArgumentType = valueDescriptor.Type
+                                            }
+                             };
+
+                if (valueDescriptor.HasDefaultValue)
+                {
+                    option.Argument.SetDefaultValue(valueDescriptor.GetDefaultValue);
+                }
+
+                return option;
+            }
         }
     }
 }

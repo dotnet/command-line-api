@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ namespace System.CommandLine.Invocation
         {
             var parameters = GetParameters().ToArray();
 
-            var arguments = BindMethodArguments(context, parameters);
+            var arguments = BindMethodArguments(context.BindingContext, parameters);
 
             return InvokeMethod(arguments);
         }
@@ -53,7 +54,7 @@ namespace System.CommandLine.Invocation
         protected abstract object InvokeMethod(object[] arguments);
 
         public static object[] BindMethodArguments(
-            InvocationContext context,
+            BindingContext context,
             ParameterInfo[] parameters)
         {
             var arguments = new List<object>();

@@ -279,6 +279,4 @@ namespace System.CommandLine.Tests.Binding
             }
         }
     }
-
-
 }

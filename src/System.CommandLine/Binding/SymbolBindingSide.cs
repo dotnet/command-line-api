@@ -19,7 +19,7 @@ namespace System.CommandLine.Binding
         public static SymbolBindingSide Create(Argument argument)
             => new SymbolBindingSide(argument);
 
-        public ISymbolBase Symbol { get; }
+        public IValueDescriptor Symbol { get; }
 
         private static BindingGetter GetOptionRetrieve(Option option)
             => (context, target) => context.ParseResult.GetValueOrDefault(option, true);

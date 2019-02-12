@@ -1,14 +1,12 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Binding;
-
-namespace System.CommandLine
+namespace System.CommandLine.Binding
 {
-    public interface IArgument : IValueDescriptor
+    public class ModelDescriptor<TModel> : ModelDescriptor
     {
-        string Description { get; }
-
-        IArgumentArity Arity { get; }
+        public ModelDescriptor() : base(typeof(TModel))
+        {
+        }
     }
 }

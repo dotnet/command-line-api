@@ -30,17 +30,6 @@ namespace System.CommandLine.Invocation
             return option;
         }
 
-        public static Option BuildOption(this PropertyInfo property)
-        {
-            return new Option(
-                property.BuildAlias(),
-                property.Name,
-                new Argument
-                {
-                    ArgumentType = property.PropertyType
-                });
-        }
-
         internal static OptionResult FindMatchingOption(
             CommandResult result,
             string parameterName)
@@ -58,14 +47,14 @@ namespace System.CommandLine.Invocation
 
             if (options.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {string.Join(",", options.Select(o => o.Name))}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {parameterName} among: {String.Join(",", options.Select(o => o.Name))}");
             }
 
             return null;
         }
 
         internal static bool IsMatch(this string parameterName, string alias) =>
-            string.Equals(alias?.RemovePrefix()
+            String.Equals(alias?.RemovePrefix()
                                .Replace("-", ""),
                           parameterName,
                           StringComparison.OrdinalIgnoreCase);
@@ -111,9 +100,9 @@ namespace System.CommandLine.Invocation
             return BuildAlias(property.Name);
         }
 
-        private static string BuildAlias(string parameterName)
+        internal static string BuildAlias(string parameterName)
         {
-            if (string.IsNullOrWhiteSpace(parameterName))
+            if (String.IsNullOrWhiteSpace(parameterName))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(parameterName));
             }
@@ -121,6 +110,11 @@ namespace System.CommandLine.Invocation
             return parameterName.Length > 1
                        ? $"--{parameterName.ToKebabCase()}"
                        : $"-{parameterName.ToLowerInvariant()}";
+        }
+
+        public static object GetDefaultValueForType(this Type type)
+        {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
     }
 }
