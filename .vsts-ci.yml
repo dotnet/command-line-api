@@ -19,7 +19,7 @@ steps:
 - task: BatchScript@1
   displayName: Build
   inputs:
-    filename: 'build\cibuild.cmd'
+    filename: 'eng\common\cibuild.cmd'
     arguments: '-configuration $(BuildConfiguration) /p:PB_PublishBlobFeedKey=$(PB_PublishBlobFeedKey)'
 
 - task: PublishTestResults@2

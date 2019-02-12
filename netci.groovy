@@ -19,10 +19,10 @@ static getJobName(def os, def config) {
       def machineAffinity = ''
 
       if (os == 'Windows_NT') {
-        buildCommand = ".\\build\\cibuild.cmd -configuration $config"
+        buildCommand = ".\\eng\\common\\cibuild.cmd -configuration $config"
         machineAffinity = 'win2016-base'
       } else {
-        buildCommand = "./build/cibuild.sh --configuration $config"
+        buildCommand = "./eng/common/cibuild.sh --configuration $config"
         machineAffinity = 'latest-or-auto'
       }
 
