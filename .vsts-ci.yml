@@ -2,7 +2,7 @@ trigger:
 - master
 
 variables:
-  teamName: Roslyn
+  teamName: Roslyn-Project-System
   ${{ if eq(variables['System.TeamProject'], 'public') }}:
     PB_PublishBlobFeedKey:
     _DotNetPublishToBlobFeed: false
