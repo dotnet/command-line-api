@@ -14,16 +14,16 @@ namespace System.CommandLine.Binding
 
         public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object value)
         {
-            var optionResult = bindingContext.ParseResult.FindResultFor(Symbol);
+            var symbolResult = bindingContext.ParseResult.FindResultFor(Symbol);
 
-            if (optionResult == null)
+            if (symbolResult == null)
             {
                 value = null;
                 return false;
             }
             else
             {
-                value = optionResult.GetValueOrDefault();
+                value = symbolResult.GetValueOrDefault();
                 return true;
             }
         }

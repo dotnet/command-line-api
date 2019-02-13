@@ -55,10 +55,7 @@ namespace System.CommandLine.Binding
 
             foreach (var boundValue in boundValues)
             {
-                if (boundValue.ValueDescriptor is PropertyDescriptor propertyDescriptor)
-                {
-                    propertyDescriptor.SetValue(instance, boundValue.Value);
-                }
+                ((PropertyDescriptor)boundValue.ValueDescriptor).SetValue(instance, boundValue.Value);
             }
         }
     }
