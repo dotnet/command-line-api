@@ -1,68 +1,118 @@
-resources:
-- repo: self
-  clean: true
-queue:
-  name: VSEng-MicroBuildVS2017
-  demands: Cmd
+trigger:
+- master
+
 variables:
-  BuildConfiguration: Release
-  TeamName: Roslyn
+  teamName: Roslyn
+  ${{ if eq(variables['System.TeamProject'], 'public') }}:
+    PB_PublishBlobFeedKey:
+    _DotNetPublishToBlobFeed: false
+  ${{ if ne(variables['System.TeamProject'], 'public') }}:
+    PB_PublishBlobFeedUrl: variables['PB_PublishBlobFeedKey']
+    _DotNetPublishToBlobFeed: true
 
-steps:
-- task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
-  displayName: Install Signing Plugin
-  inputs:
-    signType: real
-    esrpSigning: true
-  condition: and(succeeded(), eq(variables['PB_SignType'], 'real'))
+phases:
+- template: /eng/build.yml
+  parameters:
+    agentOs: Windows_NT
+    queue:
+      ${{ if eq(variables['System.TeamProject'], 'public') }}:
+        name: dotnet-external-temp
+      ${{ if ne(variables['System.TeamProject'], 'public') }}:
+        name: dotnet-internal-temp
+      parallel: 2
+      timeoutInMinutes: 120
+      matrix:
+        ${{ if eq(variables['System.TeamProject'], 'public') }}:
+          Build_Debug:
+            _BuildConfig: Debug
+            _PublishType: none
+            _SignType: test
+        Build_Release:
+          _BuildConfig: Release
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            _PublishType: none
+            _SignType: test
+          ${{ if ne(variables['System.TeamProject'], 'public') }}:
+            _PublishType: blob
+            _SignType: real
 
-- task: BatchScript@1
-  displayName: Build
-  inputs:
-    filename: 'eng\common\cibuild.cmd'
-    arguments: '-configuration $(BuildConfiguration) /p:PB_PublishBlobFeedKey=$(PB_PublishBlobFeedKey)'
+- ${{ if eq(variables['System.TeamProject'], 'public') }}:
+  - template: /eng/build.yml
+    parameters:
+      agentOs: Windows_NT_FullFramework
+      queue:
+        name: dotnet-external-temp
+        parallel: 2
+        timeoutInMinutes: 120
+        matrix:
+          Build_Debug:
+            _BuildConfig: Debug
+            _PublishType: none
+            _SignType: test
+          Build_Release:
+            _BuildConfig: Release
+            _PublishType: none
+            _SignType: test
 
-- task: PublishTestResults@2
-  displayName: Publish Test Results
-  inputs:
-    testRunner: XUnit
-    testResultsFiles: 'artifacts/$(BuildConfiguration)/TestResults/*.xml'
-    mergeTestResults: true
-    testRunTitle: 'Unit Tests'
-  condition: and(succeededOrFailed(), ne(variables['PB_SkipTests'], 'true'))
+  - template: /eng/build.yml
+    parameters:
+      agentOs: Ubuntu_14_04
+      queue: 
+        name: Hosted Ubuntu 1604
+        parallel: 2
+        timeoutInMinutes: 120
+        matrix:
+          Build_Debug:
+            _BuildConfig: Debug
+            _PublishType: none
+            _SignType: test
+          Build_Release:
+            _BuildConfig: Release
+            _PublishType: none
+            _SignType: test
+      variables:
+        _PREVIEW_VSTS_DOCKER_IMAGE: microsoft/dotnet-buildtools-prereqs:ubuntu-14.04-cross-0cd4667-20170319080304
 
-- task: NuGetCommand@2
-  displayName: Publish NuGet Packages to MyGet
-  inputs:
-    command: push
-    packagesToPush: 'artifacts\$(BuildConfiguration)\packages\*.nupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'dotnet.myget.org/system-commandline'
-  condition: and(succeeded(), not(contains(variables['PB_PublishType'], 'blob')))
+  - template: /eng/build.yml
+    parameters:
+      agentOs: Ubuntu_16_04
+      queue: 
+        name: Hosted Ubuntu 1604
+        parallel: 2
+        timeoutInMinutes: 120
+        matrix:
+          Build_Debug:
+            _BuildConfig: Debug
+            _PublishType: none
+            _SignType: test
+          Build_Release:
+            _BuildConfig: Release
+            _PublishType: none
+            _SignType: test
+      variables:
+        _PREVIEW_VSTS_DOCKER_IMAGE: microsoft/dotnet-buildtools-prereqs:ubuntu-16.04-cross-e435274-20180628134544
 
-- task: CopyPublishBuildArtifacts@1
-  displayName: Publish Artifacts
-  inputs:
-    CopyRoot: '$(Build.SourcesDirectory)'
-    Contents: |
-     artifacts\$(BuildConfiguration)\bin
-     artifacts\$(BuildConfiguration)\log
-     artifacts\$(BuildConfiguration)\TestResults
-     artifacts\$(BuildConfiguration)\packages
-    ArtifactName: '$(Build.BuildNumber)'
-    ArtifactType: FilePath
-    TargetPath: '$(DropRoot)\$(TeamName)\$(Build.DefinitionName)'
-  condition: and(succeededOrFailed(), not(contains(variables['PB_PublishType'], 'blob')))
+  - template: /eng/build.yml
+    parameters:
+      agentOs: Darwin
+      queue: 
+        name: DotNetCore-Mac
+        parallel: 2
+        timeoutInMinutes: 120
+        matrix:
+          Build_Debug:
+            _BuildConfig: Debug
+            _PublishType: none
+            _SignType: test
+          Build_Release:
+            _BuildConfig: Release
+            _PublishType: none
+            _SignType: test
 
-- task: ms-vseng.MicroBuildTasks.521a94ea-9e68-468a-8167-6dcf361ea776.MicroBuildCleanup@1
-  displayName: Cleanup
-  condition: succeededOrFailed()
-
-- task: PublishBuildArtifacts@1
-  displayName: Publish MicroBuild Artifacts
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)\MicroBuild\Output'
-    ArtifactName: '$(Build.BuildNumber)'
-    publishLocation: FilePath
-    TargetPath: '$(DropRoot)\$(TeamName)\$(Build.DefinitionName)'
-  condition: and(succeededOrFailed(), not(contains(variables['PB_PublishType'], 'blob')))
+- ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+  - template: /eng/common/templates/phases/publish-build-assets.yml
+    parameters:
+      dependsOn:
+        - Windows_NT
+      queue:
+        name: Hosted VS2017
