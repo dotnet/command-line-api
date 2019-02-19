@@ -5,6 +5,7 @@ using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -89,7 +90,7 @@ namespace System.CommandLine.Tests.Invocation
             Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
 
             invoke.Should()
-                  .Throw<Exception>()
+                  .Throw<TargetInvocationException>()
                   .Which
                   .InnerException
                   .Message

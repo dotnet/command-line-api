@@ -7,7 +7,7 @@ namespace System.CommandLine.Binding
 {
     public class ModelBinder<TModel> : ModelBinder
     {
-        public ModelBinder() : base(ModelDescriptor.FromType<TModel>())
+        public ModelBinder() : base(typeof(TModel))
         {
         }
 
@@ -15,7 +15,7 @@ namespace System.CommandLine.Binding
             Expression<Func<TModel, TValue>> property,
             IOption option)
         {
-            NamedValueSources.Add(
+            ValueSources.Add(
                 property.MemberTypeAndName(),
                 new SpecificSymbolValueSource(option));
         }
@@ -24,7 +24,7 @@ namespace System.CommandLine.Binding
             Expression<Func<TModel, TValue>> property,
             ICommand command)
         {
-            NamedValueSources.Add(
+            ValueSources.Add(
                 property.MemberTypeAndName(),
                 new SpecificSymbolValueSource(command));
         }
@@ -33,7 +33,7 @@ namespace System.CommandLine.Binding
             Expression<Func<TModel, TValue>> member,
             Func<BindingContext, TValue> getValue)
         {
-            NamedValueSources.Add(
+            ValueSources.Add(
                 member.MemberTypeAndName(),
                 new DelegateValueSource(c => getValue(c)));
         }

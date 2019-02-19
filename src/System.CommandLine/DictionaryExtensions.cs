@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace System.CommandLine.Binding
+namespace System.CommandLine
 {
     internal static class DictionaryExtensions
     {

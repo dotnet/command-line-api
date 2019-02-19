@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
 
@@ -10,40 +9,6 @@ namespace System.CommandLine
 {
     public static class ParseResultExtensions
     {
-        public static object GetValueOrDefault(this ParseResult parseResult, Option option, bool searchHierarchy)
-        {
-            var optionResult = GetOptionResult(parseResult.CommandResult, option, searchHierarchy);
-            return optionResult == null
-                    ? (option.Argument.ArgumentType ?? typeof(bool)).GetDefaultValueForType()
-                    : optionResult.GetValueOrDefault();
-        }
-
-        private static SymbolResult GetOptionResult(CommandResult commandResult, Option option, bool searchHierarchy)
-        {
-            var optionResult = commandResult.Children
-                                .Where(c => c.Symbol == option)
-                                .FirstOrDefault();
-            return optionResult == null && searchHierarchy && commandResult.Parent != null
-                ? GetOptionResult(commandResult.Parent, option, searchHierarchy)
-                : optionResult;
-        }
-
-        public static object GetValueOrDefault(this ParseResult parseResult, Argument argument, bool searchHierarchy)
-        {
-            var commandResult = GetCommandResultForArgument(parseResult.CommandResult, argument, searchHierarchy);
-            // TODO: Change when we support multiple arguments
-            return commandResult == null
-                ? (argument.ArgumentType ?? typeof(bool)).GetDefaultValueForType()
-                : commandResult.GetValueOrDefault();
-        }
-
-        private static CommandResult GetCommandResultForArgument(CommandResult commandResult, Argument argument, bool searchHierarchy)
-            => commandResult.Command.Argument == argument
-                ? commandResult
-                : (commandResult.Parent == null
-                    ? null
-                    : GetCommandResultForArgument(commandResult.Parent, argument, searchHierarchy));
-
         public static string TextToMatch(
             this ParseResult source,
             int? position = null)

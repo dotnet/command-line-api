@@ -18,12 +18,20 @@ namespace System.CommandLine.Binding
 
         public override ICommandHandler GetCommandHandler()
         {
-            return null;
+            var parameterBinders = ParameterDescriptors
+                                   .Select(p => new ModelBinder(p))
+                                   .ToList();
+
+            return new ModelBindingCommandHandler(
+                _handlerDelegate,
+                parameterBinders);
         }
 
         protected override IEnumerable<ParameterDescriptor> InitializeParameterDescriptors()
         {
-            return _handlerDelegate.Method.GetParameters().Select(p => new ParameterDescriptor(p));
+            return _handlerDelegate.Method
+                                   .GetParameters()
+                                   .Select(p => new ParameterDescriptor(p));
         }
     }
 }

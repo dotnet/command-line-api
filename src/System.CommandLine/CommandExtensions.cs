@@ -2,53 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Invocation;
 using System.Linq;
-using System.Reflection;
 
 namespace System.CommandLine
 {
     public static class CommandExtensions
     {
-        public static void ConfigureFromMethod(
-            this Command command,
-            MethodInfo method,
-            object target = null) =>
-            command.ConfigureFromMethod(method, () => target);
-
-        public static void ConfigureFromMethod(
-            this Command command,
-            MethodInfo method,
-            Func<object> target)
-        {
-            if (command == null)
-            {
-                throw new ArgumentNullException(nameof(command));
-            }
-
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-
-            var handler = new MethodBinder(method, target);
-
-            foreach (var option in handler.BuildOptions())
-            {
-                command.AddOption(option);
-            }
-
-            command.Handler = handler;
-        }
-
-        public static void ConfigureFrom(this Command command, IOptionBuilder optionBuilder)
-        {
-            foreach (var option in optionBuilder.BuildOptions())
-            {
-                command.AddOption(option);
-            }
-        }
-
         public static TCommand Subcommand<TCommand>(
             this TCommand command,
             string name)

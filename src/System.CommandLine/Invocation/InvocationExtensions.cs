@@ -147,7 +147,7 @@ namespace System.CommandLine.Invocation
 
                     context.Console.Error.Write("Unhandled exception: ");
                     context.Console.Error.WriteLine(exception.ToString());
-
+                        
                     context.Console.ResetTerminalForegroundColor();
 
                     context.ResultCode = 1;

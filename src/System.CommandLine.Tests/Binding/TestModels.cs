@@ -96,6 +96,30 @@ namespace System.CommandLine.Tests.Binding
         public T Value { get; set; }
     }
 
+    public class ClassWithMethodHavingParameter<T>
+    {
+        private readonly IConsole _console;
+
+        public ClassWithMethodHavingParameter(IConsole console)
+        {
+            _console = console;
+        }
+
+        public int Handle(T value)
+        {
+            ReceivedValue = value;
+            return 0;
+        }
+
+        public Task<int> HandleAsync(T value)
+        {
+            _console.Out.Write(value.ToString());
+            return Task.FromResult(Handle(value));
+        }
+
+        public T ReceivedValue { get; set; }
+    }
+
     public class TypeWithInvokeAndCtor
     {
         public TypeWithInvokeAndCtor(int intFromCtor, string stringFromCtor)

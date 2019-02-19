@@ -36,8 +36,6 @@ namespace System.CommandLine.Invocation
 
         public IInvocationResult InvocationResult { get; set; }
 
-        internal IServiceProvider ServiceProvider => BindingContext.ServiceProvider;
-
         internal event Action<CancellationTokenSource> CancellationHandlingAdded
         {
             add

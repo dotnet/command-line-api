@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Binding
@@ -42,21 +43,25 @@ namespace System.CommandLine.Binding
 
         internal ServiceProvider ServiceProvider { get; }
 
-        internal bool TryBind(
-            IValueDescriptor valueDescriptor,
-            IValueSource valueSource,
-            out BoundValue boundValue)
+        internal Dictionary<Type, IValueSource> ValueSources { get; }
+            = new Dictionary<Type, IValueSource>();
+
+        internal Dictionary<(Type valueSourceType, string valueSourceName), IValueSource> NamedValueSources { get; }
+            = new Dictionary<(Type valueSourceType, string valueSourceName), IValueSource>();
+
+        public void AddService(Type serviceType, Func<object> factory)
         {
-            if (valueSource.TryGetValue(valueDescriptor, this, out var value))
+            if (serviceType == null)
             {
-                boundValue = new BoundValue(value, valueDescriptor, valueSource);
-                return true;
+                throw new ArgumentNullException(nameof(serviceType));
             }
-            else
+
+            if (factory == null)
             {
-                boundValue = null;
-                return false;
+                throw new ArgumentNullException(nameof(factory));
             }
+
+            ServiceProvider.AddService(serviceType, factory);
         }
     }
 }

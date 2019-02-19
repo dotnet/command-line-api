@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace System.CommandLine.Binding
 {
@@ -17,6 +19,12 @@ namespace System.CommandLine.Binding
             _parameterDescriptors ?? (_parameterDescriptors = new List<ParameterDescriptor>(InitializeParameterDescriptors()));
 
         protected abstract IEnumerable<ParameterDescriptor> InitializeParameterDescriptors();
+
+        public static HandlerDescriptor FromDelegate(Delegate @delegate) =>
+            new DelegateHandlerDescriptor(@delegate);
+
+        public static HandlerDescriptor FromMethodInfo(MethodInfo methodInfo) =>
+            new MethodInfoHandlerDescriptor(methodInfo);
 
         public static HandlerDescriptor FromExpression<TModel>(Expression<Action<TModel>> handle) => new ExpressionHandlerDescriptor(handle);
 

@@ -4,11 +4,17 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace System.CommandLine.Binding
 {
     public class ModelDescriptor
     {
+        private const BindingFlags CommonBindingFlags =
+            BindingFlags.IgnoreCase
+            | BindingFlags.Public
+            | BindingFlags.Instance;
+
         private static readonly ConcurrentDictionary<Type, ModelDescriptor> _modelDescriptors = new ConcurrentDictionary<Type, ModelDescriptor>();
 
         private readonly List<PropertyDescriptor> _propertyDescriptors = new List<PropertyDescriptor>();
@@ -19,12 +25,12 @@ namespace System.CommandLine.Binding
             ModelType = modelType ??
                         throw new ArgumentNullException(nameof(modelType));
 
-            foreach (var propertyInfo in modelType.GetProperties(ReflectionBinder.CommonBindingFlags).Where(p => p.CanWrite))
+            foreach (var propertyInfo in modelType.GetProperties(CommonBindingFlags).Where(p => p.CanWrite))
             {
                 _propertyDescriptors.Add(new PropertyDescriptor(propertyInfo));
             }
 
-            foreach (var constructorInfo in modelType.GetConstructors(ReflectionBinder.CommonBindingFlags))
+            foreach (var constructorInfo in modelType.GetConstructors(CommonBindingFlags))
             {
                 _constructorDescriptors.Add(new ConstructorDescriptor(constructorInfo));
             }

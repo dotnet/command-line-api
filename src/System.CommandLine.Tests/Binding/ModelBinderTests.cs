@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -9,6 +10,10 @@ namespace System.CommandLine.Tests.Binding
 {
     public class ModelBinderTests
     {
+        // FIX: (ModelBinderTests) add tests directly against GetConstructorParameters
+        // FIX: (ModelBinderTests) add tests directly against GetHandlerParameters
+        // FIX: (ModelBinderTests) add tests directly against GetProperties
+
         [Fact]
         public void Option_arguments_are_bound_by_name_to_constructor_parameters()
         {
@@ -182,9 +187,8 @@ namespace System.CommandLine.Tests.Binding
                                             Argument = new Argument<int>()
                                         }
                                     });
-            var descriptor = ModelDescriptor.FromType<ClassWithMultiLetterSetters>();
             var bindingContext = new BindingContext(parser.Parse("the-command --int-option 123"));
-            var binder = new ModelBinder(descriptor);
+            var binder = new ModelBinder(typeof(ClassWithMultiLetterSetters));
 
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -201,10 +205,9 @@ namespace System.CommandLine.Tests.Binding
                                             Argument = new Argument<int>()
                                         }
                                     });
-            var descriptor = ModelDescriptor.FromType<ClassWithMultiLetterSetters>();
             var instance = new ClassWithMultiLetterSetters();
             var bindingContext = new BindingContext(parser.Parse("the-command --int-option 123"));
-            var binder = new ModelBinder(descriptor);
+            var binder = new ModelBinder(typeof(ClassWithMultiLetterSetters));
 
             binder.UpdateInstance(instance, bindingContext);
 
@@ -215,7 +218,7 @@ namespace System.CommandLine.Tests.Binding
         public void Values_from_parent_options_on_parent_commands_can_be_bound()
         {
             var childCommand = new Command("child-command");
-            var option = new Option("--int-option")
+            var option = new Option("-x")
                          {
                              Argument = new Argument<int>()
                          };
@@ -231,7 +234,7 @@ namespace System.CommandLine.Tests.Binding
                 c => c.IntOption,
                 option);
 
-            var bindingContext = new BindingContext(parentCommand.Parse("parent-command --int-option 123 child-command"));
+            var bindingContext = new BindingContext(parentCommand.Parse("parent-command -x 123 child-command"));
 
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -277,6 +280,51 @@ namespace System.CommandLine.Tests.Binding
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
             instance.IntOption.Should().Be(123);
+        }
+
+        [Fact]
+        public void PropertyInfo_can_be_bound_to_option()
+        {
+            var command = new Command("the-command");
+            var option = new Option("--fred",
+                                    argument: new Argument<int>());
+            command.AddOption(option);
+
+            var type = typeof(ClassWithMultiLetterSetters);
+            var binder = new ModelBinder(type);
+            var propertyInfo = type.GetProperties().First();
+
+            binder.BindMemberFromValue(
+                propertyInfo,
+                option);
+
+            var bindingContext = new BindingContext(command.Parse("the-command --fred 42"));
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(42);
+        }
+
+        [Fact]
+        public void PropertyInfo_can_be_bound_to_command()
+        {
+            var command = new Command("the-command");
+            var argument = new Argument<int>();
+            command.Argument = argument;
+
+            var type = typeof(ClassWithMultiLetterSetters);
+            var binder = new ModelBinder(type);
+            var propertyInfo = type.GetProperties().First();
+
+            binder.BindMemberFromValue(
+                propertyInfo,
+                command);
+
+            var bindingContext = new BindingContext(command.Parse("the-command 42"));
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(42);
         }
     }
 }
