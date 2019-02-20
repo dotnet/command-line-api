@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine
@@ -48,10 +49,7 @@ namespace System.CommandLine
 
         public Argument Argument 
         { 
-            get
-            {
-                return _argument;
-            }
+            get => _argument;
             set
             {
                 if (value?.Arity.MaximumNumberOfArguments > 0 && string.IsNullOrEmpty(value.Name))
@@ -150,5 +148,11 @@ namespace System.CommandLine
         ICommand ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;
+
+        Type IValueDescriptor.Type => Argument.ArgumentType;
+
+        bool IValueDescriptor.HasDefaultValue  => Argument.HasDefaultValue;
+
+        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

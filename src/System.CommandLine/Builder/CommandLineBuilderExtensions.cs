@@ -70,51 +70,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder ConfigureFromMethod<TBuilder>(
-            this TBuilder builder,
-            MethodInfo method,
-            object target = null)
-            where TBuilder : CommandBuilder
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-
-            builder.Command.ConfigureFromMethod(method, target);
-
-            return builder;
-        }
-
-        public static CommandLineBuilder ConfigureFromType<T>(
-            this CommandLineBuilder builder,
-            MethodInfo onExecuteMethod = null)
-            where T : class
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            var typeBinder = new TypeBinder(typeof(T));
-
-            foreach (var option in typeBinder.BuildOptions())
-            {
-                builder.AddOption(option);
-            }
-
-            builder.Handler = new TypeCreationCommandHandler(
-                onExecuteMethod,
-                typeBinder);
-
-            return builder;
-        }
-
         public static CommandLineBuilder EnablePositionalOptions(
             this CommandLineBuilder builder,
             bool value = true)

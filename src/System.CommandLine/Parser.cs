@@ -140,6 +140,7 @@ namespace System.CommandLine
             }
 
             return new ParseResult(
+                this,
                 rootCommand,
                 innermostCommand ?? rootCommand,
                 directives,

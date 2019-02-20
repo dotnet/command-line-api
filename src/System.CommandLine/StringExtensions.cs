@@ -199,7 +199,7 @@ namespace System.CommandLine
 
         public static string ToKebabCase(this string value)
         {
-            if (String.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
                 return value;
             }
@@ -212,10 +212,10 @@ namespace System.CommandLine
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
-                if (Char.IsLetterOrDigit(ch))
+                if (char.IsLetterOrDigit(ch))
                 {
-                    addDash = !Char.IsUpper(ch);
-                    sb.Append(Char.ToLowerInvariant(ch));
+                    addDash = !char.IsUpper(ch);
+                    sb.Append(char.ToLowerInvariant(ch));
                     i++;
                     break;
                 }
@@ -225,7 +225,7 @@ namespace System.CommandLine
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
-                if (Char.IsUpper(ch))
+                if (char.IsUpper(ch))
                 {
                     if (addDash)
                     {
@@ -233,9 +233,9 @@ namespace System.CommandLine
                         sb.Append('-');
                     }
 
-                    sb.Append(Char.ToLowerInvariant(ch));
+                    sb.Append(char.ToLowerInvariant(ch));
                 }
-                else if (Char.IsLetterOrDigit(ch))
+                else if (char.IsLetterOrDigit(ch))
                 {
                     addDash = true;
                     sb.Append(ch);
@@ -249,8 +249,6 @@ namespace System.CommandLine
 
             return sb.ToString();
         }
-
-        internal static string FromKebabCase(this string value) => value.Replace("-", "");
 
         private static Token Argument(string value) => new Token(value, TokenType.Argument);
 
