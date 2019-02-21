@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <VersionPrefix>1.0.3</VersionPrefix>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
@@ -10,15 +11,11 @@
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64</PackAsToolShimRuntimeIdentifiers>
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
   </PropertyGroup>
-  
-  <PropertyGroup Condition=" $(Build_BuildId) != '' ">
-    <Version>1.0.2.$(Build_BuildId)</Version>
-  </PropertyGroup>
-  
+
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <!--No warning for the scripts, it is part of the content, not to execuate-->
-    <NoWarn>NU5110;NU5111</NoWarn>
+    <NoWarn>$(NoWarn);NU5110;NU5111;</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
