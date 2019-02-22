@@ -103,7 +103,7 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(int[]))]
         [InlineData(typeof(IEnumerable<int>))]
         [InlineData(typeof(List<int>))]
-        public void ParseArgumentsAs_infers_arity_of_IEnumerable_types_as_OneOrMore(Type type)
+        public void Argument_infers_arity_of_IEnumerable_types_as_OneOrMore(Type type)
         {
             var argument = new Argument { ArgumentType = type };
 
