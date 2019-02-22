@@ -409,6 +409,33 @@ namespace System.CommandLine.Tests.Binding
                   .BeNull();
         }
 
+        [Theory]
+        [InlineData("c -a o c c")]
+        [InlineData("c c -a o c")]
+        [InlineData("c c c")]
+        public void When_command_has_arity_greater_than_one_it_captures_arguments_before_and_after_option(string commandLine)
+        {
+            var command = new Command("the-command")
+                          {
+                              new Option("-a")
+                              {
+                                  Argument = new Argument<string>()
+                              }
+                          };
+
+            command.Argument = new Argument<string>
+                               {
+                                   Arity = ArgumentArity.ZeroOrMore
+                               };
+
+            var result = command.Parse(commandLine);
+
+            result.CommandResult
+                  .GetValueOrDefault()
+                  .Should()
+                  .BeEquivalentTo(new[] { "c", "c", "c" });
+        }
+
         [Fact]
         public void The_default_value_of_an_option_with_no_arguments_is_true()
         {
