@@ -410,7 +410,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseArgumentsAs_with_arity_of_One_validates_against_extra_arguments()
+        public void When_arity_is_ExactlyOne_it_validates_against_extra_arguments()
         {
             var parser = new Parser(
                 new Option(

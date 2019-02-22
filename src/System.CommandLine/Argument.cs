@@ -57,12 +57,27 @@ namespace System.CommandLine
                         }
                         else
                         {
-                            _convertArguments = ArgumentConverter.DefaultConvertArgument(ArgumentType);
+                            _convertArguments = DefaultConvert;
                         }
                     }
                 }
 
                 return _convertArguments;
+
+                ArgumentResult DefaultConvert(SymbolResult symbol)
+                {
+                    switch (Arity.MaximumNumberOfArguments)
+                    {
+                        case 1:
+                            return ArgumentConverter.Parse(
+                                ArgumentType,
+                                symbol.Arguments.SingleOrDefault());
+                        default:
+                            return ArgumentConverter.ParseMany(
+                                ArgumentType, 
+                                symbol.Arguments);
+                    }
+                }
             }
             set => _convertArguments = value;
         }

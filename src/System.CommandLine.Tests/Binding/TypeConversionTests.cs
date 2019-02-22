@@ -103,7 +103,7 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(int[]))]
         [InlineData(typeof(IEnumerable<int>))]
         [InlineData(typeof(List<int>))]
-        public void ParseArgumentsAs_infers_arity_of_IEnumerable_types_as_OneOrMore(Type type)
+        public void Argument_infers_arity_of_IEnumerable_types_as_OneOrMore(Type type)
         {
             var argument = new Argument { ArgumentType = type };
 
@@ -407,6 +407,33 @@ namespace System.CommandLine.Tests.Binding
             valueOrDefault
                   .Should()
                   .BeNull();
+        }
+
+        [Theory]
+        [InlineData("c -a o c c")]
+        [InlineData("c c -a o c")]
+        [InlineData("c c c")]
+        public void When_command_has_arity_greater_than_one_it_captures_arguments_before_and_after_option(string commandLine)
+        {
+            var command = new Command("the-command")
+                          {
+                              new Option("-a")
+                              {
+                                  Argument = new Argument<string>()
+                              }
+                          };
+
+            command.Argument = new Argument<string>
+                               {
+                                   Arity = ArgumentArity.ZeroOrMore
+                               };
+
+            var result = command.Parse(commandLine);
+
+            result.CommandResult
+                  .GetValueOrDefault()
+                  .Should()
+                  .BeEquivalentTo(new[] { "c", "c", "c" });
         }
 
         [Fact]
