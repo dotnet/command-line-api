@@ -17,30 +17,35 @@ namespace System.CommandLine.Binding
 
         private static readonly ConcurrentDictionary<Type, ModelDescriptor> _modelDescriptors = new ConcurrentDictionary<Type, ModelDescriptor>();
 
-        private readonly List<PropertyDescriptor> _propertyDescriptors = new List<PropertyDescriptor>();
-        private readonly List<ConstructorDescriptor> _constructorDescriptors = new List<ConstructorDescriptor>();
+        private List<PropertyDescriptor> _propertyDescriptors;
+        private List<ConstructorDescriptor> _constructorDescriptors;
 
         protected ModelDescriptor(Type modelType)
         {
             ModelType = modelType ??
                         throw new ArgumentNullException(nameof(modelType));
-
-            foreach (var propertyInfo in modelType.GetProperties(CommonBindingFlags).Where(p => p.CanWrite))
-            {
-                _propertyDescriptors.Add(new PropertyDescriptor(propertyInfo));
-            }
-
-            foreach (var constructorInfo in modelType.GetConstructors(CommonBindingFlags))
-            {
-                _constructorDescriptors.Add(new ConstructorDescriptor(constructorInfo));
-            }
         }
 
-        public IReadOnlyList<ConstructorDescriptor> ConstructorDescriptors => _constructorDescriptors;
+        public IReadOnlyList<ConstructorDescriptor> ConstructorDescriptors =>
+            _constructorDescriptors
+            ??
+            (_constructorDescriptors =
+                 ModelType.GetConstructors(CommonBindingFlags)
+                          .Select(i => new ConstructorDescriptor(i, this))
+                          .ToList());
 
-        public IReadOnlyList<IValueDescriptor> PropertyDescriptors => _propertyDescriptors;
+        public IReadOnlyList<IValueDescriptor> PropertyDescriptors =>
+            _propertyDescriptors
+            ??
+            (_propertyDescriptors =
+                 ModelType.GetProperties(CommonBindingFlags)
+                          .Where(p => p.CanWrite)
+                          .Select(i => new PropertyDescriptor(i, this))
+                          .ToList());
 
         public Type ModelType { get; }
+
+        public override string ToString() => $"{ModelType.Name}";
 
         public static ModelDescriptor FromType<T>() =>
             _modelDescriptors.GetOrAdd(

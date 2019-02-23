@@ -89,11 +89,17 @@ namespace System.CommandLine.Tests.Binding
         public ClassWithCtorParameter(T value) => Value = value;
 
         public T Value { get; }
+
+        public override string ToString() => 
+            $"{nameof(ClassWithCtorParameter<T>)}<{typeof(T).Name}>: {Value}";
     }
 
     public class ClassWithSetter<T>
     {
         public T Value { get; set; }
+
+        public override string ToString() => 
+            $"{nameof(ClassWithSetter<T>)}<{typeof(T).Name}>: {Value}";
     }
 
     public class ClassWithMethodHavingParameter<T>

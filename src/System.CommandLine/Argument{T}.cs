@@ -7,8 +7,6 @@ namespace System.CommandLine
     {
         public Argument()
         {
-            Arity = ArgumentArity.DefaultForType(typeof(T));
-
             ArgumentType = typeof(T);
         }
 

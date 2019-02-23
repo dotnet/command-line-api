@@ -57,6 +57,7 @@ namespace System.CommandLine
                     value.Name = _aliases.First().ToUpper();
                 }
                 _argument = value ?? Argument.None; 
+                _argument.Parent = this;
             } 
         }
 

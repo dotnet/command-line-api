@@ -1,8 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Invocation;
+using System.Linq;
 
 namespace System.CommandLine.Binding
 {
@@ -43,12 +43,6 @@ namespace System.CommandLine.Binding
 
         internal ServiceProvider ServiceProvider { get; }
 
-        internal Dictionary<Type, IValueSource> ValueSources { get; }
-            = new Dictionary<Type, IValueSource>();
-
-        internal Dictionary<(Type valueSourceType, string valueSourceName), IValueSource> NamedValueSources { get; }
-            = new Dictionary<(Type valueSourceType, string valueSourceName), IValueSource>();
-
         public void AddService(Type serviceType, Func<object> factory)
         {
             if (serviceType == null)
@@ -62,6 +56,49 @@ namespace System.CommandLine.Binding
             }
 
             ServiceProvider.AddService(serviceType, factory);
+        }
+
+        internal bool TryGetValueSource(
+            IValueDescriptor valueDescriptor,
+            out IValueSource valueSource)
+        {
+            foreach (var symbol in ParseResult.ValueDescriptors())
+            {
+                if (ValueDescriptor.CanBind(
+                    from: symbol, 
+                    to: valueDescriptor))
+                {
+                    valueSource = new SymbolValueSource((ISymbol)symbol);
+
+                    return true;
+                }
+            }
+
+            if (ServiceProvider.AvailableServiceTypes.Contains(valueDescriptor.Type))
+            {
+                valueSource = new ServiceProviderValueSource();
+                return true;
+            }
+
+            valueSource = null;
+            return false;
+        }
+
+        internal bool TryBind(
+            IValueDescriptor valueDescriptor,
+            IValueSource valueSource,
+            out BoundValue boundValue)
+        {
+            if (valueSource.TryGetValue(valueDescriptor, this, out var value))
+            {
+                boundValue = new BoundValue(value, valueDescriptor, valueSource);
+                return true;
+            }
+            else
+            {
+                boundValue = null;
+                return false;
+            }
         }
     }
 }

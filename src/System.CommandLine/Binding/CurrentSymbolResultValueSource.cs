@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine.Binding
@@ -22,27 +21,25 @@ namespace System.CommandLine.Binding
                 value = optionResult.GetValueOrDefault();
                 return true;
             }
-            else if (valueDescriptor.Name.IsMatch(
+
+            if (valueDescriptor.Name.IsMatch(
                 commandResult.Command.Argument.Name))
             {
                 value = commandResult.GetValueOrDefault();
                 return true;
             }
-            else
-            {
-                value = null;
-                return false;
-            }
+
+            value = null;
+            return false;
         }
 
-        private OptionResult FindMatchingSymbol(
+        private SymbolResult FindMatchingSymbol(
             CommandResult result,
             IValueDescriptor valueDescriptor)
         {
             var options = result
                           .Children
-                          .OfType<OptionResult>()
-                          .Where(o => valueDescriptor.Name.IsMatch(o.Option))
+                          .Where(o => valueDescriptor.Name.IsMatch(o.Symbol))
                           .ToArray();
 
             if (options.Length == 1)

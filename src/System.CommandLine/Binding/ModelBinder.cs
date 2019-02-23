@@ -4,12 +4,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace System.CommandLine.Binding
 {
     public class ModelBinder
     {
-        private readonly ConstructorDescriptor _constructorDescriptor;
+        private readonly Lazy<ConstructorDescriptor> _targetConstructorDescriptor;
 
         private readonly ModelDescriptor _modelDescriptor;
 
@@ -27,22 +28,33 @@ namespace System.CommandLine.Binding
 
             _modelDescriptor = ModelDescriptor.FromType(valueDescriptor.Type);
 
+            _targetConstructorDescriptor = new Lazy<ConstructorDescriptor>(
+                FindConstructorRequiringCompoundBinding,
+                LazyThreadSafetyMode.None);
+        }
+
+        private ConstructorDescriptor FindConstructorRequiringCompoundBinding()
+        {
             if (_modelDescriptor.ConstructorDescriptors.Count == 1)
             {
-                _constructorDescriptor = _modelDescriptor.ConstructorDescriptors[0];
+                return _modelDescriptor.ConstructorDescriptors[0];
+            }
+            else
+            {
+                return null;
             }
         }
 
         public IValueDescriptor ValueDescriptor { get; }
 
-        internal Dictionary<(Type valueSourceType, string valueSourceName), IValueSource> ValueSources { get; }
+        internal Dictionary<(Type valueSourceType, string valueSourceName), IValueSource> NamedValueSources { get; }
             = new Dictionary<(Type valueSourceType, string valueSourceName), IValueSource>();
 
-        public IReadOnlyCollection<BoundValue> GetConstructorArguments(BindingContext context)
+        private IReadOnlyCollection<BoundValue> GetConstructorArguments(BindingContext context)
         {
-            if (_constructorDescriptor != null)
+            if (_targetConstructorDescriptor.Value != null)
             {
-                return GetValues(context, _constructorDescriptor.ParameterDescriptors);
+                return GetValues(context, _targetConstructorDescriptor.Value.ParameterDescriptors);
             }
             else
             {
@@ -52,54 +64,54 @@ namespace System.CommandLine.Binding
 
         public void BindMemberFromValue(PropertyInfo property, Option option)
         {
-            ValueSources.Add(
+            NamedValueSources.Add(
                 (property.PropertyType, property.Name),
-                new SpecificSymbolValueSource(option));
+                new SymbolValueSource(option));
         }
 
         public void BindMemberFromValue(PropertyInfo property, Command command)
         {
-            ValueSources.Add(
+            NamedValueSources.Add(
                 (property.PropertyType, property.Name),
-                new SpecificSymbolValueSource(command));
+                new SymbolValueSource(command));
         }
 
         public object CreateInstance(BindingContext context)
         {
-            if (context.ServiceProvider.AvailableServiceTypes.Contains(_modelDescriptor.ModelType))
+            if (context.TryGetValueSource(ValueDescriptor, out var valueSource) &&
+                valueSource.TryGetValue(ValueDescriptor, context, out var fromBindingContext))
             {
-                return GetOrCreateInstance(context);
+                return fromBindingContext;
             }
 
-            var boundConstructorArguments = GetConstructorArguments(context);
-
-            var values = boundConstructorArguments.Select(v => v.Value).ToArray();
-
-            object instance;
-            if (_constructorDescriptor?.Invoke(values) != null)
+            if (_targetConstructorDescriptor?.Value != null)
             {
-                instance = _constructorDescriptor.Invoke(values);
-                UpdateInstance(instance, context);
-            }
-            else
-            {
-                instance = GetOrCreateInstance(context);
+                var boundConstructorArguments = GetConstructorArguments(context);
+                var values = boundConstructorArguments.Select(v => v.Value).ToArray();
+                var fromModelBinder = _targetConstructorDescriptor.Value.Invoke(values);
+                UpdateInstance(fromModelBinder, context);
+                return fromModelBinder;
             }
 
-            return instance;
+            return GetValues(context,
+                             new[] { ValueDescriptor })
+                   .SingleOrDefault()?.Value;
         }
-
-        internal object GetOrCreateInstance(BindingContext context) =>
-            GetValues(context,
-                      new[] { ValueDescriptor })
-                .SingleOrDefault()?.Value;
 
         public void UpdateInstance<T>(T instance, BindingContext bindingContext)
         {
-            SetProperties(bindingContext, instance);
+            var propertyValues = GetValues(
+                bindingContext,
+                _modelDescriptor.PropertyDescriptors,
+                false);
+
+            foreach (var boundValue in propertyValues)
+            {
+                ((PropertyDescriptor)boundValue.ValueDescriptor).SetValue(instance, boundValue.Value);
+            }
         }
 
-        protected IReadOnlyCollection<BoundValue> GetValues(
+        private IReadOnlyCollection<BoundValue> GetValues(
             BindingContext bindingContext,
             IReadOnlyList<IValueDescriptor> valueDescriptors,
             bool includeMissingValues = true)
@@ -109,10 +121,10 @@ namespace System.CommandLine.Binding
             for (var index = 0; index < valueDescriptors.Count; index++)
             {
                 var valueDescriptor = valueDescriptors[index];
+
                 var valueSource = GetValueSource(bindingContext, valueDescriptor);
 
-                if (!TryBind(
-                        bindingContext,
+                if (!bindingContext.TryBind(
                         valueDescriptor,
                         valueSource,
                         out BoundValue value))
@@ -132,80 +144,30 @@ namespace System.CommandLine.Binding
             return values;
         }
 
-        internal bool TryBind(
-            BindingContext bindingContext,
-            IValueDescriptor valueDescriptor,
-            IValueSource valueSource,
-            out BoundValue boundValue)
-        {
-            if (valueSource.TryGetValue(valueDescriptor, bindingContext, out var value))
-            {
-                boundValue = new BoundValue(value, valueDescriptor, valueSource);
-                return true;
-            }
-            else
-            {
-                boundValue = null;
-                return false;
-            }
-        }
-
         private IValueSource GetValueSource(
             BindingContext bindingContext,
             IValueDescriptor valueDescriptor)
         {
-            IValueSource valueSource;
+            var type = valueDescriptor.Type;
+            var name = valueDescriptor.Name;
 
-            if (valueDescriptor?.Name != null)
+            if (NamedValueSources.TryGetValue(
+                (type, name),
+                out var valueSource))
             {
-                if (ValueSources.TryGetValue(
-                    (valueDescriptor.Type, valueDescriptor.Name),
-                    out valueSource))
-                {
-                    return valueSource;
-                }
-
-                if (bindingContext.NamedValueSources.TryGetValue(
-                    (valueDescriptor.Type, valueDescriptor.Name),
-                    out valueSource))
-                {
-                    return valueSource;
-                }
+                return valueSource;
             }
 
-            return bindingContext.ValueSources.GetOrAdd(
-                valueDescriptor.Type,
-                type => CreateDefaultValueSource(bindingContext, type));
+            if (bindingContext.TryGetValueSource(valueDescriptor, out valueSource))
+            {
+                return valueSource;
+            }
+
+            return new CurrentSymbolResultValueSource();
         }
 
-        private static IValueSource CreateDefaultValueSource(
-            BindingContext bindingContext, 
-            Type type)
-        {
-            if (bindingContext.ServiceProvider.AvailableServiceTypes.Contains(type))
-            {
-                return new ServiceProviderValueSource();
-            }
-            else
-            {
-                return new CurrentSymbolResultValueSource();
-            }
-        }
-
-        private void SetProperties(
-            BindingContext context,
-            object instance)
-        {
-            var propertyValues = GetValues(
-                context,
-                _modelDescriptor.PropertyDescriptors,
-                false);
-
-            foreach (var boundValue in propertyValues)
-            {
-                ((PropertyDescriptor)boundValue.ValueDescriptor).SetValue(instance, boundValue.Value);
-            }
-        }
+        public override string ToString() =>
+            $"{_modelDescriptor.ModelType.Name}";
 
         private class AnonymousValueDescriptor : IValueDescriptor
         {

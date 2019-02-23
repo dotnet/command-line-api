@@ -2,42 +2,53 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using System.Linq;
+using System.IO;
 using FluentAssertions;
+using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
 {
     public class ModelBinderTests
     {
-        // FIX: (ModelBinderTests) add tests directly against GetConstructorParameters
-        // FIX: (ModelBinderTests) add tests directly against GetHandlerParameters
-        // FIX: (ModelBinderTests) add tests directly against GetProperties
-
-        [Fact]
-        public void Option_arguments_are_bound_by_name_to_constructor_parameters()
+        [Theory]
+        [InlineData(typeof(string), "--value hello", "hello")]
+        [InlineData(typeof(int), "--value 123", 123)]
+        [InlineData(typeof(int?), "--value 123", 123)]
+        [InlineData(typeof(int?), "", null)]
+        public void Option_arguments_are_bound_by_name_to_constructor_parameters(
+            Type type,
+            string commandLine,
+            object expectedValue)
         {
-            var argument = new Argument<string>("the default");
+            var targetType = typeof(ClassWithCtorParameter<>).MakeGenericType(type);
+            var binder = new ModelBinder(targetType);
 
-            var option = new Option("--string-option",
-                                    argument: argument);
+            var command = new Command("the-command")
+                          {
+                              new Option("--value")
+                              {
+                                  Argument = new Argument
+                                             {
+                                                 ArgumentType = type
+                                             }
+                              }
+                          };
 
-            var command = new Command("the-command");
-            command.AddOption(option);
-            var binder = new ModelBinder<ClassWithMultiLetterCtorParameters>();
+            var bindingContext = new BindingContext(command.Parse(commandLine));
 
-            var parser = new Parser(command);
-            var bindingContext = new BindingContext(
-                parser.Parse("--string-option not-the-default"));
+            var instance = binder.CreateInstance(bindingContext);
 
-            var instance = (ClassWithMultiLetterCtorParameters)binder.CreateInstance(bindingContext);
+            object valueReceivedValue = ((dynamic)instance).Value;
 
-            instance.StringOption.Should().Be("not-the-default");
+            valueReceivedValue.Should().Be(expectedValue);
         }
 
         [Theory]
         [InlineData(typeof(string), "hello", "hello")]
         [InlineData(typeof(int), "123", 123)]
+        [InlineData(typeof(int?), "123", 123)]
+        [InlineData(typeof(int?), "", null)]
         public void Command_arguments_are_bound_by_name_to_constructor_parameters(
             Type type,
             string commandLine,
@@ -54,9 +65,8 @@ namespace System.CommandLine.Tests.Binding
                                              ArgumentType = type
                                          }
                           };
-            var parser = new Parser(command);
 
-            var bindingContext = new BindingContext(parser.Parse(commandLine));
+            var bindingContext = new BindingContext(command.Parse(commandLine));
 
             var instance = binder.CreateInstance(bindingContext);
 
@@ -66,7 +76,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Explicitly_configured_default_values_can_be_bound_to_constructor_parameters()
+        public void Explicitly_configured_default_values_can_be_bound_by_name_to_constructor_parameters()
         {
             var argument = new Argument<string>("the default");
 
@@ -85,30 +95,45 @@ namespace System.CommandLine.Tests.Binding
             instance.StringOption.Should().Be("the default");
         }
 
-        [Fact]
-        public void Option_arguments_are_bound_by_name_to_property_setters()
+        [Theory]
+        [InlineData(typeof(string), "--value hello", "hello")]
+        [InlineData(typeof(int), "--value 123", 123)]
+        [InlineData(typeof(int?), "--value 123", 123)]
+        [InlineData(typeof(int?), "", null)]
+        public void Option_arguments_are_bound_by_name_to_property_setters(
+            Type type,
+            string commandLine,
+            object expectedValue)
         {
-            var argument = new Argument<bool>();
+            var targetType = typeof(ClassWithSetter<>).MakeGenericType(type);
+            var binder = new ModelBinder(targetType);
 
-            var option = new Option("--bool-option",
-                                    argument: argument);
-
-            var command = new Command("the-command");
-            command.AddOption(option);
-            var binder = new ModelBinder(typeof(ClassWithMultiLetterSetters));
-
+            var command = new Command("the-command")
+                          {
+                              new Option("--value")
+                              {
+                                  Argument = new Argument
+                                             {
+                                                 ArgumentType = type
+                                             }
+                              }
+                          };
             var parser = new Parser(command);
-            var invocationContext = new BindingContext(
-                parser.Parse("--bool-option"));
 
-            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(invocationContext);
+            var bindingContext = new BindingContext(parser.Parse(commandLine));
 
-            instance.BoolOption.Should().BeTrue();
+            var instance = binder.CreateInstance(bindingContext);
+
+            object valueReceivedValue = ((dynamic)instance).Value;
+
+            valueReceivedValue.Should().Be(expectedValue);
         }
 
         [Theory]
         [InlineData(typeof(string), "hello", "hello")]
         [InlineData(typeof(int), "123", 123)]
+        [InlineData(typeof(int?), "123", 123)]
+        [InlineData(typeof(int?), "", null)]
         public void Command_arguments_are_bound_by_name_to_property_setters(
             Type type,
             string commandLine,
@@ -137,24 +162,43 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Explicitly_configured_default_values_can_be_bound_to_property_setters()
+        public void Types_having_constructors_accepting_a_single_string_are_bound_using_the_handler_parameter_name()
         {
-            var argument = new Argument<string>("the default");
+            var tempPath = Path.GetTempPath();
 
-            var option = new Option("--string-option",
+            var argument = new Argument<DirectoryInfo>();
+
+            var option = new Option("--value",
                                     argument: argument);
 
             var command = new Command("the-command");
             command.AddOption(option);
-            var binder = new ModelBinder(typeof(ClassWithMultiLetterSetters));
+            var binder = new ModelBinder(typeof(ClassWithCtorParameter<DirectoryInfo>));
+            var bindingContext = new BindingContext(command.Parse($"--value \"{tempPath}\""));
+
+            var instance = (ClassWithCtorParameter<DirectoryInfo>)binder.CreateInstance(bindingContext);
+
+            instance.Value.FullName.Should().Be(tempPath);
+        }
+
+        [Fact]
+        public void Explicitly_configured_default_values_can_be_bound_by_name_to_property_setters()
+        {
+            var argument = new Argument<string>("the default");
+
+            var option = new Option("--value",
+                                    argument: argument);
+
+            var command = new Command("the-command");
+            command.AddOption(option);
+            var binder = new ModelBinder(typeof(ClassWithSetter<string>));
 
             var parser = new Parser(command);
-            var bindingContext = new BindingContext(
-                parser.Parse(""));
+            var bindingContext = new BindingContext(parser.Parse(""));
 
-            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+            var instance = (ClassWithSetter<string>)binder.CreateInstance(bindingContext);
 
-            instance.StringOption.Should().Be("the default");
+            instance.Value.Should().Be("the default");  
         }
 
         [Fact]

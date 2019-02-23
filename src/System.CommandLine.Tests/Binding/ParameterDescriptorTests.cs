@@ -2,13 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using FluentAssertions;
 using System.Linq;
+using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
 {
-    public class PropertyDescriptorTests
+    public class ParameterDescriptorTests
     {
         [Theory]
         [InlineData(typeof(string), null)]
@@ -16,12 +16,14 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(int?), null)]
         public void GetDefaultValue_returns_the_default_for_the_type(Type type, object defaultValue)
         {
-            type = typeof(ClassWithSetter<>).MakeGenericType(type);
+            type = typeof(ClassWithCtorParameter<>).MakeGenericType(type);
 
             var modelDescriptor = ModelDescriptor.FromType(type);
 
             modelDescriptor
-                .PropertyDescriptors
+                .ConstructorDescriptors
+                .Single()
+                .ParameterDescriptors
                 .Single()
                 .GetDefaultValue()
                 .Should()
