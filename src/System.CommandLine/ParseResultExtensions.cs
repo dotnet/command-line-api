@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 using System.Text;
 
@@ -173,6 +174,23 @@ namespace System.CommandLine
             }
 
             return currentSymbolSuggestions;
+        }
+
+        internal static IEnumerable<IValueDescriptor> ValueDescriptors(this ParseResult parseResult)
+        {
+            var command = parseResult.CommandResult.Command;
+
+            while (command != null)
+            {
+                yield return command;
+
+                foreach (var option in command.Children.OfType<Option>())
+                {
+                    yield return option;
+                }
+
+                command = command.Parent;
+            }
         }
     }
 }

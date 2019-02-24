@@ -22,6 +22,24 @@ namespace System.CommandLine.Binding
             return null;
         }
 
+        public override ModelDescriptor Parent
+        {
+            get
+            {
+                switch (_handlerExpression.Body)
+                {
+                    case MethodCallExpression methodCall:
+                        var objectType = methodCall?.Object?.Type;
+                        return objectType != null
+                                   ? ModelDescriptor.FromType(objectType)
+                                   : null;
+
+                    default:
+                        return null;
+                }
+            }
+        }
+
         protected override IEnumerable<ParameterDescriptor> InitializeParameterDescriptors()
         {
             switch (_handlerExpression.Body)
@@ -29,7 +47,7 @@ namespace System.CommandLine.Binding
                 case MethodCallExpression methodCall:
                     foreach (var p in methodCall.Method.GetParameters())
                     {
-                        yield return new ParameterDescriptor(p);
+                        yield return new ParameterDescriptor(p, this);
                     }
 
                     yield break;

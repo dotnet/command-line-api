@@ -15,25 +15,25 @@ namespace System.CommandLine.Binding
             Expression<Func<TModel, TValue>> property,
             IOption option)
         {
-            ValueSources.Add(
+            NamedValueSources.Add(
                 property.MemberTypeAndName(),
-                new SpecificSymbolValueSource(option));
+                new SymbolValueSource(option));
         }
 
         public void BindMemberFromCommand<TValue>(
             Expression<Func<TModel, TValue>> property,
             ICommand command)
         {
-            ValueSources.Add(
+            NamedValueSources.Add(
                 property.MemberTypeAndName(),
-                new SpecificSymbolValueSource(command));
+                new SymbolValueSource(command));
         }
 
         public void BindMemberFromValue<TValue>(
             Expression<Func<TModel, TValue>> member,
             Func<BindingContext, TValue> getValue)
         {
-            ValueSources.Add(
+            NamedValueSources.Add(
                 member.MemberTypeAndName(),
                 new DelegateValueSource(c => getValue(c)));
         }

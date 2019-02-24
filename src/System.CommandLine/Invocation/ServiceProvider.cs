@@ -23,7 +23,7 @@ namespace System.CommandLine.Invocation
                             [typeof(IConsole)] = () => _bindingContext.Console,
                             [typeof(CancellationToken)] = () => CancellationToken.None,
                             [typeof(IHelpBuilder)] = () => _bindingContext.ParseResult.Parser.Configuration.HelpBuilderFactory.CreateHelpBuilder(_bindingContext),
-                            [typeof(BindingContext)] = () => this
+                            [typeof(BindingContext)] = () => _bindingContext
                         };
         }
 

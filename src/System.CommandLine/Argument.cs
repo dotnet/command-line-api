@@ -28,11 +28,11 @@ namespace System.CommandLine
                 {
                     if (ArgumentType != null)
                     {
-                        _arity = ArgumentArity.DefaultForType(ArgumentType);
+                        return ArgumentArity.Default(ArgumentType, Parent);
                     }
                     else
                     {
-                        _arity = ArgumentArity.Zero;
+                        return ArgumentArity.Zero;
                     }
                 }
 
@@ -85,6 +85,8 @@ namespace System.CommandLine
         public Type ArgumentType { get; set; }
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
+
+        public Symbol Parent { get; internal set; }
 
         public void AddValidator(ValidateSymbol validator) => SymbolValidators.Add(validator);
 

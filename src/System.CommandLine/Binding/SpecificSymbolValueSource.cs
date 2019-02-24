@@ -3,29 +3,27 @@
 
 namespace System.CommandLine.Binding
 {
-    internal class SpecificSymbolValueSource : IValueSource
+    internal class SymbolValueSource : IValueSource
     {
-        public SpecificSymbolValueSource(ISymbol symbol)
+        public SymbolValueSource(ISymbol symbol)
         {
             Symbol = symbol;
         }
 
         public ISymbol Symbol { get; }
 
-        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object value)
+        public bool TryGetValue(
+            IValueDescriptor valueDescriptor, 
+            BindingContext bindingContext, 
+            out object value)
         {
             var symbolResult = bindingContext.ParseResult.FindResultFor(Symbol);
 
-            if (symbolResult == null)
-            {
-                value = null;
-                return false;
-            }
-            else
-            {
-                value = symbolResult.GetValueOrDefault();
-                return true;
-            }
+            value = symbolResult == null
+                        ? Symbol.GetDefaultValue()
+                        : symbolResult.GetValueOrDefault();
+
+            return true;
         }
     }
 }

@@ -9,20 +9,27 @@ namespace System.CommandLine.Binding
     {
         private readonly ParameterInfo _parameterInfo;
 
-        public ParameterDescriptor(ParameterInfo parameterInfo)
+        internal ParameterDescriptor(
+            ParameterInfo parameterInfo,
+            IMethodDescriptor parent)
         {
+            Parent = parent;
             _parameterInfo = parameterInfo;
         }
 
         public string Name => _parameterInfo.Name;
 
+        public IMethodDescriptor Parent { get; }
+
         public Type Type => _parameterInfo.ParameterType;
 
         public bool HasDefaultValue => _parameterInfo.HasDefaultValue;
 
-        public object GetDefaultValue()
-        {
-            return _parameterInfo.DefaultValue;
-        }
+        public object GetDefaultValue() =>
+            _parameterInfo.DefaultValue is DBNull
+                ? Type.GetDefaultValueForType()
+                : _parameterInfo.DefaultValue;
+
+        public override string ToString() => $"{Type.Name} {Name}";
     }
 }

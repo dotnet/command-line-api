@@ -99,6 +99,28 @@ namespace System.CommandLine.Tests.Binding
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
 
+        [Fact]
+        public void Command_Argument_defaults_arity_to_ZeroOrOne_for_nullable_types()
+        {
+            var command = new Command("the-command")
+                          {
+                              Argument = new Argument<int?>()
+                          };
+
+            command.Argument.Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
+        }
+
+        [Fact]
+        public void Option_Argument_defaults_arity_to_ExactlyOne_for_nullable_types()
+        {
+            var option = new Option("-i")
+                         {
+                             Argument = new Argument<int?>()
+                         };
+
+            option.Argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
+        }
+
         [Theory]
         [InlineData(typeof(int[]))]
         [InlineData(typeof(IEnumerable<int>))]
@@ -413,7 +435,7 @@ namespace System.CommandLine.Tests.Binding
         [InlineData("c -a o c c")]
         [InlineData("c c -a o c")]
         [InlineData("c c c")]
-        public void When_command_has_arity_greater_than_one_it_captures_arguments_before_and_after_option(string commandLine)
+        public void When_command_argument_has_arity_greater_than_one_it_captures_arguments_before_and_after_option(string commandLine)
         {
             var command = new Command("the-command")
                           {
@@ -631,6 +653,38 @@ namespace System.CommandLine.Tests.Binding
                 });
 
             var value = option.Parse("-x 123").ValueForOption<int>("x");
+
+            value.Should().Be(123);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_int_with_no_value_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option(
+                "-x",
+                "",
+                new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                });
+
+            var value = option.Parse("").ValueForOption<int?>("x");
+
+            value.Should().BeNull();
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_int_with_a_value_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option(
+                "-x",
+                "",
+                new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                });
+
+            var value = option.Parse("-x 123").ValueForOption<int?>("x");
 
             value.Should().Be(123);
         }

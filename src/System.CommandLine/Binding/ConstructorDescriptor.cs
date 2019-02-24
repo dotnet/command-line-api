@@ -7,27 +7,33 @@ using System.Reflection;
 
 namespace System.CommandLine.Binding
 {
-    public class ConstructorDescriptor
+    public class ConstructorDescriptor : IMethodDescriptor
     {
-        private readonly List<ParameterDescriptor> _parameterDescriptors = new List<ParameterDescriptor>();
+        private List<ParameterDescriptor> _parameterDescriptors;
 
         private readonly ConstructorInfo _constructorInfo;
 
-        internal ConstructorDescriptor(ConstructorInfo constructorInfo)
+        internal ConstructorDescriptor(
+            ConstructorInfo constructorInfo,
+            ModelDescriptor parent)
         {
+            Parent = parent;
             _constructorInfo = constructorInfo;
-
-            foreach (var parameterInfo in _constructorInfo.GetParameters())
-            {
-                _parameterDescriptors.Add(new ParameterDescriptor(parameterInfo));
-            }
         }
 
-        public IReadOnlyList<ParameterDescriptor> ParameterDescriptors => _parameterDescriptors;
+        public ModelDescriptor Parent { get; }
+
+        public IReadOnlyList<ParameterDescriptor> ParameterDescriptors =>
+            _parameterDescriptors
+            ??
+            (_parameterDescriptors = _constructorInfo.GetParameters().Select(p => new ParameterDescriptor(p, this)).ToList());
 
         internal object Invoke(IReadOnlyCollection<object> parameters)
         {
             return _constructorInfo.Invoke(parameters.ToArray());
         }
+
+        public override string ToString() =>
+            $"{Parent} ({string.Join(", ", ParameterDescriptors)})";
     }
 }

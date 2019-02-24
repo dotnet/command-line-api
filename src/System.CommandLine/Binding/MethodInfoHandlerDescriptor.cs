@@ -34,8 +34,10 @@ namespace System.CommandLine.Binding
                 invocationTargetBinder);
         }
 
+        public override ModelDescriptor Parent => ModelDescriptor.FromType(_handlerMethodInfo.DeclaringType);
+
         protected override IEnumerable<ParameterDescriptor> InitializeParameterDescriptors() =>
             _handlerMethodInfo.GetParameters()
-                              .Select(p => new ParameterDescriptor(p));
+                              .Select(p => new ParameterDescriptor(p, this));
     }
 }

@@ -10,6 +10,12 @@ namespace System.CommandLine.Binding
             IValueDescriptor valueDescriptor,
             IValueSource valueSource)
         {
+            if (value != null &&
+                !valueDescriptor.Type.IsInstanceOfType(value))
+            {
+                throw new ArgumentException($"Value {value} ({value.GetType()}) must be an instance of type {valueDescriptor.Type}");
+            }
+
             Value = value;
             ValueDescriptor = valueDescriptor;
             ValueSource = valueSource;
@@ -20,6 +26,8 @@ namespace System.CommandLine.Binding
         public IValueSource ValueSource { get; }
 
         public object Value { get; }
+
+        public override string ToString() => $"{ValueDescriptor}: {Value}";
 
         public static BoundValue DefaultForType(IValueDescriptor valueDescriptor)
         {
