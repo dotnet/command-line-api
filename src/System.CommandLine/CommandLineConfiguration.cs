@@ -117,7 +117,7 @@ namespace System.CommandLine
             _middlewarePipeline ??
             (_middlewarePipeline = new List<InvocationMiddleware>());
 
-        internal Command RootCommand { get; }
+        public Command RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
     }

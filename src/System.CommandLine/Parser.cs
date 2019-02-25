@@ -22,7 +22,7 @@ namespace System.CommandLine
         {
         }
 
-        internal CommandLineConfiguration Configuration { get; }
+        public CommandLineConfiguration Configuration { get; }
 
         public ParseResult Parse(
             IReadOnlyCollection<string> arguments,
