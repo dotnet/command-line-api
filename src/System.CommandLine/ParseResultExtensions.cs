@@ -149,7 +149,7 @@ namespace System.CommandLine
             this ParseResult parseResult,
             int? position = null)
         {
-            var currentSymbolResult = parseResult.CurrentSymbol();
+            var currentSymbolResult = parseResult.SymbolToComplete();
             var currentSymbol = currentSymbolResult.Symbol;
 
             var currentSymbolSuggestions =
@@ -174,6 +174,41 @@ namespace System.CommandLine
             }
 
             return currentSymbolSuggestions;
+        }
+
+        internal static SymbolResult SymbolToComplete(
+            this ParseResult parseResult,
+            int? position = null)
+        {
+            var commandResult = parseResult.CommandResult;
+
+            var currentSymbol = AllSymbolResultsForCompletion()
+                .LastOrDefault();
+
+            return currentSymbol;
+
+            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
+            {
+                foreach (var item in commandResult.AllSymbolResults())
+                {
+                    if (item is CommandResult command)
+                    {
+                        yield return command;
+                    }
+                    else if (item is OptionResult option)
+                    {
+                        var willAcceptAnArgument =
+                            !option.IsImplicit &&
+                            (!option.IsArgumentLimitReached ||
+                             parseResult.TextToMatch(position).Length > 0);
+
+                        if (willAcceptAnArgument)
+                        {
+                            yield return option;
+                        }
+                    }
+                }
+            }
         }
 
         internal static IEnumerable<IValueDescriptor> ValueDescriptors(this ParseResult parseResult)

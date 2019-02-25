@@ -248,7 +248,9 @@ namespace System.CommandLine
                             return new ParseError(
                                 symbolResult.ValidationMessages
                                             .UnrecognizedArgument(arg,
-                                                                  _validValues));
+                                                                  _validValues),
+                                symbolResult,
+                                canTokenBeRetried: false);
                         }
                     }
                 }
