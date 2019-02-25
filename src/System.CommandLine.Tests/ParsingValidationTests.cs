@@ -38,8 +38,10 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x none-of-those");
 
             result.Errors
+                  .Select(e => e.Message)
+                  .Single()
                   .Should()
-                  .Contain(e => e.Message == "Required argument missing for option: -x");
+                  .Contain($"Argument 'none-of-those' not recognized. Must be one of:\n\t'this'\n\t'that'\n\t'the-other-thing'");
         }
 
         [Fact]
@@ -389,8 +391,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void
-            When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
+        public void When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
         {
             var parser = new Parser(
                 new Option(

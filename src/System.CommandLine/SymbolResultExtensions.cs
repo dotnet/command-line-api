@@ -89,41 +89,5 @@ namespace System.CommandLine
                 yield return item;
             }
         }
-
-        internal static SymbolResult CurrentSymbol(
-            this ParseResult parseResult,
-            int? position = null)
-        {
-            // TODO: (Suggestions) make this position-aware
-            var symbolResult = parseResult.CommandResult;
-
-            var currentSymbol = AllSymbolResultsForCompletion()
-                .LastOrDefault();
-
-            return currentSymbol;
-
-            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
-            {
-                foreach (var item in symbolResult.AllSymbolResults())
-                {
-                    if (item is CommandResult command)
-                    {
-                        yield return command;
-                    }
-                    else if (item is OptionResult option)
-                    {
-                        var willAcceptAnArgument =
-                            !option.IsImplicit &&
-                            (!option.IsArgumentLimitReached ||
-                             parseResult.TextToMatch(position).Length > 0);
-
-                        if (willAcceptAnArgument)
-                        {
-                            yield return option;
-                        }
-                    }
-                }
-            }
-        }
     }
 }

@@ -420,7 +420,7 @@ namespace System.CommandLine.Tests
                          .AddCommand(command)
                          .Build();
 
-            ParseResult result = parser.Parse(new[] { "outer", "two", "b" });
+            ParseResult result = parser.Parse("outer two b" );
 
             result.Suggestions()
                   .Should()
@@ -483,7 +483,7 @@ namespace System.CommandLine.Tests
             outer.AddCommand(two);
             outer.AddCommand(three);
 
-            ParseResult result = outer.Parse(new[] { "outer", "two", "b" });
+            ParseResult result = outer.Parse("outer two b");
 
             result.Suggestions()
                   .Should()
