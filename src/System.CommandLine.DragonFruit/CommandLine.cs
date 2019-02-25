@@ -116,6 +116,18 @@ namespace System.CommandLine.DragonFruit
                 command.AddOption(option);
             }
 
+            if (method.GetParameters()
+                      .FirstOrDefault(p => p.Name == "arguments" || 
+                                           p.Name == "args" ||
+                                           p.Name == "argument") is ParameterInfo argsParam)
+            {
+                command.Argument = new Argument
+                                   {
+                                       ArgumentType = argsParam.ParameterType,
+                                       Name = argsParam.Name
+                                   };
+            }
+
             command.Handler = CommandHandler.Create(method);
         }
 
