@@ -38,7 +38,7 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
-                foreach (var childSymbol in symbol.Children.FlattenBreadthFirst<Symbol>(o => o.Children))
+                foreach (var childSymbol in symbol.Children.FlattenBreadthFirst(o => o.Children))
                 {
                     if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0 && string.IsNullOrEmpty(childSymbol.Argument.Name))
                     {
@@ -117,7 +117,7 @@ namespace System.CommandLine
             _middlewarePipeline ??
             (_middlewarePipeline = new List<InvocationMiddleware>());
 
-        public Command RootCommand { get; }
+        public ICommand RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
     }

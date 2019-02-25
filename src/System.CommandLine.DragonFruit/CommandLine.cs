@@ -96,6 +96,13 @@ namespace System.CommandLine.DragonFruit
             object target = null) =>
             command.ConfigureFromMethod(method, () => target);
 
+        private static readonly string[] _argumentParameterNames =
+        {
+            "arguments",
+            "argument",
+            "args"
+        };
+
         public static void ConfigureFromMethod(
             this Command command,
             MethodInfo method,
@@ -117,9 +124,7 @@ namespace System.CommandLine.DragonFruit
             }
 
             if (method.GetParameters()
-                      .FirstOrDefault(p => p.Name == "arguments" || 
-                                           p.Name == "args" ||
-                                           p.Name == "argument") is ParameterInfo argsParam)
+                      .FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is ParameterInfo argsParam)
             {
                 command.Argument = new Argument
                                    {
@@ -215,6 +220,7 @@ namespace System.CommandLine.DragonFruit
 
             foreach (var option in descriptor.ParameterDescriptors
                                              .Where(d => !omittedTypes.Contains (d.Type))
+                                             .Where(d => !_argumentParameterNames.Contains(d.Name))
                                              .Select(p => p.BuildOption()))
             {
                 yield return option;

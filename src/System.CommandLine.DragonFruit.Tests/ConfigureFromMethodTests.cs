@@ -105,6 +105,31 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         [Theory]
+        [InlineData(nameof(Method_having_string_array_arguments))]
+        [InlineData(nameof(Method_having_FileInfo_argument))]
+        [InlineData(nameof(Method_having_FileInfo_array_args))]
+        public void Options_are_not_generated_for_command_argument_parameters(string methodName)
+        {
+            var parser = new CommandLineBuilder()
+                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
+                         .Build();
+
+            var rootCommandArgument = parser.Configuration.RootCommand;
+
+            var argumentParameterNames = new[]
+                                         {
+                                             "arguments",
+                                             "argument",
+                                             "args"
+                                         };
+
+            rootCommandArgument.Children
+                               .OfType<IOption>()
+                               .Should()
+                               .NotContain(o => argumentParameterNames.Contains(o.Name));
+        }
+
+        [Theory]
         [InlineData(nameof(Method_having_string_array_arguments), typeof(string[]))]
         [InlineData(nameof(Method_having_FileInfo_argument), typeof(FileInfo))]
         [InlineData(nameof(Method_having_FileInfo_array_args), typeof(FileInfo[]))]
@@ -118,7 +143,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
             var rootCommandArgument = parser.Configuration.RootCommand.Argument;
 
-            rootCommandArgument.ArgumentType
+            rootCommandArgument.Type
                                .Should()
                                .Be(expectedType);
         }
