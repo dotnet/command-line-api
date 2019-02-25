@@ -72,7 +72,9 @@ namespace System.CommandLine
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
                 type != typeof(string))
             {
-                return OneOrMore;
+                return symbol is ICommand
+                           ? ZeroOrMore
+                           : OneOrMore;
             }
 
             if (type == typeof(bool))
@@ -80,9 +82,9 @@ namespace System.CommandLine
                 return ZeroOrOne;
             }
 
-            if (type.IsValueType && 
+            if (type.IsValueType &&
                 symbol is ICommand &&
-                type.IsGenericType && 
+                type.IsGenericType &&
                 type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 return ZeroOrOne;

@@ -6,6 +6,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Tests;
 using System.CommandLine.Tests.Binding;
+using System.IO;
 using FluentAssertions;
 using System.Linq;
 using System.Reflection;
@@ -64,6 +65,87 @@ namespace System.CommandLine.DragonFruit.Tests
 
             _receivedValues.Should()
                            .BeEquivalentSequenceTo(123, 456);
+        }
+
+        [Theory]
+        [InlineData(nameof(Method_having_string_array_arguments), 0, int.MaxValue)]
+        [InlineData(nameof(Method_having_FileInfo_argument), 1, 1)]
+        [InlineData(nameof(Method_having_FileInfo_array_args), 0, int.MaxValue)]
+        public void Parameters_named_arguments_generate_command_arguments_having_the_correct_arity(
+            string methodName,
+            int minNumberOfArgs,
+            int maxNumberOfArgs)
+        {
+            var parser = new CommandLineBuilder()
+                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
+                         .Build();
+
+            var rootCommandArgument = parser.Configuration.RootCommand.Argument;
+
+            rootCommandArgument.Arity
+                               .Should()
+                               .BeEquivalentTo(new ArgumentArity(minNumberOfArgs, maxNumberOfArgs));
+        }
+
+        [Theory]
+        [InlineData(nameof(Method_having_string_array_arguments), "arguments")]
+        [InlineData(nameof(Method_having_FileInfo_argument), "argument")]
+        [InlineData(nameof(Method_having_FileInfo_array_args), "args")]
+        public void Parameters_named_arguments_generate_command_arguments_having_the_correct_name(string methodName, string expectedArgName)
+        {
+            var parser = new CommandLineBuilder()
+                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
+                         .Build();
+
+            var rootCommandArgument = parser.Configuration.RootCommand.Argument;
+
+            rootCommandArgument.Name
+                               .Should()
+                               .Be(expectedArgName);
+        }
+
+        [Theory]
+        [InlineData(nameof(Method_having_string_array_arguments))]
+        [InlineData(nameof(Method_having_FileInfo_argument))]
+        [InlineData(nameof(Method_having_FileInfo_array_args))]
+        public void Options_are_not_generated_for_command_argument_parameters(string methodName)
+        {
+            var parser = new CommandLineBuilder()
+                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
+                         .Build();
+
+            var rootCommandArgument = parser.Configuration.RootCommand;
+
+            var argumentParameterNames = new[]
+                                         {
+                                             "arguments",
+                                             "argument",
+                                             "args"
+                                         };
+
+            rootCommandArgument.Children
+                               .OfType<IOption>()
+                               .Should()
+                               .NotContain(o => argumentParameterNames.Contains(o.Name));
+        }
+
+        [Theory]
+        [InlineData(nameof(Method_having_string_array_arguments), typeof(string[]))]
+        [InlineData(nameof(Method_having_FileInfo_argument), typeof(FileInfo))]
+        [InlineData(nameof(Method_having_FileInfo_array_args), typeof(FileInfo[]))]
+        public void Parameters_named_arguments_generate_command_arguments_having_the_correct_type(
+            string methodName,
+            Type expectedType)
+        {
+            var parser = new CommandLineBuilder()
+                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
+                         .Build();
+
+            var rootCommandArgument = parser.Configuration.RootCommand.Argument;
+
+            rootCommandArgument.Type
+                               .Should()
+                               .Be(expectedType);
         }
 
         [Fact]
@@ -148,6 +230,17 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             await Task.Yield();
             return i;
+        }
+
+        internal void Method_having_string_array_arguments(string stringOption, int intOption, string[] arguments)
+        {
+        }
+
+        internal void Method_having_FileInfo_argument(string stringOption, int intOption, FileInfo argument)
+        {
+        }
+        internal void Method_having_FileInfo_array_args(string stringOption, int intOption, FileInfo[] args)
+        {
         }
 
         private MethodInfo GetMethodInfo(string name)
