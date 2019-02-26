@@ -132,7 +132,8 @@ namespace System.CommandLine.Invocation
         }
 
         public static CommandLineBuilder UseExceptionHandler(
-            this CommandLineBuilder builder)
+            this CommandLineBuilder builder,
+            Action<Exception, InvocationContext> onException = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
@@ -142,19 +143,24 @@ namespace System.CommandLine.Invocation
                 }
                 catch (Exception exception)
                 {
-                    context.Console.ResetTerminalForegroundColor();
-                    context.Console.SetTerminalForegroundRed();
-
-                    context.Console.Error.Write("Unhandled exception: ");
-                    context.Console.Error.WriteLine(exception.ToString());
-                        
-                    context.Console.ResetTerminalForegroundColor();
-
-                    context.ResultCode = 1;
+                    (onException ?? Default)(exception, context);
                 }
             }, order: CommandLineBuilder.MiddlewareOrder.ExceptionHandler);
 
             return builder;
+
+            void Default(Exception exception, InvocationContext context)
+            {
+                context.Console.ResetTerminalForegroundColor();
+                context.Console.SetTerminalForegroundRed();
+
+                context.Console.Error.Write("Unhandled exception: ");
+                context.Console.Error.WriteLine(exception.ToString());
+
+                context.Console.ResetTerminalForegroundColor();
+
+                context.ResultCode = 1;
+            }
         }
 
         public static CommandLineBuilder UseParseDirective(

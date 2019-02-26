@@ -25,7 +25,11 @@ namespace System.CommandLine.Invocation
             foreach (var token in result.UnmatchedTokens)
             {
                 string suggestions = string.Join(", or ", GetPossibleTokens(result.CommandResult.Command, token).Select(x => $"'{x}'"));
-                console.Out.WriteLine($"'{token}' was not matched. Did you mean {suggestions}?{Environment.NewLine}");
+
+                if (suggestions.Any())
+                {
+                    console.Out.WriteLine($"'{token}' was not matched. Did you mean {suggestions}?");
+                }
             }
         }
 
