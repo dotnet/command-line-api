@@ -14,11 +14,13 @@ namespace System.CommandLine
             this ParseResult source,
             int? position = null)
         {
-            var lastToken = source.Tokens.LastOrDefault();
+            var lastToken = source.Tokens
+                                  .LastOrDefault(t => t.Type != TokenType.Directive)
+                                  ?.Value ?? "";
 
             if (string.IsNullOrWhiteSpace(source.RawInput))
             {
-                return source.UnmatchedTokens.LastOrDefault() ?? "";
+                return lastToken;
             }
 
             if (position == null)
@@ -26,7 +28,7 @@ namespace System.CommandLine
                 // assume the cursor is at the end of the input
                 if (!source.RawInput.EndsWith(" "))
                 {
-                    return lastToken.Value;
+                    return lastToken;
                 }
                 else
                 {
