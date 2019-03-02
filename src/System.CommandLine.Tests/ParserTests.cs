@@ -7,7 +7,6 @@ using System.IO;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions.Common;
 using Xunit;
 using Xunit.Abstractions;

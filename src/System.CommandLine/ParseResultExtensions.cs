@@ -15,33 +15,41 @@ namespace System.CommandLine
             int? position = null)
         {
             var lastToken = source.Tokens
-                                  .LastOrDefault(t => t.Type != TokenType.Directive)
-                                  ?.Value ?? "";
+                                  .LastOrDefault(t => t.Type != TokenType.Directive);
 
-            if (string.IsNullOrWhiteSpace(source.RawInput))
+            string textToMatch = null;
+            var rawInput = source.RawInput;
+
+            if (position == null &&
+                source.RawInput != null)
             {
-                return lastToken;
+                position = source.RawInput.Length;
+            }
+            else if (lastToken?.Value != null)
+            {
+                textToMatch = lastToken.Value;
             }
 
-            if (position == null)
+            if (position != null)
             {
-                // assume the cursor is at the end of the input
-                if (!source.RawInput.EndsWith(" "))
+                var textBeforeCursor = rawInput.Substring(0, position.Value);
+
+                var textAfterCursor = rawInput.Substring(position.Value);
+
+                return textBeforeCursor.Split(' ').LastOrDefault() +
+                       textAfterCursor.Split(' ').FirstOrDefault();
+            }
+
+            if (string.IsNullOrWhiteSpace(rawInput))
+            {
+                if (source.UnmatchedTokens.Any() ||
+                    lastToken?.Type == TokenType.Argument)
                 {
-                    return lastToken;
-                }
-                else
-                {
-                    return "";
+                    return textToMatch;
                 }
             }
 
-            var textBeforeCursor = source.RawInput.Substring(0, position.Value);
-
-            var textAfterCursor = source.RawInput.Substring(position.Value);
-
-            return textBeforeCursor.Split(' ').LastOrDefault() +
-                   textAfterCursor.Split(' ').FirstOrDefault();
+            return "";
         }
 
         public static string Diagram(this ParseResult result)
@@ -151,7 +159,7 @@ namespace System.CommandLine
             this ParseResult parseResult,
             int? position = null)
         {
-            var currentSymbolResult = parseResult.SymbolToComplete();
+            var currentSymbolResult = parseResult.SymbolToComplete(position);
             var currentSymbol = currentSymbolResult.Symbol;
 
             var currentSymbolSuggestions =
@@ -159,23 +167,49 @@ namespace System.CommandLine
                     ? currentSuggestionSource.Suggest(parseResult, position)
                     : Array.Empty<string>();
 
+            IEnumerable<string> siblingSuggestions;
+
+            if (currentSymbol.Parent == null ||
+                !currentSymbolResult.IsArgumentLimitReached)
+            {
+                siblingSuggestions = Array.Empty<string>();
+            }
+            else
+            {
+                siblingSuggestions = currentSymbol.Parent
+                                                  .Suggest(parseResult, position)
+                                                  .Except(currentSymbol.Parent
+                                                                       .Children
+                                                                       .OfType<ICommand>()
+                                                                       .Select(c => c.Name));
+            }
+
             if (currentSymbolResult is CommandResult commandResult)
             {
+                currentSymbolSuggestions = currentSymbolSuggestions
+                    .Except(OptionsWithArgumentLimitReached(currentSymbolResult));
+
+                if (currentSymbolResult.Parent is CommandResult parent)
+                {
+                    siblingSuggestions = siblingSuggestions.Except(OptionsWithArgumentLimitReached(parent));
+                }
+            }
+
+            return currentSymbolSuggestions.Concat(siblingSuggestions);
+
+            string[] OptionsWithArgumentLimitReached(SymbolResult symbolResult)
+            {
                 var optionsWithArgLimitReached =
-                    currentSymbolResult
+                    symbolResult
                         .Children
                         .Where(c => c.IsArgumentLimitReached);
 
-                var exclude =
-                    optionsWithArgLimitReached
-                        .SelectMany(c => c.Symbol.RawAliases)
-                        .Concat(commandResult.Symbol.RawAliases)
-                        .ToArray();
-
-                currentSymbolSuggestions = currentSymbolSuggestions.Except(exclude);
+                var exclude = optionsWithArgLimitReached
+                              .SelectMany(c => c.Symbol.RawAliases)
+                              .Concat(commandResult.Symbol.RawAliases)
+                              .ToArray();
+                return exclude;
             }
-
-            return currentSymbolSuggestions;
         }
 
         internal static SymbolResult SymbolToComplete(

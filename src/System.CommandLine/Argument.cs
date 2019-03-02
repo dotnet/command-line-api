@@ -15,6 +15,7 @@ namespace System.CommandLine
         private IArgumentArity _arity;
         private HashSet<string> _validValues;
         private ConvertArgument _convertArguments;
+        private Symbol _parent;
 
         public string Name { get; set; }
 
@@ -86,7 +87,24 @@ namespace System.CommandLine
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
 
-        public Symbol Parent { get; internal set; }
+        public Symbol Parent
+        {
+            get => _parent;
+            internal set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                if (_parent != null)
+                {
+                    throw new InvalidOperationException($"{nameof(Parent)} is already set.");
+                }
+
+                _parent = value;
+            }
+        }
 
         public void AddValidator(ValidateSymbol validator) => SymbolValidators.Add(validator);
 
