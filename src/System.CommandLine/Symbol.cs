@@ -128,18 +128,21 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public virtual IEnumerable<string> Suggest(
+        public IEnumerable<string> Suggest(
             ParseResult parseResult,
             int? position = null)
         {
             var argumentSuggestions =
-                Argument.Suggest(parseResult, position);
+                Argument.Suggest(parseResult, position)
+                        .ToArray();
+
+            var textToMatch = parseResult.TextToMatch(position);
 
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
                        .Distinct()
                        .OrderBy(symbol => symbol)
-                       .Containing(parseResult.TextToMatch(position));
+                       .Containing(textToMatch);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";

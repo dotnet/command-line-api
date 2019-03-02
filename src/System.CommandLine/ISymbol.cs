@@ -6,7 +6,7 @@ using System.CommandLine.Binding;
 
 namespace System.CommandLine
 {
-    public interface ISymbol : IValueDescriptor
+    public interface ISymbol : IValueDescriptor, ISuggestionSource
     {
         string Description { get; }
 

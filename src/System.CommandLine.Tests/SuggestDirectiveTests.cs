@@ -207,17 +207,9 @@ namespace System.CommandLine.Tests
                           };
             command.Argument = new Argument<string>();
 
-            command.Parse("opt")
-                   .Suggestions()
-                   .Should()
-                   .BeEquivalentTo("--option1", "--option2");
-
             var console = new TestConsole();
 
-            await new CommandLineBuilder(command)
-                  .UseDefaults()
-                  .Build()
-                  .InvokeAsync("[suggest] opt", console);
+            await command.InvokeAsync("[suggest] opt", console);
 
             console.Out
                    .ToString()
