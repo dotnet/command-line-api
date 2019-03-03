@@ -1,7 +1,8 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -43,5 +44,12 @@ namespace System.CommandLine
                 yield return source;
             }
         }
+
+        internal static bool None<TSource>(this IEnumerable<TSource> source) 
+            => !source.Any();
+
+        internal static bool None<TSource>(this IEnumerable<TSource> source,
+                                         Func<TSource, bool> predicate) 
+            => !source.Any(predicate);
     }
 }

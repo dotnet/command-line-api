@@ -9,7 +9,7 @@ namespace System.CommandLine
     public abstract class SymbolResult
     {
         private readonly List<string> _arguments = new List<string>();
-        private ArgumentParseResult _result;
+        private ArgumentResult _result;
 
         private ValidationMessages _validationMessages = ValidationMessages.Instance;
 
@@ -80,13 +80,7 @@ namespace System.CommandLine
             }
 
             if (!OptionWasRespecified)
-            {
-                if (Symbol is IOption)
-                {
-                    // Options must be respecified in order to accept additional arguments. This is not the case for command.
-                    return null;
-                }
-           
+            {          
                 if (IsArgumentLimitReached)
                 {
                     return null;
@@ -139,7 +133,7 @@ namespace System.CommandLine
             }
         }
 
-        public ArgumentParseResult Result
+        public ArgumentResult ArgumentResult
         {
             get
             {

@@ -7,7 +7,9 @@ namespace System.CommandLine.Invocation
     {
         public void Apply(InvocationContext context)
         {
-            context.HelpBuilder.Write(context.ParseResult.CommandResult.Command);
+            context.BindingContext
+                   .HelpBuilder
+                   .Write(context.ParseResult.CommandResult.Command);
         }
     }
 }

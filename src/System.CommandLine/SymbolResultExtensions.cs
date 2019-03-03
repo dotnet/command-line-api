@@ -20,16 +20,11 @@ namespace System.CommandLine
                 return default;
             }
 
-            ArgumentParseResult result = symbolResult.Result;
+            var result = symbolResult.ArgumentResult;
 
-            if (result is SuccessfulArgumentParseResult successfulResult)
+            if (result is SuccessfulArgumentResult)
             {
-                if (!successfulResult.HasValue)
-                {
-                    return default;
-                }
-
-                object value = ((dynamic)symbolResult.Result).Value;
+                object value = ((dynamic)result).Value;
 
                 switch (value)
                 {
@@ -59,8 +54,7 @@ namespace System.CommandLine
                         return default;
                 }
 
-                if (result is SuccessfulArgumentParseResult success &&
-                    success.HasValue)
+                if (result is SuccessfulArgumentResult)
                 {
                     value = ((dynamic)result).Value;
                 }
@@ -71,7 +65,7 @@ namespace System.CommandLine
                 }
             }
 
-            if (result is FailedArgumentParseResult failed)
+            if (result is FailedArgumentResult failed)
             {
                 throw new InvalidOperationException(failed.ErrorMessage);
             }
@@ -93,42 +87,6 @@ namespace System.CommandLine
                                  .FlattenBreadthFirst(o => o.Children))
             {
                 yield return item;
-            }
-        }
-
-        internal static SymbolResult CurrentSymbol(
-            this ParseResult parseResult,
-            int? position = null)
-        {
-            // TODO: (Suggestions) make this position-aware
-            var symbolResult = parseResult.CommandResult;
-
-            var currentSymbol = AllSymbolResultsForCompletion()
-                .LastOrDefault();
-
-            return currentSymbol;
-
-            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
-            {
-                foreach (var item in symbolResult.AllSymbolResults())
-                {
-                    if (item is CommandResult command)
-                    {
-                        yield return command;
-                    }
-                    else if (item is OptionResult option)
-                    {
-                        var willAcceptAnArgument =
-                            !option.IsImplicit &&
-                            (!option.IsArgumentLimitReached ||
-                             parseResult.TextToMatch(position).Length > 0);
-
-                        if (willAcceptAnArgument)
-                        {
-                            yield return option;
-                        }
-                    }
-                }
             }
         }
     }

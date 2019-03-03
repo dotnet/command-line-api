@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine
@@ -12,6 +13,7 @@ namespace System.CommandLine
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string _longestAlias = "";
         private string _specifiedName;
+        private Argument _argument;
 
         protected Symbol(
             IReadOnlyCollection<string> aliases,
@@ -45,7 +47,19 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
-        public Argument Argument { get; set; }
+        public Argument Argument 
+        { 
+            get => _argument;
+            set
+            {
+                if (value?.Arity.MaximumNumberOfArguments > 0 && string.IsNullOrEmpty(value.Name))
+                {
+                    value.Name = _aliases.First().ToUpper();
+                }
+                _argument = value ?? Argument.None; 
+                _argument.Parent = this;
+            } 
+        }
 
         public string Description { get; set; }
 
@@ -114,18 +128,21 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public virtual IEnumerable<string> Suggest(
+        public IEnumerable<string> Suggest(
             ParseResult parseResult,
             int? position = null)
         {
             var argumentSuggestions =
-                Argument.Suggest(parseResult, position);
+                Argument.Suggest(parseResult, position)
+                        .ToArray();
+
+            var textToMatch = parseResult.TextToMatch(position);
 
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
                        .Distinct()
                        .OrderBy(symbol => symbol)
-                       .Containing(parseResult.TextToMatch(position));
+                       .Containing(textToMatch);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";
@@ -135,5 +152,11 @@ namespace System.CommandLine
         ICommand ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;
+
+        Type IValueDescriptor.Type => Argument.ArgumentType;
+
+        bool IValueDescriptor.HasDefaultValue  => Argument.HasDefaultValue;
+
+        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

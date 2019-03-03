@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Builder;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -69,11 +71,11 @@ namespace System.CommandLine.Invocation
 
         public static CommandLineBuilder ConfigureConsole(
             this CommandLineBuilder builder,
-            Func<InvocationContext, IConsole> createConsole)
+            Func<BindingContext, IConsole> createConsole)
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                context.ConsoleFactory = new AnonymousConsoleFactory(createConsole);
+                context.BindingContext.ConsoleFactory = new AnonymousConsoleFactory(createConsole);
                 await next(context);
             }, CommandLineBuilder.MiddlewareOrder.Middle);
 
@@ -111,11 +113,16 @@ namespace System.CommandLine.Invocation
             {
                 if (context.ParseResult.Directives.Contains("debug"))
                 {
-                    var processId = Diagnostics.Process.GetCurrentProcess().Id;
+                    var process = Diagnostics.Process.GetCurrentProcess();
 
-                    context.Console.Out.WriteLine($"Attach your debugger to process {processId} and then press any key.");
+                    var processId = process.Id;
 
-                    Console.ReadKey();
+                    context.Console.Out.WriteLine($"Attach your debugger to process {processId} ({process.ProcessName}).");
+
+                    while (!Debugger.IsAttached)
+                    {
+                        await Task.Delay(500);
+                    }
                 }
 
                 await next(context);
@@ -125,7 +132,8 @@ namespace System.CommandLine.Invocation
         }
 
         public static CommandLineBuilder UseExceptionHandler(
-            this CommandLineBuilder builder)
+            this CommandLineBuilder builder,
+            Action<Exception, InvocationContext> onException = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
@@ -135,25 +143,31 @@ namespace System.CommandLine.Invocation
                 }
                 catch (Exception exception)
                 {
-                    context.Console.ResetTerminalForegroundColor();
-                    context.Console.SetTerminalForegroundRed();
-
-                    context.Console.Error.Write("Unhandled exception: ");
-                    context.Console.Error.WriteLine(exception.ToString());
-
-                    context.Console.ResetTerminalForegroundColor();
-
-                    context.ResultCode = 1;
+                    (onException ?? Default)(exception, context);
                 }
             }, order: CommandLineBuilder.MiddlewareOrder.ExceptionHandler);
 
             return builder;
+
+            void Default(Exception exception, InvocationContext context)
+            {
+                context.Console.ResetTerminalForegroundColor();
+                context.Console.SetTerminalForegroundRed();
+
+                context.Console.Error.Write("Unhandled exception: ");
+                context.Console.Error.WriteLine(exception.ToString());
+
+                context.Console.ResetTerminalForegroundColor();
+
+                context.ResultCode = 1;
+            }
         }
 
         public static CommandLineBuilder UseParseDirective(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) => {
+            builder.AddMiddleware(async (context, next) =>
+            {
                 if (context.ParseResult.Directives.Contains("parse"))
                 {
                     context.InvocationResult = new ParseDirectiveResult();
@@ -170,7 +184,8 @@ namespace System.CommandLine.Invocation
         public static CommandLineBuilder UseSuggestDirective(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) => {
+            builder.AddMiddleware(async (context, next) =>
+            {
                 if (context.ParseResult.Directives.Contains("suggest"))
                 {
                     context.InvocationResult = new SuggestDirectiveResult();
@@ -184,11 +199,29 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
+        public static CommandLineBuilder UseTypoCorrections(
+            this CommandLineBuilder builder, int maxLevenshteinDistance = 3)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                if (context.ParseResult.UnmatchedTokens.Any() &&
+                    context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors)
+                {
+                    var typoCorrection = new TypoCorrection(maxLevenshteinDistance);
+                    
+                    typoCorrection.ProvideSuggestions(context.ParseResult, context.Console);
+                }
+                await next(context);
+            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+
+            return builder;
+        }
+
         public static async Task<int> InvokeAsync(
             this Parser parser,
             ParseResult parseResult,
             IConsole console = null) =>
-            await new InvocationPipeline(parser, parseResult)
+            await new InvocationPipeline(parseResult)
                 .InvokeAsync(console);
 
         public static Task<int> InvokeAsync(
@@ -220,13 +253,14 @@ namespace System.CommandLine.Invocation
 
             var parseResult = parser.Parse(args);
 
-            return await new InvocationPipeline(parser, parseResult)
+            return await new InvocationPipeline(parseResult)
                        .InvokeAsync(console);
         }
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) => {
+            builder.AddMiddleware(async (context, next) =>
+            {
                 var helpOptionTokens = new HashSet<string>();
                 var prefixes = context.Parser.Configuration.Prefixes;
                 if (prefixes == null)
@@ -262,7 +296,8 @@ namespace System.CommandLine.Invocation
             this CommandLineBuilder builder,
             IReadOnlyCollection<string> helpOptionTokens)
         {
-            builder.AddMiddleware(async (context, next) => {
+            builder.AddMiddleware(async (context, next) =>
+            {
                 if (!ShowHelp(context, helpOptionTokens))
                 {
                     await next(context);
@@ -274,7 +309,8 @@ namespace System.CommandLine.Invocation
         public static CommandLineBuilder UseParseErrorReporting(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) => {
+            builder.AddMiddleware(async (context, next) =>
+            {
                 if (context.ParseResult.Errors.Count > 0)
                 {
                     context.InvocationResult = new ParseErrorResult();
@@ -332,7 +368,7 @@ namespace System.CommandLine.Invocation
         {
             var lastToken = context.ParseResult.Tokens.LastOrDefault();
 
-            if (helpOptionAliases.Contains(lastToken) &&
+            if (helpOptionAliases.Contains(lastToken?.Value) &&
                 !TokenIsDefinedInSyntax())
             {
                 context.InvocationResult = new HelpResult();

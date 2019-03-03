@@ -38,6 +38,15 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
+                foreach (var childSymbol in symbol.Children.FlattenBreadthFirst(o => o.Children))
+                {
+                    if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0 && string.IsNullOrEmpty(childSymbol.Argument.Name))
+                    {
+                        throw new ArgumentException(
+                            ValidationMessages.RequiredArgumentNameMissing(childSymbol.Aliases.FirstOrDefault()));
+                    }
+                }
+
                 foreach (var alias in symbol.RawAliases)
                 {
                     foreach (var delimiter in ArgumentDelimiters)
@@ -108,7 +117,7 @@ namespace System.CommandLine
             _middlewarePipeline ??
             (_middlewarePipeline = new List<InvocationMiddleware>());
 
-        internal Command RootCommand { get; }
+        public ICommand RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
     }

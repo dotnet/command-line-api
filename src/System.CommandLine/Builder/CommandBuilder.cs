@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine.Builder
@@ -17,12 +16,6 @@ namespace System.CommandLine.Builder
         public Command Command { get; }
 
         public IEnumerable<Option> Options => Command.Children.OfType<Option>();
-
-        internal ICommandHandler Handler
-        {
-            get => Command.Handler;
-            set => Command.Handler = value;
-        }
 
         internal void AddCommand(Command command) => Command.AddCommand(command);
 

@@ -14,11 +14,16 @@ namespace System.CommandLine
 
         public ICommand Command { get; }
 
-        public OptionResult this[string alias] => (OptionResult) Children[alias];
+        public OptionResult this[string alias] => OptionResult(alias);
+
+        public OptionResult OptionResult(string alias)
+        {
+            return Children[alias] as OptionResult;
+        }
 
         internal void AddImplicitOption(IOption option)
         {
-            Children.Add(OptionResult.CreateImplicit(option, this));
+            Children.Add(CommandLine.OptionResult.CreateImplicit(option, this));
         }
 
         internal override SymbolResult TryTakeToken(Token token) =>

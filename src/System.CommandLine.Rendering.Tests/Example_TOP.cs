@@ -66,7 +66,7 @@ PID    COMMAND      %CPU TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PP
 
             consoleRenderer = new ConsoleRenderer(
                 _terminal,
-                OutputMode.File);
+                OutputMode.PlainText);
         }
 
         [Fact]

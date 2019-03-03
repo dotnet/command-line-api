@@ -43,9 +43,14 @@ namespace System.CommandLine.Builder
                 }
             });
 
-        public static CommandLineBuilder AddVersionOption(
+        public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder)
         {
+            if (builder.Command.Children.GetByAlias("--version") != null)
+            {
+                return builder;
+            }
+
             var versionOption = new Option("--version", "Display version information");
 
             builder.AddOption(versionOption);
@@ -61,51 +66,6 @@ namespace System.CommandLine.Builder
                     await next(context);
                 }
             }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
-
-            return builder;
-        }
-
-        public static TBuilder ConfigureFromMethod<TBuilder>(
-            this TBuilder builder,
-            MethodInfo method,
-            object target = null)
-            where TBuilder : CommandBuilder
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-
-            builder.Command.ConfigureFromMethod(method, target);
-
-            return builder;
-        }
-
-        public static CommandLineBuilder ConfigureFromType<T>(
-            this CommandLineBuilder builder,
-            MethodInfo onExecuteMethod = null)
-            where T : class
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            var typeBinder = new TypeBinder(typeof(T));
-
-            foreach (var option in typeBinder.BuildOptions())
-            {
-                builder.AddOption(option);
-            }
-
-            builder.Handler = new TypeBindingCommandHandler(
-                onExecuteMethod,
-                typeBinder);
 
             return builder;
         }
@@ -137,12 +97,13 @@ namespace System.CommandLine.Builder
         public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
         {
             return builder
-                   .AddVersionOption()
+                   .UseVersionOption()
                    .UseHelp()
                    .UseParseDirective()
                    .UseDebugDirective()
                    .UseSuggestDirective()
                    .RegisterWithDotnetSuggest()
+                   .UseTypoCorrections()
                    .UseParseErrorReporting()
                    .UseExceptionHandler()
                    .CancelOnProcessTermination();

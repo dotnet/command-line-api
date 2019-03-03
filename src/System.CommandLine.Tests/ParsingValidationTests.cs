@@ -5,6 +5,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -37,8 +38,10 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-x none-of-those");
 
             result.Errors
+                  .Select(e => e.Message)
+                  .Single()
                   .Should()
-                  .Contain(e => e.Message == "Required argument missing for option: -x");
+                  .Contain($"Argument 'none-of-those' not recognized. Must be one of:\n\t'this'\n\t'that'\n\t'the-other-thing'");
         }
 
         [Fact]
@@ -192,6 +195,66 @@ namespace System.CommandLine.Tests
                                 e.Message == $"File does not exist: {guid}");
         }
 
+        [Fact] 
+        public void An_argument_with_multiple_file_info_can_be_invalid_based_on_first_file_existence()
+        {
+            var command = new Command(
+                "move",
+                argument: new Argument<FileInfo[]>
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }.ExistingOnly());
+            command.AddOption(
+                new Option(
+                    "--to",
+                    argument: new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }));
+
+            Guid guid1 = Guid.NewGuid();
+            Guid guid2 = Guid.NewGuid();
+            var result =
+                command.Parse(
+                    $@"move ""{guid1}"" ""{guid2}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+
+            result.Errors
+                .Should()
+                .HaveCount(1)
+                .And
+                .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid1}");
+        }
+
+        [Fact]
+        public void An_argument_with_multiple_file_info_can_be_invalid_based_on_second_file_existence()
+        {
+            var command = new Command(
+                "move",
+                argument: new Argument<FileInfo[]>
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }.ExistingOnly());
+            command.AddOption(
+                new Option(
+                    "--to",
+                    argument: new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }));
+
+            var executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
+            var guid = Guid.NewGuid();
+            var result =
+                command.Parse(
+                    $@"move ""{executingAssemblyLocation}"" ""{guid}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+
+            result.Errors
+                .Should()
+                .HaveCount(1)
+                .And
+                .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid}");
+        }
+
         [Fact]
         public void An_argument_can_be_invalid_based_on_directory_existence()
         {
@@ -221,6 +284,72 @@ namespace System.CommandLine.Tests
                   .Should()
                   .Contain(e => e.SymbolResult.Name == "to" &&
                                 e.Message == $"Directory does not exist: {trash}");
+        }
+
+        [Fact]
+        public void An_argument_with_multiple_directory_info_can_be_invalid_based_on_first_directory_existence()
+        {
+            var command = new Command(
+                "move",
+                argument: new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                });
+            command.AddOption(
+                new Option("--to",
+                    argument: new Argument<DirectoryInfo[]>
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }.ExistingOnly()));
+
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var trash1 = Path.Combine(currentDirectory, ".trash1");
+            var trash2 = Path.Combine(currentDirectory, ".trash2");
+
+            var commandLine = $@"move ""{currentDirectory}"" --to ""{trash1}"" ""{trash2}""";
+
+            var result = command.Parse(commandLine);
+
+            _output.WriteLine(result.Diagram());
+
+            result.Errors
+                .Should()
+                .HaveCount(1)
+                .And
+                .Contain(e => e.SymbolResult.Name == "to" && e.Message == $"Directory does not exist: {trash1}");
+        }
+
+        [Fact]
+        public void An_argument_with_multiple_directory_info_can_be_invalid_based_on_second_directory_existence()
+        {
+            var command = new Command(
+                "move",
+                argument: new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                });
+            command.AddOption(
+                new Option("--to",
+                    argument: new Argument<DirectoryInfo[]>
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }.ExistingOnly()));
+
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var executionAssemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var trash = Path.Combine(currentDirectory, ".trash2");
+
+            var commandLine = $@"move ""{currentDirectory}"" --to ""{executionAssemblyPath}"" ""{trash}""";
+
+            var result = command.Parse(commandLine);
+
+            _output.WriteLine(result.Diagram());
+
+            result.Errors
+                .Should()
+                .HaveCount(1)
+                .And
+                .Contain(e => e.SymbolResult.Name == "to" && e.Message == $"Directory does not exist: {trash}");
         }
 
         [Fact]
@@ -262,8 +391,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void
-            When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
+        public void When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
         {
             var parser = new Parser(
                 new Option(
@@ -283,7 +411,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseArgumentsAs_with_arity_of_One_validates_against_extra_arguments()
+        public void When_arity_is_ExactlyOne_it_validates_against_extra_arguments()
         {
             var parser = new Parser(
                 new Option(

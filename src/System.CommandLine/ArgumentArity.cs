@@ -67,15 +67,25 @@ namespace System.CommandLine
 
         public static IArgumentArity OneOrMore => new ArgumentArity(1, int.MaxValue);
 
-        public static IArgumentArity DefaultForType(Type type)
+        internal static IArgumentArity Default(Type type, ISymbol symbol)
         {
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
                 type != typeof(string))
             {
-                return OneOrMore;
+                return symbol is ICommand
+                           ? ZeroOrMore
+                           : OneOrMore;
             }
 
             if (type == typeof(bool))
+            {
+                return ZeroOrOne;
+            }
+
+            if (type.IsValueType &&
+                symbol is ICommand &&
+                type.IsGenericType &&
+                type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 return ZeroOrOne;
             }
