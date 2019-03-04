@@ -1,5 +1,5 @@
 <Project>
-  <Import Project="..\Directory.Build.targets" />
+<Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory)..\, Directory.Build.targets))\Directory.Build.targets" />
   <!-- These imports would be added automatically via PackageReference, but that doesn't work for ProjectReference. -->
   <Import Project="..\..\src\System.CommandLine.DragonFruit\targets\System.CommandLine.DragonFruit.targets" />
 </Project>
