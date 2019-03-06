@@ -34,7 +34,9 @@ namespace System.CommandLine
         }
 
         private static readonly Lazy<string> executableName =
-            new Lazy<string>(() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
+            new Lazy<string>(() =>
+                Path.GetFileNameWithoutExtension(
+                    (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location));
 
         public static string ExeName { get; } = executableName.Value;
     }

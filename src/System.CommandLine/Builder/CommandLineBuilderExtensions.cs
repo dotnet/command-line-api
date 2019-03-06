@@ -31,7 +31,7 @@ namespace System.CommandLine.Builder
 
         private static readonly Lazy<string> _assemblyVersion =
             new Lazy<string>(() => {
-                var assembly = Assembly.GetEntryAssembly();
+                var assembly = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
                 if (assemblyVersionAttribute == null)
                 {
