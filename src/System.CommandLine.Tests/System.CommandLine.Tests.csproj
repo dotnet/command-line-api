@@ -16,5 +16,6 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+	<PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="2.1.0" />
   </ItemGroup>
 </Project>
