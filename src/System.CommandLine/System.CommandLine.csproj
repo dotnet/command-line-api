@@ -5,6 +5,7 @@
     <PackageId>System.CommandLine.Experimental</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7.3</LangVersion>
+    <PackageIconUrl>http://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
   </PropertyGroup>
    
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

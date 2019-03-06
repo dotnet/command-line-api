@@ -11,6 +11,7 @@
     <ToolCommandName>dotnet-suggest</ToolCommandName>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64</PackAsToolShimRuntimeIdentifiers>
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
+    <PackageIconUrl>http://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup>
