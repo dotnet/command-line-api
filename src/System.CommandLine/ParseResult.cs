@@ -11,15 +11,17 @@ namespace System.CommandLine
         private readonly List<ParseError> _errors = new List<ParseError>();
 
         internal ParseResult(
+            Parser parser,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
-            IReadOnlyCollection<string> tokens,
+            IReadOnlyCollection<Token> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
             IReadOnlyCollection<ParseError> errors,
             string rawInput)
         {
+            Parser = parser;
             RootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             Directives = directives;
@@ -38,13 +40,15 @@ namespace System.CommandLine
 
         public CommandResult CommandResult { get; }
 
+        public Parser Parser { get; }
+
         public CommandResult RootCommandResult { get; }
 
         public IReadOnlyCollection<ParseError> Errors => _errors;
 
         public IDirectiveCollection Directives { get; }
 
-        public IReadOnlyCollection<string> Tokens { get; }
+        public IReadOnlyCollection<Token> Tokens { get; }
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 
@@ -125,5 +129,9 @@ namespace System.CommandLine
         public SymbolResult this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
+
+        public SymbolResult FindResultFor(ISymbol symbol) =>
+            RootCommandResult.AllSymbolResults()
+                             .FirstOrDefault(s => s.Symbol == symbol);
     }
 }

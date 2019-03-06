@@ -42,25 +42,25 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_diagram_displays_unmatched_tokens()
         {
-            var parser = new Parser(
-                new Command("command", "",
-                            new[]
-                            {
-                                new Option(
-                                    "-x",
-                                    "",
-                                    new Argument
-                                    {
-                                        Arity = ArgumentArity.ExactlyOne
-                                    }
-                                    .FromAmong("arg1", "arg2", "arg3"))
-                            }));
+            var command = new Command("command", "",
+                                      new[]
+                                      {
+                                          new Option(
+                                              "-x",
+                                              "",
+                                              new Argument
+                                                  {
+                                                      Arity = ArgumentArity.ExactlyOne
+                                                  }
+                                                  .FromAmong("arg1", "arg2", "arg3"))
+                                      });
+            command.Argument.Arity = ArgumentArity.Zero;
 
-            var result = parser.Parse("command -x ar");
+            var result = command.Parse("command -x ar");
 
             result.Diagram()
                   .Should()
-                  .Be("[ command ![ -x ] ]   ???--> ar");
+                  .Be("[ command ![ -x <ar> ] ]");
         }
 
         [Fact]

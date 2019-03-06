@@ -81,7 +81,9 @@ namespace System.CommandLine
             return ParseMany(typeof(T), arguments);
         }
 
-        public static ArgumentResult ParseMany(Type type, IReadOnlyCollection<string> arguments)
+        public static ArgumentResult ParseMany(
+            Type type, 
+            IReadOnlyCollection<string> arguments)
         {
             if (type == null)
             {
@@ -93,13 +95,23 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(arguments));
             }
 
-            var itemType = type
+            Type itemType;
+
+            if (type == typeof(string))
+            {
+                // don't treat items as char
+                itemType = typeof(string);
+            }
+            else 
+            {
+                itemType = type
                            .GetInterfaces()
                            .SingleOrDefault(i =>
-                                                i.IsGenericType &&
-                                                i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                                               i.IsGenericType &&
+                                               i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                            .GenericTypeArguments
                            .Single();
+            }
 
             var allParseResults = arguments
                                   .Select(arg => Parse(itemType, arg))
@@ -134,17 +146,5 @@ namespace System.CommandLine
         {
             return new FailedArgumentTypeConversionResult(type, value);
         }
-
-        public static ConvertArgument DefaultConvertArgument(Type type) =>
-            symbol =>
-            {
-                switch (ArgumentArity.DefaultForType(type).MaximumNumberOfArguments)
-                {
-                    case 1:
-                        return Parse(type, symbol.Arguments.SingleOrDefault());
-                    default:
-                        return ParseMany(type, symbol.Arguments);
-                }
-            };
     }
 }

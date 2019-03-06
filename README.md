@@ -26,4 +26,3 @@ This project is licensed under the [MIT license](LICENSE.TXT).
 ## .NET Foundation
 
 .NET is a [.NET Foundation](http://www.dotnetfoundation.org/projects) project.
-

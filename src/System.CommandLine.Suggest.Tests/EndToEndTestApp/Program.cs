@@ -10,12 +10,21 @@ namespace EndToEndTestApp
     {
         static async Task Main(string[] args)
         {
-            var commandLine = new CommandLineBuilder()
-                .UseHelp()   
+            var rootCommand = new RootCommand
+            {
+                new Option("--apple", argument: new Argument<string>()),
+                new Option("--banana", argument: new Argument<string>()),
+                new Option("--cherry", argument: new Argument<string>()),
+                new Option("--durian", argument: new Argument<string>())
+            };
+
+            rootCommand.Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)));
+
+            var commandLine = new CommandLineBuilder(rootCommand)
+                .UseHelp()
                 .UseSuggestDirective()
                 .UseExceptionHandler()
                 .RegisterWithDotnetSuggest()
-                .ConfigureFromMethod(typeof(Program).GetMethod(nameof(Run)))
                 .Build();
 
             await commandLine.InvokeAsync(args);

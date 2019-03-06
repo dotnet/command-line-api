@@ -1,35 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the MIT license. See License.md in the project root for full license information. -->
 <Project>
-  <!--
-    Directory.Build.props is automatically picked up and imported by
-    Microsoft.Common.props. This file needs to exist, even if empty so that
-    files in the parent directory tree, with the same name, are not imported
-    instead. The import fairly early and only Sdk.props will have been imported
-    beforehand. We also don't need to add ourselves to MSBuildAllProjects, as
-    that is done by the file that imports us.
-  -->
-
-  <Import Condition="$(USE_REPO_TOOLSET) == '1'" Project="build\NuGet.props"/>
-  <Import Condition="$(USE_REPO_TOOLSET) == '1'" Project="build\Versions.props"/>
+  <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <PropertyGroup>
-    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
-
-    <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
-    <RepoToolsetDir>$(NuGetPackageRoot)roslyntools.repotoolset\$(RoslynToolsRepoToolsetVersion)\tools\</RepoToolsetDir>
-    <RestoreSources>
-      https://dotnetfeed.blob.core.windows.net/dotnet-core/packages/index.json;
-      https://api.nuget.org/v3/index.json
-    </RestoreSources>
-
-    <RepositoryUrl>https://github.com/dotnet/command-line-api</RepositoryUrl>
-    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
-
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DebugType>portable</DebugType>
-    <!-- Show full paths in errors in VSCode so links are clickable in the terminal. -->
-    <GenerateFullPaths Condition="'$(VSCODE_PID)' != ''">true</GenerateFullPaths>
+    <NoWarn>$(NoWarn);NU5125</NoWarn>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/dotnet/command-line-api/master/LICENSE.md</PackageLicenseUrl>
   </PropertyGroup>
 
 </Project>

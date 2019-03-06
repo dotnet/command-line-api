@@ -10,20 +10,15 @@ namespace System.CommandLine.Invocation
     internal class InvocationPipeline
     {
         private readonly ParseResult parseResult;
-        private readonly Parser parser;
 
-        public InvocationPipeline(
-            Parser parser,
-            ParseResult parseResult)
+        public InvocationPipeline(ParseResult parseResult)
         {
-            this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
             this.parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
         }
 
         public async Task<int> InvokeAsync(IConsole console = null)
         {
             var context = new InvocationContext(parseResult,
-                                                parser,
                                                 console);
 
             var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware);

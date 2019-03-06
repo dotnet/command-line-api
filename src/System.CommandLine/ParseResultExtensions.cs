@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 using System.Text;
 
@@ -13,32 +14,42 @@ namespace System.CommandLine
             this ParseResult source,
             int? position = null)
         {
-            var lastToken = source.Tokens.LastOrDefault();
+            var lastToken = source.Tokens
+                                  .LastOrDefault(t => t.Type != TokenType.Directive);
 
-            if (string.IsNullOrWhiteSpace(source.RawInput))
+            string textToMatch = null;
+            var rawInput = source.RawInput;
+
+            if (position == null &&
+                source.RawInput != null)
             {
-                return source.UnmatchedTokens.LastOrDefault() ?? "";
+                position = source.RawInput.Length;
+            }
+            else if (lastToken?.Value != null)
+            {
+                textToMatch = lastToken.Value;
             }
 
-            if (position == null)
+            if (position != null)
             {
-                // assume the cursor is at the end of the input
-                if (!source.RawInput.EndsWith(" "))
+                var textBeforeCursor = rawInput.Substring(0, position.Value);
+
+                var textAfterCursor = rawInput.Substring(position.Value);
+
+                return textBeforeCursor.Split(' ').LastOrDefault() +
+                       textAfterCursor.Split(' ').FirstOrDefault();
+            }
+
+            if (string.IsNullOrWhiteSpace(rawInput))
+            {
+                if (source.UnmatchedTokens.Any() ||
+                    lastToken?.Type == TokenType.Argument)
                 {
-                    return lastToken;
-                }
-                else
-                {
-                    return "";
+                    return textToMatch;
                 }
             }
 
-            var textBeforeCursor = source.RawInput.Substring(0, position.Value);
-
-            var textAfterCursor = source.RawInput.Substring(position.Value);
-
-            return textBeforeCursor.Split(' ').LastOrDefault() +
-                   textAfterCursor.Split(' ').FirstOrDefault();
+            return "";
         }
 
         public static string Diagram(this ParseResult result)
@@ -70,7 +81,7 @@ namespace System.CommandLine
             {
                 builder.Append("!");
             }
-            
+
             if (symbolResult is OptionResult option &&
                 option.IsImplicit)
             {
@@ -102,7 +113,7 @@ namespace System.CommandLine
                 if (result is SuccessfulArgumentResult _)
                 {
                     var value = symbolResult.GetValueOrDefault();
-                    
+
                     switch (value)
                     {
                         case null:
@@ -148,54 +159,109 @@ namespace System.CommandLine
             this ParseResult parseResult,
             int? position = null)
         {
-            var currentSymbolResult = parseResult.CurrentSymbol();
+            var currentSymbolResult = parseResult.SymbolToComplete(position);
             var currentSymbol = currentSymbolResult.Symbol;
-            var includeParentSuggestions = true;
-
-            if (currentSymbolResult is OptionResult optionResult)
-            {
-                var maxNumberOfArguments =
-                    optionResult.Option
-                                .Argument
-                                .Arity
-                                .MaximumNumberOfArguments;
-
-                if (currentSymbolResult.Arguments.Count < maxNumberOfArguments)
-                {
-                    includeParentSuggestions = false;
-                }
-            }
 
             var currentSymbolSuggestions =
                 currentSymbol is ISuggestionSource currentSuggestionSource
                     ? currentSuggestionSource.Suggest(parseResult, position)
                     : Array.Empty<string>();
 
+            IEnumerable<string> siblingSuggestions;
+
+            if (currentSymbol.Parent == null ||
+                !currentSymbolResult.IsArgumentLimitReached)
+            {
+                siblingSuggestions = Array.Empty<string>();
+            }
+            else
+            {
+                siblingSuggestions = currentSymbol.Parent
+                                                  .Suggest(parseResult, position)
+                                                  .Except(currentSymbol.Parent
+                                                                       .Children
+                                                                       .OfType<ICommand>()
+                                                                       .Select(c => c.Name));
+            }
+
             if (currentSymbolResult is CommandResult commandResult)
             {
+                currentSymbolSuggestions = currentSymbolSuggestions
+                    .Except(OptionsWithArgumentLimitReached(currentSymbolResult));
+
+                if (currentSymbolResult.Parent is CommandResult parent)
+                {
+                    siblingSuggestions = siblingSuggestions.Except(OptionsWithArgumentLimitReached(parent));
+                }
+            }
+
+            return currentSymbolSuggestions.Concat(siblingSuggestions);
+
+            string[] OptionsWithArgumentLimitReached(SymbolResult symbolResult)
+            {
                 var optionsWithArgLimitReached =
-                    currentSymbolResult
+                    symbolResult
                         .Children
                         .Where(c => c.IsArgumentLimitReached);
 
-                var exclude =
-                    optionsWithArgLimitReached
-                        .SelectMany(c => c.Symbol.RawAliases)
-                        .Concat(commandResult.Symbol.RawAliases)
-                        .ToArray();
-
-                currentSymbolSuggestions = currentSymbolSuggestions.Except(exclude);
+                var exclude = optionsWithArgLimitReached
+                              .SelectMany(c => c.Symbol.RawAliases)
+                              .Concat(commandResult.Symbol.RawAliases)
+                              .ToArray();
+                return exclude;
             }
+        }
 
-            var parentSymbolSuggestions =
-                includeParentSuggestions &&
-                currentSymbol?.Parent is ISuggestionSource parentSuggestionSource
-                    ? parentSuggestionSource.Suggest(parseResult, position).Except(currentSymbol.RawAliases)
-                    : Array.Empty<string>();
+        internal static SymbolResult SymbolToComplete(
+            this ParseResult parseResult,
+            int? position = null)
+        {
+            var commandResult = parseResult.CommandResult;
 
-            return parentSymbolSuggestions
-                   .Concat(currentSymbolSuggestions)
-                   .ToArray();
+            var currentSymbol = AllSymbolResultsForCompletion()
+                .LastOrDefault();
+
+            return currentSymbol;
+
+            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
+            {
+                foreach (var item in commandResult.AllSymbolResults())
+                {
+                    if (item is CommandResult command)
+                    {
+                        yield return command;
+                    }
+                    else if (item is OptionResult option)
+                    {
+                        var willAcceptAnArgument =
+                            !option.IsImplicit &&
+                            (!option.IsArgumentLimitReached ||
+                             parseResult.TextToMatch(position).Length > 0);
+
+                        if (willAcceptAnArgument)
+                        {
+                            yield return option;
+                        }
+                    }
+                }
+            }
+        }
+
+        internal static IEnumerable<IValueDescriptor> ValueDescriptors(this ParseResult parseResult)
+        {
+            var command = parseResult.CommandResult.Command;
+
+            while (command != null)
+            {
+                yield return command;
+
+                foreach (var option in command.Children.OfType<Option>())
+                {
+                    yield return option;
+                }
+
+                command = command.Parent;
+            }
         }
     }
 }
