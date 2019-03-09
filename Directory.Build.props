@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
-  <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
+  <Import Project="Sdk.props" 
+          Sdk="Microsoft.DotNet.Arcade.Sdk" 
+          Condition="'$(DisableArcade)' != '1'" />
 
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU5125</NoWarn>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <VersionPrefix>1.0.3</VersionPrefix>
-    <PreReleaseVersionLabel></PreReleaseVersionLabel>
+    <VersionSuffix />
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
