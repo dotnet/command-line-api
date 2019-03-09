@@ -51,7 +51,7 @@ namespace System.CommandLine
             CommandLineConfiguration configuration)
         {
             var tokenList = new List<Token>();
-            var errorList = new List<ParseError>();
+            var errorList = new List<TokenizeError>();
 
             ISymbol currentSymbol = null;
             var foundEndOfArguments = false;
@@ -195,7 +195,9 @@ namespace System.CommandLine
             return new TokenizeResult(tokenList, errorList);
         }
 
-        internal static string[] SplitTokenByArgumentDelimiter(string arg, char[] argumentDelimiters) => arg.Split(argumentDelimiters, 2);
+        internal static string[] SplitByDelimiters(
+            this string arg, 
+            char[] argumentDelimiters) => arg.Split(argumentDelimiters, 2);
 
         public static string ToKebabCase(this string value)
         {

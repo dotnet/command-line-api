@@ -29,11 +29,10 @@ namespace System.CommandLine
             string rawInput = null)
         {
             var normalizedArgs = NormalizeRootCommand(arguments);
-            var lexResult = normalizedArgs.Tokenize(Configuration);
+            var tokenizeResult = normalizedArgs.Tokenize(Configuration);
             var directives = new DirectiveCollection();
-            var unparsedTokens = new Queue<Token>(lexResult.Tokens);
+            var unparsedTokens = new Queue<Token>(tokenizeResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();
-            var errors = new List<ParseError>(lexResult.Errors);
             var unmatchedTokens = new List<Token>();
             CommandResult rootCommand = null;
             CommandResult innermostCommand = null;
@@ -133,10 +132,12 @@ namespace System.CommandLine
 
             ProcessImplicitTokens();
 
+            var tokenizeErrors = new List<TokenizeError>(tokenizeResult.Errors);
+
             if (Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
-                errors.AddRange(
-                    unmatchedTokens.Select(token => new ParseError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value))));
+                tokenizeErrors.AddRange(
+                    unmatchedTokens.Select(token => new TokenizeError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value))));
             }
 
             return new ParseResult(
@@ -145,11 +146,11 @@ namespace System.CommandLine
                 innermostCommand ?? rootCommand,
                 directives,
                 normalizedArgs.Count == arguments?.Count
-                 ? lexResult.Tokens
-                 : lexResult.Tokens.Skip(1).ToArray(),
+                 ? tokenizeResult.Tokens
+                 : tokenizeResult.Tokens.Skip(1).ToArray(),
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens.Select(t => t.Value).ToArray(),
-                errors,
+                tokenizeErrors,
                 rawInput);
 
             void ProcessImplicitTokens()
@@ -160,7 +161,11 @@ namespace System.CommandLine
                 }
 
                 var currentCommand = innermostCommand ?? rootCommand;
-                if (currentCommand == null) return;
+
+                if (currentCommand == null)
+                {
+                    return;
+                }
 
                 Token[] tokensToAttemptByPosition =
                     Enumerable.Reverse(unmatchedTokens)

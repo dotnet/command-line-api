@@ -9,13 +9,14 @@ namespace System.CommandLine
     {
         public TokenizeResult(
             IReadOnlyCollection<Token> tokens,
-            IReadOnlyCollection<ParseError> errors)
+            IReadOnlyCollection<TokenizeError> errors)
         {
             Tokens = tokens;
             Errors = errors;
         }
 
         public IReadOnlyCollection<Token> Tokens { get; }
-        public IReadOnlyCollection<ParseError> Errors { get; }
+        
+        public IReadOnlyCollection<TokenizeError> Errors { get; }
     }
 }
