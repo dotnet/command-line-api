@@ -225,7 +225,7 @@ namespace System.CommandLine.Tests
                   .Single()
                   .Message
                   .Should()
-                  .Be("Invalid response file token: @");
+                  .Be("Unrecognized command or argument '@'");
         }
 
         [Fact]

@@ -7,7 +7,7 @@ namespace System.CommandLine
     {
         public TokenizeError(string message)
         {
-            Message = message;
+            Message = message ?? throw new ArgumentNullException(nameof(message));
         }
 
         public string Message { get; }

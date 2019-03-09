@@ -8,15 +8,15 @@ namespace System.CommandLine
     internal class TokenizeResult
     {
         public TokenizeResult(
-            IReadOnlyCollection<Token> tokens,
-            IReadOnlyCollection<TokenizeError> errors)
+            IReadOnlyCollection<Token> tokens = null,
+            IReadOnlyCollection<TokenizeError> errors = null)
         {
-            Tokens = tokens;
-            Errors = errors;
+            Tokens = tokens ?? Array.Empty<Token>();
+            Errors = errors ?? Array.Empty<TokenizeError>();
         }
 
         public IReadOnlyCollection<Token> Tokens { get; }
-        
+
         public IReadOnlyCollection<TokenizeError> Errors { get; }
     }
 }

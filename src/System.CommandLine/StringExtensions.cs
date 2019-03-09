@@ -97,9 +97,9 @@ namespace System.CommandLine
                 }
 
                 if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
-                    arg.IsResponseFileReference())
+                    arg.GetResponseFileReference() is string filePath)
                 {
-                    ReadResponseFile(arg, i);
+                    ReadResponseFile(filePath, i);
                     continue;
                 }
 
@@ -169,15 +169,13 @@ namespace System.CommandLine
 
             return new TokenizeResult(tokenList, errorList);
 
-            void ReadResponseFile(string arg, int i)
+            void ReadResponseFile(string filePath, int i)
             {
-                var filePath = arg.Substring(1);
-
                 if (string.IsNullOrWhiteSpace(filePath))
                 {
                     errorList.Add(
                         new TokenizeError(
-                            $"Invalid response file token: {arg}"));
+                            $"Invalid response file token: {filePath}"));
                     return;
                 }
 
@@ -212,10 +210,10 @@ namespace System.CommandLine
             }
         }
 
-        private static bool IsResponseFileReference(this string arg)
-        {
-            return arg.StartsWith("@");
-        }
+        private static string GetResponseFileReference(this string arg) =>
+            arg.StartsWith("@") && arg.Length > 1
+                ? arg.Substring(1)
+                : null;
 
         internal static string[] SplitByDelimiters(
             this string arg, 
@@ -333,18 +331,18 @@ namespace System.CommandLine
             {
                 foreach (var p in SplitLine(line))
                 {
-                    if (!p.IsResponseFileReference())
-                    {
-                        yield return p;
-                    }
-                    else
+                    if (p.GetResponseFileReference() is string path)
                     {
                         foreach (var q in ExpandResponseFile(
-                            p.Substring(1), 
+                            path,
                             responseFileHandling))
                         {
                             yield return q;
                         }
+                    }
+                    else
+                    {
+                        yield return p;
                     }
                 }
             }
