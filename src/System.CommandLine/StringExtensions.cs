@@ -81,7 +81,10 @@ namespace System.CommandLine
 
                 if (!foundEndOfDirectives)
                 {
-                    if (arg.StartsWith("[") && arg.EndsWith("]") && arg[1] != ']' && arg[1] != ':')
+                    if (arg.StartsWith("[") && 
+                        arg.EndsWith("]") && 
+                        arg[1] != ']' && 
+                        arg[1] != ':')
                     {
                         tokenList.Add(Directive(arg));
                         continue;
@@ -94,44 +97,16 @@ namespace System.CommandLine
                 }
 
                 if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
-                    arg.StartsWith("@"))
+                    arg.IsResponseFileReference())
                 {
-                    var filePath = arg.Substring(1);
-                    if (!string.IsNullOrWhiteSpace(filePath))
-                    {
-                        try
-                        {
-                            var next = i + 1;
-                            foreach (var newArg in ParseResponseFile(
-                                filePath,
-                                configuration.ResponseFileHandling))
-                            {
-                                argList.Insert(next, newArg);
-                                next += 1;
-                            }
-                        }
-                        catch (FileNotFoundException)
-                        {
-                            errorList.Add(new ParseError(configuration.ValidationMessages.ResponseFileNotFound(filePath),
-                                                         null,
-                                                         false));
-                        }
-                        catch (IOException e)
-                        {
-                            errorList.Add(new ParseError(
-                                              configuration.ValidationMessages.ErrorReadingResponseFile(filePath, e),
-                                              null,
-                                              false));
-                        }
-
-                        continue;
-                    }
+                    ReadResponseFile(arg, i);
+                    continue;
                 }
 
                 var argHasPrefix = HasPrefix(arg);
 
                 if (argHasPrefix &&
-                    SplitTokenByArgumentDelimiter(arg, argumentDelimiters) is string[] subtokens &&
+                    arg.SplitByDelimiters(argumentDelimiters) is string[] subtokens &&
                     subtokens.Length > 1)
                 {
                     if (knownTokens.Any(t => t.Value == subtokens.First()))
@@ -193,6 +168,53 @@ namespace System.CommandLine
             }
 
             return new TokenizeResult(tokenList, errorList);
+
+            void ReadResponseFile(string arg, int i)
+            {
+                var filePath = arg.Substring(1);
+
+                if (string.IsNullOrWhiteSpace(filePath))
+                {
+                    errorList.Add(
+                        new TokenizeError(
+                            $"Invalid response file token: {arg}"));
+                    return;
+                }
+
+                try
+                {
+                    var next = i + 1;
+
+                    foreach (var newArg in ExpandResponseFile(
+                        filePath,
+                        configuration.ResponseFileHandling))
+                    {
+                        argList.Insert(next, newArg);
+                        next += 1;
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                    var message = configuration.ValidationMessages
+                                               .ResponseFileNotFound(filePath);
+
+                    errorList.Add(
+                        new TokenizeError(message));
+                }
+                catch (IOException e)
+                {
+                    var message = configuration.ValidationMessages
+                                               .ErrorReadingResponseFile(filePath, e);
+
+                    errorList.Add(
+                        new TokenizeError(message));
+                }
+            }
+        }
+
+        private static bool IsResponseFileReference(this string arg)
+        {
+            return arg.StartsWith("@");
         }
 
         internal static string[] SplitByDelimiters(
@@ -303,25 +325,48 @@ namespace System.CommandLine
             }
         }
 
-        private static IEnumerable<string> ParseResponseFile(
+        private static IEnumerable<string> ExpandResponseFile(
             string filePath,
             ResponseFileHandling responseFileHandling)
         {
             foreach (var line in File.ReadAllLines(filePath))
             {
+                foreach (var p in SplitLine(line))
+                {
+                    if (!p.IsResponseFileReference())
+                    {
+                        yield return p;
+                    }
+                    else
+                    {
+                        foreach (var q in ExpandResponseFile(
+                            p.Substring(1), 
+                            responseFileHandling))
+                        {
+                            yield return q;
+                        }
+                    }
+                }
+            }
+
+            IEnumerable<string> SplitLine(string line)
+            {
                 var arg = line.Trim();
 
                 if (arg.Length == 0 || arg.StartsWith("#"))
                 {
-                    continue;
+                    yield break;
                 }
 
                 switch (responseFileHandling)
                 {
                     case ResponseFileHandling.ParseArgsAsLineSeparated:
+
                         yield return line;
+
                         break;
                     case ResponseFileHandling.ParseArgsAsSpaceSeparated:
+
                         foreach (var word in SplitCommandLine(arg))
                         {
                             yield return word;
