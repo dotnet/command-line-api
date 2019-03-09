@@ -228,7 +228,7 @@ namespace System.CommandLine.Invocation
             this Parser parser,
             string commandLine,
             IConsole console = null) =>
-            parser.InvokeAsync(commandLine.Tokenize().ToArray(), console);
+            parser.InvokeAsync(commandLine.SplitCommandLine().ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Parser parser,
@@ -240,7 +240,7 @@ namespace System.CommandLine.Invocation
             this Command command,
             string commandLine,
             IConsole console = null) =>
-            command.InvokeAsync(commandLine.Tokenize().ToArray(), console);
+            command.InvokeAsync(commandLine.SplitCommandLine().ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Command command,

@@ -18,7 +18,7 @@ namespace System.CommandLine
             IReadOnlyCollection<Token> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
-            IReadOnlyCollection<ParseError> errors,
+            IReadOnlyCollection<TokenizeError> tokenizeErrors,
             string rawInput)
         {
             Parser = parser;
@@ -30,9 +30,10 @@ namespace System.CommandLine
             UnmatchedTokens = unmatchedTokens;
             RawInput = rawInput;
 
-            if (errors != null)
+            if (tokenizeErrors?.Count > 0)
             {
-                _errors.AddRange(errors);
+                _errors.AddRange(
+                    tokenizeErrors.Select(e => new ParseError(e.Message)));
             }
 
             AddImplicitOptionsAndCheckForErrors();
