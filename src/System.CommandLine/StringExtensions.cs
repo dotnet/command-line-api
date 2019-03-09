@@ -14,7 +14,7 @@ namespace System.CommandLine
     {
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
 
-        private static readonly Regex _tokenizer = new Regex(
+        private static readonly Regex _commandLineSplitter = new Regex(
             @"((?<opt>[^""\s]+)""(?<arg>[^""]+)"") # token + quoted argument with non-space argument delimiter, ex: --opt:""c:\path with\spaces""
               |                                
               (""(?<token>[^""]*)"")               # tokens surrounded by spaces, ex: ""c:\path with\spaces""
@@ -46,7 +46,7 @@ namespace System.CommandLine
             return option;
         }
 
-        internal static LexResult Lex(
+        internal static TokenizeResult Tokenize(
             this IEnumerable<string> args,
             CommandLineConfiguration configuration)
         {
@@ -192,7 +192,7 @@ namespace System.CommandLine
                 }
             }
 
-            return new LexResult(tokenList, errorList);
+            return new TokenizeResult(tokenList, errorList);
         }
 
         internal static string[] SplitTokenByArgumentDelimiter(string arg, char[] argumentDelimiters) => arg.Split(argumentDelimiters, 2);
@@ -279,9 +279,9 @@ namespace System.CommandLine
 
         private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
 
-        public static IEnumerable<string> Tokenize(this string commandLine)
+        public static IEnumerable<string> SplitCommandLine(this string commandLine)
         {
-            var matches = _tokenizer.Matches(commandLine);
+            var matches = _commandLineSplitter.Matches(commandLine);
 
             foreach (Match match in matches)
             {
@@ -320,7 +320,7 @@ namespace System.CommandLine
                         yield return line;
                         break;
                     case ResponseFileHandling.ParseArgsAsSpaceSeparated:
-                        foreach (var word in Tokenize(arg))
+                        foreach (var word in SplitCommandLine(arg))
                         {
                             yield return word;
                         }

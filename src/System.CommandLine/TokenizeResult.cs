@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    internal class LexResult
+    internal class TokenizeResult
     {
-        public LexResult(
+        public TokenizeResult(
             IReadOnlyCollection<Token> tokens,
             IReadOnlyCollection<ParseError> errors)
         {

@@ -10,6 +10,6 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Parser parser,
             string input) =>
-            parser.Parse(input.Tokenize().ToArray(), input);
+            parser.Parse(input.SplitCommandLine().ToArray(), input);
     }
 }

@@ -29,7 +29,7 @@ namespace System.CommandLine
             string rawInput = null)
         {
             var normalizedArgs = NormalizeRootCommand(arguments);
-            var lexResult = normalizedArgs.Lex(Configuration);
+            var lexResult = normalizedArgs.Tokenize(Configuration);
             var directives = new DirectiveCollection();
             var unparsedTokens = new Queue<Token>(lexResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();

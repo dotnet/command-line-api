@@ -24,7 +24,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task InvokeAsync_executes_suggestion_command_for_executable()
         {
-            string[] args = $@"get -p 12 -e ""{CurrentExeFullPath()}"" -- {_currentExeName} add".Tokenize().ToArray();
+            string[] args = $@"get -p 12 -e ""{CurrentExeFullPath()}"" -- {_currentExeName} add".SplitCommandLine().ToArray();
 
             var suggestions = await InvokeAsync(args, new TestSuggestionRegistration(CurrentExeRegistrationPair()));
 
@@ -36,7 +36,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task InvokeAsync_with_unknown_suggestion_provider_returns_empty_string()
         {
-            string[] args = @"get -p 10 -e ""testcli.exe"" -- command op".Tokenize().ToArray();
+            string[] args = @"get -p 10 -e ""testcli.exe"" -- command op".SplitCommandLine().ToArray();
             (await InvokeAsync(args, new TestSuggestionRegistration()))
                 .Should()
                 .BeEmpty();
@@ -50,7 +50,7 @@ namespace System.CommandLine.Suggest.Tests
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
 
-            var args = $@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add".Tokenize().ToArray();
+            var args = $@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add".SplitCommandLine().ToArray();
 
             await dispatcher.InvokeAsync(args, testConsole);
 
@@ -93,7 +93,7 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = $"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray();
+            var args = $"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"".SplitCommandLine().ToArray();
 
             await dispatcher.InvokeAsync(args);
 
@@ -108,7 +108,7 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = $"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"".Tokenize().ToArray();
+            var args = $"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"".SplitCommandLine().ToArray();
 
             await dispatcher.InvokeAsync(args);
             await dispatcher.InvokeAsync(args);

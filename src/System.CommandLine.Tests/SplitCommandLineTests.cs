@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
@@ -8,31 +8,31 @@ using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
-    public class TokenizeTests
+    public class SplitCommandLineTests
     {
-        private ITestOutputHelper _output;
+        private readonly ITestOutputHelper _output;
 
-        public TokenizeTests(ITestOutputHelper output)
+        public SplitCommandLineTests(ITestOutputHelper output)
         {
             _output = output;
         }
 
         [Fact]
-        public void Tokenize_splits_strings_based_on_whitespace()
+        public void It_splits_strings_based_on_whitespace()
         {
             var commandLine = "one two\tthree   four ";
 
-            commandLine.Tokenize()
+            commandLine.SplitCommandLine()
                        .Should()
                        .BeEquivalentTo("one", "two", "three", "four");
         }
 
         [Fact]
-        public void Tokenize_does_not_break_up_double_quote_delimited_values()
+        public void It_does_not_break_up_double_quote_delimited_values()
         {
             var commandLine = @"rm -r ""c:\temp files\""";
 
-            commandLine.Tokenize()
+            commandLine.SplitCommandLine()
                        .Should()
                        .BeEquivalentTo("rm", "-r", @"c:\temp files\");
         }
@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests
         [InlineData("--", ':')]
         [InlineData("/", '=')]
         [InlineData("/", ':')]
-        public void Tokenize_does_not_split_double_quote_delimited_values_when_a_non_whitespace_argument_delimiter_is_used(
+        public void It_does_not_split_double_quote_delimited_values_when_a_non_whitespace_argument_delimiter_is_used(
             string prefix,
             char delimiter)
         {
@@ -52,20 +52,20 @@ namespace System.CommandLine.Tests
 
             var commandLine = $"the-command {optionAndArgument}";
 
-            commandLine.Tokenize()
+            commandLine.SplitCommandLine()
                        .Should()
                        .BeEquivalentTo("the-command", optionAndArgument.Replace("\"", ""));
         }
 
         [Fact]
-        public void Tokenize_handles_multiple_options_with_quoted_arguments()
+        public void It_handles_multiple_options_with_quoted_arguments()
         {
             var source = Directory.GetCurrentDirectory();
             var destination = Path.Combine(Directory.GetCurrentDirectory(), ".trash");
 
             var commandLine = $"move --from \"{source}\" --to \"{destination}\"";
 
-            var tokenized = commandLine.Tokenize();
+            var tokenized = commandLine.SplitCommandLine();
 
             _output.WriteLine(commandLine);
 
