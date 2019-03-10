@@ -9,9 +9,12 @@ This repository contains the code for System.CommandLine, a set of libraries for
 
 Package                            | Version | 
 -----------------------------------| ------- |
-System.CommandLine.Experimental    | ![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Experimental.svg)    |
-System.CommandLine.DragonFruit     | ![Nuget](https://img.shields.io/nuget/v/System.CommandLine.DragonFruit.svg)    |
-System.CommandLine.Rendering       | ![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Rendering.svg)    |
+System.CommandLine.Experimental    | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Experimental.svg)](https://nuget.org/packages/System.CommandLine.Experimental)    |
+System.CommandLine.DragonFruit     | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.DragonFruit.svg)](https://nuget.org/packages/System.CommandLine.DragonFruit)    |
+System.CommandLine.Rendering       | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Rendering.svg)](https://nuget.org/packages/System.CommandLine.Rendering)    |
+
+
+
 
 Daily builds are available [here](https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json).
 
@@ -26,3 +29,5 @@ This project is licensed under the [MIT license](LICENSE.TXT).
 ## .NET Foundation
 
 .NET is a [.NET Foundation](http://www.dotnetfoundation.org/projects) project.
+
+
