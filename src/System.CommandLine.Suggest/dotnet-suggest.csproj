@@ -2,8 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <VersionPrefix>1.0.3</VersionPrefix>
+
+    <VersionPrefix>1.0.3$(DotnetSuggestBuildNumber)</VersionPrefix>
+    <DotnetSuggestBuildNumber Condition="'$(OfficialBuild)' == 'true'">
+      .$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)
+    </DotnetSuggestBuildNumber>
     <VersionSuffix />
+
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
