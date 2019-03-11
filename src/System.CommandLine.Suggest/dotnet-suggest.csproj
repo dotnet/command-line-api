@@ -4,10 +4,7 @@
     <OutputType>Exe</OutputType>
 
     <VersionPrefix>1.0.3$(DotnetSuggestBuildNumber)</VersionPrefix>
-    <DotnetSuggestBuildNumber Condition="'$(OfficialBuild)' == 'true'">
-      .$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)
-    </DotnetSuggestBuildNumber>
-    <VersionSuffix />
+    <VersionSuffix>$(_BuildNumberSuffix)</VersionSuffix>
 
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>true</IsPackable>
