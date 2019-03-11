@@ -16,7 +16,7 @@ System.CommandLine.Rendering       | [![Nuget](https://img.shields.io/nuget/v/Sy
 
 
 
-Daily builds are available [here](https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json).
+Daily builds are available if you add this feed to your nuget.config: https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json.
 
 ## Contributing
 
