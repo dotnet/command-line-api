@@ -4,9 +4,7 @@
     <OutputType>Exe</OutputType>
 
     <VersionSuffix />
-    <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">
-      .$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)
-    </DotnetSuggestBuildNumber>
+    <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
     <VersionPrefix>1.1$(DotnetSuggestBuildNumber)</VersionPrefix>
 
     <TargetFramework>netcoreapp2.1</TargetFramework>
