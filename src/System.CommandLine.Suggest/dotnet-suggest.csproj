@@ -3,9 +3,10 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
 
-    <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
-    <VersionPrefix>1.1$(DotnetSuggestBuildNumber)</VersionPrefix>
-    <PackageVersion>$(VersionPrefix)</PackageVersion>
+    <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
+    <VersionPrefix>1.1.0</VersionPrefix>
+    <FileVersion>$(VersionPrefix)</FileVersion>
+    <PackageVersion>1.1$(DotnetSuggestBuildNumber)</PackageVersion>
 
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>true</IsPackable>
