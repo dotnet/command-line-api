@@ -5,7 +5,7 @@
 
     <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
     <VersionPrefix>1.1$(DotnetSuggestBuildNumber)</VersionPrefix>
-    <FileVersion>$(VersionPrefix)</FileVersion>
+    <PackageVersion>$(VersionPrefix)</PackageVersion>
 
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>true</IsPackable>
