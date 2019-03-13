@@ -1,13 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-
-    <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
-    <VersionPrefix>1.1.0</VersionPrefix>
-    <FileVersion>$(VersionPrefix)</FileVersion>
-    <PackageVersion>1.1$(DotnetSuggestBuildNumber)</PackageVersion>
-
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
@@ -15,6 +9,11 @@
     <ToolCommandName>dotnet-suggest</ToolCommandName>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64</PackAsToolShimRuntimeIdentifiers>
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
+
+    <DotnetSuggestBuildNumber>.1</DotnetSuggestBuildNumber>
+    <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
+    <VersionPrefix>1.1$(DotnetSuggestBuildNumber)</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -38,4 +37,12 @@
     </Content>
   </ItemGroup>
 
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <!-- Workaround https://github.com/dotnet/arcade/issues/2233 -->
+  <Target Name="_InitializeAssemblyVersion" BeforeTargets="GetAssemblyVersion">
+    <PropertyGroup>
+      <FileVersion></FileVersion>
+    </PropertyGroup>
+  </Target>
 </Project>
