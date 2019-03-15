@@ -84,15 +84,23 @@ namespace System.CommandLine.Binding
             return false;
         }
 
-        internal bool TryBind(
+        internal bool TryBindToScalarValue(
             IValueDescriptor valueDescriptor,
             IValueSource valueSource,
             out BoundValue boundValue)
         {
             if (valueSource.TryGetValue(valueDescriptor, this, out var value))
             {
-                boundValue = new BoundValue(value, valueDescriptor, valueSource);
-                return true;
+                if (valueDescriptor.Type.IsInstanceOfType(value))
+                {
+                    boundValue = new BoundValue(value, valueDescriptor, valueSource);
+                    return true;
+                }
+                else 
+                {
+                    boundValue = null;
+                    return false;
+                }
             }
             else
             {
