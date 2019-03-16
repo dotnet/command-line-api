@@ -46,9 +46,10 @@ namespace System.CommandLine
         {
             get
             {
-                if (_convertArguments == null)
+                if (_convertArguments == null &&
+                    ArgumentType != null)
                 {
-                    if (ArgumentType != null)
+                    if (ArgumentType.CanBeBoundFromScalarValue())
                     {
                         if (Arity.MaximumNumberOfArguments == 1 &&
                             ArgumentType == typeof(bool))
@@ -140,6 +141,11 @@ namespace System.CommandLine
 
         public void AddSuggestionSource(Suggest suggest)
         {
+            if (suggest == null)
+            {
+                throw new ArgumentNullException(nameof(suggest));
+            }
+
             AddSuggestionSource(new AnonymousSuggestionSource(suggest));
         }
 
