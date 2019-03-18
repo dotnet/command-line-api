@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -54,17 +55,7 @@ namespace System.CommandLine
 
         public static ArgumentResult Parse<T>(string value)
         {
-            var result = Parse(typeof(T), value);
-
-            switch (result)
-            {
-                case SuccessfulArgumentResult<object> successful:
-                    return new SuccessfulArgumentResult<T>((T)successful.Value);
-                case FailedArgumentResult failed:
-                    return failed;
-            }
-
-            return result;
+            return Parse(typeof(T), value);
         }
 
         public static ArgumentResult ParseMany<T>(IReadOnlyCollection<string> arguments)
@@ -108,16 +99,16 @@ namespace System.CommandLine
 
             if (successfulParseResults.Length == arguments.Count)
             {
-                dynamic list = Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+                var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
 
                 foreach (var parseResult in successfulParseResults)
                 {
-                    list.Add(((dynamic)parseResult).Value);
+                    list.Add(parseResult.Value);
                 }
 
                 var value = type.IsArray
-                    ? (object)Enumerable.ToArray(list)
-                    : (object)list;
+                                ? (object)Enumerable.ToArray((dynamic)list)
+                                : list;
 
                 return Success(value);
             }

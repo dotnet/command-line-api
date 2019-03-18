@@ -11,6 +11,6 @@ namespace System.CommandLine
 
         public static FailedArgumentResult Failure(string error) => new FailedArgumentResult(error);
 
-        public static SuccessfulArgumentResult<T> Success<T>(T value) => new SuccessfulArgumentResult<T>(value);
+        public static SuccessfulArgumentResult Success(object value) => new SuccessfulArgumentResult(value);
     }
 }
