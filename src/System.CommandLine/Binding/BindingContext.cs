@@ -91,12 +91,12 @@ namespace System.CommandLine.Binding
         {
             if (valueSource.TryGetValue(valueDescriptor, this, out var value))
             {
-                if (valueDescriptor.Type.IsInstanceOfType(value))
+                if (value == null || valueDescriptor.Type.IsInstanceOfType(value))
                 {
                     boundValue = new BoundValue(value, valueDescriptor, valueSource);
                     return true;
                 }
-                else 
+                else
                 {
                     boundValue = null;
                     return false;

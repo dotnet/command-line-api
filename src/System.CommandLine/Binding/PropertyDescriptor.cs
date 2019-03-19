@@ -36,9 +36,6 @@ namespace System.CommandLine.Binding
             _propertyInfo.SetValue(instance, value);
         }
 
-        public override string ToString()
-        {
-            return $"{Type.Name} {Path}";
-        }
+        public override string ToString() => $"{Type.Name} {Path}";
     }
 }
