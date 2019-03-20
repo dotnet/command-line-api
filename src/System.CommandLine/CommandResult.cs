@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq;
+using System.CommandLine.Binding;
 
 namespace System.CommandLine
 {
@@ -53,6 +54,50 @@ namespace System.CommandLine
             }
 
             return symbol;
+        }
+
+        public bool TryGetValueForArgument(string alias, out object value)
+        {
+            if (alias.IsMatch(Command.Argument.Name))
+            {
+                value = this.GetValueOrDefault();
+                return true;
+            }
+            else
+            {
+                value = null;
+                return false;
+            }
+        }
+
+        public bool TryGetValueForOption(string alias, out object value)
+        {
+            var children = Children
+                           .Where(o => alias.IsMatch(o.Symbol))
+                           .ToArray();
+
+            SymbolResult symbolResult = null;
+
+            if (children.Length > 1)
+            {
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {alias} among: {string.Join(",", children.Select(o => o.Name))}");
+            }
+
+            if (children.Length == 1)
+            {
+                symbolResult = children[0];
+            }
+
+            if (symbolResult is OptionResult optionResult)
+            {
+                value = optionResult.GetValueOrDefault();
+                return true;
+            }
+            else
+            {
+                value = null;
+                return false;
+            }
         }
 
         public object ValueForOption(

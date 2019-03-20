@@ -162,6 +162,45 @@ namespace System.CommandLine.Tests.Binding
             console.Out.ToString().Should().Be(expectedValue.ToString());
         }
 
+        [Theory]
+        [InlineData(typeof(string), null)]
+        [InlineData(typeof(FileInfo), null)]
+        [InlineData(typeof(int), 0)]
+        [InlineData(typeof(int?), null)]
+        public async Task Unspecified_option_arguments_with_no_default_value_are_bound_to_type_default(
+            Type parameterType,
+            object expectedValue)
+        {
+            var captureMethod = GetType()
+                                .GetMethod(nameof(Capture), BindingFlags.NonPublic | BindingFlags.Instance)
+                                .MakeGenericMethod(parameterType);
+
+            var handler = CommandHandler.Create(captureMethod);
+
+            var command = new Command(
+                              "command")
+                          {
+                              new Option("-x",
+                                         argument: new Argument
+                                                   {
+                                                       Name = "value",
+                                                       ArgumentType = parameterType
+                                                   })
+                          };
+
+            command.Handler = handler;
+
+            var parseResult = command.Parse("");
+
+            var invocationContext = new InvocationContext(parseResult);
+
+            await handler.InvokeAsync(invocationContext);
+
+            var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+
+            boundValue.Should().Be(expectedValue);
+        }
+
         private void Capture<T>(T value, InvocationContext invocationContext)
         {
             invocationContext.InvocationResult = new BoundValueCapturer(value);

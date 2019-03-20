@@ -3,19 +3,17 @@
 
 namespace System.CommandLine.Binding
 {
-    internal class DelegateValueSource : IValueSource
+    internal class ValueDescriptorDefaultValueSource : IValueSource
     {
-        private readonly Func<BindingContext, object> _getValue;
+        public static IValueSource Instance = new ValueDescriptorDefaultValueSource();
 
-        public DelegateValueSource(Func<BindingContext, object> getValue)
+        private ValueDescriptorDefaultValueSource()
         {
-            _getValue = getValue;
         }
 
         public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object boundValue)
         {
-            boundValue = _getValue(bindingContext);
-
+            boundValue = valueDescriptor.GetDefaultValue();
             return true;
         }
     }

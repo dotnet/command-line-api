@@ -88,7 +88,15 @@ namespace System.CommandLine.Binding
 
             var boundConstructorArguments = GetValues(
                 context, 
-                targetConstructorDescriptor.ParameterDescriptors);
+                targetConstructorDescriptor.ParameterDescriptors,
+                false);
+
+            if (boundConstructorArguments.Count != targetConstructorDescriptor.ParameterDescriptors.Count)
+            {
+                instance = null;
+                return false;
+            }
+
             var values = boundConstructorArguments.Select(v => v.Value).ToArray();
             var fromModelBinder = targetConstructorDescriptor.Invoke(values);
 
@@ -101,12 +109,12 @@ namespace System.CommandLine.Binding
 
         public void UpdateInstance<T>(T instance, BindingContext bindingContext)
         {
-            var propertyValues = GetValues(
+            var boundValues = GetValues(
                 bindingContext,
                 _modelDescriptor.PropertyDescriptors,
                 false);
 
-            foreach (var boundValue in propertyValues)
+            foreach (var boundValue in boundValues)
             {
                 ((PropertyDescriptor)boundValue.ValueDescriptor).SetValue(instance, boundValue.Value);
             }
@@ -128,17 +136,19 @@ namespace System.CommandLine.Binding
                 if (!bindingContext.TryBindToScalarValue(
                         valueDescriptor,
                         valueSource,
-                        out BoundValue value))
+                        out BoundValue boundValue) && valueDescriptor.HasDefaultValue)
                 {
-                    if (includeMissingValues)
-                    {
-                        value = BoundValue.DefaultForType(valueDescriptor);
-                    }
+                    boundValue = BoundValue.DefaultForValueDescriptor(valueDescriptor);
                 }
 
-                if (value != null)
+                if (boundValue == null && includeMissingValues)
                 {
-                    values.Add(value);
+                    boundValue = BoundValue.DefaultForType(valueDescriptor);
+                }
+
+                if (boundValue != null)
+                {
+                    values.Add(boundValue);
                 }
             }
 
@@ -184,6 +194,8 @@ namespace System.CommandLine.Binding
             public bool HasDefaultValue => false;
 
             public object GetDefaultValue() => null;
+
+            public override string ToString() => $"{Type}";
         }
     }
 }
