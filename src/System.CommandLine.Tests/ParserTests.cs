@@ -7,7 +7,6 @@ using System.IO;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -652,13 +651,12 @@ namespace System.CommandLine.Tests
         [InlineData("--one 1 --many 1 --many 2 arg1 arg2")]
         [InlineData("--many 1 --one 1 --many 2")]
         [InlineData("--many 2 --many 1 --one 1")]
-        [InlineData("--many:2 --many=1 --one 1")]
         [InlineData("[parse] --one 1 --many 1 --many 2")]
         [InlineData("--one \"stuff in quotes\" this-is-arg1 \"this is arg2\"")]
         [InlineData("not a valid command line --one 1")]
         public void Original_order_of_tokens_is_preserved_in_ParseResult_Tokens(string commandLine)
         {
-            var rawSplit = commandLine.Tokenize();
+            var rawSplit = commandLine.SplitCommandLine();
 
             var command = new Command("the-command", argument: new Argument<string[]>())
                           {
@@ -668,7 +666,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse(commandLine);
 
-            result.Tokens.Should().Equal(rawSplit);
+            result.Tokens.Select(t => t.Value).Should().Equal(rawSplit);
         }
 
         [Fact]
@@ -1024,13 +1022,13 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create<DirectoryInfo>(arg => receivedArg = arg)
             };
 
-            var result = command.Parse("c:\\temp");
+            var result = command.Parse("the-directory");
 
             result.CommandResult
                   .GetValueOrDefault<DirectoryInfo>()
-                  .FullName
+                  .Name
                   .Should()
-                  .Be("c:\\temp");
+                  .Be("the-directory");
         }
 
         [Fact]

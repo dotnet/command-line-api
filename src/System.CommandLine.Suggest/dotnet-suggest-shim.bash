@@ -1,3 +1,4 @@
+# dotnet suggest shell complete script start
 _dotnet_bash_complete()
 {
     local fullpath=`type -p ${COMP_WORDS[0]}`
@@ -23,3 +24,5 @@ _dotnet_bash_complete()
 }
 
 complete -F _dotnet_bash_complete `dotnet-suggest list`
+export DOTNET_SUGGEST_SCRIPT_VERSION="1.0.0"
+# dotnet suggest shell complete script end

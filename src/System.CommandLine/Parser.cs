@@ -22,20 +22,19 @@ namespace System.CommandLine
         {
         }
 
-        internal CommandLineConfiguration Configuration { get; }
+        public CommandLineConfiguration Configuration { get; }
 
-        public virtual ParseResult Parse(
-            IReadOnlyCollection<string> arguments, 
+        public ParseResult Parse(
+            IReadOnlyCollection<string> arguments,
             string rawInput = null)
         {
-            var rawTokens = arguments;  // allow a more user-friendly name for callers of Parse
-            var lexResult = NormalizeRootCommand(rawTokens).Lex(Configuration);
+            var normalizedArgs = NormalizeRootCommand(arguments);
+            var tokenizeResult = normalizedArgs.Tokenize(Configuration);
             var directives = new DirectiveCollection();
-            var unparsedTokens = new Queue<Token>(lexResult.Tokens);
+            var unparsedTokens = new Queue<Token>(tokenizeResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();
-            var errors = new List<ParseError>(lexResult.Errors);
             var unmatchedTokens = new List<Token>();
-            CommandResult rootCommand = null;   
+            CommandResult rootCommand = null;
             CommandResult innermostCommand = null;
 
             IList<IOption> optionQueue = GatherOptions(Configuration.Symbols);
@@ -65,7 +64,7 @@ namespace System.CommandLine
                         {
                             result = SymbolResult.Create(symbol, token.Value, validationMessages: Configuration.ValidationMessages);
 
-                            rootCommand = (CommandResult) result;
+                            rootCommand = (CommandResult)result;
                         }
 
                         allSymbolResults.Add(result);
@@ -133,20 +132,25 @@ namespace System.CommandLine
 
             ProcessImplicitTokens();
 
+            var tokenizeErrors = new List<TokenizeError>(tokenizeResult.Errors);
+
             if (Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
-                errors.AddRange(
-                    unmatchedTokens.Select(token => new ParseError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value))));
+                tokenizeErrors.AddRange(
+                    unmatchedTokens.Select(token => new TokenizeError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value))));
             }
 
             return new ParseResult(
+                this,
                 rootCommand,
                 innermostCommand ?? rootCommand,
                 directives,
-                rawTokens,
+                normalizedArgs.Count == arguments?.Count
+                 ? tokenizeResult.Tokens
+                 : tokenizeResult.Tokens.Skip(1).ToArray(),
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens.Select(t => t.Value).ToArray(),
-                errors,
+                tokenizeErrors,
                 rawInput);
 
             void ProcessImplicitTokens()
@@ -157,7 +161,11 @@ namespace System.CommandLine
                 }
 
                 var currentCommand = innermostCommand ?? rootCommand;
-                if (currentCommand == null) return;
+
+                if (currentCommand == null)
+                {
+                    return;
+                }
 
                 Token[] tokensToAttemptByPosition =
                     Enumerable.Reverse(unmatchedTokens)
@@ -249,9 +257,4 @@ namespace System.CommandLine
             return args;
         }
     }
-
-
-    //
-    // Summary:
-    //     A collection of headers and their values as defined in RFC 2616.
 }

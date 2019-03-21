@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace System.CommandLine.Invocation
 {
-    public class ParseDirectiveResult : IInvocationResult
+    internal class ParseDirectiveResult : IInvocationResult
     {
         public void Apply(InvocationContext context)
         {

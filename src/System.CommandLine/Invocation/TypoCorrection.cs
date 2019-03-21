@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Collections.Generic;
 using System.Linq;
 
 namespace System.CommandLine.Invocation
@@ -22,7 +25,11 @@ namespace System.CommandLine.Invocation
             foreach (var token in result.UnmatchedTokens)
             {
                 string suggestions = string.Join(", or ", GetPossibleTokens(result.CommandResult.Command, token).Select(x => $"'{x}'"));
-                console.Out.Write($"'{token}' was not matched. Did you mean {suggestions}?");
+
+                if (suggestions.Any())
+                {
+                    console.Out.WriteLine($"'{token}' was not matched. Did you mean {suggestions}?");
+                }
             }
         }
 

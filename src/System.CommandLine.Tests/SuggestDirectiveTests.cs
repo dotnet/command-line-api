@@ -159,10 +159,11 @@ namespace System.CommandLine.Tests
         {
             var parser = new CommandLineBuilder()
                          .AddCommand(_eatCommand)
+                         .AddCommand(new Command("wash-dishes"))
                          .UseSuggestDirective()
                          .Build();
 
-            var result = parser.Parse("[suggest] e");
+            var result = parser.Parse("[suggest] d");
 
             var console = new TestConsole();
 
@@ -171,7 +172,49 @@ namespace System.CommandLine.Tests
             console.Out
                    .ToString()
                    .Should()
-                   .Be($"eat{NewLine}");
+                   .Be($"wash-dishes{NewLine}");
+        }
+
+        [Fact]
+        public async Task Suggest_directive_writes_suggestions_for_partial_option_and_subcommand_aliases_under_root_command()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddCommand(_eatCommand)
+                         .AddCommand(new Command("wash-dishes"))
+                         .UseDefaults()
+                         .Build();
+
+            var result = parser.Parse("[suggest] --ver");
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync(result, console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"--version{NewLine}");
+        }
+
+        [Fact]
+        public async Task Suggest_directive_writes_suggestions_for_partial_option_and_subcommand_aliases_under_root_command_with_an_argument()
+        {
+            var command = new Command("parent")
+                          {
+                              new Command("child"),
+                              new Option("--option1"),
+                              new Option("--option2"),
+                          };
+            command.Argument = new Argument<string>();
+
+            var console = new TestConsole();
+
+            await command.InvokeAsync("[suggest] opt", console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"--option1{NewLine}--option2{NewLine}");
         }
     }
 }

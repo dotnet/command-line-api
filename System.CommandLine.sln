@@ -1,19 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2037
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28712.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{7742BAC0-4468-447F-930B-D263C60CBB56}"
-	ProjectSection(SolutionItems) = preProject
-		build\build.ps1 = build\build.ps1
-		build\build.sh = build\build.sh
-		build\cibuild.cmd = build\cibuild.cmd
-		build\cibuild.sh = build\cibuild.sh
-		build\NuGet.props = build\NuGet.props
-		build\SignToolData.json = build\SignToolData.json
-		build\Toolset.proj = build\Toolset.proj
-		build\Versions.props = build\Versions.props
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5BBF2B6C-2655-4B53-A3FA-21A901662C0D}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -56,8 +44,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-suggest.Tests", "src\System.CommandLine.Suggest.Tests\dotnet-suggest.Tests.csproj", "{E41F0471-B14D-4FA0-9D8B-1E7750695AE9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RenderingPlayground", "samples\RenderingPlayground\RenderingPlayground.csproj", "{8D9A8DCB-DC74-4B3A-B1C6-046C9C4F458E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetMetal", "samples\DotnetMetal\DotnetMetal.csproj", "{83D71E95-B07E-423E-97BA-B15514C01E8B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.Rendering", "src\System.CommandLine.Rendering\System.CommandLine.Rendering.csproj", "{27E3BFFC-4412-4E4C-A656-B9D35B8A0F3E}"
 EndProject
@@ -169,18 +155,6 @@ Global
 		{8D9A8DCB-DC74-4B3A-B1C6-046C9C4F458E}.Release|x64.Build.0 = Release|Any CPU
 		{8D9A8DCB-DC74-4B3A-B1C6-046C9C4F458E}.Release|x86.ActiveCfg = Release|Any CPU
 		{8D9A8DCB-DC74-4B3A-B1C6-046C9C4F458E}.Release|x86.Build.0 = Release|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Debug|x64.Build.0 = Debug|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Debug|x86.Build.0 = Debug|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Release|x64.ActiveCfg = Release|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Release|x64.Build.0 = Release|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Release|x86.ActiveCfg = Release|Any CPU
-		{83D71E95-B07E-423E-97BA-B15514C01E8B}.Release|x86.Build.0 = Release|Any CPU
 		{27E3BFFC-4412-4E4C-A656-B9D35B8A0F3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{27E3BFFC-4412-4E4C-A656-B9D35B8A0F3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27E3BFFC-4412-4E4C-A656-B9D35B8A0F3E}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -218,7 +192,6 @@ Global
 		{E23C760E-B826-4B4F-BE76-916D86BAD2DB} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
 		{E41F0471-B14D-4FA0-9D8B-1E7750695AE9} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
 		{8D9A8DCB-DC74-4B3A-B1C6-046C9C4F458E} = {6749FB3E-39DE-4321-A39E-525278E9408D}
-		{83D71E95-B07E-423E-97BA-B15514C01E8B} = {6749FB3E-39DE-4321-A39E-525278E9408D}
 		{27E3BFFC-4412-4E4C-A656-B9D35B8A0F3E} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
 		{9E574595-A9CD-441A-9328-1D4DD5B531E8} = {E5B1EC71-0FC4-4FAA-9C65-32D5016FBC45}
 	EndGlobalSection

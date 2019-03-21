@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Invocation
 {
-    public class ParseErrorResult : IInvocationResult
+    internal class ParseErrorResult : IInvocationResult
     {
         public void Apply(InvocationContext context)
         {
@@ -20,8 +20,10 @@ namespace System.CommandLine.Invocation
             context.ResultCode = 1;
 
             context.Console.ResetTerminalForegroundColor();
-            
-            context.HelpBuilder.Write(context.ParseResult.CommandResult.Command);
+
+            context.BindingContext
+                   .HelpBuilder
+                   .Write(context.ParseResult.CommandResult.Command);
         }
     }
 }
