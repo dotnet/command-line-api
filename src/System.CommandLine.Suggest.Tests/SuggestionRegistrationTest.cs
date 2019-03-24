@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.IO;
 using FluentAssertions;
 using Xunit;
 
@@ -13,8 +16,8 @@ namespace System.CommandLine.Suggest.Tests
         {
             ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
 
-            var suggestion1 = new RegistrationPair("commandPath1", "suggestionCommand1");
-            var suggestion2 = new RegistrationPair("commandPath2", "suggestionCommand2");
+            var suggestion1 = new Registration("commandPath1");
+            var suggestion2 = new Registration("commandPath2");
 
             suggestionProvider.AddSuggestionRegistration(suggestion1);
             suggestionProvider.AddSuggestionRegistration(suggestion2);
@@ -25,10 +28,10 @@ namespace System.CommandLine.Suggest.Tests
                 .HaveCount(2)
                 .And
                 .Contain(x =>
-                    x.CommandPath == suggestion1.CommandPath && x.SuggestionCommand == suggestion1.SuggestionCommand)
+                    x.ExecutablePath == suggestion1.ExecutablePath)
                 .And
                 .Contain(x =>
-                    x.CommandPath == suggestion2.CommandPath && x.SuggestionCommand == suggestion2.SuggestionCommand);
+                    x.ExecutablePath == suggestion2.ExecutablePath);
         }
 
         [Fact]
@@ -37,30 +40,11 @@ namespace System.CommandLine.Suggest.Tests
             ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
 
             suggestionProvider.AddSuggestionRegistration(
-                new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand"));
+                new Registration(Path.GetFullPath("commandPath")));
 
-            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("COMMANDPATH"));
+            Registration registration = suggestionProvider.FindRegistration(new FileInfo("COMMANDPATH"));
 
-            registration.CommandPath.Should().Be(Path.GetFullPath("commandPath"));
-            registration.SuggestionCommand.Should().Be("suggestionCommand");
-        }
-
-        [Fact]
-        public void When_duplicate_suggestions_are_registered_the_last_one_is_used()
-        {
-            ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
-
-            suggestionProvider.AddSuggestionRegistration(
-                new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand2"));
-
-            suggestionProvider.AddSuggestionRegistration(
-                new RegistrationPair(Path.GetFullPath("commandPath"), "suggestionCommand2"));
-
-            RegistrationPair registration = suggestionProvider.FindRegistration(new FileInfo("commandPath"));
-
-            registration.CommandPath.Should().Be(Path.GetFullPath("commandPath"));
-            registration.SuggestionCommand.Should().Be("suggestionCommand2");
+            registration.ExecutablePath.Should().Be(Path.GetFullPath("commandPath"));
         }
     }
-
 }

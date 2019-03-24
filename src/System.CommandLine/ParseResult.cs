@@ -15,7 +15,7 @@ namespace System.CommandLine
             CommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
-            IReadOnlyCollection<Token> tokens,
+            IReadOnlyList<Token> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
             IReadOnlyCollection<TokenizeError> tokenizeErrors,
@@ -28,6 +28,7 @@ namespace System.CommandLine
             Tokens = tokens;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
+
             RawInput = rawInput;
 
             if (tokenizeErrors?.Count > 0)
@@ -49,7 +50,7 @@ namespace System.CommandLine
 
         public IDirectiveCollection Directives { get; }
 
-        public IReadOnlyCollection<Token> Tokens { get; }
+        public IReadOnlyList<Token> Tokens { get; }
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 

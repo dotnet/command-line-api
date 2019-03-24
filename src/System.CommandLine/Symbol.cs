@@ -128,15 +128,11 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public IEnumerable<string> Suggest(
-            ParseResult parseResult,
-            int? position = null)
+        public IEnumerable<string> Suggest(string textToMatch = null)
         {
             var argumentSuggestions =
-                Argument.Suggest(parseResult, position)
+                Argument.Suggest(textToMatch)
                         .ToArray();
-
-            var textToMatch = parseResult.TextToMatch(position);
 
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)

@@ -9,7 +9,7 @@ namespace System.CommandLine
     {
         public static ParseResult Parse(
             this Parser parser,
-            string input) =>
-            parser.Parse(input.SplitCommandLine().ToArray(), input);
+            string commandLine) =>
+            parser.Parse(commandLine.SplitCommandLine().ToArray(), commandLine);
     }
 }

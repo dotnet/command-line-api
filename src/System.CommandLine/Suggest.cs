@@ -5,7 +5,5 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public delegate IEnumerable<string> Suggest(
-        ParseResult parseResult,
-        int? position = null);
+    public delegate IEnumerable<string> Suggest(string textToMatch);
 }

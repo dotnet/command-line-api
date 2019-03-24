@@ -19,7 +19,14 @@ namespace System.CommandLine
             }
             else
             {
-                _directives.Add(name, new List<string> { value });
+                var list = new List<string>();
+
+                if (value != null)
+                {
+                    list.Add(value);
+                }
+
+                _directives.Add(name, list);
             }
         }
 

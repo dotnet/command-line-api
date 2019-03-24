@@ -80,7 +80,7 @@ namespace System.CommandLine
                     var key = keyAndValue[0];
                     var value = keyAndValue.Length == 2
                                     ? keyAndValue[1]
-                                    : string.Empty;
+                                    : null;
 
                     directives.Add(key, value);
 
@@ -233,26 +233,52 @@ namespace System.CommandLine
                 args = Array.Empty<string>();
             }
 
-            var firstArg = args.FirstOrDefault();
+            string potentialRootCommand = null;
+
+            if (args.Count > 0)
+            {
+                if (args.FirstOrDefault() is string firstArg)
+                {
+                    try
+                    {
+                        potentialRootCommand = Path.GetFileName(firstArg);
+                    }
+                    catch (ArgumentException)
+                    {
+                        // possible exception for illegal characters in path on .NET Framework
+                    }
+
+                    if (Configuration.RootCommand.HasRawAlias(potentialRootCommand))
+                    {
+                        return args;
+                    }
+                }
+            }
 
             var commandName = Configuration.RootCommand.Name;
 
-            if (Configuration.RootCommand.HasRawAlias(firstArg))
+            if (FirstArgMatchesExeName())
             {
-                return args;
-            }
-
-            if (firstArg != null &&
-                firstArg.Contains(Path.DirectorySeparatorChar) &&
-                (firstArg.EndsWith(commandName, StringComparison.OrdinalIgnoreCase) ||
-                 firstArg.EndsWith($"{commandName}.exe", StringComparison.OrdinalIgnoreCase)))
-            {
-                args = new[] { commandName }.Concat(args.Skip(1)).ToArray();
+                args = new[]
+                       {
+                           commandName
+                       }.Concat(args.Skip(1)).ToArray();
             }
             else
             {
-                args = new[] { commandName }.Concat(args).ToArray();
+                args = new[]
+                       {
+                           commandName
+                       }.Concat(args).ToArray();
             }
+
+            bool FirstArgMatchesExeName() =>
+                potentialRootCommand != null &&
+                (
+                    potentialRootCommand.Equals(commandName, StringComparison.OrdinalIgnoreCase) ||
+                    potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase) ||
+                    potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase)
+                );
 
             return args;
         }
