@@ -81,11 +81,6 @@ namespace System.CommandLine.Suggest
                         SuggestionShellScriptHandler.Handle)
                 };
 
-            Option DetailedOption() =>
-                new Option("--detailed",
-                           "Provides detailed output about registered completions",
-                           new Argument<bool>());
-
             Command RegisterCommand() =>
                 new Command("register",
                             "Registers an app for suggestions",
