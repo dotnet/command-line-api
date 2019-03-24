@@ -34,7 +34,7 @@ namespace System.CommandLine
                 throw new ArgumentException("You must specify at least one option or command.");
             }
 
-            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=', ' ' };
+            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
 
             foreach (var symbol in symbols)
             {

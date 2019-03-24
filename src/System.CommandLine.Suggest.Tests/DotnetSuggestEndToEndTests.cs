@@ -79,7 +79,7 @@ namespace System.CommandLine.Suggest.Tests
 
             await Process.ExecuteAsync(
                 _endToEndTestApp.FullName,
-                "[suggest] a",
+                "[suggest:1] \"a\"",
                 stdOut: value => stdOut.AppendLine(value),
                 environmentVariables: _environmentVariables);
 

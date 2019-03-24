@@ -14,16 +14,13 @@ namespace System.CommandLine.Suggest
     {
         private readonly ISuggestionRegistration _suggestionRegistration;
         private readonly ISuggestionStore _suggestionStore;
-        private readonly Parser _parser;
-
-        public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
         public SuggestionDispatcher(ISuggestionRegistration suggestionRegistration, ISuggestionStore suggestionStore = null)
         {
             _suggestionRegistration = suggestionRegistration ?? throw new ArgumentNullException(nameof(suggestionRegistration));
             _suggestionStore = suggestionStore ?? new SuggestionStore();
 
-            _parser = new CommandLineBuilder()
+            Parser = new CommandLineBuilder()
                       .UseVersionOption()
                       .UseHelp()
                       .UseParseDirective()
@@ -100,8 +97,12 @@ namespace System.CommandLine.Suggest
                            new Argument<string>());
         }
 
+        public Parser Parser { get; }
+
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
+
         public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
-            _parser.InvokeAsync(args, console);
+            Parser.InvokeAsync(args, console);
 
         private void Register(
             string commandPath,
@@ -137,7 +138,7 @@ namespace System.CommandLine.Suggest
                 suggestionRegistration = _suggestionRegistration.FindRegistration(commandPath);
             }
 
-            var position = parseResult.CommandResult["position"]?.GetValueOrDefault<int?>();
+            var position = parseResult.CommandResult["position"]?.GetValueOrDefault<int>() ?? short.MaxValue;
 
             if (suggestionRegistration == null)
             {
@@ -191,9 +192,9 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        private static string FormatSuggestionArguments(
+        public static string FormatSuggestionArguments(
             ParseResult parseResult,
-            int? position,
+            int position,
             string targetExeName)
         {
             var tokens = parseResult.UnparsedTokens;
@@ -207,9 +208,10 @@ namespace System.CommandLine.Suggest
             if (targetExeName == "dotnet")
             {
                 // e.g. 
-                var endOfWhitespace = 0;
-                var endOfSecondtoken = 0;
-                var beginningOfThirdToken = 0;
+                int? endOfWhitespace = null;
+                int? endOfSecondtoken = null;
+
+                var choppedCommandLine = commandLine;
 
                 for (var i = "dotnet".Length; i < commandLine.Length; i++)
                 {
@@ -220,27 +222,46 @@ namespace System.CommandLine.Suggest
                     }
                 }
 
-                for (var i = endOfWhitespace; i < commandLine.Length; i++)
+                if (endOfWhitespace != null)
                 {
-                    if (char.IsWhiteSpace(commandLine[i]))
+                    for (var i = endOfWhitespace.Value; i < commandLine.Length; i++)
                     {
-                        endOfSecondtoken = i;
-                        break;
+                        if (char.IsWhiteSpace(commandLine[i]))
+                        {
+                            endOfSecondtoken = i;
+                            break;
+                        }
+                    }
+
+                    if (endOfSecondtoken != null)
+                    {
+                        for (var i = endOfSecondtoken.Value; i < commandLine.Length; i++)
+                        {
+                            if (!char.IsWhiteSpace(commandLine[i]))
+                            {
+                                choppedCommandLine = commandLine.Substring(i);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        choppedCommandLine = "";
                     }
                 }
-
-                for (var i = endOfSecondtoken; i < commandLine.Length; i++)
+                else
                 {
-                    if (!char.IsWhiteSpace(commandLine[i]))
-                    {
-                        beginningOfThirdToken = i;
-                        break;
-                    }
+                    choppedCommandLine = "";
                 }
 
-                var choppedCommandLine = commandLine.Substring(beginningOfThirdToken);
-
-                offset = commandLine.Length - choppedCommandLine.Length;
+                if (choppedCommandLine.Length > 0)
+                {
+                    offset = commandLine.Length - choppedCommandLine.Length;
+                }
+                else
+                {
+                    offset = position;
+                }
 
                 commandLine = choppedCommandLine;
             }
@@ -254,20 +275,13 @@ namespace System.CommandLine.Suggest
                 {
                     commandLine = "";
                 }
-                offset = targetExeName.Length;
+
+                offset = targetExeName.Length + 1;
             }
 
-            string suggestDirective = null;
+            position = position - offset;
 
-            if (position != null)
-            {
-                position = position - offset;
-                suggestDirective = $"[suggest:{position}]";
-            }
-            else
-            {
-                suggestDirective = $"[suggest]";
-            }
+            var suggestDirective = $"[suggest:{position}]";
 
             return $"{suggestDirective} \"{commandLine.Escape()}\"";
         }
