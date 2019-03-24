@@ -237,26 +237,40 @@ namespace System.CommandLine
 
             if (args.Count > 0)
             {
-                potentialRootCommand = Path.GetFileName(args.FirstOrDefault());
-            }
+                if (args.FirstOrDefault() is string firstArg)
+                {
+                    try
+                    {
+                        potentialRootCommand = Path.GetFileName(firstArg);
+                    }
+                    catch (ArgumentException)
+                    {
+                        // possible exception for illegal characters in path on .NET Framework
+                    }
 
-            if (Configuration.RootCommand.HasRawAlias(potentialRootCommand))
-            {
-                return args;
+                    if (Configuration.RootCommand.HasRawAlias(potentialRootCommand))
+                    {
+                        return args;
+                    }
+                }
             }
 
             var commandName = Configuration.RootCommand.Name;
 
             if (FirstArgMatchesExeName())
             {
-                args = new[] { commandName }.Concat(args.Skip(1)).ToArray();
+                args = new[]
+                       {
+                           commandName
+                       }.Concat(args.Skip(1)).ToArray();
             }
             else
             {
-                args = new[] { commandName }.Concat(args).ToArray();
+                args = new[]
+                       {
+                           commandName
+                       }.Concat(args).ToArray();
             }
-
-            return args;
 
             bool FirstArgMatchesExeName() =>
                 potentialRootCommand != null &&
@@ -265,6 +279,8 @@ namespace System.CommandLine
                     potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase) ||
                     potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase)
                 );
+
+            return args;
         }
     }
 }
