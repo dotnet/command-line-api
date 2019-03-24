@@ -119,29 +119,51 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
         }
-             
+
         [Theory]
         [InlineData("aa:")]
         [InlineData("aa=")]
-        [InlineData("aa ")]
         [InlineData(":aa")]
         [InlineData("=aa")]
-        [InlineData(" aa")]
         [InlineData("aa:aa")]
         [InlineData("aa=aa")]
-        [InlineData("aa aa")]
         public void When_a_command_name_contains_a_delimiter_then_an_error_is_returned(
             string commandWithDelimiter)
         {
             Action create = () => new Parser(
                 new Command(
                     commandWithDelimiter, "",
-                    argument: new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }));
+                    argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
 
             create.Should().Throw<SymbolCannotContainDelimiterArgumentException>();
+        }
+
+        [Theory]
+        [InlineData("aa ")]
+        [InlineData(" aa")]
+        [InlineData("aa aa")]
+        public void When_a_command_is_created_with_an_alias_that_contains_whitespace_then_an_informative_error_is_returned(
+            string alias)
+        {
+            Action create = () => new Command(alias);
+
+            create.Should().Throw<ArgumentException>().Which.Message.Should()
+                  .Be($"Command alias cannot contain whitespace: \"{alias}\"");
+        }
+
+        [Theory]
+        [InlineData("aa ")]
+        [InlineData(" aa")]
+        [InlineData("aa aa")]
+        public void When_a_command_alias_is_added_and_contains_whitespace_then_an_informative_error_is_returned(
+            string alias)
+        {
+            var command = new Command("-x");
+
+            Action addAlias = () => command.AddAlias(alias);
+
+            addAlias.Should().Throw<ArgumentException>().Which.Message.Should()
+                    .Be($"Command alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Fact]

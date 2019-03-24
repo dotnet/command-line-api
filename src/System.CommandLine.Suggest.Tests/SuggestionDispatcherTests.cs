@@ -72,7 +72,7 @@ namespace System.CommandLine.Suggest.Tests
                         return "";
                     }));
 
-            var expectedPosition = 58 - _currentExeName.Length;
+            var expectedPosition = 57 - _currentExeName.Length;
 
             receivedTargetExeArgs.Should()
                                  .Be($"[suggest:{expectedPosition}] \"add\"");
@@ -82,6 +82,8 @@ namespace System.CommandLine.Suggest.Tests
         [InlineData("dotnet-abcdef.exe --dry", 23, "[suggest:5] \"--dry\"")]
         [InlineData("dotnet abcdef --dry", 19, "[suggest:5] \"--dry\"")]
         [InlineData("dotnet     abcdef --dry", 23, "[suggest:5] \"--dry\"")]
+        [InlineData("dotnet     abcdef", 18, "[suggest:0] \"\"")]
+        [InlineData("dotnet", 7, "[suggest:0] \"\"")]
         public async Task InvokeAsync_executes_suggestion_command_for_executable_called_via_dotnet_muxer(
             string scriptSendsCommand,
             int scriptSendsPosition,

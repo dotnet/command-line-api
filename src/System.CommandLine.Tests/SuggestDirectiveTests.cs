@@ -246,5 +246,22 @@ namespace System.CommandLine.Tests
                    .Should()
                    .Be($"--option1{NewLine}--option2{NewLine}");
         }
+
+        [Fact]
+        public async Task It_does_not_repeat_suggestion_for_already_specified_bool_option()
+        {
+            var command = new RootCommand { new Option("--bool-option", argument: new Argument<bool>()), };
+
+            var console = new TestConsole();
+
+            var commandLine = "--bool-option false";
+
+            await command.InvokeAsync($"[suggest:{commandLine.Length + 1}] \"{commandLine}\"", console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .NotContain("--bool-option");
+        }
     }
 }

@@ -105,6 +105,14 @@ namespace System.CommandLine
                 throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
+            for (int i = 0; i < alias.Length; i++)
+            {
+                if (char.IsWhiteSpace(alias[i]))
+                {
+                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"");
+                }
+            }
+
             _rawAliases.Add(alias);
             _aliases.Add(unprefixedAlias);
 

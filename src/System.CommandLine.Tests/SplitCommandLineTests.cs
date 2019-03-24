@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests
 
             commandLine.SplitCommandLine()
                        .Should()
-                       .BeEquivalentTo("one", "two", "three", "four");
+                       .BeEquivalentSequenceTo("one", "two", "three", "four");
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
 
             commandLine.SplitCommandLine()
                        .Should()
-                       .BeEquivalentTo("rm", "-r", @"c:\temp files\");
+                       .BeEquivalentSequenceTo("rm", "-r", @"c:\temp files\");
         }
 
         [Theory]
@@ -54,7 +54,7 @@ namespace System.CommandLine.Tests
 
             commandLine.SplitCommandLine()
                        .Should()
-                       .BeEquivalentTo("the-command", optionAndArgument.Replace("\"", ""));
+                       .BeEquivalentSequenceTo("the-command", optionAndArgument.Replace("\"", ""));
         }
 
         [Fact]
@@ -75,8 +75,7 @@ namespace System.CommandLine.Tests
             }
 
             tokenized.Should()
-                     .BeEquivalentTo("move", "--from", source, "--to", destination);
-
+                     .BeEquivalentSequenceTo("move", "--from", source, "--to", destination);
         }
     }
 }
