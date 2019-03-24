@@ -186,9 +186,20 @@ namespace System.CommandLine.Invocation
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.Directives.Contains("suggest"))
+                if (context.ParseResult.Directives.TryGetValues("suggest", out var values))
                 {
-                    context.InvocationResult = new SuggestDirectiveResult();
+                    int position;
+
+                    if (values.FirstOrDefault() is string positionString)
+                    {
+                        position = int.Parse(positionString);
+                    }
+                    else
+                    {
+                        position = context.ParseResult.RawInput?.Length ?? 0;
+                    }
+
+                    context.InvocationResult = new SuggestDirectiveResult(position);
                 }
                 else
                 {
@@ -342,7 +353,7 @@ namespace System.CommandLine.Invocation
 
                         var dotnetSuggestProcess = Process.StartProcess(
                             command: "dotnet-suggest",
-                            args: $"register --command-path \"{currentProcessFullPath}\" --suggestion-command \"{currentProcessFileNameWithoutExtension} [suggest]\"",
+                            args: $"register --command-path \"{currentProcessFullPath}\" --suggestion-command \"{currentProcessFileNameWithoutExtension}\"",
                             stdOut: value => stdOut.Append(value),
                             stdErr: value => stdOut.Append(value));
 

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -42,10 +41,6 @@ namespace System.CommandLine.Suggest
                                          StartInfo = processStartInfo
                                      })
                 {
-#if DEBUG
-                    Program.LogDebug($"dotnet-suggest invoking: {exeFileName} {suggestionTargetArguments}");
-#endif
-
                     process.Start();
 
                     Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();

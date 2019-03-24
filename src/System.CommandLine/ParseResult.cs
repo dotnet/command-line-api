@@ -9,14 +9,13 @@ namespace System.CommandLine
     public class ParseResult
     {
         private readonly List<ParseError> _errors = new List<ParseError>();
-        private readonly string _rawInput;
 
         internal ParseResult(
             Parser parser,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
-            IReadOnlyCollection<Token> tokens,
+            IReadOnlyList<Token> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
             IReadOnlyCollection<TokenizeError> tokenizeErrors,
@@ -30,8 +29,7 @@ namespace System.CommandLine
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
 
-            // FIX: (ParseResult) Trim this for better fidelity with Environment.CommandLine
-            _rawInput = rawInput;
+            RawInput = rawInput;
 
             if (tokenizeErrors?.Count > 0)
             {
@@ -52,11 +50,11 @@ namespace System.CommandLine
 
         public IDirectiveCollection Directives { get; }
 
-        public IReadOnlyCollection<Token> Tokens { get; }
+        public IReadOnlyList<Token> Tokens { get; }
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 
-        internal string RawInput => _rawInput ?? Environment.CommandLine;
+        internal string RawInput { get; }
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 

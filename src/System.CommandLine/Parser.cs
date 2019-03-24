@@ -80,7 +80,7 @@ namespace System.CommandLine
                     var key = keyAndValue[0];
                     var value = keyAndValue.Length == 2
                                     ? keyAndValue[1]
-                                    : string.Empty;
+                                    : null;
 
                     directives.Add(key, value);
 
@@ -233,9 +233,14 @@ namespace System.CommandLine
                 args = Array.Empty<string>();
             }
 
-            var firstArg = Path.GetFileName(args.FirstOrDefault());
+            string potentialRootCommand = null;
 
-            if (Configuration.RootCommand.HasRawAlias(firstArg))
+            if (args.Count > 0)
+            {
+                potentialRootCommand = Path.GetFileName(args.FirstOrDefault());
+            }
+
+            if (Configuration.RootCommand.HasRawAlias(potentialRootCommand))
             {
                 return args;
             }
@@ -254,12 +259,11 @@ namespace System.CommandLine
             return args;
 
             bool FirstArgMatchesExeName() =>
-                firstArg != null &&
+                potentialRootCommand != null &&
                 (
-                    firstArg.Equals(commandName, StringComparison.OrdinalIgnoreCase) ||
-                    firstArg.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase)
-                    ||
-                    firstArg.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase)
+                    potentialRootCommand.Equals(commandName, StringComparison.OrdinalIgnoreCase) ||
+                    potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase) ||
+                    potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase)
                 );
         }
     }

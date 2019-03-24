@@ -10,12 +10,11 @@ using Xunit;
 
 namespace System.CommandLine.Tests.Binding
 {
-
     public class HandlerDescriptorTests
     {
         public class FromDelegate
         {
-[Theory]
+            [Theory]
             [InlineData(typeof(int))]
             [InlineData(typeof(string))]
             [InlineData(typeof(DirectoryInfo))]

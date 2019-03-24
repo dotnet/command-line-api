@@ -8,14 +8,14 @@ namespace System.CommandLine
     internal class TokenizeResult
     {
         public TokenizeResult(
-            IReadOnlyCollection<Token> tokens = null,
+            IReadOnlyList<Token> tokens = null,
             IReadOnlyCollection<TokenizeError> errors = null)
         {
             Tokens = tokens ?? Array.Empty<Token>();
             Errors = errors ?? Array.Empty<TokenizeError>();
         }
 
-        public IReadOnlyCollection<Token> Tokens { get; }
+        public IReadOnlyList<Token> Tokens { get; }
 
         public IReadOnlyCollection<TokenizeError> Errors { get; }
     }

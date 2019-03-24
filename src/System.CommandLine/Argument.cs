@@ -159,29 +159,22 @@ namespace System.CommandLine
             _validValues.UnionWith(values);
         }
 
-        public IEnumerable<string> Suggest(
-            ParseResult parseResult,
-            int? position = null)
+        public IEnumerable<string> Suggest(string textToMatch)
         {
-            if (parseResult == null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
-
             var fixedSuggestions = _suggestions;
 
             var dynamicSuggestions = _suggestionSources
-                .SelectMany(source => source.Suggest(parseResult, position));
+                .SelectMany(source => source.Suggest(textToMatch));
 
             var typeSuggestions = SuggestionSource.ForType(ArgumentType)
-                                                  .Suggest(parseResult, position);
+                                                  .Suggest(textToMatch);
 
             return fixedSuggestions
                    .Concat(dynamicSuggestions)
                    .Concat(typeSuggestions)
                    .Distinct()
                    .OrderBy(c => c)
-                   .Containing(parseResult.TextToMatch());
+                   .Containing(textToMatch);
         }
 
         private ArgumentResult Parse(SymbolResult symbolResult)

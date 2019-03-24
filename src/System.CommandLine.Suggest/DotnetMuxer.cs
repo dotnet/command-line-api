@@ -2,12 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace System.CommandLine.Suggest.Tests
+namespace System.CommandLine.Suggest
 {
-    public static class DotnetMuxer
+    internal static class DotnetMuxer
     {
         public static FileInfo Path { get; }
 
@@ -42,22 +41,14 @@ namespace System.CommandLine.Suggest.Tests
             }
         }
 
-        internal static string SharedFxVersion =>
-
-        new FileInfo(GetDataFromAppDomain("FX_DEPS_FILE")).Directory.Name;
-
         public static string GetDataFromAppDomain(string propertyName)
         {
-            var appDomainType = typeof(object).GetTypeInfo().Assembly?.GetType("System.AppDomain");
-            var currentDomain = appDomainType?.GetProperty("CurrentDomain")?.GetValue(null);
-            var deps = appDomainType?.GetMethod("GetData")?.Invoke(currentDomain, new[] { propertyName });
-
-            return deps as string;
+            return AppContext.GetData(propertyName) as string;
         }
 
         public static string ExecutableName(this string withoutExtension) =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? withoutExtension + ".exe"
-            : withoutExtension;
+                ? withoutExtension + ".exe"
+                : withoutExtension;
     }
 }

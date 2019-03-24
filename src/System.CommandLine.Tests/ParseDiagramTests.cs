@@ -2,6 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
+using System.IO;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 

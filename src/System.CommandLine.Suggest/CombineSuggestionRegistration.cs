@@ -17,7 +17,7 @@ namespace System.CommandLine.Suggest
                 suggestionRegistration ?? throw new ArgumentNullException(nameof(suggestionRegistration));
         }
 
-        public void AddSuggestionRegistration(RegistrationPair registration)
+        public void AddSuggestionRegistration(Registration registration)
         {
             foreach (var suggestionRegistration in _suggestionRegistrations)
             {
@@ -25,14 +25,14 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        public RegistrationPair FindRegistration(FileInfo soughtExecutable)
+        public Registration FindRegistration(FileInfo soughtExecutable)
         {
             return _suggestionRegistrations
                    .Select(s => s.FindRegistration(soughtExecutable))
                    .FirstOrDefault(s => s != null);
         }
 
-        public IEnumerable<RegistrationPair> FindAllRegistrations()
+        public IEnumerable<Registration> FindAllRegistrations()
         {
             return _suggestionRegistrations
                 .SelectMany(s => s.FindAllRegistrations());

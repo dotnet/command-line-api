@@ -9,23 +9,23 @@ namespace System.CommandLine.Suggest.Tests
 {
     internal class TestSuggestionRegistration : ISuggestionRegistration
     {
-        private readonly List<RegistrationPair> _suggestionRegistrations = new List<RegistrationPair>();
+        private readonly List<Registration> _suggestionRegistrations = new List<Registration>();
 
-        public TestSuggestionRegistration(params RegistrationPair[] suggestionRegistrations)
+        public TestSuggestionRegistration(params Registration[] suggestionRegistrations)
         {
-            foreach (RegistrationPair suggestionRegistration in suggestionRegistrations)
+            foreach (Registration suggestionRegistration in suggestionRegistrations)
             {
                 AddSuggestionRegistration(suggestionRegistration);
             }
         }
 
-        public RegistrationPair FindRegistration(FileInfo soughtExecutable)
-            => _suggestionRegistrations.FirstOrDefault(x => x.CommandPath.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase));
+        public Registration FindRegistration(FileInfo soughtExecutable)
+            => _suggestionRegistrations.FirstOrDefault(x => x.ExecutablePath.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase));
 
-        public IEnumerable<RegistrationPair> FindAllRegistrations()
+        public IEnumerable<Registration> FindAllRegistrations()
             => _suggestionRegistrations;
 
-        public void AddSuggestionRegistration(RegistrationPair registration)
+        public void AddSuggestionRegistration(Registration registration)
         {
             _suggestionRegistrations.Add(registration);
         }

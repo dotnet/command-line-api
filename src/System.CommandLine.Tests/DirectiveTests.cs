@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
             var result = option.Parse("[parse] -y");
 
             result.Directives.TryGetValues("parse", out var values).Should().BeTrue();
-            values.Should().BeEquivalentTo("");
+            values.Should().BeEmpty();
         }
 
         [Theory]
