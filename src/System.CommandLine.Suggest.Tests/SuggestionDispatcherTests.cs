@@ -14,6 +14,19 @@ namespace System.CommandLine.Suggest.Tests
     public class SuggestionDispatcherTests
     {
         private static readonly string _currentExeName = RootCommand.ExeName;
+        
+        private static readonly string _dotnetExeFullPath = 
+            DotnetMuxer.Path.FullName;
+
+        private static readonly string _dotnetFormatExeFullPath =
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? @"C:\Program Files\dotnet-format.exe"
+                : "/bin/dotnet-format";
+
+        private static readonly string _netExeFullPath =
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? @"C:\Windows\System32\net.exe"
+                : "/bin/net";
 
         private static Registration CurrentExeRegistrationPair()
             => new Registration(CurrentExeFullPath());
@@ -66,9 +79,9 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [Theory]
-        [InlineData("dotnet-format.exe --dry", 23, "[suggest:5] \"--dry\"")]
-        [InlineData("dotnet format --dry", 19, "[suggest:5] \"--dry\"")]
-        [InlineData("dotnet     format --dry", 23, "[suggest:5] \"--dry\"")]
+        [InlineData("dotnet-abcdef.exe --dry", 23, "[suggest:5] \"--dry\"")]
+        [InlineData("dotnet abcdef --dry", 19, "[suggest:5] \"--dry\"")]
+        [InlineData("dotnet     abcdef --dry", 23, "[suggest:5] \"--dry\"")]
         public async Task InvokeAsync_executes_suggestion_command_for_executable_called_via_dotnet_muxer(
             string scriptSendsCommand,
             int scriptSendsPosition,
@@ -145,21 +158,6 @@ namespace System.CommandLine.Suggest.Tests
                        .Should()
                        .Be($"dotnet-format{Environment.NewLine}dotnet format{Environment.NewLine}kiwi-fruit{Environment.NewLine}");
         }
-
-        private static readonly string _dotnetExeFullPath =
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? @"C:\Program Files\dotnet\dotnet.exe"
-                : "/bin/dotnet";
-
-        private static readonly string _dotnetFormatExeFullPath =
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? @"C:\Program Files\dotnet-format.exe"
-                : "/bin/dotnet-format";
-
-        private static readonly string _netExeFullPath =
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? @"C:\Windows\System32\net.exe"
-                : "/bin/net";
 
         [Fact]
         public async Task Register_command_adds_new_suggestion_entry()
