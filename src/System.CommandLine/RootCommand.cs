@@ -33,16 +33,20 @@ namespace System.CommandLine
             set => throw new NotSupportedException("The root command's name cannot be changed.");
         }
 
-        private static readonly Lazy<string> executablePath = 
-            new Lazy<string>(() => Assembly.GetEntryAssembly().Location);
-  
+        private static readonly Lazy<string> executablePath =
+            new Lazy<string>(() =>
+                                 GetAssembly().Location);
+
         private static readonly Lazy<string> executableName =
             new Lazy<string>(() =>
-                Path.GetFileNameWithoutExtension(
-                    (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location));
+                                 Path.GetFileNameWithoutExtension(GetAssembly().Location));
 
-        public static string ExeName { get; } = executableName.Value;
+        private static Assembly GetAssembly() =>
+            Assembly.GetEntryAssembly() ??
+            Assembly.GetExecutingAssembly();
 
-        public static string ExePath { get; } = executablePath.Value;
+        public static string ExeName => executableName.Value;
+
+        public static string ExePath => executablePath.Value;
     }
 }
