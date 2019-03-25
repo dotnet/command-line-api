@@ -31,13 +31,15 @@ namespace System.CommandLine.Rendering
             this BindingContext context)
         {
             if (context.ParseResult.Directives.TryGetValues(
-                    "enable-vt",
-                    out var pvtString) &&
-                bool.TryParse(
-                    pvtString.FirstOrDefault(),
-                    out var pvt))
+                "enable-vt",
+                out var trueOrFalse))
             {
-                return pvt;
+                if (bool.TryParse(
+                    trueOrFalse.FirstOrDefault(),
+                    out var pvt))
+                {
+                    return pvt;
+                }
             }
 
             return true;

@@ -22,13 +22,16 @@ namespace System.CommandLine.Invocation
                             [typeof(ParseResult)] = () => _bindingContext.ParseResult,
                             [typeof(IConsole)] = () => _bindingContext.Console,
                             [typeof(CancellationToken)] = () => CancellationToken.None,
-                            [typeof(IHelpBuilder)] = () => _bindingContext.Parser.Configuration.HelpBuilderFactory.CreateHelpBuilder(_bindingContext),
+                            [typeof(IHelpBuilder)] = () => _bindingContext.ParseResult.Parser.Configuration.HelpBuilderFactory.CreateHelpBuilder(_bindingContext),
+                            [typeof(BindingContext)] = () => _bindingContext
                         };
         }
 
         public void AddService<T>(Func<T> factory) => _services[typeof(T)] = () => factory();
 
-        public IReadOnlyCollection<Type> AvailableServiceTypes => _services.Keys; 
+        public void AddService(Type serviceType, Func<object> factory) => _services[serviceType] = factory;
+
+        public IReadOnlyCollection<Type> AvailableServiceTypes => _services.Keys;
 
         public object GetService(Type serviceType)
         {

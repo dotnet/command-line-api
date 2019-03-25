@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using static System.CommandLine.ArgumentResult;
 
 namespace System.CommandLine
@@ -35,23 +36,13 @@ namespace System.CommandLine
                 }
             }
 
-            var singleStringConstructor = type.GetConstructors()
-                                              .Where(c =>
-                                              {
-                                                  var parameters = c.GetParameters();
-                                                  return c.IsPublic &&
-                                                         parameters.Length == 1 &&
-                                                         parameters[0].ParameterType == typeof(string);
-                                              })
-                                              .SingleOrDefault();
-
-            if (singleStringConstructor != null)
+            if (type.ConstructorWithSingleParameterOfType(typeof(string)) is ConstructorInfo ctor)
             {
                 convert = _stringConverters.GetOrAdd(
                     type,
                     _ => arg =>
                     {
-                        var instance = singleStringConstructor.Invoke(new object[] { arg });
+                        var instance = ctor.Invoke(new object[] { arg });
                         return Success(instance);
                     });
 
@@ -81,7 +72,9 @@ namespace System.CommandLine
             return ParseMany(typeof(T), arguments);
         }
 
-        public static ArgumentResult ParseMany(Type type, IReadOnlyCollection<string> arguments)
+        public static ArgumentResult ParseMany(
+            Type type, 
+            IReadOnlyCollection<string> arguments)
         {
             if (type == null)
             {
@@ -93,13 +86,17 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(arguments));
             }
 
-            var itemType = type
-                           .GetInterfaces()
-                           .SingleOrDefault(i =>
-                                                i.IsGenericType &&
-                                                i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                           .GenericTypeArguments
-                           .Single();
+            Type itemType;
+
+            if (type == typeof(string))
+            {
+                // don't treat items as char
+                itemType = typeof(string);
+            }
+            else
+            {
+                itemType = GetItemTypeIfEnumerable(type);
+            }
 
             var allParseResults = arguments
                                   .Select(arg => Parse(itemType, arg))
@@ -130,21 +127,77 @@ namespace System.CommandLine
             }
         }
 
+        private static Type GetItemTypeIfEnumerable(Type type)
+        {
+            var enumerableInterface =
+                IsEnumerable(type)
+                    ? type
+                    : type
+                      .GetInterfaces()
+                      .FirstOrDefault(IsEnumerable);
+
+            if (enumerableInterface == null)
+            {
+                return null;
+            }
+
+            return enumerableInterface.GenericTypeArguments[0];
+
+            bool IsEnumerable(Type i)
+            {
+                return i.IsGenericType &&
+                       i.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+            }
+        }
+
         private static FailedArgumentResult Failure(Type type, string value)
         {
             return new FailedArgumentTypeConversionResult(type, value);
         }
 
-        public static ConvertArgument DefaultConvertArgument(Type type) =>
-            symbol =>
+        public static bool CanBeBoundFromScalarValue(this Type type)
+        {
+            if (type.IsPrimitive ||
+                type.IsEnum)
             {
-                switch (ArgumentArity.DefaultForType(type).MaximumNumberOfArguments)
+                return true;
+            }
+
+            if (type == typeof(string))
+            {
+                return true;
+            }
+
+            if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter &&
+                typeConverter.CanConvertFrom(typeof(string)))
+            {
+                return true;
+            }
+
+            if (ConstructorWithSingleParameterOfType(type, typeof(string)) != null)
+            {
+                return true;
+            }
+
+            if (GetItemTypeIfEnumerable(type) is Type itemType)
+            {
+                return itemType.CanBeBoundFromScalarValue();
+            }
+
+            return false;
+        }
+
+        private static ConstructorInfo ConstructorWithSingleParameterOfType(
+            this Type type,
+            Type parameterType) =>
+            type.GetConstructors()
+                .Where(c =>
                 {
-                    case 1:
-                        return Parse(type, symbol.Arguments.SingleOrDefault());
-                    default:
-                        return ParseMany(type, symbol.Arguments);
-                }
-            };
+                    var parameters = c.GetParameters();
+                    return c.IsPublic &&
+                           parameters.Length == 1 &&
+                           parameters[0].ParameterType == parameterType;
+                })
+                .SingleOrDefault();
     }
 }

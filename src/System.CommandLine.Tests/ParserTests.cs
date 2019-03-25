@@ -7,7 +7,6 @@ using System.IO;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions.Common;
 using Xunit;
 using Xunit.Abstractions;
@@ -657,7 +656,7 @@ namespace System.CommandLine.Tests
         [InlineData("not a valid command line --one 1")]
         public void Original_order_of_tokens_is_preserved_in_ParseResult_Tokens(string commandLine)
         {
-            var rawSplit = commandLine.Tokenize();
+            var rawSplit = commandLine.SplitCommandLine();
 
             var command = new Command("the-command", argument: new Argument<string[]>())
                           {

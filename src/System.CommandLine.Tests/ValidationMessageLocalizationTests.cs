@@ -42,8 +42,6 @@ namespace System.CommandLine.Tests
 
             public override string FileDoesNotExist(string filePath) => message;
 
-            public string CommandAcceptsOnlyOneSubcommand(string command, string subcommandsSpecified) => message;
-
             public override string RequiredArgumentMissing(SymbolResult symbolResult) => message;
 
             public override string RequiredCommandWasNotProvided() => message;

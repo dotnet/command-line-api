@@ -14,7 +14,7 @@ namespace System.CommandLine
     {
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
 
-        private static readonly Regex _tokenizer = new Regex(
+        private static readonly Regex _commandLineSplitter = new Regex(
             @"((?<opt>[^""\s]+)""(?<arg>[^""]+)"") # token + quoted argument with non-space argument delimiter, ex: --opt:""c:\path with\spaces""
               |                                
               (""(?<token>[^""]*)"")               # tokens surrounded by spaces, ex: ""c:\path with\spaces""
@@ -46,12 +46,12 @@ namespace System.CommandLine
             return option;
         }
 
-        internal static LexResult Lex(
+        internal static TokenizeResult Tokenize(
             this IEnumerable<string> args,
             CommandLineConfiguration configuration)
         {
             var tokenList = new List<Token>();
-            var errorList = new List<ParseError>();
+            var errorList = new List<TokenizeError>();
 
             ISymbol currentSymbol = null;
             var foundEndOfArguments = false;
@@ -81,7 +81,10 @@ namespace System.CommandLine
 
                 if (!foundEndOfDirectives)
                 {
-                    if (arg.StartsWith("[") && arg.EndsWith("]") && arg[1] != ']' && arg[1] != ':')
+                    if (arg.StartsWith("[") && 
+                        arg.EndsWith("]") && 
+                        arg[1] != ']' && 
+                        arg[1] != ':')
                     {
                         tokenList.Add(Directive(arg));
                         continue;
@@ -94,44 +97,16 @@ namespace System.CommandLine
                 }
 
                 if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
-                    arg.StartsWith("@"))
+                    arg.GetResponseFileReference() is string filePath)
                 {
-                    var filePath = arg.Substring(1);
-                    if (!string.IsNullOrWhiteSpace(filePath))
-                    {
-                        try
-                        {
-                            var next = i + 1;
-                            foreach (var newArg in ParseResponseFile(
-                                filePath,
-                                configuration.ResponseFileHandling))
-                            {
-                                argList.Insert(next, newArg);
-                                next += 1;
-                            }
-                        }
-                        catch (FileNotFoundException)
-                        {
-                            errorList.Add(new ParseError(configuration.ValidationMessages.ResponseFileNotFound(filePath),
-                                                         null,
-                                                         false));
-                        }
-                        catch (IOException e)
-                        {
-                            errorList.Add(new ParseError(
-                                              configuration.ValidationMessages.ErrorReadingResponseFile(filePath, e),
-                                              null,
-                                              false));
-                        }
-
-                        continue;
-                    }
+                    ReadResponseFile(filePath, i);
+                    continue;
                 }
 
                 var argHasPrefix = HasPrefix(arg);
 
                 if (argHasPrefix &&
-                    SplitTokenByArgumentDelimiter(arg, argumentDelimiters) is string[] subtokens &&
+                    arg.SplitByDelimiters(argumentDelimiters) is string[] subtokens &&
                     subtokens.Length > 1)
                 {
                     if (knownTokens.Any(t => t.Value == subtokens.First()))
@@ -192,14 +167,61 @@ namespace System.CommandLine
                 }
             }
 
-            return new LexResult(tokenList, errorList);
+            return new TokenizeResult(tokenList, errorList);
+
+            void ReadResponseFile(string filePath, int i)
+            {
+                if (string.IsNullOrWhiteSpace(filePath))
+                {
+                    errorList.Add(
+                        new TokenizeError(
+                            $"Invalid response file token: {filePath}"));
+                    return;
+                }
+
+                try
+                {
+                    var next = i + 1;
+
+                    foreach (var newArg in ExpandResponseFile(
+                        filePath,
+                        configuration.ResponseFileHandling))
+                    {
+                        argList.Insert(next, newArg);
+                        next += 1;
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                    var message = configuration.ValidationMessages
+                                               .ResponseFileNotFound(filePath);
+
+                    errorList.Add(
+                        new TokenizeError(message));
+                }
+                catch (IOException e)
+                {
+                    var message = configuration.ValidationMessages
+                                               .ErrorReadingResponseFile(filePath, e);
+
+                    errorList.Add(
+                        new TokenizeError(message));
+                }
+            }
         }
 
-        internal static string[] SplitTokenByArgumentDelimiter(string arg, char[] argumentDelimiters) => arg.Split(argumentDelimiters, 2);
+        private static string GetResponseFileReference(this string arg) =>
+            arg.StartsWith("@") && arg.Length > 1
+                ? arg.Substring(1)
+                : null;
+
+        internal static string[] SplitByDelimiters(
+            this string arg, 
+            char[] argumentDelimiters) => arg.Split(argumentDelimiters, 2);
 
         public static string ToKebabCase(this string value)
         {
-            if (String.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
                 return value;
             }
@@ -212,10 +234,10 @@ namespace System.CommandLine
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
-                if (Char.IsLetterOrDigit(ch))
+                if (char.IsLetterOrDigit(ch))
                 {
-                    addDash = !Char.IsUpper(ch);
-                    sb.Append(Char.ToLowerInvariant(ch));
+                    addDash = !char.IsUpper(ch);
+                    sb.Append(char.ToLowerInvariant(ch));
                     i++;
                     break;
                 }
@@ -225,7 +247,7 @@ namespace System.CommandLine
             for (; i < value.Length; i++)
             {
                 char ch = value[i];
-                if (Char.IsUpper(ch))
+                if (char.IsUpper(ch))
                 {
                     if (addDash)
                     {
@@ -233,9 +255,9 @@ namespace System.CommandLine
                         sb.Append('-');
                     }
 
-                    sb.Append(Char.ToLowerInvariant(ch));
+                    sb.Append(char.ToLowerInvariant(ch));
                 }
-                else if (Char.IsLetterOrDigit(ch))
+                else if (char.IsLetterOrDigit(ch))
                 {
                     addDash = true;
                     sb.Append(ch);
@@ -249,8 +271,6 @@ namespace System.CommandLine
 
             return sb.ToString();
         }
-
-        internal static string FromKebabCase(this string value) => value.Replace("-", "");
 
         private static Token Argument(string value) => new Token(value, TokenType.Argument);
 
@@ -281,9 +301,9 @@ namespace System.CommandLine
 
         private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
 
-        public static IEnumerable<string> Tokenize(this string commandLine)
+        public static IEnumerable<string> SplitCommandLine(this string commandLine)
         {
-            var matches = _tokenizer.Matches(commandLine);
+            var matches = _commandLineSplitter.Matches(commandLine);
 
             foreach (Match match in matches)
             {
@@ -303,26 +323,49 @@ namespace System.CommandLine
             }
         }
 
-        private static IEnumerable<string> ParseResponseFile(
+        private static IEnumerable<string> ExpandResponseFile(
             string filePath,
             ResponseFileHandling responseFileHandling)
         {
             foreach (var line in File.ReadAllLines(filePath))
             {
+                foreach (var p in SplitLine(line))
+                {
+                    if (p.GetResponseFileReference() is string path)
+                    {
+                        foreach (var q in ExpandResponseFile(
+                            path,
+                            responseFileHandling))
+                        {
+                            yield return q;
+                        }
+                    }
+                    else
+                    {
+                        yield return p;
+                    }
+                }
+            }
+
+            IEnumerable<string> SplitLine(string line)
+            {
                 var arg = line.Trim();
 
                 if (arg.Length == 0 || arg.StartsWith("#"))
                 {
-                    continue;
+                    yield break;
                 }
 
                 switch (responseFileHandling)
                 {
                     case ResponseFileHandling.ParseArgsAsLineSeparated:
+
                         yield return line;
+
                         break;
                     case ResponseFileHandling.ParseArgsAsSpaceSeparated:
-                        foreach (var word in Tokenize(arg))
+
+                        foreach (var word in SplitCommandLine(arg))
                         {
                             yield return word;
                         }

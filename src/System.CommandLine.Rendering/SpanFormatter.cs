@@ -99,11 +99,11 @@ namespace System.CommandLine.Rendering
 
         public Span ParseToSpan(FormattableString formattableString)
         {
-            var formatProvider = new ArgumentCapturingFormatProvider();
+            var formatted = formattableString.ToString();
 
-            var formatted = ((IFormattable)formattableString).ToString("", formatProvider);
+            var args = formattableString.GetArguments();
 
-            if (formatProvider.Args.Count == 0)
+            if (args.Length == 0)
             {
                 return Format(formatted);
             }
@@ -123,7 +123,7 @@ namespace System.CommandLine.Rendering
                         if (match.Value.StartsWith("{") &&
                             match.Value.EndsWith("}"))
                         {
-                            var arg = formatProvider.Args[partIndex++];
+                            var arg = args[partIndex++];
 
                             if (match.Value.Contains(":"))
                             {
@@ -144,25 +144,6 @@ namespace System.CommandLine.Rendering
                     }
                 }
             }
-        }
-
-        private class ArgumentCapturingFormatProvider :
-            ICustomFormatter,
-            IFormatProvider
-        {
-            public object GetFormat(Type formatType) => this;
-
-            public string Format(
-                string format,
-                object arg,
-                IFormatProvider formatProvider)
-            {
-                Args.Add(arg);
-
-                return "";
-            }
-
-            public List<object> Args { get; } = new List<object>();
         }
     }
 }

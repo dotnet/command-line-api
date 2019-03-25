@@ -18,19 +18,19 @@ namespace System.CommandLine
                 if (t.IsEnum)
                 {
                     var names = Enum.GetNames(t);
-                    return new AnonymousSuggestionSource((result, position) => names);
+                    return new AnonymousSuggestionSource(_ => names);
                 }
 
                 if (t == typeof(bool))
                 {
                     var trueAndFalse = new[] { bool.FalseString, bool.TrueString };
-                    return new AnonymousSuggestionSource((result, position) => trueAndFalse);
+                    return new AnonymousSuggestionSource(_ => trueAndFalse);
                 }
 
                 return Empty;
             }
         }
 
-        public static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource((result, position) => Array.Empty<string>());
+        public static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource(_ => Array.Empty<string>());
     }
 }

@@ -14,16 +14,13 @@ namespace System.CommandLine.Suggest
     {
         private readonly ISuggestionRegistration _suggestionRegistration;
         private readonly ISuggestionStore _suggestionStore;
-        private readonly Parser _parser;
-
-        public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
         public SuggestionDispatcher(ISuggestionRegistration suggestionRegistration, ISuggestionStore suggestionStore = null)
         {
             _suggestionRegistration = suggestionRegistration ?? throw new ArgumentNullException(nameof(suggestionRegistration));
             _suggestionStore = suggestionStore ?? new SuggestionStore();
 
-            _parser = new CommandLineBuilder()
+            Parser = new CommandLineBuilder()
                       .UseVersionOption()
                       .UseHelp()
                       .UseParseDirective()
@@ -60,11 +57,10 @@ namespace System.CommandLine.Suggest
             Command ListCommand() =>
                 new Command(
                     "list",
-                    "Lists apps registered for suggestions",
-                    new[] { DetailedOption() })
+                    "Lists apps registered for suggestions")
                 {
-                    Handler = CommandHandler.Create<IConsole, bool>(
-                        (c, detailed) => c.Out.WriteLine(List(_suggestionRegistration, detailed)))
+                    Handler = CommandHandler.Create<IConsole>(
+                        c => c.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration)))
                 };
 
             Command CompleteScriptCommand() =>
@@ -81,11 +77,6 @@ namespace System.CommandLine.Suggest
                     Handler = CommandHandler.Create<IConsole, string>(
                         SuggestionShellScriptHandler.Handle)
                 };
-
-            Option DetailedOption() =>
-                new Option("--detailed",
-                           "Provides detailed output about registered completions",
-                           new Argument<bool>());
 
             Command RegisterCommand() =>
                 new Command("register",
@@ -106,8 +97,12 @@ namespace System.CommandLine.Suggest
                            new Argument<string>());
         }
 
+        public Parser Parser { get; }
+
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
+
         public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
-            _parser.InvokeAsync(args, console);
+            Parser.InvokeAsync(args, console);
 
         private void Register(
             string commandPath,
@@ -119,13 +114,13 @@ namespace System.CommandLine.Suggest
             if (existingRegistration == null)
             {
                 _suggestionRegistration.AddSuggestionRegistration(
-                    new RegistrationPair(commandPath, suggestionCommand));
+                    new Registration(commandPath));
 
-                console.Out.WriteLine($"Registered {commandPath} --> {suggestionCommand}");
+                console.Out.WriteLine($"Registered {commandPath}");
             }
             else
             {
-                console.Out.WriteLine($"Registered {commandPath} --> {suggestionCommand}");
+                console.Out.WriteLine($"Registered {commandPath}");
             }
         }
 
@@ -133,8 +128,17 @@ namespace System.CommandLine.Suggest
         {
             var commandPath = parseResult.ValueForOption<FileInfo>("-e");
 
-            var suggestionRegistration =
-                _suggestionRegistration.FindRegistration(commandPath);
+            Registration suggestionRegistration;
+            if (commandPath.FullName == DotnetMuxer.Path.FullName)
+            {
+                suggestionRegistration = new Registration(commandPath.FullName);
+            }
+            else
+            {
+                suggestionRegistration = _suggestionRegistration.FindRegistration(commandPath);
+            }
+
+            var position = parseResult.CommandResult["position"]?.GetValueOrDefault<int>() ?? short.MaxValue;
 
             if (suggestionRegistration == null)
             {
@@ -145,11 +149,16 @@ namespace System.CommandLine.Suggest
                 return;
             }
 
-            var targetExePath = suggestionRegistration.CommandPath;
+            var targetExePath = suggestionRegistration.ExecutablePath;
 
             string targetArgs = FormatSuggestionArguments(
                 parseResult,
+                position,
                 targetExePath);
+
+#if DEBUG
+            Program.LogDebug($"dotnet-suggest sending: {targetArgs}");
+#endif
 
             string suggestions = _suggestionStore.GetSuggestions(
                 targetExePath,
@@ -159,48 +168,122 @@ namespace System.CommandLine.Suggest
             console.Out.Write(suggestions);
         }
 
-        private static string List(
-            ISuggestionRegistration suggestionProvider,
-            bool detailed = false)
+        private static string ShellPrefixesToMatch(
+            ISuggestionRegistration suggestionProvider)
         {
             var registrations = suggestionProvider.FindAllRegistrations();
 
-            if (detailed)
+            return string.Join(Environment.NewLine, Prefixes());
+
+            IEnumerable<string> Prefixes()
             {
-                return string.Join(Environment.NewLine,
-                                   registrations.Select(r => $"{r.CommandPath} --> {r.SuggestionCommand}"));
-            }
-            else
-            {
-                return string.Join(" ", registrations
-                                        .Select(suggestionRegistration => suggestionRegistration.CommandPath)
-                                        .Select(Path.GetFileNameWithoutExtension));
+
+                foreach (var r in registrations)
+                {
+                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension (r.ExecutablePath);
+
+                    yield return fileNameWithoutExtension;
+
+                    if (fileNameWithoutExtension.StartsWith("dotnet-", StringComparison.Ordinal))
+                    {
+                        yield return "dotnet " + fileNameWithoutExtension.Substring("dotnet-".Length);
+                    }
+                }
             }
         }
 
-        private static string FormatSuggestionArguments(
+        public static string FormatSuggestionArguments(
             ParseResult parseResult,
+            int position,
             string targetExeName)
         {
-            var outboundArgs = new List<string>
-                               {
-                                   "[suggest]"
-                               };
-
             var tokens = parseResult.UnparsedTokens;
 
-            var rootCommand = Path.GetFileName(tokens.FirstOrDefault()).RemoveExeExtension();
+            var commandLine = tokens.FirstOrDefault() ?? "";
 
             targetExeName = Path.GetFileName(targetExeName).RemoveExeExtension();
 
-            if (rootCommand == targetExeName)
+            int offset = 0;
+
+            if (targetExeName == "dotnet")
             {
-                tokens = tokens.Skip(1).ToArray();
+                // e.g. 
+                int? endOfWhitespace = null;
+                int? endOfSecondtoken = null;
+
+                var choppedCommandLine = commandLine;
+
+                for (var i = "dotnet".Length; i < commandLine.Length; i++)
+                {
+                    if (!char.IsWhiteSpace(commandLine[i]))
+                    {
+                        endOfWhitespace = i;
+                        break;
+                    }
+                }
+
+                if (endOfWhitespace != null)
+                {
+                    for (var i = endOfWhitespace.Value; i < commandLine.Length; i++)
+                    {
+                        if (char.IsWhiteSpace(commandLine[i]))
+                        {
+                            endOfSecondtoken = i;
+                            break;
+                        }
+                    }
+
+                    if (endOfSecondtoken != null)
+                    {
+                        for (var i = endOfSecondtoken.Value; i < commandLine.Length; i++)
+                        {
+                            if (!char.IsWhiteSpace(commandLine[i]))
+                            {
+                                choppedCommandLine = commandLine.Substring(i);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        choppedCommandLine = "";
+                    }
+                }
+                else
+                {
+                    choppedCommandLine = "";
+                }
+
+                if (choppedCommandLine.Length > 0)
+                {
+                    offset = commandLine.Length - choppedCommandLine.Length;
+                }
+                else
+                {
+                    offset = position;
+                }
+
+                commandLine = choppedCommandLine;
+            }
+            else if (commandLine.StartsWith(targetExeName))
+            {
+                if (commandLine.Length > targetExeName.Length)
+                {
+                    commandLine = commandLine.Substring(targetExeName.Length + 1);
+                }
+                else
+                {
+                    commandLine = "";
+                }
+
+                offset = targetExeName.Length + 1;
             }
 
-            outboundArgs.AddRange(tokens);
+            position = position - offset;
 
-            return string.Join(' ', outboundArgs);
+            var suggestDirective = $"[suggest:{position}]";
+
+            return $"{suggestDirective} \"{commandLine.Escape()}\"";
         }
     }
 }

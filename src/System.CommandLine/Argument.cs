@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine
@@ -14,6 +15,7 @@ namespace System.CommandLine
         private IArgumentArity _arity;
         private HashSet<string> _validValues;
         private ConvertArgument _convertArguments;
+        private Symbol _parent;
 
         public string Name { get; set; }
 
@@ -27,11 +29,11 @@ namespace System.CommandLine
                 {
                     if (ArgumentType != null)
                     {
-                        _arity = ArgumentArity.DefaultForType(ArgumentType);
+                        return ArgumentArity.Default(ArgumentType, Parent);
                     }
                     else
                     {
-                        _arity = ArgumentArity.Zero;
+                        return ArgumentArity.Zero;
                     }
                 }
 
@@ -44,9 +46,10 @@ namespace System.CommandLine
         {
             get
             {
-                if (_convertArguments == null)
+                if (_convertArguments == null &&
+                    ArgumentType != null)
                 {
-                    if (ArgumentType != null)
+                    if (ArgumentType.CanBeBoundFromScalarValue())
                     {
                         if (Arity.MaximumNumberOfArguments == 1 &&
                             ArgumentType == typeof(bool))
@@ -56,12 +59,27 @@ namespace System.CommandLine
                         }
                         else
                         {
-                            _convertArguments = ArgumentConverter.DefaultConvertArgument(ArgumentType);
+                            _convertArguments = DefaultConvert;
                         }
                     }
                 }
 
                 return _convertArguments;
+
+                ArgumentResult DefaultConvert(SymbolResult symbol)
+                {
+                    switch (Arity.MaximumNumberOfArguments)
+                    {
+                        case 1:
+                            return ArgumentConverter.Parse(
+                                ArgumentType,
+                                symbol.Arguments.SingleOrDefault());
+                        default:
+                            return ArgumentConverter.ParseMany(
+                                ArgumentType, 
+                                symbol.Arguments);
+                    }
+                }
             }
             set => _convertArguments = value;
         }
@@ -69,6 +87,25 @@ namespace System.CommandLine
         public Type ArgumentType { get; set; }
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
+
+        public Symbol Parent
+        {
+            get => _parent;
+            internal set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                if (_parent != null)
+                {
+                    throw new InvalidOperationException($"{nameof(Parent)} is already set.");
+                }
+
+                _parent = value;
+            }
+        }
 
         public void AddValidator(ValidateSymbol validator) => SymbolValidators.Add(validator);
 
@@ -104,6 +141,11 @@ namespace System.CommandLine
 
         public void AddSuggestionSource(Suggest suggest)
         {
+            if (suggest == null)
+            {
+                throw new ArgumentNullException(nameof(suggest));
+            }
+
             AddSuggestionSource(new AnonymousSuggestionSource(suggest));
         }
 
@@ -117,29 +159,22 @@ namespace System.CommandLine
             _validValues.UnionWith(values);
         }
 
-        public IEnumerable<string> Suggest(
-            ParseResult parseResult,
-            int? position = null)
+        public IEnumerable<string> Suggest(string textToMatch)
         {
-            if (parseResult == null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
-
             var fixedSuggestions = _suggestions;
 
             var dynamicSuggestions = _suggestionSources
-                .SelectMany(source => source.Suggest(parseResult, position));
+                .SelectMany(source => source.Suggest(textToMatch));
 
             var typeSuggestions = SuggestionSource.ForType(ArgumentType)
-                                                  .Suggest(parseResult, position);
+                                                  .Suggest(textToMatch);
 
             return fixedSuggestions
                    .Concat(dynamicSuggestions)
                    .Concat(typeSuggestions)
                    .Distinct()
                    .OrderBy(c => c)
-                   .Containing(parseResult.TextToMatch());
+                   .Containing(textToMatch);
         }
 
         private ArgumentResult Parse(SymbolResult symbolResult)
@@ -230,7 +265,9 @@ namespace System.CommandLine
                             return new ParseError(
                                 symbolResult.ValidationMessages
                                             .UnrecognizedArgument(arg,
-                                                                  _validValues));
+                                                                  _validValues),
+                                symbolResult,
+                                canTokenBeRetried: false);
                         }
                     }
                 }
@@ -255,5 +292,7 @@ namespace System.CommandLine
         }
 
         IArgumentArity IArgument.Arity => Arity;
+
+        Type IValueDescriptor.Type => ArgumentType;
     }
 }

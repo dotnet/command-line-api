@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -32,7 +31,7 @@ namespace System.CommandLine.Tests
                     }
                     .WithSuggestions("one", "two", "three"));
 
-            var suggestions = option.Suggest(option.Parse("--hello "));
+            var suggestions = option.Suggest();
 
             suggestions.Should().BeEquivalentTo("one", "two", "three");
         }
@@ -46,7 +45,7 @@ namespace System.CommandLine.Tests
                 new Option("--three", "option three")
             });
 
-            var suggestions = command.Suggest(command.Parse("command "));
+            var suggestions = command.Suggest();
 
             suggestions.Should().BeEquivalentTo("--one", "--two", "--three");
         }
@@ -62,7 +61,7 @@ namespace System.CommandLine.Tests
                     new Command("three", "subcommand three")
                 });
 
-            var suggestions = command.Suggest(command.Parse("command "));
+            var suggestions = command.Suggest();
 
             suggestions.Should().BeEquivalentTo("one", "two", "three");
         }
@@ -77,7 +76,7 @@ namespace System.CommandLine.Tests
                     new Option("--option", "option")
                 });
 
-            var suggestions = command.Suggest(command.Parse("command "));
+            var suggestions = command.Suggest();
 
             suggestions.Should().BeEquivalentTo("subcommand", "--option");
         }
@@ -97,7 +96,7 @@ namespace System.CommandLine.Tests
                     }
                     .WithSuggestions("command-argument"));
 
-            var suggestions = command.Suggest(command.Parse("command "));
+            var suggestions = command.Suggest();
 
             suggestions.Should()
                        .BeEquivalentTo("subcommand", "--option", "command-argument");
@@ -118,8 +117,6 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            _output.WriteLine(string.Join(Environment.NewLine, result.Suggestions()));
-
             result.Suggestions()
                   .Should()
                   .BeEquivalentTo("--apple",
@@ -130,21 +127,24 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_one_option_has_been_specified_then_it_and_its_siblings_will_still_be_suggested()
         {
-            var parser = new Parser(
-                new Option("--apple"),
-                new Option("--banana"),
-                new Option("--cherry"));
+            var parser = new Command("command")
+                         {
+                             new Option("--apple"),
+                             new Option("--banana"),
+                             new Option("--cherry")
+                         };
 
-            var result = parser.Parse("--apple grannysmith ");
+            var commandLine = "--apple grannysmith";
+            var result = parser.Parse(commandLine);
 
-            result.Suggestions()
+            result.Suggestions(commandLine.Length + 1)
                   .Should()
                   .BeEquivalentTo("--banana",
                                   "--cherry");
         }
 
         [Fact]
-        public void When_a_subcommand_has_been_specified_then_its_siblings_will_not_be_suggested()
+        public void When_a_subcommand_has_been_specified_then_its_sibling_commands_will_not_be_suggested()
         {
             var rootCommand = new RootCommand
             {
@@ -166,7 +166,94 @@ namespace System.CommandLine.Tests
 
             result.Suggestions()
                   .Should()
-                  .BeEquivalentTo("--rainier");
+                  .NotContain(new[]{"apple", "banana", "cherry"});
+        }
+
+        [Fact]
+        public void When_a_subcommand_has_been_specified_then_its_sibling_options_will_be_suggested()
+        {
+            var command = new RootCommand("parent")
+                          {
+                              new Command("child"),
+                              new Option("--parent-option")
+                          };
+            command.Argument = new Argument<string>();
+
+            var commandLine = "child";
+            var parseResult = command.Parse(commandLine);
+
+            parseResult
+                .Suggestions(commandLine.Length + 1)
+                .Should()
+                .Contain("--parent-option");
+        }
+
+        [Fact]
+        public void When_a_subcommand_has_been_specified_then_its_sibling_options_with_argument_limit_reached_will_be_not_be_suggested()
+        {
+            var command = new RootCommand("parent")
+                          {
+                              new Command("child"),
+                              new Option("--parent-option", argument: new Argument<string>())
+                          };
+            command.Argument = new Argument<string>();
+
+            var commandLine = "--parent-option 123 child";
+            var parseResult = command.Parse(commandLine);
+
+            parseResult
+                .Suggestions(commandLine.Length + 1)
+                .Should()
+                .NotContain("--parent-option");
+        }
+
+        [Fact]
+        public void When_a_subcommand_has_been_specified_then_its_child_options_will_be_suggested()
+        {
+            var command = new RootCommand("parent")
+                          {
+                              new Command("child")
+                              {
+                                  new Option("--child-option",
+                                             argument: new Argument<string>())
+                              }
+                          };
+            command.Argument = new Argument<string>();
+
+            var commandLine = "child ";
+            var parseResult = command.Parse(commandLine);
+
+            parseResult
+                .Suggestions(commandLine.Length + 1)
+                .Should()
+                .Contain("--child-option");
+        }
+
+        [Fact]
+        public void When_a_subcommand_with_subcommands_has_been_specified_then_its_sibling_commands_will_not_be_suggested()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Command("apple")
+                {
+                    new Command("cortland")
+                },
+                new Command("banana")
+                {
+                    new Command("cavendish")
+                },
+                new Command("cherry")
+                {
+                    new Command("rainier")
+                }
+            };
+
+            var commandLine = "cherry";
+            var result = rootCommand.Parse(commandLine);
+
+            result.Suggestions(commandLine.Length + 1)
+                  .Should()
+                  .BeEquivalentTo("rainier");
         }
 
         [Fact]
@@ -178,13 +265,10 @@ namespace System.CommandLine.Tests
                          .AddOption(new Option("--cherry"))
                          .Build();
 
-            var result = parser.Parse("a");
+            var input = "a";
+            var result = parser.Parse(input);
 
-            _output.WriteLine(result.ToString());
-
-            _output.WriteLine(string.Join(Environment.NewLine, result.Suggestions()));
-
-            result.Suggestions()
+            result.Suggestions(input.Length)
                   .Should()
                   .BeEquivalentTo("--apple",
                                   "--banana");
@@ -218,15 +302,17 @@ namespace System.CommandLine.Tests
                     new Argument { Arity = ArgumentArity.ExactlyOne }
                         .FromAmong("provolone", "cheddar", "cream cheese")));
 
-            var result = parser.Parse("--bread ");
+            var commandLine = "--bread";
+            var result = parser.Parse(commandLine);
 
-            result.Suggestions()
+            result.Suggestions(commandLine.Length + 1)
                   .Should()
                   .BeEquivalentTo("rye", "sourdough", "wheat");
 
-            result = parser.Parse("--bread wheat --cheese ");
+            commandLine = "--bread wheat --cheese ";
+            result = parser.Parse(commandLine);
 
-            result.Suggestions()
+            result.Suggestions(commandLine.Length + 1)
                   .Should()
                   .BeEquivalentTo("cheddar", "cream cheese", "provolone");
         }
@@ -245,8 +331,9 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ExactlyOne
                 });
 
-            command.Parse("test ")
-                   .Suggestions()
+            var commandLine = "test";
+            command.Parse(commandLine)
+                   .Suggestions(commandLine.Length + 1)
                    .Should()
                    .BeEquivalentTo("one", "two");
         }
@@ -266,8 +353,10 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ExactlyOne
                 });
 
-            command.Parse("test ")
-                   .Suggestions()
+            var commandLine = "test";
+
+            command.Parse(commandLine)
+                   .Suggestions(commandLine.Length + 1)
                    .Should()
                    .BeEquivalentTo("one", "--one");
         }
@@ -298,9 +387,10 @@ namespace System.CommandLine.Tests
                     new Option("--three", "Option three")
                 }));
 
-            ParseResult result = parser.Parse("outer ");
+            var commandLine = "outer";
+            ParseResult result = parser.Parse(commandLine);
 
-            result.Suggestions().Should().BeEquivalentTo("--one", "--two", "--three");
+            result.Suggestions(commandLine.Length + 1).Should().BeEquivalentTo("--one", "--two", "--three");
         }
 
         [Fact]
@@ -320,9 +410,10 @@ namespace System.CommandLine.Tests
                                         .FromAmong("two-a", "two-b"))
                             }));
 
-            ParseResult result = parser.Parse("outer --two ");
+            var commandLine = "outer --two";
+            ParseResult result = parser.Parse(commandLine);
 
-            result.Suggestions().Should().BeEquivalentTo("two-a", "two-b");
+            result.Suggestions(commandLine.Length + 1).Should().BeEquivalentTo("two-a", "two-b");
         }
 
         [Fact]
@@ -377,7 +468,7 @@ namespace System.CommandLine.Tests
                             {
                                 Arity = ArgumentArity.ExactlyOne
                             }
-                            .WithSuggestionSource((parseResult, pos) => new[] {
+                            .WithSuggestionSource(_=> new[] {
                                 "vegetable",
                                 "mineral",
                                 "animal"
@@ -420,7 +511,7 @@ namespace System.CommandLine.Tests
                          .AddCommand(command)
                          .Build();
 
-            ParseResult result = parser.Parse(new[] { "outer", "two", "b" });
+            ParseResult result = parser.Parse("outer two b" );
 
             result.Suggestions()
                   .Should()
@@ -483,7 +574,7 @@ namespace System.CommandLine.Tests
             outer.AddCommand(two);
             outer.AddCommand(three);
 
-            ParseResult result = outer.Parse(new[] { "outer", "two", "b" });
+            ParseResult result = outer.Parse("outer two b");
 
             result.Suggestions()
                   .Should()
@@ -523,56 +614,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_position_is_unspecified_then_TextToMatch_matches_partial_argument_at_end_of_command_line()
-        {
-            Command command = new Command("the-command", "", new[] {
-                new Option("--option1", ""),
-                new Option("--option2", "")
-            });
-
-            string textToMatch = command.Parse("the-command t")
-                                        .TextToMatch();
-
-            textToMatch.Should().Be("t");
-        }
-
-        [Fact]
-        public void When_position_is_unspecified_and_command_line_ends_with_a_space_then_TextToMatch_returns_empty()
-        {
-            Command command = new Command("the-command", "", new[] {
-                new Option("--option1", ""),
-                new Option("--option2", "")
-            });
-
-            string textToMatch = command.Parse("the-command t ")
-                                        .TextToMatch();
-
-            textToMatch.Should().Be("");
-        }
-
-        [Theory]
-        [InlineData("the-command $one --two")]
-        [InlineData("the-command one$ --two")]
-        [InlineData("the-command on$e --two ")]
-        [InlineData(" the-command  $one --two ")]
-        [InlineData(" the-command  one$ --two ")]
-        [InlineData(" the-command  on$e --two ")]
-        public void When_position_is_specified_then_TextToMatch_matches_argument_at_cursor_position(string input)
-        {
-            Command command =
-                new Command("the-command", "",
-                            argument: new Argument
-                            {
-                                Arity = ArgumentArity.ZeroOrMore
-                            });
-
-            string textToMatch = command.Parse(input.Replace("$", ""))
-                                        .TextToMatch(input.IndexOf("$", StringComparison.Ordinal));
-
-            textToMatch.Should().Be("one");
-        }
-
-        [Fact]
         public void Arguments_of_type_enum_provide_enum_values_as_suggestions()
         {
             var command = new Command("the-command",
@@ -580,8 +621,6 @@ namespace System.CommandLine.Tests
 
             var suggestions = command.Parse("the-command create")
                                      .Suggestions();
-
-            _output.WriteLine(string.Join("\n", suggestions));
 
             suggestions.Should().BeEquivalentTo("CreateNew", "Create", "OpenOrCreate");
         }
@@ -595,7 +634,8 @@ namespace System.CommandLine.Tests
             command.AddOption(new Option("--allows-many",
                                          argument: new Argument<string[]>()));
 
-            var suggestions = command.Parse("--allows-one x ").Suggestions();
+            var commandLine = "--allows-one x";
+            var suggestions = command.Parse(commandLine).Suggestions(commandLine.Length + 1);
 
             suggestions.Should().BeEquivalentTo("--allows-many");
         }
@@ -628,6 +668,150 @@ namespace System.CommandLine.Tests
             var suggestions = command.Parse("m").Suggestions();
 
             suggestions.Should().BeEquivalentTo("--implicit");
+        }
+
+        public class TextToMatch
+        {
+            [Fact]
+            public void When_position_is_unspecified_in_string_command_line_not_ending_with_a_space_then_it_returns_final_token()
+            {
+                var command = new Command("the-command", "",
+                                          new[]
+                                          {
+                                              new Option("--option1", ""),
+                                              new Option("--option2", "")
+                                          });
+
+                string textToMatch = command.Parse("the-command t")
+                                            .TextToMatch();
+
+                textToMatch.Should().Be("t");
+            }
+
+            [Fact]
+            public void When_position_is_unspecified_in_string_command_line_ending_with_a_space_then_it_returns_empty()
+            {
+                Command command = new Command("the-command", "",
+                                              new[]
+                                              {
+                                                  new Option("--option1", ""),
+                                                  new Option("--option2", "")
+                                              });
+
+                var commandLine = "the-command t";
+                string textToMatch = command.Parse(commandLine)
+                                            .TextToMatch(commandLine.Length + 1);
+
+                textToMatch.Should().Be("");
+            }
+
+            [Fact]
+            public void When_position_is_greater_than_input_length_in_a_string_command_line_then_it_returns_empty()
+            {
+                Command command = new Command("the-command", "",
+                                              new[]
+                                              {
+                                                  new Option("--option1", "", new Argument<string>().FromAmong("apple", "banana", "cherry", "durian")),
+                                                  new Option("--option2", "", new Argument<string>())
+                                              });
+                command.Argument = new Argument<string>();
+
+                string textToMatch = command.Parse("the-command --option1 a")
+                                            .TextToMatch(1000);
+
+                textToMatch.Should().Be("");
+            }
+
+            [Fact]
+            public void When_position_is_unspecified_in_array_command_line_and_final_token_is_unmatched_then_it_returns_final_token()
+            {
+                var command = new Command("the-command", "",
+                                          new[]
+                                          {
+                                              new Option("--option1", ""),
+                                              new Option("--option2", "")
+                                          });
+
+                string textToMatch = command.Parse("the-command", "opt")
+                                            .TextToMatch();
+
+                textToMatch.Should().Be("opt");
+            }
+
+            [Fact]
+            public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_command_then_it_returns_empty()
+            {
+                Command command = new Command("the-command", "",
+                                              new[]
+                                              {
+                                                  new Option("--option1", ""),
+                                                  new Option("--option2", "")
+                                              });
+
+                string textToMatch = command.Parse(new[] { "the-command" })
+                                            .TextToMatch();
+
+                textToMatch.Should().Be("");
+            }
+
+            [Fact]
+            public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_option_then_it_returns_empty()
+            {
+                Command command = new Command("the-command", "",
+                                              new[]
+                                              {
+                                                  new Option("--option1", ""),
+                                                  new Option("--option2", "")
+                                              });
+
+                string textToMatch = command.Parse("the-command", "--option1")
+                                            .TextToMatch();
+
+                textToMatch.Should().Be("");
+            }
+  
+            [Fact]
+            public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_argument_then_it_returns_empty()
+            {
+                Command command = new Command("the-command", "",
+                                              new[]
+                                              {
+                                                  new Option("--option1", "", new Argument<string>().FromAmong("apple", "banana", "cherry", "durian")),
+                                                  new Option("--option2", "", new Argument<string>())
+                                              });
+                command.Argument = new Argument<string>();
+
+                string textToMatch = command.Parse("the-command", "--option1", "a")
+                                            .TextToMatch();
+
+                textToMatch.Should().Be("a");
+            }
+
+            [Theory]
+            [InlineData("the-command $one --two", "one")]
+            [InlineData("the-command one$ --two", "one")]
+            [InlineData("the-command on$e --two ", "one")]
+            [InlineData(" the-command  $one --two ", "one")]
+            [InlineData(" the-command  one$ --two ", "one")]
+            [InlineData(" the-command  on$e --two ", "one")]
+            public void When_position_is_specified_in_string_command_line_then_it_returns_argument_at_cursor_position(
+                string commandLine,
+                string expected)
+            {
+                var command =
+                    new Command("the-command", "",
+                                argument: new Argument
+                                          {
+                                              Arity = ArgumentArity.ZeroOrMore
+                                          });
+
+                var position = commandLine.IndexOf("$", StringComparison.Ordinal);
+
+                var textToMatch = command.Parse(commandLine.Replace("$", ""))
+                                         .TextToMatch(position);
+
+                textToMatch.Should().Be(expected);
+            }
         }
     }
 }

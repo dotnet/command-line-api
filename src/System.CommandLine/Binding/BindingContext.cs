@@ -2,28 +2,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Invocation;
+using System.Linq;
 
 namespace System.CommandLine.Binding
 {
-    public class BindingContext
+    public sealed class BindingContext
     {
         private IConsole _console;
 
         public BindingContext(
             ParseResult parseResult,
-            Parser parser,
             IConsole console = null)
         {
             _console = console ?? new SystemConsole();
 
             ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
-            Parser = parser ?? throw new ArgumentNullException(nameof(parser));
             ServiceProvider = new ServiceProvider(this);
         }
 
         public ParseResult ParseResult { get; set; }
-
-        public Parser Parser { get; }
 
         internal IConsoleFactory ConsoleFactory { get; set; }
 
@@ -45,5 +42,71 @@ namespace System.CommandLine.Binding
         }
 
         internal ServiceProvider ServiceProvider { get; }
+
+        public void AddService(Type serviceType, Func<object> factory)
+        {
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+
+            if (factory == null)
+            {
+                throw new ArgumentNullException(nameof(factory));
+            }
+
+            ServiceProvider.AddService(serviceType, factory);
+        }
+
+        internal bool TryGetValueSource(
+            IValueDescriptor valueDescriptor,
+            out IValueSource valueSource)
+        {
+            foreach (var symbol in ParseResult.ValueDescriptors())
+            {
+                if (ValueDescriptor.CanBind(
+                    from: symbol, 
+                    to: valueDescriptor))
+                {
+                    valueSource = new SymbolValueSource((ISymbol)symbol);
+
+                    return true;
+                }
+            }
+
+            if (ServiceProvider.AvailableServiceTypes.Contains(valueDescriptor.Type))
+            {
+                valueSource = new ServiceProviderValueSource();
+                return true;
+            }
+
+            valueSource = null;
+            return false;
+        }
+
+        internal bool TryBindToScalarValue(
+            IValueDescriptor valueDescriptor,
+            IValueSource valueSource,
+            out BoundValue boundValue)
+        {
+            if (valueSource.TryGetValue(valueDescriptor, this, out var value))
+            {
+                if (value == null || valueDescriptor.Type.IsInstanceOfType(value))
+                {
+                    boundValue = new BoundValue(value, valueDescriptor, valueSource);
+                    return true;
+                }
+                else
+                {
+                    boundValue = null;
+                    return false;
+                }
+            }
+            else
+            {
+                boundValue = null;
+                return false;
+            }
+        }
     }
 }

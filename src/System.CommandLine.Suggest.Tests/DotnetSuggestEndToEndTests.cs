@@ -79,7 +79,7 @@ namespace System.CommandLine.Suggest.Tests
 
             await Process.ExecuteAsync(
                 _endToEndTestApp.FullName,
-                "[suggest] a",
+                "[suggest:1] \"a\"",
                 stdOut: value => stdOut.AppendLine(value),
                 environmentVariables: _environmentVariables);
 
@@ -102,9 +102,11 @@ namespace System.CommandLine.Suggest.Tests
             var stdOut = new StringBuilder();
             var stdErr = new StringBuilder();
 
+            var commandLineToComplete = "a";
+
             await Process.ExecuteAsync(
                 _dotnetSuggest.FullName,
-                $"get -e \"{_endToEndTestApp.FullName}\" -p 0 -- {Path.GetFileNameWithoutExtension(_endToEndTestApp.FullName)} a",
+                $"get -e \"{_endToEndTestApp.FullName}\" --position {commandLineToComplete.Length} -- \"{commandLineToComplete}\"",
                 stdOut: value => stdOut.AppendLine(value),
                 stdErr: value => stdErr.AppendLine(value),
                 environmentVariables: _environmentVariables);
@@ -135,9 +137,11 @@ namespace System.CommandLine.Suggest.Tests
             var stdOut = new StringBuilder();
             var stdErr = new StringBuilder();
 
+            var commandLineToComplete = "a ";
+
             await Process.ExecuteAsync(
                 _dotnetSuggest.FullName,
-                $"get -e \"{_endToEndTestApp.FullName}\" --position 0 -- {Path.GetFileNameWithoutExtension(_endToEndTestApp.FullName)}",
+                $"get -e \"{_endToEndTestApp.FullName}\" --position {commandLineToComplete.Length} -- \"{commandLineToComplete}\"",
                 stdOut: value => stdOut.AppendLine(value),
                 stdErr: value => stdErr.AppendLine(value),
                 environmentVariables: _environmentVariables);

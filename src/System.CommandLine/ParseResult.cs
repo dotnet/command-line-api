@@ -11,26 +11,30 @@ namespace System.CommandLine
         private readonly List<ParseError> _errors = new List<ParseError>();
 
         internal ParseResult(
+            Parser parser,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
-            IReadOnlyCollection<Token> tokens,
+            IReadOnlyList<Token> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
-            IReadOnlyCollection<ParseError> errors,
+            IReadOnlyCollection<TokenizeError> tokenizeErrors,
             string rawInput)
         {
+            Parser = parser;
             RootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             Directives = directives;
             Tokens = tokens;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
+
             RawInput = rawInput;
 
-            if (errors != null)
+            if (tokenizeErrors?.Count > 0)
             {
-                _errors.AddRange(errors);
+                _errors.AddRange(
+                    tokenizeErrors.Select(e => new ParseError(e.Message)));
             }
 
             AddImplicitOptionsAndCheckForErrors();
@@ -38,13 +42,15 @@ namespace System.CommandLine
 
         public CommandResult CommandResult { get; }
 
+        public Parser Parser { get; }
+
         public CommandResult RootCommandResult { get; }
 
         public IReadOnlyCollection<ParseError> Errors => _errors;
 
         public IDirectiveCollection Directives { get; }
 
-        public IReadOnlyCollection<Token> Tokens { get; }
+        public IReadOnlyList<Token> Tokens { get; }
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 
@@ -125,5 +131,9 @@ namespace System.CommandLine
         public SymbolResult this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
+
+        public SymbolResult FindResultFor(ISymbol symbol) =>
+            RootCommandResult.AllSymbolResults()
+                             .FirstOrDefault(s => s.Symbol == symbol);
     }
 }

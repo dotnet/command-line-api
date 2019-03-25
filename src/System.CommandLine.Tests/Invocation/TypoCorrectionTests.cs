@@ -29,6 +29,24 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
+        public async Task When_there_are_no_matches_then_nothing_is_suggested()
+        {
+            var option = new Option("info");
+
+            var parser =
+                new CommandLineBuilder()
+                    .AddOption(option)
+                    .UseTypoCorrections()
+                    .Build();
+
+            var result = parser.Parse("zzzzzzz");
+
+            await parser.InvokeAsync(result, _console);
+
+            _console.Out.ToString().Should().NotContain("was not matched");
+        }
+
+        [Fact]
         public async Task When_command_is_mistyped_it_is_suggested()
         {
             var command = new Command("restore");

@@ -5,8 +5,8 @@ namespace System.CommandLine.Suggest
 {
     public interface ISuggestionRegistration
     {
-        void AddSuggestionRegistration(RegistrationPair registration);
-        RegistrationPair FindRegistration(FileInfo soughtExecutable);
-        IEnumerable<RegistrationPair> FindAllRegistrations();
+        void AddSuggestionRegistration(Registration registration);
+        Registration FindRegistration(FileInfo soughtExecutable);
+        IEnumerable<Registration> FindAllRegistrations();
     }
 }

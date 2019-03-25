@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 using System.Text;
 
@@ -9,75 +10,55 @@ namespace System.CommandLine
 {
     public static class ParseResultExtensions
     {
-        public static object GetDefaultValueForType(this Type type)
-        {
-            return type.IsValueType ? Activator.CreateInstance(type) : null;
-        }
-
-        public static object GetValueOrDefault(this ParseResult parseResult, Option option, bool searchHierarchy)
-        {
-            var optionResult = GetOptionResult(parseResult.CommandResult, option, searchHierarchy);
-            return optionResult == null
-                    ? GetDefaultValueForType(option.Argument.ArgumentType ?? typeof(bool))
-                    : optionResult.GetValueOrDefault();
-        }
-
-        private static SymbolResult GetOptionResult(CommandResult commandResult, Option option, bool searchHierarchy)
-        {
-            var optionResult = commandResult.Children
-                                .Where(c => c.Symbol == option)
-                                .FirstOrDefault();
-            return optionResult == null && searchHierarchy && commandResult.Parent != null
-                ? GetOptionResult(commandResult.Parent, option, searchHierarchy)
-                : optionResult;
-        }
-
-        public static object GetValueOrDefault(this ParseResult parseResult, Argument argument, bool searchHierarchy)
-        {
-            var commandResult = GetCommandResultForArgument(parseResult.CommandResult, argument, searchHierarchy);
-            // TODO: Change when we support multiple arguments
-            return commandResult == null
-                ? GetDefaultValueForType(argument.ArgumentType ?? typeof(bool))
-                : commandResult.GetValueOrDefault();
-        }
-
-        private static CommandResult GetCommandResultForArgument(CommandResult commandResult, Argument argument, bool searchHierarchy)
-            => commandResult.Command.Argument == argument
-                ? commandResult
-                : (commandResult.Parent == null
-                    ? null
-                    : GetCommandResultForArgument(commandResult.Parent, argument, searchHierarchy));
-
         public static string TextToMatch(
             this ParseResult source,
             int? position = null)
         {
-            var lastToken = source.Tokens.LastOrDefault();
+            var lastToken = source.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
 
-            if (string.IsNullOrWhiteSpace(source.RawInput))
-            {
-                return source.UnmatchedTokens.LastOrDefault() ?? "";
-            }
+            string textToMatch = null;
+            var rawInput = source.RawInput;
 
-            if (position == null)
+            if (rawInput != null)
             {
-                // assume the cursor is at the end of the input
-                if (!source.RawInput.EndsWith(" "))
+                if (position != null)
                 {
-                    return lastToken.Value;
+                    if (position > rawInput.Length)
+                    {
+                        rawInput += ' ';
+                        position = Math.Min(rawInput.Length, position.Value);
+                    }
                 }
                 else
                 {
-                    return "";
+                    position = rawInput.Length;
                 }
             }
+            else if (lastToken?.Value != null)
+            {
+                position = null;
+                textToMatch = lastToken.Value;
+            }
 
-            var textBeforeCursor = source.RawInput.Substring(0, position.Value);
+            if (string.IsNullOrWhiteSpace(rawInput))
+            {
+                if (source.UnmatchedTokens.Any() ||
+                    lastToken?.Type == TokenType.Argument)
+                {
+                    return textToMatch;
+                }
+            }
+            else 
+            {
+                var textBeforeCursor = rawInput.Substring(0, position.Value);
 
-            var textAfterCursor = source.RawInput.Substring(position.Value);
+                var textAfterCursor = rawInput.Substring(position.Value);
 
-            return textBeforeCursor.Split(' ').LastOrDefault() +
-                   textAfterCursor.Split(' ').FirstOrDefault();
+                return textBeforeCursor.Split(' ').LastOrDefault() +
+                       textAfterCursor.Split(' ').FirstOrDefault();
+            }
+
+            return "";
         }
 
         public static string Diagram(this ParseResult result)
@@ -187,31 +168,111 @@ namespace System.CommandLine
             this ParseResult parseResult,
             int? position = null)
         {
-            var currentSymbolResult = parseResult.CurrentSymbol();
+            var textToMatch = parseResult.TextToMatch(position);
+            var currentSymbolResult = parseResult.SymbolToComplete(position);
             var currentSymbol = currentSymbolResult.Symbol;
 
             var currentSymbolSuggestions =
                 currentSymbol is ISuggestionSource currentSuggestionSource
-                    ? currentSuggestionSource.Suggest(parseResult, position)
+                    ? currentSuggestionSource.Suggest(textToMatch)
                     : Array.Empty<string>();
+
+            IEnumerable<string> siblingSuggestions;
+
+            if (currentSymbol.Parent == null ||
+                !currentSymbolResult.IsArgumentLimitReached)
+            {
+                siblingSuggestions = Array.Empty<string>();
+            }
+            else
+            {
+                siblingSuggestions = currentSymbol.Parent
+                                                  .Suggest(textToMatch)
+                                                  .Except(currentSymbol.Parent
+                                                                       .Children
+                                                                       .OfType<ICommand>()
+                                                                       .Select(c => c.Name));
+            }
 
             if (currentSymbolResult is CommandResult commandResult)
             {
+                currentSymbolSuggestions = currentSymbolSuggestions
+                    .Except(OptionsWithArgumentLimitReached(currentSymbolResult));
+
+                if (currentSymbolResult.Parent is CommandResult parent)
+                {
+                    siblingSuggestions = siblingSuggestions.Except(OptionsWithArgumentLimitReached(parent));
+                }
+            }
+
+            return currentSymbolSuggestions.Concat(siblingSuggestions);
+
+            string[] OptionsWithArgumentLimitReached(SymbolResult symbolResult)
+            {
                 var optionsWithArgLimitReached =
-                    currentSymbolResult
+                    symbolResult
                         .Children
                         .Where(c => c.IsArgumentLimitReached);
 
-                var exclude =
-                    optionsWithArgLimitReached
-                        .SelectMany(c => c.Symbol.RawAliases)
-                        .Concat(commandResult.Symbol.RawAliases)
-                        .ToArray();
+                var exclude = optionsWithArgLimitReached
+                              .SelectMany(c => c.Symbol.RawAliases)
+                              .Concat(commandResult.Symbol.RawAliases)
+                              .ToArray();
 
-                currentSymbolSuggestions = currentSymbolSuggestions.Except(exclude);
+                return exclude;
             }
+        }
 
-            return currentSymbolSuggestions;
+        internal static SymbolResult SymbolToComplete(
+            this ParseResult parseResult,
+            int? position = null)
+        {
+            var commandResult = parseResult.CommandResult;
+
+            var currentSymbol = AllSymbolResultsForCompletion()
+                .LastOrDefault();
+
+            return currentSymbol;
+
+            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
+            {
+                foreach (var item in commandResult.AllSymbolResults())
+                {
+                    if (item is CommandResult command)
+                    {
+                        yield return command;
+                    }
+                    else if (item is OptionResult option)
+                    {
+                        var willAcceptAnArgument =
+                            !option.IsImplicit &&
+                            (!option.IsArgumentLimitReached ||
+                             parseResult.TextToMatch(position).Length > 0);
+
+                        if (willAcceptAnArgument)
+                        {
+                            yield return option;
+                        }
+                    }
+                }
+            }
+        }
+
+        internal static IEnumerable<IValueDescriptor> ValueDescriptors(this ParseResult parseResult)
+        {
+            var command = parseResult.CommandResult.Command;
+
+            while (command != null)
+            {
+                yield return command;
+
+                foreach (var option in command.Children.OfType<Option>())
+                {
+                    yield return option;
+                }
+
+                command = command.Parent;
+            }
         }
     }
 }

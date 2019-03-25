@@ -31,7 +31,7 @@ namespace System.CommandLine.Builder
 
         private static readonly Lazy<string> _assemblyVersion =
             new Lazy<string>(() => {
-                var assembly = Assembly.GetEntryAssembly();
+                var assembly = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
                 if (assemblyVersionAttribute == null)
                 {
@@ -66,51 +66,6 @@ namespace System.CommandLine.Builder
                     await next(context);
                 }
             }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
-
-            return builder;
-        }
-
-        public static TBuilder ConfigureFromMethod<TBuilder>(
-            this TBuilder builder,
-            MethodInfo method,
-            object target = null)
-            where TBuilder : CommandBuilder
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-
-            builder.Command.ConfigureFromMethod(method, target);
-
-            return builder;
-        }
-
-        public static CommandLineBuilder ConfigureFromType<T>(
-            this CommandLineBuilder builder,
-            MethodInfo onExecuteMethod = null)
-            where T : class
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            var typeBinder = new TypeBinder(typeof(T));
-
-            foreach (var option in typeBinder.BuildOptions())
-            {
-                builder.AddOption(option);
-            }
-
-            builder.Handler = new TypeCreationCommandHandler(
-                onExecuteMethod,
-                typeBinder);
 
             return builder;
         }

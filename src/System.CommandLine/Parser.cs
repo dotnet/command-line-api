@@ -22,18 +22,17 @@ namespace System.CommandLine
         {
         }
 
-        internal CommandLineConfiguration Configuration { get; }
+        public CommandLineConfiguration Configuration { get; }
 
         public ParseResult Parse(
             IReadOnlyCollection<string> arguments,
             string rawInput = null)
         {
             var normalizedArgs = NormalizeRootCommand(arguments);
-            var lexResult = normalizedArgs.Lex(Configuration);
+            var tokenizeResult = normalizedArgs.Tokenize(Configuration);
             var directives = new DirectiveCollection();
-            var unparsedTokens = new Queue<Token>(lexResult.Tokens);
+            var unparsedTokens = new Queue<Token>(tokenizeResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();
-            var errors = new List<ParseError>(lexResult.Errors);
             var unmatchedTokens = new List<Token>();
             CommandResult rootCommand = null;
             CommandResult innermostCommand = null;
@@ -81,7 +80,7 @@ namespace System.CommandLine
                     var key = keyAndValue[0];
                     var value = keyAndValue.Length == 2
                                     ? keyAndValue[1]
-                                    : string.Empty;
+                                    : null;
 
                     directives.Add(key, value);
 
@@ -133,22 +132,25 @@ namespace System.CommandLine
 
             ProcessImplicitTokens();
 
+            var tokenizeErrors = new List<TokenizeError>(tokenizeResult.Errors);
+
             if (Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
-                errors.AddRange(
-                    unmatchedTokens.Select(token => new ParseError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value))));
+                tokenizeErrors.AddRange(
+                    unmatchedTokens.Select(token => new TokenizeError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value))));
             }
 
             return new ParseResult(
+                this,
                 rootCommand,
                 innermostCommand ?? rootCommand,
                 directives,
                 normalizedArgs.Count == arguments?.Count
-                 ? lexResult.Tokens
-                 : lexResult.Tokens.Skip(1).ToArray(),
+                 ? tokenizeResult.Tokens
+                 : tokenizeResult.Tokens.Skip(1).ToArray(),
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens.Select(t => t.Value).ToArray(),
-                errors,
+                tokenizeErrors,
                 rawInput);
 
             void ProcessImplicitTokens()
@@ -159,7 +161,11 @@ namespace System.CommandLine
                 }
 
                 var currentCommand = innermostCommand ?? rootCommand;
-                if (currentCommand == null) return;
+
+                if (currentCommand == null)
+                {
+                    return;
+                }
 
                 Token[] tokensToAttemptByPosition =
                     Enumerable.Reverse(unmatchedTokens)
@@ -227,26 +233,52 @@ namespace System.CommandLine
                 args = Array.Empty<string>();
             }
 
-            var firstArg = args.FirstOrDefault();
+            string potentialRootCommand = null;
+
+            if (args.Count > 0)
+            {
+                if (args.FirstOrDefault() is string firstArg)
+                {
+                    try
+                    {
+                        potentialRootCommand = Path.GetFileName(firstArg);
+                    }
+                    catch (ArgumentException)
+                    {
+                        // possible exception for illegal characters in path on .NET Framework
+                    }
+
+                    if (Configuration.RootCommand.HasRawAlias(potentialRootCommand))
+                    {
+                        return args;
+                    }
+                }
+            }
 
             var commandName = Configuration.RootCommand.Name;
 
-            if (Configuration.RootCommand.HasRawAlias(firstArg))
+            if (FirstArgMatchesExeName())
             {
-                return args;
-            }
-
-            if (firstArg != null &&
-                firstArg.Contains(Path.DirectorySeparatorChar) &&
-                (firstArg.EndsWith(commandName, StringComparison.OrdinalIgnoreCase) ||
-                 firstArg.EndsWith($"{commandName}.exe", StringComparison.OrdinalIgnoreCase)))
-            {
-                args = new[] { commandName }.Concat(args.Skip(1)).ToArray();
+                args = new[]
+                       {
+                           commandName
+                       }.Concat(args.Skip(1)).ToArray();
             }
             else
             {
-                args = new[] { commandName }.Concat(args).ToArray();
+                args = new[]
+                       {
+                           commandName
+                       }.Concat(args).ToArray();
             }
+
+            bool FirstArgMatchesExeName() =>
+                potentialRootCommand != null &&
+                (
+                    potentialRootCommand.Equals(commandName, StringComparison.OrdinalIgnoreCase) ||
+                    potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase) ||
+                    potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase)
+                );
 
             return args;
         }
