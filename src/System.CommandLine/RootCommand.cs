@@ -29,8 +29,12 @@ namespace System.CommandLine
 
         public override string Name
         {
-            get => ExeName;
-            set => throw new NotSupportedException("The root command's name cannot be changed.");
+            get => base.Name;
+            set
+            {
+                base.Name = value;
+                AddAlias(Name);
+            }
         }
 
         private static readonly Lazy<string> executablePath =

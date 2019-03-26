@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Reflection;
 
@@ -31,7 +32,7 @@ namespace System.CommandLine.Builder
 
         private static readonly Lazy<string> _assemblyVersion =
             new Lazy<string>(() => {
-                var assembly = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
+                var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
                 if (assemblyVersionAttribute == null)
                 {
@@ -116,14 +117,14 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder UseHelpBuilderFactory<TBuilder>(this TBuilder builder, IHelpBuilderFactory helpBuilderFactory)
+        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, Func<BindingContext, IHelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
         {
             if (builder == null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
-            builder.HelpBuilderFactory = helpBuilderFactory;
+            builder.HelpBuilderFactory = getHelpBuilder;
             return builder;
         }
     }

@@ -9,7 +9,7 @@ namespace System.CommandLine.Tests
     public class RootCommandTests
     {
         [Fact]
-        public void Root_command_name_is_executable_name()
+        public void Root_command_name_defaults_to_executable_name()
         {
             var rootCommand = new RootCommand();
 
@@ -17,14 +17,13 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Attempting_to_set_root_command_name_throws()
+        public void When_Name_is_set_then_executable_name_is_still_an_alias()
         {
             var rootCommand = new RootCommand();
+            rootCommand.Name = "custom";
 
-            rootCommand.Invoking(c => c.Name = "something")
-                       .Should()
-                       .Throw<NotSupportedException>()
-                       .WithMessage("The root command's name cannot be changed.");
+            rootCommand.Aliases.Should().BeEquivalentTo("custom", RootCommand.ExeName);
+            rootCommand.RawAliases.Should().BeEquivalentTo("custom", RootCommand.ExeName);
         }
     }
 }

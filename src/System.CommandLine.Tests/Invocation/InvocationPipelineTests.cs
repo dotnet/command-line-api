@@ -188,11 +188,11 @@ namespace System.CommandLine.Tests.Invocation
 
             HelpBuilder createdHelpBuilder = null;
 
-            var helpBuilderFactory = new DelegateHelpBuilderFactory(context =>
+            Func<BindingContext, IHelpBuilder> helpBuilderFactory = context =>
             {
                 factoryWasCalled = true;
                 return createdHelpBuilder = new HelpBuilder(context.Console);
-            });
+            };
 
             var command = new Command("help-command");
             command.Handler = CommandHandler.Create((IHelpBuilder helpBuilder) =>
@@ -203,7 +203,7 @@ namespace System.CommandLine.Tests.Invocation
             });
 
             var parser = new CommandLineBuilder()
-                         .UseHelpBuilderFactory(helpBuilderFactory)
+                         .UseHelpBuilder(helpBuilderFactory)
                          .AddCommand(command)
                          .Build();
 
@@ -211,19 +211,6 @@ namespace System.CommandLine.Tests.Invocation
 
             handlerWasCalled.Should().BeTrue();
             factoryWasCalled.Should().BeTrue();
-        }
-
-        private class DelegateHelpBuilderFactory : IHelpBuilderFactory
-        {
-            public DelegateHelpBuilderFactory(Func<BindingContext, IHelpBuilder> callback)
-            {
-                Callback = callback ?? throw new ArgumentNullException(nameof(callback));
-            }
-
-            private Func<BindingContext, IHelpBuilder> Callback { get; }
-
-            public IHelpBuilder CreateHelpBuilder(BindingContext context)
-                => Callback(context);
         }
     }
 }
