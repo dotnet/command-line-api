@@ -2,7 +2,8 @@
 _dotnet_bash_complete()
 {
     local fullpath=`type -p ${COMP_WORDS[0]}`
-    local completions=`dotnet-suggest get --executable "${fullpath}" --position ${COMP_POINT} -- ${COMP_LINE}`
+    local escaped_comp_line=$(echo "$COMP_LINE" | sed s/\"/'\\\"'/g)
+    local completions=`dotnet-suggest get --executable "${fullpath}" --position ${COMP_POINT} -- "${escaped_comp_line}"`
 
     if [ "${#COMP_WORDS[@]}" != "2" ]; then
         return
