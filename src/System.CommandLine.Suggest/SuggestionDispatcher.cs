@@ -163,7 +163,11 @@ namespace System.CommandLine.Suggest
             string suggestions = _suggestionStore.GetSuggestions(
                 targetExePath,
                 targetArgs,
-                Timeout);
+                Timeout).Trim();
+
+#if DEBUG
+            Program.LogDebug($"dotnet-suggest returning: \"{suggestions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
+#endif
 
             console.Out.Write(suggestions);
         }
