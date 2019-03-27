@@ -102,6 +102,23 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Command_name_in_synopsis_can_be_specified()
+        {
+            var command = new RootCommand
+                          {
+                              Name = "custom-name"
+                          };
+
+            var helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            helpBuilder.Write(command);
+
+            var expected = $"custom-name{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+            _console.Out.ToString().Should().NotContain(_executableName);
+        }
+
         #endregion Synopsis
 
         #region Usage

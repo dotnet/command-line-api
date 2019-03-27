@@ -34,8 +34,8 @@ namespace System.CommandLine
             var unparsedTokens = new Queue<Token>(tokenizeResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();
             var unmatchedTokens = new List<Token>();
-            CommandResult rootCommand = null;
-            CommandResult innermostCommand = null;
+            CommandResult rootCommandResult = null;
+            CommandResult innermostCommandResult = null;
 
             IList<IOption> optionQueue = GatherOptions(Configuration.Symbols);
 
@@ -57,17 +57,11 @@ namespace System.CommandLine
 
                     if (symbol != null)
                     {
-                        var result = allSymbolResults
-                            .LastOrDefault(o => o.HasAlias(token.Value));
+                        var symbolResult = SymbolResult.Create(symbol, token.Value, validationMessages: Configuration.ValidationMessages);
 
-                        if (result == null)
-                        {
-                            result = SymbolResult.Create(symbol, token.Value, validationMessages: Configuration.ValidationMessages);
+                        rootCommandResult = (CommandResult)symbolResult;
 
-                            rootCommand = (CommandResult)result;
-                        }
-
-                        allSymbolResults.Add(result);
+                        allSymbolResults.Add(symbolResult);
 
                         continue;
                     }
@@ -101,7 +95,7 @@ namespace System.CommandLine
                         if (symbolForToken is CommandResult command)
                         {
                             ProcessImplicitTokens();
-                            innermostCommand = command;
+                            innermostCommandResult = command;
                         }
 
                         if (token.Type == TokenType.Option)
@@ -142,8 +136,8 @@ namespace System.CommandLine
 
             return new ParseResult(
                 this,
-                rootCommand,
-                innermostCommand ?? rootCommand,
+                rootCommandResult,
+                innermostCommandResult ?? rootCommandResult,
                 directives,
                 normalizedArgs.Count == arguments?.Count
                  ? tokenizeResult.Tokens
@@ -160,7 +154,7 @@ namespace System.CommandLine
                     return;
                 }
 
-                var currentCommand = innermostCommand ?? rootCommand;
+                var currentCommand = innermostCommandResult ?? rootCommandResult;
 
                 if (currentCommand == null)
                 {
@@ -257,7 +251,7 @@ namespace System.CommandLine
 
             var commandName = Configuration.RootCommand.Name;
 
-            if (FirstArgMatchesExeName())
+            if (FirstArgMatchesRootCommand())
             {
                 args = new[]
                        {
@@ -272,15 +266,26 @@ namespace System.CommandLine
                        }.Concat(args).ToArray();
             }
 
-            bool FirstArgMatchesExeName() =>
-                potentialRootCommand != null &&
-                (
-                    potentialRootCommand.Equals(commandName, StringComparison.OrdinalIgnoreCase) ||
-                    potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase) ||
-                    potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase)
-                );
-
             return args;
+
+            bool FirstArgMatchesRootCommand()
+            {
+                if (potentialRootCommand == null)
+                {
+                    return false;
+                }
+                if (potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                return false;
+            }
         }
     }
 }

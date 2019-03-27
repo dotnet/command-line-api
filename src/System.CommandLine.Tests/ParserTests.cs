@@ -898,7 +898,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_root_command_can_match_a_full_path_to_an_executable()
         {
-            var command = new Command("outer")
+            var command = new RootCommand
                           {
                               new Command("inner")
                               {
@@ -914,14 +914,37 @@ namespace System.CommandLine.Tests
 
             ParseResult result1 = command.Parse("inner -x hello");
 
-            var exePath = Path.Combine("dev", "outer.exe");
-            ParseResult result2 = command.Parse($"{exePath} inner -x hello");
+            ParseResult result2 = command.Parse($"{RootCommand.ExePath} inner -x hello");
 
             result1.Diagram().Should().Be(result2.Diagram());
         }
 
-      
-      
+        [Fact]
+        public void A_renamed_RootCommand_can_be_omitted_from_the_parsed_args()
+        {
+            var rootCommand = new RootCommand
+                              {
+                                  new Command("inner")
+                                  {
+                                      new Option(
+                                          "-x",
+                                          "",
+                                          new Argument
+                                          {
+                                              Arity = ArgumentArity.ExactlyOne
+                                          })
+                                  }
+                              };
+            rootCommand.Name = "outer";
+
+            var result1 = rootCommand.Parse("inner -x hello");
+            var result2 = rootCommand.Parse("outer inner -x hello");
+            var result3 = rootCommand.Parse($"{RootCommand.ExeName} inner -x hello");
+
+            result2.Diagram().Should().Be(result1.Diagram());
+            result3.Diagram().Should().Be(result1.Diagram());
+        }
+
         [Fact]
         public void Absolute_unix_style_paths_are_lexed_correctly()
         {

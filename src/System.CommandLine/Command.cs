@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Command : Symbol, ICommand, ISuggestionSource, IEnumerable<Symbol>
+    public class Command : Symbol, ICommand, IEnumerable<Symbol>
     {
         public Command(
             string name,
