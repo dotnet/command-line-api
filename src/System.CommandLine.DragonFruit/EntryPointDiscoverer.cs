@@ -17,7 +17,7 @@ namespace System.CommandLine.DragonFruit
 
             if (!string.IsNullOrWhiteSpace(entryPoint))
             {
-                var typeInfo = assembly.GetType(entryPoint, false, false).GetTypeInfo();
+                var typeInfo = assembly.GetType(entryPoint, false, false)?.GetTypeInfo();
                 if (typeInfo == null)
                 {
                     throw new InvalidProgramException($"Could not find entry point class '{entryPoint}'.");
