@@ -11,16 +11,16 @@ namespace System.CommandLine.DragonFruit
 {
     public class EntryPointDiscoverer
     {
-        public static MethodInfo FindStaticEntryMethod(Assembly assembly, string entryPoint = null)
+        public static MethodInfo FindStaticEntryMethod(Assembly assembly, string entryPointFullTypeName = null)
         {
             var candidates = new List<MethodInfo>();
 
-            if (!string.IsNullOrWhiteSpace(entryPoint))
+            if (!string.IsNullOrWhiteSpace(entryPointFullTypeName))
             {
-                var typeInfo = assembly.GetType(entryPoint, false, false)?.GetTypeInfo();
+                var typeInfo = assembly.GetType(entryPointFullTypeName, false, false)?.GetTypeInfo();
                 if (typeInfo == null)
                 {
-                    throw new InvalidProgramException($"Could not find entry point class '{entryPoint}'.");
+                    throw new InvalidProgramException($"Could not find '{entryPointFullTypeName}' specified for Main method. See <StartupObject> project property.");
                 }
                 FindMainMethodCandidates(typeInfo, candidates);
             }
@@ -37,7 +37,7 @@ namespace System.CommandLine.DragonFruit
 
             string MainMethodFullName()
             {
-                return string.IsNullOrWhiteSpace(entryPoint) ? "Main" : $"{entryPoint}.Main";
+                return string.IsNullOrWhiteSpace(entryPointFullTypeName) ? "Main" : $"{entryPointFullTypeName}.Main";
             }
 
             if (candidates.Count > 1)
