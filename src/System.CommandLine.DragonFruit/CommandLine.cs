@@ -21,10 +21,12 @@ namespace System.CommandLine.DragonFruit
         /// </summary>
         /// <param name="entryAssembly">The entry assembly</param>
         /// <param name="args">The string arguments.</param>
+        /// <param name="entryPointFullTypeName">Explicitly defined entry point</param>
         /// <returns>The exit code.</returns>
         public static async Task<int> ExecuteAssemblyAsync(
             Assembly entryAssembly,
-            string[] args)
+            string[] args,
+            string entryPointFullTypeName)
         {
             if (entryAssembly == null)
             {
@@ -32,8 +34,9 @@ namespace System.CommandLine.DragonFruit
             }
 
             args = args ?? Array.Empty<string>();
+            entryPointFullTypeName = entryPointFullTypeName?.Trim();
 
-            MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly);
+            MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly, entryPointFullTypeName);
 
             return await InvokeMethodAsync(
                        args,
