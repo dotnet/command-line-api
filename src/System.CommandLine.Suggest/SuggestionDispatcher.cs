@@ -65,17 +65,15 @@ namespace System.CommandLine.Suggest
 
             Command CompleteScriptCommand() =>
                 new Command(
-                    "complete-script",
-                    "Print complete script for specific shell",
-                    new[]
-                    {
-                        new Option("--shell",
-                            "Shell name",
-                            new Argument<string>())
-                    })
+                    "script",
+                    "Print complete script for specific shell")
+                   
                 {
-                    Handler = CommandHandler.Create<IConsole, string>(
-                        SuggestionShellScriptHandler.Handle)
+                    Argument = new Argument<ShellType>
+                               {
+                                   Name = nameof(ShellType)
+                               },
+                    Handler = CommandHandler.Create<IConsole, ShellType>(SuggestionShellScriptHandler.Handle)
                 };
 
             Command RegisterCommand() =>
