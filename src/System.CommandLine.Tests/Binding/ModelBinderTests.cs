@@ -2,11 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
@@ -261,7 +259,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Values_from_parent_options_on_parent_commands_can_be_bound()
+        public void Values_from_options_on_parent_commands_can_be_bound()
         {
             var childCommand = new Command("child-command");
             var option = new Option("-x")
@@ -288,7 +286,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Values_from_parent_parent_commands_can_be_bound()
+        public void Values_from_parent_command_arguments_can_be_bound()
         {
             var childCommand = new Command("child-command");
 
