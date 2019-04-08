@@ -14,8 +14,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
         private string _testSymbolsAsString;
         private Parser _testParser;
 
-        [GlobalSetup(Target = nameof(Scenario1_Parse))]
-        public void SetupScenario1()
+        [GlobalSetup(Target = nameof(OneOptWithNestedCommand_Parse))]
+        public void SetupOneOptWithNestedCommand()
         {
             var rootCommand = new Command("root_command");
             var nestedCommand = new Command("nested_command");
@@ -32,6 +32,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         }
 
         [Benchmark]
-        public ParseResult Scenario1_Parse() => _testParser.Parse(_testSymbolsAsString);
+        public ParseResult OneOptWithNestedCommand_Parse() 
+            => _testParser.Parse(_testSymbolsAsString);
     }
 }

@@ -1,9 +1,11 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 
@@ -16,42 +18,44 @@ namespace System.CommandLine.Benchmarks.CommandLine
     public class Perf_Parser_TypoCorrection
     {
         private readonly NullConsole _nullConsole = new NullConsole();
-        private Parser _testParser;
+        private readonly Parser _testParser;
 
-        [GlobalSetup]
-        public void Setup()
+        public Perf_Parser_TypoCorrection()
         {
             var option = new Option("--0123456789");
 
-            _testParser =
-                new CommandLineBuilder()
+            _testParser = new CommandLineBuilder()
                     .AddOption(option)
                     .UseTypoCorrections()
                     .Build();
         }
 
+        public IEnumerable<BdnParam<ParseResult>> GenerateTestParseResults()
+            => new[]
+                {
+                    "--0123456789",
+                    "--01234567x9",
+                    "--0x234567y9",
+                    "--0x234z67y9",
+                    "--0x234z67yw",
+                    "--01x23456789",
+                    "--01x234y56789",
+                    "--01x234y567z89",
+                    "--01x234y567z89w",
+                    "--013456789",
+                    "--01346789",
+                    "--0134679",
+                    "--013467",
+                    "--1023456789",
+                    "--1023546789",
+                    "--1023546798",
+                    "--1032546798"
+                }
+                .Select(cmd => new BdnParam<ParseResult>(_testParser.Parse(cmd), cmd));
+
         [Benchmark]
-        [Arguments("--0123456789", "equal")]
-        [Arguments("--01234567x9", "1s")]
-        [Arguments("--0x234567y9", "2s")]
-        [Arguments("--0x234z67y9", "3s")]
-        [Arguments("--0x234z67yw", "4s")]
-        [Arguments("--01x23456789", "1i")]
-        [Arguments("--01x234y56789", "2i")]
-        [Arguments("--01x234y567z89", "3i")]
-        [Arguments("--01x234y567z89w", "4i")]
-        [Arguments("--013456789", "1d")]
-        [Arguments("--01346789", "2d")]
-        [Arguments("--0134679", "3d")]
-        [Arguments("--013467", "4d")]
-        [Arguments("--1023456789", "1t")]
-        [Arguments("--1023546789", "2t")]
-        [Arguments("--1023546798", "3t")]
-        [Arguments("--1032546798", "4t")]
-        public async Task TypoCorrection(string input, string _)
-        {
-            var result = _testParser.Parse(input);
-            await _testParser.InvokeAsync(result, _nullConsole);
-        }
+        [ArgumentsSource(nameof(GenerateTestParseResults))]
+        public async Task TypoCorrection(BdnParam<ParseResult> parseResult)
+            => await _testParser.InvokeAsync(parseResult.Value, _nullConsole);
     }
 }

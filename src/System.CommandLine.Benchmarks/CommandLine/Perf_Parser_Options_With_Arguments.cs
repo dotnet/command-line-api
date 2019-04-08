@@ -17,15 +17,12 @@ namespace System.CommandLine.Benchmarks.CommandLine
         private Parser _testParser;
 
         private IEnumerable<Option> GenerateTestOptions(int count, IArgumentArity arity)
-        {
-            return Enumerable
-                .Range(0, count)
-                .Select(i => new Option(
-                    $"-option{i}",
-                    $"Description for -option {i} ....",
-                    new Argument { Arity = arity }
-                ));
-        }
+            => Enumerable.Range(0, count)
+                         .Select(i => new Option(
+                             $"-option{i}",
+                             $"Description for -option {i} ....",
+                             new Argument { Arity = arity }
+                         ));
 
         /// <remarks>
         /// For optionsCount: 5, argumentsCount: 5 will return:

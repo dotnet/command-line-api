@@ -146,15 +146,6 @@ namespace System.CommandLine.Benchmarks.DragonFruit
                 _testAssemblyXmlDocsFilePath,
                 _nullConsole);
 
-        [Benchmark(Description = "--help")]
-        public async Task SearchForStartingPointWhenGivenEntryPointClass_Help()
-            => await System.CommandLine.DragonFruit.CommandLine.ExecuteAssemblyAsync(
-                _testAssembly,
-                new[] { "--help" },
-                "PerfTestApp.Program",
-                _testAssemblyXmlDocsFilePath,
-                _nullConsole);
-
         [GlobalCleanup]
         public void Cleanup()
         {

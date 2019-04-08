@@ -23,23 +23,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
         /// count=5  : { "suggestion0", .., "suggestion5" }
         /// </remarks>
         private string[] GenerateSuggestionsArray(int count)
-        {
-            return Enumerable
-                .Range(0, count)
-                .Select(i => $"suggestion{i}")
-                .ToArray();
-        }
+            => Enumerable.Range(0, count)
+                         .Select(i => $"suggestion{i}")
+                         .ToArray();
 
         private IEnumerable<Option> GenerateOptionsArray(int count)
-        {
-            return Enumerable
-                .Range(0, count)
-                .Select(i => new Option($"suggestion{i}"));
-        }
+            => Enumerable.Range(0, count)
+                         .Select(i => new Option($"suggestion{i}"));
 
         [Params(1, 5, 20, 100)]
         public int TestSuggestionsCount;
-
 
         [GlobalSetup(Target = nameof(SuggestionsFromSymbol))]
         public void Setup_FromSymbol()

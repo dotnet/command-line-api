@@ -18,15 +18,12 @@ namespace System.CommandLine.Benchmarks.CommandLine
         private Parser _testParser;
 
         private IEnumerable<Option> GenerateTestOptions(int count, IArgumentArity arity)
-        {
-            return Enumerable
-                .Range(0, count)
-                .Select(i => new Option(
-                    $"-option{i}",
-                    $"Description for -option {i} ....",
-                    new Argument { Arity = arity }
-                ));
-        }
+            => Enumerable.Range(0, count)
+                         .Select(i => new Option(
+                             $"-option{i}",
+                             $"Description for -option {i} ....",
+                             new Argument { Arity = arity }
+                         ));
 
         /// <remarks>
         /// count=1  : cmd-root -option0
@@ -34,12 +31,9 @@ namespace System.CommandLine.Benchmarks.CommandLine
         /// count=20 : cmd-root -option0 -option1 ... -option19
         /// </remarks>
         private string GenerateTestOptionsAsStringExpr(int count)
-        {
-            return Enumerable
-                .Range(0, count)
-                .Select(i => $"-option{i}")
-                .Aggregate("", (ac, next) => ac + " " + next);
-        }
+            => Enumerable.Range(0, count)
+                         .Select(i => $"-option{i}")
+                         .Aggregate("", (ac, next) => ac + " " + next);
 
         [Params(1, 5, 20)]
         public int TestSymbolsCount;
