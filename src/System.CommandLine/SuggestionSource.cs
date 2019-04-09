@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -9,12 +10,24 @@ namespace System.CommandLine
     {
         private static readonly ConcurrentDictionary<Type, ISuggestionSource> _suggestionSourcesByType = new ConcurrentDictionary<Type, ISuggestionSource>();
 
+        private static readonly string[] _trueAndFalse =
+        {
+            bool.FalseString,
+            bool.TrueString
+        };
+
         public static ISuggestionSource ForType(Type type)
         {
             return _suggestionSourcesByType.GetOrAdd(type ?? typeof(object), CreateForType);
 
             ISuggestionSource CreateForType(Type t)
             {
+                if (t.IsConstructedGenericType && 
+                    t.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    t = t.GetGenericArguments().Single();
+                }
+
                 if (t.IsEnum)
                 {
                     var names = Enum.GetNames(t);
@@ -23,8 +36,7 @@ namespace System.CommandLine
 
                 if (t == typeof(bool))
                 {
-                    var trueAndFalse = new[] { bool.FalseString, bool.TrueString };
-                    return new AnonymousSuggestionSource(_ => trueAndFalse);
+                    return new AnonymousSuggestionSource(_ => _trueAndFalse);
                 }
 
                 return Empty;

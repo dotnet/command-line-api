@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Argument : IArgument, ISuggestionSource
+    public class Argument : IArgument
     {
         private Func<object> _defaultValue;
         private readonly List<string> _suggestions = new List<string>();
