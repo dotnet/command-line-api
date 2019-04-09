@@ -51,7 +51,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
                     "--1023546798",
                     "--1032546798"
                 }
-                .Select(cmd => new BdnParam<ParseResult>(_testParser.Parse(cmd), cmd));
+                .Select(opt => new BdnParam<ParseResult>(_testParser.Parse(opt), opt));
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]

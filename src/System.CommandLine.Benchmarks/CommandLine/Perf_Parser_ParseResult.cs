@@ -29,7 +29,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
                     .Build();
         }
 
-        public IEnumerable<object> GenerateTestParseResults()
+        public IEnumerable<string> GenerateTestInputs() 
             => new[]
             {
                 "[directive1] -opt",
@@ -37,13 +37,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 "[directive1:1] [directive2:2] -opt",
                 "[directive1] [directive2] [directive2] -opt",
                 "[directive1:1] [directive2:2] [directive2:3] -opt",
-            }
-            .Select(cmd => new BdnParam<ParseResult>(_testParser.Parse(cmd), cmd));
+            };
+
+        public IEnumerable<object> GenerateTestParseResults()
+            => GenerateTestInputs()
+               .Select(input => new BdnParam<ParseResult>(_testParser.Parse(input), input));
 
         [Benchmark]
-        [ArgumentsSource(nameof(GenerateTestParseResults))]
-        public IDirectiveCollection ParseResult_Directives(BdnParam<ParseResult> parseResult)
-            => parseResult.Value.Directives;
+        [ArgumentsSource(nameof(GenerateTestInputs))]
+        public IDirectiveCollection ParseResult_Directives(string input)
+            => _testParser.Parse(input).Directives;
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]

@@ -37,9 +37,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
         }
 
         [Params(
-            "[suggest:4] \"eat\"",
-            "[suggest:13] \"eat --fruit\""
-
+          "[suggest:4] \"eat\"",
+          "[suggest:13] \"eat --fruit\""
         )]
         public string TestCmdArgs;
 
