@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+
+    <!-- Avoid spawning any-long living compiler processes to avoid BenchmarkDotNet issues with "file in use",
+             and automation failing to clean up the folders once the runs are over -->
+    <UseSharedCompilation>false</UseSharedCompilation>
+
+    <!-- Supported target frameworks -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)' == '' AND '$(OS)' == 'Windows_NT'">net461;netcoreapp2.0;netcoreapp2.1;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">netcoreapp2.0;netcoreapp2.1;</TargetFrameworks>
+
+    <!-- Use the latest C# compiler features -->
+    <LangVersion>latest</LangVersion>
+
+    <!-- This repo does not produce any libraries, therefore generating docs is disabled -->
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+
+    <!-- every warning is important, we want to enforce best practices here to keep high quality of the code and avoid common mistakes -->
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Input\Sample1.Main.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Input\Sample1.Main.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.11.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine.DragonFruit\System.CommandLine.DragonFruit.csproj" />
+    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+  </ItemGroup>
+
+</Project>
