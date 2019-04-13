@@ -153,7 +153,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="heading">Heading text content to write to the console</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected virtual void AppendHeading(string heading)
+        private void AppendHeading(string heading)
         {
             if (heading == null)
             {
@@ -168,7 +168,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="description">Description text to write to the console</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected virtual void AppendDescription(string description)
+        private void AppendDescription(string description)
         {
             if (description == null)
             {
@@ -280,14 +280,28 @@ namespace System.CommandLine
         /// <summary>
         /// Formats the help rows for a given argument
         /// </summary>
-        /// <param name="commandDef"></param>
+        /// <param name="symbol"></param>
         /// <returns>A new <see cref="HelpItem"/></returns>
-        protected virtual HelpItem ArgumentFormatter(ISymbol commandDef)
+        protected virtual HelpItem ArgumentFormatter(ISymbol symbol)
         {
-            return new HelpItem {
-                Invocation = $"<{commandDef?.Argument?.Name}>",
-                Description = commandDef?.Argument?.Description ?? "",
-            };
+            var argumentName = ArgumentDescriptor(symbol.Argument);
+
+            return new HelpItem
+                   {
+                       Invocation = $"<{argumentName}>",
+                       Description = symbol.Argument?.Description ?? ""
+                   };
+        }
+
+        protected virtual string ArgumentDescriptor(IArgument argument)
+        {
+            var suggestions = argument.Suggest().ToArray();
+            if (suggestions.Length > 0)
+            {
+                return string.Join("|", suggestions);
+            }
+
+            return argument.Name;
         }
 
         /// <summary>
@@ -305,7 +319,7 @@ namespace System.CommandLine
             if (symbol?.ShouldShowHelp() == true && 
                 !string.IsNullOrWhiteSpace(symbol.Argument?.Name))
             {
-                option = $"{option} <{symbol.Argument?.Name}>";
+                option = $"{option} <{ArgumentDescriptor(symbol.Argument)}>";
             }
 
             return new HelpItem {
@@ -338,7 +352,7 @@ namespace System.CommandLine
             var usage = new List<string>();
 
             var subcommands = command
-                .RecurseWhileNotNull(commandDef => commandDef.Parent)
+                .RecurseWhileNotNull(c => c.Parent)
                 .Reverse();
 
             foreach (var subcommand in subcommands)
@@ -354,7 +368,7 @@ namespace System.CommandLine
 
             var hasOptionHelp = command.Children
                 .OfType<IOption>()
-                .Any(symbolDef => symbolDef.ShouldShowHelp());
+                .Any(option => option.ShouldShowHelp());
 
             if (hasOptionHelp)
             {
