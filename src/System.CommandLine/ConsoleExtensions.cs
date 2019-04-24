@@ -14,13 +14,12 @@ namespace System.CommandLine
                 ((dynamic)console).ForegroundColor = ConsoleColor.Red;
             }
 
-            var supported = Platform.SupportsOperation(() => Console.IsOutputRedirected,
-                    out var isOutputRedirected);
-            if (!supported)
+
+            if (!Platform.IsWasm && !Console.IsOutputRedirected)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
             }
-            else if (!isOutputRedirected)
+            else if (Platform.IsWasm)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
             }
@@ -33,13 +32,11 @@ namespace System.CommandLine
                 ((dynamic)console).ForegroundColor = ConsoleColor.Red;
             }
 
-            var supported = Platform.SupportsOperation(() => Console.IsOutputRedirected,
-                out var isOutputRedirected);
-            if (!supported)
+            if (!Platform.IsWasm && !Console.IsOutputRedirected)
             {
                 Console.ResetColor();
             }
-            else if (!isOutputRedirected)
+            else if (Platform.IsWasm)
             {
                 Console.ResetColor();
             }
