@@ -14,7 +14,6 @@ namespace System.CommandLine
                 ((dynamic)console).ForegroundColor = ConsoleColor.Red;
             }
 
-
             if (!Platform.IsWasm && !Console.IsOutputRedirected)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
