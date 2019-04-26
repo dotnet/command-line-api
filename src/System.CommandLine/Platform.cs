@@ -2,26 +2,26 @@
 {
     internal static class Platform
     {
-        private static bool? _isWasm;
-        public static bool IsWasm
+        private static bool? _isConsoleRedirectionCheckSupported;
+        public static bool IsConsoleRedirectionCheckSupported
         {
             get
             {
-                if (_isWasm == null)
+                if (_isConsoleRedirectionCheckSupported == null)
                 {
                     try
                     {
                         var check = Console.IsOutputRedirected;
-                        _isWasm = false;
+                        _isConsoleRedirectionCheckSupported = false;
                     }
 
                     catch (PlatformNotSupportedException)
                     {
-                        _isWasm = true;
+                        _isConsoleRedirectionCheckSupported = true;
                     }
                 }
 
-                return _isWasm.Value;
+                return _isConsoleRedirectionCheckSupported.Value;
             }
         }
     }
