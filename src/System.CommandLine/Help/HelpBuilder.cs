@@ -284,17 +284,24 @@ namespace System.CommandLine
         /// <returns>A new <see cref="HelpItem"/></returns>
         protected virtual HelpItem ArgumentFormatter(ISymbol symbol)
         {
-            var argumentName = ArgumentDescriptor(symbol.Argument);
+            var argumentDescriptor = ArgumentDescriptor(symbol.Argument);
 
             return new HelpItem
                    {
-                       Invocation = $"<{argumentName}>",
+                       Invocation = string.IsNullOrWhiteSpace(argumentDescriptor)
+                                        ? ""
+                                        : $"<{argumentDescriptor}>",
                        Description = symbol.Argument?.Description ?? ""
                    };
         }
 
         protected virtual string ArgumentDescriptor(IArgument argument)
         {
+            if (argument.Type == typeof(bool) || argument.Type == typeof(bool?) )
+            {
+                return "";
+            }
+
             var suggestions = argument.Suggest().ToArray();
             if (suggestions.Length > 0)
             {
@@ -319,7 +326,11 @@ namespace System.CommandLine
             if (symbol?.ShouldShowHelp() == true && 
                 !string.IsNullOrWhiteSpace(symbol.Argument?.Name))
             {
-                option = $"{option} <{ArgumentDescriptor(symbol.Argument)}>";
+                var argumentDescriptor = ArgumentDescriptor(symbol.Argument);
+                if (!string.IsNullOrWhiteSpace(argumentDescriptor))
+                {
+                    option = $"{option} <{argumentDescriptor}>";
+                }
             }
 
             return new HelpItem {
