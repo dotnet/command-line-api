@@ -661,7 +661,7 @@ namespace System.CommandLine.Tests.Help
         [Theory]
         [InlineData(typeof(bool))]
         [InlineData(typeof(bool?))]
-        public void Command_argument_descriptor_indicates_when_it_accepts_boolean_values(Type type)
+        public void Command_argument_descriptor_is_empty_for_boolean_values(Type type)
         {
             var description = "This is the argument description";
 
@@ -680,7 +680,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Arguments:{NewLine}" +
-                $"{_indentation}<False|True>{_columnPadding}{description}";
+                $"{_indentation}{_columnPadding}{description}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -715,14 +715,14 @@ namespace System.CommandLine.Tests.Help
         [Theory]
         [InlineData(typeof(bool))]
         [InlineData(typeof(bool?))]
-        public void Option_argument_descriptor_indicates_when_it_accepts_boolean_values(Type type)
+        public void Option_argument_descriptor_is_empty_for_boolean_values(Type type)
         {
-            var description = "This is the argument description";
+            var description = "This is the option description";
 
             var command = new Command(
                 "outer", "Help text for the outer command")
                           {
-                              new Option("--opt")
+                              new Option("--opt", description)
                               {
                                   Argument = new Argument
                                              {
@@ -735,11 +735,9 @@ namespace System.CommandLine.Tests.Help
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
             helpBuilder.Write(command);
-
             
-            _console.Out.ToString().Should().Contain("--opt <False|True>");
+            _console.Out.ToString().Should().Contain($"--opt{_columnPadding}{description}");
         }
-
         
         [Theory]
         [InlineData(typeof(FileAccess))]
@@ -751,11 +749,10 @@ namespace System.CommandLine.Tests.Help
             var command = new Command(
                               "outer", "Help text for the outer command")
                           {
-                              new Option("--opt")
+                              new Option("--opt", description)
                               {
                                   Argument = new Argument
                                              {
-                                                 Description = description,
                                                  ArgumentType = type
                                              }
                               }
@@ -765,7 +762,7 @@ namespace System.CommandLine.Tests.Help
 
             helpBuilder.Write(command);
 
-            _console.Out.ToString().Should().Contain("--opt <Read|ReadWrite|Write>");
+            _console.Out.ToString().Should().Contain($"--opt <Read|ReadWrite|Write>{_columnPadding}{description}");
         }
 
         #endregion Arguments

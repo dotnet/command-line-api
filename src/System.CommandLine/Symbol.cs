@@ -47,18 +47,20 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
-        public Argument Argument 
-        { 
+        public Argument Argument
+        {
             get => _argument;
             set
             {
-                if (value?.Arity.MaximumNumberOfArguments > 0 && string.IsNullOrEmpty(value.Name))
+                if (value?.Arity.MaximumNumberOfArguments > 0 && 
+                    string.IsNullOrEmpty(value.Name))
                 {
-                    value.Name = _aliases.First().ToUpper();
+                    value.Name = _aliases.First().ToLower();
                 }
-                _argument = value ?? Argument.None; 
+
+                _argument = value ?? Argument.None;
                 _argument.Parent = this;
-            } 
+            }
         }
 
         public string Description { get; set; }
