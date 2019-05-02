@@ -43,7 +43,11 @@ namespace System.CommandLine
             _console = console ?? throw new ArgumentNullException(nameof(console));
             ColumnGutter = columnGutter ?? DefaultColumnGutter;
             IndentationSize = indentationSize ?? DefaultIndentationSize;
-            MaxWidth = maxWidth ?? int.MaxValue;
+
+            MaxWidth = maxWidth
+                       ?? (_console is SystemConsole
+                               ? Console.WindowWidth
+                               : int.MaxValue);
         }
 
         /// <inheritdoc />

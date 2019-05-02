@@ -126,7 +126,7 @@ namespace System.CommandLine.Invocation
                 }
 
                 await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            }, CommandLineBuilder.MiddlewareOrder.ExceptionHandler - 1);
 
             return builder;
         }
