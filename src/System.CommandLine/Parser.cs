@@ -204,8 +204,8 @@ namespace System.CommandLine
                 {
                     var arity = option.Argument.Arity;
 
-                    if (arity.MaximumNumberOfArguments == 1 &&
-                        arity.MinimumNumberOfArguments == 1) // Exactly One
+                    if (arity.MaximumNumberOfValues == 1 &&
+                        arity.MinimumNumberOfValues == 1) // Exactly One
                     {
                         optionList.Add(option);
                     }

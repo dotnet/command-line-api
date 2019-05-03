@@ -41,7 +41,7 @@ namespace System.CommandLine
             {
                 foreach (var childSymbol in symbol.Children.FlattenBreadthFirst(o => o.Children))
                 {
-                    if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0 && string.IsNullOrEmpty(childSymbol.Argument.Name))
+                    if (childSymbol.Argument.Arity.MaximumNumberOfValues != 0 && string.IsNullOrEmpty(childSymbol.Argument.Name))
                     {
                         throw new ArgumentException(
                             ValidationMessages.RequiredArgumentNameMissing(childSymbol.Aliases.FirstOrDefault()));

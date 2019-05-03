@@ -52,7 +52,7 @@ namespace System.CommandLine
             get => _argument;
             set
             {
-                if (value?.Arity.MaximumNumberOfArguments > 0 && 
+                if (value?.Arity.MaximumNumberOfValues > 0 && 
                     string.IsNullOrEmpty(value.Name))
                 {
                     value.Name = _aliases.First().ToLower();

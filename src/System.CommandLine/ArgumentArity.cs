@@ -8,32 +8,32 @@ namespace System.CommandLine
 {
     public class ArgumentArity : IArgumentArity
     {
-        public ArgumentArity(int minimumNumberOfArguments, int maximumNumberOfArguments)
+        public ArgumentArity(int minimumNumberOfValues, int maximumNumberOfValues)
         {
-            if (minimumNumberOfArguments < 0)
+            if (minimumNumberOfValues < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(minimumNumberOfArguments));
+                throw new ArgumentOutOfRangeException(nameof(minimumNumberOfValues));
             }
 
-            if (maximumNumberOfArguments < minimumNumberOfArguments)
+            if (maximumNumberOfValues < minimumNumberOfValues)
             {
-                throw new ArgumentException($"{nameof(maximumNumberOfArguments)} must be greater than or equal to {nameof(minimumNumberOfArguments)}");
+                throw new ArgumentException($"{nameof(maximumNumberOfValues)} must be greater than or equal to {nameof(minimumNumberOfValues)}");
             }
 
-            MinimumNumberOfArguments = minimumNumberOfArguments;
-            MaximumNumberOfArguments = maximumNumberOfArguments;
+            MinimumNumberOfValues = minimumNumberOfValues;
+            MaximumNumberOfValues = maximumNumberOfValues;
         }
 
-        public int MinimumNumberOfArguments { get; set; }
+        public int MinimumNumberOfValues { get; set; }
 
-        public int MaximumNumberOfArguments { get; set; }
+        public int MaximumNumberOfValues { get; set; }
 
         internal static FailedArgumentArityResult Validate(
             SymbolResult symbolResult,
-            int minimumNumberOfArguments,
-            int maximumNumberOfArguments)
+            int minimumNumberOfValues,
+            int maximumNumberOfValues)
         {
-            if (symbolResult.Tokens.Count < minimumNumberOfArguments)
+            if (symbolResult.Arguments.Count < minimumNumberOfValues)
             {
                 if (symbolResult.UseDefaultValue)
                 {
@@ -43,15 +43,15 @@ namespace System.CommandLine
                 return new MissingArgumentResult(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
             }
 
-            if (symbolResult.Tokens.Count > maximumNumberOfArguments)
+            if (symbolResult.Arguments.Count > maximumNumberOfValues)
             {
-                if (maximumNumberOfArguments == 1)
+                if (maximumNumberOfValues == 1)
                 {
                     return new TooManyArgumentsResult(symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
                 }
                 else
                 {
-                    return new TooManyArgumentsResult(symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, maximumNumberOfArguments));
+                    return new TooManyArgumentsResult(symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, maximumNumberOfValues));
                 }
             }
 

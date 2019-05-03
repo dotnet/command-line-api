@@ -51,7 +51,7 @@ namespace System.CommandLine
                 {
                     if (ArgumentType.CanBeBoundFromScalarValue())
                     {
-                        if (Arity.MaximumNumberOfArguments == 1 &&
+                        if (Arity.MaximumNumberOfValues == 1 &&
                             ArgumentType == typeof(bool))
                         {
                             _convertArguments = symbol =>
@@ -68,7 +68,7 @@ namespace System.CommandLine
 
                 ArgumentResult DefaultConvert(SymbolResult symbol)
                 {
-                    switch (Arity.MaximumNumberOfArguments)
+                    switch (Arity.MaximumNumberOfValues)
                     {
                         case 1:
                             return ArgumentConverter.Parse(
@@ -180,8 +180,8 @@ namespace System.CommandLine
         private ArgumentResult Parse(SymbolResult symbolResult)
         {
             var failedResult = ArgumentArity.Validate(symbolResult,
-                                                      Arity.MinimumNumberOfArguments,
-                                                      Arity.MaximumNumberOfArguments);
+                                                      Arity.MinimumNumberOfValues,
+                                                      Arity.MaximumNumberOfValues);
 
             if (failedResult != null)
             {
@@ -198,7 +198,7 @@ namespace System.CommandLine
                 return ConvertArguments(symbolResult);
             }
 
-            switch (Arity.MaximumNumberOfArguments)
+            switch (Arity.MaximumNumberOfValues)
             {
                 case 0:
                     return ArgumentResult.Success(null);
@@ -224,7 +224,7 @@ namespace System.CommandLine
 
                 var canTokenBeRetried =
                     symbolResult.Symbol is ICommand ||
-                    Arity.MinimumNumberOfArguments == 0;
+                    Arity.MinimumNumberOfValues == 0;
 
                 switch (result)
                 {

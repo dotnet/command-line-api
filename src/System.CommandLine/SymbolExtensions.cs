@@ -22,8 +22,8 @@ namespace System.CommandLine
         internal static bool ShouldShowHelp(
             this IArgument argument) =>
             argument != null &&
-            (!string.IsNullOrWhiteSpace(argument.Name) || string.IsNullOrWhiteSpace(argument.Description)) &&
-            argument.Arity.MaximumNumberOfArguments > 0;
+            (!string.IsNullOrWhiteSpace(argument.Name) || string.IsNullOrWhiteSpace(argument.Description)) && 
+            argument.Arity.MaximumNumberOfValues > 0;
 
         internal static Token DefaultToken(this ICommand command)
         {

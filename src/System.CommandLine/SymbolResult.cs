@@ -47,7 +47,7 @@ namespace System.CommandLine
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
 
         private protected virtual int RemainingArgumentCapacity =>
-             Symbol.Argument.Arity.MaximumNumberOfArguments - Tokens.Count;
+             Symbol.Argument.Arity.MaximumNumberOfValues - Tokens.Count;
 
         public ValidationMessages ValidationMessages    
         {

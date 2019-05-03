@@ -73,8 +73,8 @@ namespace System.CommandLine.DragonFruit.Tests
         [InlineData(nameof(Method_having_FileInfo_array_args), 0, int.MaxValue)]
         public void Parameters_named_arguments_generate_command_arguments_having_the_correct_arity(
             string methodName,
-            int minNumberOfArgs,
-            int maxNumberOfArgs)
+            int minNumberOfValues,
+            int maxNumberOfValues)
         {
             var parser = new CommandLineBuilder()
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
@@ -84,7 +84,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
             rootCommandArgument.Arity
                                .Should()
-                               .BeEquivalentTo(new ArgumentArity(minNumberOfArgs, maxNumberOfArgs));
+                               .BeEquivalentTo(new ArgumentArity(minNumberOfValues, maxNumberOfValues));
         }
 
         [Theory]
