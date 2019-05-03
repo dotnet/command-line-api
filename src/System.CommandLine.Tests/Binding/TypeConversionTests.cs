@@ -144,11 +144,11 @@ namespace System.CommandLine.Tests.Binding
                   .BeEmpty();
             result["x"].ArgumentResult
                        .Should()
-                       .BeOfType<SuccessfulArgumentResult<bool>>()
+                       .BeOfType<SuccessfulArgumentResult>()
                        .Which
                        .Value
                        .Should()
-                       .BeTrue();
+                       .Be(true);
             result.ValueForOption("x").Should().Be(true);
         }
 
