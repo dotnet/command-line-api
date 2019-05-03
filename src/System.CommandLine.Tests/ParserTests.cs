@@ -522,6 +522,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeNullOrEmpty();
         }
+
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
         {
@@ -566,7 +567,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_with_multiple_nested_options_allowed_is_parsed_correctly()
+        public void Command_with_multiple_options_is_parsed_correctly()
         {
             var option = new Command("outer", "",
                                                new[] {
@@ -605,7 +606,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Relative_order_of_arguments_and_options_does_not_matter()
+        public void Relative_order_of_arguments_and_options_within_a_command_does_not_matter()
         {
             var command = new Command("move", argument: new Argument<string[]>())
                          {
