@@ -206,7 +206,6 @@ namespace System.CommandLine.Tests.Binding
         {
             var command = new Command("the-command")
                           {
-                              new Option("-s", argument: new Argument<string>("the default")),
                               new Option("--string-option", argument: new Argument<string>())
                           };
 

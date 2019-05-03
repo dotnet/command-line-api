@@ -222,6 +222,45 @@ namespace System.CommandLine.Tests.Binding
 
         [Theory]
         [MemberData(nameof(BindingCases))]
+        public async Task Handler_method_receives_option_arguments_bound_to_the_specified_type(
+            string commandLine,
+            Type parameterType,
+            Action<object> assert)
+        {
+            var captureMethod = GetType()
+                                .GetMethod(nameof(Capture), BindingFlags.NonPublic | BindingFlags.Instance)
+                                .MakeGenericMethod(parameterType);
+
+            var handler = CommandHandler.Create(captureMethod);
+
+            var command = new Command(
+                "command",
+                handler: handler)
+                          {
+                              new Option("--value")
+                              {
+                                  Argument = new Argument
+                                             {
+                                                 ArgumentType = parameterType
+                                             }
+                              }
+                          };
+
+            var parseResult = command.Parse($"--value {commandLine}");
+
+            var invocationContext = new InvocationContext(parseResult);
+
+            await handler.InvokeAsync(invocationContext);
+
+            var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+
+            boundValue.Should().BeOfType(parameterType);
+
+            assert(boundValue);
+        }
+
+        [Theory]
+        [MemberData(nameof(BindingCases))]
         public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(
             string commandLine,
             Type parameterType,
@@ -310,6 +349,60 @@ namespace System.CommandLine.Tests.Binding
                     typeof(T),
                     new Action<object>(o => assert((T)o))
                 };
+        }
+
+        [Fact]
+        public async Task issue_431_bool()
+        {
+            bool? received = null;
+
+            var handler = CommandHandler.Create((bool x) =>
+            {
+                received = x;
+            });
+
+            var root = new RootCommand(handler: handler)
+            {
+                new Option("-x", "Explanation"
+                    //   , argument: new Argument<bool>() // <-- Both assertions pass if you uncomment this
+                )
+            };
+
+            var result = root.Parse("-x").ValueForOption<bool>("-x");
+
+            result.Should().BeTrue(); // <-- Passes
+
+            await root.InvokeAsync("-x");
+
+            received.Should().BeTrue(); // <-- Fails (bug)
+        }
+
+        [Fact]
+        public async Task issue_431_int()
+        {
+            int received = 0;
+
+            var handler = CommandHandler.Create((int x) =>
+            {
+                received = x;
+            });
+
+            var root = new RootCommand(handler: handler)
+            {
+                new Option("-x", "Explanation"
+                           , argument: new Argument { Arity = new ArgumentArity(1, 1) }
+                )
+            };
+
+            var parseResult = root.Parse("-x 123");
+
+            var result = parseResult.ValueForOption<int>("-x");
+
+            result.Should().Be(123); // <-- Passes
+
+            await root.InvokeAsync("-x 123");
+
+            received.Should().Be(123); // <-- Fails (bug)
         }
     }
 }

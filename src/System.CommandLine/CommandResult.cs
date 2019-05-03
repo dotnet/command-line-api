@@ -70,17 +70,17 @@ namespace System.CommandLine
             }
         }
 
-        public bool TryGetValueForOption(string alias, out object value)
+        public bool TryGetValueForOption(IValueDescriptor valueDescriptor, out object value)
         {
             var children = Children
-                           .Where(o => alias.IsMatch(o.Symbol))
+                           .Where(o => valueDescriptor.Name.IsMatch(o.Symbol))
                            .ToArray();
 
             SymbolResult symbolResult = null;
 
             if (children.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {alias} among: {string.Join(",", children.Select(o => o.Name))}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.Name} among: {string.Join(",", children.Select(o => o.Name))}");
             }
 
             if (children.Length == 1)
