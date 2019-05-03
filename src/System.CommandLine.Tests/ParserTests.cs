@@ -851,6 +851,40 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Options_only_apply_to_the_nearest_command()
+        {
+            var outer = new Command("outer")
+                        {
+                            new Command("inner")
+                            {
+                                new Option("-x")
+                                {
+                                    Argument = new Argument<string>()
+                                }
+                            },
+                            new Option("-x")
+                            {
+                                Argument = new Argument()
+                            }
+                        };
+
+            var result = outer.Parse("outer inner -x one -x two");
+
+            _output.WriteLine(result.ToString());
+
+            result.CommandResult
+                  .Parent
+                  .OptionResult("-x")
+                  .Should()
+                  .BeNull();
+            result.CommandResult
+                  .OptionResult("-x")
+                  .Arguments
+                  .Should()
+                  .BeEquivalentTo("one", "two");
+        }
+
+        [Fact]
         public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
             var command = new Command("the-command");
