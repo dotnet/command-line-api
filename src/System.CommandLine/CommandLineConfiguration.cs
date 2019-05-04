@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Linq;
 
@@ -10,7 +11,7 @@ namespace System.CommandLine
     public class CommandLineConfiguration
     {
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
-        private IHelpBuilderFactory _helpBuilderFactory;
+        private Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
         public CommandLineConfiguration(
@@ -22,7 +23,7 @@ namespace System.CommandLine
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
-            IHelpBuilderFactory helpBuilderFactory = null)
+            Func<BindingContext, IHelpBuilder> helpBuilderFactory = null)
         {
             if (symbols == null)
             {
@@ -34,7 +35,7 @@ namespace System.CommandLine
                 throw new ArgumentException("You must specify at least one option or command.");
             }
 
-            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=', ' ' };
+            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
 
             foreach (var symbol in symbols)
             {
@@ -109,9 +110,9 @@ namespace System.CommandLine
 
         public ValidationMessages ValidationMessages { get; }
 
-        internal IHelpBuilderFactory HelpBuilderFactory =>
+        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory =>
             _helpBuilderFactory ??
-            (_helpBuilderFactory = new HelpBuilderFactory());
+            (_helpBuilderFactory = context => new HelpBuilder(context.Console));
 
         internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
             _middlewarePipeline ??

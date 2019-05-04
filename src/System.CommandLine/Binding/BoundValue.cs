@@ -40,5 +40,17 @@ namespace System.CommandLine.Binding
                 valueDescriptor,
                 valueSource);
         }
+
+        public static BoundValue DefaultForValueDescriptor(IValueDescriptor valueDescriptor)
+        {
+            var valueSource = ValueDescriptorDefaultValueSource.Instance;
+
+            valueSource.TryGetValue(valueDescriptor, null, out var value);
+
+            return new BoundValue(
+                value,
+                valueDescriptor,
+                valueSource);
+        }
     }
 }

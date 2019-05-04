@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine
 {
@@ -22,9 +21,9 @@ namespace System.CommandLine
 
             var result = symbolResult.ArgumentResult;
 
-            if (result is SuccessfulArgumentResult)
+            if (result is SuccessfulArgumentResult successful)
             {
-                object value = ((dynamic)result).Value;
+                object value = successful.Value;
 
                 switch (value)
                 {
@@ -54,9 +53,9 @@ namespace System.CommandLine
                         return default;
                 }
 
-                if (result is SuccessfulArgumentResult)
+                if (result is SuccessfulArgumentResult s)
                 {
-                    value = ((dynamic)result).Value;
+                    value = s.Value;
                 }
 
                 if (value is T t)

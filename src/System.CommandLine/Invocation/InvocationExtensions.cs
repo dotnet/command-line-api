@@ -126,7 +126,7 @@ namespace System.CommandLine.Invocation
                 }
 
                 await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            }, CommandLineBuilder.MiddlewareOrder.ExceptionHandler - 1);
 
             return builder;
         }
@@ -186,9 +186,20 @@ namespace System.CommandLine.Invocation
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.Directives.Contains("suggest"))
+                if (context.ParseResult.Directives.TryGetValues("suggest", out var values))
                 {
-                    context.InvocationResult = new SuggestDirectiveResult();
+                    int position;
+
+                    if (values.FirstOrDefault() is string positionString)
+                    {
+                        position = int.Parse(positionString);
+                    }
+                    else
+                    {
+                        position = context.ParseResult.RawInput?.Length ?? 0;
+                    }
+
+                    context.InvocationResult = new SuggestDirectiveResult(position);
                 }
                 else
                 {
@@ -228,7 +239,7 @@ namespace System.CommandLine.Invocation
             this Parser parser,
             string commandLine,
             IConsole console = null) =>
-            parser.InvokeAsync(commandLine.Tokenize().ToArray(), console);
+            parser.InvokeAsync(commandLine.SplitCommandLine().ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Parser parser,
@@ -240,7 +251,7 @@ namespace System.CommandLine.Invocation
             this Command command,
             string commandLine,
             IConsole console = null) =>
-            command.InvokeAsync(commandLine.Tokenize().ToArray(), console);
+            command.InvokeAsync(commandLine.SplitCommandLine().ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Command command,
@@ -342,7 +353,7 @@ namespace System.CommandLine.Invocation
 
                         var dotnetSuggestProcess = Process.StartProcess(
                             command: "dotnet-suggest",
-                            args: $"register --command-path \"{currentProcessFullPath}\" --suggestion-command \"{currentProcessFileNameWithoutExtension} [suggest]\"",
+                            args: $"register --command-path \"{currentProcessFullPath}\" --suggestion-command \"{currentProcessFileNameWithoutExtension}\"",
                             stdOut: value => stdOut.Append(value),
                             stdErr: value => stdOut.Append(value));
 

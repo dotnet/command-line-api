@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -9,16 +9,21 @@
     <ToolCommandName>dotnet-suggest</ToolCommandName>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64</PackAsToolShimRuntimeIdentifiers>
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
+
+    <DotnetSuggestBuildNumber>.1</DotnetSuggestBuildNumber>
+    <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
+    <VersionPrefix>1.1$(DotnetSuggestBuildNumber)</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
   </PropertyGroup>
-  
-  <PropertyGroup Condition=" $(Build_BuildId) != '' ">
-    <Version>1.0.2.$(Build_BuildId)</Version>
-  </PropertyGroup>
-  
+
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <!--No warning for the scripts, it is part of the content, not to execuate-->
-    <NoWarn>NU5110;NU5111</NoWarn>
+    <NoWarn>$(NoWarn);NU5110;NU5111;</NoWarn>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,4 +41,12 @@
     </Content>
   </ItemGroup>
 
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <!-- Workaround https://github.com/dotnet/arcade/issues/2233 -->
+  <Target Name="_InitializeAssemblyVersion" BeforeTargets="GetAssemblyVersion">
+    <PropertyGroup>
+      <FileVersion></FileVersion>
+    </PropertyGroup>
+  </Target>
 </Project>

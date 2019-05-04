@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.IO;
 using FluentAssertions;
 using System.Linq;
 using System.Text;
@@ -100,6 +101,23 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}new line{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Command_name_in_synopsis_can_be_specified()
+        {
+            var command = new RootCommand
+                          {
+                              Name = "custom-name"
+                          };
+
+            var helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            helpBuilder.Write(command);
+
+            var expected = $"custom-name{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+            _console.Out.ToString().Should().NotContain(_executableName);
         }
 
         #endregion Synopsis
@@ -450,7 +468,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Arguments_section_uses_HelpDefinition_description_if_provided()
+        public void Arguments_section_uses_description_if_provided()
         {
             var command = new Command(
                 "the-command", "Help text from description",
@@ -471,7 +489,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Arguments_section_does_not_contain_argument_with_HelpDefinition_that_IsHidden()
+        public void Arguments_section_does_not_contain_hidden_argument()
         {
             var command = new Command("outer")
                           {
@@ -640,6 +658,113 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Theory]
+        [InlineData(typeof(bool))]
+        [InlineData(typeof(bool?))]
+        public void Command_argument_descriptor_is_empty_for_boolean_values(Type type)
+        {
+            var description = "This is the argument description";
+
+            var command = new Command(
+                "outer", "Help text for the outer command",
+                argument: new Argument
+                          {
+                              Description = description,
+                              ArgumentType = type
+                          }
+            );
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}{_columnPadding}{description}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Theory]
+        [InlineData(typeof(FileAccess))]
+        [InlineData(typeof(FileAccess?))]
+        public void Command_argument_descriptor_indicates_enums_values(Type type)
+        {
+            var description = "This is the argument description";
+
+            var command = new Command(
+                "outer", "Help text for the outer command",
+                argument: new Argument
+                          {
+                              Description = description,
+                              ArgumentType = type
+                          }
+            );
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}<Read|ReadWrite|Write>{_columnPadding}{description}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Theory]
+        [InlineData(typeof(bool))]
+        [InlineData(typeof(bool?))]
+        public void Option_argument_descriptor_is_empty_for_boolean_values(Type type)
+        {
+            var description = "This is the option description";
+
+            var command = new Command(
+                "outer", "Help text for the outer command")
+                          {
+                              new Option("--opt", description)
+                              {
+                                  Argument = new Argument
+                                             {
+                                                 Description = description,
+                                                 ArgumentType = type
+                                             }
+                              }
+                          };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+            
+            _console.Out.ToString().Should().Contain($"--opt{_columnPadding}{description}");
+        }
+        
+        [Theory]
+        [InlineData(typeof(FileAccess))]
+        [InlineData(typeof(FileAccess?))]
+        public void Option_argument_descriptor_indicates_enums_values(Type type)
+        {
+            var description = "This is the argument description";
+
+            var command = new Command(
+                              "outer", "Help text for the outer command")
+                          {
+                              new Option("--opt", description)
+                              {
+                                  Argument = new Argument
+                                             {
+                                                 ArgumentType = type
+                                             }
+                              }
+                          };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            _console.Out.ToString().Should().Contain($"--opt <Read|ReadWrite|Write>{_columnPadding}{description}");
+        }
+
         #endregion Arguments
 
         #region Options
@@ -647,9 +772,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_is_not_included_if_no_options_configured()
         {
-            var commandLineBuilder = new CommandLineBuilder
-                                     {
-                                     }
+            var commandLineBuilder = new CommandLineBuilder()
                                      .AddCommand(new Command("outer", "description for outer"))
                                      .Command;
 

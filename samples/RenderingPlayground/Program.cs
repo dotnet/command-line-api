@@ -18,7 +18,7 @@ namespace RenderingPlayground
         /// Demonstrates various rendering capabilities.
         /// </summary>
         /// <param name="invocationContext"></param>
-        /// <param name="sample">&lt;colors|dir&gt; Renders a specified sample</param>
+        /// <param name="sample">Renders a specified sample</param>
         /// <param name="height">The height of the rendering area</param>
         /// <param name="width">The width of the rendering area</param>
         /// <param name="top">The top position of the render area</param>

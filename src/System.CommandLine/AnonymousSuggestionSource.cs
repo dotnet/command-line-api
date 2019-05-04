@@ -14,16 +14,9 @@ namespace System.CommandLine
             this.suggest = suggest;
         }
 
-        public IEnumerable<string> Suggest(
-            ParseResult parseResult,
-            int? position = null)
+        public IEnumerable<string> Suggest(string textToMatch = null)
         {
-            if (parseResult == null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
-
-            return suggest(parseResult, position);
+            return suggest(textToMatch);
         }
     }
 }

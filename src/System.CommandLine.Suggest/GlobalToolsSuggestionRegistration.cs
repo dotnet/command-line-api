@@ -29,22 +29,22 @@ namespace System.CommandLine.Suggest
                 = filesNameWithoutExtensionUnderDotnetProfileTools ?? FileEnumerator.EnumerateFilesWithoutExtension(new DirectoryInfo(_nullableToolsShimPath));
         }
 
-        public void AddSuggestionRegistration(RegistrationPair registration)
+        public void AddSuggestionRegistration(Registration registration)
         {
         }
 
-        public IEnumerable<RegistrationPair> FindAllRegistrations()
+        public IEnumerable<Registration> FindAllRegistrations()
         {
             if (_nullableToolsShimPath == null)
             {
-                return Array.Empty<RegistrationPair>();
+                return Array.Empty<Registration>();
             }
 
             return _filesNameWithoutExtensionUnderDotnetProfileTools.Select(p =>
-                new RegistrationPair(Path.Combine(_nullableToolsShimPath, p), $"{p} [suggest]"));
+                new Registration(Path.Combine(_nullableToolsShimPath, p)));
         }
 
-        public RegistrationPair FindRegistration(FileInfo soughtExecutable)
+        public Registration FindRegistration(FileInfo soughtExecutable)
         {
             if (soughtExecutable == null) throw new ArgumentNullException(nameof(soughtExecutable));
 
@@ -58,8 +58,7 @@ namespace System.CommandLine.Suggest
                 return null;
             }
 
-            return new RegistrationPair(soughtExecutable.FullName,
-                $"{Path.GetFileNameWithoutExtension(soughtExecutable.FullName)} [suggest]");
+            return new Registration(soughtExecutable.FullName);
         }
     }
 }

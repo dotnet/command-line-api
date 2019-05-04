@@ -15,10 +15,10 @@ namespace System.CommandLine
             CommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
-            IReadOnlyCollection<Token> tokens,
+            IReadOnlyList<Token> tokens,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
-            IReadOnlyCollection<ParseError> errors,
+            IReadOnlyCollection<TokenizeError> tokenizeErrors,
             string rawInput)
         {
             Parser = parser;
@@ -28,11 +28,13 @@ namespace System.CommandLine
             Tokens = tokens;
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
+
             RawInput = rawInput;
 
-            if (errors != null)
+            if (tokenizeErrors?.Count > 0)
             {
-                _errors.AddRange(errors);
+                _errors.AddRange(
+                    tokenizeErrors.Select(e => new ParseError(e.Message)));
             }
 
             AddImplicitOptionsAndCheckForErrors();
@@ -48,7 +50,7 @@ namespace System.CommandLine
 
         public IDirectiveCollection Directives { get; }
 
-        public IReadOnlyCollection<Token> Tokens { get; }
+        public IReadOnlyList<Token> Tokens { get; }
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Argument : IArgument, ISuggestionSource
+    public class Argument : IArgument
     {
         private Func<object> _defaultValue;
         private readonly List<string> _suggestions = new List<string>();
@@ -46,9 +46,10 @@ namespace System.CommandLine
         {
             get
             {
-                if (_convertArguments == null)
+                if (_convertArguments == null &&
+                    ArgumentType != null)
                 {
-                    if (ArgumentType != null)
+                    if (ArgumentType.CanBeBoundFromScalarValue())
                     {
                         if (Arity.MaximumNumberOfArguments == 1 &&
                             ArgumentType == typeof(bool))
@@ -140,6 +141,11 @@ namespace System.CommandLine
 
         public void AddSuggestionSource(Suggest suggest)
         {
+            if (suggest == null)
+            {
+                throw new ArgumentNullException(nameof(suggest));
+            }
+
             AddSuggestionSource(new AnonymousSuggestionSource(suggest));
         }
 
@@ -153,29 +159,22 @@ namespace System.CommandLine
             _validValues.UnionWith(values);
         }
 
-        public IEnumerable<string> Suggest(
-            ParseResult parseResult,
-            int? position = null)
+        public IEnumerable<string> Suggest(string textToMatch)
         {
-            if (parseResult == null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
-
             var fixedSuggestions = _suggestions;
 
             var dynamicSuggestions = _suggestionSources
-                .SelectMany(source => source.Suggest(parseResult, position));
+                .SelectMany(source => source.Suggest(textToMatch));
 
             var typeSuggestions = SuggestionSource.ForType(ArgumentType)
-                                                  .Suggest(parseResult, position);
+                                                  .Suggest(textToMatch);
 
             return fixedSuggestions
                    .Concat(dynamicSuggestions)
                    .Concat(typeSuggestions)
                    .Distinct()
                    .OrderBy(c => c)
-                   .Containing(parseResult.TextToMatch());
+                   .Containing(textToMatch);
         }
 
         private ArgumentResult Parse(SymbolResult symbolResult)

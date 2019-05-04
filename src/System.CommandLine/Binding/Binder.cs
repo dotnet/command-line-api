@@ -8,7 +8,7 @@ namespace System.CommandLine.Binding
     internal static class Binder
     {
         internal static bool IsMatch(this string parameterName, string alias) =>
-            String.Equals(alias?.RemovePrefix()
+            string.Equals(alias?.RemovePrefix()
                                .Replace("-", ""),
                           parameterName,
                           StringComparison.OrdinalIgnoreCase);

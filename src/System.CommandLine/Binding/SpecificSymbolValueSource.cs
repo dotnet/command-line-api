@@ -15,11 +15,11 @@ namespace System.CommandLine.Binding
         public bool TryGetValue(
             IValueDescriptor valueDescriptor, 
             BindingContext bindingContext, 
-            out object value)
+            out object boundValue)
         {
             var symbolResult = bindingContext.ParseResult.FindResultFor(Symbol);
 
-            value = symbolResult == null
+            boundValue = symbolResult == null
                         ? Symbol.GetDefaultValue()
                         : symbolResult.GetValueOrDefault();
 

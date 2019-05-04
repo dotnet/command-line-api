@@ -8,9 +8,9 @@ namespace System.CommandLine.Binding
         public bool TryGetValue(
             IValueDescriptor valueDescriptor,
             BindingContext bindingContext,
-            out object value)
+            out object boundValue)
         {
-            value = bindingContext.ServiceProvider.GetService(valueDescriptor.Type);
+            boundValue = bindingContext.ServiceProvider.GetService(valueDescriptor.Type);
             return true;
         }
     }

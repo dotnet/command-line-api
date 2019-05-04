@@ -7,12 +7,16 @@ namespace System.CommandLine.Binding
     {
         public static IValueSource Instance = new TypeDefaultValueSource();
 
+        private TypeDefaultValueSource()
+        {
+        }
+
         public bool TryGetValue(
             IValueDescriptor valueDescriptor,
             BindingContext bindingContext,
-            out object value)
+            out object boundValue)
         {
-            value = valueDescriptor.Type.GetDefaultValueForType();
+            boundValue = valueDescriptor.Type.GetDefaultValueForType();
             return true;
         }
     }

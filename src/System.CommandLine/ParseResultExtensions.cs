@@ -14,30 +14,30 @@ namespace System.CommandLine
             this ParseResult source,
             int? position = null)
         {
-            var lastToken = source.Tokens
-                                  .LastOrDefault(t => t.Type != TokenType.Directive);
+            var lastToken = source.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
 
             string textToMatch = null;
             var rawInput = source.RawInput;
 
-            if (position == null &&
-                source.RawInput != null)
+            if (rawInput != null)
             {
-                position = source.RawInput.Length;
+                if (position != null)
+                {
+                    if (position > rawInput.Length)
+                    {
+                        rawInput += ' ';
+                        position = Math.Min(rawInput.Length, position.Value);
+                    }
+                }
+                else
+                {
+                    position = rawInput.Length;
+                }
             }
             else if (lastToken?.Value != null)
             {
+                position = null;
                 textToMatch = lastToken.Value;
-            }
-
-            if (position != null)
-            {
-                var textBeforeCursor = rawInput.Substring(0, position.Value);
-
-                var textAfterCursor = rawInput.Substring(position.Value);
-
-                return textBeforeCursor.Split(' ').LastOrDefault() +
-                       textAfterCursor.Split(' ').FirstOrDefault();
             }
 
             if (string.IsNullOrWhiteSpace(rawInput))
@@ -47,6 +47,15 @@ namespace System.CommandLine
                 {
                     return textToMatch;
                 }
+            }
+            else 
+            {
+                var textBeforeCursor = rawInput.Substring(0, position.Value);
+
+                var textAfterCursor = rawInput.Substring(position.Value);
+
+                return textBeforeCursor.Split(' ').LastOrDefault() +
+                       textAfterCursor.Split(' ').FirstOrDefault();
             }
 
             return "";
@@ -159,12 +168,13 @@ namespace System.CommandLine
             this ParseResult parseResult,
             int? position = null)
         {
+            var textToMatch = parseResult.TextToMatch(position);
             var currentSymbolResult = parseResult.SymbolToComplete(position);
             var currentSymbol = currentSymbolResult.Symbol;
 
             var currentSymbolSuggestions =
                 currentSymbol is ISuggestionSource currentSuggestionSource
-                    ? currentSuggestionSource.Suggest(parseResult, position)
+                    ? currentSuggestionSource.Suggest(textToMatch)
                     : Array.Empty<string>();
 
             IEnumerable<string> siblingSuggestions;
@@ -177,7 +187,7 @@ namespace System.CommandLine
             else
             {
                 siblingSuggestions = currentSymbol.Parent
-                                                  .Suggest(parseResult, position)
+                                                  .Suggest(textToMatch)
                                                   .Except(currentSymbol.Parent
                                                                        .Children
                                                                        .OfType<ICommand>()
@@ -208,6 +218,7 @@ namespace System.CommandLine
                               .SelectMany(c => c.Symbol.RawAliases)
                               .Concat(commandResult.Symbol.RawAliases)
                               .ToArray();
+
                 return exclude;
             }
         }

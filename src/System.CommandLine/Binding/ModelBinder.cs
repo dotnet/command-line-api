@@ -4,14 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 
 namespace System.CommandLine.Binding
 {
     public class ModelBinder
     {
-        private readonly Lazy<ConstructorDescriptor> _targetConstructorDescriptor;
-
         private readonly ModelDescriptor _modelDescriptor;
 
         public ModelBinder(Type modelType) : this(new AnonymousValueDescriptor(modelType))
@@ -27,40 +24,12 @@ namespace System.CommandLine.Binding
             ValueDescriptor = valueDescriptor ?? throw new ArgumentNullException(nameof(valueDescriptor));
 
             _modelDescriptor = ModelDescriptor.FromType(valueDescriptor.Type);
-
-            _targetConstructorDescriptor = new Lazy<ConstructorDescriptor>(
-                FindConstructorRequiringCompoundBinding,
-                LazyThreadSafetyMode.None);
-        }
-
-        private ConstructorDescriptor FindConstructorRequiringCompoundBinding()
-        {
-            if (_modelDescriptor.ConstructorDescriptors.Count == 1)
-            {
-                return _modelDescriptor.ConstructorDescriptors[0];
-            }
-            else
-            {
-                return null;
-            }
         }
 
         public IValueDescriptor ValueDescriptor { get; }
 
         internal Dictionary<(Type valueSourceType, string valueSourceName), IValueSource> NamedValueSources { get; }
             = new Dictionary<(Type valueSourceType, string valueSourceName), IValueSource>();
-
-        private IReadOnlyCollection<BoundValue> GetConstructorArguments(BindingContext context)
-        {
-            if (_targetConstructorDescriptor.Value != null)
-            {
-                return GetValues(context, _targetConstructorDescriptor.Value.ParameterDescriptors);
-            }
-            else
-            {
-                return Array.Empty<BoundValue>();
-            }
-        }
 
         public void BindMemberFromValue(PropertyInfo property, Option option)
         {
@@ -84,34 +53,74 @@ namespace System.CommandLine.Binding
                 return fromBindingContext;
             }
 
-            if (_targetConstructorDescriptor?.Value != null)
+            var values = GetValues(context, new[] { ValueDescriptor }, false);
+
+            if (values.Count == 1 &&
+                _modelDescriptor.ModelType.IsAssignableFrom(values[0].ValueDescriptor.Type))
             {
-                var boundConstructorArguments = GetConstructorArguments(context);
-                var values = boundConstructorArguments.Select(v => v.Value).ToArray();
-                var fromModelBinder = _targetConstructorDescriptor.Value.Invoke(values);
-                UpdateInstance(fromModelBinder, context);
-                return fromModelBinder;
+                return values[0].Value;
             }
 
-            return GetValues(context,
-                             new[] { ValueDescriptor })
-                   .SingleOrDefault()?.Value;
+            if (TryDefaultConstructorAndPropertiesStrategy(context, out var fromCtor))
+            {
+                return fromCtor;
+            }
+
+            return values.SingleOrDefault()?.Value;
+        }
+
+        private bool TryDefaultConstructorAndPropertiesStrategy(
+            BindingContext context,
+            out object instance)
+        {
+            ConstructorDescriptor targetConstructorDescriptor = null;
+
+            if (_modelDescriptor.ConstructorDescriptors.Count == 1)
+            {
+                targetConstructorDescriptor = _modelDescriptor.ConstructorDescriptors[0];
+            }
+
+            if (targetConstructorDescriptor == null)
+            {
+                instance = null;
+                return false;
+            }
+
+            var boundConstructorArguments = GetValues(
+                context, 
+                targetConstructorDescriptor.ParameterDescriptors,
+                false);
+
+            if (boundConstructorArguments.Count != targetConstructorDescriptor.ParameterDescriptors.Count)
+            {
+                instance = null;
+                return false;
+            }
+
+            var values = boundConstructorArguments.Select(v => v.Value).ToArray();
+            var fromModelBinder = targetConstructorDescriptor.Invoke(values);
+
+            UpdateInstance(fromModelBinder, context);
+
+            instance = fromModelBinder;
+
+            return true;
         }
 
         public void UpdateInstance<T>(T instance, BindingContext bindingContext)
         {
-            var propertyValues = GetValues(
+            var boundValues = GetValues(
                 bindingContext,
                 _modelDescriptor.PropertyDescriptors,
                 false);
 
-            foreach (var boundValue in propertyValues)
+            foreach (var boundValue in boundValues)
             {
                 ((PropertyDescriptor)boundValue.ValueDescriptor).SetValue(instance, boundValue.Value);
             }
         }
 
-        private IReadOnlyCollection<BoundValue> GetValues(
+        private IReadOnlyList<BoundValue> GetValues(
             BindingContext bindingContext,
             IReadOnlyList<IValueDescriptor> valueDescriptors,
             bool includeMissingValues = true)
@@ -124,20 +133,22 @@ namespace System.CommandLine.Binding
 
                 var valueSource = GetValueSource(bindingContext, valueDescriptor);
 
-                if (!bindingContext.TryBind(
+                if (!bindingContext.TryBindToScalarValue(
                         valueDescriptor,
                         valueSource,
-                        out BoundValue value))
+                        out BoundValue boundValue) && valueDescriptor.HasDefaultValue)
                 {
-                    if (includeMissingValues)
-                    {
-                        value = BoundValue.DefaultForType(valueDescriptor);
-                    }
+                    boundValue = BoundValue.DefaultForValueDescriptor(valueDescriptor);
                 }
 
-                if (value != null)
+                if (boundValue == null && includeMissingValues)
                 {
-                    values.Add(value);
+                    boundValue = BoundValue.DefaultForType(valueDescriptor);
+                }
+
+                if (boundValue != null)
+                {
+                    values.Add(boundValue);
                 }
             }
 
@@ -183,6 +194,8 @@ namespace System.CommandLine.Binding
             public bool HasDefaultValue => false;
 
             public object GetDefaultValue() => null;
+
+            public override string ToString() => $"{Type}";
         }
     }
 }

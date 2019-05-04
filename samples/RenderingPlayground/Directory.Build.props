@@ -1,5 +1,9 @@
 <Project>
-  <Import Project="..\Directory.Build.props" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory)..\, Directory.Build.props))\Directory.Build.props" />
   <!-- These imports would be added automatically via PackageReference, but that doesn't work for ProjectReference. -->
   <Import Project="..\..\src\System.CommandLine.DragonFruit\targets\System.CommandLine.DragonFruit.props" />
+  <!-- Alternatively to RenderingPlayground.csproj, <StartupObject/> can be specified here
+  <PropertyGroup>
+      <StartupObject>RenderingPlayground.Program</StartupObject>
+  </PropertyGroup>-->
 </Project>

@@ -6,21 +6,20 @@ using System.Reflection;
 
 namespace System.CommandLine.Suggest
 {
-    public static class SuggestionShellScriptHandler
+    internal static class SuggestionShellScriptHandler
     {
-        public static void Handle(IConsole console, string shellType)
+        public static void Handle(IConsole console, ShellType shellType)
         {
-            if (shellType.Equals("bash", StringComparison.OrdinalIgnoreCase))
+            switch (shellType)
             {
-                PrintToConsoleFrom(console, "dotnet-suggest-shim.bash");
-            }
-            else if (shellType.Equals("powershell", StringComparison.OrdinalIgnoreCase))
-            {
-                PrintToConsoleFrom(console, "dotnet-suggest-shim.ps1");
-            }
-            else
-            {
-                throw new SuggestionShellScriptException($"{shellType} shell is not supported.");
+                case ShellType.Bash:
+                    PrintToConsoleFrom(console, "dotnet-suggest-shim.bash");
+                    break;
+                case ShellType.PowerShell:
+                    PrintToConsoleFrom(console, "dotnet-suggest-shim.ps1");
+                    break;
+                default:
+                    throw new SuggestionShellScriptException($"Shell '{shellType}' is not supported.");
             }
         }
 

@@ -13,7 +13,12 @@ namespace System.CommandLine
             {
                 ((dynamic)console).ForegroundColor = ConsoleColor.Red;
             }
-            else if (!Console.IsOutputRedirected)
+
+            if (!Platform.IsConsoleRedirectionCheckSupported && !Console.IsOutputRedirected)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+            }
+            else if (Platform.IsConsoleRedirectionCheckSupported)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
             }
@@ -25,7 +30,12 @@ namespace System.CommandLine
             {
                 ((dynamic)console).ForegroundColor = ConsoleColor.Red;
             }
-            else if (!Console.IsOutputRedirected)
+
+            if (!Platform.IsConsoleRedirectionCheckSupported && !Console.IsOutputRedirected)
+            {
+                Console.ResetColor();
+            }
+            else if (Platform.IsConsoleRedirectionCheckSupported)
             {
                 Console.ResetColor();
             }

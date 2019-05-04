@@ -47,18 +47,20 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
-        public Argument Argument 
-        { 
+        public Argument Argument
+        {
             get => _argument;
             set
             {
-                if (value?.Arity.MaximumNumberOfArguments > 0 && string.IsNullOrEmpty(value.Name))
+                if (value?.Arity.MaximumNumberOfArguments > 0 && 
+                    string.IsNullOrEmpty(value.Name))
                 {
-                    value.Name = _aliases.First().ToUpper();
+                    value.Name = _aliases.First().ToLower();
                 }
-                _argument = value ?? Argument.None; 
+
+                _argument = value ?? Argument.None;
                 _argument.Parent = this;
-            } 
+            }
         }
 
         public string Description { get; set; }
@@ -105,6 +107,14 @@ namespace System.CommandLine
                 throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
+            for (int i = 0; i < alias.Length; i++)
+            {
+                if (char.IsWhiteSpace(alias[i]))
+                {
+                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"");
+                }
+            }
+
             _rawAliases.Add(alias);
             _aliases.Add(unprefixedAlias);
 
@@ -128,15 +138,11 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public IEnumerable<string> Suggest(
-            ParseResult parseResult,
-            int? position = null)
+        public IEnumerable<string> Suggest(string textToMatch = null)
         {
             var argumentSuggestions =
-                Argument.Suggest(parseResult, position)
+                Argument.Suggest(textToMatch)
                         .ToArray();
-
-            var textToMatch = parseResult.TextToMatch(position);
 
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)

@@ -1,68 +1,136 @@
-resources:
-- repo: self
-  clean: true
-queue:
-  name: VSEng-MicroBuildVS2017
-  demands: Cmd
 variables:
-  BuildConfiguration: Release
-  TeamName: Roslyn
+  - name: _TeamName
+    value: DotNetCore
 
-steps:
-- task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
-  displayName: Install Signing Plugin
-  inputs:
-    signType: real
-    esrpSigning: true
-  condition: and(succeeded(), eq(variables['PB_SignType'], 'real'))
+# CI and PR triggers
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
 
-- task: BatchScript@1
-  displayName: Build
-  inputs:
-    filename: 'build\cibuild.cmd'
-    arguments: '-configuration $(BuildConfiguration) /p:PB_PublishBlobFeedKey=$(PB_PublishBlobFeedKey)'
+pr:
+  autoCancel: false
+  branches:
+    include:
+    - '*'
 
-- task: PublishTestResults@2
-  displayName: Publish Test Results
-  inputs:
-    testRunner: XUnit
-    testResultsFiles: 'artifacts/$(BuildConfiguration)/TestResults/*.xml'
-    mergeTestResults: true
-    testRunTitle: 'Unit Tests'
-  condition: and(succeededOrFailed(), ne(variables['PB_SkipTests'], 'true'))
+jobs:
+- template: /eng/common/templates/jobs/jobs.yml
+  parameters:
+    enableMicrobuild: true
+    enablePublishBuildArtifacts: true
+    enablePublishTestResults: true
+    enablePublishBuildAssets: true
+    enableTelemetry: true
+    helixRepo: dotnet/command-line-api
+    timeoutInMinutes: 180 # increase timeout since BAR publishing might wait a long time
+    jobs:
+    - job: Windows
+      pool:
+        # For public or PR jobs, use the hosted pool.  For internal jobs use the internal pool.
+        # Will eventually change this to two BYOC pools.
+        ${{ if ne(variables['System.TeamProject'], 'internal') }}:
+          name: dotnet-external-temp
+        ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+          name: dotnet-internal-temp
+      variables:
+      # Only enable publishing in official builds.
+      - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        # DotNet-Blob-Feed provides: dotnetfeed-storage-access-key-1
+        # Publish-Build-Assets provides: MaestroAccessToken, BotAccount-dotnet-maestro-bot-PAT
+        - group: DotNet-Blob-Feed
+        - group: Publish-Build-Assets
+        - name: _OfficialBuildArgs
+          value: /p:DotNetSignType=$(_SignType)
+                 /p:TeamName=$(_TeamName)
+                 /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1)
+                 /p:DotNetPublishBlobFeedUrl=https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
+                 /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed)
+                 /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+      # else
+      - ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+        - name: _OfficialBuildArgs
+          value: ''
+      strategy:
+        matrix:
+          ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
+            Debug:
+              _BuildConfig: Debug
+              _SignType: test
+              _DotNetPublishToBlobFeed: false
+              _BuildArgs:
 
-- task: NuGetCommand@2
-  displayName: Publish NuGet Packages to MyGet
-  inputs:
-    command: push
-    packagesToPush: 'artifacts\$(BuildConfiguration)\packages\*.nupkg'
-    nuGetFeedType: external
-    publishFeedCredentials: 'dotnet.myget.org/system-commandline'
-  condition: and(succeeded(), not(contains(variables['PB_PublishType'], 'blob')))
+          Release:
+            _BuildConfig: Release
+            # PRs or external builds are not signed.
+            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+              _SignType: test
+              _DotNetPublishToBlobFeed: false
+            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+              _SignType: real
+              _DotNetPublishToBlobFeed: true
+              _BuildArgs: $(_OfficialBuildArgs)
+      steps:
+      - checkout: self
+        clean: true
+      - script: eng\common\cibuild.cmd
+          -configuration $(_BuildConfig)
+          -prepareMachine
+          $(_BuildArgs)
+        displayName: Build and Publish
+      - task: PublishBuildArtifacts@1
+        displayName: Upload package artifacts
+        condition: and(eq(variables['system.pullrequest.isfork'], false), eq(variables['_BuildConfig'], 'Release'))
+        inputs:
+          pathtoPublish: artifacts/packages/
+          artifactName: artifacts
+          artifactType: Container
+          parallel: true
 
-- task: CopyPublishBuildArtifacts@1
-  displayName: Publish Artifacts
-  inputs:
-    CopyRoot: '$(Build.SourcesDirectory)'
-    Contents: |
-     artifacts\$(BuildConfiguration)\bin
-     artifacts\$(BuildConfiguration)\log
-     artifacts\$(BuildConfiguration)\TestResults
-     artifacts\$(BuildConfiguration)\packages
-    ArtifactName: '$(Build.BuildNumber)'
-    ArtifactType: FilePath
-    TargetPath: '$(DropRoot)\$(TeamName)\$(Build.DefinitionName)'
-  condition: and(succeededOrFailed(), not(contains(variables['PB_PublishType'], 'blob')))
+    - job: Ubuntu_16_04
+      displayName: 'Ubuntu 16.04'
+      pool:
+        name: Hosted Ubuntu 1604
+      strategy:
+        matrix:
+          ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
+            Debug:
+              _BuildConfig: Debug
+              _SignType: none
+              _DotNetPublishToBlobFeed : false
+          Release:
+            _BuildConfig: Release
+            _SignType: none
+            _DotNetPublishToBlobFeed : false
+      steps:
+      - checkout: self
+        clean: true
+      - script: eng/common/cibuild.sh
+          --configuration $(_BuildConfig)
+          --prepareMachine
+        displayName: Build
 
-- task: ms-vseng.MicroBuildTasks.521a94ea-9e68-468a-8167-6dcf361ea776.MicroBuildCleanup@1
-  displayName: Cleanup
-  condition: succeededOrFailed()
-
-- task: PublishBuildArtifacts@1
-  displayName: Publish MicroBuild Artifacts
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)\MicroBuild\Output'
-    ArtifactName: '$(Build.BuildNumber)'
-    publishLocation: FilePath
-    TargetPath: '$(DropRoot)\$(TeamName)\$(Build.DefinitionName)'
-  condition: and(succeededOrFailed(), not(contains(variables['PB_PublishType'], 'blob')))
+    - job: OSX_10_13
+      displayName: 'OSX'
+      pool:
+        name: Hosted macOS
+        vmImage: macOS-10.13
+      strategy:
+        matrix:
+          ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
+            Debug:
+              _BuildConfig: Debug
+              _SignType: none
+              _DotNetPublishToBlobFeed : false
+          Release:
+            _BuildConfig: Release
+            _SignType: none
+            _DotNetPublishToBlobFeed : false
+      steps:
+      - checkout: self
+        clean: true
+      - script: eng/common/cibuild.sh
+          --configuration $(_BuildConfig)
+          --prepareMachine
+        displayName: Build

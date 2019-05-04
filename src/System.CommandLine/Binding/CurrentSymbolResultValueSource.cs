@@ -10,49 +10,36 @@ namespace System.CommandLine.Binding
         public bool TryGetValue(
             IValueDescriptor valueDescriptor,
             BindingContext bindingContext,
-            out object value)
+            out object boundValue)
         {
-            var commandResult = bindingContext.ParseResult.CommandResult;
-
-            var optionResult = FindMatchingSymbol(commandResult, valueDescriptor);
-
-            if (optionResult != null)
+            if (!string.IsNullOrEmpty(valueDescriptor.Name))
             {
-                value = optionResult.GetValueOrDefault();
-                return true;
+                var commandResult = bindingContext.ParseResult.CommandResult;
+
+                while (commandResult != null)
+                {
+                    if (commandResult.TryGetValueForOption(
+                        valueDescriptor.Name,
+                        out var optionValue))
+                    {
+                        boundValue = optionValue;
+                        return true;
+                    }
+
+                    if (commandResult.TryGetValueForArgument(
+                        valueDescriptor.Name,
+                        out var argumentValue))
+                    {
+                        boundValue = argumentValue;
+                        return true;
+                    }
+
+                    commandResult = commandResult.Parent;
+                }
             }
 
-            if (valueDescriptor.Name.IsMatch(
-                commandResult.Command.Argument.Name))
-            {
-                value = commandResult.GetValueOrDefault();
-                return true;
-            }
-
-            value = null;
+            boundValue = null;
             return false;
-        }
-
-        private SymbolResult FindMatchingSymbol(
-            CommandResult result,
-            IValueDescriptor valueDescriptor)
-        {
-            var options = result
-                          .Children
-                          .Where(o => valueDescriptor.Name.IsMatch(o.Symbol))
-                          .ToArray();
-
-            if (options.Length == 1)
-            {
-                return options[0];
-            }
-
-            if (options.Length > 1)
-            {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor} among: {string.Join(",", options.Select(o => o.Name))}");
-            }
-
-            return null;
         }
     }
 }

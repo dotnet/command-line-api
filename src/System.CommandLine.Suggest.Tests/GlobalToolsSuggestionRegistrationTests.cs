@@ -22,8 +22,7 @@ namespace System.CommandLine.Suggest.Tests
 
             var pair = suggestionRegistration.FindRegistration(fileInfo);
 
-            pair.CommandPath.Should().Be(validToolsPath);
-            pair.SuggestionCommand.Should().Be("play [suggest]");
+            pair.ExecutablePath.Should().Be(validToolsPath);
         }
 
         [Fact]
@@ -52,11 +51,10 @@ namespace System.CommandLine.Suggest.Tests
             registrationPairs
                 .Should()
                 .BeEquivalentTo(
-                    new RegistrationPair(
-                        Path.Combine(dotnetProfileDirectory, "tools", "dotnet-suggest"),
-                        "dotnet-suggest [suggest]"),
-                    new RegistrationPair(Path.Combine(dotnetProfileDirectory, "tools", "t-rex"),
-                                         "t-rex [suggest]"));
+                    new Registration(
+                        Path.Combine(dotnetProfileDirectory, "tools", "dotnet-suggest")),
+                    new Registration(
+                        Path.Combine(dotnetProfileDirectory, "tools", "t-rex")));
         }
     }
 }

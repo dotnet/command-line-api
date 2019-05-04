@@ -144,11 +144,11 @@ namespace System.CommandLine.Tests.Binding
                   .BeEmpty();
             result["x"].ArgumentResult
                        .Should()
-                       .BeOfType<SuccessfulArgumentResult<bool>>()
+                       .BeOfType<SuccessfulArgumentResult>()
                        .Which
                        .Value
                        .Should()
-                       .BeTrue();
+                       .Be(true);
             result.ValueForOption("x").Should().Be(true);
         }
 
@@ -422,7 +422,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void The_default_value_of_a_command_with_no_arguments_is_an_empty_collection()
         {
-            var result = new CommandResult(new Command("-x", ""));
+            var result = new CommandResult(new Command("-x"));
 
             var valueOrDefault = result.GetValueOrDefault();
 
@@ -794,6 +794,22 @@ namespace System.CommandLine.Tests.Binding
                 });
 
             var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<List<int>>("x");
+
+            value.Should().BeEquivalentTo(1, 2, 3);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_IEnumerable_of_int_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option(
+                "-x",
+                "",
+                new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                });
+
+            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<IEnumerable<int>>("x");
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }

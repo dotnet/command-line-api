@@ -12,9 +12,9 @@ namespace System.CommandLine.Binding
             _getValue = getValue;
         }
 
-        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object value)
+        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object boundValue)
         {
-            value = _getValue(bindingContext);
+            boundValue = _getValue(bindingContext);
 
             return true;
         }

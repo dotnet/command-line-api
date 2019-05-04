@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "DotnetMetal": {
-      "commandName": "Project",
-      "commandLineArgs": "tool install foo"
-    }
-  }
-}
