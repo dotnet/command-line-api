@@ -8,13 +8,19 @@ namespace System.CommandLine.Binding
     internal static class Binder
     {
         internal static bool IsMatch(this string parameterName, string alias) =>
-            string.Equals(alias?.RemovePrefix()
-                               .Replace("-", ""),
+            String.Equals(alias?.RemovePrefix()
+                              .Replace("-", ""),
                           parameterName,
                           StringComparison.OrdinalIgnoreCase);
 
         internal static bool IsMatch(this string parameterName, ISymbol symbol) =>
             symbol.Aliases.Any(parameterName.IsMatch);
+
+        internal static bool IsNullable(this Type t)
+        {
+            return t.IsGenericType &&
+                   t.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
 
         public static object GetDefaultValueForType(this Type type)
         {

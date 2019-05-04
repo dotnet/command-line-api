@@ -15,6 +15,31 @@ namespace System.CommandLine
     {
         private static readonly ConcurrentDictionary<Type, ConvertString> _stringConverters = new ConcurrentDictionary<Type, ConvertString>();
 
+        internal static ArgumentResult Parse(Type type, object value)
+        {
+            switch (value)
+            {
+                // try to parse the single string argument to the requested type
+                case string argument:
+                    return Parse(type, argument);
+
+                // try to parse the multiple string arguments to the request type
+                case IReadOnlyCollection<string> arguments:
+                    return ParseMany(type, arguments);
+
+                case null:
+                    if (type == typeof(bool))
+                    {
+                        // the presence of the parsed symbol is treated as true
+                        return new SuccessfulArgumentResult(true);
+                    }
+
+                    break;
+            }
+
+            return null;
+        }
+
         public static ArgumentResult Parse(Type type, string value)
         {
             if (_stringConverters.TryGetValue(type, out var convert))
@@ -51,16 +76,6 @@ namespace System.CommandLine
             }
 
             return Failure(type, value);
-        }
-
-        public static ArgumentResult Parse<T>(string value)
-        {
-            return Parse(typeof(T), value);
-        }
-
-        public static ArgumentResult ParseMany<T>(IReadOnlyCollection<string> arguments)
-        {
-            return ParseMany(typeof(T), arguments);
         }
 
         public static ArgumentResult ParseMany(

@@ -38,19 +38,24 @@ namespace System.CommandLine.Invocation
         {
             var bindingContext = context.BindingContext;
 
+            var invocationArguments =
+                _parameterBinders.Select(p => p.CreateInstance(bindingContext))
+                    .ToArray();
+
             var invocationTarget =
                 _invocationTargetBinder?.CreateInstance(bindingContext);
 
-            var invocationArguments =
-                _parameterBinders.Select(p => p.CreateInstance(bindingContext))
-                                 .ToArray();
-
-            var result =
-                _handlerDelegate == null
-                    ? _handlerMethodInfo.Invoke(
-                        invocationTarget,
-                        invocationArguments)
-                    : _handlerDelegate.DynamicInvoke(invocationArguments);
+            object result;
+            if (_handlerDelegate == null)
+            {
+                result = _handlerMethodInfo.Invoke(
+                    invocationTarget,
+                    invocationArguments);
+            }
+            else
+            {
+                result = _handlerDelegate.DynamicInvoke(invocationArguments);
+            }
 
             return await CommandHandler.GetResultCodeAsync(result, context);
         }
