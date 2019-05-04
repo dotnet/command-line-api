@@ -16,9 +16,14 @@ namespace System.CommandLine.DragonFruit.Tests
         /// </summary>
         /// <param name="name">Specifies the name option</param>
         /// <param name="console"></param>
-        public void TestMain(string name, IConsole console)
+        /// <param name="args">These are arguments</param>
+        public void TestMain(string name, IConsole console, string[] args = null)
         {
             console.Out.Write(name);
+            if (args != null && args.Length > 0)
+            {
+                console.Out.Write($"args: { string.Join(",", args) }");
+            }
         }
 
         public void TestMainWithDefault(string name = "Bruce", IConsole console = null)
