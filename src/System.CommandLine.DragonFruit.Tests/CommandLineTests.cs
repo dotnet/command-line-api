@@ -47,6 +47,9 @@ namespace System.CommandLine.DragonFruit.Tests
             var stdOut = _terminal.Out.ToString();
 
             stdOut.Should()
+                  .Contain("<args>    These are arguments")
+                  .And.Contain("Arguments:");
+            stdOut.Should()
                   .Contain("--name <name>    Specifies the name option")
                   .And.Contain("Options:");
             stdOut.Should()

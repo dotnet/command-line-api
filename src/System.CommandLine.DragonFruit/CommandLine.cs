@@ -177,6 +177,14 @@ namespace System.CommandLine.DragonFruit
                         {
                             option.Description = parameterDescription.Value;
                         }
+                        else
+                        {
+                            var argument = builder.Command.Argument;
+                            if (argument != null && !string.IsNullOrEmpty(argument.Name) && argument.Name.Equals(kebabCasedParameterName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                argument.Description = parameterDescription.Value;
+                            }
+                        }
                     }
 
                     metadata.Name = method.DeclaringType.Assembly.GetName().Name;
