@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Concurrent;
+using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine
@@ -22,8 +23,7 @@ namespace System.CommandLine
 
             ISuggestionSource CreateForType(Type t)
             {
-                if (t.IsConstructedGenericType && 
-                    t.GetGenericTypeDefinition() == typeof(Nullable<>))
+                if (t.IsNullable())
                 {
                     t = t.GetGenericArguments().Single();
                 }

@@ -27,7 +27,7 @@ namespace System.CommandLine.Binding
                     }
 
                     if (commandResult.TryGetValueForArgument(
-                        valueDescriptor.Name,
+                        valueDescriptor,
                         out var argumentValue))
                     {
                         boundValue = argumentValue;

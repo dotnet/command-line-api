@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
+using System.CommandLine.Binding;
 
 namespace System.CommandLine
 {
@@ -82,10 +83,8 @@ namespace System.CommandLine
                 return ZeroOrOne;
             }
 
-            if (type.IsValueType &&
-                symbol is ICommand &&
-                type.IsGenericType &&
-                type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (symbol is ICommand &&
+                type.IsNullable())
             {
                 return ZeroOrOne;
             }

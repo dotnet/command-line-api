@@ -221,10 +221,10 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Theory]
-        [InlineData(typeof(ClassWithCtorParameter<int>), Skip = "wip")]
-        [InlineData(typeof(ClassWithSetter<int>), Skip = "wip")]
+        [InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(ClassWithSetter<int>))]
         [InlineData(typeof(ClassWithCtorParameter<string>))]
-        [InlineData(typeof(ClassWithSetter<string>), Skip = "wip")]
+        [InlineData(typeof(ClassWithSetter<string>))]
         [InlineData(typeof(FileInfo))]
         [InlineData(typeof(FileInfo[]))]
         [InlineData(typeof(string[]))]
@@ -268,8 +268,8 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Theory]
-        [InlineData(typeof(ClassWithCtorParameter<int>), Skip = "wip")]
-        [InlineData(typeof(ClassWithSetter<int>), Skip = "wip")]
+        [InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(ClassWithSetter<int>))]
         [InlineData(typeof(ClassWithCtorParameter<string>))]
         [InlineData(typeof(ClassWithSetter<string>))]
         [InlineData(typeof(FileInfo))]
@@ -362,10 +362,8 @@ namespace System.CommandLine.Tests.Binding
 
         };
 
-
-
         [Fact]
-        public async Task issue_431_bool()
+        public async Task When_argument_type_is_not_known_until_binding_then_bool_parameter_is_bound_correctlyl()
         {
             bool? received = null;
 
@@ -376,22 +374,16 @@ namespace System.CommandLine.Tests.Binding
 
             var root = new RootCommand(handler: handler)
             {
-                new Option("-x", "Explanation"
-                    //   , argument: new Argument<bool>() // <-- Both assertions pass if you uncomment this
-                )
+                new Option("-x", "Explanation")
             };
-
-            var result = root.Parse("-x").ValueForOption<bool>("-x");
-
-            result.Should().BeTrue(); // <-- Passes
 
             await root.InvokeAsync("-x");
 
-            received.Should().BeTrue(); // <-- Fails (bug)
+            received.Should().BeTrue();
         }
 
         [Fact]
-        public async Task issue_431_int()
+        public async Task When_argument_type_is_not_known_until_binding_then_int_parameter_is_bound_correctly()
         {
             int received = 0;
 
@@ -403,19 +395,16 @@ namespace System.CommandLine.Tests.Binding
             var root = new RootCommand(handler: handler)
             {
                 new Option("-x", "Explanation"
-                           , argument: new Argument { Arity = new ArgumentArity(1, 1) }
+                           , argument: new Argument
+                           {
+                               Arity = new ArgumentArity(1, 1)
+                           }
                 )
             };
 
-            var parseResult = root.Parse("-x 123");
-
-            var result = parseResult.ValueForOption<int>("-x");
-
-            result.Should().Be(123); // <-- Passes
-
             await root.InvokeAsync("-x 123");
 
-            received.Should().Be(123); // <-- Fails (bug)
+            received.Should().Be(123);
         }
     }
 }

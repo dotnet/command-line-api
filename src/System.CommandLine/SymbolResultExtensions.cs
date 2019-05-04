@@ -7,20 +7,13 @@ namespace System.CommandLine
 {
     public static class SymbolResultExtensions
     {
-        public static object GetValueOrDefault(this SymbolResult symbolResult)
-        {
-            return symbolResult.GetValueOrDefault<object>();
-        }
-
-        public static bool TryGetValueOrDefault(
+        public static ArgumentResult GetValueAs(
             this SymbolResult symbolResult,
-            Type type, 
-            out object value)
+            Type type)
         {
             if (symbolResult == null)
             {
-                value = default;
-                return false;
+                return ArgumentResult.None;
             }
 
             if (type == null)
@@ -30,71 +23,38 @@ namespace System.CommandLine
 
             var result = symbolResult.ArgumentResult;
 
-            if (result is SuccessfulArgumentResult successful)
+            if (!(result is SuccessfulArgumentResult successful))
             {
-                value = successful.Value;
-
-                if (type.IsInstanceOfType(value))
-                {
-                    return true;
-                }
-
-                switch (value)
-                {
-                    // try to parse the single string argument to the requested type
-                    case string argument:
-                        result = ArgumentConverter.Parse(type, argument);
-
-                        break;
-
-                    // try to parse the multiple string arguments to the request type
-                    case IReadOnlyCollection<string> arguments:
-                        result = ArgumentConverter.ParseMany(type, arguments);
-
-                        break;
-
-                    case null:
-                        if (type == typeof(bool))
-                        {
-                            // the presence of the parsed symbol is treated as true
-                            value = true;
-                            return true;
-                        }
-
-                        value = default;
-                        return false;
-                }
-
-                if (result is SuccessfulArgumentResult s)
-                {
-                    value = s.Value;
-                }
-
-                if (type.IsInstanceOfType(value))
-                {
-                    return true;
-                }
+                return result;
             }
 
-            if (result is FailedArgumentResult failed)
+            if (type.IsInstanceOfType(successful.Value))
             {
-                throw new InvalidOperationException(failed.ErrorMessage);
+                return result;
             }
 
-            value = default;
-            return false;
+            return ArgumentConverter.Parse(type, successful.Value);
+        }
+
+        public static object GetValueOrDefault(this SymbolResult symbolResult)
+        {
+            return symbolResult.GetValueOrDefault<object>();
         }
 
         public static T GetValueOrDefault<T>(this SymbolResult symbolResult)
         {
-            if (symbolResult.TryGetValueOrDefault(typeof(T), out var value))
+            ArgumentResult result = symbolResult.GetValueAs(typeof(T));
+
+            switch (result)
             {
-                return (T)value;
+                case SuccessfulArgumentResult successful:
+                    return (T)successful.Value;
+                case FailedArgumentResult failed:
+                    throw new InvalidOperationException(failed.ErrorMessage);
+                case NoArgumentResult _:
+                default:
+                    return default;
             }
-
-            return default;
-
-            throw new InvalidOperationException(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
         }
 
         internal static IEnumerable<SymbolResult> AllSymbolResults(this SymbolResult symbolResult)

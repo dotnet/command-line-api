@@ -56,9 +56,9 @@ namespace System.CommandLine
             return symbol;
         }
 
-        public bool TryGetValueForArgument(string alias, out object value)
+        public bool TryGetValueForArgument(IValueDescriptor valueDescriptor, out object value)
         {
-            if (alias.IsMatch(Command.Argument.Name))
+            if (valueDescriptor.Name.IsMatch(Command.Argument.Name))
             {
                 value = this.GetValueOrDefault();
                 return true;
@@ -89,8 +89,9 @@ namespace System.CommandLine
             }
 
             if (symbolResult is OptionResult && 
-                symbolResult.TryGetValueOrDefault(valueDescriptor.Type, out value))
+                symbolResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
             {
+                value = successful.Value;
                 return true;
             }
             else
