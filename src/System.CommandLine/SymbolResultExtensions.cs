@@ -12,45 +12,57 @@ namespace System.CommandLine
             return symbolResult.GetValueOrDefault<object>();
         }
 
-        public static T GetValueOrDefault<T>(this SymbolResult symbolResult)
+        public static bool TryGetValueOrDefault(
+            this SymbolResult symbolResult,
+            Type type, 
+            out object value)
         {
             if (symbolResult == null)
             {
-                return default;
+                value = default;
+                return false;
+            }
+
+            if (type == null)
+            {
+                type = typeof(object);
             }
 
             var result = symbolResult.ArgumentResult;
 
             if (result is SuccessfulArgumentResult successful)
             {
-                object value = successful.Value;
+                value = successful.Value;
+
+                if (type.IsInstanceOfType(value))
+                {
+                    return true;
+                }
 
                 switch (value)
                 {
-                    // the configuration specifies a type conversion
-                    case T alreadyConverted:
-                        return alreadyConverted;
-
                     // try to parse the single string argument to the requested type
                     case string argument:
-                        result = ArgumentConverter.Parse<T>(argument);
+                        result = ArgumentConverter.Parse(type, argument);
 
                         break;
 
                     // try to parse the multiple string arguments to the request type
                     case IReadOnlyCollection<string> arguments:
-                        result = ArgumentConverter.ParseMany<T>(arguments);
+                        result = ArgumentConverter.ParseMany(type, arguments);
 
                         break;
 
                     case null:
-                        if (typeof(T) == typeof(bool))
+                        if (type == typeof(bool))
                         {
                             // the presence of the parsed symbol is treated as true
-                            return (dynamic)true;
+                            value = true;
+                            return true;
                         }
 
-                        return default;
+                        value = default;
+                        return false;
                 }
 
                 if (result is SuccessfulArgumentResult s)
@@ -58,9 +70,9 @@ namespace System.CommandLine
                     value = s.Value;
                 }
 
-                if (value is T t)
+                if (type.IsInstanceOfType(value))
                 {
-                    return t;
+                    return true;
                 }
             }
 
@@ -68,6 +80,19 @@ namespace System.CommandLine
             {
                 throw new InvalidOperationException(failed.ErrorMessage);
             }
+
+            value = default;
+            return false;
+        }
+
+        public static T GetValueOrDefault<T>(this SymbolResult symbolResult)
+        {
+            if (symbolResult.TryGetValueOrDefault(typeof(T), out var value))
+            {
+                return (T)value;
+            }
+
+            return default;
 
             throw new InvalidOperationException(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
         }

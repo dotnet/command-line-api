@@ -88,9 +88,9 @@ namespace System.CommandLine
                 symbolResult = children[0];
             }
 
-            if (symbolResult is OptionResult optionResult)
+            if (symbolResult is OptionResult && 
+                symbolResult.TryGetValueOrDefault(valueDescriptor.Type, out value))
             {
-                value = optionResult.GetValueOrDefault();
                 return true;
             }
             else
