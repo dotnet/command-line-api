@@ -64,16 +64,17 @@ namespace System.CommandLine
 
         public bool TryGetValueForArgument(IValueDescriptor valueDescriptor, out object value)
         {
-            if (valueDescriptor.Name.IsMatch(Command.Argument.Name))
+            foreach (var argument in Command.Arguments)
             {
-                value = this.GetValueOrDefault();
-                return true;
+                if (valueDescriptor.Name.IsMatch(argument.Name))
+                {
+                    value = this.GetValueOrDefault();
+                    return true;
+                }
             }
-            else
-            {
-                value = null;
-                return false;
-            }
+
+            value = null;
+            return false;
         }
 
         public bool TryGetValueForOption(IValueDescriptor valueDescriptor, out object value)

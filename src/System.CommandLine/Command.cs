@@ -18,17 +18,11 @@ namespace System.CommandLine
             bool treatUnmatchedTokensAsErrors = true,
             ICommandHandler handler = null,
             bool isHidden = false) :
-            base(new[] { name }, description, isHidden: isHidden)
+            base(new[] { name }, description, argument, isHidden)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
             Handler = handler;
             symbols = symbols ?? Array.Empty<Symbol>();
-
-            Argument = argument ??
-                       new Argument
-                       {
-                           Arity = ArgumentArity.Zero
-                       };
 
             foreach (var symbol in symbols)
             {

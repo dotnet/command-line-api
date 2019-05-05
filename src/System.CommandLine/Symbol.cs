@@ -13,7 +13,7 @@ namespace System.CommandLine
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string _longestAlias = "";
         private string _specifiedName;
-        private Argument _argument;
+        private readonly List<Argument> _arguments = new List<Argument>();
 
         protected Symbol(
             IReadOnlyCollection<string> aliases,
@@ -40,28 +40,32 @@ namespace System.CommandLine
 
             IsHidden = isHidden;
 
-            Argument = argument ?? Argument.None;
+            if (argument != null)
+            {
+                AddArgument(argument);
+            }
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
+        [Obsolete("Use Arguments property instead")]
         public Argument Argument
         {
-            get => _argument;
+            get => Arguments.FirstOrDefault() ?? Argument.None;
             set
             {
-                if (value?.Arity.MaximumNumberOfValues > 0 && 
-                    string.IsNullOrEmpty(value.Name))
+                if (Arguments.Any())
                 {
-                    value.Name = _aliases.First().ToLower();
+                    _arguments.Clear();
                 }
 
-                _argument = value ?? Argument.None;
-                _argument.Parent = this;
+                AddArgument(value);
             }
         }
+
+        public IReadOnlyCollection<Argument> Arguments => _arguments;
 
         public string Description { get; set; }
 
@@ -94,6 +98,24 @@ namespace System.CommandLine
             }
 
             Children.Add(symbol);
+        }
+
+        private protected void AddArgument(Argument argument)
+        {
+            if (argument == null)
+            {
+                throw new ArgumentNullException(nameof(argument));
+            }
+
+            argument.Parent = this;
+
+            if (argument.Arity.MaximumNumberOfValues > 0 &&
+                string.IsNullOrEmpty(argument.Name))
+            {
+                argument.Name = _aliases.First().ToLower();
+            }
+
+            _arguments.Add(argument);
         }
 
         public SymbolSet Children { get; } = new SymbolSet();
@@ -141,8 +163,9 @@ namespace System.CommandLine
         public IEnumerable<string> Suggest(string textToMatch = null)
         {
             var argumentSuggestions =
-                Argument.Suggest(textToMatch)
-                        .ToArray();
+                Arguments
+                    .SelectMany(a => a.Suggest(textToMatch))
+                    .ToArray();
 
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
@@ -154,6 +177,8 @@ namespace System.CommandLine
         public override string ToString() => $"{GetType().Name}: {Name}";
 
         IArgument ISymbol.Argument => Argument;
+
+        IReadOnlyCollection<IArgument> ISymbol.Arguments => Arguments;
 
         ICommand ISymbol.Parent => Parent;
 

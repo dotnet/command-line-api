@@ -17,12 +17,12 @@ namespace System.CommandLine
             !symbol.IsHidden &&
             (!string.IsNullOrWhiteSpace(symbol.Name) ||
              !string.IsNullOrWhiteSpace(symbol.Description) ||
-             symbol.Argument.ShouldShowHelp());
+             symbol.Arguments.Any(a => a.ShouldShowHelp()));
 
         internal static bool ShouldShowHelp(
             this IArgument argument) =>
             argument != null &&
-            (!string.IsNullOrWhiteSpace(argument.Name) || string.IsNullOrWhiteSpace(argument.Description)) && 
+            !string.IsNullOrWhiteSpace(argument.Name) && 
             argument.Arity.MaximumNumberOfValues > 0;
 
         internal static Token DefaultToken(this ICommand command)

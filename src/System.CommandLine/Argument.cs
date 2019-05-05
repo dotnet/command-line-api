@@ -117,6 +117,7 @@ namespace System.CommandLine
 
         public bool HasDefaultValue => _defaultValue != null;
 
+        [Obsolete]
         public static Argument None => new Argument { Arity = ArgumentArity.Zero };
 
         public void AddSuggestions(IReadOnlyCollection<string> suggestions)
@@ -177,40 +178,6 @@ namespace System.CommandLine
                    .Containing(textToMatch);
         }
 
-        private ArgumentResult Parse(SymbolResult symbolResult)
-        {
-            var failedResult = ArgumentArity.Validate(symbolResult,
-                                                      Arity.MinimumNumberOfValues,
-                                                      Arity.MaximumNumberOfValues);
-
-            if (failedResult != null)
-            {
-                return failedResult;
-            }
-
-            if (symbolResult.UseDefaultValue)
-            {
-                return ArgumentResult.Success(symbolResult.Symbol.Argument.GetDefaultValue());
-            }
-
-            if (ConvertArguments != null)
-            {
-                return ConvertArguments(symbolResult);
-            }
-
-            switch (Arity.MaximumNumberOfValues)
-            {
-                case 0:
-                    return ArgumentResult.Success(null);
-
-                case 1:
-                    return ArgumentResult.Success(symbolResult.Tokens.Select(t => t.Value).SingleOrDefault());
-
-                default:
-                    return ArgumentResult.Success(symbolResult.Tokens.Select(t => t.Value).ToArray());
-            }
-        }
-
         internal (ArgumentResult, ParseError) Validate(SymbolResult symbolResult)
         {
             ArgumentResult result = null;
@@ -220,7 +187,7 @@ namespace System.CommandLine
 
             if (error == null)
             {
-                result = Parse(symbolResult);
+                result = Parse();
 
                 var canTokenBeRetried =
                     symbolResult.Symbol is ICommand ||
@@ -252,6 +219,40 @@ namespace System.CommandLine
             }
 
             return (result, error);
+
+            ArgumentResult Parse()
+            {
+                var failedResult = ArgumentArity.Validate(symbolResult,
+                                                          Arity.MinimumNumberOfValues,
+                                                          Arity.MaximumNumberOfValues);
+
+                if (failedResult != null)
+                {
+                    return failedResult;
+                }
+
+                if (symbolResult.UseDefaultValue)
+                {
+                    return ArgumentResult.Success(GetDefaultValue());
+                }
+
+                if (ConvertArguments != null)
+                {
+                    return ConvertArguments(symbolResult);
+                }
+
+                switch (Arity.MaximumNumberOfValues)
+                {
+                    case 0:
+                        return ArgumentResult.Success(null);
+
+                    case 1:
+                        return ArgumentResult.Success(symbolResult.Arguments.SingleOrDefault());
+
+                    default:
+                        return ArgumentResult.Success(symbolResult.Arguments);
+                }
+            }
 
             ParseError UnrecognizedArgumentError()
             {

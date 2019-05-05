@@ -14,7 +14,7 @@ namespace System.CommandLine
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public Parser(params Symbol[] symbol) : this(new CommandLineConfiguration(symbol))
+        public Parser(params Symbol[] symbols) : this(new CommandLineConfiguration(symbols))
         {
         }
 

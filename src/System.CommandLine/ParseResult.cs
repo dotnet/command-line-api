@@ -62,44 +62,51 @@ namespace System.CommandLine
         {
             foreach (var result in RootCommandResult.AllSymbolResults().ToArray())
             {
-                if (result is CommandResult command)
+                if (result is CommandResult commandResult)
                 {
-                    foreach (var symbol in command.Command.Children)
+                    foreach (var symbol in commandResult.Command.Children)
                     {
-                        if (symbol.Argument.HasDefaultValue &&
-                            command.Children[symbol.Name] == null)
+                        if (commandResult.Children[symbol.Name] == null)
                         {
-                            switch (symbol)
+                            foreach (var argument in symbol.Arguments)
                             {
-                                case IOption option:
-                                    command.AddImplicitOption(option);
-                                    break;
+                                if (argument.HasDefaultValue)
+                                {
+                                    switch (symbol)
+                                    {
+                                        case IOption option:
+                                            commandResult.AddImplicitOption(option);
+                                            break;
+                                    }
+                                }
                             }
                         }
                     }
 
-                    if (!command.IsArgumentLimitReached &&
-                        command.Command.Argument.HasDefaultValue)
+                    if (!commandResult.IsArgumentLimitReached)
                     {
-                        var defaultValue = command.Command.Argument.GetDefaultValue();
+                        foreach (var argument in commandResult.Symbol.Arguments)
+                        {
+                            if (argument.HasDefaultValue)
+                            {
+                                var defaultValue = argument.GetDefaultValue();
 
-                        if (defaultValue is string stringArg)
-                        {
-                            command.TryTakeToken(new Token(stringArg, TokenType.Argument));
-                        }
-                        else
-                        {
-                            command.UseDefaultValue = true;
+                                if (defaultValue is string stringArg)
+                                {
+                                    commandResult.TryTakeToken(new Token(stringArg, TokenType.Argument));
+                                }
+                                else
+                                {
+                                    commandResult.UseDefaultValue = true;
+                                }
+                            }
                         }
                     }
                 }
 
-                var error = result.Validate();
+                var errors = result.Validate();
 
-                if (error != null)
-                {
-                    _errors.Add(error);
-                }
+                _errors.AddRange(errors);
             }
 
             if (CommandResult.Command is Command cmd &&

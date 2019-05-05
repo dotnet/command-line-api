@@ -22,7 +22,10 @@ namespace System.CommandLine
 
         bool IsHidden { get; }
 
+        [Obsolete("Use Arguments property instead")]
         IArgument Argument { get; }
+
+        IReadOnlyCollection<IArgument> Arguments { get; }
 
         ISymbolSet Children { get; }
     }

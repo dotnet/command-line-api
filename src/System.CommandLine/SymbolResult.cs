@@ -47,7 +47,7 @@ namespace System.CommandLine
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
 
         private protected virtual int RemainingArgumentCapacity =>
-             Symbol.Argument.Arity.MaximumNumberOfValues - Tokens.Count;
+            Symbol.Arguments.Sum(a => a.Arity.MaximumNumberOfValues) - Arguments.Count;
 
         public ValidationMessages ValidationMessages    
         {
@@ -55,17 +55,38 @@ namespace System.CommandLine
             set => _validationMessages = value;
         }
 
-        protected internal ParseError Validate()
+        protected internal IReadOnlyCollection<ParseError> Validate()
         {
+            var errors = new List<ParseError>();
+
             // TODO: (Validate) don't cast
-            if (Symbol.Argument is Argument argument)
+            var arguments = Symbol.Arguments;
+
+            if (arguments.Count == 0)
             {
-                var (result, error) = argument.Validate(this);
-                _result = result;
-                return error;
+                arguments = new IArgument[]
+                {
+                    Argument.None
+                };
             }
 
-            return null;
+            foreach (var argument in arguments)
+            {
+                if (argument is Argument arg)
+                {
+                    var (result, error) = arg.Validate(this);
+
+                    // FIX: (Validate) cardinality / side effect
+                    _result = result;
+
+                    if (error != null)
+                    {
+                        errors.Add(error);
+                    }
+                }
+            }
+
+            return errors;
         }
 
         internal abstract SymbolResult TryTakeToken(Token token);
@@ -87,7 +108,7 @@ namespace System.CommandLine
 
             _tokens.Add(token);
 
-            var parseError = Validate();
+            var parseError = Validate().SingleOrDefault();
 
             if (parseError == null)
             {
@@ -151,6 +172,8 @@ namespace System.CommandLine
             protected set => _result = value;
         }
 
+        // FIX: (SymbolResult) move to ArgumentResult?
+        [Obsolete]
         internal bool UseDefaultValue { get; set; }
 
         public override string ToString() => $"{GetType().Name}: {Token}";
