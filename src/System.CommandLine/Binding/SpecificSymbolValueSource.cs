@@ -3,25 +3,25 @@
 
 namespace System.CommandLine.Binding
 {
-    internal class SymbolValueSource : IValueSource
+    internal class OptionValueSource : IValueSource
     {
-        public SymbolValueSource(ISymbol symbol)
+        public OptionValueSource(IOption option)
         {
-            Symbol = symbol;
+            Option = option;
         }
 
-        public ISymbol Symbol { get; }
+        public IOption Option { get; }
 
         public bool TryGetValue(
             IValueDescriptor valueDescriptor, 
             BindingContext bindingContext, 
             out object boundValue)
         {
-            var symbolResult = bindingContext.ParseResult.FindResultFor(Symbol);
+            var result = bindingContext.ParseResult.FindResultFor(Option);
 
-            boundValue = symbolResult == null
-                        ? Symbol.GetDefaultValue()
-                        : symbolResult.GetValueOrDefault();
+            boundValue = result == null
+                        ? Option.GetDefaultValue()
+                        : result.GetValueOrDefault();
 
             return true;
         }

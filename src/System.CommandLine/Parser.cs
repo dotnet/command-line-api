@@ -100,7 +100,7 @@ namespace System.CommandLine
 
                         if (token.Type == TokenType.Option)
                         {
-                            var existing = optionQueue.FirstOrDefault(option => option.Name == symbolForToken.Name);
+                            var existing = optionQueue.FirstOrDefault(option => ((ISymbol)option).Name == symbolForToken.Name);
 
                             if (existing != null)
                             {

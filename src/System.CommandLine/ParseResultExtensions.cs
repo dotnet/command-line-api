@@ -257,22 +257,5 @@ namespace System.CommandLine
                 }
             }
         }
-
-        internal static IEnumerable<IValueDescriptor> ValueDescriptors(this ParseResult parseResult)
-        {
-            var command = parseResult.CommandResult.Command;
-
-            while (command != null)
-            {
-                yield return command;
-
-                foreach (var option in command.Children.OfType<Option>())
-                {
-                    yield return option;
-                }
-
-                command = command.Parent;
-            }
-        }
     }
 }

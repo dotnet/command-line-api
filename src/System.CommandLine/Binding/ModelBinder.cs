@@ -35,14 +35,7 @@ namespace System.CommandLine.Binding
         {
             NamedValueSources.Add(
                 (property.PropertyType, property.Name),
-                new SymbolValueSource(option));
-        }
-
-        public void BindMemberFromValue(PropertyInfo property, Command command)
-        {
-            NamedValueSources.Add(
-                (property.PropertyType, property.Name),
-                new SymbolValueSource(command));
+                new OptionValueSource(option));
         }
 
         public object CreateInstance(BindingContext context)

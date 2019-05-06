@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 
 namespace System.CommandLine
 {
@@ -13,14 +14,25 @@ namespace System.CommandLine
             Argument argument = null,
             bool isHidden = false)
             : base(aliases, description, argument, isHidden)
-        { }
+        {
+        }
 
         public Option(
             string alias,
             string description = null,
             Argument argument = null,
             bool isHidden = false)
-            : base(new [] {alias}, description, argument, isHidden)
-        { }
+            : base(new[]
+            {
+                alias
+            }, description, argument, isHidden)
+        {
+        }
+
+        Type IValueDescriptor.Type => Argument.ArgumentType;
+
+        bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
+
+        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

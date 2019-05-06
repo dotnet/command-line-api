@@ -124,7 +124,6 @@ namespace System.CommandLine.DragonFruit.Tests
                                          };
 
             rootCommandArgument.Children
-                               .OfType<IOption>()
                                .Should()
                                .NotContain(o => argumentParameterNames.Contains(o.Name));
         }

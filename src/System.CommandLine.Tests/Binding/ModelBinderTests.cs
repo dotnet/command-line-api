@@ -331,29 +331,6 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Values_from_parent_command_arguments_can_be_bound_regardless_of_naming()
-        {
-            var childCommand = new Command("child-command");
-
-            var parentCommand = new Command("parent-command", argument: new Argument<int>())
-                                {
-                                    childCommand
-                                };
-
-            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
-
-            binder.BindMemberFromCommand(
-                c => c.IntOption,
-                parentCommand);
-
-            var bindingContext = new BindingContext(parentCommand.Parse("parent-command 123 child-command"));
-
-            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
-
-            instance.IntOption.Should().Be(123);
-        }
-
-        [Fact]
         public void Arbitrary_values_can_be_bound()
         {
             var command = new Command("the-command");
@@ -388,28 +365,6 @@ namespace System.CommandLine.Tests.Binding
                 option);
 
             var bindingContext = new BindingContext(command.Parse("the-command --fred 42"));
-
-            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
-
-            instance.IntOption.Should().Be(42);
-        }
-
-        [Fact]
-        public void PropertyInfo_can_be_bound_to_command()
-        {
-            var command = new Command("the-command");
-            var argument = new Argument<int>();
-            command.Argument = argument;
-
-            var type = typeof(ClassWithMultiLetterSetters);
-            var binder = new ModelBinder(type);
-            var propertyInfo = type.GetProperties().First();
-
-            binder.BindMemberFromValue(
-                propertyInfo,
-                command);
-
-            var bindingContext = new BindingContext(command.Parse("the-command 42"));
 
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 

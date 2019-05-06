@@ -183,11 +183,5 @@ namespace System.CommandLine
         ICommand ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;
-
-        Type IValueDescriptor.Type => Argument.ArgumentType;
-
-        bool IValueDescriptor.HasDefaultValue  => Argument.HasDefaultValue;
-
-        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

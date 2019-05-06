@@ -17,16 +17,7 @@ namespace System.CommandLine.Binding
         {
             NamedValueSources.Add(
                 property.MemberTypeAndName(),
-                new SymbolValueSource(option));
-        }
-
-        public void BindMemberFromCommand<TValue>(
-            Expression<Func<TModel, TValue>> property,
-            ICommand command)
-        {
-            NamedValueSources.Add(
-                property.MemberTypeAndName(),
-                new SymbolValueSource(command));
+                new OptionValueSource(option));
         }
 
         public void BindMemberFromValue<TValue>(
