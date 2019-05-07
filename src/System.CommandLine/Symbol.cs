@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine
@@ -13,7 +12,7 @@ namespace System.CommandLine
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string _longestAlias = "";
         private string _specifiedName;
-        private readonly List<Argument> _arguments = new List<Argument>();
+        private protected readonly List<Argument> _arguments = new List<Argument>();
 
         protected Symbol(
             IReadOnlyCollection<string> aliases,
@@ -42,30 +41,13 @@ namespace System.CommandLine
 
             if (argument != null)
             {
-                AddArgument(argument);
+                AddArgumentInner(argument);
             }
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
-
-        [Obsolete("Use Arguments property instead")]
-        public Argument Argument
-        {
-            get => Arguments.FirstOrDefault() ?? Argument.None;
-            set
-            {
-                if (Arguments.Any())
-                {
-                    _arguments.Clear();
-                }
-
-                AddArgument(value);
-            }
-        }
-
-        public IReadOnlyCollection<Argument> Arguments => _arguments;
 
         public string Description { get; set; }
 
@@ -100,7 +82,7 @@ namespace System.CommandLine
             Children.Add(symbol);
         }
 
-        private protected void AddArgument(Argument argument)
+        private protected void AddArgumentInner(Argument argument)
         {
             if (argument == null)
             {
@@ -129,7 +111,7 @@ namespace System.CommandLine
                 throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            for (int i = 0; i < alias.Length; i++)
+            for (var i = 0; i < alias.Length; i++)
             {
                 if (char.IsWhiteSpace(alias[i]))
                 {
@@ -163,7 +145,7 @@ namespace System.CommandLine
         public IEnumerable<string> Suggest(string textToMatch = null)
         {
             var argumentSuggestions =
-                Arguments
+                _arguments
                     .SelectMany(a => a.Suggest(textToMatch))
                     .ToArray();
 
@@ -175,10 +157,6 @@ namespace System.CommandLine
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";
-
-        IArgument ISymbol.Argument => Argument;
-
-        IReadOnlyCollection<IArgument> ISymbol.Arguments => Arguments;
 
         ICommand ISymbol.Parent => Parent;
 

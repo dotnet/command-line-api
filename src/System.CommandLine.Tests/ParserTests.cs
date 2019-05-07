@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
-    public class ParserTests
+    public partial class ParserTests
     {
         private readonly ITestOutputHelper _output;
 

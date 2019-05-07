@@ -30,6 +30,25 @@ namespace System.CommandLine
             }
         }
 
+        [Obsolete("Use the Arguments property instead")]
+        public virtual Argument Argument
+        {
+            get => _arguments.FirstOrDefault() ?? Argument.None;
+            set
+            {
+                if (_arguments.Any())
+                {
+                    _arguments.Clear();
+                }
+
+                AddArgumentInner(value);
+            }
+        }
+
+        public IReadOnlyList<Argument> Arguments => _arguments;
+
+        public void AddArgument(Argument argument) => AddArgumentInner(argument);
+
         public void AddCommand(Command command) => AddSymbol(command);
 
         public void AddOption(Option option) => AddSymbol(option);
@@ -43,5 +62,12 @@ namespace System.CommandLine
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+#pragma warning disable 618
+        IArgument ICommand.Argument => Argument;
+#pragma warning restore 618
+
+        IReadOnlyList<IArgument> ICommand.Arguments => Arguments;
+
     }
 }

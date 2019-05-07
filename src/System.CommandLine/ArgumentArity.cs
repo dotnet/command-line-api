@@ -30,12 +30,13 @@ namespace System.CommandLine
 
         internal static FailedArgumentArityResult Validate(
             SymbolResult symbolResult,
+            IArgument argument,
             int minimumNumberOfValues,
             int maximumNumberOfValues)
         {
             if (symbolResult.Arguments.Count < minimumNumberOfValues)
             {
-                if (symbolResult.UseDefaultValue)
+                if (symbolResult.UseDefaultValueFor(argument))
                 {
                     return null;
                 }

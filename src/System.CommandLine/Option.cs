@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -29,10 +30,26 @@ namespace System.CommandLine
         {
         }
 
-        Type IValueDescriptor.Type => Argument.ArgumentType;
+        public virtual Argument Argument
+        {
+            get => _arguments.FirstOrDefault() ?? Argument.None;
+            set
+            {
+                if (_arguments.Any())
+                {
+                    _arguments.Clear();
+                }
 
-        bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
+                AddArgumentInner(value);
+            }
+        }
 
-        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
+        IArgument IOption.Argument => Argument;
+
+        Type IValueDescriptor.Type => _arguments[0].ArgumentType;
+
+        bool IValueDescriptor.HasDefaultValue => _arguments[0].HasDefaultValue;
+
+        object IValueDescriptor.GetDefaultValue() => _arguments[0].GetDefaultValue();
     }
 }

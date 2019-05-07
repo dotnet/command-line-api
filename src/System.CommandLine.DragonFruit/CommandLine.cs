@@ -133,11 +133,11 @@ namespace System.CommandLine.DragonFruit
             if (method.GetParameters()
                       .FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is ParameterInfo argsParam)
             {
-                command.Argument = new Argument
-                                   {
-                                       ArgumentType = argsParam.ParameterType,
-                                       Name = argsParam.Name
-                                   };
+                command.AddArgument(new Argument
+                {
+                    ArgumentType = argsParam.ParameterType,
+                    Name = argsParam.Name
+                });
             }
 
             command.Handler = CommandHandler.Create(method);
@@ -158,14 +158,13 @@ namespace System.CommandLine.DragonFruit
                 throw new ArgumentNullException(nameof(method));
             }
 
-            var metadata = new CommandHelpMetadata();
             if (XmlDocReader.TryLoad(xmlDocsFilePath ?? GetDefaultXmlDocsFileLocation(method.DeclaringType.Assembly), out var xmlDocs))
             {
-                if (xmlDocs.TryGetMethodDescription(method, out metadata) &&
+                if (xmlDocs.TryGetMethodDescription(method, out CommandHelpMetadata metadata) &&
                     metadata.Description != null)
                 {
                     builder.Command.Description = metadata.Description;
-                    var options = builder.Options;
+                    var options = builder.Options.ToArray();
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
                     {
@@ -179,10 +178,15 @@ namespace System.CommandLine.DragonFruit
                         }
                         else
                         {
-                            var argument = builder.Command.Argument;
-                            if (argument != null && !string.IsNullOrEmpty(argument.Name) && argument.Name.Equals(kebabCasedParameterName, StringComparison.OrdinalIgnoreCase))
+                            foreach (var argument in builder.Command.Arguments)
                             {
-                                argument.Description = parameterDescription.Value;
+                                if (string.Equals(
+                                        argument.Name,
+                                        kebabCasedParameterName, 
+                                        StringComparison.OrdinalIgnoreCase))
+                                {
+                                    argument.Description = parameterDescription.Value;
+                                }
                             }
                         }
                     }

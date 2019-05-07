@@ -288,7 +288,7 @@ namespace System.CommandLine
         /// <returns>A new <see cref="HelpItem"/></returns>
         protected virtual IEnumerable<HelpItem> ArgumentFormatter(ISymbol symbol)
         {
-            foreach (var argument in symbol.Arguments)
+            foreach (var argument in symbol.Arguments())
             {
                 var argumentDescriptor = ArgumentDescriptor(argument);
 
@@ -330,9 +330,9 @@ namespace System.CommandLine
 
             var option = string.Join(", ", rawAliases);
 
-            if (symbol?.ShouldShowHelp() == true)
+            if (symbol.ShouldShowHelp())
             {
-                foreach (var argument in symbol.Arguments)
+                foreach (var argument in symbol.Arguments())
                 {
                     if (!string.IsNullOrWhiteSpace(argument.Name))
                     {

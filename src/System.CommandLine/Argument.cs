@@ -117,7 +117,6 @@ namespace System.CommandLine
 
         public bool HasDefaultValue => _defaultValue != null;
 
-        [Obsolete]
         public static Argument None => new Argument { Arity = ArgumentArity.Zero };
 
         public void AddSuggestions(IReadOnlyCollection<string> suggestions)
@@ -223,6 +222,7 @@ namespace System.CommandLine
             ArgumentResult Parse()
             {
                 var failedResult = ArgumentArity.Validate(symbolResult,
+                                                          this,
                                                           Arity.MinimumNumberOfValues,
                                                           Arity.MaximumNumberOfValues);
 
@@ -231,7 +231,7 @@ namespace System.CommandLine
                     return failedResult;
                 }
 
-                if (symbolResult.UseDefaultValue)
+                if (symbolResult.UseDefaultValueFor(this))
                 {
                     return ArgumentResult.Success(GetDefaultValue());
                 }

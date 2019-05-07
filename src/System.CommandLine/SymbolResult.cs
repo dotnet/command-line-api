@@ -47,7 +47,7 @@ namespace System.CommandLine
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
 
         private protected virtual int RemainingArgumentCapacity =>
-            Symbol.Arguments.Sum(a => a.Arity.MaximumNumberOfValues) - Arguments.Count;
+            Symbol.Arguments().Sum(a => a.Arity.MaximumNumberOfValues) - Arguments.Count;
 
         public ValidationMessages ValidationMessages    
         {
@@ -59,8 +59,7 @@ namespace System.CommandLine
         {
             var errors = new List<ParseError>();
 
-            // TODO: (Validate) don't cast
-            var arguments = Symbol.Arguments;
+            var arguments = Symbol.Arguments();
 
             if (arguments.Count == 0)
             {
@@ -172,9 +171,24 @@ namespace System.CommandLine
             protected set => _result = value;
         }
 
-        // FIX: (SymbolResult) move to ArgumentResult?
-        [Obsolete]
-        internal bool UseDefaultValue { get; set; }
+        private readonly HashSet<IArgument> _argumentsUsingDefaultValue = new HashSet<IArgument>();
+
+        internal bool UseDefaultValueFor(IArgument argument)
+        {
+            return _argumentsUsingDefaultValue.Contains(argument);
+        }
+
+        internal void UseDefaultValueFor(IArgument argument, bool value)
+        {
+            if (value)
+            {
+                _argumentsUsingDefaultValue.Add(argument);
+            }
+            else
+            {
+                _argumentsUsingDefaultValue.Remove(argument);
+            }
+        }
 
         public override string ToString() => $"{GetType().Name}: {Token}";
     }

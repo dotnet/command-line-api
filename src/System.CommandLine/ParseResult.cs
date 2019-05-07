@@ -68,7 +68,7 @@ namespace System.CommandLine
                     {
                         if (commandResult.Children[symbol.Name] == null)
                         {
-                            foreach (var argument in symbol.Arguments)
+                            foreach (var argument in symbol.Arguments())
                             {
                                 if (argument.HasDefaultValue)
                                 {
@@ -85,7 +85,7 @@ namespace System.CommandLine
 
                     if (!commandResult.IsArgumentLimitReached)
                     {
-                        foreach (var argument in commandResult.Symbol.Arguments)
+                        foreach (var argument in commandResult.Symbol.Arguments())
                         {
                             if (argument.HasDefaultValue)
                             {
@@ -97,7 +97,7 @@ namespace System.CommandLine
                                 }
                                 else
                                 {
-                                    commandResult.UseDefaultValue = true;
+                                    commandResult.UseDefaultValueFor(argument, true);
                                 }
                             }
                         }

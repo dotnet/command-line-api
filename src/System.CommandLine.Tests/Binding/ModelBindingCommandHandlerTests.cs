@@ -354,12 +354,6 @@ namespace System.CommandLine.Tests.Binding
             BindingTestCase.Create<List<int>>(
                 "1 2",
                 o => o.Should().BeEquivalentTo(new List<int> { 1, 2 })),
-            
-
-
-
-
-
         };
 
         [Fact]
