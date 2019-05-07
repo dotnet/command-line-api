@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Linq;
 
@@ -24,7 +25,7 @@ namespace System.CommandLine.Builder
 
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
-        public IHelpBuilderFactory HelpBuilderFactory { get; set; }
+        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; set; }
 
         public Parser Build()
         {

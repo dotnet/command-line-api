@@ -19,6 +19,7 @@ namespace System.CommandLine.Binding
 
         private List<PropertyDescriptor> _propertyDescriptors;
         private List<ConstructorDescriptor> _constructorDescriptors;
+        private ConstructorDescriptor _targetConstructor;
 
         protected ModelDescriptor(Type modelType)
         {
@@ -33,6 +34,21 @@ namespace System.CommandLine.Binding
                  ModelType.GetConstructors(CommonBindingFlags)
                           .Select(i => new ConstructorDescriptor(i, this))
                           .ToList());
+
+        public ConstructorDescriptor TargetConstructor
+        {
+            get
+            {
+                if (_targetConstructor == null && 
+                    ConstructorDescriptors.Count == 1)
+                {
+                    _targetConstructor = ConstructorDescriptors[0];
+                }
+
+
+                return _targetConstructor;
+            }
+        }
 
         public IReadOnlyList<IValueDescriptor> PropertyDescriptors =>
             _propertyDescriptors

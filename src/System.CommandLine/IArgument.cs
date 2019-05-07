@@ -5,7 +5,7 @@ using System.CommandLine.Binding;
 
 namespace System.CommandLine
 {
-    public interface IArgument : IValueDescriptor
+    public interface IArgument : ISuggestionSource, IValueDescriptor
     {
         string Description { get; }
 

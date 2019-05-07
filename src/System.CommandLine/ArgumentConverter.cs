@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,6 +14,31 @@ namespace System.CommandLine
     internal static class ArgumentConverter
     {
         private static readonly ConcurrentDictionary<Type, ConvertString> _stringConverters = new ConcurrentDictionary<Type, ConvertString>();
+
+        internal static ArgumentResult Parse(Type type, object value)
+        {
+            switch (value)
+            {
+                // try to parse the single string argument to the requested type
+                case string argument:
+                    return Parse(type, argument);
+
+                // try to parse the multiple string arguments to the request type
+                case IReadOnlyCollection<string> arguments:
+                    return ParseMany(type, arguments);
+
+                case null:
+                    if (type == typeof(bool))
+                    {
+                        // the presence of the parsed symbol is treated as true
+                        return new SuccessfulArgumentResult(true);
+                    }
+
+                    break;
+            }
+
+            return null;
+        }
 
         public static ArgumentResult Parse(Type type, string value)
         {
@@ -52,26 +78,6 @@ namespace System.CommandLine
             return Failure(type, value);
         }
 
-        public static ArgumentResult Parse<T>(string value)
-        {
-            var result = Parse(typeof(T), value);
-
-            switch (result)
-            {
-                case SuccessfulArgumentResult<object> successful:
-                    return new SuccessfulArgumentResult<T>((T)successful.Value);
-                case FailedArgumentResult failed:
-                    return failed;
-            }
-
-            return result;
-        }
-
-        public static ArgumentResult ParseMany<T>(IReadOnlyCollection<string> arguments)
-        {
-            return ParseMany(typeof(T), arguments);
-        }
-
         public static ArgumentResult ParseMany(
             Type type, 
             IReadOnlyCollection<string> arguments)
@@ -108,16 +114,16 @@ namespace System.CommandLine
 
             if (successfulParseResults.Length == arguments.Count)
             {
-                dynamic list = Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+                var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
 
                 foreach (var parseResult in successfulParseResults)
                 {
-                    list.Add(((dynamic)parseResult).Value);
+                    list.Add(parseResult.Value);
                 }
 
                 var value = type.IsArray
-                    ? (object)Enumerable.ToArray(list)
-                    : (object)list;
+                                ? (object)Enumerable.ToArray((dynamic)list)
+                                : list;
 
                 return Success(value);
             }

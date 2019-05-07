@@ -21,10 +21,16 @@ namespace System.CommandLine.DragonFruit
         /// </summary>
         /// <param name="entryAssembly">The entry assembly</param>
         /// <param name="args">The string arguments.</param>
+        /// <param name="entryPointFullTypeName">Explicitly defined entry point</param>
+        /// <param name="xmlDocsFilePath">Explicitly defined path to xml file containing XML Docs</param>
+        /// <param name="console">Output console</param>
         /// <returns>The exit code.</returns>
         public static async Task<int> ExecuteAssemblyAsync(
             Assembly entryAssembly,
-            string[] args)
+            string[] args,
+            string entryPointFullTypeName,
+            string xmlDocsFilePath = null,
+            IConsole console = null)
         {
             if (entryAssembly == null)
             {
@@ -32,23 +38,24 @@ namespace System.CommandLine.DragonFruit
             }
 
             args = args ?? Array.Empty<string>();
+            entryPointFullTypeName = entryPointFullTypeName?.Trim();
 
-            MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly);
+            MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly, entryPointFullTypeName);
 
-            return await InvokeMethodAsync(
-                       args,
-                       entryMethod);
+            //TODO The xml docs file name and location can be customized using <DocumentationFile> project property.
+            return await InvokeMethodAsync(args, entryMethod, xmlDocsFilePath, null, console);
         }
 
         public static async Task<int> InvokeMethodAsync(
             string[] args,
             MethodInfo method,
+            string xmlDocsFilePath = null,
             object target = null,
             IConsole console = null)
         {
             var builder = new CommandLineBuilder()
                           .ConfigureRootCommandFromMethod(method, target)
-                          .ConfigureHelpFromXmlComments(method)
+                          .ConfigureHelpFromXmlComments(method, xmlDocsFilePath)
                           .UseDefaults()
                           .UseAnsiTerminalWhenAvailable();
 
@@ -138,7 +145,8 @@ namespace System.CommandLine.DragonFruit
 
         public static CommandLineBuilder ConfigureHelpFromXmlComments(
             this CommandLineBuilder builder,
-            MethodInfo method)
+            MethodInfo method,
+            string xmlDocsFilePath)
         {
             if (builder == null)
             {
@@ -150,13 +158,8 @@ namespace System.CommandLine.DragonFruit
                 throw new ArgumentNullException(nameof(method));
             }
 
-            Assembly assembly = method.DeclaringType.Assembly;
-            string docFilePath = Path.Combine(
-                Path.GetDirectoryName(assembly.Location),
-                Path.GetFileNameWithoutExtension(assembly.Location) + ".xml");
-
             var metadata = new CommandHelpMetadata();
-            if (XmlDocReader.TryLoad(docFilePath, out var xmlDocs))
+            if (XmlDocReader.TryLoad(xmlDocsFilePath ?? GetDefaultXmlDocsFileLocation(method.DeclaringType.Assembly), out var xmlDocs))
             {
                 if (xmlDocs.TryGetMethodDescription(method, out metadata) &&
                     metadata.Description != null)
@@ -174,9 +177,17 @@ namespace System.CommandLine.DragonFruit
                         {
                             option.Description = parameterDescription.Value;
                         }
+                        else
+                        {
+                            var argument = builder.Command.Argument;
+                            if (argument != null && !string.IsNullOrEmpty(argument.Name) && argument.Name.Equals(kebabCasedParameterName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                argument.Description = parameterDescription.Value;
+                            }
+                        }
                     }
 
-                    metadata.Name = assembly.GetName().Name;
+                    metadata.Name = method.DeclaringType.Assembly.GetName().Name;
                 }
             }
 
@@ -245,6 +256,13 @@ namespace System.CommandLine.DragonFruit
                 argument);
 
             return option;
+        }
+
+        private static string GetDefaultXmlDocsFileLocation(Assembly assembly)
+        {
+            return Path.Combine(
+                Path.GetDirectoryName(assembly.Location),
+                Path.GetFileNameWithoutExtension(assembly.Location) + ".xml");
         }
     }
 }

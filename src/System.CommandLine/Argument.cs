@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Argument : IArgument, ISuggestionSource
+    public class Argument : IArgument
     {
         private Func<object> _defaultValue;
         private readonly List<string> _suggestions = new List<string>();
@@ -55,7 +55,7 @@ namespace System.CommandLine
                             ArgumentType == typeof(bool))
                         {
                             _convertArguments = symbol =>
-                                ArgumentConverter.Parse<bool>(symbol.Arguments.SingleOrDefault() ?? bool.TrueString);
+                                ArgumentConverter.Parse(typeof(bool), symbol.Arguments.SingleOrDefault() ?? bool.TrueString);
                         }
                         else
                         {
@@ -201,7 +201,7 @@ namespace System.CommandLine
             switch (Arity.MaximumNumberOfArguments)
             {
                 case 0:
-                    return ArgumentResult.Success((string)null);
+                    return ArgumentResult.Success(null);
 
                 case 1:
                     return ArgumentResult.Success(symbolResult.Arguments.SingleOrDefault());

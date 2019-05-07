@@ -62,18 +62,6 @@ namespace System.CommandLine.Binding
             IValueDescriptor valueDescriptor,
             out IValueSource valueSource)
         {
-            foreach (var symbol in ParseResult.ValueDescriptors())
-            {
-                if (ValueDescriptor.CanBind(
-                    from: symbol, 
-                    to: valueDescriptor))
-                {
-                    valueSource = new SymbolValueSource((ISymbol)symbol);
-
-                    return true;
-                }
-            }
-
             if (ServiceProvider.AvailableServiceTypes.Contains(valueDescriptor.Type))
             {
                 valueSource = new ServiceProviderValueSource();
@@ -98,15 +86,18 @@ namespace System.CommandLine.Binding
                 }
                 else
                 {
-                    boundValue = null;
-                    return false;
+                    var parsed = ArgumentConverter.Parse(valueDescriptor.Type, value);
+
+                    if (parsed is SuccessfulArgumentResult successful)
+                    {
+                        boundValue = new BoundValue(successful.Value, valueDescriptor, valueSource);
+                        return true;
+                    }
                 }
             }
-            else
-            {
-                boundValue = null;
-                return false;
-            }
+
+            boundValue = null;
+            return false;
         }
     }
 }

@@ -206,6 +206,22 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("this");
             command.AddAlias("that");
+            command.Aliases.Should().BeEquivalentTo("this", "that");
+            command.RawAliases.Should().BeEquivalentTo("this", "that");
+
+            var result = command.Parse("that");
+
+            result.CommandResult.Command.Should().Be(command);
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void RootCommand_can_have_aliases()
+        {
+            var command = new RootCommand();
+            command.AddAlias("that");
+            command.Aliases.Should().BeEquivalentTo(RootCommand.ExeName, "that");
+            command.RawAliases.Should().BeEquivalentTo(RootCommand.ExeName, "that");
 
             var result = command.Parse("that");
 

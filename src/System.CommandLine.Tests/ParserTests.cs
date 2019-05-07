@@ -522,6 +522,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeNullOrEmpty();
         }
+
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
         {
@@ -566,7 +567,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_with_multiple_nested_options_allowed_is_parsed_correctly()
+        public void Command_with_multiple_options_is_parsed_correctly()
         {
             var option = new Command("outer", "",
                                                new[] {
@@ -605,7 +606,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Relative_order_of_arguments_and_options_does_not_matter()
+        public void Relative_order_of_arguments_and_options_within_a_command_does_not_matter()
         {
             var command = new Command("move", argument: new Argument<string[]>())
                          {
@@ -850,6 +851,40 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Options_only_apply_to_the_nearest_command()
+        {
+            var outer = new Command("outer")
+                        {
+                            new Command("inner")
+                            {
+                                new Option("-x")
+                                {
+                                    Argument = new Argument<string>()
+                                }
+                            },
+                            new Option("-x")
+                            {
+                                Argument = new Argument()
+                            }
+                        };
+
+            var result = outer.Parse("outer inner -x one -x two");
+
+            _output.WriteLine(result.ToString());
+
+            result.CommandResult
+                  .Parent
+                  .OptionResult("-x")
+                  .Should()
+                  .BeNull();
+            result.CommandResult
+                  .OptionResult("-x")
+                  .Arguments
+                  .Should()
+                  .BeEquivalentTo("one", "two");
+        }
+
+        [Fact]
         public void Subsequent_occurrences_of_tokens_matching_command_names_are_parsed_as_arguments()
         {
             var command = new Command("the-command");
@@ -898,7 +933,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_root_command_can_match_a_full_path_to_an_executable()
         {
-            var command = new Command("outer")
+            var command = new RootCommand
                           {
                               new Command("inner")
                               {
@@ -914,14 +949,37 @@ namespace System.CommandLine.Tests
 
             ParseResult result1 = command.Parse("inner -x hello");
 
-            var exePath = Path.Combine("dev", "outer.exe");
-            ParseResult result2 = command.Parse($"{exePath} inner -x hello");
+            ParseResult result2 = command.Parse($"{RootCommand.ExePath} inner -x hello");
 
             result1.Diagram().Should().Be(result2.Diagram());
         }
 
-      
-      
+        [Fact]
+        public void A_renamed_RootCommand_can_be_omitted_from_the_parsed_args()
+        {
+            var rootCommand = new RootCommand
+                              {
+                                  new Command("inner")
+                                  {
+                                      new Option(
+                                          "-x",
+                                          "",
+                                          new Argument
+                                          {
+                                              Arity = ArgumentArity.ExactlyOne
+                                          })
+                                  }
+                              };
+            rootCommand.Name = "outer";
+
+            var result1 = rootCommand.Parse("inner -x hello");
+            var result2 = rootCommand.Parse("outer inner -x hello");
+            var result3 = rootCommand.Parse($"{RootCommand.ExeName} inner -x hello");
+
+            result2.Diagram().Should().Be(result1.Diagram());
+            result3.Diagram().Should().Be(result1.Diagram());
+        }
+
         [Fact]
         public void Absolute_unix_style_paths_are_lexed_correctly()
         {

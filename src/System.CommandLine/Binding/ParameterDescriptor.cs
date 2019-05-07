@@ -8,6 +8,7 @@ namespace System.CommandLine.Binding
     public class ParameterDescriptor : IValueDescriptor
     {
         private readonly ParameterInfo _parameterInfo;
+        private bool? _allowsNull;
 
         internal ParameterDescriptor(
             ParameterInfo parameterInfo,
@@ -24,6 +25,22 @@ namespace System.CommandLine.Binding
         public Type Type => _parameterInfo.ParameterType;
 
         public bool HasDefaultValue => _parameterInfo.HasDefaultValue;
+
+        public bool AllowsNull
+        {
+            get
+            {
+                if (_allowsNull == null)
+                {
+                    if (_parameterInfo.ParameterType.IsNullable())
+                    {
+                        _allowsNull = true;
+                    }
+                }
+
+                return _allowsNull ?? false;
+            }
+        }
 
         public object GetDefaultValue() =>
             _parameterInfo.DefaultValue is DBNull

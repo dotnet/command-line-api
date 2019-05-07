@@ -92,7 +92,6 @@ jobs:
       displayName: 'Ubuntu 16.04'
       pool:
         name: Hosted Ubuntu 1604
-        vmImage: ubuntu-16.04
       strategy:
         matrix:
           ${{ if in(variables['Build.Reason'], 'PullRequest') }}:

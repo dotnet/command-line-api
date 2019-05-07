@@ -221,15 +221,71 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Theory]
-        [MemberData(nameof(BindingCases))]
-        public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(
-            string commandLine,
-            Type parameterType,
-            Action<object> assert)
+        [InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(ClassWithSetter<int>))]
+        [InlineData(typeof(ClassWithCtorParameter<string>))]
+        [InlineData(typeof(ClassWithSetter<string>))]
+        [InlineData(typeof(FileInfo))]
+        [InlineData(typeof(FileInfo[]))]
+        [InlineData(typeof(string[]))]
+        [InlineData(typeof(List<string>))]
+        [InlineData(typeof(int[]))]
+        [InlineData(typeof(List<int>))]
+        public async Task Handler_method_receives_option_arguments_bound_to_the_specified_type(Type type)
         {
+            var testCase = _bindingCases[type];
+
             var captureMethod = GetType()
                                 .GetMethod(nameof(Capture), BindingFlags.NonPublic | BindingFlags.Instance)
-                                .MakeGenericMethod(parameterType);
+                                .MakeGenericMethod(testCase.ParameterType);
+
+            var handler = CommandHandler.Create(captureMethod);
+
+            var command = new Command(
+                "command",
+                handler: handler)
+                          {
+                              new Option("--value")
+                              {
+                                  Argument = new Argument
+                                             {
+                                                 ArgumentType = testCase.ParameterType
+                                             }
+                              }
+                          };
+
+            var parseResult = command.Parse($"--value {testCase.CommandLine}");
+
+            var invocationContext = new InvocationContext(parseResult);
+
+            await handler.InvokeAsync(invocationContext);
+
+            var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+
+            boundValue.Should().BeOfType(testCase.ParameterType);
+
+            testCase.AssertBoundValue(boundValue);
+        }
+
+        [Theory]
+        [InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(ClassWithSetter<int>))]
+        [InlineData(typeof(ClassWithCtorParameter<string>))]
+        [InlineData(typeof(ClassWithSetter<string>))]
+        [InlineData(typeof(FileInfo))]
+        [InlineData(typeof(FileInfo[]))]
+        [InlineData(typeof(string[]))]
+        [InlineData(typeof(List<string>))]
+        [InlineData(typeof(int[]))]
+        [InlineData(typeof(List<int>))]
+        public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(
+          Type type)
+        {
+            var c = _bindingCases[type];
+
+            var captureMethod = GetType()
+                                .GetMethod(nameof(Capture), BindingFlags.NonPublic | BindingFlags.Instance)
+                                .MakeGenericMethod(c.ParameterType);
 
             var handler = CommandHandler.Create(captureMethod);
 
@@ -238,11 +294,11 @@ namespace System.CommandLine.Tests.Binding
                 argument: new Argument
                           {
                               Name = "value",
-                              ArgumentType = parameterType
+                              ArgumentType = c.ParameterType
                           },
                 handler: handler);
 
-            var parseResult = command.Parse(commandLine);
+            var parseResult = command.Parse(c.CommandLine);
 
             var invocationContext = new InvocationContext(parseResult);
 
@@ -250,66 +306,105 @@ namespace System.CommandLine.Tests.Binding
 
             var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
 
-            boundValue.Should().BeOfType(parameterType);
+            boundValue.Should().BeOfType(c.ParameterType);
 
-            assert(boundValue);
+            c.AssertBoundValue(boundValue);
         }
 
-        public static IEnumerable<object[]> BindingCases()
+        private readonly BindingTestSet _bindingCases = new BindingTestSet
         {
-            // yield return Case<ClassWithCtorParameter<int>>(
-            //     "123",
-            //     o => o.Value.Should().Be(123));
-            //
-            // yield return Case<ClassWithSetter<int>>(
-            //     "123",
-            //     o => o.Value.Should().Be(123));
+              BindingTestCase.Create<ClassWithCtorParameter<int>>(
+                 "123",
+                 o => o.Value.Should().Be(123)),
+            
+              BindingTestCase.Create<ClassWithSetter<int>>(
+                 "123",
+                 o => o.Value.Should().Be(123)),
 
-            yield return Case<ClassWithCtorParameter<string>>(
+            BindingTestCase.Create<ClassWithCtorParameter<string>>(
                 "123",
-                o => o.Value.Should().Be("123"));
+                o => o.Value.Should().Be("123")),
 
-            yield return Case<ClassWithSetter<string>>(
+            BindingTestCase.Create<ClassWithSetter<string>>(
                 "123",
-                o => o.Value.Should().Be("123"));
+                o => o.Value.Should().Be("123")),
 
-            var directory = Directory.GetCurrentDirectory();
-            var file1 = Path.Combine(directory, "file1.txt");
-            var file2 = Path.Combine(directory, "file2.txt");
+            BindingTestCase.Create<FileInfo>(
+                Path.Combine(Directory.GetCurrentDirectory(), "file1.txt"),
+                o => o.FullName.Should().Be(Path.Combine(Directory.GetCurrentDirectory(), "file1.txt"))),
 
-            yield return Case<FileInfo>(
-                file1,
-                o => o.FullName.Should().Be(file1));
-
-            yield return Case<FileInfo[]>(
-                $"{file1} {file2}",
+            BindingTestCase.Create<FileInfo[]>(
+                $"{Path.Combine(Directory.GetCurrentDirectory(), "file1.txt")} {Path.Combine(Directory.GetCurrentDirectory(), "file2.txt")}",
                 o => o.Select(f => f.FullName)
                       .Should()
-                      .BeEquivalentTo(new[] { file1, file2 }));
+                      .BeEquivalentTo(new[] { Path.Combine(Directory.GetCurrentDirectory(), "file1.txt"), Path.Combine(Directory.GetCurrentDirectory(), "file2.txt") })),
 
-            yield return Case<string[]>(
+            BindingTestCase.Create<string[]>(
                 "one two",
-                o => o.Should().BeEquivalentTo(new[] { "one", "two" }));
+                o => o.Should().BeEquivalentTo(new[] { "one", "two" })),
 
-            yield return Case<List<string>>(
+            BindingTestCase.Create<List<string>>(
                 "one two",
-                o => o.Should().BeEquivalentTo(new List<string> { "one", "two" }));
+                o => o.Should().BeEquivalentTo(new List<string> { "one", "two" })),
 
-            yield return Case<int[]>(
+            BindingTestCase.Create<int[]>(
                 "1 2",
-                o => o.Should().BeEquivalentTo(new[] { 1, 2 }));
+                o => o.Should().BeEquivalentTo(new[] { 1, 2 })),
 
-            yield return Case<List<int>>(
+            BindingTestCase.Create<List<int>>(
                 "1 2",
-                o => o.Should().BeEquivalentTo(new List<int> { 1, 2 }));
+                o => o.Should().BeEquivalentTo(new List<int> { 1, 2 })),
+            
 
-            object[] Case<T>(string commandLine, Action<T> assert) =>
-                new object[]
-                {
-                    commandLine,
-                    typeof(T),
-                    new Action<object>(o => assert((T)o))
-                };
+
+
+
+
+        };
+
+        [Fact]
+        public async Task When_argument_type_is_not_known_until_binding_then_bool_parameter_is_bound_correctlyl()
+        {
+            bool? received = null;
+
+            var handler = CommandHandler.Create((bool x) =>
+            {
+                received = x;
+            });
+
+            var root = new RootCommand(handler: handler)
+            {
+                new Option("-x", "Explanation")
+            };
+
+            await root.InvokeAsync("-x");
+
+            received.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task When_argument_type_is_not_known_until_binding_then_int_parameter_is_bound_correctly()
+        {
+            int received = 0;
+
+            var handler = CommandHandler.Create((int x) =>
+            {
+                received = x;
+            });
+
+            var root = new RootCommand(handler: handler)
+            {
+                new Option("-x", "Explanation"
+                           , argument: new Argument
+                           {
+                               Arity = new ArgumentArity(1, 1)
+                           }
+                )
+            };
+
+            await root.InvokeAsync("-x 123");
+
+            received.Should().Be(123);
         }
     }
 }

@@ -56,9 +56,9 @@ namespace System.CommandLine
             return symbol;
         }
 
-        public bool TryGetValueForArgument(string alias, out object value)
+        public bool TryGetValueForArgument(IValueDescriptor valueDescriptor, out object value)
         {
-            if (alias.IsMatch(Command.Argument.Name))
+            if (valueDescriptor.Name.IsMatch(Command.Argument.Name))
             {
                 value = this.GetValueOrDefault();
                 return true;
@@ -70,17 +70,17 @@ namespace System.CommandLine
             }
         }
 
-        public bool TryGetValueForOption(string alias, out object value)
+        public bool TryGetValueForOption(IValueDescriptor valueDescriptor, out object value)
         {
             var children = Children
-                           .Where(o => alias.IsMatch(o.Symbol))
+                           .Where(o => valueDescriptor.Name.IsMatch(o.Symbol))
                            .ToArray();
 
             SymbolResult symbolResult = null;
 
             if (children.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {alias} among: {string.Join(",", children.Select(o => o.Name))}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.Name} among: {string.Join(",", children.Select(o => o.Name))}");
             }
 
             if (children.Length == 1)
@@ -88,9 +88,10 @@ namespace System.CommandLine
                 symbolResult = children[0];
             }
 
-            if (symbolResult is OptionResult optionResult)
+            if (symbolResult is OptionResult && 
+                symbolResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
             {
-                value = optionResult.GetValueOrDefault();
+                value = successful.Value;
                 return true;
             }
             else

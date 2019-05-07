@@ -5,8 +5,11 @@ namespace System.CommandLine
 {
     public class SuccessfulArgumentResult : ArgumentResult
     {
-        protected SuccessfulArgumentResult()
+        internal SuccessfulArgumentResult(object value)
         {
+            Value = value;
         }
+
+        public object Value { get; }
     }
 }

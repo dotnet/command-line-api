@@ -2,11 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
@@ -208,7 +206,6 @@ namespace System.CommandLine.Tests.Binding
         {
             var command = new Command("the-command")
                           {
-                              new Option("-s", argument: new Argument<string>("the default")),
                               new Option("--string-option", argument: new Argument<string>())
                           };
 
@@ -261,7 +258,53 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Values_from_parent_options_on_parent_commands_can_be_bound()
+        public void Values_from_options_on_parent_commands_are_bound_by_name_by_default()
+        {
+            var parentCommand = new Command("parent-command")
+                                {
+                                    new Option("--int-option")
+                                    {
+                                        Argument = new Argument<int>()
+                                    },
+                                    new Command("child-command")
+                                };
+
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
+
+            var parseResult = parentCommand.Parse("parent-command --int-option 123 child-command");
+
+            var bindingContext = new BindingContext(parseResult);
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(123);
+        }
+
+        [Fact]
+        public void Values_from_parent_command_arguments_are_bound_by_name_by_default()
+        {
+            var argument = new Argument<int>
+                           {
+                               Name = nameof(ClassWithMultiLetterSetters.IntOption)
+                           };
+            var parentCommand = new Command("parent-command", argument: argument)
+                                {
+                                    new Command("child-command")
+                                };
+
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
+
+            var parseResult = parentCommand.Parse("parent-command 123 child-command");
+
+            var bindingContext = new BindingContext(parseResult);
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(123);
+        }
+
+        [Fact]
+        public void Values_from_options_on_parent_commands_can_be_bound_regardless_of_naming()
         {
             var childCommand = new Command("child-command");
             var option = new Option("-x")
@@ -288,7 +331,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Values_from_parent_parent_commands_can_be_bound()
+        public void Values_from_parent_command_arguments_can_be_bound_regardless_of_naming()
         {
             var childCommand = new Command("child-command");
 

@@ -16,20 +16,25 @@ namespace System.CommandLine.Binding
             {
                 var commandResult = bindingContext.ParseResult.CommandResult;
 
-                if (commandResult.TryGetValueForOption(
-                    valueDescriptor.Name,
-                    out var optionValue))
+                while (commandResult != null)
                 {
-                    boundValue = optionValue;
-                    return true;
-                }
+                    if (commandResult.TryGetValueForOption(
+                        valueDescriptor,
+                        out var optionValue))
+                    {
+                        boundValue = optionValue;
+                        return true;
+                    }
 
-                if (commandResult.TryGetValueForArgument(
-                    valueDescriptor.Name,
-                    out var argumentValue))
-                {
-                    boundValue = argumentValue;
-                    return true;
+                    if (commandResult.TryGetValueForArgument(
+                        valueDescriptor,
+                        out var argumentValue))
+                    {
+                        boundValue = argumentValue;
+                        return true;
+                    }
+
+                    commandResult = commandResult.Parent;
                 }
             }
 

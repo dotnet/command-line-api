@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public class Option : Symbol, IOption, ISuggestionSource
+    public class Option : Symbol, IOption
     {
         public Option(
             IReadOnlyCollection<string> aliases,
