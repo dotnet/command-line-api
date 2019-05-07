@@ -1044,7 +1044,7 @@ namespace System.CommandLine.Tests
 
             result.HasOption("o").Should().BeTrue();
             result.HasOption("option").Should().BeTrue();
-            result["o"].GetValueOrDefault<string>().Should().Be("the-default");
+            result.ValueForOption<string>("o").Should().Be("the-default");
             result.CommandResult.ValueForOption("o").Should().Be("the-default");
         }
 

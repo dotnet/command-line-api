@@ -12,7 +12,7 @@ namespace System.CommandLine
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string _longestAlias = "";
         private string _specifiedName;
-        private protected readonly List<Argument> _arguments = new List<Argument>();
+        private protected readonly ArgumentSet _arguments = new ArgumentSet();
 
         protected Symbol(
             IReadOnlyCollection<string> aliases,

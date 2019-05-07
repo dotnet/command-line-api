@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -234,7 +235,7 @@ namespace System.CommandLine.Tests
                                           Arity = ArgumentArity.ZeroOrOne
                                       });
 
-            command.Arguments[0].Name.Should().Be("alias");
+            command.Arguments.Single().Name.Should().Be("alias");
         }
 
         [Fact]
@@ -247,7 +248,7 @@ namespace System.CommandLine.Tests
                                          Arity = ArgumentArity.ZeroOrOne
                                      });
 
-            option.Arguments[0].Name.Should().Be("arg");
+            option.Arguments.Single().Name.Should().Be("arg");
         }
     }
 }

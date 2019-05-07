@@ -9,8 +9,7 @@ namespace System.CommandLine
     public abstract class SymbolResult
     {
         private readonly List<Token> _tokens = new List<Token>();
-        private ArgumentResult _result;
-
+        private ArgumentResultSet _results = new ArgumentResultSet();
         private ValidationMessages _validationMessages = ValidationMessages.Instance;
 
         protected SymbolResult(
@@ -33,7 +32,7 @@ namespace System.CommandLine
         public SymbolResultSet Children { get; } = new SymbolResultSet();
 
         public string Name => Symbol.Name;
-
+        
         internal bool OptionWasRespecified { get; set; } = true;
 
         public CommandResult Parent { get; }
@@ -47,9 +46,10 @@ namespace System.CommandLine
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
 
         private protected virtual int RemainingArgumentCapacity =>
-            Symbol.Arguments().Sum(a => a.Arity.MaximumNumberOfValues) - Arguments.Count;
+            Symbol.Arguments()
+                .Sum(a => a.Arity.MaximumNumberOfValues) - Arguments.Count;
 
-        public ValidationMessages ValidationMessages    
+        protected internal ValidationMessages ValidationMessages    
         {
             get => _validationMessages ?? (_validationMessages = ValidationMessages.Instance);
             set => _validationMessages = value;
@@ -60,6 +60,7 @@ namespace System.CommandLine
             var errors = new List<ParseError>();
 
             var arguments = Symbol.Arguments();
+            _results = new ArgumentResultSet();
 
             if (arguments.Count == 0)
             {
@@ -75,8 +76,10 @@ namespace System.CommandLine
                 {
                     var (result, error) = arg.Validate(this);
 
-                    // FIX: (Validate) cardinality / side effect
-                    _result = result;
+                    if (result != null)
+                    {
+                        _results.Add(result);
+                    }
 
                     if (error != null)
                     {
@@ -107,6 +110,8 @@ namespace System.CommandLine
 
             _tokens.Add(token);
 
+            // FIX: (TryTakeArgument) this is weird
+
             var parseError = Validate().SingleOrDefault();
 
             if (parseError == null)
@@ -121,7 +126,7 @@ namespace System.CommandLine
                 return this;
             }
 
-            if (_result is MissingArgumentResult)
+            if (_results.Any(r => r is MissingArgumentResult))
             {
                 OptionWasRespecified = false;
                 return this;
@@ -157,19 +162,23 @@ namespace System.CommandLine
             }
         }
 
+        [Obsolete("Use the ArgumentResults property instead")]
         public ArgumentResult ArgumentResult
         {
             get
             {
-                if (_result == null)
+                if (_results == null)
                 {
                     Validate();
                 }
 
-                return _result;
+                return _results.SingleOrDefault();
             }
-            protected set => _result = value;
         }
+
+        public ArgumentResultSet ArgumentResults => _results;
+
+        public string ErrorMessage { get; set; }
 
         private readonly HashSet<IArgument> _argumentsUsingDefaultValue = new HashSet<IArgument>();
 

@@ -5,7 +5,7 @@ namespace System.CommandLine
 {
     internal class TooManyArgumentsResult : FailedArgumentArityResult
     {
-        internal TooManyArgumentsResult(string errorMessage) : base(errorMessage)
+        internal TooManyArgumentsResult(IArgument argument, string errorMessage) : base(argument, errorMessage)
         {
         }
     }

@@ -255,7 +255,7 @@ namespace System.CommandLine.Tests
                                           Arity = ArgumentArity.ZeroOrOne
                                       });
 
-            command.Arguments[0].Name.Should().Be("alias");
+            command.Arguments.Single().Name.Should().Be("alias");
         }
 
         [Fact]
@@ -268,7 +268,31 @@ namespace System.CommandLine.Tests
                                          Arity = ArgumentArity.ZeroOrOne
                                      });
 
-            command.Arguments[0].Name.Should().Be("arg");
+            command.Arguments.Single().Name.Should().Be("arg");
+        }
+
+        [Fact]
+        public void When_multiple_arguments_are_configured_then_they_must_differ_by_name()
+        {
+            var command = new Command("the-command")
+            {
+                new Argument<string>
+                {
+                    Name = "same"
+                }
+            };
+
+            command
+                .Invoking(c => c.Add(new Argument<string>
+                {
+                    Name = "same"
+                }))
+                .Should()
+                .Throw<ArgumentException>()
+                .And
+                .Message
+                .Should()
+                .Be("Alias 'same' is already in use.");
         }
     }
 }

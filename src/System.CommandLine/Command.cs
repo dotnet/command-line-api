@@ -45,7 +45,7 @@ namespace System.CommandLine
             }
         }
 
-        public IReadOnlyList<Argument> Arguments => _arguments;
+        public IReadOnlyCollection<Argument> Arguments => _arguments;
 
         public void AddArgument(Argument argument) => AddArgumentInner(argument);
 
@@ -54,6 +54,8 @@ namespace System.CommandLine
         public void AddOption(Option option) => AddSymbol(option);
 
         public void Add(Symbol symbol) => AddSymbol(symbol);
+
+        public void Add(Argument argument) => AddArgument(argument);
 
         public bool TreatUnmatchedTokensAsErrors { get; set; }
 
@@ -67,7 +69,6 @@ namespace System.CommandLine
         IArgument ICommand.Argument => Argument;
 #pragma warning restore 618
 
-        IReadOnlyList<IArgument> ICommand.Arguments => Arguments;
-
+        IReadOnlyCollection<IArgument> ICommand.Arguments => Arguments;
     }
 }

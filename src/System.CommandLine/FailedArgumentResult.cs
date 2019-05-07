@@ -1,12 +1,11 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-
 namespace System.CommandLine
 {
     public class FailedArgumentResult : ArgumentResult
     {
-        internal FailedArgumentResult(string errorMessage)
+        internal FailedArgumentResult(IArgument argument, string errorMessage) : base(argument)
         {
             if (string.IsNullOrWhiteSpace(errorMessage))
             {

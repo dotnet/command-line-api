@@ -68,9 +68,9 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         [Theory]
-        [InlineData(nameof(Method_having_string_array_arguments), 0, int.MaxValue)]
+        [InlineData(nameof(Method_having_string_array_arguments), 0, byte.MaxValue)]
         [InlineData(nameof(Method_having_FileInfo_argument), 1, 1)]
-        [InlineData(nameof(Method_having_FileInfo_array_args), 0, int.MaxValue)]
+        [InlineData(nameof(Method_having_FileInfo_array_args), 0, byte.MaxValue)]
         public void Parameters_named_arguments_generate_command_arguments_having_the_correct_arity(
             string methodName,
             int minNumberOfValues,

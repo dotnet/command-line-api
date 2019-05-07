@@ -132,15 +132,30 @@ namespace System.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return this[alias].GetValueOrDefault<T>();
+            if (this[alias] is OptionResult optionResult)
+            {
+                return optionResult.GetValueOrDefault<T>();
+            }
+            else
+            {
+                return default;
+            }
         }
 
         public SymbolResult this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
 
-        public SymbolResult FindResultFor(ISymbol symbol) =>
-            RootCommandResult.AllSymbolResults()
-                             .FirstOrDefault(s => s.Symbol == symbol);
+        public CommandResult FindResultFor(ICommand command) =>
+            RootCommandResult
+                .AllSymbolResults()
+                .OfType<CommandResult>()
+                .FirstOrDefault(s => s.Symbol == command);
+
+        public OptionResult FindResultFor(IOption option) =>
+            RootCommandResult
+                .AllSymbolResults()
+                .OfType<OptionResult>()
+                .FirstOrDefault(s => s.Symbol == option);
     }
 }

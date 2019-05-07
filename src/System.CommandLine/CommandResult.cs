@@ -68,7 +68,7 @@ namespace System.CommandLine
             {
                 if (valueDescriptor.Name.IsMatch(argument.Name))
                 {
-                    value = this.GetValueOrDefault();
+                    value = ArgumentResults[argument.Name].GetValueOrDefault();
                     return true;
                 }
             }
@@ -95,8 +95,8 @@ namespace System.CommandLine
                 symbolResult = children[0];
             }
 
-            if (symbolResult is OptionResult && 
-                symbolResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
+            if (symbolResult is OptionResult optionResult && 
+                optionResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
             {
                 value = successful.Value;
                 return true;
@@ -112,15 +112,21 @@ namespace System.CommandLine
             string alias) =>
             ValueForOption<object>(alias);
 
-        public T ValueForOption<T>(
-            string alias)
+        public T ValueForOption<T>(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return Children[alias].GetValueOrDefault<T>();
+            if (Children[alias] is OptionResult optionResult)
+            {
+                return optionResult.GetValueOrDefault<T>();
+            }
+            else
+            {
+                return default;
+            }
         }
     }
 }

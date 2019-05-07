@@ -5,7 +5,7 @@ namespace System.CommandLine
 {
     internal abstract class FailedArgumentArityResult : FailedArgumentResult
     {
-        internal FailedArgumentArityResult(string errorMessage) : base(errorMessage)
+        internal FailedArgumentArityResult(IArgument argument, string errorMessage) : base(argument, errorMessage)
         {
         }
     }

@@ -14,7 +14,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Custom_types_and_conversion_logic_can_be_specified()
         {
-            var argument = new Argument<MyCustomType>(parsed =>
+            var argument = new Argument<MyCustomType>((SymbolResult parsed, out MyCustomType value) =>
                            {
                                var custom = new MyCustomType();
                                foreach (var a in parsed.Arguments)
@@ -22,7 +22,8 @@ namespace System.CommandLine.Tests.Binding
                                    custom.Add(a);
                                }
 
-                               return ArgumentResult.Success(custom);
+                               value = custom;
+                               return true;
                            })
                            {
                                Arity = ArgumentArity.ZeroOrMore
@@ -34,7 +35,10 @@ namespace System.CommandLine.Tests.Binding
 
             var result = parser.Parse("custom one two three");
 
-            var customType = result.CommandResult.GetValueOrDefault<MyCustomType>();
+            var customType = result.CommandResult
+                .ArgumentResults
+                .Single()
+                .GetValueOrDefault<MyCustomType>();
 
             customType
                 .Values
@@ -125,7 +129,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_defaults_arity_to_One_for_non_IEnumerable_types()
         {
-            var argument = new Argument<int>(s => ArgumentResult.Success(1));
+            var argument = new Argument<int>();
 
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
@@ -143,10 +147,10 @@ namespace System.CommandLine.Tests.Binding
         {
             var command = new Command("the-command")
                           {
-                              Argument = new Argument<int?>()
+                            new Argument<int?>()
                           };
 
-            command.Argument.Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
+            command.Arguments.Single().Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
         }
 
         [Fact]
@@ -246,18 +250,22 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
         {
-            var command = new Command("the-command", "", new[] {
+            var command = new Command("the-command", "", new[]
+            {
                 new Option(
                     new[] { "-o", "--one" },
                     "",
-                    new Argument<int>(symbol => {
-                            if (int.TryParse(symbol.Arguments.Single(), out int intValue))
-                            {
-                                return ArgumentResult.Success(intValue);
-                            }
+                    new Argument<int>((SymbolResult symbol, out int value) =>
+                    {
+                        if (int.TryParse(symbol.Arguments.Single(), out value))
+                        {
+                            return true;
+                        }
 
-                            return ArgumentResult.Failure($"'{symbol.Token.Value}' is not an integer");
-                        }))
+                        symbol.ErrorMessage = $"'{symbol.Token.Value}' is not an integer";
+
+                        return false;
+                    }))
             });
 
             var result = command.Parse("the-command -o not-an-int");
@@ -634,15 +642,13 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Specifying_an_option_argument_overrides_the_default_value()
         {
-            var command = new Command(
-                "something", "",
-                new[]
+            var command = new Command("something")
+            {
+                new Option("-x")
                 {
-                    new Option(
-                        "-x",
-                        "",
-                        new Argument<int>(123))
-                });
+                    Argument = new Argument<int>(123)
+                }
+            };
 
             var result = command.Parse("something -x 456");
 
@@ -655,8 +661,13 @@ namespace System.CommandLine.Tests.Binding
         public void When_custom_converter_is_specified_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
         {
             var command = new Command(
-                "tally", "",
-                argument: new Argument<int>(a => ArgumentResult.Failure("Could not parse int")));
+                "tally",
+                argument: new Argument<int>((SymbolResult symbolResult, out int value) =>
+                {
+                    value = default;
+                    symbolResult.ErrorMessage = "Could not parse int";
+                    return false;
+                }));
 
             var result = command.Parse("tally one");
 
@@ -672,12 +683,15 @@ namespace System.CommandLine.Tests.Binding
             var command = new Command("the-command", argument: new Argument<string>());
 
             command.AddOption(new Option("-x",
-                                         argument: new Argument<string>(_ => ArgumentResult.Failure("No thank you"))));
+                                         argument: new Argument<string>((SymbolResult symbolResult, out string value) =>
+                                         {
+                                             value = null;
+                                             return false;
+                                         })));
 
             var result = command.Parse("the-command -x nope yep");
 
             result.CommandResult.Arguments.Count.Should().Be(1);
-            result.Errors.Should().Contain(e => e.Message == "No thank you");
         }
 
         [Fact]
@@ -861,7 +875,9 @@ namespace System.CommandLine.Tests.Binding
                 "",
                 new Argument<DayOfWeek>());
 
-            var value = option.Parse("-x Monday").ValueForOption<DayOfWeek>("x");
+            var parseResult = option.Parse("-x Monday");
+
+            var value = parseResult.ValueForOption<DayOfWeek>("x");
 
             value.Should().Be(DayOfWeek.Monday);
         }

@@ -20,9 +20,26 @@ namespace System.CommandLine
             SetDefaultValue(() => defaultValue());
         }
 
-        public Argument(ConvertArgument convert) : this()
+        public Argument(TryConvertArgument<T> convert) : this()
         {
-            ConvertArguments = convert ?? throw new ArgumentNullException(nameof(convert));
+            if (convert == null)
+            {
+                throw new ArgumentNullException(nameof(convert));
+            }
+
+            ConvertArguments = (SymbolResult result, out object value) =>
+            {
+                if (convert(result, out var valueObj))
+                {
+                    value = valueObj;
+                    return true;
+                }
+                else
+                {
+                    value = default;
+                    return false;
+                }
+            };
         }
     }
 }

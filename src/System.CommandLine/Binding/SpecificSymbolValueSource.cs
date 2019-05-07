@@ -19,11 +19,16 @@ namespace System.CommandLine.Binding
         {
             var result = bindingContext.ParseResult.FindResultFor(Option);
 
-            boundValue = result == null
-                        ? Option.GetDefaultValue()
-                        : result.GetValueOrDefault();
+            switch (result)
+            {
+                case OptionResult optionResult:
+                    boundValue = optionResult.GetValueOrDefault();
+                    return true;
 
-            return true;
+                default:
+                    boundValue = Option.GetDefaultValue();
+                    return true;
+            }
         }
     }
 }

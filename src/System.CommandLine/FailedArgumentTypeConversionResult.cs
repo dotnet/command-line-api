@@ -6,8 +6,11 @@ namespace System.CommandLine
     internal class FailedArgumentTypeConversionResult : FailedArgumentResult
     {
         // TODO: (FailedArgumentTypeConversionResult) localize
-        internal FailedArgumentTypeConversionResult(Type type, string value) : 
-            base($"Cannot parse argument '{value}' as {type}.")
+        internal FailedArgumentTypeConversionResult(
+            IArgument argument,
+            Type type,
+            string value) :
+            base(argument, $"Cannot parse argument '{value}' as {type}.")
         {
         }
     }

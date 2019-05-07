@@ -55,11 +55,13 @@ namespace System.CommandLine
                 switch (value)
                 {
                     case string arg:
-                        result.TryTakeToken(new Token(arg, TokenType.Argument));
+                        result.TryTakeToken(
+                            new Token(arg, TokenType.Argument));
                         break;
 
                     default:
-                        result.ArgumentResult = ArgumentResult.Success(value);
+                        result.ArgumentResults.Add(
+                            ArgumentResult.Success(option.Argument, value));
                         break;
                 }
             }

@@ -46,10 +46,10 @@ namespace System.CommandLine
 
         IArgument IOption.Argument => Argument;
 
-        Type IValueDescriptor.Type => _arguments[0].ArgumentType;
+        Type IValueDescriptor.Type => _arguments.Single().ArgumentType;
 
-        bool IValueDescriptor.HasDefaultValue => _arguments[0].HasDefaultValue;
+        bool IValueDescriptor.HasDefaultValue => _arguments.Single().HasDefaultValue;
 
-        object IValueDescriptor.GetDefaultValue() => _arguments[0].GetDefaultValue();
+        object IValueDescriptor.GetDefaultValue() => _arguments.Single().GetDefaultValue();
     }
 }

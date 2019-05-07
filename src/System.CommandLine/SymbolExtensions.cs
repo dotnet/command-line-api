@@ -25,6 +25,22 @@ namespace System.CommandLine
             !string.IsNullOrWhiteSpace(argument.Name) &&
             argument.Arity.MaximumNumberOfValues > 0;
 
+        internal static IReadOnlyCollection<IArgument> Arguments(this ISymbol symbol)
+        {
+            switch (symbol)
+            {
+                case IOption option:
+                    return new[]
+                    {
+                        option.Argument
+                    };
+                case ICommand command:
+                    return command.Arguments;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
         internal static Token DefaultToken(this ICommand command)
         {
             return new Token(command.Name, TokenType.Option);
@@ -32,7 +48,9 @@ namespace System.CommandLine
 
         internal static Token DefaultToken(this IOption option)
         {
-            var value = option.RawAliases.First(alias => alias.RemovePrefix() == option.Name);
+            var optionName = ((ISymbol) option).Name;
+
+            var value = option.RawAliases.First(alias => alias.RemovePrefix() == optionName);
 
             return new Token(value, TokenType.Option);
         }

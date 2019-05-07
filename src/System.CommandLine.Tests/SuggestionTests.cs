@@ -812,6 +812,12 @@ namespace System.CommandLine.Tests
 
                 textToMatch.Should().Be(expected);
             }
+
+            [Fact(Skip = "#310")]
+            public void When_there_are_multiple_arguments_then_suggestions_are_only_offered_for_the_current_argument()
+            {
+                Assert.True(false, "Test testname is not written yet.");
+            }
         }
     }
 }
