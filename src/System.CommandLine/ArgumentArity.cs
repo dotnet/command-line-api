@@ -33,7 +33,7 @@ namespace System.CommandLine
             int minimumNumberOfArguments,
             int maximumNumberOfArguments)
         {
-            if (symbolResult.Arguments.Count < minimumNumberOfArguments)
+            if (symbolResult.Tokens.Count < minimumNumberOfArguments)
             {
                 if (symbolResult.UseDefaultValue)
                 {
@@ -43,7 +43,7 @@ namespace System.CommandLine
                 return new FailedArgumentArityResult(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
             }
 
-            if (symbolResult.Arguments.Count > maximumNumberOfArguments)
+            if (symbolResult.Tokens.Count > maximumNumberOfArguments)
             {
                 if (maximumNumberOfArguments == 1)
                 {

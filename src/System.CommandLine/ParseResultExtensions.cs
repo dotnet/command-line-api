@@ -99,7 +99,7 @@ namespace System.CommandLine
 
             builder.Append("[ ");
 
-            builder.Append(symbolResult.Token);
+            builder.Append(symbolResult.Token.Value);
 
             foreach (var child in symbolResult.Children)
             {
@@ -107,12 +107,12 @@ namespace System.CommandLine
                 builder.Diagram(child, parseResult);
             }
 
-            if (symbolResult.Arguments.Count > 0)
+            if (symbolResult.Tokens.Count > 0)
             {
-                foreach (var arg in symbolResult.Arguments)
+                foreach (var arg in symbolResult.Tokens)
                 {
                     builder.Append(" <");
-                    builder.Append(arg);
+                    builder.Append(arg.Value);
                     builder.Append(">");
                 }
             }

@@ -8,7 +8,10 @@ namespace System.CommandLine
 {
     public class CommandResult : SymbolResult
     {
-        public CommandResult(ICommand command, CommandResult parent = null) : base(command, command?.Name, parent)
+        public CommandResult(
+            ICommand command, 
+            Token token = null,
+            CommandResult parent = null) : base(command, token ?? command?.DefaultToken(), parent)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
         }
@@ -45,7 +48,7 @@ namespace System.CommandLine
             symbol =
                 Command.Children
                        .Where(o => o.RawAliases.Contains(token.Value))
-                       .Select(o => Create(o, token.Value, this, ValidationMessages))
+                       .Select(o => Create(o, token, this, ValidationMessages))
                        .SingleOrDefault();
 
             if (symbol != null)

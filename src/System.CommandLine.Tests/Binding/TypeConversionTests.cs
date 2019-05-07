@@ -217,7 +217,7 @@ namespace System.CommandLine.Tests.Binding
                                 return ArgumentResult.Success(intValue);
                             }
 
-                            return ArgumentResult.Failure($"'{symbol.Token}' is not an integer");
+                            return ArgumentResult.Failure($"'{symbol.Token.Value}' is not an integer");
                         }))
             });
 

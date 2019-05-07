@@ -42,7 +42,8 @@ namespace System.CommandLine.Builder
         public static Argument<FileInfo> ExistingOnly(this Argument<FileInfo> argument)
         {
             argument.AddValidator(symbol =>
-                                      symbol.Arguments
+                                      symbol.Tokens
+                                            .Select(t => t.Value)
                                             .Where(filePath => !File.Exists(filePath))
                                             .Select(symbol.ValidationMessages.FileDoesNotExist)
                                             .FirstOrDefault());
@@ -52,7 +53,8 @@ namespace System.CommandLine.Builder
         public static Argument<DirectoryInfo> ExistingOnly(this Argument<DirectoryInfo> argument)
         {
             argument.AddValidator(symbol =>
-                                      symbol.Arguments
+                                      symbol.Tokens
+                                            .Select(t => t.Value)
                                             .Where(filePath => !Directory.Exists(filePath))
                                             .Select(symbol.ValidationMessages.DirectoryDoesNotExist)
                                             .FirstOrDefault());
@@ -62,7 +64,8 @@ namespace System.CommandLine.Builder
         public static Argument<FileInfo[]> ExistingOnly(this Argument<FileInfo[]> argument)
         {
             argument.AddValidator(symbol =>
-                                      symbol.Arguments
+                                      symbol.Tokens
+                                            .Select(t => t.Value)
                                             .Where(filePath => !File.Exists(filePath))
                                             .Select(symbol.ValidationMessages.FileDoesNotExist)
                                             .FirstOrDefault());
@@ -72,7 +75,8 @@ namespace System.CommandLine.Builder
         public static Argument<DirectoryInfo[]> ExistingOnly(this Argument<DirectoryInfo[]> argument)
         {
             argument.AddValidator(symbol =>
-                                      symbol.Arguments
+                                      symbol.Tokens
+                                            .Select(t => t.Value)
                                             .Where(filePath => !Directory.Exists(filePath))
                                             .Select(symbol.ValidationMessages.DirectoryDoesNotExist)
                                             .FirstOrDefault());
@@ -85,15 +89,15 @@ namespace System.CommandLine.Builder
         {
             argument.AddValidator(symbol =>
             {
-                foreach (var arg in symbol.Arguments)
+                foreach (var token in symbol.Tokens)
                 {
                     // File class no longer check invalid character
                     // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
-                    var invalidCharactersIndex = arg.IndexOfAny(Path.GetInvalidPathChars());
+                    var invalidCharactersIndex = token.Value.IndexOfAny(Path.GetInvalidPathChars());
 
                     if (invalidCharactersIndex >= 0)
                     {
-                        return symbol.ValidationMessages.InvalidCharactersInPath(arg[invalidCharactersIndex]);
+                        return symbol.ValidationMessages.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
                     }
                 }
 

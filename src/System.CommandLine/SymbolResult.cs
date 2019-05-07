@@ -8,29 +8,27 @@ namespace System.CommandLine
 {
     public abstract class SymbolResult
     {
-        private readonly List<string> _arguments = new List<string>();
+        private readonly List<Token> _tokens = new List<Token>();
         private ArgumentResult _result;
 
         private ValidationMessages _validationMessages = ValidationMessages.Instance;
 
         protected SymbolResult(
             ISymbol symbol, 
-            string token, 
+            Token token, 
             CommandResult parent = null)
         {
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
-            }
-
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
-            Token = token;
+            Token = token ?? throw new ArgumentNullException(nameof(token));
 
             Parent = parent;
         }
 
-        public IReadOnlyCollection<string> Arguments => _arguments;
+        [Obsolete("Use the Tokens property instead. The Arguments property will be removed in a later version.")]
+        public IReadOnlyCollection<string> Arguments => _tokens.Select(t => t.Value).ToArray();
+
+        public IReadOnlyCollection<Token> Tokens => _tokens;
 
         public SymbolResultSet Children { get; } = new SymbolResultSet();
 
@@ -42,14 +40,14 @@ namespace System.CommandLine
 
         public ISymbol Symbol { get; }
 
-        public string Token { get; }
+        public Token Token { get; }
 
         public bool HasAlias(string alias) => Symbol.HasAlias(alias);
 
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
 
         private protected virtual int RemainingArgumentCapacity =>
-             Symbol.Argument.Arity.MaximumNumberOfArguments - Arguments.Count;
+             Symbol.Argument.Arity.MaximumNumberOfArguments - Tokens.Count;
 
         public ValidationMessages ValidationMessages    
         {
@@ -87,7 +85,7 @@ namespace System.CommandLine
                 }
             }
 
-            _arguments.Add(token.Value);
+            _tokens.Add(token);
 
             var parseError = Validate();
 
@@ -103,21 +101,21 @@ namespace System.CommandLine
                 return this;
             }
 
-            _arguments.RemoveAt(_arguments.Count - 1);
+            _tokens.RemoveAt(_tokens.Count - 1);
 
             return null;
         }
 
         internal static SymbolResult Create(
             ISymbol symbol, 
-            string token, 
+            Token token, 
             CommandResult parent = null, 
             ValidationMessages validationMessages = null)
         {
             switch (symbol)
             {
                 case ICommand command:
-                    return new CommandResult(command, parent)
+                    return new CommandResult(command, token, parent)
                     {
                         ValidationMessages = validationMessages
                     };

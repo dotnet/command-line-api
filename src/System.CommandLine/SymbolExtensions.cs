@@ -10,8 +10,8 @@ namespace System.CommandLine
     {
         internal static IEnumerable<string> ChildSymbolAliases(this ISymbol symbol) =>
             symbol.Children
-                  .Where(s => !s.IsHidden)
-                  .SelectMany(s => s.RawAliases);
+                .Where(s => !s.IsHidden)
+                .SelectMany(s => s.RawAliases);
 
         internal static bool ShouldShowHelp(this ISymbol symbol) =>
             !symbol.IsHidden &&
@@ -22,9 +22,19 @@ namespace System.CommandLine
         internal static bool ShouldShowHelp(
             this IArgument argument) =>
             argument != null &&
-            (!string.IsNullOrWhiteSpace(argument.Name) || string.IsNullOrWhiteSpace(argument.Description)) && 
+            (!string.IsNullOrWhiteSpace(argument.Name) || string.IsNullOrWhiteSpace(argument.Description)) &&
             argument.Arity.MaximumNumberOfArguments > 0;
 
-        internal static string Token(this ISymbol symbol) => symbol.RawAliases.First(alias => alias.RemovePrefix() == symbol.Name);
+        internal static Token DefaultToken(this ICommand command)
+        {
+            return new Token(command.Name, TokenType.Option);
+        }
+
+        internal static Token DefaultToken(this IOption option)
+        {
+            var value = option.RawAliases.First(alias => alias.RemovePrefix() == option.Name);
+
+            return new Token(value, TokenType.Option);
+        }
     }
 }

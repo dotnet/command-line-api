@@ -55,7 +55,7 @@ namespace System.CommandLine
                             ArgumentType == typeof(bool))
                         {
                             _convertArguments = symbol =>
-                                ArgumentConverter.Parse(typeof(bool), symbol.Arguments.SingleOrDefault() ?? bool.TrueString);
+                                ArgumentConverter.Parse(typeof(bool), symbol.Tokens.Select(t => t.Value).SingleOrDefault() ?? bool.TrueString);
                         }
                         else
                         {
@@ -73,11 +73,11 @@ namespace System.CommandLine
                         case 1:
                             return ArgumentConverter.Parse(
                                 ArgumentType,
-                                symbol.Arguments.SingleOrDefault());
+                                symbol.Tokens.Select(t => t.Value).SingleOrDefault());
                         default:
                             return ArgumentConverter.ParseMany(
                                 ArgumentType, 
-                                symbol.Arguments);
+                                symbol.Tokens.Select(t => t.Value).ToArray());
                     }
                 }
             }
@@ -204,10 +204,10 @@ namespace System.CommandLine
                     return ArgumentResult.Success(null);
 
                 case 1:
-                    return ArgumentResult.Success(symbolResult.Arguments.SingleOrDefault());
+                    return ArgumentResult.Success(symbolResult.Tokens.Select(t => t.Value).SingleOrDefault());
 
                 default:
-                    return ArgumentResult.Success(symbolResult.Arguments);
+                    return ArgumentResult.Success(symbolResult.Tokens.Select(t => t.Value).ToArray());
             }
         }
 
@@ -256,15 +256,15 @@ namespace System.CommandLine
             ParseError UnrecognizedArgumentError()
             {
                 if (_validValues?.Count > 0 &&
-                    symbolResult.Arguments.Count > 0)
+                    symbolResult.Tokens.Count > 0)
                 {
-                    foreach (var arg in symbolResult.Arguments)
+                    foreach (var arg in symbolResult.Tokens)
                     {
-                        if (!_validValues.Contains(arg))
+                        if (!_validValues.Contains(arg.Value))
                         {
                             return new ParseError(
                                 symbolResult.ValidationMessages
-                                            .UnrecognizedArgument(arg,
+                                            .UnrecognizedArgument(arg.Value,
                                                                   _validValues),
                                 symbolResult,
                                 canTokenBeRetried: false);
