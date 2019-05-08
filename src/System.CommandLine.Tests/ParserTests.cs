@@ -1387,5 +1387,198 @@ namespace System.CommandLine.Tests
 
             result.CommandResult.Command.Name.Should().Be(RootCommand.ExeName);
         }
+
+        [Fact]
+        public void Command_argument_arity_can_be_a_fixed_value_greater_than_1()
+        {
+            var command = new Command("the-command")
+            {
+                Argument = new Argument
+                {
+                    Arity = new ArgumentArity(3, 3)
+                }
+            };
+
+            command.Parse("1 2 3")
+                   .CommandResult
+                   .Tokens
+                   .Should()
+                   .BeEquivalentTo(
+                       new Token("1", TokenType.Argument),
+                       new Token("2", TokenType.Argument),
+                       new Token("3", TokenType.Argument));
+        }
+
+        [Fact]
+        public void Command_argument_arity_can_be_a_range_with_a_lower_bound_greater_than_1()
+        {
+            var command = new Command("the-command")
+            {
+                Argument = new Argument
+                {
+                    Arity = new ArgumentArity(3, 5)
+                }
+            };
+
+            command.Parse("1 2 3")
+                   .CommandResult
+                   .Tokens
+                   .Should()
+                   .BeEquivalentTo(
+                       new Token("1", TokenType.Argument),
+                       new Token("2", TokenType.Argument),
+                       new Token("3", TokenType.Argument));
+            command.Parse("1 2 3 4 5")
+                   .CommandResult
+                   .Tokens
+                   .Should()
+                   .BeEquivalentTo(
+                       new Token("1", TokenType.Argument),
+                       new Token("2", TokenType.Argument),
+                       new Token("3", TokenType.Argument),
+                       new Token("4", TokenType.Argument),
+                       new Token("5", TokenType.Argument));
+        }
+
+        [Fact]
+        public void When_command_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
+        {
+            var command = new Command("the-command")
+            {
+                Argument = new Argument
+                {
+                    Arity = new ArgumentArity(2, 3)
+                }
+            };
+
+            var result = command.Parse("1");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain(ValidationMessages.Instance.RequiredArgumentMissing(result.CommandResult));
+        }
+
+        [Fact]
+        public void When_command_arguments_are_greater_than_maximum_arity_then_an_error_is_returned()
+        {
+            var command = new Command("the-command")
+            {
+                Argument = new Argument
+                {
+                    Arity = new ArgumentArity(2, 3)
+                }
+            };
+
+            command.Parse("1 2 3 4")
+                   .Errors
+                   .Select(e => e.Message)
+                   .Should()
+                   .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument("4"));
+        }
+
+        [Fact]
+        public void Option_argument_arity_can_be_a_fixed_value_greater_than_1()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("-x")
+                {
+                    Argument = new Argument
+                    {
+                        Arity = new ArgumentArity(3, 3)
+                    }
+                }
+            };
+
+            command.Parse("-x 1 2 3")
+                   .CommandResult
+                   .OptionResult("-x")
+                   .Tokens
+                   .Should()
+                   .BeEquivalentTo(
+                       new Token("1", TokenType.Argument),
+                       new Token("2", TokenType.Argument),
+                       new Token("3", TokenType.Argument));
+        }
+
+        [Fact]
+        public void Option_argument_arity_can_be_a_range_with_a_lower_bound_greater_than_1()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("-x")
+                {
+                    Argument = new Argument
+                    {
+                        Arity = new ArgumentArity(3, 5)
+                    }
+                }
+            };
+
+            command.Parse("-x 1 2 3")
+                   .CommandResult
+                   .OptionResult("-x")
+                   .Tokens
+                   .Should()
+                   .BeEquivalentTo(
+                       new Token("1", TokenType.Argument),
+                       new Token("2", TokenType.Argument),
+                       new Token("3", TokenType.Argument));
+            command.Parse("-x 1 2 3 4 5")
+                   .CommandResult
+                   .OptionResult("-x")
+                   .Tokens
+                   .Should()
+                   .BeEquivalentTo(
+                       new Token("1", TokenType.Argument),
+                       new Token("2", TokenType.Argument),
+                       new Token("3", TokenType.Argument),
+                       new Token("4", TokenType.Argument),
+                       new Token("5", TokenType.Argument));
+        }
+
+        [Fact]
+        public void When_option_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("-x")
+                {
+                    Argument = new Argument
+                    {
+                        Arity = new ArgumentArity(2, 3)
+                    }
+                }
+            };
+
+            var result = command.Parse("-x 1");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain(ValidationMessages.Instance.RequiredArgumentMissing(result.CommandResult.OptionResult("-x")));
+        }
+
+        [Fact]
+        public void When_option_arguments_are_greater_than_maximum_arity_then_an_error_is_returned()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("-x")
+                {
+                    Argument = new Argument
+                    {
+                        Arity = new ArgumentArity(2, 3)
+                    }
+                }
+            };
+
+            command.Parse("-x 1 2 3 4")
+                   .Errors
+                   .Select(e => e.Message)
+                   .Should()
+                   .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument("4"));
+        }
     }
 }

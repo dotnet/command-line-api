@@ -78,7 +78,7 @@ namespace System.CommandLine
             }
 
             if (!OptionWasRespecified)
-            {          
+            {
                 if (IsArgumentLimitReached)
                 {
                     return null;
@@ -101,14 +101,20 @@ namespace System.CommandLine
                 return this;
             }
 
+            if (_result is MissingArgumentResult)
+            {
+                OptionWasRespecified = false;
+                return this;
+            }
+
             _tokens.RemoveAt(_tokens.Count - 1);
 
             return null;
         }
 
         internal static SymbolResult Create(
-            ISymbol symbol, 
-            Token token, 
+            ISymbol symbol,
+            Token token,
             CommandResult parent = null, 
             ValidationMessages validationMessages = null)
         {
