@@ -40,18 +40,18 @@ namespace System.CommandLine
                     return null;
                 }
 
-                return new FailedArgumentArityResult(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
+                return new MissingArgumentResult(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
             }
 
             if (symbolResult.Tokens.Count > maximumNumberOfArguments)
             {
                 if (maximumNumberOfArguments == 1)
                 {
-                    return new FailedArgumentArityResult(symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
+                    return new TooManyArgumentsResult(symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
                 }
                 else
                 {
-                    return new FailedArgumentArityResult(symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, maximumNumberOfArguments));
+                    return new TooManyArgumentsResult(symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, maximumNumberOfArguments));
                 }
             }
 
