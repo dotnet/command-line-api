@@ -7,9 +7,11 @@ namespace System.CommandLine
     {
         public OptionResult(
             IOption option,
-            string token = null,
+            Token token = null,
             CommandResult parent = null) :
-            base(option, token ?? option?.Token(), parent)
+            base(option ?? throw new ArgumentNullException(nameof(option)),
+                 token ?? option?.DefaultToken(), 
+                 parent)
         {
             Option = option;
         }
@@ -42,7 +44,7 @@ namespace System.CommandLine
             CommandResult parent)
         {
             var result = new OptionResult(option,
-                                          option.Token());
+                                          option.DefaultToken());
 
             result.IsImplicit = true;
 

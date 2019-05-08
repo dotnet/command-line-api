@@ -57,7 +57,7 @@ namespace System.CommandLine
 
                     if (symbol != null)
                     {
-                        var symbolResult = SymbolResult.Create(symbol, token.Value, validationMessages: Configuration.ValidationMessages);
+                        var symbolResult = SymbolResult.Create(symbol, token, validationMessages: Configuration.ValidationMessages);
 
                         rootCommandResult = (CommandResult)symbolResult;
 

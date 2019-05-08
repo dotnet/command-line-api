@@ -17,18 +17,18 @@ namespace System.CommandLine
 
         public virtual string ExpectsOneArgument(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"Command '{symbolResult.Token}' expects a single argument but {symbolResult.Arguments.Count} were provided."
-                : $"Option '{symbolResult.Token}' expects a single argument but {symbolResult.Arguments.Count} were provided.";
+                ? $"Command '{symbolResult.Token.Value}' expects a single argument but {symbolResult.Tokens.Count} were provided."
+                : $"Option '{symbolResult.Token.Value}' expects a single argument but {symbolResult.Tokens.Count} were provided.";
 
         public virtual string NoArgumentProvided(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"No argument was provided for Command '{symbolResult.Token}'."
-                : $"No argument was provided for Option '{symbolResult.Token}'.";
+                ? $"No argument was provided for Command '{symbolResult.Token.Value}'."
+                : $"No argument was provided for Option '{symbolResult.Token.Value}'.";
 
         public virtual string ExpectsFewerArguments(SymbolResult symbolResult, int maximumNumberOfArguments) =>
             symbolResult is CommandResult
-                ? $"Command '{symbolResult.Token}' expects no more than {maximumNumberOfArguments} arguments, but {symbolResult.Arguments.Count} were provided."
-                : $"Option '{symbolResult.Token}' expects no more than {maximumNumberOfArguments} arguments, but {symbolResult.Arguments.Count} were provided.";
+                ? $"Command '{symbolResult.Token.Value}' expects no more than {maximumNumberOfArguments} arguments, but {symbolResult.Tokens.Count} were provided."
+                : $"Option '{symbolResult.Token.Value}' expects no more than {maximumNumberOfArguments} arguments, but {symbolResult.Tokens.Count} were provided.";
 
         public virtual string DirectoryDoesNotExist(string path) =>
             $"Directory does not exist: {path}";
@@ -41,8 +41,8 @@ namespace System.CommandLine
 
         public virtual string RequiredArgumentMissing(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"Required argument missing for command: {symbolResult.Token}"
-                : $"Required argument missing for option: {symbolResult.Token}";
+                ? $"Required argument missing for command: {symbolResult.Token.Value}"
+                : $"Required argument missing for option: {symbolResult.Token.Value}";
 
         public virtual string RequiredArgumentNameMissing(string argumentAlias) =>
             $"Name must be set for arguments with an arity above zero. The argument missing a name has the alias '{argumentAlias}'.";

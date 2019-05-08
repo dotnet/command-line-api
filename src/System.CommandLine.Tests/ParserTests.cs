@@ -976,8 +976,8 @@ namespace System.CommandLine.Tests
             var result2 = rootCommand.Parse("outer inner -x hello");
             var result3 = rootCommand.Parse($"{RootCommand.ExeName} inner -x hello");
 
-            result2.Diagram().Should().Be(result1.Diagram());
-            result3.Diagram().Should().Be(result1.Diagram());
+            result2.RootCommandResult.Command.Should().Be(result1.RootCommandResult.Command);
+            result3.RootCommandResult.Command.Should().Be(result1.RootCommandResult.Command);
         }
 
         [Fact]
