@@ -9,11 +9,14 @@ namespace System.CommandLine
     public class CommandResult : SymbolResult
     {
         public CommandResult(
-            ICommand command, 
+            ICommand command,
             Token token = null,
-            CommandResult parent = null) : base(command, token ?? command?.DefaultToken(), parent)
+            CommandResult parent = null) :
+            base(command ?? throw new ArgumentNullException(nameof(command)),
+                 token ?? command.DefaultToken(),
+                 parent)
         {
-            Command = command ?? throw new ArgumentNullException(nameof(command));
+            Command = command;
         }
 
         public ICommand Command { get; }

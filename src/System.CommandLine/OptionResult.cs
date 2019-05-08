@@ -9,7 +9,9 @@ namespace System.CommandLine
             IOption option,
             Token token = null,
             CommandResult parent = null) :
-            base(option, token ?? option?.DefaultToken(), parent)
+            base(option ?? throw new ArgumentNullException(nameof(option)),
+                 token ?? option?.DefaultToken(), 
+                 parent)
         {
             Option = option;
         }
