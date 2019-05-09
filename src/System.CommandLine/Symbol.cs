@@ -13,6 +13,11 @@ namespace System.CommandLine
         private string _longestAlias = "";
         private string _specifiedName;
         private protected readonly ArgumentSet _arguments = new ArgumentSet();
+        private Symbol _parent;
+
+        private protected Symbol()
+        {
+        }
 
         protected Symbol(
             IReadOnlyCollection<string> aliases,
@@ -70,7 +75,11 @@ namespace System.CommandLine
             }
         }
 
-        public Command Parent { get; private protected set; }
+        public Symbol Parent
+        {
+            get => _parent;
+            internal set => _parent = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         private protected void AddSymbol(Symbol symbol)
         {
@@ -142,7 +151,7 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public IEnumerable<string> Suggest(string textToMatch = null)
+        public virtual IEnumerable<string> Suggest(string textToMatch = null)
         {
             var argumentSuggestions =
                 _arguments
@@ -158,7 +167,7 @@ namespace System.CommandLine
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
-        ICommand ISymbol.Parent => Parent;
+        ISymbol ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;
     }

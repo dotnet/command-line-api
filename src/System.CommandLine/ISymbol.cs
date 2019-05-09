@@ -15,7 +15,7 @@ namespace System.CommandLine
 
         IReadOnlyCollection<string> RawAliases { get; }
 
-        ICommand Parent { get; }
+        ISymbol Parent { get; }
 
         bool HasAlias(string alias);
 

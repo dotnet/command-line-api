@@ -22,13 +22,7 @@ namespace System.CommandLine
             Value == token.Value &&
             Type == token.Type;
 
-        public override int GetHashCode()
-        {
-            var hashCode = 1574892647;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Value);
-            hashCode = hashCode * -1521134295 + Type.GetHashCode();
-            return hashCode;
-        }
+        public override int GetHashCode() => (Value, Type).GetHashCode();
 
         public override string ToString() => $"{Type}: {Value}";
 

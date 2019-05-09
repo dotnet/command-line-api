@@ -12,6 +12,8 @@ namespace System.CommandLine
 
         public IArgument Argument { get; }
 
+        public string ErrorMessage { get; set; }
+
         public static FailedArgumentResult Failure(Argument argument, string error) => new FailedArgumentResult(argument, error);
 
         public static SuccessfulArgumentResult Success(IArgument argument, object value) => new SuccessfulArgumentResult(argument, value);

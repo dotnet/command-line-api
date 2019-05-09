@@ -7,19 +7,15 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Argument : IArgument
+    public class Argument : Symbol, IArgument
     {
         private Func<object> _defaultValue;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity _arity;
-        private HashSet<string> _validValues;
         private TryConvertArgument _convertArguments;
-        private Symbol _parent;
 
-        public string Name { get; set; }
-
-        public string Description { get; set; }
+        internal HashSet<string> AllowedValues { get; private set; }
 
         public IArgumentArity Arity
         {
@@ -102,25 +98,6 @@ namespace System.CommandLine
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
 
-        public Symbol Parent
-        {
-            get => _parent;
-            internal set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                if (_parent != null)
-                {
-                    throw new InvalidOperationException($"{nameof(Parent)} is already set.");
-                }
-
-                _parent = value;
-            }
-        }
-
         public void AddValidator(ValidateSymbol validator) => SymbolValidators.Add(validator);
 
         public object GetDefaultValue() => _defaultValue?.Invoke();
@@ -163,17 +140,17 @@ namespace System.CommandLine
             AddSuggestionSource(new AnonymousSuggestionSource(suggest));
         }
 
-        internal void AddValidValues(IEnumerable<string> values)
+        internal void AddAllowedValues(IEnumerable<string> values)
         {
-            if (_validValues == null)
+            if (AllowedValues == null)
             {
-                _validValues = new HashSet<string>();
+                AllowedValues = new HashSet<string>();
             }
 
-            _validValues.UnionWith(values);
+            AllowedValues.UnionWith(values);
         }
 
-        public IEnumerable<string> Suggest(string textToMatch)
+        public override IEnumerable<string> Suggest(string textToMatch)
         {
             var fixedSuggestions = _suggestions;
 
@@ -193,135 +170,9 @@ namespace System.CommandLine
 
         public override string ToString() => $"{nameof(Argument)}: {Name}";
 
-        internal (ArgumentResult, ParseError) Validate(SymbolResult symbolResult)
-        {
-            ArgumentResult result = null;
-
-            var error = UnrecognizedArgumentError() ??
-                        CustomError();
-
-            if (error == null)
-            {
-                result = Parse();
-
-                var canTokenBeRetried =
-                    symbolResult.Symbol is ICommand ||
-                    Arity.MinimumNumberOfValues == 0;
-
-                switch (result)
-                {
-                    case FailedArgumentArityResult arityFailure:
-
-                        error = new ParseError(arityFailure.ErrorMessage,
-                                               symbolResult,
-                                               canTokenBeRetried);
-                        break;
-
-                    case FailedArgumentTypeConversionResult conversionFailure:
-
-                        error = new ParseError(conversionFailure.ErrorMessage,
-                                               symbolResult,
-                                               canTokenBeRetried);
-                        break;
-
-                    case FailedArgumentResult general:
-
-                        error = new ParseError(general.ErrorMessage,
-                                               symbolResult,
-                                               false);
-                        break;
-                }
-            }
-
-            return (result, error);
-
-            ArgumentResult Parse()
-            {
-                var failedResult = ArgumentArity.Validate(symbolResult,
-                                                          this,
-                                                          Arity.MinimumNumberOfValues,
-                                                          Arity.MaximumNumberOfValues);
-
-                if (failedResult != null)
-                {
-                    return failedResult;
-                }
-
-                if (symbolResult.UseDefaultValueFor(this))
-                {
-                    return ArgumentResult.Success(this, GetDefaultValue());
-                }
-
-                if (ConvertArguments != null)
-                {
-                    var success = ConvertArguments(symbolResult, out var value);
-
-                    if (value is ArgumentResult argumentResult)
-                    {
-                        return argumentResult;
-                    }
-                    else if (success)
-                    {
-                        return ArgumentResult.Success(this, value);
-                    }
-                    else
-                    {
-                        return ArgumentResult.Failure(this, symbolResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Arguments)}");
-                    }
-                }
-
-                switch (Arity.MaximumNumberOfValues)
-                {
-                    case 0:
-                        return ArgumentResult.Success(this, null);
-
-                    case 1:
-                        return ArgumentResult.Success(this, symbolResult.Arguments.SingleOrDefault());
-
-                    default:
-                        return ArgumentResult.Success(this, symbolResult.Arguments);
-                }
-            }
-
-            ParseError UnrecognizedArgumentError()
-            {
-                if (_validValues?.Count > 0 &&
-                    symbolResult.Tokens.Count > 0)
-                {
-                    foreach (var token in symbolResult.Tokens)
-                    {
-                        if (!_validValues.Contains(token.Value))
-                        {
-                            return new ParseError(
-                                symbolResult.ValidationMessages
-                                            .UnrecognizedArgument(token.Value,
-                                                                  _validValues),
-                                symbolResult,
-                                canTokenBeRetried: false);
-                        }
-                    }
-                }
-
-                return null;
-            }
-
-            ParseError CustomError()
-            {
-                foreach (var symbolValidator in SymbolValidators)
-                {
-                    var errorMessage = symbolValidator(symbolResult);
-
-                    if (!string.IsNullOrWhiteSpace(errorMessage))
-                    {
-                        return new ParseError(errorMessage, symbolResult, false);
-                    }
-                }
-
-                return null;
-            }
-        }
-
         IArgumentArity IArgument.Arity => Arity;
+
+        string IValueDescriptor.ValueName => Name;
 
         Type IValueDescriptor.Type => ArgumentType;
     }

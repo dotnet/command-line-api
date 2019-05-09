@@ -120,7 +120,7 @@ namespace System.CommandLine.Tests
             ParseResult result = parser.Parse(commandLine);
 
             result.Errors.Should().BeEmpty();
-            for (var commandResult = result.CommandResult; commandResult != null; commandResult = commandResult.Parent)
+            for (var commandResult = result.CommandResult; commandResult != null; commandResult = commandResult.ParentCommandResult)
             {
                 int index = 1;
                 foreach (var optionResult in commandResult.Children.OfType<OptionResult>())

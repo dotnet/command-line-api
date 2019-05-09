@@ -33,7 +33,7 @@ namespace System.CommandLine
         [Obsolete("Use the Arguments property instead")]
         public virtual Argument Argument
         {
-            get => _arguments.FirstOrDefault() ?? Argument.None;
+            get => _arguments.SingleOrDefault() ?? Argument.None;
             set
             {
                 if (_arguments.Any())

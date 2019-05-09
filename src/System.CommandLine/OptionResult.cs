@@ -26,8 +26,7 @@ namespace System.CommandLine
             {
                 var capacity = base.RemainingArgumentCapacity;
 
-                if (IsImplicit && capacity < int.MaxValue
-                )
+                if (IsImplicit && capacity < int.MaxValue)
                 {
                     capacity += 1;
                 }

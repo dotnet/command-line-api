@@ -873,7 +873,7 @@ namespace System.CommandLine.Tests
             _output.WriteLine(result.ToString());
 
             result.CommandResult
-                  .Parent
+                  .ParentCommandResult
                   .OptionResult("-x")
                   .Should()
                   .BeNull();

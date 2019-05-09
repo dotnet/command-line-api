@@ -9,6 +9,11 @@ namespace System.CommandLine
             this ArgumentResult result, 
             Type type)
         {
+            if (result == null)
+            {
+                throw new ArgumentNullException(nameof(result));
+            }
+
             if (!(result is SuccessfulArgumentResult successful))
             {
                 return result;

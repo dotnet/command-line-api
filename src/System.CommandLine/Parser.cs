@@ -59,7 +59,7 @@ namespace System.CommandLine
                     {
                         var symbolResult = SymbolResult.Create(symbol, token, validationMessages: Configuration.ValidationMessages);
 
-                        rootCommandResult = (CommandResult)symbolResult;
+                        rootCommandResult = (CommandResult) symbolResult;
 
                         allSymbolResults.Add(symbolResult);
 
@@ -100,7 +100,7 @@ namespace System.CommandLine
 
                         if (token.Type == TokenType.Option)
                         {
-                            var existing = optionQueue.FirstOrDefault(option => ((ISymbol)option).Name == symbolForToken.Name);
+                            var existing = optionQueue.FirstOrDefault(option => option.Name == symbolForToken.Name);
 
                             if (existing != null)
                             {
@@ -108,6 +108,7 @@ namespace System.CommandLine
                                 optionQueue.Remove(existing);
                             }
                         }
+
                         break;
                     }
 

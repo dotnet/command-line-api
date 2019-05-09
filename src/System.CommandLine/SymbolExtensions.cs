@@ -48,7 +48,7 @@ namespace System.CommandLine
 
         internal static Token DefaultToken(this IOption option)
         {
-            var optionName = ((ISymbol) option).Name;
+            var optionName = option.Name;
 
             var value = option.RawAliases.First(alias => alias.RemovePrefix() == optionName);
 

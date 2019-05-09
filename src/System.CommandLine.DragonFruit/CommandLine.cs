@@ -205,7 +205,7 @@ namespace System.CommandLine.DragonFruit
                 throw new ArgumentNullException(nameof(descriptor));
             }
 
-            return BuildAlias(descriptor.Name);
+            return BuildAlias(descriptor.ValueName);
         }
 
         internal static string BuildAlias(string parameterName)
@@ -235,7 +235,7 @@ namespace System.CommandLine.DragonFruit
 
             foreach (var option in descriptor.ParameterDescriptors
                                              .Where(d => !omittedTypes.Contains (d.Type))
-                                             .Where(d => !_argumentParameterNames.Contains(d.Name))
+                                             .Where(d => !_argumentParameterNames.Contains(d.ValueName))
                                              .Select(p => p.BuildOption()))
             {
                 yield return option;
@@ -256,7 +256,7 @@ namespace System.CommandLine.DragonFruit
 
             var option = new Option(
                 parameter.BuildAlias(),
-                parameter.Name,
+                parameter.ValueName,
                 argument);
 
             return option;

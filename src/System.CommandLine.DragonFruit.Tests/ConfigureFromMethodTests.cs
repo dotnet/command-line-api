@@ -80,7 +80,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
                          .Build();
 
-            var rootCommandArgument = parser.Configuration.RootCommand.Argument;
+            var rootCommandArgument = parser.Configuration.RootCommand.Arguments.Single();
 
             rootCommandArgument.Arity
                                .Should()
@@ -97,7 +97,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
                          .Build();
 
-            var rootCommandArgument = parser.Configuration.RootCommand.Argument;
+            var rootCommandArgument = parser.Configuration.RootCommand.Arguments.Single();
 
             rootCommandArgument.Name
                                .Should()
@@ -140,7 +140,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
                          .Build();
 
-            var rootCommandArgument = parser.Configuration.RootCommand.Argument;
+            var rootCommandArgument = parser.Configuration.RootCommand.Arguments.Single();
 
             rootCommandArgument.Type
                                .Should()

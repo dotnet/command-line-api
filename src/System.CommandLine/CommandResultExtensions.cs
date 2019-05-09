@@ -16,8 +16,10 @@ namespace System.CommandLine
         [Obsolete("Use GetArgumentValueOrDefault instead. This method will be removed in a future version.")]
         public static T GetValueOrDefault<T>(this CommandResult commandResult)
         {
-            var argumentResult = commandResult.ArgumentResults.SingleOrDefault();
-           
+            var argumentResult = commandResult.ArgumentResults
+                                              .SingleOrDefault() ??
+                                 ArgumentResult.None();
+
             return argumentResult
                    .GetValueAs(typeof(T))
                    .GetValueOrDefault<T>();
@@ -37,11 +39,6 @@ namespace System.CommandLine
             var argumentResult =
                 commandResult.ArgumentResults
                              .SingleOrDefault(r => r.Argument.Name == argumentName);
-
-            if (argumentResult == null)
-            {
-                // FIX: (GetValueOrDefault)    
-            }
 
             return argumentResult.GetValueOrDefault<T>();
         }

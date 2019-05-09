@@ -26,7 +26,8 @@ namespace System.CommandLine.Tests.Binding
                                return true;
                            })
                            {
-                               Arity = ArgumentArity.ZeroOrMore
+                               Arity = ArgumentArity.ZeroOrMore,
+                               Name = "arg"
                            };
 
             var parser = new Parser(
@@ -36,9 +37,7 @@ namespace System.CommandLine.Tests.Binding
             var result = parser.Parse("custom one two three");
 
             var customType = result.CommandResult
-                .ArgumentResults
-                .Single()
-                .GetValueOrDefault<MyCustomType>();
+                                   .GetArgumentValueOrDefault<MyCustomType>("arg");
 
             customType
                 .Values

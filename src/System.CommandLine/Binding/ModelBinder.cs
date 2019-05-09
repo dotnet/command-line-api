@@ -150,7 +150,7 @@ namespace System.CommandLine.Binding
             IValueDescriptor valueDescriptor)
         {
             var type = valueDescriptor.Type;
-            var name = valueDescriptor.Name;
+            var name = valueDescriptor.ValueName;
 
             if (NamedValueSources.TryGetValue(
                 (type, name),
@@ -189,7 +189,7 @@ namespace System.CommandLine.Binding
                 Type = modelType;
             }
 
-            public string Name => null;
+            public string ValueName => null;
 
             public bool HasDefaultValue => false;
 

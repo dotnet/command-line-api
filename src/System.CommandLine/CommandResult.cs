@@ -62,11 +62,13 @@ namespace System.CommandLine
             return symbol;
         }
 
-        public bool TryGetValueForArgument(IValueDescriptor valueDescriptor, out object value)
+        public bool TryGetValueForArgument(
+            IValueDescriptor valueDescriptor,
+            out object value)
         {
             foreach (var argument in Command.Arguments)
             {
-                if (valueDescriptor.Name.IsMatch(argument.Name))
+                if (valueDescriptor.ValueName.IsMatch(argument.Name))
                 {
                     value = ArgumentResults[argument.Name].GetValueOrDefault();
                     return true;
@@ -80,14 +82,14 @@ namespace System.CommandLine
         public bool TryGetValueForOption(IValueDescriptor valueDescriptor, out object value)
         {
             var children = Children
-                           .Where(o => valueDescriptor.Name.IsMatch(o.Symbol))
+                           .Where(o => valueDescriptor.ValueName.IsMatch(o.Symbol))
                            .ToArray();
 
             SymbolResult symbolResult = null;
 
             if (children.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.Name} among: {string.Join(",", children.Select(o => o.Name))}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {string.Join(",", children.Select(o => o.Name))}");
             }
 
             if (children.Length == 1)

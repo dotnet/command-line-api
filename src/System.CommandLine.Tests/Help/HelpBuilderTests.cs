@@ -542,51 +542,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Arguments_section_is_not_included_with_only_unnamed_command_arguments()
-        {
-            var command = new Command(
-                "outer",
-                argument: new Argument<string>());
-
-            command.Argument.Name = null;
-            _helpBuilder.Write(command);
-
-            _console.Out.ToString().Should().NotContain("Arguments:");
-            _console.Out.ToString().Should().NotContain("<>");
-        }
-
-        [Fact]
-        public void Arguments_section_does_not_include_unnamed_subcommand_arguments()
-        {
-            var inner = new Command(
-                "inner", "HelpDetail text for the inner command",
-                argument: new Argument<string>
-                          {
-                              Name = "",
-                              Description = "The argument for the inner command",
-                          });
-            var outer = new Command(
-                            "outer",
-                            "HelpDetail text for the outer command",
-                            argument: new Argument<string>
-                                      {
-                                          Name = "outer-command-arg",
-                                          Description = "The argument for the outer command"
-                                      });
-            inner.Argument.Name = "";
-            outer.Add(inner);
-
-            var expected =
-                $"Arguments:{NewLine}" +
-                $"{_indentation}<outer-command-arg>{_columnPadding}The argument for the outer command{NewLine}{NewLine}";
-
-            _helpBuilder.Write(inner);
-
-            _console.Out.ToString().Should().Contain(expected);
-            _console.Out.ToString().Should().NotContain("<>");
-        }
-
-        [Fact]
         public void Arguments_section_removes_extra_whitespace()
         {
             var outer = new Command(

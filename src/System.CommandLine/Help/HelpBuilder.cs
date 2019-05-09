@@ -376,7 +376,7 @@ namespace System.CommandLine
             var usage = new List<string>();
 
             var subcommands = command
-                .RecurseWhileNotNull(c => c.Parent)
+                .RecurseWhileNotNull(c => c.Parent as ICommand)
                 .Reverse();
 
             foreach (var subcommand in subcommands)
@@ -437,9 +437,10 @@ namespace System.CommandLine
         {
             var commands = new List<ICommand>();
 
-            if (ShouldDisplayArgumentHelp(command.Parent))
+            if (command.Parent is ICommand parent &&
+                ShouldDisplayArgumentHelp(parent))
             {
-                commands.Add(command.Parent);
+                commands.Add(parent);
             }
 
             if (ShouldDisplayArgumentHelp(command))

@@ -13,7 +13,7 @@ namespace System.CommandLine
         {
             if (optionResult == null)
             {
-                return ArgumentResult.None();
+                throw new ArgumentNullException(nameof(optionResult));
             }
 
             if (type == null)

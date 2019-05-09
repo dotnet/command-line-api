@@ -113,13 +113,5 @@ namespace System.CommandLine.Tests
 
             action.Should().Throw<ArgumentException>("Value cannot be null or whitespace.");
         }
-
-        [Fact]
-        public void HasAlias_returns_true_if_option_has_an_alias()
-        {
-            var result = new OptionResult(new Option(new[] { "o", "one" }, ""));
-
-            result.HasAlias("one").Should().BeTrue();
-        }
     }
 }

@@ -5,7 +5,9 @@ namespace System.CommandLine
 {
     public class FailedArgumentResult : ArgumentResult
     {
-        internal FailedArgumentResult(IArgument argument, string errorMessage) : base(argument)
+        internal FailedArgumentResult(
+            IArgument argument, 
+            string errorMessage) : base(argument)
         {
             if (string.IsNullOrWhiteSpace(errorMessage))
             {
@@ -14,7 +16,5 @@ namespace System.CommandLine
 
             ErrorMessage = errorMessage;
         }
-
-        public string ErrorMessage { get; }
     }
 }
