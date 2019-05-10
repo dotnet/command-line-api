@@ -36,6 +36,12 @@ namespace System.CommandLine.Binding
                     {
                         _allowsNull = true;
                     }
+
+                    if (_parameterInfo.HasDefaultValue && 
+                        _parameterInfo.DefaultValue == null)
+                    {
+                        _allowsNull = true;
+                    }
                 }
 
                 return _allowsNull ?? false;

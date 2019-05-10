@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -62,13 +63,23 @@ namespace System.CommandLine
                 }
             }
 
-            if (type.ConstructorWithSingleParameterOfType(typeof(string)) is ConstructorInfo ctor)
+            if (type.TryFindConstructorWithSingleParameterOfType(
+                typeof(string), out var x))
             {
                 convert = _stringConverters.GetOrAdd(
                     type,
                     _ => arg =>
                     {
-                        var instance = ctor.Invoke(new object[] { arg });
+                        if (arg == null && 
+                            !x.parameterDescriptor.AllowsNull)
+                        {
+                            return Success(type.GetDefaultValueForType());
+                        }
+
+                        var instance = x.ctor.Invoke(new object[]
+                        {
+                            arg
+                        });
                         return Success(instance);
                     });
 
@@ -180,7 +191,7 @@ namespace System.CommandLine
                 return true;
             }
 
-            if (ConstructorWithSingleParameterOfType(type, typeof(string)) != null)
+            if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _) )
             {
                 return true;
             }
@@ -193,17 +204,27 @@ namespace System.CommandLine
             return false;
         }
 
-        private static ConstructorInfo ConstructorWithSingleParameterOfType(
+        private static bool TryFindConstructorWithSingleParameterOfType(
             this Type type,
-            Type parameterType) =>
-            type.GetConstructors()
-                .Where(c =>
-                {
-                    var parameters = c.GetParameters();
-                    return c.IsPublic &&
-                           parameters.Length == 1 &&
-                           parameters[0].ParameterType == parameterType;
-                })
-                .SingleOrDefault();
+            Type parameterType,
+            out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) info)
+        {
+            var (x, y) = type.GetConstructors()
+                             .Select(c => (ctor: c, parameters: c.GetParameters()))
+                             .SingleOrDefault(tuple => tuple.ctor.IsPublic &&
+                                                       tuple.parameters.Length == 1 &&
+                                                       tuple.parameters[0].ParameterType == parameterType);
+
+            if (x != null)
+            {
+                info = (x, new ParameterDescriptor(y[0], new ConstructorDescriptor(x, ModelDescriptor.FromType(type))));
+                return true;
+            }
+            else
+            {
+                info = (null, null);
+                return false;
+            }
+        }
     }
 }

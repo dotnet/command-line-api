@@ -42,8 +42,9 @@ namespace System.CommandLine.Tests.Binding
                 .BeEquivalentTo("one", "two", "three");
         }
 
+
         [Fact]
-        public void Argument_with_arity_of_one_can_be_bound_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
+        public void Option_argument_with_arity_of_one_can_be_bound_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
         {
             var option = new Option(
                 "--file",
@@ -60,6 +61,44 @@ namespace System.CommandLine.Tests.Binding
                   .Name
                   .Should()
                   .Be("the-file.txt");
+        }
+
+        [Fact]
+        public void Command_argument_with_arity_of_one_can_be_bound_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
+        {
+            var option = new Command(
+                "the-command",
+                argument: new Argument<FileInfo>());
+
+            var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
+            var result = option.Parse($"{file.FullName}");
+
+            result.CommandResult
+                  .GetValueOrDefault()
+                  .Should()
+                  .BeOfType<FileInfo>()
+                  .Which
+                  .Name
+                  .Should()
+                  .Be("the-file.txt");
+        }
+
+        [Fact]
+        public void Command_argument_with_arity_of_zero_or_one_when_type_has_a_constructor_that_takes_a_single_string_returns_null_when_argument_isnot_provided()
+        {
+            var option = new Command(
+                "the-command",
+                argument: new Argument<FileInfo>
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                });
+
+            var result = option.Parse("");
+
+            result.CommandResult
+                  .GetValueOrDefault()
+                  .Should()
+                  .BeNull();
         }
 
         [Fact]
