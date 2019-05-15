@@ -14,7 +14,7 @@ namespace System.CommandLine.DragonFruit.Tests
         /// <summary>
         /// Help for the test program
         /// </summary>
-        /// <param name="name">Specifies the name option</param>
+        /// <param name="name" alias="n">Specifies the name option</param>
         /// <param name="console"></param>
         /// <param name="args">These are arguments</param>
         public void TestMain(string name, IConsole console, string[] args = null)

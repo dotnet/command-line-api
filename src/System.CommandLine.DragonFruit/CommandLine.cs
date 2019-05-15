@@ -176,6 +176,10 @@ namespace System.CommandLine.DragonFruit
                         if (option != null)
                         {
                             option.Description = parameterDescription.Value;
+                            if (metadata.ParameterAliases.TryGetValue(parameterDescription.Key, out var alias))
+                            {
+                                option.AddAlias(BuildAlias(alias));
+                            }
                         }
                         else
                         {

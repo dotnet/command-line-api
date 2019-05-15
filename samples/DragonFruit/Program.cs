@@ -10,9 +10,9 @@ namespace DragonFruit
         /// <summary>
         /// DragonFruit simple example program
         /// </summary>
-        /// <param name="verbose">Show verbose output</param>
-        /// <param name="flavor">Which flavor to use</param>
-        /// <param name="count">How many smoothies?</param>
+        /// <param name="verbose" alias="v">Show verbose output</param>
+        /// <param name="flavor" alias="f">Which flavor to use</param>
+        /// <param name="count" alias="c">How many smoothies?</param>
         static int Main(
             bool verbose,
             string flavor = "chocolate",

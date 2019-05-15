@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
@@ -30,7 +30,7 @@ namespace System.CommandLine.DragonFruit.Tests
             <summary>
             Hello
             </summary>
-            <param name=""verbose"">Show verbose output</param>
+            <param name=""verbose"" alias=""v"">Show verbose output</param>
             <param name=""flavor"">Which flavor to use</param>
             <param name=""count"">How many smoothies?</param>
         </member>
@@ -46,6 +46,7 @@ namespace System.CommandLine.DragonFruit.Tests
             helpMetadata.ParameterDescriptions["verbose"].Should().Be("Show verbose output");
             helpMetadata.ParameterDescriptions["flavor"].Should().Be("Which flavor to use");
             helpMetadata.ParameterDescriptions["count"].Should().Be("How many smoothies?");
+            helpMetadata.ParameterAliases["verbose"].Should().Be("v");
         }
     }
 }
