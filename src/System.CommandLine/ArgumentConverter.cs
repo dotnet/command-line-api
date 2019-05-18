@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.ComponentModel;
@@ -14,8 +13,6 @@ namespace System.CommandLine
 {
     internal static class ArgumentConverter
     {
-        private static readonly ConcurrentDictionary<Type, ConvertString> _stringConverters = new ConcurrentDictionary<Type, ConvertString>();
-
         internal static ArgumentResult Parse(
             IArgument argument,
             Type type, 
@@ -44,16 +41,13 @@ namespace System.CommandLine
             return None(argument);
         }
 
+
+
         public static ArgumentResult Parse(
-            IArgument argument, 
-            Type type, 
+            IArgument argument,
+            Type type,
             string value)
         {
-            if (_stringConverters.TryGetValue(type, out var convert))
-            {
-                return convert(value);
-            }
-
             if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter)
             {
                 if (typeConverter.CanConvertFrom(typeof(string)))
@@ -72,26 +66,20 @@ namespace System.CommandLine
             }
 
             if (type.TryFindConstructorWithSingleParameterOfType(
-                typeof(string), out var x))
+                typeof(string), out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) tuple))
             {
-                convert = _stringConverters.GetOrAdd(
-                    type,
-                    _ => arg =>
-                    {
-                        if (arg == null && 
-                            !x.parameterDescriptor.AllowsNull)
-                        {
-                            return Success(argument, type.GetDefaultValueForType());
-                        }
+                if (value == null &&
+                    !tuple.parameterDescriptor.AllowsNull)
+                {
+                    return Success(argument, type.GetDefaultValueForType());
+                }
 
-                        var instance = x.ctor.Invoke(new object[]
-                        {
-                            arg
-                        });
-                        return Success(argument, instance);
-                    });
+                var instance = tuple.ctor.Invoke(new object[]
+                {
+                    value
+                });
 
-                return convert(value);
+                return Success(argument, instance);
             }
 
             return Failure(argument, type, value);
