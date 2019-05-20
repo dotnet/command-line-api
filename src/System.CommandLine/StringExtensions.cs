@@ -2,11 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace System.CommandLine
 {
@@ -14,15 +14,6 @@ namespace System.CommandLine
     {
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
 
-        private static readonly Regex _commandLineSplitter = new Regex(
-            @"((?<opt>[^""\s]+)""(?<arg>[^""]+)"") # token + quoted argument with non-space argument delimiter, ex: --opt:""c:\path with\spaces""
-              |                                
-              (""(?<token>[^""]*)"")               # tokens surrounded by spaces, ex: ""c:\path with\spaces""
-              |
-              (?<token>\S+)                        # tokens containing no quotes or spaces
-              ",
-            RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace
-        );
 
         internal static bool ContainsCaseInsensitive(
             this string source,
@@ -303,24 +294,7 @@ namespace System.CommandLine
 
         public static IEnumerable<string> SplitCommandLine(this string commandLine)
         {
-            var matches = _commandLineSplitter.Matches(commandLine);
-
-            foreach (Match match in matches)
-            {
-                if (match.Groups["arg"].Captures.Count > 0)
-                {
-                    var opt = match.Groups["opt"];
-                    var arg = match.Groups["arg"];
-                    yield return $"{opt}{arg}";
-                }
-                else
-                {
-                    foreach (var capture in match.Groups["token"].Captures)
-                    {
-                        yield return capture.ToString();
-                    }
-                }
-            }
+            return CommandLineStringSplitter.Instance.Split(commandLine);
         }
 
         private static IEnumerable<string> ExpandResponseFile(

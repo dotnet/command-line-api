@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    internal class TokenizeResult
+    public class TokenizeResult
     {
         public TokenizeResult(
             IReadOnlyList<Token> tokens = null,
