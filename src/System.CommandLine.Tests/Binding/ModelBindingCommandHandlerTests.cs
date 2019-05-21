@@ -201,23 +201,49 @@ namespace System.CommandLine.Tests.Binding
             boundValue.Should().Be(expectedValue);
         }
 
-        private void Capture<T>(T value, InvocationContext invocationContext)
+        [Fact]
+        public async Task When_argument_type_is_not_known_until_binding_then_bool_parameter_is_bound_correctly()
         {
-            invocationContext.InvocationResult = new BoundValueCapturer(value);
+            bool? received = null;
+
+            var handler = CommandHandler.Create((bool x) =>
+            {
+                received = x;
+            });
+
+            var root = new RootCommand(handler: handler)
+            {
+                new Option("-x", "Explanation")
+            };
+
+            await root.InvokeAsync("-x");
+
+            received.Should().BeTrue();
         }
 
-        private class BoundValueCapturer : IInvocationResult
+        [Fact]
+        public async Task When_argument_type_is_not_known_until_binding_then_int_parameter_is_bound_correctly()
         {
-            public BoundValueCapturer(object boundValue)
-            {
-                BoundValue = boundValue;
-            }
+            int received = 0;
 
-            public object BoundValue { get; }
-
-            public void Apply(InvocationContext context)
+            var handler = CommandHandler.Create((int x) =>
             {
-            }
+                received = x;
+            });
+
+            var root = new RootCommand(handler: handler)
+            {
+                new Option("-x", "Explanation"
+                           , argument: new Argument
+                           {
+                               Arity = new ArgumentArity(1, 1)
+                           }
+                )
+            };
+
+            await root.InvokeAsync("-x 123");
+
+            received.Should().Be(123);
         }
 
         [Theory]
@@ -311,6 +337,25 @@ namespace System.CommandLine.Tests.Binding
             c.AssertBoundValue(boundValue);
         }
 
+        private void Capture<T>(T value, InvocationContext invocationContext)
+        {
+            invocationContext.InvocationResult = new BoundValueCapturer(value);
+        }
+
+        private class BoundValueCapturer : IInvocationResult
+        {
+            public BoundValueCapturer(object boundValue)
+            {
+                BoundValue = boundValue;
+            }
+
+            public object BoundValue { get; }
+
+            public void Apply(InvocationContext context)
+            {
+            }
+        }
+
         private readonly BindingTestSet _bindingCases = new BindingTestSet
         {
               BindingTestCase.Create<ClassWithCtorParameter<int>>(
@@ -355,50 +400,5 @@ namespace System.CommandLine.Tests.Binding
                 "1 2",
                 o => o.Should().BeEquivalentTo(new List<int> { 1, 2 }))
         };
-
-        [Fact]
-        public async Task When_argument_type_is_not_known_until_binding_then_bool_parameter_is_bound_correctly()
-        {
-            bool? received = null;
-
-            var handler = CommandHandler.Create((bool x) =>
-            {
-                received = x;
-            });
-
-            var root = new RootCommand(handler: handler)
-            {
-                new Option("-x", "Explanation")
-            };
-
-            await root.InvokeAsync("-x");
-
-            received.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task When_argument_type_is_not_known_until_binding_then_int_parameter_is_bound_correctly()
-        {
-            int received = 0;
-
-            var handler = CommandHandler.Create((int x) =>
-            {
-                received = x;
-            });
-
-            var root = new RootCommand(handler: handler)
-            {
-                new Option("-x", "Explanation"
-                           , argument: new Argument
-                           {
-                               Arity = new ArgumentArity(1, 1)
-                           }
-                )
-            };
-
-            await root.InvokeAsync("-x 123");
-
-            received.Should().Be(123);
-        }
     }
 }
