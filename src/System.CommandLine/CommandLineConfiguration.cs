@@ -112,5 +112,7 @@ namespace System.CommandLine
         public ICommand RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
+
+        public static bool UseNewParser { get; set; }
     }
 }

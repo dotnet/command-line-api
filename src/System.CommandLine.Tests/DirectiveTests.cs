@@ -124,5 +124,18 @@ namespace System.CommandLine.Tests
             result.Directives.TryGetValues("directive", out var values).Should().BeTrue();
             values.Should().BeEquivalentTo("one", "two");
         }
+
+        public class V2 : DirectiveTests, IDisposable
+        {
+            public V2()
+            {
+                CommandLineConfiguration.UseNewParser = true;
+            }
+
+            public void Dispose()
+            {
+                CommandLineConfiguration.UseNewParser = false;
+            }
+        }
     }
 }

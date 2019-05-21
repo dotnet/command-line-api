@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 
@@ -24,10 +25,15 @@ namespace System.CommandLine
 
         public CommandLineConfiguration Configuration { get; }
 
-        public ParseResult Parse(
-            IReadOnlyCollection<string> arguments,
+        public virtual ParseResult Parse(
+            IReadOnlyList<string> arguments,
             string rawInput = null)
         {
+            if (CommandLineConfiguration.UseNewParser)
+            {
+                return new CommandLineParser(Configuration).Parse(arguments, rawInput);
+            }
+
             var normalizedArgs = NormalizeRootCommand(arguments);
             var tokenizeResult = normalizedArgs.Tokenize(Configuration);
             var directives = new DirectiveCollection();
@@ -195,7 +201,7 @@ namespace System.CommandLine
             }
         }
 
-        private static IList<IOption> GatherOptions(ISymbolSet symbols)
+        protected IList<IOption> GatherOptions(ISymbolSet symbols)
         {
             var optionList = new List<IOption>();
 
@@ -221,7 +227,7 @@ namespace System.CommandLine
             return optionList;
         }
 
-        internal IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyCollection<string> args)
+        protected IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyList<string> args)
         {
             if (args == null)
             {
@@ -232,21 +238,18 @@ namespace System.CommandLine
 
             if (args.Count > 0)
             {
-                if (args.FirstOrDefault() is string firstArg)
+                try
                 {
-                    try
-                    {
-                        potentialRootCommand = Path.GetFileName(firstArg);
-                    }
-                    catch (ArgumentException)
-                    {
-                        // possible exception for illegal characters in path on .NET Framework
-                    }
+                    potentialRootCommand = Path.GetFileName(args[0]);
+                }
+                catch (ArgumentException)
+                {
+                    // possible exception for illegal characters in path on .NET Framework
+                }
 
-                    if (Configuration.RootCommand.HasRawAlias(potentialRootCommand))
-                    {
-                        return args;
-                    }
+                if (Configuration.RootCommand.HasRawAlias(potentialRootCommand))
+                {
+                    return args;
                 }
             }
 
@@ -275,6 +278,7 @@ namespace System.CommandLine
                 {
                     return false;
                 }
+
                 if (potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
