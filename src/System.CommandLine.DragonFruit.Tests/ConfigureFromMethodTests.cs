@@ -68,23 +68,23 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         [Theory]
-        [InlineData(nameof(Method_having_string_array_arguments), 0, int.MaxValue)]
+        [InlineData(nameof(Method_having_string_array_arguments), 0, byte.MaxValue)]
         [InlineData(nameof(Method_having_FileInfo_argument), 1, 1)]
-        [InlineData(nameof(Method_having_FileInfo_array_args), 0, int.MaxValue)]
+        [InlineData(nameof(Method_having_FileInfo_array_args), 0, byte.MaxValue)]
         public void Parameters_named_arguments_generate_command_arguments_having_the_correct_arity(
             string methodName,
-            int minNumberOfArgs,
-            int maxNumberOfArgs)
+            int minNumberOfValues,
+            int maxNumberOfValues)
         {
             var parser = new CommandLineBuilder()
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
                          .Build();
 
-            var rootCommandArgument = parser.Configuration.RootCommand.Argument;
+            var rootCommandArgument = parser.Configuration.RootCommand.Arguments.Single();
 
             rootCommandArgument.Arity
                                .Should()
-                               .BeEquivalentTo(new ArgumentArity(minNumberOfArgs, maxNumberOfArgs));
+                               .BeEquivalentTo(new ArgumentArity(minNumberOfValues, maxNumberOfValues));
         }
 
         [Theory]
@@ -97,7 +97,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
                          .Build();
 
-            var rootCommandArgument = parser.Configuration.RootCommand.Argument;
+            var rootCommandArgument = parser.Configuration.RootCommand.Arguments.Single();
 
             rootCommandArgument.Name
                                .Should()
@@ -124,7 +124,6 @@ namespace System.CommandLine.DragonFruit.Tests
                                          };
 
             rootCommandArgument.Children
-                               .OfType<IOption>()
                                .Should()
                                .NotContain(o => argumentParameterNames.Contains(o.Name));
         }
@@ -141,7 +140,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
                          .Build();
 
-            var rootCommandArgument = parser.Configuration.RootCommand.Argument;
+            var rootCommandArgument = parser.Configuration.RootCommand.Arguments.Single();
 
             rootCommandArgument.Type
                                .Should()

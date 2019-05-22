@@ -118,21 +118,23 @@ namespace System.CommandLine
             }
             else
             {
-                var result = symbolResult.ArgumentResult;
-                if (result is SuccessfulArgumentResult _)
+                foreach (var result in symbolResult.ArgumentResults)
                 {
-                    var value = symbolResult.GetValueOrDefault();
-
-                    switch (value)
+                    if (result is SuccessfulArgumentResult successfulArgumentResult)
                     {
-                        case null:
-                        case IReadOnlyCollection<string> a when a.Count == 0:
-                            break;
-                        default:
-                            builder.Append(" <");
-                            builder.Append(value);
-                            builder.Append(">");
-                            break;
+                        var value = successfulArgumentResult.Value;
+
+                        switch (value)
+                        {
+                            case null:
+                            case IReadOnlyCollection<string> a when a.Count == 0:
+                                break;
+                            default:
+                                builder.Append(" <");
+                                builder.Append(value);
+                                builder.Append(">");
+                                break;
+                        }
                     }
                 }
             }
@@ -255,23 +257,6 @@ namespace System.CommandLine
                         }
                     }
                 }
-            }
-        }
-
-        internal static IEnumerable<IValueDescriptor> ValueDescriptors(this ParseResult parseResult)
-        {
-            var command = parseResult.CommandResult.Command;
-
-            while (command != null)
-            {
-                yield return command;
-
-                foreach (var option in command.Children.OfType<Option>())
-                {
-                    yield return option;
-                }
-
-                command = command.Parent;
             }
         }
     }

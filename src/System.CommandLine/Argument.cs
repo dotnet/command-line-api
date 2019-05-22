@@ -7,19 +7,15 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Argument : IArgument
+    public class Argument : Symbol, IArgument
     {
         private Func<object> _defaultValue;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity _arity;
-        private HashSet<string> _validValues;
-        private ConvertArgument _convertArguments;
-        private Symbol _parent;
+        private TryConvertArgument _convertArguments;
 
-        public string Name { get; set; }
-
-        public string Description { get; set; }
+        internal HashSet<string> AllowedValues { get; private set; }
 
         public IArgumentArity Arity
         {
@@ -42,7 +38,7 @@ namespace System.CommandLine
             set => _arity = value;
         }
 
-        internal ConvertArgument ConvertArguments
+        internal TryConvertArgument ConvertArguments
         {
             get
             {
@@ -51,11 +47,18 @@ namespace System.CommandLine
                 {
                     if (ArgumentType.CanBeBoundFromScalarValue())
                     {
-                        if (Arity.MaximumNumberOfArguments == 1 &&
+                        if (Arity.MaximumNumberOfValues == 1 &&
                             ArgumentType == typeof(bool))
                         {
-                            _convertArguments = symbol =>
-                                ArgumentConverter.Parse(typeof(bool), symbol.Tokens.Select(t => t.Value).SingleOrDefault() ?? bool.TrueString);
+                            _convertArguments = (SymbolResult symbol, out object value) =>
+                            {
+                                value = ArgumentConverter.Parse(
+                                    this,
+                                    typeof(bool),
+                                    symbol.Tokens.SingleOrDefault()?.Value ?? bool.TrueString);
+
+                                return value is SuccessfulArgumentResult;
+                            };
                         }
                         else
                         {
@@ -66,19 +69,26 @@ namespace System.CommandLine
 
                 return _convertArguments;
 
-                ArgumentResult DefaultConvert(SymbolResult symbol)
+                bool DefaultConvert(SymbolResult symbol, out object value)
                 {
-                    switch (Arity.MaximumNumberOfArguments)
+                    switch (Arity.MaximumNumberOfValues)
                     {
                         case 1:
-                            return ArgumentConverter.Parse(
+                            value = ArgumentConverter.Parse(
+                                this,
                                 ArgumentType,
-                                symbol.Tokens.Select(t => t.Value).SingleOrDefault());
+                                symbol.Arguments.SingleOrDefault());
+                            break;
+
                         default:
-                            return ArgumentConverter.ParseMany(
-                                ArgumentType, 
-                                symbol.Tokens.Select(t => t.Value).ToArray());
+                            value = ArgumentConverter.ParseMany(
+                                this,
+                                ArgumentType,
+                                symbol.Arguments);
+                            break;
                     }
+
+                    return value is SuccessfulArgumentResult;
                 }
             }
             set => _convertArguments = value;
@@ -87,25 +97,6 @@ namespace System.CommandLine
         public Type ArgumentType { get; set; }
 
         internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
-
-        public Symbol Parent
-        {
-            get => _parent;
-            internal set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                if (_parent != null)
-                {
-                    throw new InvalidOperationException($"{nameof(Parent)} is already set.");
-                }
-
-                _parent = value;
-            }
-        }
 
         public void AddValidator(ValidateSymbol validator) => SymbolValidators.Add(validator);
 
@@ -149,17 +140,17 @@ namespace System.CommandLine
             AddSuggestionSource(new AnonymousSuggestionSource(suggest));
         }
 
-        internal void AddValidValues(IEnumerable<string> values)
+        internal void AddAllowedValues(IEnumerable<string> values)
         {
-            if (_validValues == null)
+            if (AllowedValues == null)
             {
-                _validValues = new HashSet<string>();
+                AllowedValues = new HashSet<string>();
             }
 
-            _validValues.UnionWith(values);
+            AllowedValues.UnionWith(values);
         }
 
-        public IEnumerable<string> Suggest(string textToMatch)
+        public override IEnumerable<string> Suggest(string textToMatch)
         {
             var fixedSuggestions = _suggestions;
 
@@ -177,121 +168,11 @@ namespace System.CommandLine
                    .Containing(textToMatch);
         }
 
-        private ArgumentResult Parse(SymbolResult symbolResult)
-        {
-            var failedResult = ArgumentArity.Validate(symbolResult,
-                                                      Arity.MinimumNumberOfArguments,
-                                                      Arity.MaximumNumberOfArguments);
-
-            if (failedResult != null)
-            {
-                return failedResult;
-            }
-
-            if (symbolResult.UseDefaultValue)
-            {
-                return ArgumentResult.Success(symbolResult.Symbol.Argument.GetDefaultValue());
-            }
-
-            if (ConvertArguments != null)
-            {
-                return ConvertArguments(symbolResult);
-            }
-
-            switch (Arity.MaximumNumberOfArguments)
-            {
-                case 0:
-                    return ArgumentResult.Success(null);
-
-                case 1:
-                    return ArgumentResult.Success(symbolResult.Tokens.Select(t => t.Value).SingleOrDefault());
-
-                default:
-                    return ArgumentResult.Success(symbolResult.Tokens.Select(t => t.Value).ToArray());
-            }
-        }
-
-        internal (ArgumentResult, ParseError) Validate(SymbolResult symbolResult)
-        {
-            ArgumentResult result = null;
-
-            var error = UnrecognizedArgumentError() ??
-                        CustomError();
-
-            if (error == null)
-            {
-                result = Parse(symbolResult);
-
-                var canTokenBeRetried =
-                    symbolResult.Symbol is ICommand ||
-                    Arity.MinimumNumberOfArguments == 0;
-
-                switch (result)
-                {
-                    case FailedArgumentArityResult arityFailure:
-
-                        error = new ParseError(arityFailure.ErrorMessage,
-                                               symbolResult,
-                                               canTokenBeRetried);
-                        break;
-
-                    case FailedArgumentTypeConversionResult conversionFailure:
-
-                        error = new ParseError(conversionFailure.ErrorMessage,
-                                               symbolResult,
-                                               canTokenBeRetried);
-                        break;
-
-                    case FailedArgumentResult general:
-
-                        error = new ParseError(general.ErrorMessage,
-                                               symbolResult,
-                                               false);
-                        break;
-                }
-            }
-
-            return (result, error);
-
-            ParseError UnrecognizedArgumentError()
-            {
-                if (_validValues?.Count > 0 &&
-                    symbolResult.Tokens.Count > 0)
-                {
-                    foreach (var arg in symbolResult.Tokens)
-                    {
-                        if (!_validValues.Contains(arg.Value))
-                        {
-                            return new ParseError(
-                                symbolResult.ValidationMessages
-                                            .UnrecognizedArgument(arg.Value,
-                                                                  _validValues),
-                                symbolResult,
-                                canTokenBeRetried: false);
-                        }
-                    }
-                }
-
-                return null;
-            }
-
-            ParseError CustomError()
-            {
-                foreach (var symbolValidator in SymbolValidators)
-                {
-                    var errorMessage = symbolValidator(symbolResult);
-
-                    if (!string.IsNullOrWhiteSpace(errorMessage))
-                    {
-                        return new ParseError(errorMessage, symbolResult, false);
-                    }
-                }
-
-                return null;
-            }
-        }
+        public override string ToString() => $"{nameof(Argument)}: {Name}";
 
         IArgumentArity IArgument.Arity => Arity;
+
+        string IValueDescriptor.ValueName => Name;
 
         Type IValueDescriptor.Type => ArgumentType;
     }

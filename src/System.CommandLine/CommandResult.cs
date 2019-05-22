@@ -62,31 +62,34 @@ namespace System.CommandLine
             return symbol;
         }
 
-        public bool TryGetValueForArgument(IValueDescriptor valueDescriptor, out object value)
+        public bool TryGetValueForArgument(
+            IValueDescriptor valueDescriptor,
+            out object value)
         {
-            if (valueDescriptor.Name.IsMatch(Command.Argument.Name))
+            foreach (var argument in Command.Arguments)
             {
-                value = this.GetValueOrDefault();
-                return true;
+                if (valueDescriptor.ValueName.IsMatch(argument.Name))
+                {
+                    value = ArgumentResults[argument.Name].GetValueOrDefault();
+                    return true;
+                }
             }
-            else
-            {
-                value = null;
-                return false;
-            }
+
+            value = null;
+            return false;
         }
 
         public bool TryGetValueForOption(IValueDescriptor valueDescriptor, out object value)
         {
             var children = Children
-                           .Where(o => valueDescriptor.Name.IsMatch(o.Symbol))
+                           .Where(o => valueDescriptor.ValueName.IsMatch(o.Symbol))
                            .ToArray();
 
             SymbolResult symbolResult = null;
 
             if (children.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.Name} among: {string.Join(",", children.Select(o => o.Name))}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {string.Join(",", children.Select(o => o.Name))}");
             }
 
             if (children.Length == 1)
@@ -94,8 +97,8 @@ namespace System.CommandLine
                 symbolResult = children[0];
             }
 
-            if (symbolResult is OptionResult && 
-                symbolResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
+            if (symbolResult is OptionResult optionResult && 
+                optionResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
             {
                 value = successful.Value;
                 return true;
@@ -111,15 +114,21 @@ namespace System.CommandLine
             string alias) =>
             ValueForOption<object>(alias);
 
-        public T ValueForOption<T>(
-            string alias)
+        public T ValueForOption<T>(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return Children[alias].GetValueOrDefault<T>();
+            if (Children[alias] is OptionResult optionResult)
+            {
+                return optionResult.GetValueOrDefault<T>();
+            }
+            else
+            {
+                return default;
+            }
         }
     }
 }

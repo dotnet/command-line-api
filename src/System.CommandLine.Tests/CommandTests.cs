@@ -245,5 +245,54 @@ namespace System.CommandLine.Tests
             result.CommandResult.Command.Should().Be(subcommand);
             result.Errors.Should().BeEmpty();
         }
+
+        [Fact]
+        public void It_defaults_argument_to_alias_name_when_it_is_not_provided()
+        {
+            var command = new Command("-alias",
+                                      argument: new Argument
+                                      {
+                                          Arity = ArgumentArity.ZeroOrOne
+                                      });
+
+            command.Arguments.Single().Name.Should().Be("alias");
+        }
+
+        [Fact]
+        public void It_retains_argument_name_when_it_is_provided()
+        {
+            var command = new Command("-alias", 
+                                     argument: new Argument
+                                     {
+                                         Name = "arg",
+                                         Arity = ArgumentArity.ZeroOrOne
+                                     });
+
+            command.Arguments.Single().Name.Should().Be("arg");
+        }
+
+        [Fact]
+        public void When_multiple_arguments_are_configured_then_they_must_differ_by_name()
+        {
+            var command = new Command("the-command")
+            {
+                new Argument<string>
+                {
+                    Name = "same"
+                }
+            };
+
+            command
+                .Invoking(c => c.Add(new Argument<string>
+                {
+                    Name = "same"
+                }))
+                .Should()
+                .Throw<ArgumentException>()
+                .And
+                .Message
+                .Should()
+                .Be("Alias 'same' is already in use.");
+        }
     }
 }

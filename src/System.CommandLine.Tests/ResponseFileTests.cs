@@ -308,6 +308,7 @@ namespace System.CommandLine.Tests
             var result = command.Parse($"@{file1}");
 
             result.FindResultFor(option1).GetValueOrDefault().Should().Be(1);
+            result.FindResultFor(option1).GetValueOrDefault().Should().Be(1);
             result.FindResultFor(option2).GetValueOrDefault().Should().Be(2);
             result.FindResultFor(option3).GetValueOrDefault().Should().Be(3);
             result.Errors.Should().BeEmpty();

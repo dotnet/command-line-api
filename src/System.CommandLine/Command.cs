@@ -18,17 +18,11 @@ namespace System.CommandLine
             bool treatUnmatchedTokensAsErrors = true,
             ICommandHandler handler = null,
             bool isHidden = false) :
-            base(new[] { name }, description, isHidden: isHidden)
+            base(new[] { name }, description, argument, isHidden)
         {
             TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
             Handler = handler;
             symbols = symbols ?? Array.Empty<Symbol>();
-
-            Argument = argument ??
-                       new Argument
-                       {
-                           Arity = ArgumentArity.Zero
-                       };
 
             foreach (var symbol in symbols)
             {
@@ -36,11 +30,32 @@ namespace System.CommandLine
             }
         }
 
+        [Obsolete("Use the Arguments property instead")]
+        public virtual Argument Argument
+        {
+            get => _arguments.SingleOrDefault() ?? Argument.None;
+            set
+            {
+                if (_arguments.Any())
+                {
+                    _arguments.Clear();
+                }
+
+                AddArgumentInner(value);
+            }
+        }
+
+        public IReadOnlyCollection<Argument> Arguments => _arguments;
+
+        public void AddArgument(Argument argument) => AddArgumentInner(argument);
+
         public void AddCommand(Command command) => AddSymbol(command);
 
         public void AddOption(Option option) => AddSymbol(option);
 
         public void Add(Symbol symbol) => AddSymbol(symbol);
+
+        public void Add(Argument argument) => AddArgument(argument);
 
         public bool TreatUnmatchedTokensAsErrors { get; set; }
 
@@ -49,5 +64,11 @@ namespace System.CommandLine
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+#pragma warning disable 618
+        IArgument ICommand.Argument => Argument;
+#pragma warning restore 618
+
+        IReadOnlyCollection<IArgument> ICommand.Arguments => Arguments;
     }
 }

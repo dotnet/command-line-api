@@ -17,13 +17,29 @@ namespace System.CommandLine
             !symbol.IsHidden &&
             (!string.IsNullOrWhiteSpace(symbol.Name) ||
              !string.IsNullOrWhiteSpace(symbol.Description) ||
-             symbol.Argument.ShouldShowHelp());
+             symbol.Arguments().Any(a => a.ShouldShowHelp()));
 
         internal static bool ShouldShowHelp(
             this IArgument argument) =>
             argument != null &&
-            (!string.IsNullOrWhiteSpace(argument.Name) || string.IsNullOrWhiteSpace(argument.Description)) &&
-            argument.Arity.MaximumNumberOfArguments > 0;
+            !string.IsNullOrWhiteSpace(argument.Name) &&
+            argument.Arity.MaximumNumberOfValues > 0;
+
+        internal static IReadOnlyCollection<IArgument> Arguments(this ISymbol symbol)
+        {
+            switch (symbol)
+            {
+                case IOption option:
+                    return new[]
+                    {
+                        option.Argument
+                    };
+                case ICommand command:
+                    return command.Arguments;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
 
         internal static Token DefaultToken(this ICommand command)
         {
@@ -32,7 +48,9 @@ namespace System.CommandLine
 
         internal static Token DefaultToken(this IOption option)
         {
-            var value = option.RawAliases.First(alias => alias.RemovePrefix() == option.Name);
+            var optionName = option.Name;
+
+            var value = option.RawAliases.First(alias => alias.RemovePrefix() == optionName);
 
             return new Token(value, TokenType.Option);
         }

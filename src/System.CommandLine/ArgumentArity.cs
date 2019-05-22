@@ -3,55 +3,65 @@
 
 using System.Collections;
 using System.CommandLine.Binding;
+using System.Linq;
 
 namespace System.CommandLine
 {
     public class ArgumentArity : IArgumentArity
     {
-        public ArgumentArity(int minimumNumberOfArguments, int maximumNumberOfArguments)
+        public ArgumentArity(int minimumNumberOfValues, int maximumNumberOfValues)
         {
-            if (minimumNumberOfArguments < 0)
+            if (minimumNumberOfValues < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(minimumNumberOfArguments));
+                throw new ArgumentOutOfRangeException(nameof(minimumNumberOfValues));
             }
 
-            if (maximumNumberOfArguments < minimumNumberOfArguments)
+            if (maximumNumberOfValues < minimumNumberOfValues)
             {
-                throw new ArgumentException($"{nameof(maximumNumberOfArguments)} must be greater than or equal to {nameof(minimumNumberOfArguments)}");
+                throw new ArgumentException($"{nameof(maximumNumberOfValues)} must be greater than or equal to {nameof(minimumNumberOfValues)}");
             }
 
-            MinimumNumberOfArguments = minimumNumberOfArguments;
-            MaximumNumberOfArguments = maximumNumberOfArguments;
+            MinimumNumberOfValues = minimumNumberOfValues;
+            MaximumNumberOfValues = maximumNumberOfValues;
         }
 
-        public int MinimumNumberOfArguments { get; set; }
+        public int MinimumNumberOfValues { get; set; }
 
-        public int MaximumNumberOfArguments { get; set; }
+        public int MaximumNumberOfValues { get; set; }
 
         internal static FailedArgumentArityResult Validate(
             SymbolResult symbolResult,
-            int minimumNumberOfArguments,
-            int maximumNumberOfArguments)
+            IArgument argument,
+            int minimumNumberOfValues,
+            int maximumNumberOfValues)
         {
-            if (symbolResult.Tokens.Count < minimumNumberOfArguments)
+            var tokenCount = symbolResult.Tokens.Count; 
+
+            if (tokenCount < minimumNumberOfValues)
             {
-                if (symbolResult.UseDefaultValue)
+                if (symbolResult.UseDefaultValueFor(argument))
                 {
                     return null;
                 }
 
-                return new MissingArgumentResult(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
+                return new MissingArgumentResult(
+                    argument,
+                    symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
             }
 
-            if (symbolResult.Tokens.Count > maximumNumberOfArguments)
+            if (tokenCount > maximumNumberOfValues)
             {
-                if (maximumNumberOfArguments == 1)
+                if (maximumNumberOfValues == 1)
                 {
-                    return new TooManyArgumentsResult(symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
+                    return new TooManyArgumentsResult(
+                        argument,
+                        symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
                 }
                 else
                 {
-                    return new TooManyArgumentsResult(symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, maximumNumberOfArguments));
+                    return new TooManyArgumentsResult(
+                        argument,
+                        symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, maximumNumberOfValues));
                 }
             }
 
@@ -64,9 +74,9 @@ namespace System.CommandLine
 
         public static IArgumentArity ExactlyOne => new ArgumentArity(1, 1);
 
-        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, int.MaxValue);
+        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, byte.MaxValue);
 
-        public static IArgumentArity OneOrMore => new ArgumentArity(1, int.MaxValue);
+        public static IArgumentArity OneOrMore => new ArgumentArity(1, byte.MaxValue);
 
         internal static IArgumentArity Default(Type type, ISymbol symbol)
         {

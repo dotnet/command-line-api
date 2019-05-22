@@ -17,13 +17,13 @@ namespace System.CommandLine.Binding
             _propertyInfo = propertyInfo;
         }
 
-        public string Name => _propertyInfo.Name;
+        public string ValueName => _propertyInfo.Name;
 
         public ModelDescriptor Parent { get; }
 
         internal string Path => Parent != null
-                                    ? Parent + "." + Name
-                                    : Name;
+                                    ? Parent + "." + ValueName
+                                    : ValueName;
 
         public Type Type => _propertyInfo.PropertyType;
 

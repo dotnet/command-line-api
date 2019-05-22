@@ -13,7 +13,7 @@ namespace System.CommandLine.Builder
             params string[] values)
             where TArgument : Argument
         {
-            argument.AddValidValues(values);
+            argument.AddAllowedValues(values);
             argument.AddSuggestions(values);
 
             return argument;

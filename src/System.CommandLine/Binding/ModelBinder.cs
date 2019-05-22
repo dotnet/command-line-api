@@ -35,14 +35,7 @@ namespace System.CommandLine.Binding
         {
             NamedValueSources.Add(
                 (property.PropertyType, property.Name),
-                new SymbolValueSource(option));
-        }
-
-        public void BindMemberFromValue(PropertyInfo property, Command command)
-        {
-            NamedValueSources.Add(
-                (property.PropertyType, property.Name),
-                new SymbolValueSource(command));
+                new OptionValueSource(option));
         }
 
         public object CreateInstance(BindingContext context)
@@ -157,7 +150,7 @@ namespace System.CommandLine.Binding
             IValueDescriptor valueDescriptor)
         {
             var type = valueDescriptor.Type;
-            var name = valueDescriptor.Name;
+            var name = valueDescriptor.ValueName;
 
             if (NamedValueSources.TryGetValue(
                 (type, name),
@@ -196,7 +189,7 @@ namespace System.CommandLine.Binding
                 Type = modelType;
             }
 
-            public string Name => null;
+            public string ValueName => null;
 
             public bool HasDefaultValue => false;
 

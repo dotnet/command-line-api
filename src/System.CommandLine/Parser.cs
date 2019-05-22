@@ -14,7 +14,7 @@ namespace System.CommandLine
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public Parser(params Symbol[] symbol) : this(new CommandLineConfiguration(symbol))
+        public Parser(params Symbol[] symbols) : this(new CommandLineConfiguration(symbols))
         {
         }
 
@@ -59,7 +59,7 @@ namespace System.CommandLine
                     {
                         var symbolResult = SymbolResult.Create(symbol, token, validationMessages: Configuration.ValidationMessages);
 
-                        rootCommandResult = (CommandResult)symbolResult;
+                        rootCommandResult = (CommandResult) symbolResult;
 
                         allSymbolResults.Add(symbolResult);
 
@@ -108,6 +108,7 @@ namespace System.CommandLine
                                 optionQueue.Remove(existing);
                             }
                         }
+
                         break;
                     }
 
@@ -204,8 +205,8 @@ namespace System.CommandLine
                 {
                     var arity = option.Argument.Arity;
 
-                    if (arity.MaximumNumberOfArguments == 1 &&
-                        arity.MinimumNumberOfArguments == 1) // Exactly One
+                    if (arity.MaximumNumberOfValues == 1 &&
+                        arity.MinimumNumberOfValues == 1) // Exactly One
                     {
                         optionList.Add(option);
                     }

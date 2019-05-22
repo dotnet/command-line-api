@@ -39,8 +39,8 @@ namespace System.CommandLine.Tests
             var result1 = option.Parse("");
             var result2 = option.Parse("");
 
-            result1["x"].GetValueOrDefault().Should().Be("1");
-            result2["x"].GetValueOrDefault().Should().Be("2");
+            result1.ValueForOption("x").Should().Be("1");
+            result2.ValueForOption("x").Should().Be("2");
         }
 
         [Fact]
@@ -112,14 +112,6 @@ namespace System.CommandLine.Tests
             };
 
             action.Should().Throw<ArgumentException>("Value cannot be null or whitespace.");
-        }
-
-        [Fact]
-        public void HasAlias_returns_true_if_option_has_an_alias()
-        {
-            var result = new OptionResult(new Option(new[] { "o", "one" }, ""));
-
-            result.HasAlias("one").Should().BeTrue();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace System.CommandLine.Binding
             BindingContext bindingContext,
             out object boundValue)
         {
-            if (!string.IsNullOrEmpty(valueDescriptor.Name))
+            if (!string.IsNullOrEmpty(valueDescriptor.ValueName))
             {
                 var commandResult = bindingContext.ParseResult.CommandResult;
 
@@ -34,7 +34,7 @@ namespace System.CommandLine.Binding
                         return true;
                     }
 
-                    commandResult = commandResult.Parent;
+                    commandResult = commandResult.ParentCommandResult;
                 }
             }
 

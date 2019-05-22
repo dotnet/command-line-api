@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine
@@ -13,7 +12,12 @@ namespace System.CommandLine
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string _longestAlias = "";
         private string _specifiedName;
-        private Argument _argument;
+        private protected readonly ArgumentSet _arguments = new ArgumentSet();
+        private Symbol _parent;
+
+        private protected Symbol()
+        {
+        }
 
         protected Symbol(
             IReadOnlyCollection<string> aliases,
@@ -40,28 +44,15 @@ namespace System.CommandLine
 
             IsHidden = isHidden;
 
-            Argument = argument ?? Argument.None;
+            if (argument != null)
+            {
+                AddArgumentInner(argument);
+            }
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
-
-        public Argument Argument
-        {
-            get => _argument;
-            set
-            {
-                if (value?.Arity.MaximumNumberOfArguments > 0 && 
-                    string.IsNullOrEmpty(value.Name))
-                {
-                    value.Name = _aliases.First().ToLower();
-                }
-
-                _argument = value ?? Argument.None;
-                _argument.Parent = this;
-            }
-        }
 
         public string Description { get; set; }
 
@@ -84,7 +75,11 @@ namespace System.CommandLine
             }
         }
 
-        public Command Parent { get; private protected set; }
+        public Symbol Parent
+        {
+            get => _parent;
+            internal set => _parent = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         private protected void AddSymbol(Symbol symbol)
         {
@@ -94,6 +89,24 @@ namespace System.CommandLine
             }
 
             Children.Add(symbol);
+        }
+
+        private protected void AddArgumentInner(Argument argument)
+        {
+            if (argument == null)
+            {
+                throw new ArgumentNullException(nameof(argument));
+            }
+
+            argument.Parent = this;
+
+            if (argument.Arity.MaximumNumberOfValues > 0 &&
+                string.IsNullOrEmpty(argument.Name))
+            {
+                argument.Name = _aliases.First().ToLower();
+            }
+
+            _arguments.Add(argument);
         }
 
         public SymbolSet Children { get; } = new SymbolSet();
@@ -107,7 +120,7 @@ namespace System.CommandLine
                 throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            for (int i = 0; i < alias.Length; i++)
+            for (var i = 0; i < alias.Length; i++)
             {
                 if (char.IsWhiteSpace(alias[i]))
                 {
@@ -138,11 +151,12 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public IEnumerable<string> Suggest(string textToMatch = null)
+        public virtual IEnumerable<string> Suggest(string textToMatch = null)
         {
             var argumentSuggestions =
-                Argument.Suggest(textToMatch)
-                        .ToArray();
+                _arguments
+                    .SelectMany(a => a.Suggest(textToMatch))
+                    .ToArray();
 
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
@@ -153,16 +167,8 @@ namespace System.CommandLine
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
-        IArgument ISymbol.Argument => Argument;
-
-        ICommand ISymbol.Parent => Parent;
+        ISymbol ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;
-
-        Type IValueDescriptor.Type => Argument.ArgumentType;
-
-        bool IValueDescriptor.HasDefaultValue  => Argument.HasDefaultValue;
-
-        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

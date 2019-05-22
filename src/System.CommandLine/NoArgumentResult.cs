@@ -5,7 +5,7 @@ namespace System.CommandLine
 {
     public class NoArgumentResult : ArgumentResult
     {
-        internal NoArgumentResult()
+        internal NoArgumentResult(IArgument argument) : base(argument)
         {
         }
     }

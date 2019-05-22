@@ -5,7 +5,7 @@ namespace System.CommandLine
 {
     public class SuccessfulArgumentResult : ArgumentResult
     {
-        internal SuccessfulArgumentResult(object value)
+        internal SuccessfulArgumentResult(IArgument argument, object value) : base(argument)
         {
             Value = value;
         }

@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.ComponentModel;
@@ -14,82 +13,80 @@ namespace System.CommandLine
 {
     internal static class ArgumentConverter
     {
-        private static readonly ConcurrentDictionary<Type, ConvertString> _stringConverters = new ConcurrentDictionary<Type, ConvertString>();
-
-        internal static ArgumentResult Parse(Type type, object value)
+        internal static ArgumentResult Parse(
+            IArgument argument,
+            Type type, 
+            object value)
         {
             switch (value)
             {
                 // try to parse the single string argument to the requested type
-                case string argument:
-                    return Parse(type, argument);
+                case string stringArg:
+                    return Parse(argument, type, stringArg);
 
                 // try to parse the multiple string arguments to the request type
                 case IReadOnlyCollection<string> arguments:
-                    return ParseMany(type, arguments);
+                    return ParseMany(argument, type, arguments);
 
                 case null:
                     if (type == typeof(bool))
                     {
                         // the presence of the parsed symbol is treated as true
-                        return new SuccessfulArgumentResult(true);
+                        return new SuccessfulArgumentResult(argument, true);
                     }
 
                     break;
             }
 
-            return null;
+            return None(argument);
         }
 
-        public static ArgumentResult Parse(Type type, string value)
-        {
-            if (_stringConverters.TryGetValue(type, out var convert))
-            {
-                return convert(value);
-            }
 
+
+        public static ArgumentResult Parse(
+            IArgument argument,
+            Type type,
+            string value)
+        {
             if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter)
             {
                 if (typeConverter.CanConvertFrom(typeof(string)))
                 {
                     try
                     {
-                        return Success(typeConverter.ConvertFromInvariantString(value));
+                        return Success(
+                            argument,
+                            typeConverter.ConvertFromInvariantString(value));
                     }
                     catch (Exception)
                     {
-                        return Failure(type, value);
+                        return Failure(argument, type, value);
                     }
                 }
             }
 
             if (type.TryFindConstructorWithSingleParameterOfType(
-                typeof(string), out var x))
+                typeof(string), out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) tuple))
             {
-                convert = _stringConverters.GetOrAdd(
-                    type,
-                    _ => arg =>
-                    {
-                        if (arg == null && 
-                            !x.parameterDescriptor.AllowsNull)
-                        {
-                            return Success(type.GetDefaultValueForType());
-                        }
+                if (value == null &&
+                    !tuple.parameterDescriptor.AllowsNull)
+                {
+                    return Success(argument, type.GetDefaultValueForType());
+                }
 
-                        var instance = x.ctor.Invoke(new object[]
-                        {
-                            arg
-                        });
-                        return Success(instance);
-                    });
+                var instance = tuple.ctor.Invoke(new object[]
+                {
+                    value
+                });
 
-                return convert(value);
+                return Success(argument, instance);
             }
 
-            return Failure(type, value);
+            return Failure(argument, type, value);
         }
 
         public static ArgumentResult ParseMany(
+            IArgument argument,
             Type type, 
             IReadOnlyCollection<string> arguments)
         {
@@ -116,7 +113,7 @@ namespace System.CommandLine
             }
 
             var allParseResults = arguments
-                                  .Select(arg => Parse(itemType, arg))
+                                  .Select(arg => Parse(argument, itemType, arg))
                                   .ToArray();
 
             var successfulParseResults = allParseResults
@@ -136,7 +133,7 @@ namespace System.CommandLine
                                 ? (object)Enumerable.ToArray((dynamic)list)
                                 : list;
 
-                return Success(value);
+                return Success(argument, value);
             }
             else
             {
@@ -167,9 +164,12 @@ namespace System.CommandLine
             }
         }
 
-        private static FailedArgumentResult Failure(Type type, string value)
+        private static FailedArgumentResult Failure(
+            IArgument argument,
+            Type type, 
+            string value)
         {
-            return new FailedArgumentTypeConversionResult(type, value);
+            return new FailedArgumentTypeConversionResult(argument, type, value);
         }
 
         public static bool CanBeBoundFromScalarValue(this Type type)

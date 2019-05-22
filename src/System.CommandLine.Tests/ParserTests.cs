@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
-    public class ParserTests
+    public partial class ParserTests
     {
         private readonly ITestOutputHelper _output;
 
@@ -873,7 +873,7 @@ namespace System.CommandLine.Tests
             _output.WriteLine(result.ToString());
 
             result.CommandResult
-                  .Parent
+                  .ParentCommandResult
                   .OptionResult("-x")
                   .Should()
                   .BeNull();
@@ -1044,7 +1044,7 @@ namespace System.CommandLine.Tests
 
             result.HasOption("o").Should().BeTrue();
             result.HasOption("option").Should().BeTrue();
-            result["o"].GetValueOrDefault<string>().Should().Be("the-default");
+            result.ValueForOption<string>("o").Should().Be("the-default");
             result.CommandResult.ValueForOption("o").Should().Be("the-default");
         }
 

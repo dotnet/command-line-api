@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -223,6 +224,31 @@ namespace System.CommandLine.Tests
             option.Name.Should().Be("option");
             option.Description.Should().Be("desc");
             option.IsHidden.Should().BeFalse();
+        }
+        
+        [Fact]
+        public void It_defaults_argument_to_alias_name_when_it_is_not_provided()
+        {
+            var command = new Command("-alias",
+                                      argument: new Argument
+                                      {
+                                          Arity = ArgumentArity.ZeroOrOne
+                                      });
+
+            command.Arguments.Single().Name.Should().Be("alias");
+        }
+
+        [Fact]
+        public void It_retains_argument_name_when_it_is_provided()
+        {
+            var option = new Command("-alias", 
+                                     argument: new Argument
+                                     {
+                                         Name = "arg",
+                                         Arity = ArgumentArity.ZeroOrOne
+                                     });
+
+            option.Arguments.Single().Name.Should().Be("arg");
         }
     }
 }

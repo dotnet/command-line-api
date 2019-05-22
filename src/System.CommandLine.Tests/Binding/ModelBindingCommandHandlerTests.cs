@@ -353,17 +353,11 @@ namespace System.CommandLine.Tests.Binding
 
             BindingTestCase.Create<List<int>>(
                 "1 2",
-                o => o.Should().BeEquivalentTo(new List<int> { 1, 2 })),
-            
-
-
-
-
-
+                o => o.Should().BeEquivalentTo(new List<int> { 1, 2 }))
         };
 
         [Fact]
-        public async Task When_argument_type_is_not_known_until_binding_then_bool_parameter_is_bound_correctlyl()
+        public async Task When_argument_type_is_not_known_until_binding_then_bool_parameter_is_bound_correctly()
         {
             bool? received = null;
 
