@@ -5,14 +5,14 @@ namespace System.CommandLine
 {
     public abstract class ArgumentResult
     {
-        protected internal ArgumentResult(IArgument argument)
+        private protected ArgumentResult(IArgument argument)
         {
             Argument = argument;
         }
 
         public IArgument Argument { get; }
 
-        public string ErrorMessage { get; set; }
+        internal string ErrorMessage { get; set; }
 
         public static FailedArgumentResult Failure(Argument argument, string error) => new FailedArgumentResult(argument, error);
 

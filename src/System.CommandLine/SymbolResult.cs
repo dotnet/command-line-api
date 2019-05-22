@@ -10,6 +10,7 @@ namespace System.CommandLine
     {
         private readonly List<Token> _tokens = new List<Token>();
         private ValidationMessages _validationMessages;
+        private readonly HashSet<IArgument> _argumentsUsingDefaultValue = new HashSet<IArgument>();
 
         private protected SymbolResult(
             ISymbol symbol, 
@@ -130,8 +131,6 @@ namespace System.CommandLine
                     throw new ArgumentException($"Unrecognized symbol type: {symbol.GetType()}");
             }
         }
-
-        private readonly HashSet<IArgument> _argumentsUsingDefaultValue = new HashSet<IArgument>();
 
         internal bool UseDefaultValueFor(IArgument argument)
         {
