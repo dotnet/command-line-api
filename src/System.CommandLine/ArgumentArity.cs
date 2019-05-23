@@ -78,7 +78,7 @@ namespace System.CommandLine
 
         public static IArgumentArity OneOrMore => new ArgumentArity(1, byte.MaxValue);
 
-        internal static IArgumentArity Default(Type type, ISymbol symbol)
+        internal static IArgumentArity Default(Type type, Argument argument, ISymbol symbol)
         {
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
                 type != typeof(string))
@@ -95,6 +95,12 @@ namespace System.CommandLine
 
             if (symbol is ICommand &&
                 type.IsNullable())
+            {
+                return ZeroOrOne;
+            }
+
+            if (symbol is ICommand &&
+                argument.HasDefaultValue)
             {
                 return ZeroOrOne;
             }

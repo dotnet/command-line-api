@@ -25,7 +25,7 @@ namespace System.CommandLine
                 {
                     if (ArgumentType != null)
                     {
-                        return ArgumentArity.Default(ArgumentType, Parent);
+                        return ArgumentArity.Default(ArgumentType, this, Parent);
                     }
                     else
                     {
