@@ -34,8 +34,7 @@ namespace System.CommandLine
                 return new CommandLineParser(Configuration).Parse(arguments, rawInput);
             }
 
-            var normalizedArgs = NormalizeRootCommand(arguments);
-            var tokenizeResult = normalizedArgs.Tokenize(Configuration);
+            var tokenizeResult = arguments.Tokenize(Configuration);
             var directives = new DirectiveCollection();
             var unparsedTokens = new Queue<Token>(tokenizeResult.Tokens);
             var allSymbolResults = new List<SymbolResult>();
@@ -133,26 +132,15 @@ namespace System.CommandLine
 
             ProcessImplicitTokens();
 
-            var tokenizeErrors = new List<TokenizeError>(tokenizeResult.Errors);
-
-            if (Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
-            {
-                tokenizeErrors.AddRange(
-                    unmatchedTokens.Select(token => new TokenizeError(Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value))));
-            }
-
             return new ParseResult(
                 this,
                 rootCommandResult,
                 innermostCommandResult ?? rootCommandResult,
                 directives,
-                normalizedArgs.Count == arguments?.Count
-                 ? tokenizeResult.Tokens
-                 : tokenizeResult.Tokens.Skip(1).ToArray(),
+                tokenizeResult,
                 unparsedTokens.Select(t => t.Value).ToArray(),
                 unmatchedTokens.Select(t => t.Value).ToArray(),
-                tokenizeErrors,
-                rawInput);
+                rawInput: rawInput);
 
             void ProcessImplicitTokens()
             {
@@ -225,72 +213,6 @@ namespace System.CommandLine
             }
 
             return optionList;
-        }
-
-        protected IReadOnlyCollection<string> NormalizeRootCommand(IReadOnlyList<string> args)
-        {
-            if (args == null)
-            {
-                args = Array.Empty<string>();
-            }
-
-            string potentialRootCommand = null;
-
-            if (args.Count > 0)
-            {
-                try
-                {
-                    potentialRootCommand = Path.GetFileName(args[0]);
-                }
-                catch (ArgumentException)
-                {
-                    // possible exception for illegal characters in path on .NET Framework
-                }
-
-                if (Configuration.RootCommand.HasRawAlias(potentialRootCommand))
-                {
-                    return args;
-                }
-            }
-
-            var commandName = Configuration.RootCommand.Name;
-
-            if (FirstArgMatchesRootCommand())
-            {
-                args = new[]
-                       {
-                           commandName
-                       }.Concat(args.Skip(1)).ToArray();
-            }
-            else
-            {
-                args = new[]
-                       {
-                           commandName
-                       }.Concat(args).ToArray();
-            }
-
-            return args;
-
-            bool FirstArgMatchesRootCommand()
-            {
-                if (potentialRootCommand == null)
-                {
-                    return false;
-                }
-
-                if (potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                if (potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                return false;
-            }
         }
     }
 }

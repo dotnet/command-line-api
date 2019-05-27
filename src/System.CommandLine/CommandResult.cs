@@ -10,10 +10,10 @@ namespace System.CommandLine
     {
         public CommandResult(
             ICommand command,
-            Token token = null,
+            Token token,
             CommandResult parent = null) :
             base(command ?? throw new ArgumentNullException(nameof(command)),
-                 token ?? command.DefaultToken(),
+                 token ?? throw new ArgumentNullException(nameof(token)),
                  parent)
         {
             Command = command;
@@ -30,7 +30,7 @@ namespace System.CommandLine
 
         internal void AddImplicitOption(IOption option)
         {
-            Children.Add(CommandLine.OptionResult.CreateImplicit(option, this));
+            Children.Add(option.CreateImplicitResult(this));
         }
 
         internal override SymbolResult TryTakeToken(Token token) =>
@@ -77,37 +77,6 @@ namespace System.CommandLine
 
             value = null;
             return false;
-        }
-
-        public bool TryGetValueForOption(IValueDescriptor valueDescriptor, out object value)
-        {
-            var children = Children
-                           .Where(o => valueDescriptor.ValueName.IsMatch(o.Symbol))
-                           .ToArray();
-
-            SymbolResult symbolResult = null;
-
-            if (children.Length > 1)
-            {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {string.Join(",", children.Select(o => o.Name))}");
-            }
-
-            if (children.Length == 1)
-            {
-                symbolResult = children[0];
-            }
-
-            if (symbolResult is OptionResult optionResult && 
-                optionResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
-            {
-                value = successful.Value;
-                return true;
-            }
-            else
-            {
-                value = null;
-                return false;
-            }
         }
 
         public object ValueForOption(

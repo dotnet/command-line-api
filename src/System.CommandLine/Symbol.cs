@@ -100,13 +100,17 @@ namespace System.CommandLine
 
             argument.Parent = this;
 
-            if (argument.Arity.MaximumNumberOfValues > 0 &&
-                string.IsNullOrEmpty(argument.Name))
+            if (string.IsNullOrEmpty(argument.Name))
             {
                 argument.Name = _aliases.First().ToLower();
             }
 
             _arguments.Add(argument);
+
+            if (CommandLineConfiguration.UseNewParser)
+            {
+                Children.Add(argument);
+            }
         }
 
         public SymbolSet Children { get; } = new SymbolSet();

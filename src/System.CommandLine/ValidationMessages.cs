@@ -25,10 +25,13 @@ namespace System.CommandLine
                 ? $"No argument was provided for Command '{symbolResult.Token.Value}'."
                 : $"No argument was provided for Option '{symbolResult.Token.Value}'.";
 
-        public virtual string ExpectsFewerArguments(SymbolResult symbolResult, int maximumNumberOfValues) =>
-            symbolResult is CommandResult
-                ? $"Command '{symbolResult.Token}' expects no more than {maximumNumberOfValues} arguments, but {symbolResult.Arguments.Count} were provided."
-                : $"Option '{symbolResult.Token}' expects no more than {maximumNumberOfValues} arguments, but {symbolResult.Arguments.Count} were provided.";
+        public virtual string ExpectsFewerArguments(
+            Token token, 
+            int providedNumberOfValues,
+            int maximumNumberOfValues) =>
+            token.Type == TokenType.Command
+                ? $"Command '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided."
+                : $"Option '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided.";
 
         public virtual string DirectoryDoesNotExist(string path) =>
             $"Directory does not exist: {path}";

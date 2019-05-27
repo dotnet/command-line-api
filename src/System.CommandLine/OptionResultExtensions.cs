@@ -21,7 +21,17 @@ namespace System.CommandLine
                 type = typeof(object);
             }
 
-            return optionResult.ArgumentResult.GetValueAs(type);
+            if (CommandLineConfiguration.UseNewParser)
+            {
+                return SymbolResult.Parse(
+                    optionResult,
+                    optionResult.Option.Argument);
+            }
+            else
+            {
+                return optionResult.ArgumentResult
+                                   .GetValueAs(type);
+            }
         }
 
         public static object GetValueOrDefault(this OptionResult optionResult)

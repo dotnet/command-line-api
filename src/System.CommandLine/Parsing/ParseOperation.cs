@@ -21,25 +21,19 @@ namespace System.CommandLine.Parsing
             _configuration = configuration;
         }
 
-        public IReadOnlyList<ParseError> Errors { get; } = new List<ParseError>();
-
         private Token CurrentToken => _tokenizeResult.Tokens[_index];
 
-        public void Parse()
-        {
-            RootCommandNode = ParseRootCommand();
-        }
+        public List<ParseError> Errors { get; } = new List<ParseError>();
 
         public RootCommandNode RootCommandNode { get; private set; }
+
+        public List<Token> UnmatchedTokens { get; } = new List<Token>();
+
+        public List<Token> UnparsedTokens { get; } = new List<Token>();
 
         private void Advance()
         {
             _index++;
-        }
-
-        private bool More()
-        {
-            return _index < _tokenizeResult.Tokens.Count;
         }
 
         private void IncrementCount(IArgument argument)
@@ -62,32 +56,178 @@ namespace System.CommandLine.Parsing
             return count >= argument.Arity.MaximumNumberOfValues;
         }
 
-        private void ParseCommandArguments(CommandNode commandNode)
+        private bool IsSatisfied(IArgument argument)
+        {
+            if (!_argumentCounts.TryGetValue(argument, out var count))
+            {
+                count = 0;
+            }
+
+            return count >= argument.Arity.MinimumNumberOfValues;
+        }
+
+        private bool More()
+        {
+            return _index < _tokenizeResult.Tokens.Count;
+        }
+
+        public void Parse()
+        {
+            RootCommandNode = ParseRootCommand();
+        }
+
+        private RootCommandNode ParseRootCommand()
+        {
+            var rootCommandNode = new RootCommandNode(
+                CurrentToken,
+                _configuration.RootCommand);
+
+            Advance();
+
+            ParseDirectives(rootCommandNode);
+
+            ParseCommandChildren(rootCommandNode);
+
+            ParseRemainingTokens();
+
+            return rootCommandNode;
+        }
+
+        private CommandNode ParseSubcommand(CommandNode parentNode)
+        {
+            if (CurrentToken.Type != TokenType.Command)
+            {
+                return null;
+            }
+
+            var command = parentNode.Command
+                                    .Children
+                                    .GetByAlias(CurrentToken.Value) as ICommand;
+
+            if (command == null)
+            {
+                return null;
+            }
+
+            var commandNode = new CommandNode(CurrentToken, command, parentNode);
+
+            Advance();
+
+            ParseCommandChildren(commandNode);
+
+            return commandNode;
+        }
+
+        private void ParseCommandChildren(CommandNode parent)
         {
             while (More())
             {
-                var argument = commandNode.Command.Arguments.FirstOrDefault(a => !IsFull(a));
-
-                if (argument != null)
+                if (CurrentToken.Type == TokenType.EndOfArguments)
                 {
-                    var argumentNode = new ArgumentNode(CurrentToken, commandNode);
-                    commandNode.AddChildNode(argumentNode);
-                    IncrementCount(argument);
+                    return;
+                }
+
+                var child = ParseSubcommand(parent) ??
+                            (SyntaxNode)ParseOption(parent) ??
+                            ParseCommandArgument(parent);
+
+                if (child == null)
+                {
+                    UnmatchedTokens.Add(CurrentToken);
                     Advance();
                 }
                 else
                 {
-                    return;
+                    parent.AddChildNode(child);
                 }
             }
         }
 
+        private CommandArgumentNode ParseCommandArgument(CommandNode commandNode)
+        {
+            if (CurrentToken.Type != TokenType.Argument)
+            {
+                return null;
+            }
+
+            var argument = commandNode.Command
+                                      .Arguments
+                                      .FirstOrDefault(a => !IsFull(a));
+
+            if (argument == null)
+            {
+                return null;
+            }
+
+            var argumentNode = new CommandArgumentNode(
+                CurrentToken,
+                argument,
+                commandNode);
+
+            IncrementCount(argument);
+
+            Advance();
+
+            return argumentNode;
+        }
+
+        private OptionNode ParseOption(CommandNode parent)
+        {
+            if (CurrentToken.Type != TokenType.Option)
+            {
+                return null;
+            }
+
+            OptionNode optionNode = null;
+
+            if (parent.Command.Children.GetByAlias(CurrentToken.Value) is IOption option)
+            {
+                optionNode = new OptionNode(
+                    CurrentToken,
+                    option,
+                    parent);
+
+                Advance();
+
+                ParseOptionArguments(optionNode);
+            }
+
+            return optionNode;
+        }
+
         private void ParseOptionArguments(OptionNode optionNode)
         {
+            var argument = optionNode.Option.Argument;
+
+            var contiguousArguments = 0;
+
             while (More() &&
-                   !IsFull(optionNode.Option.Argument))
+                   CurrentToken.Type == TokenType.Argument)
             {
-                optionNode.AddChildNode(new ArgumentNode(CurrentToken, optionNode));
+                if (IsFull(argument))
+                {
+                    // if (contiguousArguments > 0)
+                    {
+                        return;
+                    }
+                }
+
+                if (IsSatisfied(argument) &&
+                    ArgumentConverter.Parse(
+                        argument, argument.Type, CurrentToken.Value) is FailedArgumentTypeConversionResult)
+                {
+                    return;
+                }
+
+                optionNode.AddChildNode(
+                    new OptionArgumentNode(
+                        CurrentToken,
+                        argument,
+                        optionNode));
+
+                contiguousArguments++;
+
+                IncrementCount(argument);
 
                 Advance();
             }
@@ -123,87 +263,27 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private OptionNode ParseOption(CommandNode parent)
+        private void ParseRemainingTokens()
         {
-            OptionNode optionNode = null;
+            var foundEndOfArguments = false;
 
-            if (CurrentToken.Type == TokenType.Option &&
-                parent.Command.Children.GetByAlias(CurrentToken.Value) is IOption option)
-            {
-                optionNode = new OptionNode(
-                    CurrentToken,
-                    option,
-                    parent);
-
-                ParseOptionArguments(optionNode);
-            }
-
-            return optionNode;
-        }
-
-        private RootCommandNode ParseRootCommand()
-        {
-            var rootCommandNode = new RootCommandNode(
-                CurrentToken,
-                _configuration.RootCommand);
-
-            Advance();
-
-            ParseDirectives(rootCommandNode);
-
-            ParseCommandChildren(rootCommandNode);
-
-            ParseUnmatchedTokens(rootCommandNode);
-
-            return rootCommandNode;
-        }
-
-        private void ParseUnmatchedTokens(RootCommandNode rootCommandNode)
-        {
             while (More())
             {
-                rootCommandNode.AddChildNode(new UnmatchedTokenNode(CurrentToken, rootCommandNode));
-
-                Advance();
-            }
-        }
-
-        private void ParseCommandChildren(CommandNode parent)
-        {
-            while (More())
-            {
-                var child = ParseSubcommand(parent) ??
-                            (SyntaxNode)ParseOption(parent);
-
-                if (child == null)
+                if (CurrentToken.Type == TokenType.EndOfArguments)
                 {
-                    return;
+                    foundEndOfArguments = true;
+                }
+                else if (foundEndOfArguments)
+                {
+                    UnparsedTokens.Add(CurrentToken);
+                }
+                else
+                {
+                    UnmatchedTokens.Add(CurrentToken);
                 }
 
-                parent.AddChildNode(child);
-
                 Advance();
-
-                ParseCommandArguments(parent);
             }
-        }
-
-        private CommandNode ParseSubcommand(CommandNode parentNode)
-        {
-            var command = parentNode.Command
-                                    .Children
-                                    .GetByAlias(CurrentToken.Value) as ICommand;
-
-            if (command == null)
-            {
-                return null;
-            }
-
-            var commandNode = new CommandNode(CurrentToken, command, parentNode);
-
-            ParseCommandChildren(commandNode);
-
-            return commandNode;
         }
     }
 }

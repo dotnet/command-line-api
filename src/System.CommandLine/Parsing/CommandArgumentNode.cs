@@ -3,21 +3,24 @@
 
 namespace System.CommandLine.Parsing
 {
-    internal class OptionNode : NonterminalSyntaxNode
+    internal class CommandArgumentNode : SyntaxNode
     {
-        public OptionNode(
-            Token token,
-            IOption option,
+        public CommandArgumentNode(
+            Token token, 
+            IArgument argument,
             CommandNode parent) : base(token, parent)
         {
-            if (token.Type != TokenType.Option)
+            if (token.Type != TokenType.Argument)
             {
                 throw new ArgumentException($"Incorrect token type: {token}");
             }
 
-            Option = option;
+            Argument = argument;
+            ParentCommandNode = parent;
         }
 
-        public IOption Option { get; }
+        public IArgument Argument { get; }
+
+        public CommandNode ParentCommandNode { get; }
     }
 }

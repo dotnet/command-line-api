@@ -3,14 +3,13 @@
 
 namespace System.CommandLine.Parsing
 {
-    internal class ArgumentNode : SyntaxNode
+    internal class ImplicitToken : Token
     {
-        public ArgumentNode(Token token, CommandNode parent) : base(token, parent)
+        public ImplicitToken(object value, TokenType type) : base(value?.ToString(), type)
         {
+            ActualValue = value;
         }
 
-        public ArgumentNode(Token token, OptionNode parent) : base(token, parent)
-        {
-        }
+        public object ActualValue { get; }
     }
 }

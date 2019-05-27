@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -16,8 +15,7 @@ namespace System.CommandLine.Parsing
             IReadOnlyList<string> arguments,
             string rawInput = null)
         {
-            var normalizedArgs = NormalizeRootCommand(arguments);
-            var tokenizeResult = normalizedArgs.Tokenize(Configuration);
+            var tokenizeResult = arguments.Tokenize(Configuration);
 
             var operation = new ParseOperation(
                 tokenizeResult,
@@ -28,6 +26,9 @@ namespace System.CommandLine.Parsing
             var visitor = new ParseResultVisitor(
                 this,
                 tokenizeResult,
+                operation.UnparsedTokens,
+                operation.UnmatchedTokens,
+                operation.Errors,
                 rawInput);
 
             visitor.Visit(operation.RootCommandNode);

@@ -14,17 +14,17 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(result));
             }
 
-            if (!(result is SuccessfulArgumentResult successful))
+            if (result is SuccessfulArgumentResult successful)
             {
-                return result;
+                if (type.IsInstanceOfType(successful.Value))
+                {
+                    return result;
+                }
+
+                return ArgumentConverter.Parse(result.Argument, type, successful.Value);
             }
 
-            if (type.IsInstanceOfType(successful.Value))
-            {
-                return result;
-            }
-
-            return ArgumentConverter.Parse(result.Argument, type, successful.Value);
+            return result;
         }
 
         public static object GetValueOrDefault(this ArgumentResult result) =>

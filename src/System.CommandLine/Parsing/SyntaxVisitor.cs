@@ -20,6 +20,7 @@ namespace System.CommandLine.Parsing
             {
                 case DirectiveNode directiveNode:
                     VisitDirectiveNode(directiveNode);
+
                     break;
 
                 case RootCommandNode rootCommandNode:
@@ -51,22 +52,33 @@ namespace System.CommandLine.Parsing
                     }
 
                     break;
-                case ArgumentNode argumentNode:
-                    VisitArgumentNode(argumentNode);
+
+                case CommandArgumentNode commandArgumentNode:
+                    VisitCommandArgumentNode(commandArgumentNode);
+
+                    break;
+
+                case OptionArgumentNode optionArgumentNode:
+                    VisitOptionArgumentNode(optionArgumentNode);
 
                     break;
 
                 default:
                     VisitUnknownNode(node);
+
                     break;
             }
         }
 
-        private void VisitArgumentNode(ArgumentNode argumentNode)
+        protected virtual void VisitCommandArgumentNode(CommandArgumentNode argumentNode)
         {
         }
 
-        private void VisitOptionNode(OptionNode optionNode)
+        protected virtual void VisitOptionArgumentNode(OptionArgumentNode argumentNode)
+        {
+        }
+
+        protected virtual void VisitOptionNode(OptionNode optionNode)
         {
         }
 

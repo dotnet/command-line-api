@@ -342,7 +342,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option)));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option, new Token("-x", TokenType.Option))));
         }
 
         [Fact]
@@ -424,7 +424,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option)));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option, new Token("-x", TokenType.Option))));
         }
 
         [Fact]
@@ -468,7 +468,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void The_default_value_of_a_command_with_no_arguments_is_an_empty_collection()
         {
-            var result = new CommandResult(new Command("-x"));
+            var result = new CommandResult(new Command("-x"), new Token("-x", TokenType.Command));
 
             var valueOrDefault = result.GetValueOrDefault();
 
@@ -507,7 +507,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void The_default_value_of_an_option_with_no_arguments_is_true()
         {
-            var command = new OptionResult(new Option("-x", ""));
+            var command = new OptionResult(new Option("-x"), new Token("-x", TokenType.Option));
 
             command.GetValueOrDefault().Should().Be(null);
         }

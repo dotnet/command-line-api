@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
                 "",
                 new Argument<string>("default"));
 
-            var result = new OptionResult(option);
+            var result = new OptionResult(option, new Token(option.Name, TokenType.Option));
 
             result.Arguments.Should().BeEmpty();
         }
@@ -105,7 +105,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("one", "");
 
-            var result = new CommandResult(command);
+            var result = new CommandResult(command, new Token("one", TokenType.Command));
 
             Action action = () => {
                 result.ValueForOption<string>(string.Empty);

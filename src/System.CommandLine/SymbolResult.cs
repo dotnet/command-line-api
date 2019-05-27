@@ -2,15 +2,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine
 {
     public abstract class SymbolResult
     {
-        private readonly List<Token> _tokens = new List<Token>();
+        private protected readonly List<Token> _tokens = new List<Token>();
+
         private ValidationMessages _validationMessages;
         private readonly HashSet<IArgument> _argumentsUsingDefaultValue = new HashSet<IArgument>();
+        private ArgumentResultSet _argumentResults = new ArgumentResultSet();
 
         private protected SymbolResult(
             ISymbol symbol, 
@@ -28,11 +31,36 @@ namespace System.CommandLine
         public ArgumentResult ArgumentResult => 
             ArgumentResults.SingleOrDefault() ?? ArgumentResult.None();
 
-        internal ArgumentResultSet ArgumentResults { get; private set; } = new ArgumentResultSet();
+        internal ArgumentResultSet ArgumentResults
+        {
+            get
+            {
+                if (CommandLineConfiguration.UseNewParser)
+                {
+                    var results = Children
+                                  .OfType<ArgumentResult2>()
+                                  .Select(r => Parse(r, r.Argument));
+
+                    var resultSet = new ArgumentResultSet();
+
+                    foreach (var result in results)
+                    {
+                        resultSet.Add(result);
+                    }
+
+                    return resultSet;
+                }
+                else
+                {
+                    return _argumentResults;
+                }
+            }
+            private set => _argumentResults = value;
+        }
 
         [Obsolete("Use the Tokens property instead. The Arguments property will be removed in a later version.")]
         public IReadOnlyCollection<string> Arguments => 
-            _tokens.Select(t => t.Value).ToArray();
+            Tokens.Select(t => t.Value).ToArray();
 
         public string ErrorMessage { get; set; }
 
@@ -49,13 +77,17 @@ namespace System.CommandLine
         public ISymbol Symbol { get; }
 
         public Token Token { get; }
-        public IReadOnlyCollection<Token> Tokens => _tokens;
+
+        public IReadOnlyList<Token> Tokens => _tokens;
 
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
 
         private protected virtual int RemainingArgumentCapacity =>
+            MaximumArgumentCapacity() - Tokens.Count;
+
+        internal int MaximumArgumentCapacity() =>
             Symbol.Arguments()
-                  .Sum(a => a.Arity.MaximumNumberOfValues) - Tokens.Count;
+                  .Sum(a => a.Arity.MaximumNumberOfValues);
 
         protected internal ValidationMessages ValidationMessages    
         {
@@ -63,8 +95,12 @@ namespace System.CommandLine
             set => _validationMessages = value;
         }
 
+        internal void AddToken(Token token) => _tokens.Add(token);
+
+        [Obsolete]
         internal abstract SymbolResult TryTakeToken(Token token);
 
+        [Obsolete]
         internal SymbolResult TryTakeArgument(Token token)
         {
             if (token.Type != TokenType.Argument)
@@ -134,6 +170,13 @@ namespace System.CommandLine
 
         internal bool UseDefaultValueFor(IArgument argument)
         {
+            if (CommandLineConfiguration.UseNewParser &&
+                this is OptionResult optionResult &&
+                optionResult.IsImplicit)
+            {
+                return true;
+            }
+
             return _argumentsUsingDefaultValue.Contains(argument);
         }
 
@@ -151,6 +194,7 @@ namespace System.CommandLine
 
         public override string ToString() => $"{GetType().Name}: {Token}";
 
+        [Obsolete]
         protected internal IReadOnlyCollection<ParseError> Validate()
         {
             var errors = new List<ParseError>();
@@ -187,16 +231,19 @@ namespace System.CommandLine
             return errors;
         }
 
-        internal static (ArgumentResult, ParseError) Validate(Argument argument, SymbolResult symbolResult)
+        [Obsolete]
+        internal static (ArgumentResult, ParseError) Validate(
+            Argument argument, 
+            SymbolResult symbolResult)
         {
             ArgumentResult result = null;
 
-            var error = UnrecognizedArgumentError() ??
-                        CustomError();
+            var error = symbolResult.UnrecognizedArgumentError(argument) ??
+                        symbolResult.CustomError(argument);
 
             if (error == null)
             {
-                result = Parse();
+                result = Parse(symbolResult, argument);
 
                 var canTokenBeRetried =
                     symbolResult.Symbol is ICommand ||
@@ -228,90 +275,117 @@ namespace System.CommandLine
             }
 
             return (result, error);
+        }
 
-            ArgumentResult Parse()
+        internal static ArgumentResult Parse(
+            SymbolResult symbolResult,
+            IArgument argument)
+        {
+            switch (symbolResult)
             {
-                var failedResult = ArgumentArity.Validate(symbolResult,
-                                                          argument,
-                                                          argument.Arity.MinimumNumberOfValues,
-                                                          argument.Arity.MaximumNumberOfValues);
-
-                if (failedResult != null)
-                {
-                    return failedResult;
-                }
-
-                if (symbolResult.UseDefaultValueFor(argument))
-                {
-                    return ArgumentResult.Success(argument, argument.GetDefaultValue());
-                }
-
-                if (argument.ConvertArguments != null)
-                {
-                    var success = argument.ConvertArguments(symbolResult, out var value);
-
-                    if (value is ArgumentResult argumentResult)
+                case ArgumentResult2 _:
+                    if (symbolResult.Token is ImplicitToken imp)
                     {
-                        return argumentResult;
+                        return new SuccessfulArgumentResult(
+                            argument,
+                            imp.ActualValue);
                     }
-                    else if (success)
-                    {
-                        return ArgumentResult.Success(argument, value);
-                    }
-                    else
-                    {
-                        return ArgumentResult.Failure(argument, symbolResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Arguments)}");
-                    }
-                }
 
-                switch (argument.Arity.MaximumNumberOfValues)
+                    break;
+
+                case CommandResult commandResult:
+                    break;
+
+                case OptionResult optionResult:
+                    break;
+            }
+
+            if (ShouldCheckArity() &&
+                ArgumentArity.Validate(symbolResult,
+                                       argument,
+                                       argument.Arity.MinimumNumberOfValues,
+                                       argument.Arity.MaximumNumberOfValues) is FailedArgumentResult failedResult)
+            {
+                return failedResult;
+            }
+
+            if (symbolResult.UseDefaultValueFor(argument))
+            {
+                return ArgumentResult.Success(argument, argument.GetDefaultValue());
+            }
+
+            if (argument is Argument a &&
+                a.ConvertArguments != null)
+            {
+                var success = a.ConvertArguments(symbolResult, out var value);
+
+                if (value is ArgumentResult argumentResult)
                 {
-                    case 0:
-                        return ArgumentResult.Success(argument, null);
-
-                    case 1:
-                        return ArgumentResult.Success(argument, symbolResult.Arguments.SingleOrDefault());
-
-                    default:
-                        return ArgumentResult.Success(argument, symbolResult.Arguments);
+                    return argumentResult;
+                }
+                else if (success)
+                {
+                    return ArgumentResult.Success(argument, value);
+                }
+                else
+                {
+                    return ArgumentResult.Failure(argument, symbolResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Arguments)}");
                 }
             }
 
-            ParseError UnrecognizedArgumentError()
+            switch (argument.Arity.MaximumNumberOfValues)
             {
-                if (argument.AllowedValues?.Count > 0 &&
-                    symbolResult.Tokens.Count > 0)
-                {
-                    foreach (var token in symbolResult.Tokens)
-                    {
-                        if (!argument.AllowedValues.Contains(token.Value))
-                        {
-                            return new ParseError(
-                                symbolResult.ValidationMessages
-                                            .UnrecognizedArgument(token.Value, argument.AllowedValues),
-                                symbolResult,
-                                canTokenBeRetried: false);
-                        }
-                    }
-                }
+                case 0:
+                    return ArgumentResult.Success(argument, null);
 
-                return null;
+                case 1:
+                    return ArgumentResult.Success(argument, symbolResult.Arguments.SingleOrDefault());
+
+                default:
+                    return ArgumentResult.Success(argument, symbolResult.Arguments);
             }
 
-            ParseError CustomError()
+            bool ShouldCheckArity()
             {
-                foreach (var symbolValidator in argument.SymbolValidators)
-                {
-                    var errorMessage = symbolValidator(symbolResult);
+                return !(symbolResult is OptionResult optionResult) ||
+                       !optionResult.IsImplicit;
+            }
+        }
 
-                    if (!String.IsNullOrWhiteSpace(errorMessage))
+        private ParseError UnrecognizedArgumentError(Argument argument)
+        {
+            if (argument.AllowedValues?.Count > 0 &&
+                Tokens.Count > 0)
+            {
+                foreach (var token in Tokens)
+                {
+                    if (!argument.AllowedValues.Contains(token.Value))
                     {
-                        return new ParseError(errorMessage, symbolResult, false);
+                        return new ParseError(
+                            ValidationMessages
+                                .UnrecognizedArgument(token.Value, argument.AllowedValues),
+                            this,
+                            canTokenBeRetried: false);
                     }
                 }
-
-                return null;
             }
+
+            return null;
+        }
+
+        private ParseError CustomError(Argument argument)
+        {
+            foreach (var symbolValidator in argument.SymbolValidators)
+            {
+                var errorMessage = symbolValidator(this);
+
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    return new ParseError(errorMessage, this, false);
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -9,6 +9,11 @@ namespace System.CommandLine.Parsing
             ICommand command,
             CommandNode parent) : base(token, parent)
         {
+            if (token.Type != TokenType.Command)
+            {
+                throw new ArgumentException($"Incorrect token type: {token}");
+            }
+
             Command = command;
         }
 

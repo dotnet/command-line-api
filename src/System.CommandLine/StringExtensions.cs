@@ -38,7 +38,7 @@ namespace System.CommandLine
         }
 
         internal static TokenizeResult Tokenize(
-            this IEnumerable<string> args,
+            this IReadOnlyList<string> args,
             CommandLineConfiguration configuration)
         {
             var tokenList = new List<Token>();
@@ -47,7 +47,7 @@ namespace System.CommandLine
             ISymbol currentSymbol = null;
             var foundEndOfArguments = false;
             var foundEndOfDirectives = false;
-            var argList = args.ToList();
+            var argList = NormalizeRootCommand(configuration, args);
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
@@ -198,6 +198,75 @@ namespace System.CommandLine
                     errorList.Add(
                         new TokenizeError(message));
                 }
+            }
+        }
+
+        private static List<string> NormalizeRootCommand(
+            CommandLineConfiguration commandLineConfiguration, 
+            IReadOnlyList<string> args)
+        {
+            if (args == null)
+            {
+                args = new List<string>();
+            }
+
+            string potentialRootCommand = null;
+
+            if (args.Count > 0)
+            {
+                try
+                {
+                    potentialRootCommand = Path.GetFileName(args[0]);
+                }
+                catch (ArgumentException)
+                {
+                    // possible exception for illegal characters in path on .NET Framework
+                }
+
+                if (commandLineConfiguration.RootCommand.HasRawAlias(potentialRootCommand))
+                {
+                    return args.ToList();
+                }
+            }
+
+            var commandName = commandLineConfiguration.RootCommand.Name;
+            var prependedCommand = false;
+
+            if (FirstArgMatchesRootCommand())
+            {
+                args = new[]
+                       {
+                           commandName
+                       }.Concat(args.Skip(1)).ToList();
+            }
+            else
+            {
+                args = new[]
+                       {
+                           commandName
+                       }.Concat(args).ToList();
+            }
+
+            return args.ToList();
+
+            bool FirstArgMatchesRootCommand()
+            {
+                if (potentialRootCommand == null)
+                {
+                    return false;
+                }
+
+                if (potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                return false;
             }
         }
 

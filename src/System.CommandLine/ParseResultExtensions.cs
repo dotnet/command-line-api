@@ -102,8 +102,15 @@ namespace System.CommandLine
 
             foreach (var child in symbolResult.Children)
             {
-                builder.Append(" ");
-                builder.Diagram(child, parseResult);
+                switch (child)
+                {
+                    case ArgumentResult2 _:
+                        break;
+                    default:
+                        builder.Append(" ");
+                        builder.Diagram(child, parseResult);
+                        break;
+                }
             }
 
             if (symbolResult.Tokens.Count > 0)

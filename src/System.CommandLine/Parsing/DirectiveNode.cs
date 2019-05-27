@@ -11,6 +11,11 @@ namespace System.CommandLine.Parsing
             string name,
             string value) : base(token, parent)
         {
+            if (token.Type != TokenType.Directive)
+            {
+                throw new ArgumentException($"Incorrect token type: {token}");
+            }
+
             Name = name;
             Value = value;
         }

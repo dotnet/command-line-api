@@ -3,11 +3,11 @@
 
 namespace System.CommandLine.Parsing
 {
-    internal class RootCommandNode : CommandNode
+    internal class UnparsedTokenNode : SyntaxNode
     {
-        public RootCommandNode(
+        public UnparsedTokenNode(
             Token token,
-            ICommand command) : base(token, command, null)
+            RootCommandNode parent) : base(token, parent)
         {
         }
     }

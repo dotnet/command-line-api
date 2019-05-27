@@ -8,36 +8,50 @@ namespace System.CommandLine
 {
     public class ParseResult
     {
-        private readonly List<ParseError> _errors = new List<ParseError>();
+        private readonly List<ParseError> _errors;
 
         internal ParseResult(
             Parser parser,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
-            IReadOnlyList<Token> tokens,
+            TokenizeResult tokenizeResult,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
-            IReadOnlyCollection<TokenizeError> tokenizeErrors,
-            string rawInput)
+            List<ParseError> errors = null,
+            string rawInput = null)
         {
             Parser = parser;
             RootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             Directives = directives;
-            Tokens = tokens;
+
+            // skip the root command
+            Tokens = tokenizeResult.Tokens.Skip(1).ToArray();
+
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
 
             RawInput = rawInput;
 
-            if (tokenizeErrors?.Count > 0)
+            _errors = errors ?? new List<ParseError>();
+
+            if (tokenizeResult.Errors.Count > 0)
             {
-                _errors.AddRange(
-                    tokenizeErrors.Select(e => new ParseError(e.Message)));
+                _errors.AddRange(tokenizeResult.Errors.Select(e => new ParseError(e.Message)));
             }
 
-            AddImplicitOptionsAndCheckForErrors();
+            if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
+            {
+                _errors.AddRange(
+                    unmatchedTokens.Select(token =>
+                                               new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
+            }
+
+            if (!CommandLineConfiguration.UseNewParser)
+            {
+                AddImplicitOptionsAndCheckForErrors();
+            }
         }
 
         public CommandResult CommandResult { get; }
@@ -58,6 +72,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
+        [Obsolete]
         private void AddImplicitOptionsAndCheckForErrors()
         {
             foreach (var result in RootCommandResult.AllSymbolResults().ToArray())
@@ -145,12 +160,6 @@ namespace System.CommandLine
         public SymbolResult this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
-
-        public CommandResult FindResultFor(ICommand command) =>
-            RootCommandResult
-                .AllSymbolResults()
-                .OfType<CommandResult>()
-                .FirstOrDefault(s => s.Symbol == command);
 
         public OptionResult FindResultFor(IOption option) =>
             RootCommandResult

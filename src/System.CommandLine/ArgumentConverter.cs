@@ -21,12 +21,12 @@ namespace System.CommandLine
             switch (value)
             {
                 // try to parse the single string argument to the requested type
-                case string stringArg:
-                    return Parse(argument, type, stringArg);
+                case string singleValue:
+                    return Parse(argument, type, singleValue);
 
                 // try to parse the multiple string arguments to the request type
-                case IReadOnlyCollection<string> arguments:
-                    return ParseMany(argument, type, arguments);
+                case IReadOnlyCollection<string> manyValues:
+                    return ParseMany(argument, type, manyValues);
 
                 case null:
                     if (type == typeof(bool))
@@ -41,13 +41,26 @@ namespace System.CommandLine
             return None(argument);
         }
 
-
+        internal static ArgumentResult Parse(
+            IArgument argument,
+            Type type,
+            IReadOnlyCollection<Token> tokens)
+        {
+            return ParseMany(argument, 
+                             type, 
+                             tokens.Select(t => t.Value).ToArray());
+        }
 
         public static ArgumentResult Parse(
             IArgument argument,
             Type type,
             string value)
         {
+            if (type == null)
+            {
+                return Success(argument, value);
+            }
+
             if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter)
             {
                 if (typeConverter.CanConvertFrom(typeof(string)))

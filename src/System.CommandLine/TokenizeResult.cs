@@ -7,9 +7,9 @@ namespace System.CommandLine
 {
     public class TokenizeResult
     {
-        public TokenizeResult(
-            IReadOnlyList<Token> tokens = null,
-            IReadOnlyCollection<TokenizeError> errors = null)
+        internal TokenizeResult(
+            IReadOnlyList<Token> tokens,
+            IReadOnlyCollection<TokenizeError> errors)
         {
             Tokens = tokens ?? Array.Empty<Token>();
             Errors = errors ?? Array.Empty<TokenizeError>();
