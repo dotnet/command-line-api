@@ -57,7 +57,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("-y [suggest]");
 
-            result.UnmatchedTokens.Should().Contain("[suggest]");
+            result.Directives.Should().BeEmpty();
         }
 
         [Theory]

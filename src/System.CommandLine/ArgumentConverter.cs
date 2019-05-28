@@ -51,15 +51,12 @@ namespace System.CommandLine
                              tokens.Select(t => t.Value).ToArray());
         }
 
-        public static ArgumentResult Parse(
+        private static ArgumentResult Parse(
             IArgument argument,
             Type type,
             string value)
         {
-            if (type == null)
-            {
-                return Success(argument, value);
-            }
+            type ??= typeof(string);
 
             if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter)
             {

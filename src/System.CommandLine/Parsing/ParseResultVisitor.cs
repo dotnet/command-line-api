@@ -99,7 +99,7 @@ namespace System.CommandLine.Parsing
 
         protected override void VisitOptionNode(OptionNode optionNode)
         {
-            if (_innermostCommandResult.OptionResult(optionNode.Option.Name) == null)
+            if (_innermostCommandResult.Children.ResultFor(optionNode.Option) == null)
             {
                 var optionResult = new OptionResult(
                     optionNode.Option,
@@ -117,10 +117,12 @@ namespace System.CommandLine.Parsing
         {
             var option = argumentNode.ParentOptionNode.Option;
 
-            var optionResult = _innermostCommandResult.OptionResult(option.Name);
+            var optionResult = _innermostCommandResult.Children.ResultFor(option);
+
+            var argument = argumentNode.Argument;
 
             var argumentResult =
-                (ArgumentResult2)optionResult.Children.GetByAlias(argumentNode.Argument.Name);
+                (ArgumentResult2)optionResult.Children.ResultFor(argument);
 
             if (argumentResult == null)
             {
@@ -130,8 +132,9 @@ namespace System.CommandLine.Parsing
                         argumentNode.Token,
                         optionResult);
                 optionResult.Children.Add(argumentResult);
-                optionResult.AddToken(argumentNode.Token);
             }
+
+            optionResult.AddToken(argumentNode.Token);
         }
 
         protected override void VisitDirectiveNode(DirectiveNode directiveNode)
@@ -146,12 +149,16 @@ namespace System.CommandLine.Parsing
 
         protected override void Stop(SyntaxNode node)
         {
+            ValidateCommandHandler(_innermostCommandResult);
+
             foreach (var commandResult in _innermostCommandResult.RecurseWhileNotNull(c => c.ParentCommandResult))
             {
                 foreach (var symbol in commandResult.Command.Children)
                 {
                     PopulateDefaultValues(commandResult, symbol);
                 }
+
+                ValidateCommand(commandResult);
 
                 foreach (var result in commandResult.Children)
                 {
@@ -165,9 +172,25 @@ namespace System.CommandLine.Parsing
 
                         case OptionResult optionResult:
 
-                            ArgumentResult2[] argumentResult2s = optionResult.Children.OfType<ArgumentResult2>().ToArray();
+                            var argument = optionResult.Option.Argument;
 
-                            foreach (var a in argumentResult2s)
+                            var arityFailure = ArgumentArity.Validate(
+                                optionResult,
+                                argument,
+                                argument.Arity.MinimumNumberOfValues,
+                                argument.Arity.MaximumNumberOfValues);
+
+                            if (arityFailure != null)
+                            {
+                                _errors.Add(
+                                    new ParseError(arityFailure.ErrorMessage, optionResult));
+                            }
+
+                            var results = optionResult.Children
+                                                      .OfType<ArgumentResult2>()
+                                                      .ToArray();
+
+                            foreach (var a in results)
                             {
                                 ValidateArgument(a);
                             }
@@ -178,23 +201,94 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void ValidateArgument(ArgumentResult2 argumentResult2)
+        private void ValidateCommand(CommandResult commandResult)
         {
-            var failure = ArgumentArity.Validate(argumentResult2);
-
-            if (failure != null)
+            foreach (var a in commandResult
+                              .Command
+                              .Arguments)
             {
-                _errors.Add(new ParseError(failure.ErrorMessage));
+                if (a is Argument argument)
+                {
+                    foreach (var validator in argument.SymbolValidators)
+                    {
+                        var errorMessage = validator(commandResult);
+
+                        if (!string.IsNullOrWhiteSpace(errorMessage))
+                        {
+                            _errors.Add(
+                                new ParseError(errorMessage, commandResult));
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ValidateCommandHandler(CommandResult commandResult)
+        {
+            if (commandResult.Command is Command cmd &&
+                cmd.Handler == null &&
+                cmd.Children.OfType<ICommand>().Any())
+            {
+                _errors.Insert(0,
+                               new ParseError(
+                                   commandResult.ValidationMessages.RequiredCommandWasNotProvided(),
+                                   commandResult));
+            }
+        }
+
+        private void ValidateArgument(ArgumentResult2 argumentResult)
+        {
+            var arityFailure = ArgumentArity.Validate(argumentResult);
+
+            if (arityFailure != null)
+            {
+                _errors.Add(new ParseError(arityFailure.ErrorMessage));
+                return;
             }
 
+            if (argumentResult.Argument is Argument argument)
+            {
+                var parseError = argumentResult.Parent.UnrecognizedArgumentError(argument) ??
+                                 argumentResult.Parent.CustomError(argument);
 
+                if (parseError != null)
+                {
+                    _errors.Add(parseError);
+                    return;
+                }
+            }
+
+            // FIX: (ValidateArgument) clean up
+            switch (SymbolResult.Parse(argumentResult, argumentResult.Argument))
+            {
+                case MissingArgumentResult missingArgumentResult:
+                    break;
+                case TooManyArgumentsResult tooManyArgumentsResult:
+                    break;
+                case FailedArgumentArityResult failedArgumentArityResult:
+                    break;
+                case FailedArgumentTypeConversionResult failedArgumentTypeConversionResult:
+                    _errors.Add(new ParseError(failedArgumentTypeConversionResult.ErrorMessage));
+                    break;
+                case FailedArgumentResult failedArgumentResult:
+                    _errors.Add(new ParseError(failedArgumentResult.ErrorMessage));
+                    break;
+                case NoArgumentResult noArgumentResult:
+                    break;
+                case SuccessfulArgumentResult successfulArgumentResult:
+                    break;
+                default:
+                    break;
+            }
         }
 
         private static void PopulateDefaultValues(
-            CommandResult commandResult, 
+            CommandResult parentCommandResult,
             ISymbol symbol)
         {
-            if (commandResult.Children.ResultFor(symbol) == null)
+            var symbolResult = parentCommandResult.Children.ResultFor(symbol);
+
+            if (symbolResult == null)
             {
                 switch (symbol)
                 {
@@ -204,27 +298,44 @@ namespace System.CommandLine.Parsing
                             option,
                             option.CreateImplicitToken());
 
+                        var token = new ImplicitToken(option.Argument.GetDefaultValue(),
+                                                      TokenType.Argument);
                         optionResult.Children.Add(
                             new ArgumentResult2(
                                 option.Argument,
-                                new ImplicitToken(option.Argument.GetDefaultValue(),
-                                                  TokenType.Argument),
+                                token,
                                 optionResult));
 
-                        commandResult.Children.Add(optionResult);
+                        parentCommandResult.Children.Add(optionResult);
+                        optionResult.AddToken(token);
 
                         break;
 
                     case Argument argument when argument.HasDefaultValue:
-                        var result = new ArgumentResult2(
-                            argument,
-                            new ImplicitToken(argument.GetDefaultValue(), TokenType.Argument),
-                            commandResult);
 
-                        commandResult.Children.Add(result);
+                        var implicitToken = new ImplicitToken(argument.GetDefaultValue(), TokenType.Argument);
+
+                        var argumentResult = new ArgumentResult2(
+                            argument,
+                            implicitToken,
+                            parentCommandResult);
+
+                        parentCommandResult.Children.Add(argumentResult);
+                        parentCommandResult.AddToken(implicitToken);
 
                         break;
                 }
+            }
+
+            if (symbolResult is OptionResult o &&
+                o.Option.Argument.Type == typeof(bool) &&
+                o.Children.Count == 0)
+            {
+                o.Children.Add(
+                    new ArgumentResult2(
+                        o.Option.Argument,
+                        new ImplicitToken(true, TokenType.Argument),
+                        o));
             }
         }
 

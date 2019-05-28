@@ -199,24 +199,32 @@ namespace System.CommandLine.Parsing
         {
             var argument = optionNode.Option.Argument;
 
-            var contiguousArguments = 0;
+            var contiguousTokens = 0;
 
             while (More() &&
                    CurrentToken.Type == TokenType.Argument)
             {
                 if (IsFull(argument))
                 {
-                    // if (contiguousArguments > 0)
+                    if (contiguousTokens > 0)
+                    {
+                        return;
+                    }
+
+                    if (argument.Arity.MaximumNumberOfValues == 0)
                     {
                         return;
                     }
                 }
-
-                if (IsSatisfied(argument) &&
-                    ArgumentConverter.Parse(
-                        argument, argument.Type, CurrentToken.Value) is FailedArgumentTypeConversionResult)
+                else if (argument.Type == typeof(bool))
                 {
-                    return;
+                    if (ArgumentConverter.Parse(
+                            argument,
+                            argument.Type,
+                            CurrentToken.Value) is FailedArgumentTypeConversionResult)
+                    {
+                        return;
+                    }
                 }
 
                 optionNode.AddChildNode(
@@ -225,9 +233,9 @@ namespace System.CommandLine.Parsing
                         argument,
                         optionNode));
 
-                contiguousArguments++;
-
                 IncrementCount(argument);
+
+                contiguousTokens++;
 
                 Advance();
             }

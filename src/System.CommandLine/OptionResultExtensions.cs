@@ -16,22 +16,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(optionResult));
             }
 
-            if (type == null)
-            {
-                type = typeof(object);
-            }
-
-            if (CommandLineConfiguration.UseNewParser)
-            {
-                return SymbolResult.Parse(
-                    optionResult,
-                    optionResult.Option.Argument);
-            }
-            else
-            {
-                return optionResult.ArgumentResult
-                                   .GetValueAs(type);
-            }
+            return optionResult.ArgumentResult.GetValueAs(type);
         }
 
         public static object GetValueOrDefault(this OptionResult optionResult)

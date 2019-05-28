@@ -35,6 +35,8 @@ namespace System.CommandLine
         {
             get
             {
+                // FIX: (ArgumentResults) 
+
                 if (CommandLineConfiguration.UseNewParser)
                 {
                     var results = Children
@@ -278,26 +280,37 @@ namespace System.CommandLine
         }
 
         internal static ArgumentResult Parse(
+            ArgumentResult2 argumentResult,
+            IArgument argument)
+        {
+            if (argumentResult.Token is ImplicitToken imp)
+            {
+                return new SuccessfulArgumentResult(
+                    argument,
+                    imp.ActualValue);
+            }
+
+            switch (argumentResult.Parent)
+            {
+                case CommandResult commandResult:
+                    return Parse(commandResult, argument);
+
+                case OptionResult optionResult:
+                    return Parse(optionResult, argument);
+
+                default:
+                    throw new ArgumentException($"Unexpected parent type: {argumentResult.Parent}");
+            }
+        }
+
+        internal static ArgumentResult Parse(
             SymbolResult symbolResult,
             IArgument argument)
         {
-            switch (symbolResult)
+            if (symbolResult is ArgumentResult2)
             {
-                case ArgumentResult2 _:
-                    if (symbolResult.Token is ImplicitToken imp)
-                    {
-                        return new SuccessfulArgumentResult(
-                            argument,
-                            imp.ActualValue);
-                    }
-
-                    break;
-
-                case CommandResult commandResult:
-                    break;
-
-                case OptionResult optionResult:
-                    break;
+                // FIX: (Parse) 
+                throw new ArgumentException();
             }
 
             if (ShouldCheckArity() &&
@@ -352,7 +365,7 @@ namespace System.CommandLine
             }
         }
 
-        private ParseError UnrecognizedArgumentError(Argument argument)
+        internal ParseError UnrecognizedArgumentError(Argument argument)
         {
             if (argument.AllowedValues?.Count > 0 &&
                 Tokens.Count > 0)
@@ -373,7 +386,7 @@ namespace System.CommandLine
             return null;
         }
 
-        private ParseError CustomError(Argument argument)
+        internal ParseError CustomError(Argument argument)
         {
             foreach (var symbolValidator in argument.SymbolValidators)
             {

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -950,6 +951,19 @@ namespace System.CommandLine.Tests.Binding
             public void Add(string value) => values.Add(value);
 
             public string[] Values => values.ToArray();
+        }
+
+        public class V2 : TypeConversionTests, IDisposable
+        {
+            public V2(ITestOutputHelper output) 
+            {
+                CommandLineConfiguration.UseNewParser = true;
+            }
+
+            public void Dispose()
+            {
+                CommandLineConfiguration.UseNewParser = false;
+            }
         }
     }
 }

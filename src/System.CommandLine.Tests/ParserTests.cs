@@ -747,6 +747,8 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
+            _output.WriteLine(result.ToString());
+
             result.CommandResult["x"].Arguments.Should().BeEmpty();
             result.CommandResult.Arguments.Should().BeEquivalentTo("the-argument");
         }
@@ -1325,6 +1327,8 @@ namespace System.CommandLine.Tests
                            argument: new Argument<bool>()));
 
             var result = command.Parse("-v an-argument");
+
+            _output.WriteLine(result.ToString());
 
             result.ValueForOption("v").Should().Be(true);
         }

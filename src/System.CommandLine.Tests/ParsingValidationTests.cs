@@ -219,10 +219,8 @@ namespace System.CommandLine.Tests
                     $@"move ""{guid1}"" ""{guid2}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
             result.Errors
-                .Should()
-                .HaveCount(1)
-                .And
-                .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid1}");
+                  .Should()
+                  .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid1}");
         }
 
         [Fact]
@@ -250,8 +248,6 @@ namespace System.CommandLine.Tests
 
             result.Errors
                 .Should()
-                .HaveCount(1)
-                .And
                 .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid}");
         }
 
@@ -313,10 +309,10 @@ namespace System.CommandLine.Tests
             _output.WriteLine(result.Diagram());
 
             result.Errors
-                .Should()
-                .HaveCount(1)
-                .And
-                .Contain(e => e.SymbolResult.Name == "to" && e.Message == $"Directory does not exist: {trash1}");
+                  .Should()
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.SymbolResult.Name == "to" && e.Message == $"Directory does not exist: {trash1}");
         }
 
         [Fact]
@@ -461,6 +457,19 @@ namespace System.CommandLine.Tests
             result.Errors.Should().BeEmpty();
             result.RootCommandResult.ValueForOption("-x").Should().Be(123);
             result.RootCommandResult.ValueForOption("-y").Should().Be(456);
+        }
+
+        public class V2 : ParsingValidationTests, IDisposable
+        {
+            public V2(ITestOutputHelper output) : base(output)
+            {
+                CommandLineConfiguration.UseNewParser = true;
+            }
+
+            public void Dispose()
+            {
+                CommandLineConfiguration.UseNewParser = false;
+            }
         }
     }
 }
