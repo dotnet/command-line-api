@@ -16,10 +16,10 @@ namespace HostedConsoleApp
         public static Task Main(string[] args) => new CommandLineBuilder(
             new RootCommand
             {
-                Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run), BindingFlags.Static | BindingFlags.NonPublic)),
+                Handler = CommandHandler.Create<IHost, string>(Run),
                 TreatUnmatchedTokensAsErrors = false
             })
-            .AddOption(new Option("foo", argument: new Argument<string>()))
+            .AddOption(new Option("--foo", argument: new Argument<string>()))
             .UseDefaults()
             .UseHost(Host.CreateDefaultBuilder)
             .Build().InvokeAsync(args);
