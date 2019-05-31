@@ -17,6 +17,7 @@ namespace System.CommandLine.Hosting
                 var argsRemaining = invocation.ParseResult.UnmatchedTokens.ToArray();
                 var hostBuilder = hostBuilderFactory?.Invoke(argsRemaining)
                     ?? new HostBuilder();
+                hostBuilder.Properties[typeof(InvocationContext)] = invocation;
 
                 hostBuilder.ConfigureServices(services =>
                 {
