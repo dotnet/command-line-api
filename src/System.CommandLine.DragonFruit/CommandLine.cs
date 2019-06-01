@@ -133,11 +133,18 @@ namespace System.CommandLine.DragonFruit
             if (method.GetParameters()
                       .FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is ParameterInfo argsParam)
             {
-                command.AddArgument(new Argument
+                var argument = new Argument
                 {
                     ArgumentType = argsParam.ParameterType,
                     Name = argsParam.Name
-                });
+                };
+
+                if (argsParam.HasDefaultValue)
+                {
+                    argument.SetDefaultValue(argsParam.DefaultValue);
+                }
+
+                command.AddArgument(argument);
             }
 
             command.Handler = CommandHandler.Create(method);
