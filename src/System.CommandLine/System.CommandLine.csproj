@@ -15,4 +15,23 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Invocation\CommandHandler.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CommandHandler.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Invocation\CommandHandler.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CommandHandler.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>
