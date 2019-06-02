@@ -52,7 +52,7 @@ namespace System.CommandLine
                         {
                             _convertArguments = (SymbolResult symbol, out object value) =>
                             {
-                                value = ArgumentConverter.Parse(
+                                value = ArgumentConverter.ConvertObject(
                                     this,
                                     typeof(bool),
                                     symbol.Tokens.SingleOrDefault()?.Value ?? bool.TrueString);
@@ -74,14 +74,14 @@ namespace System.CommandLine
                     switch (Arity.MaximumNumberOfValues)
                     {
                         case 1:
-                            value = ArgumentConverter.Parse(
+                            value = ArgumentConverter.ConvertObject(
                                 this,
                                 ArgumentType,
                                 symbol.Arguments.SingleOrDefault());
                             break;
 
                         default:
-                            value = ArgumentConverter.ParseMany(
+                            value = ArgumentConverter.ConvertStrings(
                                 this,
                                 ArgumentType,
                                 symbol.Arguments);

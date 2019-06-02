@@ -1264,6 +1264,7 @@ namespace System.CommandLine.Tests
                                            {
                                                Arity = ArgumentArity.ZeroOrOne
                                            }));
+
             command.AddOption(
                 new Option("-y", argument: new Argument
                                            {

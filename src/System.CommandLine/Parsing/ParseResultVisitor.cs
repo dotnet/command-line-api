@@ -258,27 +258,9 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            // FIX: (ValidateArgument) clean up
-            switch (SymbolResult.Parse(argumentResult, argumentResult.Argument))
+            if (SymbolResult.Parse(argumentResult, argumentResult.Argument) is   FailedArgumentResult failed)
             {
-                case MissingArgumentResult missingArgumentResult:
-                    break;
-                case TooManyArgumentsResult tooManyArgumentsResult:
-                    break;
-                case FailedArgumentArityResult failedArgumentArityResult:
-                    break;
-                case FailedArgumentTypeConversionResult failedArgumentTypeConversionResult:
-                    _errors.Add(new ParseError(failedArgumentTypeConversionResult.ErrorMessage));
-                    break;
-                case FailedArgumentResult failedArgumentResult:
-                    _errors.Add(new ParseError(failedArgumentResult.ErrorMessage));
-                    break;
-                case NoArgumentResult noArgumentResult:
-                    break;
-                case SuccessfulArgumentResult successfulArgumentResult:
-                    break;
-                default:
-                    break;
+                _errors.Add(new ParseError(failed.ErrorMessage));
             }
         }
 

@@ -88,7 +88,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Command_argument_with_arity_of_zero_or_one_when_type_has_a_constructor_that_takes_a_single_string_returns_null_when_argument_isnot_provided()
+        public void Command_argument_with_arity_of_zero_or_one_when_type_has_a_constructor_that_takes_a_single_string_returns_null_when_argument_is_not_provided()
         {
             var option = new Command(
                 "the-command",
@@ -182,16 +182,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = parser.Parse("-x");
 
-            result.Errors
-                  .Should()
-                  .BeEmpty();
-            result["x"].ArgumentResult
-                       .Should()
-                       .BeOfType<SuccessfulArgumentResult>()
-                       .Which
-                       .Value
-                       .Should()
-                       .Be(true);
+            result.Errors.Should().BeEmpty();
             result.ValueForOption("x").Should().Be(true);
         }
 
@@ -936,12 +927,17 @@ namespace System.CommandLine.Tests.Binding
 
             Action getValue = () => result.ValueForOption<int[]>("x");
 
+            var expectedErrorMessage =
+                CommandLineConfiguration.UseNewParser
+                    ? "Option '-x' expects a single argument but 2 were provided."
+                    : "Cannot parse argument 'not-an-int' as System.Int32[].";
+
             getValue.Should()
                     .Throw<InvalidOperationException>()
                     .Which
                     .Message
                     .Should()
-                    .Be("Cannot parse argument 'not-an-int' as System.Int32[].");
+                    .Be(expectedErrorMessage);
         }
 
         public class MyCustomType

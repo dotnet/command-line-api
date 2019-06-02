@@ -19,10 +19,10 @@ namespace System.CommandLine
         {
             var argumentResult = commandResult.ArgumentResults
                                               .SingleOrDefault() ??
-                                 ArgumentResult.None();
+                                 ArgumentResult.None(commandResult.ArgumentResult.Argument);
 
             return argumentResult
-                   .GetValueAs(typeof(T))
+                   .ConvertIfNeeded(commandResult, typeof(T))
                    .GetValueOrDefault<T>();
         }
 
@@ -67,7 +67,7 @@ namespace System.CommandLine
 
             if (symbolResult is OptionResult optionResult)
             {
-                if (optionResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
+                if (optionResult.ConvertIfNeeded(valueDescriptor.Type) is SuccessfulArgumentResult successful)
                 {
                     value = successful.Value;
                     return true;

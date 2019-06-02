@@ -218,7 +218,7 @@ namespace System.CommandLine.Parsing
                 }
                 else if (argument.Type == typeof(bool))
                 {
-                    if (ArgumentConverter.Parse(
+                    if (ArgumentConverter.ConvertObject(
                             argument,
                             argument.Type,
                             CurrentToken.Value) is FailedArgumentTypeConversionResult)

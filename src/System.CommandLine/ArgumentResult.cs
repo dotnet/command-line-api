@@ -7,6 +7,11 @@ namespace System.CommandLine
     {
         private protected ArgumentResult(IArgument argument)
         {
+            if (argument == null)
+            {
+                 throw new ArgumentNullException(nameof(argument));
+            }
+
             Argument = argument;
         }
 
@@ -18,6 +23,6 @@ namespace System.CommandLine
 
         public static SuccessfulArgumentResult Success(IArgument argument, object value) => new SuccessfulArgumentResult(argument, value);
 
-        public static NoArgumentResult None(IArgument argument = null) => new NoArgumentResult(argument);
+        internal static NoArgumentResult None(IArgument argument) => new NoArgumentResult(argument);
     }
 }

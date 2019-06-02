@@ -3,7 +3,7 @@
 
 namespace System.CommandLine
 {
-    public class NoArgumentResult : ArgumentResult
+    internal class NoArgumentResult : ArgumentResult
     {
         internal NoArgumentResult(IArgument argument) : base(argument)
         {

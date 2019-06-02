@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.CommandLine.Binding;
 
@@ -62,7 +63,7 @@ namespace System.CommandLine
             return symbol;
         }
 
-        public bool TryGetValueForArgument(
+        internal bool TryGetValueForArgument(
             IValueDescriptor valueDescriptor,
             out object value)
         {
@@ -79,9 +80,18 @@ namespace System.CommandLine
             return false;
         }
 
-        public object ValueForOption(
-            string alias) =>
-            ValueForOption<object>(alias);
+        public object ValueForOption(string alias)
+        {
+            if (Children[alias] is OptionResult optionResult)
+            {
+                if (optionResult.Option.Argument.Arity.MaximumNumberOfValues > 1)
+                {
+                    return optionResult.GetValueOrDefault<IEnumerable<string>>();
+                }
+            }
+
+            return ValueForOption<object>(alias);
+        }
 
         public T ValueForOption<T>(string alias)
         {

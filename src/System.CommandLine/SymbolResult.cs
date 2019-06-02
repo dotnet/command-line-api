@@ -28,15 +28,27 @@ namespace System.CommandLine
         }
 
         [Obsolete("Use the ArgumentResults property instead")]
-        public ArgumentResult ArgumentResult => 
-            ArgumentResults.SingleOrDefault() ?? ArgumentResult.None();
+        internal ArgumentResult ArgumentResult
+        {
+            get
+            {
+                var argument =  Symbol switch {
+                    IOption o => o.Argument,
+                    ICommand c => c.Argument,
+                    IArgument a => a
+                };
+
+
+                return ArgumentResults.SingleOrDefault() ??
+                       ArgumentResult.None(argument);
+            }
+        }
 
         internal ArgumentResultSet ArgumentResults
         {
             get
             {
                 // FIX: (ArgumentResults) 
-
                 if (CommandLineConfiguration.UseNewParser)
                 {
                     var results = Children
@@ -172,11 +184,18 @@ namespace System.CommandLine
 
         internal bool UseDefaultValueFor(IArgument argument)
         {
-            if (CommandLineConfiguration.UseNewParser &&
-                this is OptionResult optionResult &&
-                optionResult.IsImplicit)
+            if (CommandLineConfiguration.UseNewParser)
             {
-                return true;
+                if (this is OptionResult optionResult && optionResult.IsImplicit)
+                {
+                    return true;
+                }
+
+                if (this is CommandResult &&
+                    Children.ResultFor(argument).Token is ImplicitToken)
+                {
+                    return true;
+                }
             }
 
             return _argumentsUsingDefaultValue.Contains(argument);
@@ -281,43 +300,18 @@ namespace System.CommandLine
 
         internal static ArgumentResult Parse(
             ArgumentResult2 argumentResult,
-            IArgument argument)
-        {
-            if (argumentResult.Token is ImplicitToken imp)
-            {
-                return new SuccessfulArgumentResult(
-                    argument,
-                    imp.ActualValue);
-            }
-
-            switch (argumentResult.Parent)
-            {
-                case CommandResult commandResult:
-                    return Parse(commandResult, argument);
-
-                case OptionResult optionResult:
-                    return Parse(optionResult, argument);
-
-                default:
-                    throw new ArgumentException($"Unexpected parent type: {argumentResult.Parent}");
-            }
-        }
+            IArgument argument) =>
+            Parse(argumentResult.Parent, argument);
 
         internal static ArgumentResult Parse(
             SymbolResult symbolResult,
             IArgument argument)
         {
-            if (symbolResult is ArgumentResult2)
-            {
-                // FIX: (Parse) 
-                throw new ArgumentException();
-            }
-
             if (ShouldCheckArity() &&
-                ArgumentArity.Validate(symbolResult,
-                                       argument,
-                                       argument.Arity.MinimumNumberOfValues,
-                                       argument.Arity.MaximumNumberOfValues) is FailedArgumentResult failedResult)
+                     ArgumentArity.Validate(symbolResult,
+                                            argument,
+                                            argument.Arity.MinimumNumberOfValues,
+                                            argument.Arity.MaximumNumberOfValues) is FailedArgumentResult failedResult)
             {
                 return failedResult;
             }

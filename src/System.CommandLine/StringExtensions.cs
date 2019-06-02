@@ -14,7 +14,6 @@ namespace System.CommandLine
     {
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
 
-
         internal static bool ContainsCaseInsensitive(
             this string source,
             string value) =>
