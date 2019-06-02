@@ -1,8 +1,4 @@
 ﻿<#@ template debug="false" hostspecific="false" language="C#" #>
-<#@ assembly name="System.Core" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Text" #>
-<#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".cs" #>
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -22,63 +18,11 @@ namespace System.CommandLine.Invocation
         public static ICommandHandler Create(Action action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
-<#
-       for (var i = 1; i < 17; i++)
-       {
-          var ts = "T1";
-          for (var j = 2; j <= i; j++)
-          {
-            ts = $"{ts}, T{j}";
-          }
-#>
-        public static ICommandHandler Create<<#= ts #>>(
-            Action<<#= ts #>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-<#
-       }
-#>
-
         public static ICommandHandler Create(Func<int> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
-<#
-       for (var i = 1; i < 17; i++)
-       {
-          var ts = "T1";
-          for (var j = 2; j <= i; j++)
-          {
-            ts = $"{ts}, T{j}";
-          }
-#>
-        public static ICommandHandler Create<<#= ts #>>(
-            Func<<#= ts #>, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-<#
-       }
-#>
-
         public static ICommandHandler Create(Func<Task> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-<#
-       for (var i = 1; i < 17; i++)
-       {
-          var ts = "T1";
-          for (var j = 2; j <= i; j++)
-          {
-            ts = $"{ts}, T{j}";
-          }
-#>
-        public static ICommandHandler Create<<#= ts #>>(
-            Func<<#= ts #>, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-<#
-       }
-#>
-
 
         public static ICommandHandler Create(Func<Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
@@ -93,13 +37,24 @@ namespace System.CommandLine.Invocation
           }
 #>
         public static ICommandHandler Create<<#= ts #>>(
+            Action<<#= ts #>> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<<#= ts #>>(
+            Func<<#= ts #>, int> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<<#= ts #>>(
+            Func<<#= ts #>, Task> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<<#= ts #>>(
             Func<<#= ts #>, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
 <#
        }
 #>
-
         internal static async Task<int> GetResultCodeAsync(object value, InvocationContext context)
         {
             switch (value)
