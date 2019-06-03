@@ -51,6 +51,7 @@ namespace System.CommandLine
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
             var knownTokens = new HashSet<Token>(configuration.Symbols.SelectMany(ValidTokens));
+            var knownTokensStrings = new HashSet<string>(knownTokens.Select(t => t.Value));
 
             for (var i = 0; i < argList.Count; i++)
             {
@@ -93,13 +94,10 @@ namespace System.CommandLine
                     continue;
                 }
 
-                var argHasPrefix = HasPrefix(arg);
-
-                if (argHasPrefix &&
-                    arg.SplitByDelimiters(argumentDelimiters) is string[] subtokens &&
+                if (arg.SplitByDelimiters(argumentDelimiters) is string[] subtokens &&
                     subtokens.Length > 1)
                 {
-                    if (knownTokens.Any(t => t.Value == subtokens.First()))
+                    if (knownTokensStrings.Contains(subtokens[0]))
                     {
                         tokenList.Add(Option(subtokens[0]));
 
@@ -124,7 +122,7 @@ namespace System.CommandLine
                         tokenList.Add(Option($"-{character}"));
                     }
                 }
-                else if (knownTokens.All(t => t.Value != arg) ||
+                else if (!knownTokensStrings.Contains(arg) ||
                          // if token matches the current command name, consider it an argument
                          currentSymbol?.HasRawAlias(arg) == true)
                 {
@@ -132,7 +130,8 @@ namespace System.CommandLine
                 }
                 else
                 {
-                    if (argHasPrefix)
+                    if (knownTokens.Any(t => t.Type == TokenType.Option &&
+                                             t.Value == arg))
                     {
                         tokenList.Add(Option(arg));
                     }
@@ -152,6 +151,7 @@ namespace System.CommandLine
 
                         currentSymbol = symbolSet.GetByAlias(arg);
                         knownTokens = currentSymbol.ValidTokens();
+                        knownTokensStrings = new HashSet<string>(knownTokens.Select(t => t.Value));
                         tokenList.Add(Command(arg));
                     }
                 }
@@ -357,8 +357,6 @@ namespace System.CommandLine
                            .Select(t => t.Value.RemovePrefix())
                            .Contains(c.ToString());
         }
-
-        private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
 
         public static IEnumerable<string> SplitCommandLine(this string commandLine)
         {

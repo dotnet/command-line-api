@@ -36,11 +36,6 @@ namespace System.CommandLine
 
             _errors = errors ?? new List<ParseError>();
 
-            if (tokenizeResult.Errors.Count > 0)
-            {
-                _errors.AddRange(tokenizeResult.Errors.Select(e => new ParseError(e.Message)));
-            }
-
             if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
                 _errors.AddRange(

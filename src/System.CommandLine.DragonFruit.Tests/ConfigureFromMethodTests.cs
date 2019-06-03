@@ -126,7 +126,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
                          .Build();
 
-            var rootCommandArgument = parser.Configuration.RootCommand;
+            var rootCommand = parser.Configuration.RootCommand;
 
             var argumentParameterNames = new[]
                                          {
@@ -135,9 +135,10 @@ namespace System.CommandLine.DragonFruit.Tests
                                              "args"
                                          };
 
-            rootCommandArgument.Children
-                               .Should()
-                               .NotContain(o => argumentParameterNames.Contains(o.Name));
+            rootCommand.Children
+                       .OfType<IOption>()
+                       .Should()
+                       .NotContain(o => argumentParameterNames.Contains(o.Name));
         }
 
         [Theory]

@@ -12,7 +12,9 @@ namespace System.CommandLine
         private protected readonly List<Token> _tokens = new List<Token>();
 
         private ValidationMessages _validationMessages;
-        private readonly HashSet<IArgument> _argumentsUsingDefaultValue = new HashSet<IArgument>();
+
+        private readonly Dictionary<IArgument, object> _defaultArgumentValues = new Dictionary<IArgument, object>();
+
         private ArgumentResultSet _argumentResults = new ArgumentResultSet();
 
         private protected SymbolResult(
@@ -103,9 +105,24 @@ namespace System.CommandLine
             Symbol.Arguments()
                   .Sum(a => a.Arity.MaximumNumberOfValues);
 
-        protected internal ValidationMessages ValidationMessages    
+        protected internal ValidationMessages ValidationMessages
         {
-            get => _validationMessages ?? (_validationMessages = ValidationMessages.Instance);
+            get
+            {
+                if (_validationMessages == null)
+                {
+                    if (Parent == null)
+                    {
+                        _validationMessages = ValidationMessages.Instance;
+                    }
+                    else
+                    {
+                        _validationMessages = Parent.ValidationMessages;
+                    }
+                }
+
+                return _validationMessages;
+            }
             set => _validationMessages = value;
         }
 
@@ -182,34 +199,42 @@ namespace System.CommandLine
             }
         }
 
+        internal object GetDefaultValueFor(IArgument argument)
+        {
+            return _defaultArgumentValues.GetOrAdd(
+                argument,
+                a => a.GetDefaultValue());
+        }
+
         internal bool UseDefaultValueFor(IArgument argument)
         {
             if (CommandLineConfiguration.UseNewParser)
             {
-                if (this is OptionResult optionResult && optionResult.IsImplicit)
+                if (this is OptionResult optionResult && 
+                    optionResult.IsImplicit)
                 {
                     return true;
                 }
 
                 if (this is CommandResult &&
-                    Children.ResultFor(argument).Token is ImplicitToken)
+                    Children.ResultFor(argument)?.Token is ImplicitToken)
                 {
                     return true;
                 }
             }
 
-            return _argumentsUsingDefaultValue.Contains(argument);
+            return _defaultArgumentValues.ContainsKey(argument);
         }
 
         internal void UseDefaultValueFor(IArgument argument, bool value)
         {
             if (value)
             {
-                _argumentsUsingDefaultValue.Add(argument);
+                _defaultArgumentValues.Add(argument, argument.GetDefaultValue());
             }
             else
             {
-                _argumentsUsingDefaultValue.Remove(argument);
+                _defaultArgumentValues.Remove(argument);
             }
         }
 
@@ -318,7 +343,9 @@ namespace System.CommandLine
 
             if (symbolResult.UseDefaultValueFor(argument))
             {
-                return ArgumentResult.Success(argument, argument.GetDefaultValue());
+                var defaultValueFor = symbolResult.GetDefaultValueFor(argument);
+
+                return ArgumentResult.Success(argument, defaultValueFor);
             }
 
             if (argument is Argument a &&

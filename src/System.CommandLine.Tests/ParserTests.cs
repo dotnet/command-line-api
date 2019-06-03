@@ -1298,6 +1298,16 @@ namespace System.CommandLine.Tests
             parseResult["o"].Should().NotBeNull();
         }
 
+        [Fact]
+        public void Option_aliases_do_not_need_to_be_prefixed()
+        {
+            var option = new Option("noprefix");
+
+            var result = new RootCommand { option }.Parse("noprefix");
+
+            result.HasOption(option).Should().BeTrue();
+        }
+
         [Theory]
         [InlineData("/o")]
         [InlineData("-o")]

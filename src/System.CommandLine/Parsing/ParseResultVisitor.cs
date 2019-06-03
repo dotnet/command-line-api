@@ -54,6 +54,7 @@ namespace System.CommandLine.Parsing
             _rootCommandResult = new CommandResult(
                 rootCommandNode.Command,
                 rootCommandNode.Token);
+            _rootCommandResult.ValidationMessages = _parser.Configuration.ValidationMessages;
 
             _innermostCommandResult = _rootCommandResult;
         }
@@ -209,6 +210,18 @@ namespace System.CommandLine.Parsing
             {
                 if (a is Argument argument)
                 {
+                    var arityFailure = ArgumentArity.Validate(
+                        commandResult,
+                        a,
+                        a.Arity.MinimumNumberOfValues,
+                        a.Arity.MaximumNumberOfValues);
+
+                    if (arityFailure != null)
+                    {
+                        _errors.Add(
+                            new ParseError(arityFailure.ErrorMessage, commandResult));
+                    }
+
                     foreach (var validator in argument.SymbolValidators)
                     {
                         var errorMessage = validator(commandResult);
@@ -260,7 +273,10 @@ namespace System.CommandLine.Parsing
 
             if (SymbolResult.Parse(argumentResult, argumentResult.Argument) is   FailedArgumentResult failed)
             {
-                _errors.Add(new ParseError(failed.ErrorMessage));
+                _errors.Add(
+                    new ParseError(
+                        failed.ErrorMessage, 
+                        argumentResult));
             }
         }
 
@@ -280,8 +296,10 @@ namespace System.CommandLine.Parsing
                             option,
                             option.CreateImplicitToken());
 
-                        var token = new ImplicitToken(option.Argument.GetDefaultValue(),
-                                                      TokenType.Argument);
+                        var token = new ImplicitToken(
+                            optionResult.GetDefaultValueFor(option.Argument),
+                            TokenType.Argument);
+
                         optionResult.Children.Add(
                             new ArgumentResult2(
                                 option.Argument,

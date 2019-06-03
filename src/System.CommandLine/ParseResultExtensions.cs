@@ -85,7 +85,8 @@ namespace System.CommandLine
             SymbolResult symbolResult,
             ParseResult parseResult)
         {
-            if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult))
+            if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult ||
+                                            e.SymbolResult is ArgumentResult2 a && a.Parent == symbolResult))
             {
                 builder.Append("!");
             }

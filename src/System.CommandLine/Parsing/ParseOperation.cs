@@ -56,16 +56,6 @@ namespace System.CommandLine.Parsing
             return count >= argument.Arity.MaximumNumberOfValues;
         }
 
-        private bool IsSatisfied(IArgument argument)
-        {
-            if (!_argumentCounts.TryGetValue(argument, out var count))
-            {
-                count = 0;
-            }
-
-            return count >= argument.Arity.MinimumNumberOfValues;
-        }
-
         private bool More()
         {
             return _index < _tokenizeResult.Tokens.Count;

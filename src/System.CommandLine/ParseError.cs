@@ -14,6 +14,11 @@ namespace System.CommandLine
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(message));
             }
+
+            if (symbolResult == null)
+            {
+                
+            }
           
             Message = message;
             SymbolResult = symbolResult;

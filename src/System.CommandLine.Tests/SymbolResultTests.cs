@@ -34,13 +34,13 @@ namespace System.CommandLine.Tests
                     });
 
             var i = 0;
-            option.Argument.SetDefaultValue(() => (++i).ToString());
+            option.Argument.SetDefaultValue(() => ++i);
 
             var result1 = option.Parse("");
             var result2 = option.Parse("");
 
-            result1.ValueForOption("x").Should().Be("1");
-            result2.ValueForOption("x").Should().Be("2");
+            result1.ValueForOption<int>("x").Should().Be(1);
+            result2.ValueForOption<int>("x").Should().Be(2);
         }
 
         [Fact]
