@@ -229,7 +229,6 @@ namespace System.CommandLine
             }
 
             var commandName = commandLineConfiguration.RootCommand.Name;
-            var prependedCommand = false;
 
             if (FirstArgMatchesRootCommand())
             {

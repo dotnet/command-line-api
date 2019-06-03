@@ -47,34 +47,6 @@ namespace System.CommandLine
             }
         }
 
-        internal static OptionResult CreateImplicitResult(
-            this IOption option,
-            CommandResult parent)
-        {
-            var result = new OptionResult(option, 
-                                          option.CreateImplicitToken());
-
-            if (option.Argument.HasDefaultValue)
-            {
-                var value = option.Argument.GetDefaultValue();
-
-                switch (value)
-                {
-                    case string arg:
-                        result.TryTakeToken(
-                            new Token(arg, TokenType.Argument));
-                        break;
-
-                    default:
-                        result.ArgumentResults.Add(
-                            ArgumentResult.Success(option.Argument, value));
-                        break;
-                }
-            }
-
-            return result;
-        }
-
         internal static Token CreateImplicitToken(this IOption option)
         {
             var optionName = option.Name;

@@ -370,18 +370,5 @@ namespace System.CommandLine.Tests.Binding
 
             instance.IntOption.Should().Be(42);
         }
-
-        public class V2 : ModelBinderTests, IDisposable
-        {
-            public V2()
-            {
-                CommandLineConfiguration.UseNewParser = true;
-            }
-
-            public void Dispose()
-            {
-                CommandLineConfiguration.UseNewParser = false;
-            }
-        }
     }
 }

@@ -47,9 +47,6 @@ namespace System.CommandLine
                 ? $"Required argument missing for command: {symbolResult.Token.Value}"
                 : $"Required argument missing for option: {symbolResult.Token.Value}";
 
-        public virtual string RequiredArgumentNameMissing(string argumentAlias) =>
-            $"Name must be set for arguments with an arity above zero. The argument missing a name has the alias '{argumentAlias}'.";
-
         public virtual string RequiredCommandWasNotProvided() =>
             "Required command was not provided.";
 
@@ -58,9 +55,6 @@ namespace System.CommandLine
 
         public virtual string UnrecognizedCommandOrArgument(string arg) =>
             $"Unrecognized command or argument '{arg}'";
-
-        public virtual string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) =>
-            $"Option '{unrecognizedOption}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
 
         public virtual string ResponseFileNotFound(string filePath) =>
             $"Response file not found '{filePath}'";

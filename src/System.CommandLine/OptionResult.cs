@@ -36,8 +36,5 @@ namespace System.CommandLine
                 return capacity;
             }
         }
-
-        internal override SymbolResult TryTakeToken(Token token) =>
-            TryTakeArgument(token);
     }
 }

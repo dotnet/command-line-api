@@ -1570,18 +1570,5 @@ namespace System.CommandLine.Tests
                    .Should()
                    .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument("4"));
         }
-
-        public class V2 : ParserTests, IDisposable
-        {
-            public V2(ITestOutputHelper output) : base(output)
-            {
-                CommandLineConfiguration.UseNewParser = true;
-            }
-
-            public void Dispose()
-            {
-                CommandLineConfiguration.UseNewParser = false;
-            }
-        }
     }
 }

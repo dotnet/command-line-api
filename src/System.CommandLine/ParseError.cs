@@ -7,30 +7,20 @@ namespace System.CommandLine
     {
         internal ParseError(
             string message, 
-            SymbolResult symbolResult = null,
-            bool canTokenBeRetried = true)
+            SymbolResult symbolResult = null)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(message));
             }
-
-            if (symbolResult == null)
-            {
-                
-            }
           
             Message = message;
             SymbolResult = symbolResult;
-            CanTokenBeRetried = canTokenBeRetried;
         }
 
         public string Message { get; }
 
         public SymbolResult SymbolResult { get; }
-
-        [Obsolete]
-        internal bool CanTokenBeRetried { get; }
 
         public override string ToString() => Message;
     }

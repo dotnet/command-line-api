@@ -107,10 +107,7 @@ namespace System.CommandLine
 
             _arguments.Add(argument);
 
-            if (CommandLineConfiguration.UseNewParser)
-            {
-                Children.Add(argument);
-            }
+            Children.Add(argument);
         }
 
         public SymbolSet Children { get; } = new SymbolSet();

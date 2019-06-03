@@ -927,17 +927,12 @@ namespace System.CommandLine.Tests.Binding
 
             Action getValue = () => result.ValueForOption<int[]>("x");
 
-            var expectedErrorMessage =
-                CommandLineConfiguration.UseNewParser
-                    ? "Option '-x' expects a single argument but 2 were provided."
-                    : "Cannot parse argument 'not-an-int' as System.Int32[].";
-
             getValue.Should()
                     .Throw<InvalidOperationException>()
                     .Which
                     .Message
                     .Should()
-                    .Be(expectedErrorMessage);
+                    .Be("Option '-x' expects a single argument but 2 were provided.");
         }
 
         public class MyCustomType
@@ -947,19 +942,6 @@ namespace System.CommandLine.Tests.Binding
             public void Add(string value) => values.Add(value);
 
             public string[] Values => values.ToArray();
-        }
-
-        public class V2 : TypeConversionTests, IDisposable
-        {
-            public V2(ITestOutputHelper output) 
-            {
-                CommandLineConfiguration.UseNewParser = true;
-            }
-
-            public void Dispose()
-            {
-                CommandLineConfiguration.UseNewParser = false;
-            }
         }
     }
 }

@@ -19,7 +19,7 @@ namespace System.CommandLine
 
         internal string ErrorMessage { get; set; }
 
-        public static FailedArgumentResult Failure(IArgument argument, string error) => new FailedArgumentResult(argument, error);
+        internal static FailedArgumentResult Failure(IArgument argument, string error) => new FailedArgumentResult(argument, error);
 
         public static SuccessfulArgumentResult Success(IArgument argument, object value) => new SuccessfulArgumentResult(argument, value);
 

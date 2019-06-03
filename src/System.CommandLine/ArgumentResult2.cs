@@ -14,10 +14,5 @@ namespace System.CommandLine
         }
 
         public IArgument Argument { get; }
-
-        internal override SymbolResult TryTakeToken(Token token)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -29,40 +29,6 @@ namespace System.CommandLine
             return Children[alias] as OptionResult;
         }
 
-        internal void AddImplicitOption(IOption option)
-        {
-            Children.Add(option.CreateImplicitResult(this));
-        }
-
-        internal override SymbolResult TryTakeToken(Token token) =>
-            TryTakeArgument(token) ??
-            TryTakeOptionOrCommand(token);
-
-        private SymbolResult TryTakeOptionOrCommand(Token token)
-        {
-            var symbol =
-                Children.SingleOrDefault(o => o.Symbol.HasRawAlias(token.Value));
-
-            if (symbol != null)
-            {
-                symbol.OptionWasRespecified = true;
-                return symbol;
-            }
-
-            symbol =
-                Command.Children
-                       .Where(o => o.RawAliases.Contains(token.Value))
-                       .Select(o => Create(o, token, this, ValidationMessages))
-                       .SingleOrDefault();
-
-            if (symbol != null)
-            {
-                Children.Add(symbol);
-            }
-
-            return symbol;
-        }
-
         internal bool TryGetValueForArgument(
             IValueDescriptor valueDescriptor,
             out object value)

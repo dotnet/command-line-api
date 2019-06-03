@@ -3,7 +3,7 @@
 
 namespace System.CommandLine
 {
-    public class FailedArgumentResult : ArgumentResult
+    internal class FailedArgumentResult : ArgumentResult
     {
         internal FailedArgumentResult(
             IArgument argument, 

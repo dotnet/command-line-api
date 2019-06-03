@@ -13,7 +13,6 @@ namespace System.CommandLine
         private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
         private Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
-        private static bool _useNewParser;
 
         public CommandLineConfiguration(
             IReadOnlyCollection<Symbol> symbols,
@@ -113,20 +112,5 @@ namespace System.CommandLine
         public ICommand RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
-
-        public static bool UseNewParser
-        {
-            // FIX: (UseNewParser) remove 
-#if false
-            get;
-            set;
-#else
-            get => true;
-            set
-            {
-                // _useNewParser = value;
-            }
-#endif
-        }
     }
 }

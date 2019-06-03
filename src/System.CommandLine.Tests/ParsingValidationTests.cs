@@ -22,8 +22,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void
-            When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
+        public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
             var parser = new Parser(
                 new Option(
@@ -140,7 +139,7 @@ namespace System.CommandLine.Tests
                                                     Arity = ArgumentArity.ZeroOrMore
                                                 }.LegalFilePathsOnly());
 
-            var invalidCharacter = Path.GetInvalidPathChars().First();
+            var invalidCharacter = Path.GetInvalidPathChars().First(c => c!='"');
 
             var result = command.Parse($"the-command {invalidCharacter}");
 
@@ -457,19 +456,6 @@ namespace System.CommandLine.Tests
             result.Errors.Should().BeEmpty();
             result.RootCommandResult.ValueForOption("-x").Should().Be(123);
             result.RootCommandResult.ValueForOption("-y").Should().Be(456);
-        }
-
-        public class V2 : ParsingValidationTests, IDisposable
-        {
-            public V2(ITestOutputHelper output) : base(output)
-            {
-                CommandLineConfiguration.UseNewParser = true;
-            }
-
-            public void Dispose()
-            {
-                CommandLineConfiguration.UseNewParser = false;
-            }
         }
     }
 }

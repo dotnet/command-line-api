@@ -15,8 +15,6 @@ namespace System.CommandLine
 
         private readonly Dictionary<IArgument, object> _defaultArgumentValues = new Dictionary<IArgument, object>();
 
-        private ArgumentResultSet _argumentResults = new ArgumentResultSet();
-
         private protected SymbolResult(
             ISymbol symbol, 
             Token token, 
@@ -37,7 +35,8 @@ namespace System.CommandLine
                 var argument =  Symbol switch {
                     IOption o => o.Argument,
                     ICommand c => c.Argument,
-                    IArgument a => a
+                    IArgument a => a,
+                    _ => null
                 };
 
 
@@ -51,27 +50,20 @@ namespace System.CommandLine
             get
             {
                 // FIX: (ArgumentResults) 
-                if (CommandLineConfiguration.UseNewParser)
+                var results = Children
+                              .OfType<ArgumentResult2>()
+                              .Select(r => Parse(r, r.Argument));
+
+                var resultSet = new ArgumentResultSet();
+
+                foreach (var result in results)
                 {
-                    var results = Children
-                                  .OfType<ArgumentResult2>()
-                                  .Select(r => Parse(r, r.Argument));
-
-                    var resultSet = new ArgumentResultSet();
-
-                    foreach (var result in results)
-                    {
-                        resultSet.Add(result);
-                    }
-
-                    return resultSet;
+                    resultSet.Add(result);
                 }
-                else
-                {
-                    return _argumentResults;
-                }
+
+                return resultSet;
+
             }
-            private set => _argumentResults = value;
         }
 
         [Obsolete("Use the Tokens property instead. The Arguments property will be removed in a later version.")]
@@ -83,8 +75,6 @@ namespace System.CommandLine
         public SymbolResultSet Children { get; } = new SymbolResultSet();
 
         public string Name => Symbol.Name;
-
-        internal bool OptionWasRespecified { get; set; } = true;
 
         public SymbolResult Parent { get; }
 
@@ -128,77 +118,6 @@ namespace System.CommandLine
 
         internal void AddToken(Token token) => _tokens.Add(token);
 
-        [Obsolete]
-        internal abstract SymbolResult TryTakeToken(Token token);
-
-        [Obsolete]
-        internal SymbolResult TryTakeArgument(Token token)
-        {
-            if (token.Type != TokenType.Argument)
-            {
-                return null;
-            }
-
-            if (!OptionWasRespecified)
-            {
-                if (IsArgumentLimitReached)
-                {
-                    return null;
-                }
-            }
-
-            _tokens.Add(token);
-
-            var parseError = Validate().SingleOrDefault();
-
-            if (parseError == null)
-            {
-                OptionWasRespecified = false;
-                return this;
-            }
-
-            if (!parseError.CanTokenBeRetried)
-            {
-                OptionWasRespecified = false;
-                return this;
-            }
-
-            if (ArgumentResults.Any(r => r is MissingArgumentResult))
-            {
-                OptionWasRespecified = false;
-                return this;
-            }
-
-            _tokens.RemoveAt(_tokens.Count - 1);
-
-            return null;
-        }
-
-        internal static SymbolResult Create(
-            ISymbol symbol,
-            Token token,
-            CommandResult parent = null, 
-            ValidationMessages validationMessages = null)
-        {
-            switch (symbol)
-            {
-                case ICommand command:
-                    return new CommandResult(command, token, parent)
-                    {
-                        ValidationMessages = validationMessages
-                    };
-
-                case IOption option:
-                    return new OptionResult(option, token, parent)
-                    {
-                        ValidationMessages = validationMessages
-                    };
-
-                default:
-                    throw new ArgumentException($"Unrecognized symbol type: {symbol.GetType()}");
-            }
-        }
-
         internal object GetDefaultValueFor(IArgument argument)
         {
             return _defaultArgumentValues.GetOrAdd(
@@ -208,120 +127,24 @@ namespace System.CommandLine
 
         internal bool UseDefaultValueFor(IArgument argument)
         {
-            if (CommandLineConfiguration.UseNewParser)
-            {
-                if (this is OptionResult optionResult && 
-                    optionResult.IsImplicit)
-                {
-                    return true;
-                }
+            // FIX: (UseDefaultValueFor) 
 
-                if (this is CommandResult &&
-                    Children.ResultFor(argument)?.Token is ImplicitToken)
-                {
-                    return true;
-                }
+            if (this is OptionResult optionResult &&
+                optionResult.IsImplicit)
+            {
+                return true;
+            }
+
+            if (this is CommandResult &&
+                Children.ResultFor(argument)?.Token is ImplicitToken)
+            {
+                return true;
             }
 
             return _defaultArgumentValues.ContainsKey(argument);
         }
 
-        internal void UseDefaultValueFor(IArgument argument, bool value)
-        {
-            if (value)
-            {
-                _defaultArgumentValues.Add(argument, argument.GetDefaultValue());
-            }
-            else
-            {
-                _defaultArgumentValues.Remove(argument);
-            }
-        }
-
         public override string ToString() => $"{GetType().Name}: {Token}";
-
-        [Obsolete]
-        protected internal IReadOnlyCollection<ParseError> Validate()
-        {
-            var errors = new List<ParseError>();
-
-            var arguments = Symbol.Arguments();
-            ArgumentResults = new ArgumentResultSet();
-
-            if (arguments.Count == 0)
-            {
-                arguments = new IArgument[]
-                {
-                    Argument.None
-                };
-            }
-
-            foreach (var argument in arguments)
-            {
-                if (argument is Argument arg)
-                {
-                    var (result, error) = Validate(arg, this);
-
-                    if (result != null)
-                    {
-                        ArgumentResults.Add(result);
-                    }
-
-                    if (error != null)
-                    {
-                        errors.Add(error);
-                    }
-                }
-            }
-
-            return errors;
-        }
-
-        [Obsolete]
-        internal static (ArgumentResult, ParseError) Validate(
-            Argument argument, 
-            SymbolResult symbolResult)
-        {
-            ArgumentResult result = null;
-
-            var error = symbolResult.UnrecognizedArgumentError(argument) ??
-                        symbolResult.CustomError(argument);
-
-            if (error == null)
-            {
-                result = Parse(symbolResult, argument);
-
-                var canTokenBeRetried =
-                    symbolResult.Symbol is ICommand ||
-                    argument.Arity.MinimumNumberOfValues == 0;
-
-                switch (result)
-                {
-                    case FailedArgumentArityResult arityFailure:
-
-                        error = new ParseError(arityFailure.ErrorMessage,
-                                               symbolResult,
-                                               canTokenBeRetried);
-                        break;
-
-                    case FailedArgumentTypeConversionResult conversionFailure:
-
-                        error = new ParseError(conversionFailure.ErrorMessage,
-                                               symbolResult,
-                                               canTokenBeRetried);
-                        break;
-
-                    case FailedArgumentResult general:
-
-                        error = new ParseError(general.ErrorMessage,
-                                               symbolResult,
-                                               false);
-                        break;
-                }
-            }
-
-            return (result, error);
-        }
 
         internal static ArgumentResult Parse(
             ArgumentResult2 argumentResult,
@@ -398,8 +221,7 @@ namespace System.CommandLine
                         return new ParseError(
                             ValidationMessages
                                 .UnrecognizedArgument(token.Value, argument.AllowedValues),
-                            this,
-                            canTokenBeRetried: false);
+                            this);
                     }
                 }
             }
@@ -415,7 +237,7 @@ namespace System.CommandLine
 
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
-                    return new ParseError(errorMessage, this, false);
+                    return new ParseError(errorMessage, this);
                 }
             }
 

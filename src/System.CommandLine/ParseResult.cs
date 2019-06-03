@@ -42,11 +42,6 @@ namespace System.CommandLine
                     unmatchedTokens.Select(token =>
                                                new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
             }
-
-            if (!CommandLineConfiguration.UseNewParser)
-            {
-                AddImplicitOptionsAndCheckForErrors();
-            }
         }
 
         public CommandResult CommandResult { get; }
@@ -66,69 +61,6 @@ namespace System.CommandLine
         internal string RawInput { get; }
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
-
-        [Obsolete]
-        private void AddImplicitOptionsAndCheckForErrors()
-        {
-            foreach (var result in RootCommandResult.AllSymbolResults().ToArray())
-            {
-                if (result is CommandResult commandResult)
-                {
-                    foreach (var symbol in commandResult.Command.Children)
-                    {
-                        if (commandResult.Children[symbol.Name] == null)
-                        {
-                            foreach (var argument in symbol.Arguments())
-                            {
-                                if (argument.HasDefaultValue)
-                                {
-                                    switch (symbol)
-                                    {
-                                        case IOption option:
-                                            commandResult.AddImplicitOption(option);
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (!commandResult.IsArgumentLimitReached)
-                    {
-                        foreach (var argument in commandResult.Symbol.Arguments())
-                        {
-                            if (argument.HasDefaultValue)
-                            {
-                                var defaultValue = argument.GetDefaultValue();
-
-                                if (defaultValue is string stringArg)
-                                {
-                                    commandResult.TryTakeToken(new Token(stringArg, TokenType.Argument));
-                                }
-                                else
-                                {
-                                    commandResult.UseDefaultValueFor(argument, true);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                var errors = result.Validate();
-
-                _errors.AddRange(errors);
-            }
-
-            if (CommandResult.Command is Command cmd &&
-                cmd.Handler == null && 
-                cmd.Children.OfType<ICommand>().Any())
-            {
-                _errors.Insert(0,
-                               new ParseError(
-                                   CommandResult.ValidationMessages.RequiredCommandWasNotProvided(),
-                                   CommandResult));
-            }
-        }
 
         public object ValueForOption(
             string alias) =>

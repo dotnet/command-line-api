@@ -49,8 +49,6 @@ namespace System.CommandLine.Tests
             public override string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) => message;
 
             public override string UnrecognizedCommandOrArgument(string arg) => message;
-
-            public override string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) => message;
         }
     }
 }
