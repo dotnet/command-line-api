@@ -5,32 +5,53 @@ namespace System.CommandLine
 {
     public static class ArgumentResultExtensions
     {
-        internal static ArgumentResult GetValueAs(
-            this ArgumentResult result, 
+        internal static ArgumentResult ConvertIfNeeded(
+            this ArgumentResult argumentResult,
+            SymbolResult symbolResult,
             Type type)
         {
-            if (result == null)
+            if (argumentResult == null)
             {
-                throw new ArgumentNullException(nameof(result));
+                throw new ArgumentNullException(nameof(argumentResult));
             }
 
-            if (!(result is SuccessfulArgumentResult successful))
+            switch (argumentResult)
             {
-                return result;
-            }
+                case SuccessfulArgumentResult successful when !type.IsInstanceOfType(successful.Value):
+                    return ArgumentConverter.ConvertObject(
+                        argumentResult.Argument,
+                        type,
+                        successful.Value);
 
-            if (type.IsInstanceOfType(successful.Value))
-            {
-                return result;
-            }
+                case NoArgumentResult _ when type == typeof(bool):
+                    return ArgumentResult.Success(argumentResult.Argument, true);
 
-            return ArgumentConverter.Parse(result.Argument, type, successful.Value);
+                case NoArgumentResult _ when argumentResult.Argument.Arity.MinimumNumberOfValues > 0:
+                    return new MissingArgumentResult(
+                        argumentResult.Argument,
+                        ValidationMessages.Instance.RequiredArgumentMissing(symbolResult));
+
+                case NoArgumentResult _ when type.IsEnumerable():
+                    return ArgumentConverter.ConvertObject(
+                        argumentResult.Argument,
+                        type,
+                        Array.Empty<string>());
+
+                case TooManyArgumentsResult _:
+                    return argumentResult;
+
+                case MissingArgumentResult _:
+                    return argumentResult;
+
+                default:
+                    return argumentResult;
+            }
         }
 
-        public static object GetValueOrDefault(this ArgumentResult result) =>
+        internal static object GetValueOrDefault(this ArgumentResult result) =>
             result.GetValueOrDefault<object>();
 
-        public static T GetValueOrDefault<T>(this ArgumentResult result)
+        internal static T GetValueOrDefault<T>(this ArgumentResult result)
         {
             switch (result)
             {
@@ -39,6 +60,7 @@ namespace System.CommandLine
                 case FailedArgumentResult failed:
                     throw new InvalidOperationException(failed.ErrorMessage);
                 case NoArgumentResult _:
+                    return default;
                 default:
                     return default;
             }

@@ -4,7 +4,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>System.CommandLine.Experimental</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
    
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
+    <PackageReference Include="system.memory" Version="4.5.3" />
   </ItemGroup>
 
 </Project>

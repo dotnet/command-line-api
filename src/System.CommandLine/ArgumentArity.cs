@@ -29,6 +29,12 @@ namespace System.CommandLine
 
         public int MaximumNumberOfValues { get; set; }
 
+        internal static FailedArgumentArityResult Validate(ArgumentResult2 argumentResult) =>
+            Validate(argumentResult.Parent,
+                     argumentResult.Argument,
+                     argumentResult.Argument.Arity.MinimumNumberOfValues,
+                     argumentResult.Argument.Arity.MaximumNumberOfValues);
+
         internal static FailedArgumentArityResult Validate(
             SymbolResult symbolResult,
             IArgument argument,
@@ -61,7 +67,10 @@ namespace System.CommandLine
                 {
                     return new TooManyArgumentsResult(
                         argument,
-                        symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, maximumNumberOfValues));
+                        symbolResult.ValidationMessages.ExpectsFewerArguments(
+                            symbolResult.Token,
+                            symbolResult.Tokens.Count,
+                            maximumNumberOfValues));
                 }
             }
 

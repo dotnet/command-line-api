@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     public static class OptionResultExtensions
     {
-        internal static ArgumentResult GetValueAs(
+        internal static ArgumentResult ConvertIfNeeded(
             this OptionResult optionResult,
             Type type)
         {
@@ -16,12 +16,8 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(optionResult));
             }
 
-            if (type == null)
-            {
-                type = typeof(object);
-            }
-
-            return optionResult.ArgumentResult.GetValueAs(type);
+            return optionResult.ArgumentResult
+                               .ConvertIfNeeded(optionResult, type);
         }
 
         public static object GetValueOrDefault(this OptionResult optionResult)
@@ -31,7 +27,8 @@ namespace System.CommandLine
 
         public static T GetValueOrDefault<T>(this OptionResult optionResult)
         {
-            return optionResult.GetValueAs(typeof(T)).GetValueOrDefault<T>();
+            return optionResult.ConvertIfNeeded(typeof(T))
+                               .GetValueOrDefault<T>();
         }
     }
 }

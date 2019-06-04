@@ -44,12 +44,5 @@ namespace System.CommandLine
                 yield return source;
             }
         }
-
-        internal static bool None<TSource>(this IEnumerable<TSource> source) 
-            => !source.Any();
-
-        internal static bool None<TSource>(this IEnumerable<TSource> source,
-                                         Func<TSource, bool> predicate) 
-            => !source.Any(predicate);
     }
 }

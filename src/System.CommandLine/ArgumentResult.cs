@@ -7,6 +7,11 @@ namespace System.CommandLine
     {
         private protected ArgumentResult(IArgument argument)
         {
+            if (argument == null)
+            {
+                 throw new ArgumentNullException(nameof(argument));
+            }
+
             Argument = argument;
         }
 
@@ -14,10 +19,10 @@ namespace System.CommandLine
 
         internal string ErrorMessage { get; set; }
 
-        public static FailedArgumentResult Failure(Argument argument, string error) => new FailedArgumentResult(argument, error);
+        internal static FailedArgumentResult Failure(IArgument argument, string error) => new FailedArgumentResult(argument, error);
 
         public static SuccessfulArgumentResult Success(IArgument argument, object value) => new SuccessfulArgumentResult(argument, value);
 
-        public static NoArgumentResult None(IArgument argument = null) => new NoArgumentResult(argument);
+        internal static NoArgumentResult None(IArgument argument) => new NoArgumentResult(argument);
     }
 }

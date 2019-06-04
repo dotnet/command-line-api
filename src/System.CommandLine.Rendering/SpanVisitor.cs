@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Rendering
 {
-    public class SpanVisitor
+    public abstract class SpanVisitor
     {
         public void Visit(Span span)
         {

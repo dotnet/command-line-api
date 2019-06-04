@@ -3,7 +3,7 @@
 
 namespace System.CommandLine
 {
-    internal class TokenizeError
+    public class TokenizeError
     {
         public TokenizeError(string message)
         {

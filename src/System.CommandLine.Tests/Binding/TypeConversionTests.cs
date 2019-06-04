@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -87,7 +88,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Command_argument_with_arity_of_zero_or_one_when_type_has_a_constructor_that_takes_a_single_string_returns_null_when_argument_isnot_provided()
+        public void Command_argument_with_arity_of_zero_or_one_when_type_has_a_constructor_that_takes_a_single_string_returns_null_when_argument_is_not_provided()
         {
             var option = new Command(
                 "the-command",
@@ -181,16 +182,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = parser.Parse("-x");
 
-            result.Errors
-                  .Should()
-                  .BeEmpty();
-            result["x"].ArgumentResult
-                       .Should()
-                       .BeOfType<SuccessfulArgumentResult>()
-                       .Which
-                       .Value
-                       .Should()
-                       .Be(true);
+            result.Errors.Should().BeEmpty();
             result.ValueForOption("x").Should().Be(true);
         }
 
@@ -342,7 +334,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option)));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option, new Token("-x", TokenType.Option))));
         }
 
         [Fact]
@@ -424,7 +416,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option)));
+                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option, new Token("-x", TokenType.Option))));
         }
 
         [Fact]
@@ -468,7 +460,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void The_default_value_of_a_command_with_no_arguments_is_an_empty_collection()
         {
-            var result = new CommandResult(new Command("-x"));
+            var result = new CommandResult(new Command("-x"), new Token("-x", TokenType.Command));
 
             var valueOrDefault = result.GetValueOrDefault();
 
@@ -507,7 +499,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void The_default_value_of_an_option_with_no_arguments_is_true()
         {
-            var command = new OptionResult(new Option("-x", ""));
+            var command = new OptionResult(new Option("-x"), new Token("-x", TokenType.Option));
 
             command.GetValueOrDefault().Should().Be(null);
         }
@@ -940,7 +932,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be("Cannot parse argument 'not-an-int' as System.Int32[].");
+                    .Be("Option '-x' expects a single argument but 2 were provided.");
         }
 
         public class MyCustomType

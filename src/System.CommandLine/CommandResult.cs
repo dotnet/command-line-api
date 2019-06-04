@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.CommandLine.Binding;
 
@@ -10,10 +11,10 @@ namespace System.CommandLine
     {
         public CommandResult(
             ICommand command,
-            Token token = null,
+            Token token,
             CommandResult parent = null) :
             base(command ?? throw new ArgumentNullException(nameof(command)),
-                 token ?? command.DefaultToken(),
+                 token ?? throw new ArgumentNullException(nameof(token)),
                  parent)
         {
             Command = command;
@@ -28,41 +29,7 @@ namespace System.CommandLine
             return Children[alias] as OptionResult;
         }
 
-        internal void AddImplicitOption(IOption option)
-        {
-            Children.Add(CommandLine.OptionResult.CreateImplicit(option, this));
-        }
-
-        internal override SymbolResult TryTakeToken(Token token) =>
-            TryTakeArgument(token) ??
-            TryTakeOptionOrCommand(token);
-
-        private SymbolResult TryTakeOptionOrCommand(Token token)
-        {
-            var symbol =
-                Children.SingleOrDefault(o => o.Symbol.HasRawAlias(token.Value));
-
-            if (symbol != null)
-            {
-                symbol.OptionWasRespecified = true;
-                return symbol;
-            }
-
-            symbol =
-                Command.Children
-                       .Where(o => o.RawAliases.Contains(token.Value))
-                       .Select(o => Create(o, token, this, ValidationMessages))
-                       .SingleOrDefault();
-
-            if (symbol != null)
-            {
-                Children.Add(symbol);
-            }
-
-            return symbol;
-        }
-
-        public bool TryGetValueForArgument(
+        internal bool TryGetValueForArgument(
             IValueDescriptor valueDescriptor,
             out object value)
         {
@@ -79,40 +46,18 @@ namespace System.CommandLine
             return false;
         }
 
-        public bool TryGetValueForOption(IValueDescriptor valueDescriptor, out object value)
+        public object ValueForOption(string alias)
         {
-            var children = Children
-                           .Where(o => valueDescriptor.ValueName.IsMatch(o.Symbol))
-                           .ToArray();
-
-            SymbolResult symbolResult = null;
-
-            if (children.Length > 1)
+            if (Children[alias] is OptionResult optionResult)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {string.Join(",", children.Select(o => o.Name))}");
+                if (optionResult.Option.Argument.Arity.MaximumNumberOfValues > 1)
+                {
+                    return optionResult.GetValueOrDefault<IEnumerable<string>>();
+                }
             }
 
-            if (children.Length == 1)
-            {
-                symbolResult = children[0];
-            }
-
-            if (symbolResult is OptionResult optionResult && 
-                optionResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
-            {
-                value = successful.Value;
-                return true;
-            }
-            else
-            {
-                value = null;
-                return false;
-            }
+            return ValueForOption<object>(alias);
         }
-
-        public object ValueForOption(
-            string alias) =>
-            ValueForOption<object>(alias);
 
         public T ValueForOption<T>(string alias)
         {

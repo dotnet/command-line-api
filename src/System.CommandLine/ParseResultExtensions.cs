@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.Linq;
 using System.Text;
 
@@ -86,7 +85,8 @@ namespace System.CommandLine
             SymbolResult symbolResult,
             ParseResult parseResult)
         {
-            if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult))
+            if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult ||
+                                            e.SymbolResult is ArgumentResult2 a && a.Parent == symbolResult))
             {
                 builder.Append("!");
             }
@@ -103,8 +103,15 @@ namespace System.CommandLine
 
             foreach (var child in symbolResult.Children)
             {
-                builder.Append(" ");
-                builder.Diagram(child, parseResult);
+                switch (child)
+                {
+                    case ArgumentResult2 _:
+                        break;
+                    default:
+                        builder.Append(" ");
+                        builder.Diagram(child, parseResult);
+                        break;
+                }
             }
 
             if (symbolResult.Tokens.Count > 0)

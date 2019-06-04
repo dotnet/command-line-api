@@ -8,36 +8,40 @@ namespace System.CommandLine
 {
     public class ParseResult
     {
-        private readonly List<ParseError> _errors = new List<ParseError>();
+        private readonly List<ParseError> _errors;
 
         internal ParseResult(
             Parser parser,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
-            IReadOnlyList<Token> tokens,
+            TokenizeResult tokenizeResult,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
-            IReadOnlyCollection<TokenizeError> tokenizeErrors,
-            string rawInput)
+            List<ParseError> errors = null,
+            string rawInput = null)
         {
             Parser = parser;
             RootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             Directives = directives;
-            Tokens = tokens;
+
+            // skip the root command
+            Tokens = tokenizeResult.Tokens.Skip(1).ToArray();
+
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
 
             RawInput = rawInput;
 
-            if (tokenizeErrors?.Count > 0)
+            _errors = errors ?? new List<ParseError>();
+
+            if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
                 _errors.AddRange(
-                    tokenizeErrors.Select(e => new ParseError(e.Message)));
+                    unmatchedTokens.Select(token =>
+                                               new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
             }
-
-            AddImplicitOptionsAndCheckForErrors();
         }
 
         public CommandResult CommandResult { get; }
@@ -57,68 +61,6 @@ namespace System.CommandLine
         internal string RawInput { get; }
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
-
-        private void AddImplicitOptionsAndCheckForErrors()
-        {
-            foreach (var result in RootCommandResult.AllSymbolResults().ToArray())
-            {
-                if (result is CommandResult commandResult)
-                {
-                    foreach (var symbol in commandResult.Command.Children)
-                    {
-                        if (commandResult.Children[symbol.Name] == null)
-                        {
-                            foreach (var argument in symbol.Arguments())
-                            {
-                                if (argument.HasDefaultValue)
-                                {
-                                    switch (symbol)
-                                    {
-                                        case IOption option:
-                                            commandResult.AddImplicitOption(option);
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (!commandResult.IsArgumentLimitReached)
-                    {
-                        foreach (var argument in commandResult.Symbol.Arguments())
-                        {
-                            if (argument.HasDefaultValue)
-                            {
-                                var defaultValue = argument.GetDefaultValue();
-
-                                if (defaultValue is string stringArg)
-                                {
-                                    commandResult.TryTakeToken(new Token(stringArg, TokenType.Argument));
-                                }
-                                else
-                                {
-                                    commandResult.UseDefaultValueFor(argument, true);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                var errors = result.Validate();
-
-                _errors.AddRange(errors);
-            }
-
-            if (CommandResult.Command is Command cmd &&
-                cmd.Handler == null && 
-                cmd.Children.OfType<ICommand>().Any())
-            {
-                _errors.Insert(0,
-                               new ParseError(
-                                   CommandResult.ValidationMessages.RequiredCommandWasNotProvided(),
-                                   CommandResult));
-            }
-        }
 
         public object ValueForOption(
             string alias) =>
@@ -145,12 +87,6 @@ namespace System.CommandLine
         public SymbolResult this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
-
-        public CommandResult FindResultFor(ICommand command) =>
-            RootCommandResult
-                .AllSymbolResults()
-                .OfType<CommandResult>()
-                .FirstOrDefault(s => s.Symbol == command);
 
         public OptionResult FindResultFor(IOption option) =>
             RootCommandResult

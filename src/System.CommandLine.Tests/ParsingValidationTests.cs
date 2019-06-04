@@ -22,8 +22,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void
-            When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
+        public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
             var parser = new Parser(
                 new Option(
@@ -140,7 +139,7 @@ namespace System.CommandLine.Tests
                                                     Arity = ArgumentArity.ZeroOrMore
                                                 }.LegalFilePathsOnly());
 
-            var invalidCharacter = Path.GetInvalidPathChars().First();
+            var invalidCharacter = Path.GetInvalidPathChars().First(c => c!= '"');
 
             var result = command.Parse($"the-command {invalidCharacter}");
 
@@ -219,10 +218,8 @@ namespace System.CommandLine.Tests
                     $@"move ""{guid1}"" ""{guid2}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
 
             result.Errors
-                .Should()
-                .HaveCount(1)
-                .And
-                .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid1}");
+                  .Should()
+                  .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid1}");
         }
 
         [Fact]
@@ -250,8 +247,6 @@ namespace System.CommandLine.Tests
 
             result.Errors
                 .Should()
-                .HaveCount(1)
-                .And
                 .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid}");
         }
 
@@ -313,10 +308,10 @@ namespace System.CommandLine.Tests
             _output.WriteLine(result.Diagram());
 
             result.Errors
-                .Should()
-                .HaveCount(1)
-                .And
-                .Contain(e => e.SymbolResult.Name == "to" && e.Message == $"Directory does not exist: {trash1}");
+                  .Should()
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.SymbolResult.Name == "to" && e.Message == $"Directory does not exist: {trash1}");
         }
 
         [Fact]

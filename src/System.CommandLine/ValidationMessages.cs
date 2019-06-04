@@ -25,10 +25,13 @@ namespace System.CommandLine
                 ? $"No argument was provided for Command '{symbolResult.Token.Value}'."
                 : $"No argument was provided for Option '{symbolResult.Token.Value}'.";
 
-        public virtual string ExpectsFewerArguments(SymbolResult symbolResult, int maximumNumberOfValues) =>
-            symbolResult is CommandResult
-                ? $"Command '{symbolResult.Token}' expects no more than {maximumNumberOfValues} arguments, but {symbolResult.Arguments.Count} were provided."
-                : $"Option '{symbolResult.Token}' expects no more than {maximumNumberOfValues} arguments, but {symbolResult.Arguments.Count} were provided.";
+        public virtual string ExpectsFewerArguments(
+            Token token, 
+            int providedNumberOfValues,
+            int maximumNumberOfValues) =>
+            token.Type == TokenType.Command
+                ? $"Command '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided."
+                : $"Option '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided.";
 
         public virtual string DirectoryDoesNotExist(string path) =>
             $"Directory does not exist: {path}";
@@ -44,9 +47,6 @@ namespace System.CommandLine
                 ? $"Required argument missing for command: {symbolResult.Token.Value}"
                 : $"Required argument missing for option: {symbolResult.Token.Value}";
 
-        public virtual string RequiredArgumentNameMissing(string argumentAlias) =>
-            $"Name must be set for arguments with an arity above zero. The argument missing a name has the alias '{argumentAlias}'.";
-
         public virtual string RequiredCommandWasNotProvided() =>
             "Required command was not provided.";
 
@@ -55,9 +55,6 @@ namespace System.CommandLine
 
         public virtual string UnrecognizedCommandOrArgument(string arg) =>
             $"Unrecognized command or argument '{arg}'";
-
-        public virtual string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) =>
-            $"Option '{unrecognizedOption}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
 
         public virtual string ResponseFileNotFound(string filePath) =>
             $"Response file not found '{filePath}'";

@@ -18,8 +18,7 @@ namespace System.CommandLine.Binding
 
                 while (commandResult != null)
                 {
-                    if (commandResult.TryGetValueForOption(
-                        valueDescriptor,
+                    if (commandResult.TryGetValueForOption(valueDescriptor,
                         out var optionValue))
                     {
                         boundValue = optionValue;

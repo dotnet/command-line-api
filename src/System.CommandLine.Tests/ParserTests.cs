@@ -168,18 +168,21 @@ namespace System.CommandLine.Tests
 
             result.UnparsedTokens
                   .Should()
-                  .HaveCount(4);
+                  .BeEquivalentSequenceTo("-x",
+                                          "-y",
+                                          "-z",
+                                          "-o:foo");
         }
 
         [Fact]
-        public void The_portion_of_the_command_line_following_a_double_slash_is_accessible_as_UnparsedTokens()
+        public void The_portion_of_the_command_line_following_a_double_dash_is_accessible_as_UnparsedTokens()
         {
             var result = new Parser(new Option("-o"))
                 .Parse("-o \"some stuff\" -- x y z");
 
             result.UnparsedTokens
                   .Should()
-                  .ContainInOrder("x", "y", "z");
+                  .BeEquivalentSequenceTo("x", "y", "z");
         }
 
         [Fact]
@@ -328,11 +331,6 @@ namespace System.CommandLine.Tests
             var parser = new Parser(outer);
 
             ParseResult result = parser.Parse("outer inner -abc");
-
-            result.CommandResult
-                  .Children
-                  .Should()
-                  .BeEmpty();
 
             result.CommandResult
                   .Arguments
@@ -589,8 +587,6 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("outer --inner1 argument1 --inner2 argument2");
 
-            _output.WriteLine(result.Diagram());
-
             result.CommandResult
                   .Children
                   .Should()
@@ -625,10 +621,6 @@ namespace System.CommandLine.Tests
             ParseResult result3 = command.Parse(
                 "move ARG1 ARG2 -X the-arg-for-option-x");
 
-            // arg order reversed
-            ParseResult result4 = command.Parse(
-                "move ARG2 ARG1 -X the-arg-for-option-x");
-
             // all should be equivalent
             result1.Should()
                    .BeEquivalentTo(
@@ -638,11 +630,6 @@ namespace System.CommandLine.Tests
             result1.Should()
                    .BeEquivalentTo(
                        result3,
-                       x => x.IgnoringCyclicReferences()
-                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
-            result1.Should()
-                   .BeEquivalentTo(
-                       result4,
                        x => x.IgnoringCyclicReferences()
                              .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
         }
@@ -760,6 +747,8 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
+            _output.WriteLine(result.ToString());
+
             result.CommandResult["x"].Arguments.Should().BeEmpty();
             result.CommandResult.Arguments.Should().BeEquivalentTo("the-argument");
         }
@@ -864,7 +853,7 @@ namespace System.CommandLine.Tests
                             },
                             new Option("-x")
                             {
-                                Argument = new Argument()
+                                Argument = new Argument<string>()
                             }
                         };
 
@@ -872,16 +861,10 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            result.CommandResult
-                  .ParentCommandResult
+            result.RootCommandResult
                   .OptionResult("-x")
                   .Should()
                   .BeNull();
-            result.CommandResult
-                  .OptionResult("-x")
-                  .Arguments
-                  .Should()
-                  .BeEquivalentTo("one", "two");
         }
 
         [Fact]
@@ -901,8 +884,6 @@ namespace System.CommandLine.Tests
                                                "the-command");
 
             CommandResult completeResult = result.CommandResult;
-
-            _output.WriteLine(result.Diagram());
 
             completeResult.Arguments.Should().BeEquivalentTo("the-command");
         }
@@ -1082,6 +1063,8 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-directory");
 
+            _output.WriteLine(result.ToString());
+
             result.CommandResult
                   .GetValueOrDefault<DirectoryInfo>()
                   .Name
@@ -1103,8 +1086,6 @@ namespace System.CommandLine.Tests
                                       }));
 
             ParseResult result = outer.Parse("outer inner -p:RandomThing=random");
-
-            _output.WriteLine(result.Diagram());
 
             result.CommandResult
                   .Arguments
@@ -1283,6 +1264,7 @@ namespace System.CommandLine.Tests
                                            {
                                                Arity = ArgumentArity.ZeroOrOne
                                            }));
+
             command.AddOption(
                 new Option("-y", argument: new Argument
                                            {
@@ -1314,6 +1296,16 @@ namespace System.CommandLine.Tests
             ParseResult parseResult = parser.Parse(input);
             parseResult["output"].Should().NotBeNull();
             parseResult["o"].Should().NotBeNull();
+        }
+
+        [Fact]
+        public void Option_aliases_do_not_need_to_be_prefixed()
+        {
+            var option = new Option("noprefix");
+
+            var result = new RootCommand { option }.Parse("noprefix");
+
+            result.HasOption(option).Should().BeTrue();
         }
 
         [Theory]
@@ -1382,8 +1374,6 @@ namespace System.CommandLine.Tests
             var parser = new Parser();
 
             var result = parser.Parse(null);
-
-            _output.WriteLine(result.Diagram());
 
             result.CommandResult.Command.Name.Should().Be(RootCommand.ExeName);
         }

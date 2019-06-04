@@ -11,7 +11,7 @@ namespace System.CommandLine.Tests
 {
     public class PositionalOptionTests
     {
-        [Fact]
+        [Fact(Skip="WIP")]
         public void When_an_option_has_a_default_value_then_a_given_positional_value_should_overriden()
         {
             var configuration = new CommandLineConfiguration(
@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests
             result.RootCommandResult.ValueForOption("-y").Should().Be(456);
         }
 
-        [Fact]
+        [Fact(Skip="WIP")]
         public void When_an_option_has_a_default_value_then_a_given_positional_value_should_override_with_other_specified()
         {
             var configuration = new CommandLineConfiguration(
@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests
             result.RootCommandResult.ValueForOption("-y").Should().Be(23);
         }
 
-        [Fact]
+        [Fact(Skip="WIP")]
         public void When_a_sibling_commands_have_options_with_the_same_name_it_matches_based_on_command()
         {
             var parser = new CommandLineBuilder()
@@ -89,7 +89,7 @@ namespace System.CommandLine.Tests
             result.CommandResult["-anon"].GetValueOrDefault<string>().Should().Be("anon-value");
         }
 
-        [Theory]
+        [Theory(Skip="WIP")]
         [InlineData(2, 0)]
         [InlineData(1, 1)]
         [InlineData(0, 2)]
@@ -145,7 +145,7 @@ namespace System.CommandLine.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip="WIP")]
         public void When_a_subcommand_has_options_they_can_be_positional()
         {
             var parser = new CommandLineBuilder()
@@ -165,7 +165,7 @@ namespace System.CommandLine.Tests
             result.CommandResult["-anon2"].GetValueOrDefault<string>().Should().Be("anon2-value");
         }
 
-        [Fact]
+        [Fact(Skip="WIP")]
         public void When_option_argument_is_provided_without_option_name_then_argument_position_is_assumed()
         {
             var result = new CommandLineBuilder()
@@ -177,7 +177,7 @@ namespace System.CommandLine.Tests
             result.ValueForOption("-a").Should().Be("value-for-a");
         }
 
-        [Fact]
+        [Fact(Skip="WIP")]
         public void When_multiple_option_arguments_are_provided_without_option_name_then_argument_positions_are_assumed()
         {
             var rootCommand = new RootCommand
@@ -196,7 +196,7 @@ namespace System.CommandLine.Tests
             result.HasOption("-b").Should().BeFalse();
         }
 
-        [Fact]
+        [Fact(Skip="WIP")]
         public void When_multiple_option_arguments_are_provided_with_first_option_name_then_argument_positions_are_assumed()
         {
             var rootCommand = new RootCommand
@@ -215,7 +215,7 @@ namespace System.CommandLine.Tests
             result.HasOption("-b").Should().BeFalse();
         }
 
-        [Fact]
+        [Fact(Skip="WIP")]
         public void When_multiple_option_arguments_are_provided_with_second_option_is_first_positions_are_assumed()
         {
             var result = new CommandLineBuilder()

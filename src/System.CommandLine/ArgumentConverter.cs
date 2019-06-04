@@ -13,41 +13,49 @@ namespace System.CommandLine
 {
     internal static class ArgumentConverter
     {
-        internal static ArgumentResult Parse(
+        internal static ArgumentResult ConvertObject(
             IArgument argument,
-            Type type, 
+            Type type,
             object value)
         {
+            if (value == null &&
+                type == typeof(bool))
+            {
+                // the presence of the parsed symbol is treated as true
+                return new SuccessfulArgumentResult(argument, true);
+            }
+
             switch (value)
             {
                 // try to parse the single string argument to the requested type
-                case string stringArg:
-                    return Parse(argument, type, stringArg);
-
-                // try to parse the multiple string arguments to the request type
-                case IReadOnlyCollection<string> arguments:
-                    return ParseMany(argument, type, arguments);
-
-                case null:
-                    if (type == typeof(bool))
+                case string singleValue:
+                    if (type.IsEnumerable())
                     {
-                        // the presence of the parsed symbol is treated as true
-                        return new SuccessfulArgumentResult(argument, true);
+                        return ConvertStrings(argument, type, new[] { singleValue });
+                    }
+                    else
+                    {
+                        return ConvertString(argument, type, singleValue);
                     }
 
+                // try to parse the multiple string arguments to the request type
+                case IReadOnlyCollection<string> manyValues:
+                    return ConvertStrings(argument, type, manyValues);
+
+                case null:
                     break;
             }
 
             return None(argument);
         }
 
-
-
-        public static ArgumentResult Parse(
+        private static ArgumentResult ConvertString(
             IArgument argument,
             Type type,
             string value)
         {
+            type ??= typeof(string);
+
             if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter)
             {
                 if (typeConverter.CanConvertFrom(typeof(string)))
@@ -68,12 +76,6 @@ namespace System.CommandLine
             if (type.TryFindConstructorWithSingleParameterOfType(
                 typeof(string), out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) tuple))
             {
-                if (value == null &&
-                    !tuple.parameterDescriptor.AllowsNull)
-                {
-                    return Success(argument, type.GetDefaultValueForType());
-                }
-
                 var instance = tuple.ctor.Invoke(new object[]
                 {
                     value
@@ -85,7 +87,7 @@ namespace System.CommandLine
             return Failure(argument, type, value);
         }
 
-        public static ArgumentResult ParseMany(
+        public static ArgumentResult ConvertStrings(
             IArgument argument,
             Type type, 
             IReadOnlyCollection<string> arguments)
@@ -113,7 +115,7 @@ namespace System.CommandLine
             }
 
             var allParseResults = arguments
-                                  .Select(arg => Parse(argument, itemType, arg))
+                                  .Select(arg => ConvertString(argument, itemType, arg))
                                   .ToArray();
 
             var successfulParseResults = allParseResults
@@ -156,12 +158,12 @@ namespace System.CommandLine
             }
 
             return enumerableInterface.GenericTypeArguments[0];
+        }
 
-            bool IsEnumerable(Type i)
-            {
-                return i.IsGenericType &&
-                       i.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-            }
+        internal static bool IsEnumerable(this Type i)
+        {
+            return i.IsGenericType &&
+                   i.GetGenericTypeDefinition() == typeof(IEnumerable<>);
         }
 
         private static FailedArgumentResult Failure(

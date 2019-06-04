@@ -2,27 +2,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace System.CommandLine
 {
     public static class StringExtensions
     {
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
-
-        private static readonly Regex _commandLineSplitter = new Regex(
-            @"((?<opt>[^""\s]+)""(?<arg>[^""]+)"") # token + quoted argument with non-space argument delimiter, ex: --opt:""c:\path with\spaces""
-              |                                
-              (""(?<token>[^""]*)"")               # tokens surrounded by spaces, ex: ""c:\path with\spaces""
-              |
-              (?<token>\S+)                        # tokens containing no quotes or spaces
-              ",
-            RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace
-        );
 
         internal static bool ContainsCaseInsensitive(
             this string source,
@@ -47,7 +37,7 @@ namespace System.CommandLine
         }
 
         internal static TokenizeResult Tokenize(
-            this IEnumerable<string> args,
+            this IReadOnlyList<string> args,
             CommandLineConfiguration configuration)
         {
             var tokenList = new List<Token>();
@@ -56,11 +46,12 @@ namespace System.CommandLine
             ISymbol currentSymbol = null;
             var foundEndOfArguments = false;
             var foundEndOfDirectives = false;
-            var argList = args.ToList();
+            var argList = NormalizeRootCommand(configuration, args);
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
             var knownTokens = new HashSet<Token>(configuration.Symbols.SelectMany(ValidTokens));
+            var knownTokensStrings = new HashSet<string>(knownTokens.Select(t => t.Value));
 
             for (var i = 0; i < argList.Count; i++)
             {
@@ -103,13 +94,10 @@ namespace System.CommandLine
                     continue;
                 }
 
-                var argHasPrefix = HasPrefix(arg);
-
-                if (argHasPrefix &&
-                    arg.SplitByDelimiters(argumentDelimiters) is string[] subtokens &&
+                if (arg.SplitByDelimiters(argumentDelimiters) is string[] subtokens &&
                     subtokens.Length > 1)
                 {
-                    if (knownTokens.Any(t => t.Value == subtokens.First()))
+                    if (knownTokensStrings.Contains(subtokens[0]))
                     {
                         tokenList.Add(Option(subtokens[0]));
 
@@ -134,7 +122,7 @@ namespace System.CommandLine
                         tokenList.Add(Option($"-{character}"));
                     }
                 }
-                else if (knownTokens.All(t => t.Value != arg) ||
+                else if (!knownTokensStrings.Contains(arg) ||
                          // if token matches the current command name, consider it an argument
                          currentSymbol?.HasRawAlias(arg) == true)
                 {
@@ -142,7 +130,8 @@ namespace System.CommandLine
                 }
                 else
                 {
-                    if (argHasPrefix)
+                    if (knownTokens.Any(t => t.Type == TokenType.Option &&
+                                             t.Value == arg))
                     {
                         tokenList.Add(Option(arg));
                     }
@@ -162,6 +151,7 @@ namespace System.CommandLine
 
                         currentSymbol = symbolSet.GetByAlias(arg);
                         knownTokens = currentSymbol.ValidTokens();
+                        knownTokensStrings = new HashSet<string>(knownTokens.Select(t => t.Value));
                         tokenList.Add(Command(arg));
                     }
                 }
@@ -207,6 +197,75 @@ namespace System.CommandLine
                     errorList.Add(
                         new TokenizeError(message));
                 }
+            }
+        }
+
+        private static List<string> NormalizeRootCommand(
+            CommandLineConfiguration commandLineConfiguration, 
+            IReadOnlyList<string> args)
+        {
+            if (args == null)
+            {
+                args = new List<string>();
+            }
+
+            string potentialRootCommand = null;
+
+            if (args.Count > 0)
+            {
+                try
+                {
+                    potentialRootCommand = Path.GetFileName(args[0]);
+                }
+                catch (ArgumentException)
+                {
+                    // possible exception for illegal characters in path on .NET Framework
+                }
+
+                if (commandLineConfiguration.RootCommand.HasRawAlias(potentialRootCommand))
+                {
+                    return args.ToList();
+                }
+            }
+
+            var commandName = commandLineConfiguration.RootCommand.Name;
+
+            if (FirstArgMatchesRootCommand())
+            {
+                return new[]
+                {
+                    commandName
+                }.Concat(args.Skip(1))
+                 .ToList();
+            }
+            else
+            {
+                return new[]
+                {
+                    commandName
+                }.Concat(args)
+                 .ToList();
+            }
+
+
+            bool FirstArgMatchesRootCommand()
+            {
+                if (potentialRootCommand == null)
+                {
+                    return false;
+                }
+
+                if (potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                return false;
             }
         }
 
@@ -299,28 +358,9 @@ namespace System.CommandLine
                            .Contains(c.ToString());
         }
 
-        private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
-
         public static IEnumerable<string> SplitCommandLine(this string commandLine)
         {
-            var matches = _commandLineSplitter.Matches(commandLine);
-
-            foreach (Match match in matches)
-            {
-                if (match.Groups["arg"].Captures.Count > 0)
-                {
-                    var opt = match.Groups["opt"];
-                    var arg = match.Groups["arg"];
-                    yield return $"{opt}{arg}";
-                }
-                else
-                {
-                    foreach (var capture in match.Groups["token"].Captures)
-                    {
-                        yield return capture.ToString();
-                    }
-                }
-            }
+            return CommandLineStringSplitter.Instance.Split(commandLine);
         }
 
         private static IEnumerable<string> ExpandResponseFile(
