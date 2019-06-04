@@ -27,7 +27,7 @@ x86/ !eng/common/cross/x86/
 msbuild.log
 msbuild.err
 msbuild.wrn
-msbuild.binlog
+*.binlog
 
 # Visual Studio 2015
 .vs/
