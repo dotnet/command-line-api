@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "HostedConsoleApp": {
-      "commandName": "Project",
-      "commandLineArgs": "--foo bar --environment Development"
-    }
-  }
-}
