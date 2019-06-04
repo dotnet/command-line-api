@@ -89,11 +89,11 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public static void UseHost_UnmatchedTokens_can_propagate_to_Host_Configuration()
+        public static void UseHost_UnparsedTokens_can_propagate_to_Host_Configuration()
         {
             const string testArgument = "test";
-            const string testKey = "unmatched-config";
-            string commandLineArgs = $"--{testKey} {testArgument}";
+            const string testKey = "unparsed-config";
+            string commandLineArgs = $"-- --{testKey} {testArgument}";
 
             string testConfigValue = null;
 
@@ -107,12 +107,11 @@ namespace System.CommandLine.Hosting.Tests
                 new RootCommand
                 {
                     Handler = CommandHandler.Create<IHost>(Execute),
-                    TreatUnmatchedTokensAsErrors = false
                 })
                 .UseHost(host =>
                 {
                     var invocation = (InvocationContext)host.Properties[typeof(InvocationContext)];
-                    var args = invocation.ParseResult.UnmatchedTokens.ToArray();
+                    var args = invocation.ParseResult.UnparsedTokens.ToArray();
                     host.ConfigureHostConfiguration(config =>
                     {
                         config.AddCommandLine(args);
@@ -127,11 +126,11 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public static void UseHost_UnmatchedTokens_are_available_in_HostBuilder_factory()
+        public static void UseHost_UnparsedTokens_are_available_in_HostBuilder_factory()
         {
             const string testArgument = "test";
-            const string testKey = "unmatched-config";
-            string commandLineArgs = $"--{testKey} {testArgument}";
+            const string testKey = "unparsed-config";
+            string commandLineArgs = $"-- --{testKey} {testArgument}";
 
             string testConfigValue = null;
 
@@ -145,7 +144,6 @@ namespace System.CommandLine.Hosting.Tests
                 new RootCommand
                 {
                     Handler = CommandHandler.Create<IHost>(Execute),
-                    TreatUnmatchedTokensAsErrors = false
                 })
                 .UseHost(args =>
                 {
