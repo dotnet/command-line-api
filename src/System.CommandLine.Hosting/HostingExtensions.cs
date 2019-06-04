@@ -9,6 +9,8 @@ namespace System.CommandLine.Hosting
 {
     public static class HostingExtensions
     {
+        public const string ConfigurationDirectiveName = "config";
+
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null) =>
@@ -19,6 +21,10 @@ namespace System.CommandLine.Hosting
                     ?? new HostBuilder();
                 hostBuilder.Properties[typeof(InvocationContext)] = invocation;
 
+                hostBuilder.ConfigureHostConfiguration(config =>
+                {
+                    config.AddCommandLineDirectives(invocation.ParseResult, ConfigurationDirectiveName);
+                });
                 hostBuilder.ConfigureServices(services =>
                 {
                     services.AddSingleton(invocation);

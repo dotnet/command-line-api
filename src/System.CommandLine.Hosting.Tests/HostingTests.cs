@@ -163,5 +163,33 @@ namespace System.CommandLine.Hosting.Tests
 
             testConfigValue.Should().BeEquivalentTo(testArgument);
         }
+
+        [Fact]
+        public static void UseHost_flows_config_directives_to_HostConfiguration()
+        {
+            const string testKey = "Test";
+            const string testValue = "Value";
+            string commandLine = $"[config:{testKey}={testValue}]";
+
+            string testConfigValue = null;
+
+            void Execute(IHost host)
+            {
+                var config = host.Services.GetRequiredService<IConfiguration>();
+                testConfigValue = config[testKey];
+            }
+
+            var parser = new CommandLineBuilder(
+                new RootCommand
+                {
+                    Handler = CommandHandler.Create<IHost>(Execute)
+                })
+                .UseHost()
+                .Build();
+
+            parser.InvokeAsync(commandLine).GetAwaiter().GetResult();
+
+            testConfigValue.Should().BeEquivalentTo(testValue);
+        }
     }
 }
