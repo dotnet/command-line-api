@@ -139,7 +139,7 @@ namespace System.CommandLine.Tests
                                                     Arity = ArgumentArity.ZeroOrMore
                                                 }.LegalFilePathsOnly());
 
-            var invalidCharacter = Path.GetInvalidPathChars().First(c => c!='"');
+            var invalidCharacter = Path.GetInvalidPathChars().First(c => c!= '"');
 
             var result = command.Parse($"the-command {invalidCharacter}");
 

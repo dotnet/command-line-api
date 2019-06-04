@@ -232,20 +232,21 @@ namespace System.CommandLine
 
             if (FirstArgMatchesRootCommand())
             {
-                args = new[]
-                       {
-                           commandName
-                       }.Concat(args.Skip(1)).ToList();
+                return new[]
+                {
+                    commandName
+                }.Concat(args.Skip(1))
+                 .ToList();
             }
             else
             {
-                args = new[]
-                       {
-                           commandName
-                       }.Concat(args).ToList();
+                return new[]
+                {
+                    commandName
+                }.Concat(args)
+                 .ToList();
             }
 
-            return args.ToList();
 
             bool FirstArgMatchesRootCommand()
             {

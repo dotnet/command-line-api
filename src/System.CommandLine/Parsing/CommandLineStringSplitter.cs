@@ -7,7 +7,7 @@ namespace System.CommandLine.Parsing
 {
     public class CommandLineStringSplitter : ICommandLineStringSplitter
     {
-        public static ICommandLineStringSplitter Instance = new CommandLineStringSplitter();
+        public static readonly ICommandLineStringSplitter Instance = new CommandLineStringSplitter();
 
         private enum Boundary
         {

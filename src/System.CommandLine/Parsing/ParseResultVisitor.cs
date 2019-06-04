@@ -271,7 +271,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            if (SymbolResult.Parse(argumentResult, argumentResult.Argument) is   FailedArgumentResult failed)
+            if (SymbolResult.Parse(argumentResult, argumentResult.Argument) is FailedArgumentResult failed)
             {
                 _errors.Add(
                     new ParseError(

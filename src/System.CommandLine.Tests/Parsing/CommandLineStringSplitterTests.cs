@@ -17,6 +17,7 @@ namespace System.CommandLine.Tests.Parsing
         [InlineData("one two\tthree   four ")]
         [InlineData(" one two three   four")]
         [InlineData(" one\ntwo\nthree\nfour\n")]
+        [InlineData(" one\r\ntwo\r\nthree\r\nfour\r\n")]
         public void It_splits_strings_based_on_whitespace(string commandLine)
         {
             _splitter.Split(commandLine)

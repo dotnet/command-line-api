@@ -49,7 +49,6 @@ namespace System.CommandLine
         {
             get
             {
-                // FIX: (ArgumentResults) 
                 var results = Children
                               .OfType<ArgumentResult2>()
                               .Select(r => Parse(r, r.Argument));
@@ -127,8 +126,6 @@ namespace System.CommandLine
 
         internal bool UseDefaultValueFor(IArgument argument)
         {
-            // FIX: (UseDefaultValueFor) 
-
             if (this is OptionResult optionResult &&
                 optionResult.IsImplicit)
             {
@@ -204,8 +201,8 @@ namespace System.CommandLine
 
             bool ShouldCheckArity()
             {
-                return !(symbolResult is OptionResult optionResult) ||
-                       !optionResult.IsImplicit;
+                return !(symbolResult is OptionResult optionResult &&
+                       optionResult.IsImplicit);
             }
         }
 
