@@ -50,7 +50,7 @@ namespace System.CommandLine
             get
             {
                 var results = Children
-                              .OfType<ArgumentResult2>()
+                              .OfType<ArgumentResult>()
                               .Select(r => Parse(r, r.Argument));
 
                 var resultSet = new ArgumentConversionResultSet();
@@ -144,7 +144,7 @@ namespace System.CommandLine
         public override string ToString() => $"{GetType().Name}: {Token}";
 
         internal static ArgumentConversionResult Parse(
-            ArgumentResult2 argumentResult,
+            ArgumentResult argumentResult,
             IArgument argument) =>
             Parse(argumentResult.Parent, argument);
 

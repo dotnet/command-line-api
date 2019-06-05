@@ -3,9 +3,9 @@
 
 namespace System.CommandLine
 {
-    internal class ArgumentResult2 : SymbolResult
+    public class ArgumentResult : SymbolResult
     {
-        internal ArgumentResult2(
+        internal ArgumentResult(
             IArgument argument,
             Token token,
             SymbolResult parent) : base(argument, token, parent)

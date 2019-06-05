@@ -29,7 +29,7 @@ namespace System.CommandLine
 
         public int MaximumNumberOfValues { get; set; }
 
-        internal static FailedArgumentConversionArityResult Validate(ArgumentResult2 argumentResult) =>
+        internal static FailedArgumentConversionArityResult Validate(ArgumentResult argumentResult) =>
             Validate(argumentResult.Parent,
                      argumentResult.Argument,
                      argumentResult.Argument.Arity.MinimumNumberOfValues,

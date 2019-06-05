@@ -80,13 +80,13 @@ namespace System.CommandLine.Parsing
 
             var argumentResult =
                 commandResult.Children
-                             .OfType<ArgumentResult2>()
+                             .OfType<ArgumentResult>()
                              .SingleOrDefault(r => r.Symbol == argumentNode.Argument);
 
             if (argumentResult == null)
             {
                 argumentResult =
-                    new ArgumentResult2(
+                    new ArgumentResult(
                         argumentNode.Argument,
                         argumentNode.Token,
                         commandResult);
@@ -123,12 +123,12 @@ namespace System.CommandLine.Parsing
             var argument = argumentNode.Argument;
 
             var argumentResult =
-                (ArgumentResult2)optionResult.Children.ResultFor(argument);
+                (ArgumentResult)optionResult.Children.ResultFor(argument);
 
             if (argumentResult == null)
             {
                 argumentResult =
-                    new ArgumentResult2(
+                    new ArgumentResult(
                         argumentNode.Argument,
                         argumentNode.Token,
                         optionResult);
@@ -165,7 +165,7 @@ namespace System.CommandLine.Parsing
                 {
                     switch (result)
                     {
-                        case ArgumentResult2 argumentResult:
+                        case ArgumentResult argumentResult:
 
                             ValidateArgument(argumentResult);
 
@@ -188,7 +188,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             var results = optionResult.Children
-                                                      .OfType<ArgumentResult2>()
+                                                      .OfType<ArgumentResult>()
                                                       .ToArray();
 
                             foreach (var a in results)
@@ -249,7 +249,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void ValidateArgument(ArgumentResult2 argumentResult)
+        private void ValidateArgument(ArgumentResult argumentResult)
         {
             var arityFailure = ArgumentArity.Validate(argumentResult);
 
@@ -301,7 +301,7 @@ namespace System.CommandLine.Parsing
                             TokenType.Argument);
 
                         optionResult.Children.Add(
-                            new ArgumentResult2(
+                            new ArgumentResult(
                                 option.Argument,
                                 token,
                                 optionResult));
@@ -315,7 +315,7 @@ namespace System.CommandLine.Parsing
 
                         var implicitToken = new ImplicitToken(argument.GetDefaultValue(), TokenType.Argument);
 
-                        var argumentResult = new ArgumentResult2(
+                        var argumentResult = new ArgumentResult(
                             argument,
                             implicitToken,
                             parentCommandResult);
@@ -332,7 +332,7 @@ namespace System.CommandLine.Parsing
                 o.Children.Count == 0)
             {
                 o.Children.Add(
-                    new ArgumentResult2(
+                    new ArgumentResult(
                         o.Option.Argument,
                         new ImplicitToken(true, TokenType.Argument),
                         o));
