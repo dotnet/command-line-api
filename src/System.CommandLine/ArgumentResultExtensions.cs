@@ -3,7 +3,7 @@
 
 namespace System.CommandLine
 {
-    public static class ArgumentResultExtensions
+    internal static class ArgumentResultExtensions
     {
         internal static ArgumentResult ConvertIfNeeded(
             this ArgumentResult argumentResult,

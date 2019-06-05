@@ -3,16 +3,11 @@
 
 namespace System.CommandLine
 {
-    public abstract class ArgumentResult
+    internal abstract class ArgumentResult
     {
         private protected ArgumentResult(IArgument argument)
         {
-            if (argument == null)
-            {
-                 throw new ArgumentNullException(nameof(argument));
-            }
-
-            Argument = argument;
+            Argument = argument ?? throw new ArgumentNullException(nameof(argument));
         }
 
         public IArgument Argument { get; }

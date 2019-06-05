@@ -3,7 +3,7 @@
 
 namespace System.CommandLine
 {
-    public class SuccessfulArgumentResult : ArgumentResult
+    internal class SuccessfulArgumentResult : ArgumentResult
     {
         internal SuccessfulArgumentResult(IArgument argument, object value) : base(argument)
         {

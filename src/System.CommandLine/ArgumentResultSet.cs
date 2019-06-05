@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public class ArgumentResultSet : AliasedSet<ArgumentResult>
+    internal class ArgumentResultSet : AliasedSet<ArgumentResult>
     {
         protected override bool ContainsItemWithAlias(ArgumentResult item, string alias)
         {
