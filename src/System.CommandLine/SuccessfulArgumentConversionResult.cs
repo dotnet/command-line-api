@@ -3,9 +3,9 @@
 
 namespace System.CommandLine
 {
-    internal class SuccessfulArgumentResult : ArgumentResult
+    internal class SuccessfulArgumentConversionResult : ArgumentConversionResult
     {
-        internal SuccessfulArgumentResult(IArgument argument, object value) : base(argument)
+        internal SuccessfulArgumentConversionResult(IArgument argument, object value) : base(argument)
         {
             Value = value;
         }

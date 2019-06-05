@@ -37,7 +37,7 @@ namespace System.CommandLine
             {
                 if (valueDescriptor.ValueName.IsMatch(argument.Name))
                 {
-                    value = ArgumentResults[argument.Name].GetValueOrDefault();
+                    value = ArgumentConversionResults[argument.Name].GetValueOrDefault();
                     return true;
                 }
             }

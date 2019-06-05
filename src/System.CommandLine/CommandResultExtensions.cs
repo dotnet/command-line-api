@@ -17,11 +17,11 @@ namespace System.CommandLine
         [Obsolete("Use GetArgumentValueOrDefault instead. This method will be removed in a future version.")]
         public static T GetValueOrDefault<T>(this CommandResult commandResult)
         {
-            var argumentResult = commandResult.ArgumentResults
-                                              .SingleOrDefault() ??
-                                 ArgumentResult.None(commandResult.ArgumentResult.Argument);
+            var conversionResult = commandResult.ArgumentConversionResults
+                                                .SingleOrDefault() ??
+                                   ArgumentConversionResult.None(commandResult.ArgumentConversionResult.Argument);
 
-            return argumentResult
+            return conversionResult
                    .ConvertIfNeeded(commandResult, typeof(T))
                    .GetValueOrDefault<T>();
         }
@@ -37,11 +37,11 @@ namespace System.CommandLine
             this CommandResult commandResult,
             string argumentName)
         {
-            var argumentResult =
-                commandResult.ArgumentResults
+            var conversionResult =
+                commandResult.ArgumentConversionResults
                              .SingleOrDefault(r => r.Argument.Name == argumentName);
 
-            return argumentResult.GetValueOrDefault<T>();
+            return conversionResult.GetValueOrDefault<T>();
         }
 
         internal static bool TryGetValueForOption(
@@ -67,7 +67,7 @@ namespace System.CommandLine
 
             if (symbolResult is OptionResult optionResult)
             {
-                if (optionResult.ConvertIfNeeded(valueDescriptor.Type) is SuccessfulArgumentResult successful)
+                if (optionResult.ConvertIfNeeded(valueDescriptor.Type) is SuccessfulArgumentConversionResult successful)
                 {
                     value = successful.Value;
                     return true;

@@ -7,13 +7,13 @@ using System.CommandLine.Binding;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using static System.CommandLine.ArgumentResult;
+using static System.CommandLine.ArgumentConversionResult;
 
 namespace System.CommandLine
 {
     internal static class ArgumentConverter
     {
-        internal static ArgumentResult ConvertObject(
+        internal static ArgumentConversionResult ConvertObject(
             IArgument argument,
             Type type,
             object value)
@@ -22,7 +22,7 @@ namespace System.CommandLine
                 type == typeof(bool))
             {
                 // the presence of the parsed symbol is treated as true
-                return new SuccessfulArgumentResult(argument, true);
+                return new SuccessfulArgumentConversionResult(argument, true);
             }
 
             switch (value)
@@ -49,7 +49,7 @@ namespace System.CommandLine
             return None(argument);
         }
 
-        private static ArgumentResult ConvertString(
+        private static ArgumentConversionResult ConvertString(
             IArgument argument,
             Type type,
             string value)
@@ -87,7 +87,7 @@ namespace System.CommandLine
             return Failure(argument, type, value);
         }
 
-        public static ArgumentResult ConvertStrings(
+        public static ArgumentConversionResult ConvertStrings(
             IArgument argument,
             Type type, 
             IReadOnlyCollection<string> arguments)
@@ -119,7 +119,7 @@ namespace System.CommandLine
                                   .ToArray();
 
             var successfulParseResults = allParseResults
-                                         .OfType<SuccessfulArgumentResult>()
+                                         .OfType<SuccessfulArgumentConversionResult>()
                                          .ToArray();
 
             if (successfulParseResults.Length == arguments.Count)
@@ -139,7 +139,7 @@ namespace System.CommandLine
             }
             else
             {
-                return allParseResults.OfType<FailedArgumentResult>().First();
+                return allParseResults.OfType<FailedArgumentConversionResult>().First();
             }
         }
 
@@ -166,7 +166,7 @@ namespace System.CommandLine
                    i.GetGenericTypeDefinition() == typeof(IEnumerable<>);
         }
 
-        private static FailedArgumentResult Failure(
+        private static FailedArgumentConversionResult Failure(
             IArgument argument,
             Type type, 
             string value)
@@ -226,6 +226,67 @@ namespace System.CommandLine
             {
                 info = (null, null);
                 return false;
+            }
+        }
+
+        internal static ArgumentConversionResult ConvertIfNeeded(
+            this ArgumentConversionResult conversionResult,
+            SymbolResult symbolResult,
+            Type type)
+        {
+            if (conversionResult == null)
+            {
+                throw new ArgumentNullException(nameof(conversionResult));
+            }
+
+            switch (conversionResult)
+            {
+                case SuccessfulArgumentConversionResult successful when !type.IsInstanceOfType(successful.Value):
+                    return ArgumentConverter.ConvertObject(
+                        conversionResult.Argument,
+                        type,
+                        successful.Value);
+
+                case NoArgumentConversionResult _ when type == typeof(bool):
+                    return ArgumentConversionResult.Success(conversionResult.Argument, true);
+
+                case NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0:
+                    return new MissingArgumentConversionResult(
+                        conversionResult.Argument,
+                        ValidationMessages.Instance.RequiredArgumentMissing(symbolResult));
+
+                case NoArgumentConversionResult _ when type.IsEnumerable():
+                    return ArgumentConverter.ConvertObject(
+                        conversionResult.Argument,
+                        type,
+                        Array.Empty<string>());
+
+                case TooManyArgumentsConversionResult _:
+                    return conversionResult;
+
+                case MissingArgumentConversionResult _:
+                    return conversionResult;
+
+                default:
+                    return conversionResult;
+            }
+        }
+
+        internal static object GetValueOrDefault(this ArgumentConversionResult result) =>
+            result.GetValueOrDefault<object>();
+
+        internal static T GetValueOrDefault<T>(this ArgumentConversionResult result)
+        {
+            switch (result)
+            {
+                case SuccessfulArgumentConversionResult successful:
+                    return (T)successful.Value;
+                case FailedArgumentConversionResult failed:
+                    throw new InvalidOperationException(failed.ErrorMessage);
+                case NoArgumentConversionResult _:
+                    return default;
+                default:
+                    return default;
             }
         }
     }

@@ -91,7 +91,7 @@ namespace System.CommandLine.Binding
                         valueDescriptor.Type, 
                         value);
 
-                    if (parsed is SuccessfulArgumentResult successful)
+                    if (parsed is SuccessfulArgumentConversionResult successful)
                     {
                         boundValue = new BoundValue(successful.Value, valueDescriptor, valueSource);
                         return true;

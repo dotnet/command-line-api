@@ -57,7 +57,7 @@ namespace System.CommandLine
                                     typeof(bool),
                                     symbol.Tokens.SingleOrDefault()?.Value ?? bool.TrueString);
 
-                                return value is SuccessfulArgumentResult;
+                                return value is SuccessfulArgumentConversionResult;
                             };
                         }
                         else
@@ -88,7 +88,7 @@ namespace System.CommandLine
                             break;
                     }
 
-                    return value is SuccessfulArgumentResult;
+                    return value is SuccessfulArgumentConversionResult;
                 }
             }
             set => _convertArguments = value;

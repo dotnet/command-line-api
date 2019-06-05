@@ -125,9 +125,9 @@ namespace System.CommandLine
             }
             else
             {
-                foreach (var result in symbolResult.ArgumentResults)
+                foreach (var result in symbolResult.ArgumentConversionResults)
                 {
-                    if (result is SuccessfulArgumentResult successfulArgumentResult)
+                    if (result is SuccessfulArgumentConversionResult successfulArgumentResult)
                     {
                         var value = successfulArgumentResult.Value;
 
