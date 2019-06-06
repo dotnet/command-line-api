@@ -171,7 +171,9 @@ namespace System.CommandLine
             if (argument is Argument a &&
                 a.ConvertArguments != null)
             {
-                var success = a.ConvertArguments(symbolResult, out var value);
+                var argumentResult = symbolResult.Children.ResultFor(argument);
+
+                var success = a.ConvertArguments(argumentResult, out var value);
 
                 if (value is ArgumentConversionResult conversionResult)
                 {
