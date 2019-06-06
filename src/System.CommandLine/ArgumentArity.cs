@@ -41,7 +41,9 @@ namespace System.CommandLine
             int minimumNumberOfValues,
             int maximumNumberOfValues)
         {
-            var tokenCount = symbolResult.Tokens.Count; 
+            var argumentResult = symbolResult.Children.ResultFor(argument);
+
+            var tokenCount = argumentResult?.Tokens.Count ?? 0;
 
             if (tokenCount < minimumNumberOfValues)
             {
@@ -69,7 +71,7 @@ namespace System.CommandLine
                         argument,
                         symbolResult.ValidationMessages.ExpectsFewerArguments(
                             symbolResult.Token,
-                            symbolResult.Tokens.Count,
+                            tokenCount,
                             maximumNumberOfValues));
                 }
             }

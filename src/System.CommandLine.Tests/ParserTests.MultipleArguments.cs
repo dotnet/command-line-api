@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
                 _output = output;
             }
 
-            [Fact(Skip = "wip")]
+            [Fact]
             public void Multiple_arguments_can_differ_by_arity()
             {
                 var command = new Command("the-command")
@@ -38,40 +38,93 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2 3 4");
 
-                _output.WriteLine(result.ToString());
-
                 var several = result.CommandResult
                                     .GetArgumentValueOrDefault<IEnumerable<string>>("several");
 
                 var one = result.CommandResult
-                                .GetArgumentValueOrDefault<string>("one");
+                                .GetArgumentValueOrDefault<IEnumerable<string>>("one");
 
                 several.Should()
-                       .BeEquivalentTo("1", "2", "3");
+                       .BeEquivalentSequenceTo("1", "2", "3");
                 one.Should()
-                   .Be("4");
+                       .BeEquivalentSequenceTo("4");
             }
 
-            [Fact(Skip = "wip")]
+            [Fact]
             public void Multiple_arguments_can_differ_by_type()
             {
                 var command = new Command("the-command")
                 {
                     new Argument<string>
                     {
-                        Name = "several"
+                        Name = "the-string"
                     },
                     new Argument<int>
                     {
-                        Name = "one"
+                        Name = "the-int"
                     }
                 };
 
                 var result = command.Parse("1 2");
 
-                _output.WriteLine(result.ToString());
+                var theString = result.CommandResult
+                                    .GetArgumentValueOrDefault<string>("the-string");
 
-                Assert.True(false, "Test Multiple_positional_arguments_can_differ_by_type is not written yet.");
+                var theInt = result.CommandResult
+                                .GetArgumentValueOrDefault<int>("the-int");
+
+                theString.Should().Be("1");
+                theInt.Should().Be(2);
+            }
+
+            [Theory]
+            [InlineData("--verbose one two three four five")]
+            [InlineData("one --verbose two three four five")]
+            [InlineData("one two --verbose three four five")]
+            [InlineData("one two three --verbose four five")]
+            [InlineData("one two three four --verbose five")]
+            [InlineData("one two three four five --verbose")]
+            [InlineData("--verbose true one two three four five")]
+            [InlineData("one --verbose true two three four five")]
+            [InlineData("one two --verbose true three four five")]
+            [InlineData("one two three --verbose true four five")]
+            [InlineData("one two three four --verbose true five")]
+            [InlineData("one two three four five --verbose true")]
+            public void When_multiple_arguments_are_present_then_their_order_relative_to_sibling_options_is_not_significant(string commandLine)
+            {
+                var command = new Command("the-command")
+                {
+                    new Argument<string> { Name = "first" },
+                    new Argument<string> { Name = "second" },
+                    new Argument<string[]> { Name = "third" },
+                    new Option("--verbose")
+                    {
+                        Argument = new Argument<bool>()
+                    }  
+                };
+
+                var parseResult = command.Parse(commandLine);
+
+                var commandResult = parseResult.CommandResult;
+
+                commandResult
+                    .GetArgumentValueOrDefault<string>("first")
+                    .Should()
+                    .Be("one");
+
+                commandResult
+                    .GetArgumentValueOrDefault<string>("second")
+                    .Should()
+                    .Be("two");
+
+                commandResult
+                    .GetArgumentValueOrDefault<string[]>("third")
+                    .Should()
+                    .BeEquivalentSequenceTo("three", "four", "five");
+
+                commandResult.ValueForOption<bool>("--verbose")
+                             .Should()
+                             .BeTrue();
             }
         }
     }

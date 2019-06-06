@@ -27,7 +27,6 @@ namespace System.CommandLine
             Parent = parent;
         }
 
-        [Obsolete("Use the ArgumentResults property instead")]
         internal ArgumentConversionResult ArgumentConversionResult
         {
             get
@@ -38,7 +37,6 @@ namespace System.CommandLine
                     IArgument a => a,
                     _ => null
                 };
-
 
                 return ArgumentConversionResults.SingleOrDefault() ??
                        ArgumentConversionResult.None(argument);
@@ -183,9 +181,9 @@ namespace System.CommandLine
                 {
                     return ArgumentConversionResult.Success(argument, value);
                 }
-                else
+                else 
                 {
-                    return ArgumentConversionResult.Failure(argument, symbolResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Arguments)}");
+                    return ArgumentConversionResult.Failure(argument, argumentResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Arguments)}");
                 }
             }
 

@@ -135,6 +135,7 @@ namespace System.CommandLine.Parsing
                 optionResult.Children.Add(argumentResult);
             }
 
+            argumentResult.AddToken(argumentNode.Token);
             optionResult.AddToken(argumentNode.Token);
         }
 

@@ -27,7 +27,6 @@ namespace System.CommandLine
 
             switch (value)
             {
-                // try to parse the single string argument to the requested type
                 case string singleValue:
                     if (type.IsEnumerable())
                     {
@@ -38,7 +37,6 @@ namespace System.CommandLine
                         return ConvertString(argument, type, singleValue);
                     }
 
-                // try to parse the multiple string arguments to the request type
                 case IReadOnlyCollection<string> manyValues:
                     return ConvertStrings(argument, type, manyValues);
 
