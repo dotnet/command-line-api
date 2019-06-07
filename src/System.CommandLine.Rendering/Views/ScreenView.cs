@@ -7,6 +7,7 @@ namespace System.CommandLine.Rendering.Views
 {
     public class ScreenView : IDisposable
     {
+        private readonly IConsole _console;
         private View _child;
         private int _renderRequested;
         private int _renderInProgress;
@@ -14,9 +15,11 @@ namespace System.CommandLine.Rendering.Views
 
         public ScreenView(
             ConsoleRenderer renderer,
+            IConsole console,
             SynchronizationContext synchronizationContext = null)
         {
             Renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
+            _console = console ?? throw new ArgumentNullException(nameof(console));
             _context = synchronizationContext ?? SynchronizationContext.Current ?? new SynchronizationContext();
         }
 
@@ -65,6 +68,8 @@ namespace System.CommandLine.Rendering.Views
         // may not want this?
         public void Render(Region region)
         {
+            _console.Out.Write(Ansi.Cursor.Hide.EscapeSequence);
+
             Child?.Render(Renderer, region);
         }
 
@@ -77,6 +82,8 @@ namespace System.CommandLine.Rendering.Views
 
         public void Dispose()
         {
+            _console.Out.Write(Ansi.Cursor.Show.EscapeSequence);
+
             if (_child is View child)
             {
                 child.Updated -= ChildUpdated;
