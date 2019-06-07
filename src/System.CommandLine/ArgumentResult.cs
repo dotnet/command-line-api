@@ -1,28 +1,22 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
+
 namespace System.CommandLine
 {
-    public abstract class ArgumentResult
+    public class ArgumentResult : SymbolResult
     {
-        private protected ArgumentResult(IArgument argument)
+        internal ArgumentResult(
+            IArgument argument,
+            Token token,
+            SymbolResult parent) : base(argument, token, parent)
         {
-            if (argument == null)
-            {
-                 throw new ArgumentNullException(nameof(argument));
-            }
-
             Argument = argument;
         }
 
         public IArgument Argument { get; }
 
-        internal string ErrorMessage { get; set; }
-
-        internal static FailedArgumentResult Failure(IArgument argument, string error) => new FailedArgumentResult(argument, error);
-
-        public static SuccessfulArgumentResult Success(IArgument argument, object value) => new SuccessfulArgumentResult(argument, value);
-
-        internal static NoArgumentResult None(IArgument argument) => new NoArgumentResult(argument);
+        public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
     }
 }

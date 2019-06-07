@@ -29,19 +29,21 @@ namespace System.CommandLine
 
         public int MaximumNumberOfValues { get; set; }
 
-        internal static FailedArgumentArityResult Validate(ArgumentResult2 argumentResult) =>
+        internal static FailedArgumentConversionArityResult Validate(ArgumentResult argumentResult) =>
             Validate(argumentResult.Parent,
                      argumentResult.Argument,
                      argumentResult.Argument.Arity.MinimumNumberOfValues,
                      argumentResult.Argument.Arity.MaximumNumberOfValues);
 
-        internal static FailedArgumentArityResult Validate(
+        internal static FailedArgumentConversionArityResult Validate(
             SymbolResult symbolResult,
             IArgument argument,
             int minimumNumberOfValues,
             int maximumNumberOfValues)
         {
-            var tokenCount = symbolResult.Tokens.Count; 
+            var argumentResult = symbolResult.Children.ResultFor(argument);
+
+            var tokenCount = argumentResult?.Tokens.Count ?? 0;
 
             if (tokenCount < minimumNumberOfValues)
             {
@@ -50,7 +52,7 @@ namespace System.CommandLine
                     return null;
                 }
 
-                return new MissingArgumentResult(
+                return new MissingArgumentConversionResult(
                     argument,
                     symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
             }
@@ -59,17 +61,17 @@ namespace System.CommandLine
             {
                 if (maximumNumberOfValues == 1)
                 {
-                    return new TooManyArgumentsResult(
+                    return new TooManyArgumentsConversionResult(
                         argument,
                         symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
                 }
                 else
                 {
-                    return new TooManyArgumentsResult(
+                    return new TooManyArgumentsConversionResult(
                         argument,
                         symbolResult.ValidationMessages.ExpectsFewerArguments(
                             symbolResult.Token,
-                            symbolResult.Tokens.Count,
+                            tokenCount,
                             maximumNumberOfValues));
                 }
             }

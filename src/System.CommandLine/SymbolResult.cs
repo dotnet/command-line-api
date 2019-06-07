@@ -27,8 +27,7 @@ namespace System.CommandLine
             Parent = parent;
         }
 
-        [Obsolete("Use the ArgumentResults property instead")]
-        internal ArgumentResult ArgumentResult
+        internal ArgumentConversionResult ArgumentConversionResult
         {
             get
             {
@@ -39,21 +38,20 @@ namespace System.CommandLine
                     _ => null
                 };
 
-
-                return ArgumentResults.SingleOrDefault() ??
-                       ArgumentResult.None(argument);
+                return ArgumentConversionResults.SingleOrDefault() ??
+                       ArgumentConversionResult.None(argument);
             }
         }
 
-        internal ArgumentResultSet ArgumentResults
+        internal ArgumentConversionResultSet ArgumentConversionResults
         {
             get
             {
                 var results = Children
-                              .OfType<ArgumentResult2>()
+                              .OfType<ArgumentResult>()
                               .Select(r => Parse(r, r.Argument));
 
-                var resultSet = new ArgumentResultSet();
+                var resultSet = new ArgumentConversionResultSet();
 
                 foreach (var result in results)
                 {
@@ -143,12 +141,12 @@ namespace System.CommandLine
 
         public override string ToString() => $"{GetType().Name}: {Token}";
 
-        internal static ArgumentResult Parse(
-            ArgumentResult2 argumentResult,
+        internal static ArgumentConversionResult Parse(
+            ArgumentResult argumentResult,
             IArgument argument) =>
             Parse(argumentResult.Parent, argument);
 
-        internal static ArgumentResult Parse(
+        internal static ArgumentConversionResult Parse(
             SymbolResult symbolResult,
             IArgument argument)
         {
@@ -156,7 +154,7 @@ namespace System.CommandLine
                      ArgumentArity.Validate(symbolResult,
                                             argument,
                                             argument.Arity.MinimumNumberOfValues,
-                                            argument.Arity.MaximumNumberOfValues) is FailedArgumentResult failedResult)
+                                            argument.Arity.MaximumNumberOfValues) is FailedArgumentConversionResult failedResult)
             {
                 return failedResult;
             }
@@ -165,38 +163,40 @@ namespace System.CommandLine
             {
                 var defaultValueFor = symbolResult.GetDefaultValueFor(argument);
 
-                return ArgumentResult.Success(argument, defaultValueFor);
+                return ArgumentConversionResult.Success(argument, defaultValueFor);
             }
 
             if (argument is Argument a &&
                 a.ConvertArguments != null)
             {
-                var success = a.ConvertArguments(symbolResult, out var value);
+                var argumentResult = symbolResult.Children.ResultFor(argument);
 
-                if (value is ArgumentResult argumentResult)
+                var success = a.ConvertArguments(argumentResult, out var value);
+
+                if (value is ArgumentConversionResult conversionResult)
                 {
-                    return argumentResult;
+                    return conversionResult;
                 }
                 else if (success)
                 {
-                    return ArgumentResult.Success(argument, value);
+                    return ArgumentConversionResult.Success(argument, value);
                 }
-                else
+                else 
                 {
-                    return ArgumentResult.Failure(argument, symbolResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Arguments)}");
+                    return ArgumentConversionResult.Failure(argument, argumentResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Arguments)}");
                 }
             }
 
             switch (argument.Arity.MaximumNumberOfValues)
             {
                 case 0:
-                    return ArgumentResult.Success(argument, null);
+                    return ArgumentConversionResult.Success(argument, null);
 
                 case 1:
-                    return ArgumentResult.Success(argument, symbolResult.Arguments.SingleOrDefault());
+                    return ArgumentConversionResult.Success(argument, symbolResult.Arguments.SingleOrDefault());
 
                 default:
-                    return ArgumentResult.Success(argument, symbolResult.Arguments);
+                    return ArgumentConversionResult.Success(argument, symbolResult.Arguments);
             }
 
             bool ShouldCheckArity()

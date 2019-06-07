@@ -5,19 +5,19 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public class ArgumentResultSet : AliasedSet<ArgumentResult>
+    internal class ArgumentConversionResultSet : AliasedSet<ArgumentConversionResult>
     {
-        protected override bool ContainsItemWithAlias(ArgumentResult item, string alias)
+        protected override bool ContainsItemWithAlias(ArgumentConversionResult item, string alias)
         {
             return item.Argument.Name.Equals(alias);
         }
 
-        protected override bool ContainsItemWithRawAlias(ArgumentResult item, string alias)
+        protected override bool ContainsItemWithRawAlias(ArgumentConversionResult item, string alias)
         {
             return item.Argument.Name.Equals(alias);
         }
 
-        protected override IReadOnlyCollection<string> GetAliases(ArgumentResult item)
+        protected override IReadOnlyCollection<string> GetAliases(ArgumentConversionResult item)
         {
             return new[] { item.Argument.Name };
         }

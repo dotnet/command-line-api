@@ -3,9 +3,9 @@
 
 namespace System.CommandLine
 {
-    internal abstract class FailedArgumentArityResult : FailedArgumentResult
+    internal abstract class FailedArgumentConversionArityResult : FailedArgumentConversionResult
     {
-        internal FailedArgumentArityResult(IArgument argument, string errorMessage) : base(argument, errorMessage)
+        internal FailedArgumentConversionArityResult(IArgument argument, string errorMessage) : base(argument, errorMessage)
         {
         }
     }

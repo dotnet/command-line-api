@@ -269,7 +269,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be("'-o' is not an integer");
+                    .Be("'not-an-int' is not an integer");
         }
 
         [Fact]

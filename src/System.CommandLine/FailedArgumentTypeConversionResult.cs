@@ -3,7 +3,7 @@
 
 namespace System.CommandLine
 {
-    internal class FailedArgumentTypeConversionResult : FailedArgumentResult
+    internal class FailedArgumentTypeConversionResult : FailedArgumentConversionResult
     {
         // TODO: (FailedArgumentTypeConversionResult) localize
         internal FailedArgumentTypeConversionResult(

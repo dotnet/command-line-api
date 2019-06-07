@@ -86,7 +86,7 @@ namespace System.CommandLine
             ParseResult parseResult)
         {
             if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult ||
-                                            e.SymbolResult is ArgumentResult2 a && a.Parent == symbolResult))
+                                            e.SymbolResult is ArgumentResult a && a.Parent == symbolResult))
             {
                 builder.Append("!");
             }
@@ -105,7 +105,7 @@ namespace System.CommandLine
             {
                 switch (child)
                 {
-                    case ArgumentResult2 _:
+                    case ArgumentResult _:
                         break;
                     default:
                         builder.Append(" ");
@@ -125,9 +125,9 @@ namespace System.CommandLine
             }
             else
             {
-                foreach (var result in symbolResult.ArgumentResults)
+                foreach (var result in symbolResult.ArgumentConversionResults)
                 {
-                    if (result is SuccessfulArgumentResult successfulArgumentResult)
+                    if (result is SuccessfulArgumentConversionResult successfulArgumentResult)
                     {
                         var value = successfulArgumentResult.Value;
 

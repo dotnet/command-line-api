@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     public static class OptionResultExtensions
     {
-        internal static ArgumentResult ConvertIfNeeded(
+        internal static ArgumentConversionResult ConvertIfNeeded(
             this OptionResult optionResult,
             Type type)
         {
@@ -16,7 +16,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(optionResult));
             }
 
-            return optionResult.ArgumentResult
+            return optionResult.ArgumentConversionResult
                                .ConvertIfNeeded(optionResult, type);
         }
 
