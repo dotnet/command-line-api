@@ -9,10 +9,11 @@ namespace System.CommandLine
     public class ParseResult
     {
         private readonly List<ParseError> _errors;
+        private readonly RootCommandResult _rootCommandResult;
 
         internal ParseResult(
             Parser parser,
-            CommandResult rootCommandResult,
+            RootCommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
             TokenizeResult tokenizeResult,
@@ -22,7 +23,7 @@ namespace System.CommandLine
             string rawInput = null)
         {
             Parser = parser;
-            RootCommandResult = rootCommandResult;
+            _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             Directives = directives;
 
@@ -48,7 +49,7 @@ namespace System.CommandLine
 
         public Parser Parser { get; }
 
-        public CommandResult RootCommandResult { get; }
+        public CommandResult RootCommandResult => _rootCommandResult;
 
         public IReadOnlyCollection<ParseError> Errors => _errors;
 
@@ -88,10 +89,13 @@ namespace System.CommandLine
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
 
+        public ArgumentResult FindResultFor(IArgument argument) =>
+            _rootCommandResult.FindResultFor(argument);
+            
+        public CommandResult FindResultFor(ICommand command) =>
+            _rootCommandResult.FindResultFor(command);
+
         public OptionResult FindResultFor(IOption option) =>
-            RootCommandResult
-                .AllSymbolResults()
-                .OfType<OptionResult>()
-                .FirstOrDefault(s => s.Symbol == option);
+            _rootCommandResult.FindResultFor(option);
     }
 }

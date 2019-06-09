@@ -17,7 +17,7 @@ namespace System.CommandLine.Parsing
         private readonly List<string> _unmatchedTokens;
         private readonly List<ParseError> _errors;
 
-        private CommandResult _rootCommandResult;
+        private RootCommandResult _rootCommandResult;
         private CommandResult _innermostCommandResult;
 
         public ParseResultVisitor(
@@ -51,7 +51,7 @@ namespace System.CommandLine.Parsing
 
         protected override void VisitRootCommandNode(RootCommandNode rootCommandNode)
         {
-            _rootCommandResult = new CommandResult(
+            _rootCommandResult = new RootCommandResult(
                 rootCommandNode.Command,
                 rootCommandNode.Token);
             _rootCommandResult.ValidationMessages = _parser.Configuration.ValidationMessages;
@@ -272,11 +272,11 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            if (SymbolResult.Parse(argumentResult, argumentResult.Argument) is FailedArgumentConversionResult failed)
+            if (argumentResult.ArgumentConversionResult is FailedArgumentConversionResult failed)
             {
                 _errors.Add(
                     new ParseError(
-                        failed.ErrorMessage, 
+                        failed.ErrorMessage,
                         argumentResult));
             }
         }

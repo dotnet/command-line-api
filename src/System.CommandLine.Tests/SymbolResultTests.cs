@@ -16,7 +16,11 @@ namespace System.CommandLine.Tests
                 "",
                 new Argument<string>("default"));
 
-            var result = new OptionResult(option, new Token(option.Name, TokenType.Option));
+            var result = new RootCommand
+            {
+                option
+            }.Parse("-x")
+             .FindResultFor(option);
 
             result.Arguments.Should().BeEmpty();
         }
@@ -103,11 +107,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void ValueForOption_throws_with_empty_alias()
         {
-            var command = new Command("one", "");
+            var command = new Command("one");
 
-            var result = new CommandResult(command, new Token("one", TokenType.Command));
+            var result = command.Parse("");
 
-            Action action = () => {
+            Action action = () =>
+            {
                 result.ValueForOption<string>(string.Empty);
             };
 

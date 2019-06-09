@@ -29,7 +29,8 @@ namespace System.CommandLine
 
         public int MaximumNumberOfValues { get; set; }
 
-        internal static FailedArgumentConversionArityResult Validate(ArgumentResult argumentResult) =>
+        internal static FailedArgumentConversionArityResult Validate(
+            ArgumentResult argumentResult) =>
             Validate(argumentResult.Parent,
                      argumentResult.Argument,
                      argumentResult.Argument.Arity.MinimumNumberOfValues,
@@ -41,7 +42,22 @@ namespace System.CommandLine
             int minimumNumberOfValues,
             int maximumNumberOfValues)
         {
-            var argumentResult = symbolResult.Children.ResultFor(argument);
+            SymbolResult argumentResult = null;
+
+            switch (symbolResult)
+            {
+                case CommandResult commandResult:
+                    argumentResult = commandResult.Root.FindResultFor(argument);
+                    break;
+
+                case OptionResult optionResult:
+                    argumentResult = optionResult.Children.ResultFor(argument);
+                    break;
+
+                case ArgumentResult _:
+                    throw new ArgumentException("");
+            }
+
 
             var tokenCount = argumentResult?.Tokens.Count ?? 0;
 
@@ -89,12 +105,12 @@ namespace System.CommandLine
 
         public static IArgumentArity OneOrMore => new ArgumentArity(1, byte.MaxValue);
 
-        internal static IArgumentArity Default(Type type, Argument argument, ISymbol symbol)
+        internal static IArgumentArity Default(Type type, Argument argument, ISymbol parent)
         {
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
                 type != typeof(string))
             {
-                return symbol is ICommand
+                return parent is ICommand
                            ? ZeroOrMore
                            : OneOrMore;
             }
@@ -104,13 +120,13 @@ namespace System.CommandLine
                 return ZeroOrOne;
             }
 
-            if (symbol is ICommand &&
+            if (parent is ICommand &&
                 type.IsNullable())
             {
                 return ZeroOrOne;
             }
 
-            if (symbol is ICommand &&
+            if (parent is ICommand &&
                 argument.HasDefaultValue)
             {
                 return ZeroOrOne;

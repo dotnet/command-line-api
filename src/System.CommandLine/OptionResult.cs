@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     public class OptionResult : SymbolResult
     {
-        public OptionResult(
+        internal OptionResult(
             IOption option,
             Token token,
             CommandResult parent = null) :

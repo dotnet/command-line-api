@@ -334,7 +334,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option, new Token("-x", TokenType.Option))));
+                    .Be("Required argument missing for option: -x");
         }
 
         [Fact]
@@ -416,7 +416,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be(ValidationMessages.Instance.RequiredArgumentMissing(new OptionResult(option, new Token("-x", TokenType.Option))));
+                    .Be("Required argument missing for option: -x");
         }
 
         [Fact]
@@ -458,9 +458,9 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void The_default_value_of_a_command_with_no_arguments_is_an_empty_collection()
+        public void The_default_value_of_a_command_with_no_arguments_is_null()
         {
-            var result = new CommandResult(new Command("-x"), new Token("-x", TokenType.Command));
+            var result = new Command("x").Parse("").CommandResult;
 
             var valueOrDefault = result.GetValueOrDefault();
 
@@ -497,11 +497,22 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void The_default_value_of_an_option_with_no_arguments_is_true()
+        public void The_default_value_of_an_option_with_no_arguments_is_null()
         {
-            var command = new OptionResult(new Option("-x"), new Token("-x", TokenType.Option));
+            var option = new Option("-x");
 
-            command.GetValueOrDefault().Should().Be(null);
+            var command =
+                new Command("the-command")
+                {
+                    option
+                };
+
+            var result = command.Parse("-x");
+
+            result.FindResultFor(option)
+                  .GetValueOrDefault()
+                  .Should()
+                  .BeNull();
         }
 
         [Fact]

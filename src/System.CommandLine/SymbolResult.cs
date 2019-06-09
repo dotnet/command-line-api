@@ -10,9 +10,8 @@ namespace System.CommandLine
     public abstract class SymbolResult
     {
         private protected readonly List<Token> _tokens = new List<Token>();
-
+        private ArgumentConversionResultSet _results;
         private ValidationMessages _validationMessages;
-
         private readonly Dictionary<IArgument, object> _defaultArgumentValues = new Dictionary<IArgument, object>();
 
         private protected SymbolResult(
@@ -27,7 +26,7 @@ namespace System.CommandLine
             Parent = parent;
         }
 
-        internal ArgumentConversionResult ArgumentConversionResult
+        internal virtual ArgumentConversionResult ArgumentConversionResult
         {
             get
             {
@@ -47,19 +46,23 @@ namespace System.CommandLine
         {
             get
             {
-                var results = Children
-                              .OfType<ArgumentResult>()
-                              .Select(r => Parse(r, r.Argument));
-
-                var resultSet = new ArgumentConversionResultSet();
-
-                foreach (var result in results)
+                if (_results == null)
                 {
-                    resultSet.Add(result);
+                    var results = Children
+                                  .OfType<ArgumentResult>()
+                                  .Select(r => Convert(r, r.Argument));
+
+                    _results = new ArgumentConversionResultSet();
+
+                    foreach (var result in results)
+                    {
+                        _results.Add(result);
+                    }
+
+                    return _results;
                 }
 
-                return resultSet;
-
+                return _results;
             }
         }
 
@@ -141,20 +144,20 @@ namespace System.CommandLine
 
         public override string ToString() => $"{GetType().Name}: {Token}";
 
-        internal static ArgumentConversionResult Parse(
+        internal static ArgumentConversionResult Convert(
             ArgumentResult argumentResult,
             IArgument argument) =>
-            Parse(argumentResult.Parent, argument);
+            Convert(argumentResult.Parent, argument);
 
-        internal static ArgumentConversionResult Parse(
+        internal static ArgumentConversionResult Convert(
             SymbolResult symbolResult,
             IArgument argument)
         {
             if (ShouldCheckArity() &&
-                     ArgumentArity.Validate(symbolResult,
-                                            argument,
-                                            argument.Arity.MinimumNumberOfValues,
-                                            argument.Arity.MaximumNumberOfValues) is FailedArgumentConversionResult failedResult)
+                ArgumentArity.Validate(symbolResult,
+                                       argument,
+                                       argument.Arity.MinimumNumberOfValues,
+                                       argument.Arity.MaximumNumberOfValues) is FailedArgumentConversionResult failedResult)
             {
                 return failedResult;
             }
