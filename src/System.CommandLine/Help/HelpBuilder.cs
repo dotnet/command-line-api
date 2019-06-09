@@ -375,9 +375,25 @@ namespace System.CommandLine
         {
             var usage = new List<string>();
 
-            var subcommands = command
-                .RecurseWhileNotNull(c => c.Parent as ICommand)
-                .Reverse();
+            IEnumerable<ICommand> subcommands;
+
+            if (command is Command cmd)
+            {
+                subcommands = cmd
+                              .RecurseWhileNotNull(c =>
+                              {
+                                  var firstOrDefault = c.Parents
+                                                        .OfType<Command>()
+                                                        .FirstOrDefault();
+
+                                  return firstOrDefault ;
+                              })
+                              .Reverse();
+            }
+            else
+            {
+                subcommands = Enumerable.Empty<ICommand>();
+            }
 
             foreach (var subcommand in subcommands)
             {
@@ -437,7 +453,8 @@ namespace System.CommandLine
         {
             var commands = new List<ICommand>();
 
-            if (command.Parent is ICommand parent &&
+            if (command is Command cmd &&
+                cmd.Parents.FirstOrDefault() is ICommand parent &&
                 ShouldDisplayArgumentHelp(parent))
             {
                 commands.Add(parent);
