@@ -61,5 +61,14 @@ namespace System.CommandLine.Rendering
                 .ToLocation(left: left + 1, top: top + 1)
                 .EscapeSequence);
 
+        public override void CursorHide()
+        {
+            Console.Out.Write(Ansi.Cursor.Hide.EscapeSequence);
+        }
+
+        public override void CursorShow()
+        {
+            Console.Out.Write(Ansi.Cursor.Show.EscapeSequence);
+        }
     }
 }

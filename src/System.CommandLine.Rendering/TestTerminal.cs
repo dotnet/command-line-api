@@ -248,7 +248,17 @@ namespace System.CommandLine.Rendering
                 yield return new TextRendered(buffer.ToString(), position);
             }
         }
-        
+
+        public void CursorHide()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CursorShow()
+        {
+            throw new NotImplementedException();
+        }
+
         public abstract class ConsoleEvent
         {
         }

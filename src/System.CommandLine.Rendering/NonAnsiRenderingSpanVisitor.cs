@@ -51,6 +51,19 @@ namespace System.CommandLine.Rendering
             }
         }
 
+        public override void VisitCursorControlSpan(CursorControlSpan cursorControlSpan)
+        {
+            switch(cursorControlSpan.Name)
+            {
+                case nameof(CursorControlSpan.Hide):
+                    Terminal.CursorHide();
+                    break;
+                case nameof(CursorControlSpan.Show):
+                    Terminal.CursorShow();
+                    break;
+            }
+        }
+
         private static readonly Dictionary<string, ConsoleColor> _backgroundColorMappings =
             new Dictionary<string, ConsoleColor>
             {
