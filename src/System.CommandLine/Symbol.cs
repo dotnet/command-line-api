@@ -13,7 +13,7 @@ namespace System.CommandLine
         private string _longestAlias = "";
         private string _specifiedName;
         private protected readonly ArgumentSet _arguments = new ArgumentSet();
-        private List<Symbol> _parents = new List<Symbol>();
+        private readonly List<Symbol> _parents = new List<Symbol>();
 
         private protected Symbol()
         {

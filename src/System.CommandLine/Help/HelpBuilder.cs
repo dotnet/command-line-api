@@ -292,13 +292,13 @@ namespace System.CommandLine
             {
                 var argumentDescriptor = ArgumentDescriptor(argument);
 
-                yield return new HelpItem
-                {
-                    Invocation = string.IsNullOrWhiteSpace(argumentDescriptor)
+                var invocation = string.IsNullOrWhiteSpace(argumentDescriptor)
                                      ? ""
-                                     : $"<{argumentDescriptor}>",
-                    Description = argument?.Description ?? ""
-                };
+                                     : $"<{argumentDescriptor}>";
+
+                var argumentDescription = argument?.Description ?? "";
+
+                yield return new HelpItem(invocation, argumentDescription);
             }
         }
 
@@ -330,7 +330,7 @@ namespace System.CommandLine
 
             var option = string.Join(", ", rawAliases);
 
-            if (symbol.ShouldShowHelp())
+            if (ShouldShowHelp(symbol))
             {
                 foreach (var argument in symbol.Arguments())
                 {
@@ -345,11 +345,7 @@ namespace System.CommandLine
                 }
             }
 
-            yield return new HelpItem
-            {
-                Invocation = option,
-                Description = symbol.Description ?? ""
-            };
+            yield return new HelpItem(option, symbol.Description);
         }
 
         /// <summary>
@@ -358,7 +354,7 @@ namespace System.CommandLine
         /// <param name="command"></param>
         protected virtual void AddSynopsis(ICommand command)
         {
-            if (!command.ShouldShowHelp())
+            if (!ShouldShowHelp(command))
             {
                 return;
             }
@@ -380,14 +376,9 @@ namespace System.CommandLine
             if (command is Command cmd)
             {
                 subcommands = cmd
-                              .RecurseWhileNotNull(c =>
-                              {
-                                  var firstOrDefault = c.Parents
-                                                        .OfType<Command>()
-                                                        .FirstOrDefault();
-
-                                  return firstOrDefault ;
-                              })
+                              .RecurseWhileNotNull(c => c.Parents
+                                                         .OfType<Command>()
+                                                         .FirstOrDefault())
                               .Reverse();
             }
             else
@@ -401,36 +392,24 @@ namespace System.CommandLine
 
                 if (subcommand != command)
                 {
-                    foreach (var argument in subcommand.Arguments)
-                    {
-                        if (argument.ShouldShowHelp())
-                        {
-                            usage.Add($"<{argument.Name}>");
-                        }
-                    }
+                    usage.Add(FormatArgumentUsage(subcommand.Arguments));
                 }
             }
 
             var hasOptionHelp = command.Children
                 .OfType<IOption>()
-                .Any(option => option.ShouldShowHelp());
+                .Any(ShouldShowHelp);
 
             if (hasOptionHelp)
             {
                 usage.Add(Usage.Options);
             }
-
-            foreach (var argument in command.Arguments)
-            {
-                if (argument.ShouldShowHelp())
-                {
-                    usage.Add($"<{argument.Name}>");
-                }
-            }
+            
+            usage.Add(FormatArgumentUsage(command.Arguments));
 
             var hasCommandHelp = command.Children
                 .OfType<ICommand>()
-                .Any(f => f.ShouldShowHelp());
+                .Any(ShouldShowHelp);
 
             if (hasCommandHelp)
             {
@@ -442,7 +421,60 @@ namespace System.CommandLine
                 usage.Add(Usage.AdditionalArguments);
             }
 
-            HelpSection.Write(this, Usage.Title, string.Join(" ", usage));
+            HelpSection.Write(this, Usage.Title, string.Join(" ", usage.Where(u => !string.IsNullOrWhiteSpace(u))));
+        }
+
+        private string FormatArgumentUsage(IReadOnlyCollection<IArgument> arguments)
+        {
+            var sb = new StringBuilder();
+            var args = new List<IArgument>(arguments.Where(ShouldShowHelp));
+            var end = new Stack<string>();
+
+            for (var i = 0; i < args.Count; i++)
+            {
+                var argument = arguments.ElementAt(i);
+
+                var arityIndicator =
+                    argument.Arity.MaximumNumberOfValues > 1
+                        ? "..."
+                        : "";
+
+                var isOptional = IsOptional(argument);
+
+                if (isOptional)
+                {
+                    sb.Append($"[<{argument.Name}>{arityIndicator}");
+                }
+                else
+                {
+                    sb.Append($"<{argument.Name}>{arityIndicator}");
+                }
+
+                if (i < args.Count - 1)
+                {
+                    sb.Append(" ");
+                }
+
+                if (isOptional)
+                {
+                    end.Push("]");
+                }
+            }
+
+            while (end.Count > 0)
+            {
+                sb.Append(end.Pop());
+            }
+
+            return sb.ToString();
+
+            bool IsMultiParented(IArgument argument) =>
+                argument is Argument a &&
+                a.Parents.Count > 1;
+
+            bool IsOptional(IArgument argument) =>
+                IsMultiParented(argument) ||
+                argument.Arity.MinimumNumberOfValues == 0;
         }
 
         /// <summary>
@@ -478,7 +510,7 @@ namespace System.CommandLine
             var options = command
                 .Children
                 .OfType<IOption>()
-                .Where(opt => opt.ShouldShowHelp())
+                .Where(ShouldShowHelp)
                 .ToArray();
 
             HelpSection.Write(this, Options.Title, options, OptionFormatter);
@@ -494,7 +526,7 @@ namespace System.CommandLine
             var subcommands = command
                 .Children
                 .OfType<ICommand>()
-                .Where(subCommand => subCommand.ShouldShowHelp())
+                .Where(ShouldShowHelp)
                 .ToArray();
 
             HelpSection.Write(this, Commands.Title, subcommands, OptionFormatter);
@@ -510,21 +542,34 @@ namespace System.CommandLine
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private static bool ShouldDisplayArgumentHelp(ICommand command)
+        private bool ShouldDisplayArgumentHelp(ICommand command)
         {
             if (command == null)
             {
                 return false;
             }
 
-            return command.Arguments.Any(a => a.ShouldShowHelp());
+            return command.Arguments.Any(ShouldShowHelp);
         }
 
         protected class HelpItem
         {
-            public string Invocation { get; set; }
+            public HelpItem(string invocation, string description = null)
+            {
+                Invocation = invocation;
+                Description = description ?? "";
+            }
 
-            public string Description { get; set; }
+            public string Invocation { get; }
+
+            public string Description { get; }
+
+            protected bool Equals(HelpItem other) => 
+                (Invocation, Description) == (other.Invocation, other.Description);
+
+            public override bool Equals(object obj) => Equals((HelpItem) obj);
+
+            public override int GetHashCode() => (Invocation, Description).GetHashCode();
         }
 
         private static class HelpSection
@@ -603,6 +648,7 @@ namespace System.CommandLine
             {
                 var helpItems = symbols
                     .SelectMany(formatter)
+                    .Distinct()
                     .ToList();
 
                 var maxWidth = helpItems
@@ -614,6 +660,25 @@ namespace System.CommandLine
                 {
                     builder.AppendHelpItem(helpItem, maxWidth);
                 }
+            }
+        }
+
+        internal bool ShouldShowHelp(ISymbol symbol)
+        {
+            if (symbol.IsHidden)
+            {
+                return false;
+            }
+
+            if (symbol is IArgument)
+            {
+                return !symbol.IsHidden;
+            }
+            else
+            {
+                return !symbol.IsHidden &&
+                       (!string.IsNullOrWhiteSpace(symbol.Description) ||
+                        symbol.Arguments().Any(ShouldShowHelp));
             }
         }
     }
