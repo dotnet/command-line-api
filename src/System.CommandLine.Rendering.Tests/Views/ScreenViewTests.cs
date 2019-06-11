@@ -35,7 +35,7 @@ namespace System.CommandLine.Rendering.Tests.Views
         [Fact]
         public void ScreenView_requires_a_console()
         {
-             Action nullRenderer = () => new ScreenView(_renderer, null);
+            Action nullRenderer = () => new ScreenView(_renderer, null);
 
             nullRenderer.Should().Throw<ArgumentNullException>().Where(ex => ex.ParamName == "console");
         }
@@ -47,23 +47,21 @@ namespace System.CommandLine.Rendering.Tests.Views
 
             screen.Render();
 
-            _terminal.Out
-                     .ToString()
-                     .Should()
-                     .StartWith(Ansi.Cursor.Hide.EscapeSequence);
+            _terminal.Events
+                .Should()
+                .BeEquivalentSequenceTo(new TestTerminal.CursorHidden());
         }
 
         [Fact]
         public void Dispose_shows_the_cursor()
         {
-             var screen = new ScreenView(_renderer, _terminal, _synchronizationContext);
+            var screen = new ScreenView(_renderer, _terminal, _synchronizationContext);
 
             screen.Dispose();
 
-            _terminal.Out
-                     .ToString()
-                     .Should()
-                     .EndWith(Ansi.Cursor.Show.EscapeSequence);
+            _terminal.Events
+                .Should()
+                .BeEquivalentSequenceTo(new TestTerminal.CursorShown());
         }
 
         [Fact]
@@ -71,7 +69,7 @@ namespace System.CommandLine.Rendering.Tests.Views
         {
             var screen = new ScreenView(_renderer, _terminal, _synchronizationContext);
             var view = new TestView();
-            
+
             screen.Child = view;
 
             screen.Dispose();
@@ -157,7 +155,7 @@ namespace System.CommandLine.Rendering.Tests.Views
             view.RenderedRegions
                 .Should()
                 .BeEquivalentSequenceTo(
-                    new Region(0, 0, 100, 40), 
+                    new Region(0, 0, 100, 40),
                     new Region(0, 0, 100, 40));
         }
 

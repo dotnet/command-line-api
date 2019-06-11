@@ -251,12 +251,12 @@ namespace System.CommandLine.Rendering
 
         public void HideCursor()
         {
-            throw new NotImplementedException();
+            RecordEvent(new CursorHidden());
         }
 
         public void ShowCursor()
         {
-            throw new NotImplementedException();
+            RecordEvent(new CursorShown());
         }
 
         public abstract class ConsoleEvent
@@ -319,6 +319,16 @@ namespace System.CommandLine.Rendering
             }
 
             public ConsoleColor ForegroundColor { get; }
+        }
+
+        public class CursorHidden : ConsoleEvent
+        {
+
+        }
+
+        public class CursorShown : ConsoleEvent
+        {
+
         }
     }
 
