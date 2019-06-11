@@ -68,7 +68,7 @@ namespace System.CommandLine.Rendering.Views
         // may not want this?
         public void Render(Region region)
         {
-            _console.Out.Write(Ansi.Cursor.Hide.EscapeSequence);
+            _console.GetTerminal().HideCursor();
 
             Child?.Render(Renderer, region);
         }
@@ -82,7 +82,7 @@ namespace System.CommandLine.Rendering.Views
 
         public void Dispose()
         {
-            _console.Out.Write(Ansi.Cursor.Show.EscapeSequence);
+            _console.GetTerminal().ShowCursor();
 
             if (_child is View child)
             {

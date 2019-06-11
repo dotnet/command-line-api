@@ -57,5 +57,15 @@ namespace System.CommandLine.Rendering
                 RestoreConsoleSettings();
             }
         }
+
+        public override void HideCursor()
+        {
+            System.Console.CursorVisible = false;
+        }
+
+        public override void ShowCursor()
+        {
+            System.Console.CursorVisible = true;
+        }
     }
 }

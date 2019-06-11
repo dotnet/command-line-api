@@ -38,6 +38,10 @@ namespace System.CommandLine.Rendering
                     VisitStyleSpan(styleSpan);
                     break;
 
+                case CursorControlSpan cursorControlSpan:
+                    VisitCursorControlSpan(cursorControlSpan);
+                    break;
+
                 default:
                     VisitUnknownSpan(span);
                     break;
@@ -77,6 +81,10 @@ namespace System.CommandLine.Rendering
         }
 
         public virtual void VisitStyleSpan(StyleSpan span)
+        {
+        }
+
+        public virtual void VisitCursorControlSpan(CursorControlSpan cursorControlSpan)
         {
         }
     }

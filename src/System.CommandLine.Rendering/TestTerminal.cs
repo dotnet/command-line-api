@@ -248,7 +248,17 @@ namespace System.CommandLine.Rendering
                 yield return new TextRendered(buffer.ToString(), position);
             }
         }
-        
+
+        public void HideCursor()
+        {
+            RecordEvent(new CursorHidden());
+        }
+
+        public void ShowCursor()
+        {
+            RecordEvent(new CursorShown());
+        }
+
         public abstract class ConsoleEvent
         {
         }
@@ -309,6 +319,16 @@ namespace System.CommandLine.Rendering
             }
 
             public ConsoleColor ForegroundColor { get; }
+        }
+
+        public class CursorHidden : ConsoleEvent
+        {
+
+        }
+
+        public class CursorShown : ConsoleEvent
+        {
+
         }
     }
 
