@@ -36,15 +36,17 @@ namespace System.CommandLine.Hosting
                 hostBuilder.UseConsoleLifetime();
                 configureHost?.Invoke(hostBuilder);
 
+                var invokeCancel = invocation.GetCancellationToken();
+
                 using (var host = hostBuilder.Build())
                 {
                     invocation.BindingContext.AddService(typeof(IHost), () => host);
 
-                    await host.StartAsync();
+                    await host.StartAsync(invokeCancel);
 
                     await next(invocation);
 
-                    await host.StopAsync();
+                    await host.StopAsync(invokeCancel);
                 }
             });
 
