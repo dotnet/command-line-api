@@ -56,10 +56,10 @@ namespace System.CommandLine.Rendering
             switch(cursorControlSpan.Name)
             {
                 case nameof(CursorControlSpan.Hide):
-                    Terminal.CursorHide();
+                    Terminal.HideCursor();
                     break;
                 case nameof(CursorControlSpan.Show):
-                    Terminal.CursorShow();
+                    Terminal.ShowCursor();
                     break;
             }
         }

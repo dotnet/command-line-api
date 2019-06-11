@@ -19,8 +19,8 @@ namespace System.CommandLine.Rendering
 
         void SetCursorPosition(int left, int top);
 
-        void CursorHide();
+        void HideCursor();
 
-        void CursorShow();
+        void ShowCursor();
     }
 }

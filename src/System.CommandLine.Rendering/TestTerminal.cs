@@ -249,12 +249,12 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public void CursorHide()
+        public void HideCursor()
         {
             throw new NotImplementedException();
         }
 
-        public void CursorShow()
+        public void ShowCursor()
         {
             throw new NotImplementedException();
         }

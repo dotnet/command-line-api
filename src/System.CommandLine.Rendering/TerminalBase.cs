@@ -53,8 +53,8 @@ namespace System.CommandLine.Rendering
             GC.SuppressFinalize(this);
         }
 
-        public abstract void CursorHide();
+        public abstract void HideCursor();
 
-        public abstract void CursorShow();
+        public abstract void ShowCursor();
     }
 }

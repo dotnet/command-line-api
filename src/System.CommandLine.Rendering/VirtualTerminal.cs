@@ -61,12 +61,12 @@ namespace System.CommandLine.Rendering
                 .ToLocation(left: left + 1, top: top + 1)
                 .EscapeSequence);
 
-        public override void CursorHide()
+        public override void HideCursor()
         {
             Console.Out.Write(Ansi.Cursor.Hide.EscapeSequence);
         }
 
-        public override void CursorShow()
+        public override void ShowCursor()
         {
             Console.Out.Write(Ansi.Cursor.Show.EscapeSequence);
         }

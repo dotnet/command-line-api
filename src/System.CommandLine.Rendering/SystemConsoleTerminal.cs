@@ -58,12 +58,12 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public override void CursorHide()
+        public override void HideCursor()
         {
             System.Console.CursorVisible = false;
         }
 
-        public override void CursorShow()
+        public override void ShowCursor()
         {
             System.Console.CursorVisible = true;
         }
