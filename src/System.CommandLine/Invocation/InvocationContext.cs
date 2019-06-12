@@ -13,14 +13,6 @@ namespace System.CommandLine.Invocation
 
         public BindingContext BindingContext { get; }
 
-        public CancellationToken GetCancellationToken()
-        {
-            var obj = BindingContext.ServiceProvider.GetService(typeof(CancellationToken));
-            if (obj is CancellationToken ct)
-                return ct;
-            return CancellationToken.None;
-        }
-
         public InvocationContext(
             ParseResult parseResult,
             IConsole console = null)
@@ -62,7 +54,7 @@ namespace System.CommandLine.Invocation
         /// Indicates the invocation can be cancelled.
         /// </summary>
         /// <returns>Token used by the caller to implement cancellation handling.</returns>
-        internal CancellationToken AddCancellationHandling()
+        public CancellationToken AddCancellationHandling()
         {
             if (_cts != null)
             {

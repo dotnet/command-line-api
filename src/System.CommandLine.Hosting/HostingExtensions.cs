@@ -33,20 +33,20 @@ namespace System.CommandLine.Hosting
                     services.AddTransient(_ => invocation.InvocationResult);
                     services.AddTransient(_ => invocation.ParseResult);
                 });
-                hostBuilder.UseConsoleLifetime();
                 configureHost?.Invoke(hostBuilder);
-
-                var invokeCancel = invocation.GetCancellationToken();
 
                 using (var host = hostBuilder.Build())
                 {
                     invocation.BindingContext.AddService(typeof(IHost), () => host);
 
-                    await host.StartAsync(invokeCancel);
+                    // Stop the host when the invocation gets cancelled.
+                    var cancellationToken = invocation.AddCancellationHandling();
+
+                    await host.StartAsync(cancellationToken);
 
                     await next(invocation);
 
-                    await host.StopAsync(invokeCancel);
+                    await host.StopAsync(cancellationToken);
                 }
             });
 
