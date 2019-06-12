@@ -40,7 +40,7 @@ namespace System.CommandLine.Hosting
                     invocation.BindingContext.AddService(typeof(IHost), () => host);
 
                     // Stop the host when the invocation gets cancelled.
-                    var cancellationToken = invocation.AddCancellationHandling();
+                    var cancellationToken = invocation.GetCancellationToken();
 
                     await host.StartAsync(cancellationToken);
 
