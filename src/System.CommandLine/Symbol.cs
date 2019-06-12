@@ -13,7 +13,7 @@ namespace System.CommandLine
         private string _longestAlias = "";
         private string _specifiedName;
         private protected readonly ArgumentSet _arguments = new ArgumentSet();
-        private Symbol _parent;
+        private readonly List<Symbol> _parents = new List<Symbol>();
 
         private protected Symbol()
         {
@@ -75,17 +75,18 @@ namespace System.CommandLine
             }
         }
 
-        public Symbol Parent
+        internal IReadOnlyList<Symbol> Parents => _parents; 
+
+        private protected void AddParent(Symbol symbol)
         {
-            get => _parent;
-            internal set => _parent = value ?? throw new ArgumentNullException(nameof(value));
+            _parents.Add(symbol);
         }
 
         private protected void AddSymbol(Symbol symbol)
         {
             if (this is Command command)
             {
-                symbol.Parent = command;
+                symbol.AddParent(command);
             }
 
             Children.Add(symbol);
@@ -98,7 +99,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(argument));
             }
 
-            argument.Parent = this;
+            argument.AddParent(this);
 
             if (string.IsNullOrEmpty(argument.Name))
             {
@@ -167,8 +168,6 @@ namespace System.CommandLine
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";
-
-        ISymbol ISymbol.Parent => Parent;
 
         ISymbolSet ISymbol.Children => Children;
     }

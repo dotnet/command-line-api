@@ -124,13 +124,19 @@ namespace System.CommandLine.Tests.Help
 
         #region Usage
 
-        [Fact]
-        public void Usage_section_shows_arguments_if_there_are_arguments_for_command()
+        [Theory]
+        [InlineData(1, 1, "<the-args>")]
+        [InlineData(1, 2, "<the-args>...")]
+        [InlineData(0, 2, "[<the-args>...]")]
+        public void Usage_section_shows_arguments_if_there_are_arguments_for_command_when_there_is_one_argument(
+            int minArity,
+            int maxArity,
+            string expectedDescriptor)
         {
             var argument = new Argument
                            {
                                Name = "the-args",
-                               Arity = ArgumentArity.ZeroOrMore
+                               Arity = new ArgumentArity(minArity, maxArity)
                            };
             var command = new Command("the-command", "command help")
                           {
@@ -145,7 +151,51 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} the-command [options] <the-args>";
+                $"{_indentation}{_executableName} the-command [options] {expectedDescriptor}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Theory]
+        [InlineData(1, 1, 1, 1, "<arg1> <arg2>")]
+        [InlineData(0, 1, 0, 1, "[<arg1> [<arg2>]]")]
+        [InlineData(0, 1, 0, 2, "[<arg1> [<arg2>...]]")]
+        public void Usage_section_shows_arguments_if_there_are_arguments_for_command_when_there_is_more_than_one_argument(
+            int minArityForArg1,
+            int maxArityForArg1,
+            int minArityForArg2,
+            int maxArityForArg2,
+            string expectedDescriptor)
+        {
+            var arg1 = new Argument
+                           {
+                               Name = "arg1",
+                               Arity = new ArgumentArity(
+                                   minArityForArg1, 
+                                   maxArityForArg1)
+                           };
+            var arg2 = new Argument
+                           {
+                               Name = "arg2",
+                               Arity = new ArgumentArity(
+                                   minArityForArg2, 
+                                   maxArityForArg2)
+                           };
+            var command = new Command("the-command", "command help")
+                          {
+                               arg1,
+                               arg2
+                          };
+            command.AddOption(new Option(new[] { "-v", "--verbosity" },
+                                         "Sets the verbosity"));
+            var rootCommand = new RootCommand();
+            rootCommand.AddCommand(command);
+
+            _helpBuilder.Write(command);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}{_executableName} the-command [options] {expectedDescriptor}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -197,7 +247,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}outer <outer-args> inner [options] <inner-args>";
+                $"{_indentation}outer [<outer-args>...] inner [options] [<inner-args>...]";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -296,7 +346,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}outer-command <outer args with new lines> [command]{NewLine}{NewLine}";
+                $"{_indentation}outer-command [<outer args with new lines>...] [command]{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -331,7 +381,7 @@ namespace System.CommandLine.Tests.Help
 
             helpBuilder.Write(outerCommand);
 
-            var usageText = $"{_executableName} outer-command <outer args long enough to wrap to a new line> [command]";
+            var usageText = $"{_executableName} outer-command [<outer args long enough to wrap to a new line>...] [command]";
 
             var expectedLines = new List<string> { "Usage:" };
             var builder = new StringBuilder();
@@ -492,20 +542,53 @@ namespace System.CommandLine.Tests.Help
         public void Arguments_section_does_not_contain_hidden_argument()
         {
             var command = new Command("outer")
-                          {
-                              Argument = new Argument
-                                         {
-                                             Name = "test name",
-                                             Description = "test desc",
-                                         },
-                              IsHidden = true
-                          };
+            {
+                Argument = new Argument
+                {
+                    Name = "test name",
+                    Description = "test desc",
+                    IsHidden = true
+                },
+            };
 
             _helpBuilder.Write(command);
 
             var help = _console.Out.ToString();
             help.Should().NotContain("test name");
             help.Should().NotContain("test desc");
+        }
+
+        [Fact]
+        public void Arguments_section_does_not_repeat_arguments_that_appear_on_parent_command()
+        {
+            var reused = new Argument
+            {
+                Name = "reused",
+                Description = "This argument is valid on both outer and inner commands"
+            };
+            var inner = new Command("inner", "The inner command")
+            {
+                reused
+            };
+            var outer = new Command("outer")
+            {
+                reused,
+                inner
+            };
+
+            _helpBuilder.Write(inner);
+
+            var help = _console.Out.ToString();
+
+            help.Should()
+                .Be($"inner:{NewLine}" +
+                         $"  The inner command{NewLine}" +
+                         $"{NewLine}" +
+                         $"Usage:{NewLine}" +
+                         $"  outer [<reused>] inner [<reused>]{NewLine}" +
+                         $"{NewLine}" +
+                         $"Arguments:{NewLine}" +
+                         $"  <reused>{_columnPadding}This argument is valid on both outer and inner commands{NewLine}{NewLine}");
         }
 
         [Fact]

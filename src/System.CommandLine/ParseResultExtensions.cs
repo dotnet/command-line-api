@@ -187,20 +187,21 @@ namespace System.CommandLine
                     : Array.Empty<string>();
 
             IEnumerable<string> siblingSuggestions;
+            var parentSymbol = currentSymbolResult.Parent?.Symbol;
 
-            if (currentSymbol.Parent == null ||
+            if (parentSymbol == null ||
                 !currentSymbolResult.IsArgumentLimitReached)
             {
                 siblingSuggestions = Array.Empty<string>();
             }
             else
             {
-                siblingSuggestions = currentSymbol.Parent
-                                                  .Suggest(textToMatch)
-                                                  .Except(currentSymbol.Parent
-                                                                       .Children
-                                                                       .OfType<ICommand>()
-                                                                       .Select(c => c.Name));
+                siblingSuggestions = parentSymbol
+                                     .Suggest(textToMatch)
+                                     .Except(parentSymbol
+                                             .Children
+                                             .OfType<ICommand>()
+                                             .Select(c => c.Name));
             }
 
             if (currentSymbolResult is CommandResult commandResult)

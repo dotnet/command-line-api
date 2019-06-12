@@ -240,13 +240,13 @@ namespace System.CommandLine
             switch (conversionResult)
             {
                 case SuccessfulArgumentConversionResult successful when !type.IsInstanceOfType(successful.Value):
-                    return ArgumentConverter.ConvertObject(
+                    return ConvertObject(
                         conversionResult.Argument,
                         type,
                         successful.Value);
 
                 case NoArgumentConversionResult _ when type == typeof(bool):
-                    return ArgumentConversionResult.Success(conversionResult.Argument, true);
+                    return Success(conversionResult.Argument, true);
 
                 case NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0:
                     return new MissingArgumentConversionResult(
@@ -254,7 +254,7 @@ namespace System.CommandLine
                         ValidationMessages.Instance.RequiredArgumentMissing(symbolResult));
 
                 case NoArgumentConversionResult _ when type.IsEnumerable():
-                    return ArgumentConverter.ConvertObject(
+                    return ConvertObject(
                         conversionResult.Argument,
                         type,
                         Array.Empty<string>());

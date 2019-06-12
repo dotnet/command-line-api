@@ -14,18 +14,6 @@ namespace System.CommandLine
                 .Where(s => !s.IsHidden)
                 .SelectMany(s => s.RawAliases);
 
-        internal static bool ShouldShowHelp(this ISymbol symbol) =>
-            !symbol.IsHidden &&
-            (!String.IsNullOrWhiteSpace(symbol.Name) ||
-             !String.IsNullOrWhiteSpace(symbol.Description) ||
-             symbol.Arguments().Any(a => a.ShouldShowHelp()));
-
-        internal static bool ShouldShowHelp(
-            this IArgument argument) =>
-            argument != null &&
-            !String.IsNullOrWhiteSpace(argument.Name) &&
-            argument.Arity.MaximumNumberOfValues > 0;
-
         internal static IReadOnlyCollection<IArgument> Arguments(this ISymbol symbol)
         {
             switch (symbol)

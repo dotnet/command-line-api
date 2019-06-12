@@ -8,7 +8,7 @@ namespace System.CommandLine
 {
     public class SymbolResultSet : AliasedSet<SymbolResult>
     {
-        public SymbolResult ResultFor(ISymbol symbol) =>
+        internal SymbolResult ResultFor(ISymbol symbol) =>
             Items.SingleOrDefault(i => i.Symbol == symbol);
 
         protected override bool ContainsItemWithAlias(SymbolResult item, string alias) =>

@@ -9,7 +9,7 @@ namespace System.CommandLine
 {
     public class CommandResult : SymbolResult
     {
-        public CommandResult(
+        internal CommandResult(
             ICommand command,
             Token token,
             CommandResult parent = null) :
@@ -28,6 +28,8 @@ namespace System.CommandLine
         {
             return Children[alias] as OptionResult;
         }
+
+        internal virtual RootCommandResult Root => ParentCommandResult.Root;
 
         internal bool TryGetValueForArgument(
             IValueDescriptor valueDescriptor,
