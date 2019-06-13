@@ -41,14 +41,11 @@ namespace System.CommandLine.Hosting
                 {
                     invocation.BindingContext.AddService(typeof(IHost), () => host);
 
-                    // Stop the host when the invocation gets cancelled.
-                    var cancellationToken = invocation.GetCancellationToken();
-
-                    await host.StartAsync(cancellationToken);
+                    await host.StartAsync();
 
                     await next(invocation);
 
-                    await host.StopAsync(cancellationToken);
+                    await host.StopAsync();
                 }
             });
 
