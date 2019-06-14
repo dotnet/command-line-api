@@ -221,6 +221,19 @@ namespace System.CommandLine.DragonFruit.Tests
                    .NotContain(o => o.Argument.ArgumentType == type);
         }
 
+        [Fact]
+        public void Parameters_with_Argument_suffix_is_treated_as_required_arguments()
+        {
+            var parser = new CommandLineBuilder()
+             .ConfigureRootCommandFromMethod(GetMethodInfo(nameof(Method_having_two_arguments)))
+             .Build();
+
+            var rootCommandArgument = parser.Configuration.RootCommand.Arguments.ToList();
+            rootCommandArgument.Should().HaveCount(2);
+            rootCommandArgument[0].Type.Should().Be(typeof(string));
+            rootCommandArgument[1].Type.Should().Be(typeof(int));
+        }
+
         internal void Method_taking_bool(bool value = false)
         {
             _receivedValues = new object[] { value };
@@ -273,6 +286,9 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         internal void Method_having_FileInfo_array_args(string stringOption, int intOption, FileInfo[] args)
+        {
+        }
+        internal void Method_having_two_arguments(string destinationArgument, int sourceArgument)
         {
         }
 

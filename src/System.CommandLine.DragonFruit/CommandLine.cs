@@ -146,9 +146,9 @@ namespace System.CommandLine.DragonFruit
 
         private static bool IsArgument(string parameterName)
         {
-            return parameterName.StartsWith("arguments")
-                || parameterName.StartsWith("argument")
-                || parameterName.StartsWith("args");
+            return parameterName.EndsWith("Arguments")
+                || parameterName.EndsWith("Argument")
+                || parameterName.EndsWith("Args");
         }
 
         public static CommandLineBuilder ConfigureHelpFromXmlComments(
