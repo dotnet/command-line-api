@@ -19,12 +19,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             var rootCommand = new Command("root_command");
             var nestedCommand = new Command("nested_command");
-            nestedCommand.AddOption(new Option("-opt1",
-                                               "description...",
-                                               new Argument<int>(defaultValue: 123)
-                                               {
-                                                   Arity = ArgumentArity.ExactlyOne
-                                               }));
+            var option = new Option("-opt1")
+            {
+                Argument = new Argument<int>(() => 123)
+            };
+            nestedCommand.AddOption(option);
             rootCommand.AddCommand(nestedCommand);
 
             _testParser = new Parser(rootCommand);

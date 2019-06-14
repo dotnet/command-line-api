@@ -15,6 +15,18 @@ namespace System.CommandLine
         private IArgumentArity _arity;
         private TryConvertArgument _convertArguments;
 
+        public Argument()
+        {
+        }
+
+        public Argument(string name)
+        {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                Name = name;
+            }
+        }
+
         internal HashSet<string> AllowedValues { get; private set; }
 
         public IArgumentArity Arity
@@ -108,7 +120,7 @@ namespace System.CommandLine
 
         public bool HasDefaultValue => _defaultValue != null;
 
-        public static Argument None => new Argument { Arity = ArgumentArity.Zero };
+        internal static Argument None => new Argument { Arity = ArgumentArity.Zero };
 
         public void AddSuggestions(IReadOnlyCollection<string> suggestions)
         {

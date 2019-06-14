@@ -5,12 +5,17 @@ namespace System.CommandLine
 {
     public class Argument<T> : Argument
     {
-        public Argument()
+        public Argument(string name) : this()
+        {
+            Name = name;
+        }
+
+        public Argument() : base(null)
         {
             ArgumentType = typeof(T);
         }
 
-        public Argument(T defaultValue) : this()
+        public Argument(string name, T defaultValue) : this(name)
         {
             SetDefaultValue(defaultValue);
         }

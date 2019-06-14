@@ -17,14 +17,14 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineConfiguration(
                 new[]
                 {
-                    new Option(
-                        "-x",
-                        "",
-                        new Argument<int>(123)),
-                    new Option(
-                        "-y",
-                        "",
-                        new Argument<int>(456))
+                    new Option("-x")
+                    {
+                        Argument = new Argument<int>(() => 123)
+                    },
+                    new Option("-y")
+                    {
+                        Argument = new Argument<int>(() => 456)
+                    }
                 },
                 enablePositionalOptions: true);
 
@@ -43,14 +43,14 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineConfiguration(
                 new[]
                 {
-                    new Option(
-                        "-x",
-                        "",
-                        new Argument<int>(123)),
-                    new Option(
-                        "-y",
-                        "",
-                        new Argument<int>(456))
+                    new Option("-x")
+                    {
+                        Argument = new Argument<int>(() => 123)
+                    },
+                    new Option("-y")
+                    {
+                        Argument = new Argument<int>(() => 456)
+                    }
                 },
                 enablePositionalOptions: true);
 
@@ -71,13 +71,19 @@ namespace System.CommandLine.Tests
                          .AddCommand(
                              new Command("command1")
                              {
-                                 new Option("-anon", "", new Argument<string>())
+                                 new Option("-anon")
+                                 {
+                                     Argument = new Argument<string>()
+                                 }
                              }
                          )
                          .AddCommand(
                              new Command("command2")
                              {
-                                 new Option("-anon", "", new Argument<string>())
+                                 new Option("-anon")
+                                 {
+                                     Argument = new Argument<string>()
+                                 }
                              }
                          )
                          .Build();
@@ -98,16 +104,22 @@ namespace System.CommandLine.Tests
             int subcommand2Options)
         {
             var subcommand1 = new Command("subcommand1");
-            foreach (int optionIndex in Enumerable.Range(1, subcommand1Options))
+            foreach (var optionIndex in Enumerable.Range(1, subcommand1Options))
             {
-                subcommand1.AddOption(new Option($"-anon{optionIndex}", "", new Argument<string>()));
+                subcommand1.AddOption(new Option($"-anon{optionIndex}")
+                {
+                    Argument = new Argument<string>()
+                });
             }
 
             var subcommand2 = new Command("subcommand2");
             subcommand1.AddCommand(subcommand2);
-            foreach (int optionIndex in Enumerable.Range(1, subcommand2Options))
+            foreach (var optionIndex in Enumerable.Range(1, subcommand2Options))
             {
-                subcommand2.AddOption(new Option($"-anon{optionIndex}", "", new Argument<string>()));
+                subcommand2.AddOption(new Option($"-anon{optionIndex}")
+                {
+                    Argument = new Argument<string>()
+                });
             }
 
             var parser = new CommandLineBuilder()
@@ -152,8 +164,14 @@ namespace System.CommandLine.Tests
                          .EnablePositionalOptions()
                          .AddCommand(new Command("subcommand")
                                      {
-                                         new Option("-anon1", "", new Argument<string>()),
-                                         new Option("-anon2", "", new Argument<string>())
+                                         new Option("-anon1")
+                                         {
+                                             Argument = new Argument<string>()
+                                         },
+                                         new Option("-anon2")
+                                         {
+                                             Argument = new Argument<string>()
+                                         }
                                      }
                          )
                          .Build();
@@ -170,7 +188,10 @@ namespace System.CommandLine.Tests
         {
             var result = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddOption(new Option("-a", "", new Argument<string>()))
+                         .AddOption(new Option("-a")
+                         {
+                             Argument = new Argument<string>()
+                         })
                          .Build()
                          .Parse("value-for-a");
 
@@ -182,9 +203,15 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
                               {
-                                  new Option("-a", "", new Argument<string>()),
+                                  new Option("-a")
+                                  {
+                                      Argument = new Argument<string>()
+                                  },
                                   new Option("-b"),
-                                  new Option("-c", "", new Argument<string>())
+                                  new Option("-c")
+                                  {
+                                      Argument = new Argument<string>()
+                                  }
                               };
             var result = new CommandLineBuilder(rootCommand)
                          .EnablePositionalOptions()
@@ -201,9 +228,15 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
                               {
-                                  new Option("-a", "", new Argument<string>()),
+                                  new Option("-a")
+                                  {
+                                      Argument = new Argument<string>()
+                                  },
                                   new Option("-b"),
-                                  new Option("-c", "", new Argument<string>())
+                                  new Option("-c")
+                                  {
+                                      Argument = new Argument<string>()
+                                  }
                               };
             var result = new CommandLineBuilder(rootCommand)
                          .EnablePositionalOptions()
@@ -220,9 +253,15 @@ namespace System.CommandLine.Tests
         {
             var result = new CommandLineBuilder()
                          .EnablePositionalOptions()
-                         .AddOption(new Option("-a", "", new Argument<string>()))
+                         .AddOption(new Option("-a")
+                         {
+                             Argument = new Argument<string>()
+                         })
                          .AddOption(new Option("-b"))
-                         .AddOption(new Option("-c", "", new Argument<string>()))
+                         .AddOption(new Option("-c")
+                         {
+                             Argument = new Argument<string>()
+                         })
                          .Build()
                          .Parse("-c value-for-c value-for-a");
 

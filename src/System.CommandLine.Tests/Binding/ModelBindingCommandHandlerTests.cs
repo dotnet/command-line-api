@@ -177,15 +177,16 @@ namespace System.CommandLine.Tests.Binding
 
             var handler = CommandHandler.Create(captureMethod);
 
-            var command = new Command(
-                              "command")
+            var command = new Command("command")
                           {
-                              new Option("-x",
-                                         argument: new Argument
-                                                   {
-                                                       Name = "value",
-                                                       ArgumentType = parameterType
-                                                   })
+                              new Option("-x")
+                              {
+                                  Argument = new Argument
+                                  {
+                                      Name = "value",
+                                      ArgumentType = parameterType
+                                  }
+                              }
                           };
 
             command.Handler = handler;
@@ -211,10 +212,11 @@ namespace System.CommandLine.Tests.Binding
                 received = x;
             });
 
-            var root = new RootCommand(handler: handler)
+            var root = new RootCommand
             {
-                new Option("-x", "Explanation")
+                new Option("-x")
             };
+            root.Handler = handler;
 
             await root.InvokeAsync("-x");
 
@@ -231,15 +233,17 @@ namespace System.CommandLine.Tests.Binding
                 received = x;
             });
 
-            var root = new RootCommand(handler: handler)
+            var root = new RootCommand
             {
-                new Option("-x", "Explanation"
-                           , argument: new Argument
-                           {
-                               Arity = new ArgumentArity(1, 1)
-                           }
-                )
+                new Option("-x")
+                {
+                    Argument = new Argument
+                    {
+                        Arity = new ArgumentArity(1, 1)
+                    }
+                }
             };
+            root.Handler = handler;
 
             await root.InvokeAsync("-x 123");
 
@@ -267,9 +271,7 @@ namespace System.CommandLine.Tests.Binding
 
             var handler = CommandHandler.Create(captureMethod);
 
-            var command = new Command(
-                "command",
-                handler: handler)
+            var command = new Command("command")
                           {
                               new Option("--value")
                               {
@@ -279,6 +281,7 @@ namespace System.CommandLine.Tests.Binding
                                              }
                               }
                           };
+            command.Handler = handler;
 
             var parseResult = command.Parse($"--value {testCase.CommandLine}");
 
@@ -316,13 +319,15 @@ namespace System.CommandLine.Tests.Binding
             var handler = CommandHandler.Create(captureMethod);
 
             var command = new Command(
-                "command",
-                argument: new Argument
-                          {
-                              Name = "value",
-                              ArgumentType = c.ParameterType
-                          },
-                handler: handler);
+                "command")
+            {
+                new Argument
+                {
+                    Name = "value",
+                    ArgumentType = c.ParameterType
+                }
+            };
+            command.Handler = handler;
 
             var parseResult = command.Parse(c.CommandLine);
 

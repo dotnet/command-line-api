@@ -15,11 +15,13 @@ namespace System.CommandLine.Tests
         {
             var messages = new FakeValidationMessages("the-message");
 
-            var command = new Command("the-command", "",
-                                      argument: new Argument
-                                      {
-                                          Arity = ArgumentArity.ExactlyOne
-                                      });
+            var command = new Command("the-command", "")
+            {
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
             var parser = new Parser(new CommandLineConfiguration(new[] { command }, validationMessages: messages));
             var result = parser.Parse("the-command");
 

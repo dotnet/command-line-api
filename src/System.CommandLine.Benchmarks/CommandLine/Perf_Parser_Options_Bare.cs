@@ -19,11 +19,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         private IEnumerable<Option> GenerateTestOptions(int count, IArgumentArity arity)
             => Enumerable.Range(0, count)
-                         .Select(i => new Option(
-                             $"-option{i}",
-                             $"Description for -option {i} ....",
-                             new Argument { Arity = arity }
-                         ));
+                         .Select(i =>
+                                     new Option($"-option{i}")
+                                     {
+                                         Description = $"Description for -option {i} ....",
+                                         Argument = new Argument
+                                         {
+                                             Arity = arity
+                                         }
+                                     }
+                         );
 
         /// <remarks>
         /// count=1  : cmd-root -option0

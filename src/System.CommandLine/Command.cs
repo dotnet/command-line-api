@@ -10,24 +10,8 @@ namespace System.CommandLine
 {
     public class Command : Symbol, ICommand, IEnumerable<Symbol>
     {
-        public Command(
-            string name,
-            string description = "",
-            IReadOnlyCollection<Symbol> symbols = null,
-            Argument argument = null,
-            bool treatUnmatchedTokensAsErrors = true,
-            ICommandHandler handler = null,
-            bool isHidden = false) :
-            base(new[] { name }, description, argument, isHidden)
+        public Command(string name, string description = null) : base(new[] { name }, description)
         {
-            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-            Handler = handler;
-            symbols = symbols ?? Array.Empty<Symbol>();
-
-            foreach (var symbol in symbols)
-            {
-                AddSymbol(symbol);
-            }
         }
 
         [Obsolete("Use the Arguments property instead")]
@@ -57,7 +41,9 @@ namespace System.CommandLine
 
         public void Add(Argument argument) => AddArgument(argument);
 
-        public bool TreatUnmatchedTokensAsErrors { get; set; }
+        public void AddAlias(string alias) => AddAliasInner(alias);
+
+        public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
         public ICommandHandler Handler { get; set; }
 

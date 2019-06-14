@@ -27,34 +27,36 @@ namespace System.CommandLine.Tests.Invocation
 
             Func<string[], Task<int>> childProgram = (string[] args) =>
                 new CommandLineBuilder()
-                    .AddCommand(new Command("the-command",
-                    handler: CommandHandler.Create<CancellationToken>(async ct =>
+                    .AddCommand(new Command("the-command")
                     {
-                        try
+                        Handler = CommandHandler.Create<CancellationToken>(async ct =>
                         {
-                            Console.WriteLine(ChildProcessWaiting);
-                            await Task.Delay(int.MaxValue, ct);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            // For Process.Exit handling the event must remain blocked as long as the
-                            // command is executed.
-                            // We are currently blocking that event because CancellationTokenSource.Cancel
-                            // is called from the event handler.
-                            // We'll do an async Yield now. This means the Cancel call will return
-                            // and we're no longer actively blocking the event.
-                            // The event handler is responsible to continue blocking until the command
-                            // has finished executing. If it doesn't we won't get the CancelledExitCode.
-                            await Task.Yield();
+                            try
+                            {
+                                Console.WriteLine(ChildProcessWaiting);
+                                await Task.Delay(int.MaxValue, ct);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                // For Process.Exit handling the event must remain blocked as long as the
+                                // command is executed.
+                                // We are currently blocking that event because CancellationTokenSource.Cancel
+                                // is called from the event handler.
+                                // We'll do an async Yield now. This means the Cancel call will return
+                                // and we're no longer actively blocking the event.
+                                // The event handler is responsible to continue blocking until the command
+                                // has finished executing. If it doesn't we won't get the CancelledExitCode.
+                                await Task.Yield();
 
-                            return CancelledExitCode;
-                        }
+                                return CancelledExitCode;
+                            }
 
-                        return 1;
-                    })))
-                  .CancelOnProcessTermination()
-                  .Build()
-                  .InvokeAsync("the-command");
+                            return 1;
+                        })
+                    })
+                    .CancelOnProcessTermination()
+                    .Build()
+                    .InvokeAsync("the-command");
 
             using (RemoteExecution program = RemoteExecutor.Execute(childProgram, psi: new ProcessStartInfo { RedirectStandardOutput = true }))
             {

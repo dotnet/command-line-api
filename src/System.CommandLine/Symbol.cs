@@ -12,6 +12,8 @@ namespace System.CommandLine
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string _longestAlias = "";
         private string _specifiedName;
+
+        // FIX: (Symbol._arguments) remove, use Children 
         private protected readonly ArgumentSet _arguments = new ArgumentSet();
         private readonly List<Symbol> _parents = new List<Symbol>();
 
@@ -20,10 +22,8 @@ namespace System.CommandLine
         }
 
         protected Symbol(
-            IReadOnlyCollection<string> aliases,
-            string description = null,
-            Argument argument = null,
-            bool isHidden = false)
+            IReadOnlyCollection<string> aliases = null,
+            string description = null)
         {
             if (aliases == null)
             {
@@ -37,17 +37,10 @@ namespace System.CommandLine
 
             foreach (var alias in aliases)
             {
-                AddAlias(alias);
+                AddAliasInner(alias);
             }
 
             Description = description;
-
-            IsHidden = isHidden;
-
-            if (argument != null)
-            {
-                AddArgumentInner(argument);
-            }
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
@@ -113,7 +106,7 @@ namespace System.CommandLine
 
         public SymbolSet Children { get; } = new SymbolSet();
 
-        public void AddAlias(string alias)
+        protected void AddAliasInner(string alias)
         {
             var unprefixedAlias = alias?.RemovePrefix();
 
