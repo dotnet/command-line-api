@@ -3,6 +3,7 @@ using System.CommandLine.Invocation;
 using System.Linq;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace System.CommandLine.Hosting
@@ -33,25 +34,35 @@ namespace System.CommandLine.Hosting
                     services.AddTransient(_ => invocation.InvocationResult);
                     services.AddTransient(_ => invocation.ParseResult);
                 });
-                hostBuilder.UseConsoleLifetime();
+                hostBuilder.UseInvocationLifetime(invocation);
                 configureHost?.Invoke(hostBuilder);
-
-                var invokeCancel = invocation.GetCancellationToken();
 
                 using (var host = hostBuilder.Build())
                 {
                     invocation.BindingContext.AddService(typeof(IHost), () => host);
 
-                    await host.StartAsync(invokeCancel);
+                    await host.StartAsync();
 
                     await next(invocation);
 
-                    await host.StopAsync(invokeCancel);
+                    await host.StopAsync();
                 }
             });
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
             Action<IHostBuilder> configureHost = null
             ) => UseHost(builder, null, configureHost);
+
+        public static IHostBuilder UseInvocationLifetime(this IHostBuilder host,
+            InvocationContext invocation, Action<InvocationLifetimeOptions> configureOptions = null)
+        {
+            return host.ConfigureServices(services =>
+            {
+                services.TryAddSingleton(invocation);
+                services.AddSingleton<IHostLifetime, InvocationLifetime>();
+                if (configureOptions is Action<InvocationLifetimeOptions>)
+                    services.Configure(configureOptions);
+            });
+        }
     }
 }
