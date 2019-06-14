@@ -103,13 +103,6 @@ namespace System.CommandLine.DragonFruit
             object target = null) =>
             command.ConfigureFromMethod(method, () => target);
 
-        private static readonly string[] _argumentParameterNames =
-        {
-            "arguments",
-            "argument",
-            "args"
-        };
-
         public static void ConfigureFromMethod(
             this Command command,
             MethodInfo method,
@@ -130,24 +123,32 @@ namespace System.CommandLine.DragonFruit
                 command.AddOption(option);
             }
 
-            if (method.GetParameters()
-                      .FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is ParameterInfo argsParam)
+
+            var argumentParameters = method.GetParameters()
+                      .Where(p => IsArgument(p.Name));
+            foreach (var argumentParameter in argumentParameters)
             {
                 var argument = new Argument
                 {
-                    ArgumentType = argsParam.ParameterType,
-                    Name = argsParam.Name
+                    ArgumentType = argumentParameter.ParameterType,
+                    Name = argumentParameter.Name
                 };
 
-                if (argsParam.HasDefaultValue)
+                if (argumentParameter.HasDefaultValue)
                 {
-                    argument.SetDefaultValue(argsParam.DefaultValue);
+                    argument.SetDefaultValue(argumentParameter.DefaultValue);
                 }
 
                 command.AddArgument(argument);
             }
-
             command.Handler = CommandHandler.Create(method);
+        }
+
+        private static bool IsArgument(string parameterName)
+        {
+            return parameterName.StartsWith("arguments")
+                || parameterName.StartsWith("argument")
+                || parameterName.StartsWith("args");
         }
 
         public static CommandLineBuilder ConfigureHelpFromXmlComments(
@@ -189,7 +190,7 @@ namespace System.CommandLine.DragonFruit
                             {
                                 if (string.Equals(
                                         argument.Name,
-                                        kebabCasedParameterName, 
+                                        kebabCasedParameterName,
                                         StringComparison.OrdinalIgnoreCase))
                                 {
                                     argument.Description = parameterDescription.Value;
@@ -241,8 +242,8 @@ namespace System.CommandLine.DragonFruit
                                };
 
             foreach (var option in descriptor.ParameterDescriptors
-                                             .Where(d => !omittedTypes.Contains (d.Type))
-                                             .Where(d => !_argumentParameterNames.Contains(d.ValueName))
+                                             .Where(d => !omittedTypes.Contains(d.Type))
+                                             .Where(d => !IsArgument(d.ValueName))
                                              .Select(p => p.BuildOption()))
             {
                 yield return option;
@@ -252,9 +253,9 @@ namespace System.CommandLine.DragonFruit
         public static Option BuildOption(this ParameterDescriptor parameter)
         {
             var argument = new Argument
-                           {
-                               ArgumentType = parameter.Type
-                           };
+            {
+                ArgumentType = parameter.Type
+            };
 
             if (parameter.HasDefaultValue)
             {
