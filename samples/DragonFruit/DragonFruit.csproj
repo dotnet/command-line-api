@@ -4,6 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Description>This package includes the experimental DragonFruit app model for System.CommandLine, which allows you to create a command line application using only a Main method while getting support for complex type binding, error reporting, help, shell completions, and more.
+    </Description>
   </PropertyGroup>
 
   <ItemGroup>
