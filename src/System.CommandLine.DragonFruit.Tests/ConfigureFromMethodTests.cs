@@ -222,7 +222,7 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         [Fact]
-        public void Parameters_with_Argument_suffix_is_treated_as_required_arguments()
+        public void Parameters_with_Argument_suffix_is_treated_as_arguments()
         {
             var parser = new CommandLineBuilder()
              .ConfigureRootCommandFromMethod(GetMethodInfo(nameof(Method_having_two_arguments)))
@@ -230,7 +230,10 @@ namespace System.CommandLine.DragonFruit.Tests
 
             var rootCommandArgument = parser.Configuration.RootCommand.Arguments.ToList();
             rootCommandArgument.Should().HaveCount(2);
+            rootCommandArgument[0].Name.Should().Be("destinationArgument");
             rootCommandArgument[0].Type.Should().Be(typeof(string));
+
+            rootCommandArgument[1].Name.Should().Be("sourceArgument");
             rootCommandArgument[1].Type.Should().Be(typeof(int));
         }
 
