@@ -19,7 +19,7 @@ namespace System.CommandLine
         {
         }
 
-        public Argument(string name)
+        public Argument(string name) 
         {
             if (!string.IsNullOrWhiteSpace(name))
             {

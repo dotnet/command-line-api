@@ -7,17 +7,12 @@ namespace System.CommandLine
 {
     internal class ArgumentConversionResultSet : AliasedSet<ArgumentConversionResult>
     {
-        protected override bool ContainsItemWithAlias(ArgumentConversionResult item, string alias)
+        protected override IReadOnlyList<string> GetAliases(ArgumentConversionResult item)
         {
-            return item.Argument.Name.Equals(alias);
+            return new[] { item.Argument.Name };
         }
 
-        protected override bool ContainsItemWithRawAlias(ArgumentConversionResult item, string alias)
-        {
-            return item.Argument.Name.Equals(alias);
-        }
-
-        protected override IReadOnlyCollection<string> GetAliases(ArgumentConversionResult item)
+        protected override IReadOnlyList<string> GetRawAliases(ArgumentConversionResult item)
         {
             return new[] { item.Argument.Name };
         }

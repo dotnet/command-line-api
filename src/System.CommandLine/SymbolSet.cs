@@ -7,17 +7,48 @@ namespace System.CommandLine
 {
     public class SymbolSet : AliasedSet<ISymbol>, ISymbolSet
     {
-        protected override bool ContainsItemWithAlias(ISymbol item, string alias) =>
-            item.HasAlias(alias);
+        internal override void Add(ISymbol item)
+        {
+            switch (item)
+            {
+                case IOption _:
+                case ICommand _:
+                    CheckForCollision(item, GetRawAliases);
+                    break;
 
-        protected override bool ContainsItemWithRawAlias(ISymbol item, string alias) =>
-            item.HasRawAlias(alias);
+                case IArgument argument:
+                    CheckForCollision(argument, i => new[] { i.Name });
+                    break;
+            }
 
-        protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
-            item.RawAliases;
+            base.Add(item);
+        }
 
-        IEnumerator<ISymbol> IEnumerable<ISymbol>.GetEnumerator() => base.GetEnumerator();
+        private void CheckForCollision(
+            ISymbol item, 
+            Func<ISymbol, IReadOnlyList<string>> values)
+        {
+            var itemRawAliases = values(item);
 
-        ISymbol ISymbolSet.GetByAlias(string alias) => base.GetByAlias(alias);
+            for (var i = 0; i < Items.Count; i++)
+            {
+                var existingItem = Items[i];
+
+                for (var j = 0; j < itemRawAliases.Count; j++)
+                {
+                    var rawAliasToCheckFor = itemRawAliases[j];
+
+                    if (Contains(values(existingItem), rawAliasToCheckFor))
+                    {
+                        throw new ArgumentException($"Alias '{rawAliasToCheckFor}' is already in use.");
+                    }
+                }
+            }
+        }
+
+        protected override IReadOnlyList<string> GetAliases(ISymbol item) =>
+            item.Aliases;
+
+        protected override IReadOnlyList<string> GetRawAliases(ISymbol item) => item.RawAliases;
     }
 }

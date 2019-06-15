@@ -8,13 +8,11 @@ namespace System.CommandLine
 {
     public abstract class Symbol : ISymbol
     {
-        private readonly HashSet<string> _aliases = new HashSet<string>();
-        private readonly HashSet<string> _rawAliases = new HashSet<string>();
+        private readonly List<string> _aliases = new List<string>();
+        private readonly List<string> _rawAliases = new List<string>();
         private string _longestAlias = "";
         private string _specifiedName;
 
-        // FIX: (Symbol._arguments) remove, use Children 
-        private protected readonly ArgumentSet _arguments = new ArgumentSet();
         private readonly List<Symbol> _parents = new List<Symbol>();
 
         private protected Symbol()
@@ -43,9 +41,9 @@ namespace System.CommandLine
             Description = description;
         }
 
-        public IReadOnlyCollection<string> Aliases => _aliases;
+        public IReadOnlyList<string> Aliases => _aliases;
 
-        public IReadOnlyCollection<string> RawAliases => _rawAliases;
+        public IReadOnlyList<string> RawAliases => _rawAliases;
 
         public string Description { get; set; }
 
@@ -57,11 +55,6 @@ namespace System.CommandLine
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
-                }
-
-                if (value.Length != value.RemovePrefix().Length)
-                {
-                    throw new ArgumentException($"Property {GetType().Name}.{nameof(Name)} cannot have a prefix.");
                 }
 
                 _specifiedName = value;
@@ -99,8 +92,6 @@ namespace System.CommandLine
                 argument.Name = _aliases.First().ToLower();
             }
 
-            _arguments.Add(argument);
-
             Children.Add(argument);
         }
 
@@ -132,6 +123,12 @@ namespace System.CommandLine
             }
         }
 
+        protected void ClearAliases()
+        {
+            _aliases.Clear();
+            _rawAliases.Clear();
+        }
+
         public bool HasAlias(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
@@ -149,7 +146,8 @@ namespace System.CommandLine
         public virtual IEnumerable<string> Suggest(string textToMatch = null)
         {
             var argumentSuggestions =
-                _arguments
+                Children
+                    .OfType<IArgument>()
                     .SelectMany(a => a.Suggest(textToMatch))
                     .ToArray();
 

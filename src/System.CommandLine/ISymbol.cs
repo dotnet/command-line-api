@@ -11,9 +11,9 @@ namespace System.CommandLine
 
         string Description { get; }
 
-        IReadOnlyCollection<string> Aliases { get; }
+        IReadOnlyList<string> Aliases { get; }
 
-        IReadOnlyCollection<string> RawAliases { get; }
+        IReadOnlyList<string> RawAliases { get; }
 
         bool HasAlias(string alias);
 

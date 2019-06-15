@@ -392,7 +392,7 @@ namespace System.CommandLine
 
                 if (subcommand != command)
                 {
-                    usage.Add(FormatArgumentUsage(subcommand.Arguments));
+                    usage.Add(FormatArgumentUsage(subcommand.Arguments.ToArray()));
                 }
             }
 
@@ -405,7 +405,7 @@ namespace System.CommandLine
                 usage.Add(Usage.Options);
             }
             
-            usage.Add(FormatArgumentUsage(command.Arguments));
+            usage.Add(FormatArgumentUsage(command.Arguments.ToArray()));
 
             var hasCommandHelp = command.Children
                 .OfType<ICommand>()

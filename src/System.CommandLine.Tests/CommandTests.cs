@@ -7,7 +7,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class CommandTests
+    public class CommandTests : SymbolTests
     {
         private readonly Parser _parser;
 
@@ -310,5 +310,31 @@ namespace System.CommandLine.Tests
                 .Should()
                 .Be("Alias 'same' is already in use.");
         }
+
+        [Fact]
+        public void When_multiple_options_are_configured_then_they_must_differ_by_name()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("--same")
+                {
+                    Argument = new Argument<string>()
+                }
+            };
+
+            command
+                .Invoking(c => c.Add(new Option("--same")
+                {
+                    Argument = new Argument<string>()
+                }))
+                .Should()
+                .Throw<ArgumentException>()
+                .And
+                .Message
+                .Should()
+                .Be("Alias '--same' is already in use.");
+        }
+
+        protected override Symbol CreateSymbol(string name) => new Command(name);
     }
 }

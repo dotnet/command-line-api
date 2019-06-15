@@ -7,7 +7,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class OptionTests
+    public class OptionTests : SymbolTests
     {
         [Fact]
         public void When_an_option_has_only_one_alias_then_that_alias_is_its_name()
@@ -252,5 +252,7 @@ namespace System.CommandLine.Tests
 
             option.Argument.Name.Should().Be("arg");
         }
+
+        protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }

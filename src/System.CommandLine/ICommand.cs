@@ -9,7 +9,7 @@ namespace System.CommandLine
     {
         bool TreatUnmatchedTokensAsErrors { get; }
 
-        IReadOnlyCollection<IArgument> Arguments { get; }
+        IEnumerable<IArgument> Arguments { get; }
 
         [Obsolete("Use the Arguments property instead")]
         IArgument Argument { get; }
