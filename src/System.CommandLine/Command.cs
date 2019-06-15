@@ -17,19 +17,20 @@ namespace System.CommandLine
         [Obsolete("Use the Arguments property instead")]
         public virtual Argument Argument
         {
-            get => _arguments.SingleOrDefault() ?? Argument.None;
+            get => Arguments.SingleOrDefault() ??
+                   Argument.None;
             set
             {
-                if (_arguments.Any())
+                foreach (var argument in Arguments.ToArray())
                 {
-                    _arguments.Clear();
+                    Children.Remove(argument);
                 }
 
                 AddArgumentInner(value);
             }
         }
 
-        public IReadOnlyCollection<Argument> Arguments => _arguments;
+        public IEnumerable<Argument> Arguments => Children.OfType<Argument>();
 
         public void AddArgument(Argument argument) => AddArgumentInner(argument);
 
@@ -55,6 +56,6 @@ namespace System.CommandLine
         IArgument ICommand.Argument => Argument;
 #pragma warning restore 618
 
-        IReadOnlyCollection<IArgument> ICommand.Arguments => Arguments;
+        IEnumerable<IArgument> ICommand.Arguments => Arguments;
     }
 }

@@ -11,13 +11,10 @@ namespace System.CommandLine
         internal SymbolResult ResultFor(ISymbol symbol) =>
             Items.SingleOrDefault(i => i.Symbol == symbol);
 
-        protected override bool ContainsItemWithAlias(SymbolResult item, string alias) =>
-            item.Symbol.HasAlias(alias);
+        protected override IReadOnlyList<string> GetAliases(SymbolResult item) =>
+            item.Symbol.Aliases;
 
-        protected override bool ContainsItemWithRawAlias(SymbolResult item, string alias) =>
-            item.Symbol.HasRawAlias(alias);
-
-        protected override IReadOnlyCollection<string> GetAliases(SymbolResult item) =>
+        protected override IReadOnlyList<string> GetRawAliases(SymbolResult item) =>
             item.Symbol.RawAliases;
     }
 }

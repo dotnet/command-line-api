@@ -14,7 +14,7 @@ namespace System.CommandLine
                 .Where(s => !s.IsHidden)
                 .SelectMany(s => s.RawAliases);
 
-        internal static IReadOnlyCollection<IArgument> Arguments(this ISymbol symbol)
+        internal static IEnumerable<IArgument> Arguments(this ISymbol symbol)
         {
             switch (symbol)
             {

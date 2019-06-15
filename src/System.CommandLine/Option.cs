@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.Linq;
 
@@ -22,17 +23,19 @@ namespace System.CommandLine
 
         public virtual Argument Argument
         {
-            get => _arguments.FirstOrDefault() ?? Argument.None;
+            get => Arguments.FirstOrDefault() ?? Argument.None;
             set
             {
-                if (_arguments.Any())
+                foreach (var argument in Arguments.ToArray())
                 {
-                    _arguments.Clear();
+                    Children.Remove(argument);
                 }
 
                 AddArgumentInner(value);
             }
         }
+
+        private IEnumerable<Argument> Arguments => Children.OfType<Argument>();
 
         public void AddAlias(string alias) => AddAliasInner(alias);
 
@@ -42,8 +45,8 @@ namespace System.CommandLine
 
         Type IValueDescriptor.Type => Argument.ArgumentType;
 
-        bool IValueDescriptor.HasDefaultValue => _arguments.Single().HasDefaultValue;
+        bool IValueDescriptor.HasDefaultValue => Arguments.Single().HasDefaultValue;
 
-        object IValueDescriptor.GetDefaultValue() => _arguments.Single().GetDefaultValue();
+        object IValueDescriptor.GetDefaultValue() => Arguments.Single().GetDefaultValue();
     }
 }

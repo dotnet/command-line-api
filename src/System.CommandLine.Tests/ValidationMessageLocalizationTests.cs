@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests
         {
             var messages = new FakeValidationMessages("the-message");
 
-            var command = new Command("the-command", "")
+            var command = new Command("the-command")
             {
                 new Argument
                 {
