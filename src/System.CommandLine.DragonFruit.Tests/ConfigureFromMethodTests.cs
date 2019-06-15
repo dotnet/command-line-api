@@ -230,11 +230,8 @@ namespace System.CommandLine.DragonFruit.Tests
 
             var rootCommandArgument = parser.Configuration.RootCommand.Arguments.ToList();
             rootCommandArgument.Should().HaveCount(2);
-            rootCommandArgument[0].Name.Should().Be("destinationArgument");
-            rootCommandArgument[0].Type.Should().Be(typeof(string));
-
-            rootCommandArgument[1].Name.Should().Be("sourceArgument");
-            rootCommandArgument[1].Type.Should().Be(typeof(int));
+            rootCommandArgument.Select(a => a.Name).Should().BeEquivalentSequenceTo("destinationArgument", "sourceArgument");
+            rootCommandArgument.Select(a => a.Type).Should().BeEquivalentSequenceTo(typeof(string), typeof(int));
         }
 
         internal void Method_taking_bool(bool value = false)
