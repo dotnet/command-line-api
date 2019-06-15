@@ -18,9 +18,9 @@ namespace System.CommandLine
             ArgumentType = typeof(T);
         }
 
-        public Argument(string name, T defaultValue) : this(name)
+        public Argument(string name, Func<T> defaultValue) : this(name)
         {
-            SetDefaultValue(defaultValue);
+            SetDefaultValue(() => defaultValue());
         }
 
         public Argument(Func<T> defaultValue) : this()
