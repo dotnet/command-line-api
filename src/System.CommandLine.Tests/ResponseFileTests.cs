@@ -59,7 +59,10 @@ namespace System.CommandLine.Tests
             var result = new RootCommand
                          {
                              new Option("--flag"),
-                             new Option("--flag2", argument: new Argument<int>())
+                             new Option("--flag2")
+                             {
+                                 Argument = new Argument<int>()
+                             }
                          }
                 .Parse($"@{responseFile}");
 
@@ -163,7 +166,10 @@ namespace System.CommandLine.Tests
                 "123");
 
             var result = new CommandLineBuilder()
-                         .AddOption(new Option("--flag", argument: new Argument<int>()))
+                         .AddOption(new Option("--flag")
+                         {
+                             Argument = new Argument<int>()
+                         })
                          .Build()
                          .Parse($"@{responseFile}");
 
@@ -257,10 +263,16 @@ namespace System.CommandLine.Tests
             var responseFile = ResponseFile(input);
 
             var rootCommand = new RootCommand
-                              {
-                                  new Option("--flag", "", new Argument<string>()),
-                                  new Option("--flag2", "", new Argument<int>())
-                              };
+            {
+                new Option("--flag")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--flag2")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
             var parser = new CommandLineBuilder(rootCommand)
                          .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
                          .Build();

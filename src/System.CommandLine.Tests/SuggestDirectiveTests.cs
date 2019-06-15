@@ -20,15 +20,22 @@ namespace System.CommandLine.Tests
 
         public SuggestDirectiveTests()
         {
-            _fruitOption = new Option("--fruit",
-                                      argument: new Argument<string>()
-                                          .WithSuggestions("apple", "banana", "cherry"));
+            _fruitOption = new Option("--fruit")
+            {
+                Argument = new Argument<string>()
+                    .WithSuggestions("apple", "banana", "cherry")
+            };
 
-            _vegetableOption = new Option("--vegetable",
-                                          argument: new Argument<string>()
-                                              .WithSuggestions("asparagus", "broccoli", "carrot"));
+            _vegetableOption = new Option("--vegetable")
+            {
+                Argument = new Argument<string>()
+                    .WithSuggestions("asparagus", "broccoli", "carrot")
+            };
 
-            _eatCommand = new Command("eat") { _fruitOption, _vegetableOption };
+            _eatCommand = new Command("eat")
+            {
+                _fruitOption, _vegetableOption
+            };
         }
 
         [Fact]
@@ -250,7 +257,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_does_not_repeat_suggestion_for_already_specified_bool_option()
         {
-            var command = new RootCommand { new Option("--bool-option", argument: new Argument<bool>()), };
+            var command = new RootCommand
+            {
+                new Option("--bool-option")
+                {
+                    Argument = new Argument<bool>()
+                }
+            };
 
             var console = new TestConsole();
 

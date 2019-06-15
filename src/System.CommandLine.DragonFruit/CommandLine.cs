@@ -263,8 +263,10 @@ namespace System.CommandLine.DragonFruit
 
             var option = new Option(
                 parameter.BuildAlias(),
-                parameter.ValueName,
-                argument);
+                parameter.ValueName)
+            {
+                Argument = argument
+            };
 
             return option;
         }

@@ -37,11 +37,14 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [GlobalSetup(Target = nameof(SuggestionsFromSymbol))]
         public void Setup_FromSymbol()
         {
-            _testSymbol = new Option(
-                "--hello",
-                "",
-                new Argument { Arity = ArgumentArity.ExactlyOne }
-                    .WithSuggestions(GenerateSuggestionsArray(TestSuggestionsCount)));
+            _testSymbol = new Option("--hello")
+            {
+                Argument = new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }
+                    .WithSuggestions(GenerateSuggestionsArray(TestSuggestionsCount))
+            };
         }
 
         [Benchmark]

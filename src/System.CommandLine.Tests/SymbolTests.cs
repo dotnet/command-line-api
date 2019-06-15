@@ -75,11 +75,10 @@ namespace System.CommandLine.Tests
                   .WithMessage($"Property {typeof(TestSymbol).Name}.Name cannot have a prefix.");
         }
 
-
         private class TestSymbol : Symbol
         {
-            internal TestSymbol(IReadOnlyCollection<string> aliases, string description, Argument argDef = null)
-                : base(aliases, description, argDef)
+            internal TestSymbol(IReadOnlyCollection<string> aliases, string description, Argument argument = null)
+                : base(aliases, description)
             {
             }
         }

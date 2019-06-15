@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
 
@@ -11,10 +12,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_value_and_no_explicitly_provided_argument_has_an_empty_arguments_property()
         {
-            var option = new Option(
-                "-x",
-                "",
-                new Argument<string>("default"));
+            var option = new Option("-x")
+            {
+                Argument = new Argument<string>("default")
+            };
 
             var result = new RootCommand
             {
@@ -29,13 +30,13 @@ namespace System.CommandLine.Tests
         public void Default_values_are_reevaluated_and_not_cached_between_parses()
         {
             var option =
-                new Option(
-                    "-x",
-                    "",
-                    new Argument
+                new Option("-x")
+                {
+                    Argument = new Argument
                     {
                         Arity = ArgumentArity.ExactlyOne
-                    });
+                    }
+                };
 
             var i = 0;
             option.Argument.SetDefaultValue(() => ++i);
@@ -50,10 +51,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_option()
         {
-            var command = new Command("the-command", "", new[] {
+            IReadOnlyCollection<Symbol> symbols = new[] {
                 new Option(
-                    new[] { "-h", "--help" }, "")
-            });
+                    new[] { "-h", "--help" })
+            };
+            var command1 = new Command(
+                "the-command",
+                ""
+            );
+
+            foreach (var symbol in symbols)
+            {
+                command1.Add(symbol);
+            }
+
+            var command = command1;
 
             var result = command.Parse("the-command -h");
 
@@ -63,11 +75,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_implicit_option()
         {
-            var command = new Command("the-command", "", new[] {
-                new Option(
-                    new[] { "-c", "--count" }, "",
-                    new Argument<int>(5))
-            });
+            var command = new Command("the-command")
+            {
+                new Option(new[] { "-c", "--count" })
+                {
+                    Argument = new Argument<int>(() => 5)
+                }
+            };
 
             var result = command.Parse("the-command");
 
@@ -77,21 +91,23 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
-            var command = new Command(
-                "outer", "",
-                new[]
+            var command = new Command("outer")
+            {
+                new Command("inner-one")
                 {
-                    new Command("inner-one", "",
-                                argument: new Argument
-                                {
-                                    Arity = ArgumentArity.Zero
-                                }),
-                    new Command("inner-two", "",
-                                argument: new Argument
-                                {
-                                    Arity = ArgumentArity.Zero
-                                })
-                });
+                    new Argument
+                    {
+                        Arity = ArgumentArity.Zero
+                    }
+                },
+                new Command("inner-two")
+                {
+                    new Argument
+                    {
+                        Arity = ArgumentArity.Zero
+                    }
+                }
+            };
 
             var result = new Parser(command).Parse("outer inner-one inner-two");
 

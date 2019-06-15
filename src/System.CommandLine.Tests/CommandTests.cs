@@ -18,11 +18,13 @@ namespace System.CommandLine.Tests
                 {
                     new Command("inner")
                     {
-                        new Option("--option",
-                                   argument: new Argument
-                                             {
-                                                 Arity = ArgumentArity.ExactlyOne
-                                             })
+                        new Option("--option")
+                        {
+                            Argument = new Argument
+                            {
+                                Arity = ArgumentArity.ExactlyOne
+                            }
+                        }
                     }
                 });
         }
@@ -92,17 +94,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
-            var outer = new Command("outer", 
-                argument: new Argument
-                          {
-                              Arity = ArgumentArity.ExactlyOne
-                          });
+            var outer = new Command("outer")
+            {
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
             outer.AddCommand(
-                new Command("inner",
-                            argument: new Argument
-                                      {
-                                          Arity = ArgumentArity.ZeroOrMore
-                                      }));
+                new Command("inner")
+                {
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }
+                });
 
             var parser = new Parser(outer);
 
@@ -130,10 +136,17 @@ namespace System.CommandLine.Tests
         public void When_a_command_name_contains_a_delimiter_then_an_error_is_returned(
             string commandWithDelimiter)
         {
-            Action create = () => new Parser(
-                new Command(
-                    commandWithDelimiter, "",
-                    argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            Action create = () =>
+            {
+                new Parser(
+                    new Command(commandWithDelimiter)
+                    {
+                        new Argument
+                        {
+                            Arity = ArgumentArity.ExactlyOne
+                        }
+                    });
+            };
 
             create.Should().Throw<SymbolCannotContainDelimiterArgumentException>();
         }
@@ -171,7 +184,7 @@ namespace System.CommandLine.Tests
         {
             var subject = new SymbolCannotContainDelimiterArgumentException('ツ');
             subject.Message.Should()
-                .Be(@"Symbol cannot contain delimiter: ""ツ""");
+                   .Be(@"Symbol cannot contain delimiter: ""ツ""");
         }
 
         [Theory]
@@ -188,13 +201,13 @@ namespace System.CommandLine.Tests
         public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand)
         {
             var outer = new Command("outer")
-                        {
-                            new Command("inner")
-                            {
-                                new Command("inner-er")
-                            },
-                            new Command("sibling")
-                        };
+            {
+                new Command("inner")
+                {
+                    new Command("inner-er")
+                },
+                new Command("sibling")
+            };
 
             var result = outer.Parse(input);
 
@@ -236,9 +249,9 @@ namespace System.CommandLine.Tests
             subcommand.AddAlias("that");
 
             var rootCommand = new RootCommand
-                              {
-                                  subcommand
-                              };
+            {
+                subcommand
+            };
 
             var result = rootCommand.Parse("that");
 
@@ -249,11 +262,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void It_defaults_argument_to_alias_name_when_it_is_not_provided()
         {
-            var command = new Command("-alias",
-                                      argument: new Argument
-                                      {
-                                          Arity = ArgumentArity.ZeroOrOne
-                                      });
+            var command = new Command("-alias")
+            {
+                new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
 
             command.Arguments.Single().Name.Should().Be("alias");
         }
@@ -261,16 +276,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void It_retains_argument_name_when_it_is_provided()
         {
-            var command = new Command("-alias", 
-                                     argument: new Argument
-                                     {
-                                         Name = "arg",
-                                         Arity = ArgumentArity.ZeroOrOne
-                                     });
+            var command = new Command("-alias")
+            {
+                new Argument
+                {
+                    Name = "arg", Arity = ArgumentArity.ZeroOrOne
+                }
+            };
 
             command.Arguments.Single().Name.Should().Be("arg");
         }
-
+  
         [Fact]
         public void When_multiple_arguments_are_configured_then_they_must_differ_by_name()
         {

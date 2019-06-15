@@ -58,7 +58,14 @@ namespace System.CommandLine
             }
             else
             {
-                RootCommand = new RootCommand(symbols: symbols);
+                rootCommand = new RootCommand();
+
+                foreach (var symbol in symbols)
+                {
+                    rootCommand.Add(symbol);
+                }
+
+                RootCommand = rootCommand;
             }
 
             _symbols.Add(RootCommand);
@@ -75,13 +82,16 @@ namespace System.CommandLine
             {
                 foreach (var symbol in symbols)
                 {
-                    foreach (var alias in symbol.RawAliases.ToList())
+                    if (symbol is Option option)
                     {
-                        if (!prefixes.All(prefix => alias.StartsWith(prefix)))
+                        foreach (var alias in option.RawAliases.ToList())
                         {
-                            foreach (var prefix in prefixes)
+                            if (!prefixes.All(prefix => alias.StartsWith(prefix)))
                             {
-                                symbol.AddAlias(prefix + alias);
+                                foreach (var prefix in prefixes)
+                                {
+                                    option.AddAlias(prefix + alias);
+                                }
                             }
                         }
                     }

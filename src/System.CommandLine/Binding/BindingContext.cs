@@ -87,7 +87,7 @@ namespace System.CommandLine.Binding
                 else
                 {
                     var parsed = ArgumentConverter.ConvertObject(
-                        valueDescriptor as IArgument ?? new Argument(), 
+                        valueDescriptor as IArgument ?? new Argument(valueDescriptor.ValueName), 
                         valueDescriptor.Type, 
                         value);
 

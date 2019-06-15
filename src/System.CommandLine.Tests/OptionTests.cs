@@ -12,7 +12,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_only_one_alias_then_that_alias_is_its_name()
         {
-            var option = new Option(new[] { "myname" }, "");
+            var option = new Option(new[] { "myname" });
 
             option.Name.Should().Be("myname");
         }
@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_several_aliases_then_the_longest_alias_is_its_name()
         {
-            var option = new Option(new[] { "myname", "m" }, "");
+            var option = new Option(new[] { "myname", "m" });
 
             option.Name.Should().Be("myname");
         }
@@ -28,7 +28,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_names_do_not_contain_prefix_characters()
         {
-            var option = new Option(new[] { "--myname", "m" }, "");
+            var option = new Option(new[] { "--myname", "m" });
 
             option.Name.Should().Be("myname");
         }
@@ -47,7 +47,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_aliases_are_case_sensitive()
         {
-            var option = new Option(new[] { "-o" }, "");
+            var option = new Option(new[] { "-o" });
 
             option.HasAlias("O").Should().BeFalse();
         }
@@ -55,8 +55,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasAlias_accepts_prefixed_short_value()
         {
-            var option = new Option(
-                new[] { "-o", "--option" }, "");
+            var option = new Option(new[] { "-o", "--option" });
 
             option.HasAlias("-o").Should().BeTrue();
         }
@@ -64,8 +63,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasAlias_accepts_unprefixed_short_value()
         {
-            var option = new Option(
-                new[] { "-o", "--option" }, "");
+            var option = new Option(new[] { "-o", "--option" });
 
             option.HasAlias("o").Should().BeTrue();
         }
@@ -73,8 +71,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasAlias_accepts_prefixed_long_value()
         {
-            var option = new Option(
-                new[] { "-o", "--option" }, "");
+            var option = new Option(new[] { "-o", "--option" });
 
             option.HasAlias("--option").Should().BeTrue();
         }
@@ -82,8 +79,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasAlias_accepts_unprefixed_long_value()
         {
-            var option = new Option(
-                new[] { "-o", "--option" }, "");
+            var option = new Option(new[] { "-o", "--option" });
 
             option.HasAlias("option").Should().BeTrue();
         }
@@ -91,8 +87,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void It_is_not_necessary_to_specify_a_prefix_when_adding_an_option()
         {
-            var option = new Option(
-                new[] { "o" }, "");
+            var option = new Option(new[] { "o" });
 
             option.HasAlias("o").Should().BeTrue();
             option.HasAlias("-o").Should().BeTrue();
@@ -101,7 +96,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_must_have_at_least_one_alias()
         {
-            Action create = () => new Option(Array.Empty<string>(), "");
+            Action create = () => new Option(Array.Empty<string>());
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -114,7 +109,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new Option(new[] { "" }, "");
+            Action create = () => new Option(new[] { "" });
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -127,7 +122,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new Option(new[] { "  \t" }, "");
+            Action create = () => new Option(new[] { "  \t" });
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -140,9 +135,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Raw_aliases_are_exposed_by_an_option()
         {
-            var option = new Option(
-                new[] { "-h", "--help", "/?" },
-                "");
+            var option = new Option(new[] { "-h", "--help", "/?" });
 
             option.RawAliases
                   .Should()
@@ -162,7 +155,7 @@ namespace System.CommandLine.Tests
         {
             Action create = () => new Parser(
                 new Option(
-                    string.Format(template, delimiter), ""));
+                    string.Format(template, delimiter)));
 
             create.Should().Throw<ArgumentException>().Which.Message.Should()
                   .Be($"Symbol cannot contain delimiter: \"{delimiter}\"");
@@ -204,9 +197,15 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
                               {
-                                  new Option(prefix + "a", "", new Argument<string>()),
+                                  new Option(prefix + "a")
+                                  {
+                                      Argument = new Argument<string>()
+                                  },
                                   new Option(prefix + "b"),
-                                  new Option(prefix + "c", "", new Argument<string>())
+                                  new Option(prefix + "c")
+                                  {
+                                      Argument = new Argument<string>()
+                                  }
                               };
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
@@ -218,8 +217,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_not_explicitly_provides_help_will_use_default_help()
         {
-            var option = new Option(
-                new[] { "-o", "--option" }, "desc");
+            var option = new Option(new[] { "-o", "--option" }, "desc");
 
             option.Name.Should().Be("option");
             option.Description.Should().Be("desc");
@@ -227,28 +225,32 @@ namespace System.CommandLine.Tests
         }
         
         [Fact]
-        public void It_defaults_argument_to_alias_name_when_it_is_not_provided()
+        public void Argument_takes_option_alias_as_its_name_when_it_is_not_provided()
         {
-            var command = new Command("-alias",
-                                      argument: new Argument
-                                      {
-                                          Arity = ArgumentArity.ZeroOrOne
-                                      });
+            var command = new Option("--alias")
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
 
-            command.Arguments.Single().Name.Should().Be("alias");
+            command.Argument.Name.Should().Be("alias");
         }
 
         [Fact]
-        public void It_retains_argument_name_when_it_is_provided()
+        public void Argument_retains_name_when_it_is_provided()
         {
-            var option = new Command("-alias", 
-                                     argument: new Argument
-                                     {
-                                         Name = "arg",
-                                         Arity = ArgumentArity.ZeroOrOne
-                                     });
+            var option = new Option("-alias")
+            {
+                Argument = new Argument
+                {
+                    Name = "arg",
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
 
-            option.Arguments.Single().Name.Should().Be("arg");
+            option.Argument.Name.Should().Be("arg");
         }
     }
 }

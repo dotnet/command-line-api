@@ -23,13 +23,19 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             _nullConsole = new NullConsole();
 
-            var eatCommand = new Command("eat") {
-                new Option("--fruit",
-                    argument: new Argument<string>()
-                        .WithSuggestions("apple", "banana", "cherry")),
-                new Option("--vegetable",
-                    argument: new Argument<string>()
-                        .WithSuggestions("asparagus", "broccoli", "carrot")) };
+            var eatCommand = new Command("eat")
+            {
+                new Option("--fruit")
+                {
+                    Argument = new Argument<string>()
+                        .WithSuggestions("apple", "banana", "cherry")
+                },
+                new Option("--vegetable")
+                {
+                    Argument = new Argument<string>()
+                        .WithSuggestions("asparagus", "broccoli", "carrot")
+                }
+            };
 
             _testParser = new CommandLineBuilder(eatCommand)
                 .UseSuggestDirective()

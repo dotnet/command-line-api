@@ -36,63 +36,77 @@ namespace System.CommandLine.Suggest
                    
                       .Build();
 
-            Command GetCommand() =>
-                new Command("get",
-                            "Gets suggestions from the specified executable",
-                            new[] { ExecutableOption(), PositionOption() })
+            Command GetCommand()
+            {
+                var command = new Command("get")
                 {
-                    Handler = CommandHandler.Create<ParseResult, IConsole>(Get)
+                    ExecutableOption(),
+                    PositionOption()
                 };
+                command.Description = "Gets suggestions from the specified executable";
+                command.Handler = CommandHandler.Create<ParseResult, IConsole>(Get);
+                return command;
+            }
 
             Option ExecutableOption() =>
-                new Option(new[] { "-e", "--executable" },
-                           "The executable to call for suggestions",
-                           new Argument<string>().LegalFilePathsOnly());
+                new Option(new[] { "-e", "--executable" })
+                {
+                    Argument = new Argument<string>().LegalFilePathsOnly(), Description = "The executable to call for suggestions"
+                };
 
             Option PositionOption() =>
-                new Option(new[] { "-p", "--position" },
-                           "The current character position on the command line",
-                           new Argument<int>());
+                new Option(new[] { "-p", "--position" })
+                {
+                    Argument = new Argument<int>(),
+                    Description = "The current character position on the command line"
+                };
 
             Command ListCommand() =>
-                new Command(
-                    "list",
-                    "Lists apps registered for suggestions")
+                new Command("list")
                 {
+                    Description = "Lists apps registered for suggestions",
                     Handler = CommandHandler.Create<IConsole>(
                         c => c.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration)))
                 };
 
             Command CompleteScriptCommand() =>
-                new Command(
-                    "script",
-                    "Print complete script for specific shell")
-                   
+                new Command("script")
                 {
                     Argument = new Argument<ShellType>
-                               {
-                                   Name = nameof(ShellType)
-                               },
+                    {
+                        Name = nameof(ShellType)
+                    },
+                    Description = "Print complete script for specific shell",
                     Handler = CommandHandler.Create<IConsole, ShellType>(SuggestionShellScriptHandler.Handle)
                 };
 
-            Command RegisterCommand() =>
-                new Command("register",
-                            "Registers an app for suggestions",
-                            new[] { CommandPathOption(), SuggestionCommandOption() })
+            Command RegisterCommand()
+            {
+                var description = "Registers an app for suggestions";
+
+                var command = new Command("register")
                 {
+                    Description = description,
                     Handler = CommandHandler.Create<string, string, IConsole>(Register)
                 };
+                command.Add(CommandPathOption());
+                command.Add(SuggestionCommandOption());
+                return command;
+            }
 
             Option CommandPathOption() =>
-                new Option("--command-path",
-                           "The path to the command for which to register suggestions",
-                           new Argument<string>());
+                new Option("--command-path")
+                {
+                    Argument = new Argument<string>(),
+                    Description = "The path to the command for which to register suggestions"
+                };
 
             Option SuggestionCommandOption() =>
-                new Option("--suggestion-command",
-                           "The command to invoke to retrieve suggestions",
-                           new Argument<string>());
+                new Option("--suggestion-command")
+                {
+                    Argument = new Argument<string>(),
+                    Description = "The command to invoke to retrieve suggestions"
+                };
         }
 
         public Parser Parser { get; }
