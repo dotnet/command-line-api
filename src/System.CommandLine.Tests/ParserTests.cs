@@ -769,7 +769,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("outer arg1 inner arg2 non-unique arg3 ");
 
-            result.Diagram().Should().Be($"[ outer [ inner [ non-unique <arg3> ] <arg2> ] <arg1> ]");
+            result.Diagram().Should().Be("[ outer <arg1> [ inner <arg2> [ non-unique <arg3> ] ] ]");
         }
 
         [Fact]
