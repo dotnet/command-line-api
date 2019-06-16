@@ -85,68 +85,82 @@ namespace System.CommandLine
             SymbolResult symbolResult,
             ParseResult parseResult)
         {
-            if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult ||
-                                            e.SymbolResult is ArgumentResult a && a.Parent == symbolResult))
+            if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult))
             {
                 builder.Append("!");
             }
-
-            if (symbolResult is OptionResult option &&
-                option.IsImplicit)
+            
+            if (symbolResult is OptionResult optionResult && 
+                optionResult.IsImplicit)
             {
                 builder.Append("*");
             }
 
-            builder.Append("[ ");
-
-            builder.Append(symbolResult.Token.Value);
-
-            foreach (var child in symbolResult.Children)
+            if (symbolResult is ArgumentResult argumentResult)
             {
-                switch (child)
+                var includeArgumentName =
+                    argumentResult.Argument is Argument argument &&
+                    argument.Parents[0] is ICommand command &&
+                    command.Name != argument.Name;
+
+                if (includeArgumentName)
                 {
-                    case ArgumentResult _:
-                        break;
-                    default:
-                        builder.Append(" ");
-                        builder.Diagram(child, parseResult);
-                        break;
+                    builder.Append("[ ");
+                    builder.Append(argumentResult.Argument.Name);
+                    builder.Append(" ");
                 }
-            }
 
-            if (symbolResult.Tokens.Count > 0)
-            {
-                foreach (var arg in symbolResult.Tokens)
+                switch (symbolResult.ArgumentConversionResult)
                 {
-                    builder.Append(" <");
-                    builder.Append(arg.Value);
-                    builder.Append(">");
-                }
-            }
-            else
-            {
-                foreach (var result in symbolResult.ArgumentConversionResults)
-                {
-                    if (result is SuccessfulArgumentConversionResult successfulArgumentResult)
-                    {
-                        var value = successfulArgumentResult.Value;
+                    case SuccessfulArgumentConversionResult successful:
 
-                        switch (value)
+                        switch (successful.Value)
                         {
                             case null:
                             case IReadOnlyCollection<string> a when a.Count == 0:
                                 break;
+                            case IEnumerable<string> args:
+                                builder.Append("<");
+                                builder.Append(string.Join("> <", args));
+                                builder.Append(">");
+                                break;
                             default:
-                                builder.Append(" <");
-                                builder.Append(value);
+                                builder.Append("<");
+                                builder.Append(successful.Value);
                                 builder.Append(">");
                                 break;
                         }
-                    }
+
+                        break;
+
+                    case FailedArgumentConversionResult _:
+
+                        builder.Append("<");
+                        builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
+                        builder.Append(">");
+
+                        break;
+
+                }
+
+                if (includeArgumentName)
+                {
+                    builder.Append(" ]");
                 }
             }
+            else
+            {
+                builder.Append("[ ");
+                builder.Append(symbolResult.Token.Value);
 
-            builder.Append(" ]");
+                foreach (var child in symbolResult.Children)
+                {
+                    builder.Append(" ");
+                    builder.Diagram(child, parseResult);
+                }
+                
+                builder.Append(" ]");
+            }
         }
 
         public static bool HasOption(

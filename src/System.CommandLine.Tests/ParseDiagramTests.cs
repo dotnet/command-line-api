@@ -74,7 +74,7 @@ namespace System.CommandLine.Tests
 
             result.Diagram()
                   .Should()
-                  .Be($"[ {RootCommand.ExeName} ![ -f <not-an-int> ] ]");
+                  .Be($"[ {RootCommand.ExeName} [ -f !<not-an-int> ] ]");
         }
 
         [Fact]
@@ -103,6 +103,23 @@ namespace System.CommandLine.Tests
 
             diagram.Should()
                    .Be($"[ {RootCommand.ExeName} [ -w <9000> ] *[ --height <10> ] *[ --color <Cyan> ] ]");
+        }
+
+        [Fact]
+        public void Parse_diagram_indicates_which_tokens_were_applied_to_which_command_argument()
+        {
+            var command = new Command("the-command")
+            {
+                new Argument<string> { Name = "first" },
+                new Argument<string> { Name = "second" },
+                new Argument<string[]> { Name = "third" }
+            };
+
+            var result = command.Parse("one two three four five");
+
+            result.Diagram()
+                  .Should()
+                  .Be("[ the-command [ first <one> ] [ second <two> ] [ third <three> <four> <five> ] ]");
         }
     }
 }
