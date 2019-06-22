@@ -128,7 +128,26 @@ namespace System.CommandLine.Tests
                 .Errors
                 .Select(e => e.Message)
                 .Should()
-                .Contain("Options '--one' and '--two' cannot be used together.");
+                .ContainSingle("Options '--one' and '--two' cannot be used together.");
+        }
+
+        [Fact]
+        public void Custom_validator_error_messages_are_not_repeated()
+        {
+            var errorMessage = "that's not right...";
+            var argument = new Argument<string>();
+            argument.AddValidator(o => errorMessage);
+
+            var cmd = new Command("get")
+            {
+                argument
+            };
+
+            var result =  cmd.Parse("get something");
+
+            result.Errors
+                  .Should()
+                  .ContainSingle(errorMessage);
         }
 
         [Fact]
