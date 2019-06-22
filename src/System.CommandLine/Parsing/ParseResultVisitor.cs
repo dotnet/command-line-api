@@ -254,6 +254,11 @@ namespace System.CommandLine.Parsing
         {
             var arityFailure = ArgumentArity.Validate(argumentResult);
 
+            if (_errors.Any())
+            {
+                return;
+            }
+
             if (arityFailure != null)
             {
                 _errors.Add(new ParseError(arityFailure.ErrorMessage));
