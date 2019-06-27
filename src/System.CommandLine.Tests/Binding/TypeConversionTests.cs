@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -992,6 +993,86 @@ namespace System.CommandLine.Tests.Binding
             public void Add(string value) => values.Add(value);
 
             public string[] Values => values.ToArray();
+        }
+
+        [Fact]
+        public void When_parsing_an_option_value_the_conversion_method_is_invoked_only_once()
+        {
+            var count = 0;
+            const int testValue = 42;
+
+            var option = new Option("-x")
+            {
+                Argument = new Argument<int>(TryConvertArgument)
+            };
+
+            bool TryConvertArgument(SymbolResult symbol, out int value)
+            {
+                count++;
+                return int.TryParse(symbol.Token.Value, out value);
+            }
+
+            var result = option.Parse($"-x {testValue}").FindResultFor(option)?
+                .GetValueOrDefault<int>() ?? 0;
+
+            result.Should().Be(testValue);
+            count.Should().Be(1);
+        }
+
+        [Fact]
+        public void When_parsing_a_command_with_an_option_the_conversion_method_is_invoked_only_once()
+        {
+            var count = 0;
+            const int testValue = 42;
+
+            var option = new Option("-x")
+            {
+                Argument = new Argument<int>(TryConvertArgument)
+            };
+            var command = new RootCommand();
+            command.AddOption(option);
+
+            bool TryConvertArgument(SymbolResult symbol, out int value)
+            {
+                count++;
+                return int.TryParse(symbol.Token.Value, out value);
+            }
+
+            var result = command.Parse($"-x {testValue}").FindResultFor(option)?
+                .GetValueOrDefault<int>() ?? 0;
+
+            result.Should().Be(testValue);
+            count.Should().Be(1);
+        }
+
+        [Fact]
+        public void When_parsing_a_pipeline_with_an_option_the_conversion_method_is_invoked_only_once()
+        {
+            var count = 0;
+            const int testValue = 42;
+
+            var option = new Option("-x")
+            {
+                Argument = new Argument<int>(TryConvertArgument)
+            };
+            var command = new RootCommand();
+            command.AddOption(option);
+
+            bool TryConvertArgument(SymbolResult symbol, out int value)
+            {
+                count++;
+                return int.TryParse(symbol.Token.Value, out value);
+            }
+
+            var parser = new CommandLineBuilder()
+                .AddOption(option)
+                .Build();
+
+            var result = parser.Parse($"-x {testValue}").FindResultFor(option)?
+                .GetValueOrDefault<int>() ?? 0;
+
+            result.Should().Be(testValue);
+            count.Should().Be(1);
         }
     }
 }
