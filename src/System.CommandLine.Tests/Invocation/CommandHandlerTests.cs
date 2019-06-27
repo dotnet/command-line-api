@@ -350,5 +350,44 @@ namespace System.CommandLine.Tests.Invocation
 
             boundContext.ParseResult.ValueForOption("-x").Should().Be(123);
         }
+
+
+        private class ExecuteTestClass
+        {
+            public string boundName = default;
+            public int boundAge = default;
+
+            public void Execute(string name, int age)
+            {
+                boundName = name;
+                boundAge = age;
+            }
+        }
+
+        private delegate void ExecuteTestDelegate(string name, int age);
+
+        [Fact]
+        public async Task Member_method_parameters_on_the_invoked_method_are_bound_to_matching_option_names_by_delegate()
+        {
+            var testClass = new ExecuteTestClass();
+
+            var command = new Command("command")
+            {
+                new Option("--name")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--age")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
+            command.Handler = CommandHandler.Create((ExecuteTestDelegate)testClass.Execute);
+
+            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+
+            testClass.boundName.Should().Be("Gandalf");
+            testClass.boundAge.Should().Be(425);
+        }
     }
 }
