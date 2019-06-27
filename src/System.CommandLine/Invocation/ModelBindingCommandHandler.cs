@@ -12,6 +12,7 @@ namespace System.CommandLine.Invocation
     internal class ModelBindingCommandHandler : ICommandHandler
     {
         private readonly Delegate _handlerDelegate;
+        private readonly object _invocationTarget;
         private readonly ModelBinder _invocationTargetBinder;
         private readonly MethodInfo _handlerMethodInfo;
         private readonly IReadOnlyCollection<ModelBinder> _parameterBinders;
@@ -22,6 +23,16 @@ namespace System.CommandLine.Invocation
             ModelBinder invocationTargetBinder = null)
         {
             _invocationTargetBinder = invocationTargetBinder;
+            _handlerMethodInfo = handlerMethodInfo;
+            _parameterBinders = parameterBinders;
+        }
+
+        public ModelBindingCommandHandler(
+            MethodInfo handlerMethodInfo,
+            IReadOnlyCollection<ModelBinder> parameterBinders,
+            object invocationTarget)
+        {
+            _invocationTarget = invocationTarget;
             _handlerMethodInfo = handlerMethodInfo;
             _parameterBinders = parameterBinders;
         }
@@ -42,7 +53,7 @@ namespace System.CommandLine.Invocation
                 _parameterBinders.Select(p => p.CreateInstance(bindingContext))
                     .ToArray();
 
-            var invocationTarget =
+            var invocationTarget = _invocationTarget ??
                 _invocationTargetBinder?.CreateInstance(bindingContext);
 
             object result;

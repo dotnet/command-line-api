@@ -367,7 +367,7 @@ namespace System.CommandLine.Tests.Invocation
         private delegate void ExecuteTestDelegate(string name, int age);
 
         [Fact]
-        public async Task Member_method_parameters_on_the_invoked_method_are_bound_to_matching_option_names_by_delegate()
+        public async Task Method_parameters_on_the_invoked_member_method_are_bound_to_matching_option_names_by_delegate()
         {
             var testClass = new ExecuteTestClass();
 
@@ -383,6 +383,32 @@ namespace System.CommandLine.Tests.Invocation
                 }
             };
             command.Handler = CommandHandler.Create((ExecuteTestDelegate)testClass.Execute);
+
+            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+
+            testClass.boundName.Should().Be("Gandalf");
+            testClass.boundAge.Should().Be(425);
+        }
+
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_member_method_are_bound_to_matching_option_names_by_MethodInfo_with_target()
+        {
+            var testClass = new ExecuteTestClass();
+
+            var command = new Command("command")
+            {
+                new Option("--name")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--age")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
+            command.Handler = CommandHandler.Create(
+                testClass.GetType().GetMethod(nameof(ExecuteTestClass.Execute)),
+                testClass);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
 

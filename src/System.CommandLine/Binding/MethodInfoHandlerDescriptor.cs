@@ -11,27 +11,44 @@ namespace System.CommandLine.Binding
     internal class MethodInfoHandlerDescriptor : HandlerDescriptor
     {
         private readonly MethodInfo _handlerMethodInfo;
+        private readonly object _invocationTarget;
 
-        public MethodInfoHandlerDescriptor(MethodInfo handlerMethodInfo)
+        public MethodInfoHandlerDescriptor(MethodInfo handlerMethodInfo, object target = null)
         {
             _handlerMethodInfo = handlerMethodInfo;
+            _invocationTarget = target;
         }
 
         public override ICommandHandler GetCommandHandler()
         {
-            var invocationTargetBinder =
-                _handlerMethodInfo.IsStatic
-                    ? null
-                    : new ModelBinder(_handlerMethodInfo.DeclaringType);
-
             var parameterBinders = ParameterDescriptors
                                    .Select(parameterDescriptor => new ModelBinder(parameterDescriptor))
                                    .ToList();
 
-            return new ModelBindingCommandHandler(
-                _handlerMethodInfo,
-                parameterBinders,
-                invocationTargetBinder);
+            if (_invocationTarget == null)
+            {
+                var invocationTargetBinder =
+                    _handlerMethodInfo.IsStatic
+                        ? null
+                        : new ModelBinder(_handlerMethodInfo.DeclaringType);
+
+                return new ModelBindingCommandHandler(
+                    _handlerMethodInfo,
+                    parameterBinders,
+                    invocationTargetBinder);
+            }
+            else
+            {
+                if (_handlerMethodInfo.IsStatic)
+                {
+                    throw new ArgumentException(nameof(_invocationTarget));
+                }
+
+                return new ModelBindingCommandHandler(
+                    _handlerMethodInfo,
+                    parameterBinders,
+                    _invocationTarget);
+            }
         }
 
         public override ModelDescriptor Parent => ModelDescriptor.FromType(_handlerMethodInfo.DeclaringType);

@@ -221,6 +221,17 @@ namespace System.CommandLine.DragonFruit.Tests
                    .NotContain(o => o.Argument.ArgumentType == type);
         }
 
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_member_method_are_bound_to_matching_option_names_by_MethodInfo_with_target()
+        {
+            var command = new Command("test");
+            command.ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this);
+
+            await command.InvokeAsync("--value");
+
+            _receivedValues.Should().BeEquivalentTo(true);
+        }
+
         internal void Method_taking_bool(bool value = false)
         {
             _receivedValues = new object[] { value };
