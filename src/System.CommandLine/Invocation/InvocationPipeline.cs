@@ -33,7 +33,7 @@ namespace System.CommandLine.Invocation
 
             InvocationMiddleware invocationChain = BuildInvocationChain(context);
 
-            Task.Run(() => invocationChain(context, invocationContext => Task.CompletedTask)).Wait();
+            Task.Run(() => invocationChain(context, invocationContext => Task.CompletedTask)).GetAwaiter().GetResult();
 
             return GetResultCode(context);
         }
