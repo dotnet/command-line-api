@@ -46,6 +46,36 @@ namespace System.CommandLine.DragonFruit
             return await InvokeMethodAsync(args, entryMethod, xmlDocsFilePath, null, console);
         }
 
+        /// <summary>
+        /// Finds and executes 'Program.Main', but with strong types.
+        /// </summary>
+        /// <param name="entryAssembly">The entry assembly</param>
+        /// <param name="args">The string arguments.</param>
+        /// <param name="entryPointFullTypeName">Explicitly defined entry point</param>
+        /// <param name="xmlDocsFilePath">Explicitly defined path to xml file containing XML Docs</param>
+        /// <param name="console">Output console</param>
+        /// <returns>The exit code.</returns>
+        public static int ExecuteAssembly(
+            Assembly entryAssembly,
+            string[] args,
+            string entryPointFullTypeName,
+            string xmlDocsFilePath = null,
+            IConsole console = null)
+        {
+            if (entryAssembly == null)
+            {
+                throw new ArgumentNullException(nameof(entryAssembly));
+            }
+
+            args = args ?? Array.Empty<string>();
+            entryPointFullTypeName = entryPointFullTypeName?.Trim();
+
+            MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly, entryPointFullTypeName);
+
+            //TODO The xml docs file name and location can be customized using <DocumentationFile> project property.
+            return InvokeMethod(args, entryMethod, xmlDocsFilePath, null, console);
+        }
+
         public static async Task<int> InvokeMethodAsync(
             string[] args,
             MethodInfo method,
@@ -53,15 +83,34 @@ namespace System.CommandLine.DragonFruit
             object target = null,
             IConsole console = null)
         {
-            var builder = new CommandLineBuilder()
-                          .ConfigureRootCommandFromMethod(method, target)
-                          .ConfigureHelpFromXmlComments(method, xmlDocsFilePath)
-                          .UseDefaults()
-                          .UseAnsiTerminalWhenAvailable();
-
-            Parser parser = builder.Build();
+            Parser parser = BuildParser(method, xmlDocsFilePath, target);
 
             return await parser.InvokeAsync(args, console);
+        }
+
+        public static int InvokeMethod(
+            string[] args,
+            MethodInfo method,
+            string xmlDocsFilePath = null,
+            object target = null,
+            IConsole console = null)
+        {
+            Parser parser = BuildParser(method, xmlDocsFilePath, target);
+
+            return parser.Invoke(args, console);
+        }
+
+        private static Parser BuildParser(MethodInfo method,
+            string xmlDocsFilePath,
+            object target)
+        {
+            var builder = new CommandLineBuilder()
+                .ConfigureRootCommandFromMethod(method, target)
+                .ConfigureHelpFromXmlComments(method, xmlDocsFilePath)
+                .UseDefaults()
+                .UseAnsiTerminalWhenAvailable();
+
+            return  builder.Build();
         }
 
         public static CommandLineBuilder ConfigureRootCommandFromMethod(

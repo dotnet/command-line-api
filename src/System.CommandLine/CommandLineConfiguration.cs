@@ -112,12 +112,10 @@ namespace System.CommandLine
         public ValidationMessages ValidationMessages { get; }
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory =>
-            _helpBuilderFactory ??
-            (_helpBuilderFactory = context => new HelpBuilder(context.Console));
+            _helpBuilderFactory ??= context => new HelpBuilder(context.Console);
 
         internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
-            _middlewarePipeline ??
-            (_middlewarePipeline = new List<InvocationMiddleware>());
+            _middlewarePipeline ??= new List<InvocationMiddleware>();
 
         public ICommand RootCommand { get; }
 

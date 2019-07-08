@@ -56,6 +56,29 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
+        public void Invoke_chooses_the_appropriate_command()
+        {
+            var firstWasCalled = false;
+            var secondWasCalled = false;
+
+            var first = new Command("first");
+            first.Handler = CommandHandler.Create(() => firstWasCalled = true);
+
+            var second = new Command("second");
+            second.Handler = CommandHandler.Create(() => secondWasCalled = true);
+
+            var parser = new CommandLineBuilder()
+                .AddCommand(first)
+                .AddCommand(second)
+                .Build();
+
+            parser.Invoke("first", _console);
+
+            firstWasCalled.Should().BeTrue();
+            secondWasCalled.Should().BeFalse();
+        }
+
+        [Fact]
         public void When_middleware_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
             var parser = new CommandLineBuilder()
@@ -68,6 +91,21 @@ namespace System.CommandLine.Tests.Invocation
             invoke.Should()
                   .Throw<Exception>()
                   .WithMessage("oops!");
+        }
+
+        [Fact]
+        public void When_middleware_throws_then_Invoke_does_not_handle_the_exception()
+        {
+            var parser = new CommandLineBuilder()
+                .AddCommand(new Command("the-command"))
+                .UseMiddleware(_ => throw new Exception("oops!"))
+                .Build();
+
+            Func<int> invoke = () => parser.Invoke("the-command", _console);
+
+            invoke.Should()
+                .Throw<Exception>()
+                .WithMessage("oops!");
         }
 
         [Fact]
@@ -96,6 +134,34 @@ namespace System.CommandLine.Tests.Invocation
                   .Message
                   .Should()
                   .Be("oops!");
+        }
+
+        [Fact]
+        public void When_command_handler_throws_then_Invoke_does_not_handle_the_exception()
+        {
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create(() =>
+            {
+                throw new Exception("oops!");
+                // Help the compiler pick a CommandHandler.Create overload.
+#pragma warning disable CS0162 // Unreachable code detected
+                return 0;
+#pragma warning restore CS0162
+            });
+
+            var parser = new CommandLineBuilder()
+                .AddCommand(command)
+                .Build();
+
+            Func<int> invoke = () => parser.Invoke("the-command", _console);
+
+            invoke.Should()
+                .Throw<TargetInvocationException>()
+                .Which
+                .InnerException
+                .Message
+                .Should()
+                .Be("oops!");
         }
 
         [Fact]
@@ -158,6 +224,35 @@ namespace System.CommandLine.Tests.Invocation
             middlewareWasCalled.Should().BeTrue();
             handlerWasCalled.Should().BeFalse();
         }
+
+        [Fact]
+        public void Synchronous_invocation_can_be_short_circuited_by_async_middleware_by_not_calling_next()
+        {
+            var middlewareWasCalled = false;
+            var handlerWasCalled = false;
+
+            var command = new Command("the-command");
+            command.Handler = CommandHandler.Create((ParseResult result) =>
+            {
+                handlerWasCalled = true;
+                result.Errors.Should().BeEmpty();
+            });
+
+            var parser = new CommandLineBuilder()
+                         .UseMiddleware(async (context, next) =>
+                         {
+                             middlewareWasCalled = true;
+                             await Task.Yield();
+                         })
+                         .AddCommand(command)
+                         .Build();
+
+            parser.Invoke("the-command", new TestConsole());
+
+            middlewareWasCalled.Should().BeTrue();
+            handlerWasCalled.Should().BeFalse();
+        }
+
 
         [Fact]
         public async Task When_no_help_builder_is_specified_it_uses_default_implementation()
