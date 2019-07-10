@@ -2,11 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Invocation;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
@@ -14,13 +11,6 @@ namespace System.CommandLine.Tests
     {
         public class MultipleArguments
         {
-            private readonly ITestOutputHelper _output;
-
-            public MultipleArguments(ITestOutputHelper output)
-            {
-                _output = output;
-            }
-
             [Fact]
             public void Multiple_arguments_can_differ_by_arity()
             {
