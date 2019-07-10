@@ -172,7 +172,12 @@ namespace System.CommandLine
             if (argument is Argument a &&
                 a.ConvertArguments != null)
             {
-                var argumentResult = symbolResult.Children.ResultFor(argument);
+                var argumentResult = (ArgumentResult) symbolResult.Children.ResultFor(argument);
+
+                if (argumentResult.ConversionResult != null)
+                {
+                    return argumentResult.ConversionResult;
+                }
 
                 var success = a.ConvertArguments(argumentResult, out var value);
 

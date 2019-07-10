@@ -2,8 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -983,6 +987,38 @@ namespace System.CommandLine.Tests.Binding
                     .Message
                     .Should()
                     .Be("Option '-x' expects a single argument but 2 were provided.");
+        }
+
+        [Fact]
+        public async Task Custom_argument_converter_is_only_called_once()
+        {
+            var callCount = 0;
+            var handlerWasCalled = false;
+
+            var parser = new CommandLineBuilder(
+                             new RootCommand
+                             {
+                                 Handler = CommandHandler.Create<int>(Run)
+                             })
+                         .AddOption(new Option("--value")
+                         {
+                             Argument = new Argument<int>(TryConvertInt)
+                         })
+                         .UseDefaults()
+                         .Build();
+
+            await parser.InvokeAsync("--value 42");
+            
+            callCount.Should().Be(1);
+            handlerWasCalled.Should().BeTrue();
+
+            bool TryConvertInt(SymbolResult result, out int value)
+            {
+                callCount++;
+                return int.TryParse(result.Token.Value, out value);
+            }
+
+            void Run(int value) => handlerWasCalled = true;
         }
 
         public class MyCustomType
