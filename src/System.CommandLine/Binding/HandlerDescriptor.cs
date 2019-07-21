@@ -25,8 +25,8 @@ namespace System.CommandLine.Binding
         public override string ToString() =>
             $"{Parent} ({string.Join(", ", ParameterDescriptors)})";
 
-        public static HandlerDescriptor FromMethodInfo(MethodInfo methodInfo) =>
-            new MethodInfoHandlerDescriptor(methodInfo);
+        public static HandlerDescriptor FromMethodInfo(MethodInfo methodInfo, object target = null) =>
+            new MethodInfoHandlerDescriptor(methodInfo, target);
 
         public static HandlerDescriptor FromDelegate(Delegate @delegate) =>
             new DelegateHandlerDescriptor(@delegate);

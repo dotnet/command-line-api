@@ -130,27 +130,8 @@ namespace System.CommandLine.DragonFruit
 
             builder.Command.ConfigureFromMethod(method, target);
 
-            if (target != null)
-            {
-                builder.UseMiddleware(
-                    async (context, next) =>
-                    {
-                        context.BindingContext
-                               .AddService(
-                                   target.GetType(),
-                                   () => target);
-                        await next(context);
-                    });
-            }
-
             return builder;
         }
-
-        internal static void ConfigureFromMethod(
-            this Command command,
-            MethodInfo method,
-            object target = null) =>
-            command.ConfigureFromMethod(method, () => target);
 
         private static readonly string[] _argumentParameterNames =
         {
@@ -162,7 +143,7 @@ namespace System.CommandLine.DragonFruit
         public static void ConfigureFromMethod(
             this Command command,
             MethodInfo method,
-            Func<object> target)
+            object target = null)
         {
             if (command == null)
             {
@@ -196,7 +177,7 @@ namespace System.CommandLine.DragonFruit
                 command.AddArgument(argument);
             }
 
-            command.Handler = CommandHandler.Create(method);
+            command.Handler = CommandHandler.Create(method, target);
         }
 
         public static CommandLineBuilder ConfigureHelpFromXmlComments(
