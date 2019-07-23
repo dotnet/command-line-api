@@ -28,8 +28,13 @@ namespace System.CommandLine.Rendering.Views
         {
             if (Span == null)
             {
-                Span = renderer.Formatter.Format(Value);
+               Span = CreateSpan(renderer);
             }
+        }
+
+        protected virtual Span CreateSpan(ConsoleRenderer renderer)
+        {
+            return renderer.Formatter.Format(Value);
         }
     }
 }
