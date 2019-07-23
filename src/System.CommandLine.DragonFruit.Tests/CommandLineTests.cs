@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Rendering;
+using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -116,12 +117,12 @@ namespace System.CommandLine.DragonFruit.Tests
                 null,
                 _testProgram,
                 _terminal);
-
+            
             exitCode.Should().Be(0);
             _terminal.Out.ToString().Should().Be("Bruce");
         }
 
-        private static void TestMainThatThrows() => throw new InvalidOperationException("This threw an error");
+        private void TestMainThatThrows() => throw new InvalidOperationException("This threw an error");
 
         [Fact]
         public async Task It_shows_error_without_invoking_method()
