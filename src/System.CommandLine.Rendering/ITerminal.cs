@@ -22,5 +22,7 @@ namespace System.CommandLine.Rendering
         void HideCursor();
 
         void ShowCursor();
+
+        Region GetRegion();
     }
 }
