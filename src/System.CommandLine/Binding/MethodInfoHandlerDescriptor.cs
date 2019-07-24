@@ -13,9 +13,12 @@ namespace System.CommandLine.Binding
         private readonly MethodInfo _handlerMethodInfo;
         private readonly object _invocationTarget;
 
-        public MethodInfoHandlerDescriptor(MethodInfo handlerMethodInfo, object target = null)
+        public MethodInfoHandlerDescriptor(
+            MethodInfo handlerMethodInfo, 
+            object target = null)
         {
-            _handlerMethodInfo = handlerMethodInfo;
+            _handlerMethodInfo = handlerMethodInfo ??
+                                 throw new ArgumentNullException(nameof(handlerMethodInfo));
             _invocationTarget = target;
         }
 
@@ -39,11 +42,6 @@ namespace System.CommandLine.Binding
             }
             else
             {
-                if (_handlerMethodInfo.IsStatic)
-                {
-                    throw new ArgumentException(nameof(_invocationTarget));
-                }
-
                 return new ModelBindingCommandHandler(
                     _handlerMethodInfo,
                     parameterBinders,
