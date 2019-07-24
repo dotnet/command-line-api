@@ -665,21 +665,7 @@ namespace System.CommandLine
 
         internal bool ShouldShowHelp(ISymbol symbol)
         {
-            if (symbol.IsHidden)
-            {
-                return false;
-            }
-
-            if (symbol is IArgument)
-            {
-                return !symbol.IsHidden;
-            }
-            else
-            {
-                return !symbol.IsHidden &&
-                       (!string.IsNullOrWhiteSpace(symbol.Description) ||
-                        symbol.Arguments().Any(ShouldShowHelp));
-            }
+            return !symbol.IsHidden;
         }
     }
 }
