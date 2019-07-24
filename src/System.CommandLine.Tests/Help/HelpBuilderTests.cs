@@ -1135,6 +1135,41 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Subcommand_help_contains_command_with_empty_description()
+        {
+            var command = new Command("the-command", "Does things.");
+            var subCommand = new Command("the-subcommand", description: null);
+            command.AddCommand(subCommand);
+
+            _helpBuilder.Write(command);
+            var help = _console.Out.ToString();
+
+            help.Should().Contain("the-subcommand");
+        }
+
+        [Fact]
+        public void Subcommand_help_does_not_contain_hidden_command()
+        {
+            var command = new Command("the-command", "Does things.");
+            var hiddenSubCommand = new Command("the-hidden")
+            {
+                IsHidden = true
+            };
+            var visibleSubCommand = new Command("the-visible")
+            {
+                IsHidden = false
+            };
+            command.AddCommand(hiddenSubCommand);
+            command.AddCommand(visibleSubCommand);
+
+            _helpBuilder.Write(command);
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("the-hidden");
+            help.Should().Contain("the-visible");
+        }
+
         #endregion Subcommands
     }
 }
