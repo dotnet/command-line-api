@@ -1010,6 +1010,36 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Options_section_does_not_contain_hidden_argument()
+        {
+            var command = new Command("the-command", "Does things.");
+            var opt1 = new Option("option1")
+            {
+                Argument = new Argument<int>()
+                {
+                    Name = "the-hidden",
+                    IsHidden = true
+                }
+            };
+            var opt2 = new Option("option2")
+            {
+                Argument = new Argument<int>()
+                {
+                    Name = "the-visible",
+                    IsHidden = false
+                }
+            };
+            command.AddOption(opt1);
+            command.AddOption(opt2);
+
+            _helpBuilder.Write(command);
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("the-hidden");
+            help.Should().Contain("the-visible");
+        }
+
         #endregion Options
 
         #region Subcommands
@@ -1162,6 +1192,32 @@ namespace System.CommandLine.Tests.Help
             };
             command.AddCommand(hiddenSubCommand);
             command.AddCommand(visibleSubCommand);
+
+            _helpBuilder.Write(command);
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("the-hidden");
+            help.Should().Contain("the-visible");
+        }
+
+        [Fact]
+        public void Subcommand_help_does_not_contain_hidden_argument()
+        {
+            var command = new Command("the-command", "Does things.");
+            var subCommand = new Command("the-subcommand");
+            var hidden = new Argument<int>()
+            {
+                Name = "the-hidden", 
+                IsHidden = true
+            };
+            var visible = new Argument<int>()
+            {
+                Name = "the-visible", 
+                IsHidden = false
+            };
+            subCommand.AddArgument(hidden);
+            subCommand.AddArgument(visible);
+            command.AddCommand(subCommand);
 
             _helpBuilder.Write(command);
             var help = _console.Out.ToString();

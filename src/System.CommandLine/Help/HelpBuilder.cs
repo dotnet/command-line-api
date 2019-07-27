@@ -334,7 +334,7 @@ namespace System.CommandLine
             {
                 foreach (var argument in symbol.Arguments())
                 {
-                    if (!string.IsNullOrWhiteSpace(argument.Name))
+                    if (ShouldShowHelp(argument) && !string.IsNullOrWhiteSpace(argument.Name))
                     {
                         var argumentDescriptor = ArgumentDescriptor(argument);
                         if (!string.IsNullOrWhiteSpace(argumentDescriptor))
