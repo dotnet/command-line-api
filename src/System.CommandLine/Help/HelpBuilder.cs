@@ -432,7 +432,7 @@ namespace System.CommandLine
 
             for (var i = 0; i < args.Count; i++)
             {
-                var argument = arguments.ElementAt(i);
+                var argument = args.ElementAt(i);
 
                 var arityIndicator =
                     argument.Arity.MaximumNumberOfValues > 1
