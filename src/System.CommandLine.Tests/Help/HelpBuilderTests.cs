@@ -416,6 +416,34 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Usage_section_does_not_contain_hidden_argument()
+        {
+            var commandName = "the-command";
+            var visibleArgName = "visible";
+            var command = new Command(commandName, "Does things");
+            var hiddenArg = new Argument<int>
+            {
+                Name = "hidden", 
+                IsHidden = true
+            };
+            var visibleArg = new Argument<int>
+            {
+                Name = visibleArgName,
+                IsHidden = false
+            };
+            command.AddArgument(hiddenArg);
+            command.AddArgument(visibleArg);
+
+            _helpBuilder.Write(command);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}{commandName} <{visibleArgName}>{NewLine}{NewLine}";
+            
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
         #endregion Usage
 
         #region Arguments
