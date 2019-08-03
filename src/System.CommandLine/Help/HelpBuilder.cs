@@ -290,15 +290,18 @@ namespace System.CommandLine
         {
             foreach (var argument in symbol.Arguments())
             {
-                var argumentDescriptor = ArgumentDescriptor(argument);
+                if(ShouldShowHelp(argument))
+                {
+                    var argumentDescriptor = ArgumentDescriptor(argument);
 
-                var invocation = string.IsNullOrWhiteSpace(argumentDescriptor)
-                                     ? ""
-                                     : $"<{argumentDescriptor}>";
+                    var invocation = string.IsNullOrWhiteSpace(argumentDescriptor)
+                                        ? ""
+                                        : $"<{argumentDescriptor}>";
 
-                var argumentDescription = argument?.Description ?? "";
-
-                yield return new HelpItem(invocation, argumentDescription);
+                    var argumentDescription = argument?.Description ?? "";
+                
+                    yield return new HelpItem(invocation, argumentDescription);
+                }
             }
         }
 
