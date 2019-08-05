@@ -576,21 +576,36 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_does_not_contain_hidden_argument()
         {
-            var command = new Command("outer")
+            var command = new Command("the-command");
+            var hiddenArgName = "the-hidden";
+            var hiddenDesc = "the hidden desc";
+            var visibleArgName = "the-visible";
+            var visibleDesc = "the visible desc";
+            var hiddenArg = new Argument<int>
             {
-                Argument = new Argument
-                {
-                    Name = "test name",
-                    Description = "test desc",
-                    IsHidden = true
-                }
+                Name = hiddenArgName,
+                Description = hiddenDesc,
+                IsHidden = true
             };
+            var visibleArg = new Argument<int>
+            {
+                Name = visibleArgName,
+                Description = visibleDesc,
+                IsHidden = false
+            };
+            command.AddArgument(hiddenArg);
+            command.AddArgument(visibleArg);
+
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}<{visibleArgName}>{_columnPadding}{visibleDesc}{NewLine}{NewLine}";            
 
             _helpBuilder.Write(command);
-
             var help = _console.Out.ToString();
-            help.Should().NotContain("test name");
-            help.Should().NotContain("test desc");
+
+            help.Should().Contain(expected);
+            help.Should().NotContain(hiddenArgName);
+            help.Should().NotContain(hiddenDesc);            
         }
 
         [Fact]
