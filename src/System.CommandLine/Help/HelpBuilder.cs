@@ -46,7 +46,7 @@ namespace System.CommandLine
 
             MaxWidth = maxWidth
                        ?? (_console is SystemConsole
-                               ? Console.WindowWidth
+                               ? GetConsoleWindowWidth()
                                : int.MaxValue);
         }
 
@@ -553,6 +553,18 @@ namespace System.CommandLine
             }
 
             return command.Arguments.Any(ShouldShowHelp);
+        }
+
+        private int GetConsoleWindowWidth()
+        {
+            try 
+            {
+                return Console.WindowWidth;
+            }
+            catch (System.IO.IOException)
+            {
+                return int.MaxValue;
+            }             
         }
 
         protected class HelpItem
