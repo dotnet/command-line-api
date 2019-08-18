@@ -102,6 +102,23 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
+        public async Task Arguments_are_not_suggested()
+        {
+            var parser =
+                new CommandLineBuilder()
+                    .AddArgument(new Argument())
+                    .AddCommand(new Command("been"))
+                    .UseTypoCorrections()
+                    .Build();
+
+            var result = parser.Parse("een");
+
+            await parser.InvokeAsync(result, _console);
+
+            _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'been'?");
+        }
+
+        [Fact]
         public async Task Hidden_options_are_not_suggested()
         {
             var parser =

@@ -30,6 +30,16 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        public static TBuilder AddArgument<TBuilder>(
+            this TBuilder builder,
+            Argument argument)
+            where TBuilder : CommandBuilder
+        {
+            builder.AddArgument(argument);
+
+            return builder;
+        }
+
         private static readonly Lazy<string> _assemblyVersion =
             new Lazy<string>(() => {
                 var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
