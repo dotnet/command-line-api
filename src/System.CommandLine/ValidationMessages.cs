@@ -39,6 +39,9 @@ namespace System.CommandLine
         public virtual string FileDoesNotExist(string filePath) =>
             $"File does not exist: {filePath}";
 
+        public virtual string FileOrDirectoryDoesNotExist(string path) =>
+            $"File or directory does not exist: {path}";
+
         public virtual string InvalidCharactersInPath(char invalidChar) =>
             $"Character not allowed in a path: {invalidChar}";
 

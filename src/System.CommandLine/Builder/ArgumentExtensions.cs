@@ -61,6 +61,17 @@ namespace System.CommandLine.Builder
             return argument;
         }
 
+        public static Argument<FileSystemInfo> ExistingOnly(this Argument<FileSystemInfo> argument)
+        {
+            argument.AddValidator(symbol =>
+                                      symbol.Tokens
+                                            .Select(t => t.Value)
+                                            .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
+                                            .Select(symbol.ValidationMessages.FileOrDirectoryDoesNotExist)
+                                            .FirstOrDefault());
+            return argument;
+        }
+
         public static Argument<FileInfo[]> ExistingOnly(this Argument<FileInfo[]> argument)
         {
             argument.AddValidator(symbol =>
@@ -79,6 +90,17 @@ namespace System.CommandLine.Builder
                                             .Select(t => t.Value)
                                             .Where(filePath => !Directory.Exists(filePath))
                                             .Select(symbol.ValidationMessages.DirectoryDoesNotExist)
+                                            .FirstOrDefault());
+            return argument;
+        }
+
+        public static Argument<FileSystemInfo[]> ExistingOnly(this Argument<FileSystemInfo[]> argument)
+        {
+            argument.AddValidator(symbol =>
+                                      symbol.Tokens
+                                            .Select(t => t.Value)
+                                            .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
+                                            .Select(symbol.ValidationMessages.FileOrDirectoryDoesNotExist)
                                             .FirstOrDefault());
             return argument;
         }
