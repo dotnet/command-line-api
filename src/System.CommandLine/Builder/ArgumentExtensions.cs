@@ -94,6 +94,17 @@ namespace System.CommandLine.Builder
             return argument;
         }
 
+        public static Argument<FileSystemInfo[]> ExistingOnly(this Argument<FileSystemInfo[]> argument)
+        {
+            argument.AddValidator(symbol =>
+                                      symbol.Tokens
+                                            .Select(t => t.Value)
+                                            .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
+                                            .Select(symbol.ValidationMessages.FileOrDirectoryDoesNotExist)
+                                            .FirstOrDefault());
+            return argument;
+        }
+
         public static TArgument LegalFilePathsOnly<TArgument>(
             this TArgument argument)
             where TArgument : Argument
