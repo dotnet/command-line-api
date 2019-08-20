@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Rendering.Views;
+using System.Globalization;
 using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Extensions;
@@ -50,7 +51,9 @@ namespace System.CommandLine.Rendering.Tests
 
             _output.WriteLine(_terminal.Out.ToString());
 
-            _terminal.Out.ToString().Should().Contain("42.82 seconds");
+            var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+
+            _terminal.Out.ToString().Should().Contain($"42{decimalSeparator}82 seconds");
         }
 
         [Fact]
