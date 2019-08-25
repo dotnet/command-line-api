@@ -349,6 +349,60 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Required_option_arguments_are_not_unbundled()
+        {
+            var optionA = new Option("-a")
+            {
+                Argument = new Argument<string>()
+            };
+            var optionB = new Option("-b");
+            var optionC = new Option("-c");
+
+            
+            var command = new RootCommand
+            {
+                optionA,
+                optionB,
+                optionC
+            };
+
+            var result = command.Parse("-a -bc");
+
+            result.FindResultFor(optionA)
+                  .Tokens
+                  .Should()
+                  .ContainSingle(t => t.Value == "-bc");
+        }
+
+        [Fact]
+        public void Optional_option_arguments_are_unbundled()
+        {
+            var optionA = new Option("-a")
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
+            var optionB = new Option("-b");
+            var optionC = new Option("-c");
+            
+            var command = new RootCommand
+            {
+                optionA,
+                optionB,
+                optionC
+            };
+
+            var result = command.Parse("-a -bc");
+
+            result.Tokens
+                  .Select( t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("-a", "-b", "-c");
+        }
+
+        [Fact]
         public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
             var parser = new Parser(
