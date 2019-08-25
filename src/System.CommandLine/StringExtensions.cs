@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
+using System.ComponentModel.Design;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace System.CommandLine
             var tokenList = new List<Token>();
             var errorList = new List<TokenizeError>();
 
-            ISymbol currentSymbol = null;
+            ICommand currentCommand = null;
             var foundEndOfArguments = false;
             var foundEndOfDirectives = false;
             var argList = NormalizeRootCommand(configuration, args);
@@ -88,13 +89,13 @@ namespace System.CommandLine
                 }
 
                 if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
-                    arg.GetResponseFileReference() is string filePath)
+                    arg.GetResponseFileReference() is { } filePath)
                 {
                     ReadResponseFile(filePath, i);
                     continue;
                 }
 
-                if (arg.SplitByDelimiters(argumentDelimiters) is string[] subtokens &&
+                if (arg.SplitByDelimiters(argumentDelimiters) is { } subtokens &&
                     subtokens.Length > 1)
                 {
                     if (knownTokensStrings.Contains(subtokens[0]))
@@ -114,7 +115,7 @@ namespace System.CommandLine
                     }
                 }
                 else if (configuration.EnablePosixBundling && 
-                         arg.CanBeUnbundled(knownTokens))
+                         CanBeUnbundled(arg))
                 {
                     foreach (var character in arg.Skip(1))
                     {
@@ -124,7 +125,7 @@ namespace System.CommandLine
                 }
                 else if (!knownTokensStrings.Contains(arg) ||
                          // if token matches the current command name, consider it an argument
-                         currentSymbol?.HasRawAlias(arg) == true)
+                         currentCommand?.HasRawAlias(arg) == true)
                 {
                     tokenList.Add(Argument(arg));
                 }
@@ -140,7 +141,7 @@ namespace System.CommandLine
                         // when a subcommand is encountered, re-scope which tokens are valid
                         ISymbolSet symbolSet;
 
-                        if (currentSymbol is ICommand subcommand)
+                        if (currentCommand is { } subcommand)
                         {
                             symbolSet = subcommand.Children;
                         }
@@ -149,8 +150,8 @@ namespace System.CommandLine
                             symbolSet = configuration.Symbols;
                         }
 
-                        currentSymbol = symbolSet.GetByAlias(arg);
-                        knownTokens = currentSymbol.ValidTokens();
+                        currentCommand = (ICommand) symbolSet.GetByAlias(arg);
+                        knownTokens = currentCommand.ValidTokens();
                         knownTokensStrings = new HashSet<string>(knownTokens.Select(t => t.Value));
                         tokenList.Add(Command(arg));
                     }
@@ -158,6 +159,28 @@ namespace System.CommandLine
             }
 
             return new TokenizeResult(tokenList, errorList);
+
+            bool CanBeUnbundled(string arg)
+            {
+                // don't unbundle if the last token is an option expecting an argument
+                if (tokenList.LastOrDefault() is { } lastToken &&
+                    lastToken.Type == TokenType.Option &&
+                    currentCommand?.Children.GetByAlias(lastToken.Value) is IOption option && 
+                    option.Argument.Arity.MinimumNumberOfValues > 0)
+                {
+                    return false;
+                }
+
+                return arg.StartsWith("-") &&
+                       !arg.StartsWith("--") &&
+                       arg.RemovePrefix()
+                          .All(CharacterIsValidOptionAlias);
+
+                bool CharacterIsValidOptionAlias(char c) =>
+                    knownTokens.Where(t => t.Type == TokenType.Option)
+                               .Select(t => t.Value.RemovePrefix())
+                               .Contains(c.ToString());
+            }
 
             void ReadResponseFile(string filePath, int i)
             {
@@ -342,21 +365,6 @@ namespace System.CommandLine
         private static Token Operand(string value) => new Token(value, TokenType.Operand);
 
         private static Token Directive(string value) => new Token(value, TokenType.Directive);
-
-        private static bool CanBeUnbundled(
-            this string arg,
-            IReadOnlyCollection<Token> knownTokens)
-        {
-            return arg.StartsWith("-") &&
-                   !arg.StartsWith("--") &&
-                   arg.RemovePrefix()
-                      .All(CharacterIsValidOptionAlias);
-
-            bool CharacterIsValidOptionAlias(char c) =>
-                knownTokens.Where(t => t.Type == TokenType.Option)
-                           .Select(t => t.Value.RemovePrefix())
-                           .Contains(c.ToString());
-        }
 
         public static IEnumerable<string> SplitCommandLine(this string commandLine)
         {
