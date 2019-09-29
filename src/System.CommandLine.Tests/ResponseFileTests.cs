@@ -286,17 +286,22 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_processing_is_disabled_then_it_returns_response_file_name_as_argument()
         {
-            var result = new CommandLineBuilder()
-                         .AddOption(new Option("--flag"))
-                         .AddOption(new Option("--flag2"))
-                         .ParseResponseFileAs(ResponseFileHandling.Disabled)
-                         .Build()
-                         .Parse("--flag @file.rsp --flag2");
+            var command = new RootCommand
+            {
+                new Argument<List<string>>()
+            };
+            var configuration = new CommandLineConfiguration(
+                new[] { command },
+                responseFileHandling: ResponseFileHandling.Disabled);
+            var parser = new Parser(configuration);
 
-            result.HasOption("--flag").Should().BeTrue();
-            result.HasOption("--flag2").Should().BeTrue();
-            result.Errors.Should().HaveCount(1);
-            result.Errors.Single().Message.Should().Be("Unrecognized command or argument '@file.rsp'");
+            var result = parser.Parse("@file.rsp");
+
+            result.Tokens
+                  .Should()
+                  .Contain(t => t.Value == "@file.rsp" && 
+                                t.Type == TokenType.Argument);
+            result.Errors.Should().HaveCount(0);
         }
 
         [Fact]
