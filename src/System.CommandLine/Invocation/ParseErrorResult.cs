@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Invocation
 {
-    internal class ParseErrorResult : IInvocationResult
+    public class ParseErrorResult : IInvocationResult
     {
         public void Apply(InvocationContext context)
         {
