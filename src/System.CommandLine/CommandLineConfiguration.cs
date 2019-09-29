@@ -19,7 +19,7 @@ namespace System.CommandLine
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
             bool enablePosixBundling = true,
-            bool enablePositionalOptions = false,
+            bool enableDirectives = true,
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
@@ -71,7 +71,7 @@ namespace System.CommandLine
             _symbols.Add(RootCommand);
 
             EnablePosixBundling = enablePosixBundling;
-            EnablePositionalOptions = enablePositionalOptions;
+            EnableDirectives = enableDirectives;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
             _middlewarePipeline = middlewarePipeline;
@@ -104,6 +104,8 @@ namespace System.CommandLine
         public ISymbolSet Symbols => _symbols;
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
+
+        public bool EnableDirectives { get; }
 
         public bool EnablePositionalOptions { get; }
 

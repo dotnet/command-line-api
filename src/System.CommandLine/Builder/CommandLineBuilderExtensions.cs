@@ -81,11 +81,11 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static CommandLineBuilder EnablePositionalOptions(
+        public static CommandLineBuilder EnableDirectives(
             this CommandLineBuilder builder,
             bool value = true)
         {
-            builder.EnablePositionalOptions = value;
+            builder.EnableDirectives = value;
             return builder;
         }
 

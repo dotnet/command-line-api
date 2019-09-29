@@ -46,7 +46,7 @@ namespace System.CommandLine
 
             ICommand currentCommand = null;
             var foundEndOfArguments = false;
-            var foundEndOfDirectives = false;
+            var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
