@@ -45,7 +45,7 @@ namespace System.CommandLine
 
             ISymbol currentSymbol = null;
             var foundEndOfArguments = false;
-            var foundEndOfDirectives = false;
+            var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
