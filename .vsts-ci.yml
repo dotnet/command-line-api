@@ -42,6 +42,7 @@ jobs:
         # DotNet-Blob-Feed provides: dotnetfeed-storage-access-key-1
         # Publish-Build-Assets provides: MaestroAccessToken, BotAccount-dotnet-maestro-bot-PAT
         - group: DotNet-Blob-Feed
+        - group: DotNet-Symbol-Server-Pats
         - group: Publish-Build-Assets
         - name: _OfficialBuildArgs
           value: /p:DotNetSignType=$(_SignType)
@@ -50,6 +51,9 @@ jobs:
                  /p:DotNetPublishBlobFeedUrl=https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
                  /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed)
                  /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+                 /p:PublishToSymbolServer=true
+                 /p:DotNetSymbolServerTokenMsdl=$(microsoft-symbol-server-pat)
+                 /p:DotNetSymbolServerTokenSymWeb=$(symweb-symbol-server-pat)
       # else
       - ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
         - name: _OfficialBuildArgs
@@ -89,6 +93,12 @@ jobs:
           artifactName: artifacts
           artifactType: Container
           parallel: true
+      - task: PublishBuildArtifacts@1
+        displayName: Publish Artifact Symbols
+        condition: and(eq(variables['system.pullrequest.isfork'], false), eq(variables['_BuildConfig'], 'Release'))
+        inputs:
+          PathtoPublish: '$(Build.SourcesDirectory)\artifacts\SymStore\$(_BuildConfig)'
+          ArtifactName: 'NativeSymbols'
 
     - job: Ubuntu_16_04
       displayName: 'Ubuntu 16.04'
