@@ -10,6 +10,11 @@
     <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <UsingToolSymbolUploader>true</UsingToolSymbolUploader>
+    <PublishWindowsPdb>true</PublishWindowsPdb>
+  </PropertyGroup>
+
 <!--   <PropertyGroup>
     <FluentAssertionsVersion>4.18.0</FluentAssertionsVersion>
     <NewtonsoftJsonVersion>9.0.1</NewtonsoftJsonVersion>
