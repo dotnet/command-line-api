@@ -402,6 +402,69 @@ namespace System.CommandLine.Tests
                   .BeEquivalentTo("-a", "-b", "-c");
         }
 
+        [Theory]
+        [InlineData("-abcvalue", null, "value")]
+        [InlineData("-abc value", null, "value")]
+        [InlineData("-abc=value", null, "value")]
+        [InlineData("-abc:value", null, "value")]
+        [InlineData("-abvalue", "value", null)]
+        [InlineData("-ab value", "value", null)]
+        [InlineData("-ab=value", "value", null)]
+        [InlineData("-ab:value", "value", null)]
+        [InlineData("-abvalue -cvalue", "value", "value")]
+        // a should always be set
+        // b should always be set but value is optional
+        // c is optional
+        public void Last_bundled_option_can_accept_arguments(string arguments, string bvalue, string cvalue)
+        {
+            var optionA = new Option("-a");
+            var optionB = new Option("-b")
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
+            var optionC = new Option("-c") 
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
+
+            var command = new RootCommand
+            {
+                optionA,
+                optionB,
+                optionC
+            };
+
+            var result = command.Parse(arguments);
+            result.HasOption(optionA).Should().BeTrue();
+            result.HasOption(optionB).Should().BeTrue();
+
+            if (bvalue != null)
+            {
+                result.FindResultFor(optionB)
+                    .Tokens
+                    .Should()
+                    .ContainSingle(t => t.Value == bvalue);
+            }
+
+            if (cvalue != null)
+            {
+                result.FindResultFor(optionC)
+                    .Tokens
+                    .Should()
+                    .ContainSingle(t => t.Value == cvalue);
+            }
+            else
+            {
+                result.HasOption(optionC).Should().BeFalse();
+            }
+        }
+
         [Fact]
         public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {

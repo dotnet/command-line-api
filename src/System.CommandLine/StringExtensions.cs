@@ -95,6 +95,14 @@ namespace System.CommandLine
                     continue;
                 }
 
+                if (configuration.EnablePosixBundling && 
+                         CanBeUnbundled(arg, out var replacement))
+                {
+                    argList.InsertRange(i + 1, replacement);
+                    argList.RemoveAt(i);
+                    arg = argList[i];
+                }
+
                 if (arg.SplitByDelimiters(argumentDelimiters) is { } subtokens &&
                     subtokens.Length > 1)
                 {
@@ -112,15 +120,6 @@ namespace System.CommandLine
                     else
                     {
                         tokenList.Add(Argument(arg));
-                    }
-                }
-                else if (configuration.EnablePosixBundling && 
-                         CanBeUnbundled(arg))
-                {
-                    foreach (var character in arg.Skip(1))
-                    {
-                        // unbundle e.g. -xyz into -x -y -z
-                        tokenList.Add(Option($"-{character}"));
                     }
                 }
                 else if (!knownTokensStrings.Contains(arg) ||
@@ -160,8 +159,10 @@ namespace System.CommandLine
 
             return new TokenizeResult(tokenList, errorList);
 
-            bool CanBeUnbundled(string arg)
+            bool CanBeUnbundled(string arg, out IEnumerable<string> replacement)
             {
+                replacement = null;
+
                 // don't unbundle if the last token is an option expecting an argument
                 if (tokenList.LastOrDefault() is { } lastToken &&
                     lastToken.Type == TokenType.Option &&
@@ -173,13 +174,81 @@ namespace System.CommandLine
 
                 return arg.StartsWith("-") &&
                        !arg.StartsWith("--") &&
-                       arg.RemovePrefix()
-                          .All(CharacterIsValidOptionAlias);
+                       TryUnbundle(arg.RemovePrefix(), out replacement);
 
-                bool CharacterIsValidOptionAlias(char c) =>
-                    knownTokens.Where(t => t.Type == TokenType.Option)
-                               .Select(t => t.Value.RemovePrefix())
-                               .Contains(c.ToString());
+                Token TokenForOptionAlias(char c) =>
+                    argumentDelimiters.Contains(c) 
+                    ? null
+                    : knownTokens.SingleOrDefault(t => 
+                        t.Type == TokenType.Option && 
+                        t.Value.RemovePrefix() == c.ToString());
+                
+                void AddRestValue(List<string> list, string rest)
+                {
+                    if (argumentDelimiters.Contains(rest[0]))
+                    {
+                        list[list.Count - 1] += rest;
+                    }
+                    else
+                    {
+                        list.Add(rest);
+                    }
+                }
+                
+                bool TryUnbundle(string arg, out IEnumerable<string> replacement)
+                {
+                    var lastTokenHasArgument = false;
+                    var builder = new List<string>();
+                    for (var i = 0; i < arg.Length; i++)
+                    {
+                        var token = TokenForOptionAlias(arg[i]);
+                        if (token == null)
+                        {
+                            if (lastTokenHasArgument)
+                            {
+                                // The previous token had an optional argument while the current
+                                // character does not match any known tokens. Interpret this as
+                                // the current character is the first char in the argument.
+                                AddRestValue(builder, arg.Substring(i));
+                                break;
+                            }
+                            else
+                            {
+                                // The previous token did not expect an argument, and the current
+                                // character does not match an option, so unbundeling cannot be
+                                // done.
+                                replacement = null;
+                                return false;
+                            }
+                        }
+
+                        var option = currentCommand?.Children.GetByAlias(token.Value) as IOption;
+                        builder.Add("-" + arg[i]);
+
+                        // Here we're at an impass, because if we don't have the `IOption`
+                        // because we haven't received the correct command yet for instance,
+                        // we will take the wrong decision. This is the same logic as the earlier
+                        // `CanBeUnbundled` check to take the decision.
+                        // A better option is probably introducing a new token-type, and resolve
+                        // this after we have the correct model available.
+                        var requiresArgument = option?.Argument.Arity.MinimumNumberOfValues > 0;
+                        lastTokenHasArgument = option?.Argument.Arity.MaximumNumberOfValues > 0;
+
+                        // If i == arg.Length - 1, we're already at the end of the string
+                        // so no need for the custom handling of argument.
+                        if (requiresArgument && i < arg.Length - 1)
+                        {
+                            // The current option requires an argument, and we're still in
+                            // the middle of unbundling a string. Example: `-lsomelib.so`
+                            // should be interpreted as `-l somelib.so`.
+                            AddRestValue(builder, arg.Substring(i + 1));
+                            break;
+                        }
+                    }
+
+                    replacement = builder;
+                    return true;
+                }
             }
 
             void ReadResponseFile(string filePath, int i)
