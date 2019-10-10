@@ -223,7 +223,7 @@ namespace System.CommandLine
                         }
 
                         var option = currentCommand?.Children.GetByAlias(token.Value) as IOption;
-                        builder.Add("-" + arg[i]);
+                        builder.Add(token.Value);
 
                         // Here we're at an impass, because if we don't have the `IOption`
                         // because we haven't received the correct command yet for instance,
