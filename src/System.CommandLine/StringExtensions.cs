@@ -179,7 +179,7 @@ namespace System.CommandLine
                 Token TokenForOptionAlias(char c) =>
                     argumentDelimiters.Contains(c) 
                     ? null
-                    : knownTokens.SingleOrDefault(t => 
+                    : knownTokens.FirstOrDefault(t => 
                         t.Type == TokenType.Option && 
                         t.Value.RemovePrefix() == c.ToString());
                 
