@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -11,6 +11,8 @@ using System.Linq;
 using FluentAssertions.Common;
 using Xunit;
 using Xunit.Abstractions;
+using System.ComponentModel;
+using System.Globalization;
 
 namespace System.CommandLine.Tests
 {
@@ -256,7 +258,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ExactlyOne
                 }
             };
-            
+
             var result = option.Parse("--hello:there");
 
             result.Errors.Should().BeEmpty();
@@ -328,12 +330,12 @@ namespace System.CommandLine.Tests
             var outer = new Command("outer");
             outer.AddOption(new Option("-a"));
             var inner = new Command("inner")
-                        {
-                            Argument = new Argument
-                                       {
-                                           Arity = ArgumentArity.ZeroOrMore
-                                       }
-                        };
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }
+            };
             inner.AddOption(new Option("-b"));
             inner.AddOption(new Option("-c"));
             outer.AddCommand(inner);
@@ -358,7 +360,7 @@ namespace System.CommandLine.Tests
             var optionB = new Option("-b");
             var optionC = new Option("-c");
 
-            
+
             var command = new RootCommand
             {
                 optionA,
@@ -386,7 +388,7 @@ namespace System.CommandLine.Tests
             };
             var optionB = new Option("-b");
             var optionC = new Option("-c");
-            
+
             var command = new RootCommand
             {
                 optionA,
@@ -397,7 +399,7 @@ namespace System.CommandLine.Tests
             var result = command.Parse("-a -bc");
 
             result.Tokens
-                  .Select( t => t.Value)
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("-a", "-b", "-c");
         }
@@ -494,7 +496,7 @@ namespace System.CommandLine.Tests
             result["animals"]
                 .Arguments
                 .Should()
-                .BeEquivalentTo(new[]{"cat", "dog"});
+                .BeEquivalentTo(new[] { "cat", "dog" });
 
             result["vegetables"]
                 .Arguments
@@ -761,7 +763,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_inner_command_with_the_same_name_does_not_capture()
         {
-         var command = new Command("one")
+            var command = new Command("one")
                           {
                               new Command("two")
                               {
@@ -1713,6 +1715,95 @@ namespace System.CommandLine.Tests
                    .Select(e => e.Message)
                    .Should()
                    .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument("4"));
+        }
+
+
+        [Fact]
+        public void Argument_with_custom_type_converter_can_be_bound()
+        {
+            var option = new Option("--value")
+            {
+                Argument = new Argument<ClassWithCustomTypeConverter>()
+            };
+
+            var parseResult = option.Parse("--value a;b;c");
+
+            var instance = (ClassWithCustomTypeConverter)parseResult.ValueForOption("--value");
+
+            instance.Values.Should().BeEquivalentTo("a", "b", "c");
+        }
+
+        [Fact]
+        public void Argument_with_custom_collection_type_converter_can_be_bound()
+        {
+            var option = new Option("--value")
+            {
+                Argument = new Argument<CollectionWithCustomTypeConverter>
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
+
+            var parseResult = option.Parse("--value a;b;c");
+
+            var instance = (CollectionWithCustomTypeConverter)parseResult.ValueForOption("--value");
+
+            instance.Should().BeEquivalentTo("a", "b", "c");
+        }
+
+        [TypeConverter(typeof(CustomTypeConverter))]
+        public class ClassWithCustomTypeConverter
+        {
+            public string[] Values { get; set; }
+        }
+
+        public class CustomTypeConverter : TypeConverter
+        {
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return sourceType == typeof(string) ||
+                    base.CanConvertFrom(context, sourceType);
+            }
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                return value switch
+                {
+                    string stringValue => new ClassWithCustomTypeConverter
+                    {
+                        Values = stringValue.Split(';')
+                    },
+                    _ => base.ConvertFrom(context, culture, value)
+                };
+            }
+        }
+
+        [TypeConverter(typeof(CustomCollectionTypeConverter))]
+        public class CollectionWithCustomTypeConverter : List<string>
+        {
+            public CollectionWithCustomTypeConverter(IEnumerable<string> values)
+                : base(values)
+            {
+
+            }
+        }
+
+        public class CustomCollectionTypeConverter : TypeConverter
+        {
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return sourceType == typeof(string) ||
+                    base.CanConvertFrom(context, sourceType);
+            }
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                return value switch
+                {
+                    string stringValue => new CollectionWithCustomTypeConverter(stringValue.Split(';')),
+                    _ => base.ConvertFrom(context, culture, value)
+                };
+            }
         }
     }
 }

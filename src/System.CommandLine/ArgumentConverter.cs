@@ -28,7 +28,7 @@ namespace System.CommandLine
             switch (value)
             {
                 case string singleValue:
-                    if (type.IsEnumerable())
+                    if (type.IsEnumerable() && !type.HasStringTypeConverter())
                     {
                         return ConvertStrings(argument, type, new[] { singleValue });
                     }
@@ -162,6 +162,12 @@ namespace System.CommandLine
         {
             return i.IsGenericType &&
                    i.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+        }
+
+        private static bool HasStringTypeConverter(this Type type)
+        {
+            return TypeDescriptor.GetConverter(type) is TypeConverter typeConverter
+                && typeConverter.CanConvertFrom(typeof(string));
         }
 
         private static FailedArgumentConversionResult Failure(
