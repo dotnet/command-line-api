@@ -1767,14 +1767,14 @@ namespace System.CommandLine.Tests
 
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                return value switch
+                if (value is string stringValue)
                 {
-                    string stringValue => new ClassWithCustomTypeConverter
+                    return new ClassWithCustomTypeConverter
                     {
                         Values = stringValue.Split(';')
-                    },
-                    _ => base.ConvertFrom(context, culture, value)
-                };
+                    };
+                }
+                return base.ConvertFrom(context, culture, value);
             }
         }
 
@@ -1798,11 +1798,11 @@ namespace System.CommandLine.Tests
 
             public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                return value switch
+                if (value is string stringValue)
                 {
-                    string stringValue => new CollectionWithCustomTypeConverter(stringValue.Split(';')),
-                    _ => base.ConvertFrom(context, culture, value)
-                };
+                    return new CollectionWithCustomTypeConverter(stringValue.Split(';'));
+                }
+                return base.ConvertFrom(context, culture, value);
             }
         }
     }
