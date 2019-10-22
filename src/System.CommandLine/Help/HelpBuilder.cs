@@ -51,7 +51,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public void Write(ICommand command)
+        public virtual void Write(ICommand command)
         {
             if (command == null)
             {
@@ -286,7 +286,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns>A new <see cref="HelpItem"/></returns>
-        protected virtual IEnumerable<HelpItem> ArgumentFormatter(ISymbol symbol)
+        private IEnumerable<HelpItem> GetArgumentHelpItems(ISymbol symbol)
         {
             foreach (var argument in symbol.Arguments())
             {
@@ -326,7 +326,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns>A new <see cref="HelpItem"/></returns>
-        protected virtual IEnumerable<HelpItem> OptionFormatter(ISymbol symbol)
+        private IEnumerable<HelpItem> GetOptionHelpItems(ISymbol symbol)
         {
             var rawAliases = symbol.RawAliases
                 .OrderBy(alias => alias.Length);
@@ -500,7 +500,7 @@ namespace System.CommandLine
                 commands.Add(command);
             }
 
-            HelpSection.Write(this, Arguments.Title, commands, ArgumentFormatter);
+            HelpSection.Write(this, Arguments.Title, commands, GetArgumentHelpItems);
         }
 
         /// <summary>
@@ -516,7 +516,7 @@ namespace System.CommandLine
                 .Where(ShouldShowHelp)
                 .ToArray();
 
-            HelpSection.Write(this, Options.Title, options, OptionFormatter);
+            HelpSection.Write(this, Options.Title, options, GetOptionHelpItems);
         }
 
         /// <summary>
@@ -532,7 +532,7 @@ namespace System.CommandLine
                 .Where(ShouldShowHelp)
                 .ToArray();
 
-            HelpSection.Write(this, Commands.Title, subcommands, OptionFormatter);
+            HelpSection.Write(this, Commands.Title, subcommands, GetOptionHelpItems);
         }
 
         protected virtual void AddAdditionalArguments(ICommand command)
