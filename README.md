@@ -12,6 +12,7 @@ Package                            | Version |
 System.CommandLine.Experimental    | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Experimental.svg)](https://nuget.org/packages/System.CommandLine.Experimental)    |
 System.CommandLine.DragonFruit     | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.DragonFruit.svg)](https://nuget.org/packages/System.CommandLine.DragonFruit)    |
 System.CommandLine.Rendering       | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Rendering.svg)](https://nuget.org/packages/System.CommandLine.Rendering)    |
+System.CommandLine.Hosting         | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Hosting.svg)](https://nuget.org/packages/System.CommandLine.Hosting)    |
 
 Daily builds are available if you add this feed to your nuget.config: https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json.
 
