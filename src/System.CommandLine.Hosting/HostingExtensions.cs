@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;
@@ -78,6 +79,18 @@ namespace System.CommandLine.Hosting
             if (properties?.TryGetValue(typeof(InvocationContext), out ctxObj) ?? false)
                 return ctxObj as InvocationContext;
             return null;
+        }
+
+        public static void ConfigureFromInvocation<TOptions>(
+            this IServiceCollection services, HostBuilderContext context)
+            where TOptions : class
+        {
+            var bindingContext = context.GetInvocationContext()?.BindingContext;
+            services.Configure<TOptions>(opts =>
+            {
+                var modelBinder = new ModelBinder<TOptions>();
+                modelBinder.UpdateInstance(opts, bindingContext);
+            });
         }
     }
 }
