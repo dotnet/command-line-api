@@ -1,4 +1,5 @@
-﻿using System.CommandLine.Builder;
+﻿using System.Collections.Generic;
+using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;
 
@@ -63,6 +64,20 @@ namespace System.CommandLine.Hosting
                 if (configureOptions is Action<InvocationLifetimeOptions>)
                     services.Configure(configureOptions);
             });
+        }
+
+        public static InvocationContext GetInvocationContext(this IHostBuilder hostBuilder) =>
+            GetInvocationContext(hostBuilder?.Properties);
+
+        public static InvocationContext GetInvocationContext(this HostBuilderContext context) =>
+            GetInvocationContext(context?.Properties);
+
+        private static InvocationContext GetInvocationContext(IDictionary<object, object> properties)
+        {
+            object ctxObj = null;
+            if (properties?.TryGetValue(typeof(InvocationContext), out ctxObj) ?? false)
+                return ctxObj as InvocationContext;
+            return null;
         }
     }
 }
