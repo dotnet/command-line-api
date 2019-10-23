@@ -31,11 +31,11 @@ namespace System.CommandLine.Binding
         internal Dictionary<(Type valueSourceType, string valueSourceName), IValueSource> NamedValueSources { get; }
             = new Dictionary<(Type valueSourceType, string valueSourceName), IValueSource>();
 
-        public void BindMemberFromValue(PropertyInfo property, Option option)
+        public void BindMemberFromValue(PropertyInfo property, IValueDescriptor valueDescriptor)
         {
             NamedValueSources.Add(
                 (property.PropertyType, property.Name),
-                new OptionValueSource(option));
+                new SpecificSymbolValueSource(valueDescriptor));
         }
 
         public object CreateInstance(BindingContext context)

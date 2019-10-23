@@ -3,32 +3,24 @@
 
 namespace System.CommandLine.Binding
 {
-    internal class OptionValueSource : IValueSource
+    internal class SpecificSymbolValueSource : IValueSource
     {
-        public OptionValueSource(IOption option)
+        public SpecificSymbolValueSource(IValueDescriptor valueDescriptor)
         {
-            Option = option;
+            symbolValueSource = new CurrentSymbolResultValueSource();
+            ValueDescriptor = valueDescriptor;
         }
 
-        public IOption Option { get; }
+        private readonly CurrentSymbolResultValueSource symbolValueSource;
 
-        public bool TryGetValue(
-            IValueDescriptor valueDescriptor, 
-            BindingContext bindingContext, 
+        public IValueDescriptor ValueDescriptor { get; }
+
+        public bool TryGetValue(IValueDescriptor valueDescriptor,
+            BindingContext bindingContext,
             out object boundValue)
         {
-            var result = bindingContext.ParseResult.FindResultFor(Option);
-
-            switch (result)
-            {
-                case OptionResult optionResult:
-                    boundValue = optionResult.GetValueOrDefault();
-                    return true;
-
-                default:
-                    boundValue = Option.GetDefaultValue();
-                    return true;
-            }
+            return symbolValueSource.TryGetValue(ValueDescriptor,
+                bindingContext, out boundValue);
         }
     }
 }

@@ -324,7 +324,7 @@ namespace System.CommandLine.Tests.Binding
 
             var binder = new ModelBinder<ClassWithMultiLetterSetters>();
 
-            binder.BindMemberFromOption(
+            binder.BindMemberFromValue(
                 c => c.IntOption,
                 option);
 
