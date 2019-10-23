@@ -13,13 +13,15 @@ namespace System.CommandLine
     {
         protected const int DefaultColumnGutter = 4;
         protected const int DefaultIndentationSize = 2;
-
         protected const int WindowMargin = 2;
         private int _indentationLevel;
-        protected IConsole _console;
+
+        protected IConsole Console { get; }
 
         public int ColumnGutter { get; } 
+
         public int IndentationSize { get; } 
+
         public int MaxWidth { get; } 
 
         /// <summary>
@@ -40,12 +42,12 @@ namespace System.CommandLine
             int? indentationSize = null,
             int? maxWidth = null)
         {
-            _console = console ?? throw new ArgumentNullException(nameof(console));
+            Console = console ?? throw new ArgumentNullException(nameof(console));
             ColumnGutter = columnGutter ?? DefaultColumnGutter;
             IndentationSize = indentationSize ?? DefaultIndentationSize;
 
             MaxWidth = maxWidth
-                       ?? (_console is SystemConsole
+                       ?? (Console is SystemConsole
                                ? GetConsoleWindowWidth()
                                : int.MaxValue);
         }
@@ -114,7 +116,7 @@ namespace System.CommandLine
         /// </summary>
         private void AppendBlankLine()
         {
-            _console.Out.WriteLine();
+            Console.Out.WriteLine();
         }
 
 
@@ -126,7 +128,7 @@ namespace System.CommandLine
         private void AppendPadding(int? offset = null)
         {
             var padding = GetPadding(offset ?? CurrentIndentation);
-            _console.Out.Write(padding);
+            Console.Out.Write(padding);
         }
 
         /// <summary>
@@ -138,7 +140,7 @@ namespace System.CommandLine
         private void AppendLine(string text, int? offset = null)
         {
             AppendPadding(offset);
-            _console.Out.WriteLine(text ?? "");
+            Console.Out.WriteLine(text ?? "");
         }
 
         /// <summary>
@@ -149,7 +151,7 @@ namespace System.CommandLine
         private void AppendText(string text, int? offset = null)
         {
             AppendPadding(offset);
-            _console.Out.Write(text ?? "");
+            Console.Out.Write(text ?? "");
         }
 
         /// <summary>
@@ -559,7 +561,7 @@ namespace System.CommandLine
         {
             try 
             {
-                return Console.WindowWidth;
+                return System.Console.WindowWidth;
             }
             catch (System.IO.IOException)
             {

@@ -107,8 +107,6 @@ namespace System.CommandLine
 
         public bool EnableDirectives { get; }
 
-        public bool EnablePositionalOptions { get; }
-
         public bool EnablePosixBundling { get; }
 
         public ValidationMessages ValidationMessages { get; }

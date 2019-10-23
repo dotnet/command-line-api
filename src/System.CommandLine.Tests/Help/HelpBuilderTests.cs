@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -1270,5 +1271,36 @@ namespace System.CommandLine.Tests.Help
         }
 
         #endregion Subcommands
+
+        [Fact]
+        public void Help_text_can_be_added_after_default_text_by_inheriting_HelpBuilder()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseDefaults()
+                         .UseHelpBuilder(context => new CustomHelpBuilderThatAddsTextAfterDefaultText(context.Console, "The text to add"))
+                         .Build();
+
+            var console = new TestConsole();
+
+            parser.Invoke("-h", console);
+
+            console.Out.ToString().Should().EndWith("The text to add");
+        }
+
+        private class CustomHelpBuilderThatAddsTextAfterDefaultText : HelpBuilder
+        {
+            private readonly string _theTextToAdd;
+
+            public CustomHelpBuilderThatAddsTextAfterDefaultText(IConsole console, string theTextToAdd) : base(console)
+            {
+                _theTextToAdd = theTextToAdd;
+            }
+
+            public override void Write(ICommand command)
+            {
+                base.Write(command);
+                base.Console.Out.Write(_theTextToAdd);
+            }
+        }
     }
 }
