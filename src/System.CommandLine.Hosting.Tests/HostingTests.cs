@@ -8,7 +8,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace System.CommandLine.Hosting.Tests
@@ -190,6 +190,40 @@ namespace System.CommandLine.Hosting.Tests
             parser.InvokeAsync(commandLine).GetAwaiter().GetResult();
 
             testConfigValue.Should().BeEquivalentTo(testValue);
+        }
+
+        [Fact]
+        public static void UseHost_binds_parsed_arguments_to_options()
+        {
+            const int myValue = 4224;
+            string commandLine = $"-{nameof(MyOptions.MyArgument)} {myValue}";
+
+            var rootCmd = new RootCommand();
+            rootCmd.AddOption(
+                new Option($"-{nameof(MyOptions.MyArgument)}")
+                { Argument = new Argument<int>() }
+                );
+            rootCmd.Handler = CommandHandler.Create((IHost host) =>
+            {
+                var options = host.Services.GetRequiredService<IOptions<MyOptions>>();
+                Assert.Equal(myValue, options.Value.MyArgument);
+            });
+
+            Assert.Equal(0, new CommandLineBuilder(rootCmd)
+                .UseHost(host =>
+                {
+                    host.ConfigureServices(services =>
+                    {
+                        services.AddOptions<MyOptions>().BindCommandLine();
+                    });
+                })
+                .Build()
+                .Invoke(commandLine));
+        }
+
+        private class MyOptions
+        {
+            public int MyArgument { get; set; }
         }
     }
 }
