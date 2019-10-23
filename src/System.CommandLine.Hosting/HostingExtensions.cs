@@ -67,19 +67,24 @@ namespace System.CommandLine.Hosting
             });
         }
 
-        public static InvocationContext GetInvocationContext(this IHostBuilder hostBuilder) =>
-            GetInvocationContext(hostBuilder?.Properties);
-
-        public static InvocationContext GetInvocationContext(this HostBuilderContext context) =>
-            GetInvocationContext(context?.Properties);
-
-        private static InvocationContext GetInvocationContext(IDictionary<object, object> properties)
+        public static InvocationContext GetInvocationContext(this IHostBuilder hostBuilder)
         {
-            object ctxObj = null;
-            if (properties?.TryGetValue(typeof(InvocationContext), out ctxObj) ?? false)
-                return ctxObj as InvocationContext;
-            return null;
+            if (hostBuilder is null)
+                throw new ArgumentNullException(nameof(hostBuilder));
+            return GetInvocationContext(hostBuilder.Properties);
         }
+
+        public static InvocationContext GetInvocationContext(this HostBuilderContext context)
+        {
+            if (context is null)
+                throw new ArgumentNullException(nameof(context));
+            return GetInvocationContext(context.Properties);
+        }
+
+        private static InvocationContext GetInvocationContext(IDictionary<object, object> properties) => 
+            properties.TryGetValue(typeof(InvocationContext), out object ctxObj)
+                ? ctxObj as InvocationContext
+                : null;
 
         public static void ConfigureFromCommandLine<TOptions>(
             this IServiceCollection services, HostBuilderContext context)
