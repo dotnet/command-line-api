@@ -81,7 +81,7 @@ namespace System.CommandLine.Hosting
             return null;
         }
 
-        public static void ConfigureFromInvocation<TOptions>(
+        public static void ConfigureFromCommandLine<TOptions>(
             this IServiceCollection services, HostBuilderContext context)
             where TOptions : class
         {
