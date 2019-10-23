@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace System.CommandLine.Hosting
 {
@@ -86,14 +87,18 @@ namespace System.CommandLine.Hosting
                 ? ctxObj as InvocationContext
                 : null;
 
-        public static void ConfigureFromCommandLine<TOptions>(
-            this IServiceCollection services, HostBuilderContext context)
+        public static OptionsBuilder<TOptions> BindCommandLine<TOptions>(
+            this OptionsBuilder<TOptions> optionsBuilder)
             where TOptions : class
         {
-            var bindingContext = context.GetInvocationContext()?.BindingContext;
-            services.Configure<TOptions>(opts =>
+            if (optionsBuilder is null)
+                throw new ArgumentNullException(nameof(optionsBuilder));
+            return optionsBuilder.Configure<IServiceProvider>((opts, serviceProvider) =>
             {
-                var modelBinder = new ModelBinder<TOptions>();
+                var modelBinder = serviceProvider
+                    .GetService<ModelBinder<TOptions>>()
+                    ?? new ModelBinder<TOptions>();
+                var bindingContext = serviceProvider.GetRequiredService<BindingContext>();
                 modelBinder.UpdateInstance(opts, bindingContext);
             });
         }
