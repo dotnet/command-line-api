@@ -1,17 +1,16 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
+
 namespace System.CommandLine.Binding
 {
     internal class SpecificSymbolValueSource : IValueSource
     {
         public SpecificSymbolValueSource(IValueDescriptor valueDescriptor)
         {
-            symbolValueSource = new CurrentSymbolResultValueSource();
-            ValueDescriptor = valueDescriptor;
+            ValueDescriptor = valueDescriptor ?? throw new ArgumentNullException(nameof(valueDescriptor));
         }
-
-        private readonly CurrentSymbolResultValueSource symbolValueSource;
 
         public IValueDescriptor ValueDescriptor { get; }
 
@@ -19,8 +18,29 @@ namespace System.CommandLine.Binding
             BindingContext bindingContext,
             out object boundValue)
         {
-            return symbolValueSource.TryGetValue(ValueDescriptor,
-                bindingContext, out boundValue);
+            var specificDescriptor = ValueDescriptor;
+            switch (specificDescriptor)
+            {
+                case IOption option:
+                    var optionResult = bindingContext.ParseResult.FindResultFor(option);
+                    if (!(optionResult is null))
+                    {
+                        boundValue = optionResult.GetValueOrDefault();
+                        return true;
+                    }
+                    break;
+                case IArgument argument:
+                    var argumentResult = bindingContext.ParseResult.FindResultFor(argument);
+                    if (!(argument is null))
+                    {
+                        boundValue = argumentResult.GetValueOrDefault();
+                        return true;
+                    }
+                    break;
+            }
+
+            boundValue = null;
+            return false;
         }
     }
 }
