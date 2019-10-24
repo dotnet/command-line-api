@@ -197,6 +197,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             const int myValue = 4224;
             string commandLine = $"-{nameof(MyOptions.MyArgument)} {myValue}";
+            IOptions<MyOptions> options = null;
 
             var rootCmd = new RootCommand();
             rootCmd.AddOption(
@@ -205,11 +206,10 @@ namespace System.CommandLine.Hosting.Tests
                 );
             rootCmd.Handler = CommandHandler.Create((IHost host) =>
             {
-                var options = host.Services.GetRequiredService<IOptions<MyOptions>>();
-                Assert.Equal(myValue, options.Value.MyArgument);
+                options = host.Services.GetRequiredService<IOptions<MyOptions>>();
             });
 
-            Assert.Equal(0, new CommandLineBuilder(rootCmd)
+            int result = new CommandLineBuilder(rootCmd)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -218,7 +218,12 @@ namespace System.CommandLine.Hosting.Tests
                     });
                 })
                 .Build()
-                .Invoke(commandLine));
+                .Invoke(commandLine);
+
+            Assert.Equal(0, result);
+            Assert.NotNull(options);
+            Assert.NotNull(options.Value);
+            Assert.Equal(myValue, options.Value.MyArgument);
         }
 
         private class MyOptions
