@@ -405,6 +405,153 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Last_bundled_option_can_accept_argument_with_no_separator()
+        {
+            var optionA = new Option("-a");
+            var optionB = new Option("-b")
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
+            var optionC = new Option("-c") 
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
+
+            var command = new RootCommand
+            {
+                optionA,
+                optionB,
+                optionC
+            };
+
+            var result = command.Parse("-abcvalue");
+            result.HasOption(optionA).Should().BeTrue();
+            result.HasOption(optionB).Should().BeTrue();
+
+            result.FindResultFor(optionC)
+                .Tokens
+                .Should()
+                .ContainSingle(t => t.Value == "value");
+        }
+
+        [Fact]
+        public void Last_bundled_option_can_accept_argument_with_equals_separator()
+        {
+            var optionA = new Option("-a");
+            var optionB = new Option("-b")
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
+            var optionC = new Option("-c") 
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
+
+            var command = new RootCommand
+            {
+                optionA,
+                optionB,
+                optionC
+            };
+
+            var result = command.Parse("-abc=value");
+            result.HasOption(optionA).Should().BeTrue();
+            result.HasOption(optionB).Should().BeTrue();
+
+            result.FindResultFor(optionC)
+                .Tokens
+                .Should()
+                .ContainSingle(t => t.Value == "value");
+        }
+
+        [Fact]
+        public void Last_bundled_option_can_accept_argument_with_colon_separator()
+        {
+            var optionA = new Option("-a");
+            var optionB = new Option("-b")
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
+            var optionC = new Option("-c") 
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
+
+            var command = new RootCommand
+            {
+                optionA,
+                optionB,
+                optionC
+            };
+
+            var result = command.Parse("-abc:value");
+            result.HasOption(optionA).Should().BeTrue();
+            result.HasOption(optionB).Should().BeTrue();
+
+            result.FindResultFor(optionC)
+                .Tokens
+                .Should()
+                .ContainSingle(t => t.Value == "value");
+        }
+
+        [Fact]
+        public void Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value()
+        {
+            var optionA = new Option("-a");
+            var optionB = new Option("-b")
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
+            var optionC = new Option("-c") 
+            {
+                Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
+
+            var command = new RootCommand
+            {
+                optionA,
+                optionB,
+                optionC
+            };
+
+            var result = command.Parse("-abvcalue");
+            result.HasOption(optionA).Should().BeTrue();
+            result.HasOption(optionB).Should().BeTrue();
+
+            result.FindResultFor(optionB)
+                .Tokens
+                .Should()
+                .ContainSingle(t => t.Value == "vcalue");
+
+
+            result.HasOption(optionC).Should().BeFalse();
+        }
+
+        [Fact]
         public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
             var parser = new Parser(
