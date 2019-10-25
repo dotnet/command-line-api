@@ -11,13 +11,13 @@ namespace System.CommandLine.Binding
         {
         }
 
-        public void BindMemberFromOption<TValue>(
+        public void BindMemberFromValue<TValue>(
             Expression<Func<TModel, TValue>> property,
-            IOption option)
+            IValueDescriptor valueDescriptor)
         {
             NamedValueSources.Add(
                 property.MemberTypeAndName(),
-                new OptionValueSource(option));
+                new SpecificSymbolValueSource(valueDescriptor));
         }
 
         public void BindMemberFromValue<TValue>(

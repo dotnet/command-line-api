@@ -324,7 +324,7 @@ namespace System.CommandLine.Tests.Binding
 
             var binder = new ModelBinder<ClassWithMultiLetterSetters>();
 
-            binder.BindMemberFromOption(
+            binder.BindMemberFromValue(
                 c => c.IntOption,
                 option);
 
@@ -372,6 +372,66 @@ namespace System.CommandLine.Tests.Binding
                 option);
 
             var bindingContext = new BindingContext(command.Parse("the-command --fred 42"));
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(42);
+        }
+
+        [Fact]
+        public void PropertyInfo_can_be_bound_to_argument()
+        {
+            var command = new Command("the-command");
+            var argument = new Argument<int> { Arity = ArgumentArity.ExactlyOne };
+            command.AddArgument(argument);
+
+            var type = typeof(ClassWithMultiLetterSetters);
+            var binder = new ModelBinder(type);
+            var propertyInfo = type.GetProperty(nameof(ClassWithMultiLetterSetters.IntOption));
+
+            binder.BindMemberFromValue(propertyInfo, argument);
+
+            var bindingContext = new BindingContext(command.Parse("the-command 42"));
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(42);
+        }
+
+        [Fact]
+        public void PropertyExpression_can_be_bound_to_option()
+        {
+            var command = new Command("the-command");
+            var option = new Option("--fred") { Argument = new Argument<int>() };
+            command.AddOption(option);
+
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
+
+            binder.BindMemberFromValue(
+                i => i.IntOption,
+                option);
+
+            var bindingContext = new BindingContext(command.Parse("the-command --fred 42"));
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(42);
+        }
+
+        [Fact]
+        public void PropertyExpression_can_be_bound_to_argument()
+        {
+            var command = new Command("the-command");
+            var argument = new Argument<int> { Arity = ArgumentArity.ExactlyOne };
+            command.AddArgument(argument);
+
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
+
+            binder.BindMemberFromValue(
+                i => i.IntOption,
+                argument);
+
+            var bindingContext = new BindingContext(command.Parse("the-command 42"));
 
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
