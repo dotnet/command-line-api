@@ -68,25 +68,6 @@ namespace System.CommandLine.Hosting
             });
         }
 
-        public static InvocationContext GetInvocationContext(this IHostBuilder hostBuilder)
-        {
-            if (hostBuilder is null)
-                throw new ArgumentNullException(nameof(hostBuilder));
-            return GetInvocationContext(hostBuilder.Properties);
-        }
-
-        public static InvocationContext GetInvocationContext(this HostBuilderContext context)
-        {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
-            return GetInvocationContext(context.Properties);
-        }
-
-        private static InvocationContext GetInvocationContext(IDictionary<object, object> properties) => 
-            properties.TryGetValue(typeof(InvocationContext), out object ctxObj)
-                ? ctxObj as InvocationContext
-                : null;
-
         public static OptionsBuilder<TOptions> BindCommandLine<TOptions>(
             this OptionsBuilder<TOptions> optionsBuilder)
             where TOptions : class
