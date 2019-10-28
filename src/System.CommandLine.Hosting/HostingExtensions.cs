@@ -1,10 +1,13 @@
-﻿using System.CommandLine.Builder;
+﻿using System.Collections.Generic;
+using System.CommandLine.Binding;
+using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace System.CommandLine.Hosting
 {
@@ -62,6 +65,22 @@ namespace System.CommandLine.Hosting
                 services.AddSingleton<IHostLifetime, InvocationLifetime>();
                 if (configureOptions is Action<InvocationLifetimeOptions>)
                     services.Configure(configureOptions);
+            });
+        }
+
+        public static OptionsBuilder<TOptions> BindCommandLine<TOptions>(
+            this OptionsBuilder<TOptions> optionsBuilder)
+            where TOptions : class
+        {
+            if (optionsBuilder is null)
+                throw new ArgumentNullException(nameof(optionsBuilder));
+            return optionsBuilder.Configure<IServiceProvider>((opts, serviceProvider) =>
+            {
+                var modelBinder = serviceProvider
+                    .GetService<ModelBinder<TOptions>>()
+                    ?? new ModelBinder<TOptions>();
+                var bindingContext = serviceProvider.GetRequiredService<BindingContext>();
+                modelBinder.UpdateInstance(opts, bindingContext);
             });
         }
     }
