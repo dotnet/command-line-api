@@ -83,6 +83,24 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_a_required_option_is_not_supplied_then_an_error_is_returned()
+        {
+            var parser = new Parser(new Option("-x")
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            });
+
+            var result = parser.Parse("");
+
+            result.Errors
+                  .Should()
+                  .Contain(e => e.Message == "Required argument missing for option: -x");
+        }
+
+        [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
             var parser = new Parser(

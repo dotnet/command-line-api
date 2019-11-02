@@ -162,6 +162,23 @@ namespace System.CommandLine.Parsing
 
                 ValidateCommand(commandResult);
 
+                foreach (var option in commandResult.Command.Children.OfType<Option>()
+                    .Where(o => o.Argument.Arity.MinimumNumberOfValues > 0))
+                {
+                    var symbolResult = commandResult.Children.ResultFor(option);
+                    if (symbolResult == null)
+                    {
+                        var argument = option.Argument;
+                        var optionResult = new OptionResult(
+                            option,
+                            option.CreateImplicitToken());
+                        
+                        _errors.Add(new ParseError(
+                            optionResult.ValidationMessages.RequiredArgumentMissing(optionResult),
+                            optionResult));
+                    }
+                }
+
                 foreach (var result in commandResult.Children)
                 {
                     switch (result)
