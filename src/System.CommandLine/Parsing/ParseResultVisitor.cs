@@ -100,9 +100,10 @@ namespace System.CommandLine.Parsing
 
         protected override void VisitOptionNode(OptionNode optionNode)
         {
-            if (_innermostCommandResult.Children.ResultFor(optionNode.Option) == null)
+            var optionResult = (OptionResult)_innermostCommandResult.Children.ResultFor(optionNode.Option);
+            if (optionResult == null)
             {
-                var optionResult = new OptionResult(
+                optionResult = new OptionResult(
                     optionNode.Option,
                     optionNode.Token,
                     _innermostCommandResult);
@@ -110,6 +111,10 @@ namespace System.CommandLine.Parsing
                 _innermostCommandResult
                     .Children
                     .Add(optionResult);
+            }
+            else
+            {
+                optionResult.Count += 1;
             }
         }
 

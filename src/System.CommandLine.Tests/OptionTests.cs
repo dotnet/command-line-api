@@ -253,6 +253,17 @@ namespace System.CommandLine.Tests
             option.Argument.Name.Should().Be("arg");
         }
 
+        [Fact]
+        public void Option_Result_Count_equals_to_occurences_of_option()
+        {
+            var option = new Option(new[] { "--verbose", "-v" });
+
+            var result = option.Parse("-vv --verbose");
+            var optionResult = result.FindResultFor(option);
+
+            Assert.Equal(3, optionResult.Count);
+        }
+
         protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }

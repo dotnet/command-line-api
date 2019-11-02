@@ -20,6 +20,8 @@ namespace System.CommandLine
 
         public IOption Option { get; }
 
+        public int Count { get; internal set; } = 1;
+
         public bool IsImplicit => Token is ImplicitToken;
 
         private protected override int RemainingArgumentCapacity
