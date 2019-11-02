@@ -327,7 +327,7 @@ namespace System.CommandLine.Tests.Invocation
             };
             command.Handler = CommandHandler.Create<IConsole>(console => { console.Out.Write("Hello!"); });
 
-            await command.InvokeAsync("command", _console);
+            await command.InvokeAsync("command -x 123", _console);
 
             _console.Out.ToString().Should().Be("Hello!");
         }
