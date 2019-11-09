@@ -14,7 +14,8 @@ namespace System.CommandLine
                 ((dynamic)console).ForegroundColor = ConsoleColor.Red;
             }
 
-            if (!Platform.IsConsoleRedirectionCheckSupported && !Console.IsOutputRedirected)
+            if (Platform.IsConsoleRedirectionCheckSupported && 
+                !Console.IsOutputRedirected)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
             }
@@ -31,7 +32,8 @@ namespace System.CommandLine
                 ((dynamic)console).ForegroundColor = ConsoleColor.Red;
             }
 
-            if (!Platform.IsConsoleRedirectionCheckSupported && !Console.IsOutputRedirected)
+            if (Platform.IsConsoleRedirectionCheckSupported && 
+                !Console.IsOutputRedirected)
             {
                 Console.ResetColor();
             }
