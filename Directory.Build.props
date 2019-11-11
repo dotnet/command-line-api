@@ -6,7 +6,6 @@
 
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU5125;CS0618</NoWarn>
-    <PackageIconUrl>http://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
