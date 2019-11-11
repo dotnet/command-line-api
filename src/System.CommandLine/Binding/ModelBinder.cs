@@ -33,9 +33,29 @@ namespace System.CommandLine.Binding
 
         public void BindMemberFromValue(PropertyInfo property, IValueDescriptor valueDescriptor)
         {
-            NamedValueSources.Add(
-                (property.PropertyType, property.Name),
-                new SpecificSymbolValueSource(valueDescriptor));
+            var key = (property.PropertyType, property.Name);
+            if (NamedValueSources.TryGetValue(key, out var existingValueSource) &&
+                existingValueSource is null)
+            {
+                // Override existing null value source
+                NamedValueSources[key] = new SpecificSymbolValueSource(valueDescriptor);
+            }
+            else
+            {
+                NamedValueSources.Add(
+                    key,
+                    new SpecificSymbolValueSource(valueDescriptor)); 
+            }
+        }
+
+        public void EnforceExplicitBinding()
+        {
+            foreach (var property in _modelDescriptor.PropertyDescriptors)
+            {
+                var key = (property.Type, property.ValueName);
+                if (!NamedValueSources.ContainsKey(key))
+                    NamedValueSources[key] = null;
+            }
         }
 
         public object CreateInstance(BindingContext context)
@@ -69,7 +89,7 @@ namespace System.CommandLine.Binding
             }
 
             var boundConstructorArguments = GetValues(
-                context, 
+                context,
                 targetConstructorDescriptor.ParameterDescriptors,
                 true);
 
@@ -115,6 +135,12 @@ namespace System.CommandLine.Binding
 
                 var valueSource = GetValueSource(bindingContext, valueDescriptor);
 
+                if (valueSource is null)
+                {
+                    // null valueSource means that binding should be skipped
+                    continue;
+                }
+
                 if (!bindingContext.TryBindToScalarValue(
                         valueDescriptor,
                         valueSource,
@@ -128,7 +154,7 @@ namespace System.CommandLine.Binding
                     if (includeMissingValues)
                     {
                         if (valueDescriptor is ParameterDescriptor parameterDescriptor &&
-                            parameterDescriptor.Parent?.Parent is ModelDescriptor modelDescriptor && 
+                            parameterDescriptor.Parent?.Parent is ModelDescriptor modelDescriptor &&
                             ShouldPassNullToConstructor(modelDescriptor))
                         {
                             boundValue = BoundValue.DefaultForType(valueDescriptor);
