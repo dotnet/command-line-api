@@ -130,34 +130,35 @@ namespace System.CommandLine.Binding
             BindingContext context,
             out object instance)
         {
-            var targetConstructorDescriptor = _modelDescriptor.TargetConstructor;
+            var constructorDescriptors = _modelDescriptor.ConstructorDescriptors
+                // Find constructors with most non-optional parameters first
+                .OrderByDescending(d => d.ParameterDescriptors.Count(p => !p.HasDefaultValue));
 
-            if (targetConstructorDescriptor == null)
+            // Attempt first to bind all values, then attempt to fill default values
+            foreach (bool includeMissingValues in new[] { false, true })
             {
-                instance = null;
-                return false;
+                foreach (var constructor in constructorDescriptors)
+                {
+                    var boundConstructorArguments = GetValues(
+                        ConstructorArgumentBindingSources,
+                        context, constructor.ParameterDescriptors,
+                        includeMissingValues);
+                    if (boundConstructorArguments.Count != constructor.ParameterDescriptors.Count)
+                        continue;
+                    
+                    // Found invocable constructor, invoke and return
+                    var values = boundConstructorArguments.Select(v => v.Value).ToArray();
+                    var fromModelBinder = constructor.Invoke(values);
+
+                    UpdateInstance(fromModelBinder, context);
+
+                    instance = fromModelBinder;
+                    return true;
+                }
             }
 
-            var boundConstructorArguments = GetValues(
-                ConstructorArgumentBindingSources,
-                context,
-                targetConstructorDescriptor.ParameterDescriptors,
-                includeMissingValues: true);
-
-            if (boundConstructorArguments.Count != targetConstructorDescriptor.ParameterDescriptors.Count)
-            {
-                instance = null;
-                return false;
-            }
-
-            var values = boundConstructorArguments.Select(v => v.Value).ToArray();
-            var fromModelBinder = targetConstructorDescriptor.Invoke(values);
-
-            UpdateInstance(fromModelBinder, context);
-
-            instance = fromModelBinder;
-
-            return true;
+            instance = null;
+            return false;
         }
 
         public void UpdateInstance<T>(T instance, BindingContext bindingContext)
@@ -207,8 +208,8 @@ namespace System.CommandLine.Binding
                     if (includeMissingValues)
                     {
                         if (valueDescriptor is ParameterDescriptor parameterDescriptor &&
-                            parameterDescriptor.Parent?.Parent is ModelDescriptor modelDescriptor &&
-                            ShouldPassNullToConstructor(modelDescriptor))
+                            parameterDescriptor.Parent is ConstructorDescriptor constructorDescriptor &&
+                            ShouldPassNullToConstructor(constructorDescriptor.Parent, constructorDescriptor))
                         {
                             boundValue = BoundValue.DefaultForType(valueDescriptor);
                         }
@@ -253,9 +254,10 @@ namespace System.CommandLine.Binding
         public override string ToString() =>
             $"{_modelDescriptor.ModelType.Name}";
 
-        private bool ShouldPassNullToConstructor(ModelDescriptor modelDescriptor)
+        private bool ShouldPassNullToConstructor(ModelDescriptor modelDescriptor,
+            ConstructorDescriptor ctor = null)
         {
-            if (modelDescriptor.TargetConstructor is ConstructorDescriptor ctor)
+            if (!(ctor is null))
             {
                 return ctor.ParameterDescriptors.All(d => d.AllowsNull);
             }
