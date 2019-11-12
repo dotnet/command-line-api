@@ -28,28 +28,89 @@ namespace System.CommandLine.Binding
 
         public IValueDescriptor ValueDescriptor { get; }
 
-        internal Dictionary<(Type valueSourceType, string valueSourceName), IValueSource> NamedValueSources { get; }
-            = new Dictionary<(Type valueSourceType, string valueSourceName), IValueSource>();
+        public bool EnforceExplicitBinding { get; set; }
 
-        public void BindMemberFromValue(PropertyInfo property, IValueDescriptor valueDescriptor)
+        internal Dictionary<IValueDescriptor, IValueSource> ConstructorArgumentBindingSources { get; } =
+            new Dictionary<IValueDescriptor, IValueSource>();
+
+        internal Dictionary<IValueDescriptor, IValueSource> MemberBindingSources { get; } =
+            new Dictionary<IValueDescriptor, IValueSource>();
+
+        protected ConstructorDescriptor FindModelConstructorDescriptor(
+            ConstructorInfo constructorInfo)
         {
-            NamedValueSources[(property.PropertyType, property.Name)] = 
+            var cmpCtorDesc = new ConstructorDescriptor(constructorInfo,
+                // Parent does not matter for comparison and can be invalid.
+                parent: _modelDescriptor);
+            var cmpParamDescs = cmpCtorDesc.ParameterDescriptors
+                .Select(GetParameterDescriptorComparands)
+                .ToList();
+
+            return _modelDescriptor.ConstructorDescriptors
+                .FirstOrDefault(matchCtorDesc =>
+                {
+                    if (matchCtorDesc.Parent.ModelType != constructorInfo.DeclaringType)
+                        return false;
+                    return matchCtorDesc.ParameterDescriptors
+                        .Select(GetParameterDescriptorComparands)
+                        .SequenceEqual(cmpParamDescs);
+                });
+
+            // Name matching is not necessary for overload descisions.
+            static (Type paramType, bool allowNull, bool hasDefaultValue)
+                GetParameterDescriptorComparands(ParameterDescriptor desc) =>
+                (desc.Type, desc.AllowsNull, desc.HasDefaultValue);
+        }
+
+        protected IValueDescriptor FindModelPropertyDescriptor(
+            Type propertyType, string propertyName)
+        {
+            return _modelDescriptor.PropertyDescriptors
+                .FirstOrDefault(desc =>
+                    desc.Type == propertyType &&
+                    string.Equals(desc.ValueName, propertyName, StringComparison.Ordinal)
+                    );
+        }
+
+        public void BindConstructorArgumentFromValue(ParameterInfo parameter,
+            IValueDescriptor valueDescriptor)
+        {
+            if (!(parameter.Member is ConstructorInfo constructor))
+                throw new ArgumentException(paramName: nameof(parameter),
+                    message: "Parameter must be declared on a constructor.");
+
+            var ctorDesc = FindModelConstructorDescriptor(constructor);
+            if (ctorDesc is null)
+                throw new ArgumentException(paramName: nameof(parameter),
+                    message: "Parameter is not described by any of the model constructor descriptors.");
+            
+            var paramDesc = ctorDesc.ParameterDescriptors[parameter.Position];
+            ConstructorArgumentBindingSources[paramDesc] =
                 new SpecificSymbolValueSource(valueDescriptor);
         }
 
-        public void EnforceExplicitBinding()
+        public void BindMemberFromValue(PropertyInfo property, 
+            IValueDescriptor valueDescriptor)
         {
-            foreach (var property in _modelDescriptor.PropertyDescriptors)
-            {
-                var key = (property.Type, property.ValueName);
-                if (!NamedValueSources.ContainsKey(key))
-                    NamedValueSources[key] = null;
-            }
+            var propertyDescriptor = FindModelPropertyDescriptor(
+                property.PropertyType, property.Name);
+            if (propertyDescriptor is null)
+                throw new ArgumentException(paramName: nameof(property),
+                    message: "Property is not described by any of the model property descriptors.");
+
+            MemberBindingSources[propertyDescriptor] =
+                new SpecificSymbolValueSource(valueDescriptor);
         }
 
         public object CreateInstance(BindingContext context)
         {
-            var values = GetValues(context, new[] { ValueDescriptor }, false);
+            var values = GetValues(
+                // No binding sources, as were are attempting to bind a value
+                // for the model itself, not for its ctor args or its members.
+                bindingSources: null, 
+                bindingContext: context, 
+                new[] { ValueDescriptor }, 
+                includeMissingValues: false);
 
             if (values.Count == 1 &&
                 _modelDescriptor.ModelType.IsAssignableFrom(values[0].ValueDescriptor.Type))
@@ -78,9 +139,10 @@ namespace System.CommandLine.Binding
             }
 
             var boundConstructorArguments = GetValues(
+                ConstructorArgumentBindingSources,
                 context,
                 targetConstructorDescriptor.ParameterDescriptors,
-                true);
+                includeMissingValues: true);
 
             if (boundConstructorArguments.Count != targetConstructorDescriptor.ParameterDescriptors.Count)
             {
@@ -101,9 +163,10 @@ namespace System.CommandLine.Binding
         public void UpdateInstance<T>(T instance, BindingContext bindingContext)
         {
             var boundValues = GetValues(
+                MemberBindingSources,
                 bindingContext,
                 _modelDescriptor.PropertyDescriptors,
-                false);
+                includeMissingValues: false);
 
             foreach (var boundValue in boundValues)
             {
@@ -112,6 +175,7 @@ namespace System.CommandLine.Binding
         }
 
         private IReadOnlyList<BoundValue> GetValues(
+            IDictionary<IValueDescriptor, IValueSource> bindingSources,
             BindingContext bindingContext,
             IReadOnlyList<IValueDescriptor> valueDescriptors,
             bool includeMissingValues)
@@ -122,18 +186,18 @@ namespace System.CommandLine.Binding
             {
                 var valueDescriptor = valueDescriptors[index];
 
-                var valueSource = GetValueSource(bindingContext, valueDescriptor);
+                var valueSource = GetValueSource(bindingSources, bindingContext, valueDescriptor);
 
+                BoundValue boundValue;
                 if (valueSource is null)
                 {
-                    // null valueSource means that binding should be skipped
-                    continue;
+                    // If there is no source to bind from, no value can be bound.
+                    boundValue = null;
                 }
-
-                if (!bindingContext.TryBindToScalarValue(
+                else if (!bindingContext.TryBindToScalarValue(
                         valueDescriptor,
                         valueSource,
-                        out BoundValue boundValue) && valueDescriptor.HasDefaultValue)
+                        out boundValue) && valueDescriptor.HasDefaultValue)
                 {
                     boundValue = BoundValue.DefaultForValueDescriptor(valueDescriptor);
                 }
@@ -161,15 +225,12 @@ namespace System.CommandLine.Binding
         }
 
         private IValueSource GetValueSource(
+            IDictionary<IValueDescriptor, IValueSource> bindingSources,
             BindingContext bindingContext,
             IValueDescriptor valueDescriptor)
         {
-            var type = valueDescriptor.Type;
-            var name = valueDescriptor.ValueName;
-
-            if (NamedValueSources.TryGetValue(
-                (type, name),
-                out var valueSource))
+            if (!(bindingSources is null) &&
+                bindingSources.TryGetValue(valueDescriptor, out var valueSource))
             {
                 return valueSource;
             }
@@ -179,7 +240,14 @@ namespace System.CommandLine.Binding
                 return valueSource;
             }
 
-            return new CurrentSymbolResultValueSource();
+            if (!EnforceExplicitBinding)
+            {
+                // Return a value source that will match from the parseResult
+                // by name and type (or a possible conversion)
+                return new CurrentSymbolResultValueSource();
+            }
+
+            return null;
         }
 
         public override string ToString() =>
