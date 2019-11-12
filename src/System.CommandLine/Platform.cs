@@ -3,6 +3,7 @@
     internal static class Platform
     {
         private static bool? _isConsoleRedirectionCheckSupported;
+
         public static bool IsConsoleRedirectionCheckSupported
         {
             get
@@ -12,12 +13,12 @@
                     try
                     {
                         var check = Console.IsOutputRedirected;
-                        _isConsoleRedirectionCheckSupported = false;
+                        _isConsoleRedirectionCheckSupported = true;
                     }
 
                     catch (PlatformNotSupportedException)
                     {
-                        _isConsoleRedirectionCheckSupported = true;
+                        _isConsoleRedirectionCheckSupported = false;
                     }
                 }
 
