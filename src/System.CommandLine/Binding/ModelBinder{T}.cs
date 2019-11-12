@@ -15,38 +15,16 @@ namespace System.CommandLine.Binding
             Expression<Func<TModel, TValue>> property,
             IValueDescriptor valueDescriptor)
         {
-            var key = property.MemberTypeAndName();
-            if (NamedValueSources.TryGetValue(key, out var existingValueSource) &&
-                existingValueSource is null)
-            {
-                // Override existing null value source
-                NamedValueSources[key] = new SpecificSymbolValueSource(valueDescriptor);
-            }
-            else
-            {
-                NamedValueSources.Add(
-                    key,
-                    new SpecificSymbolValueSource(valueDescriptor)); 
-            }
+            NamedValueSources[property.MemberTypeAndName()] = 
+                new SpecificSymbolValueSource(valueDescriptor);
         }
 
         public void BindMemberFromValue<TValue>(
             Expression<Func<TModel, TValue>> member,
             Func<BindingContext, TValue> getValue)
         {
-            var key = member.MemberTypeAndName();
-            if (NamedValueSources.TryGetValue(key, out var existingValueSource) &&
-                existingValueSource is null)
-            {
-                // Override existing null value source
-                NamedValueSources[key] = new DelegateValueSource(c => getValue(c));
-            }
-            else
-            {
-                NamedValueSources.Add(
-                    key,
-                    new DelegateValueSource(c => getValue(c)));
-            }
+            NamedValueSources[member.MemberTypeAndName()] = 
+                new DelegateValueSource(c => getValue(c));
         }
     }
 }

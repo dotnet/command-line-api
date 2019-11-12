@@ -33,19 +33,8 @@ namespace System.CommandLine.Binding
 
         public void BindMemberFromValue(PropertyInfo property, IValueDescriptor valueDescriptor)
         {
-            var key = (property.PropertyType, property.Name);
-            if (NamedValueSources.TryGetValue(key, out var existingValueSource) &&
-                existingValueSource is null)
-            {
-                // Override existing null value source
-                NamedValueSources[key] = new SpecificSymbolValueSource(valueDescriptor);
-            }
-            else
-            {
-                NamedValueSources.Add(
-                    key,
-                    new SpecificSymbolValueSource(valueDescriptor)); 
-            }
+            NamedValueSources[(property.PropertyType, property.Name)] = 
+                new SpecificSymbolValueSource(valueDescriptor);
         }
 
         public void EnforceExplicitBinding()
