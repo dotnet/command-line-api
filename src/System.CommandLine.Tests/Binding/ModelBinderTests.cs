@@ -6,6 +6,7 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
+using System.Reflection;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -58,13 +59,13 @@ namespace System.CommandLine.Tests.Binding
             var binder = new ModelBinder(targetType);
 
             var command = new Command("the-command")
-                          {
-                              Argument = new Argument
-                                         {
-                                             Name = "value",
-                                             ArgumentType = type
-                                         }
-                          };
+            {
+                Argument = new Argument
+                {
+                    Name = "value",
+                    ArgumentType = type
+                }
+            };
 
             var bindingContext = new BindingContext(command.Parse(commandLine));
 
@@ -143,13 +144,13 @@ namespace System.CommandLine.Tests.Binding
             var binder = new ModelBinder(targetType);
 
             var command = new Command("the-command")
-                          {
-                              Argument = new Argument
-                                         {
-                                             Name = "value",
-                                             ArgumentType = type
-                                         }
-                          };
+            {
+                Argument = new Argument
+                {
+                    Name = "value",
+                    ArgumentType = type
+                }
+            };
             var parser = new Parser(command);
 
             var bindingContext = new BindingContext(parser.Parse(commandLine));
@@ -200,7 +201,7 @@ namespace System.CommandLine.Tests.Binding
 
             var instance = (ClassWithSetter<string>)binder.CreateInstance(bindingContext);
 
-            instance.Value.Should().Be("the default");  
+            instance.Value.Should().Be("the default");
         }
 
         [Fact]
@@ -313,9 +314,9 @@ namespace System.CommandLine.Tests.Binding
         {
             var childCommand = new Command("child-command");
             var option = new Option("-x")
-                         {
-                             Argument = new Argument<int>()
-                         };
+            {
+                Argument = new Argument<int>()
+            };
             var parentCommand = new Command("parent-command")
                                 {
                                     option,
@@ -436,6 +437,75 @@ namespace System.CommandLine.Tests.Binding
             var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
             instance.IntOption.Should().Be(42);
+        }
+
+        [Fact]
+        public void Option_argument_is_bound_to_longest_constructor()
+        {
+            var option = new Option("--int-property") { Argument = new Argument<int>() };
+            var parser = new Parser(option);
+
+            var bindingContext = new BindingContext(parser.Parse("--int-property 42"));
+            var binder = new ModelBinder<ClassWithMultipleCtor>();
+            var instance = binder.CreateInstance(bindingContext) as ClassWithMultipleCtor;
+
+            instance.Should().NotBeNull();
+            instance.IntProperty.Should().Be(42);
+        }
+
+        [Fact]
+        public void Command_argument_is_bound_to_longest_constructor()
+        {
+            var rootCommand = new RootCommand();
+            rootCommand.AddArgument(new Argument<int> { Name = nameof(ClassWithMultipleCtor.IntProperty) });
+            var parser = new Parser(rootCommand);
+
+            var bindingContext = new BindingContext(parser.Parse("42"));
+            var binder = new ModelBinder<ClassWithMultipleCtor>();
+            var instance = binder.CreateInstance(bindingContext) as ClassWithMultipleCtor;
+
+            instance.Should().NotBeNull();
+            instance.IntProperty.Should().Be(42);
+        }
+
+        [Fact]
+        public void Explicit_model_binder_binds_only_to_configured_properties()
+        {
+            var intOption = new Option("--int-property") { Argument = new Argument<int>() };
+            var stringOption = new Option("--string-property") { Argument = new Argument<string>() };
+            var parser = new Parser(intOption, stringOption);
+
+            var bindingContext = new BindingContext(parser.Parse("--int-property 42 --string-property Hello"));
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>()
+            { EnforceExplicitBinding = true };
+            binder.BindMemberFromValue(obj => obj.IntOption, intOption);
+            var instance = binder.CreateInstance(bindingContext) as ClassWithMultiLetterSetters;
+
+            instance.Should().NotBeNull();
+            instance.IntOption.Should().Be(42);
+            instance.StringOption.Should().BeNull();
+        }
+
+        [Fact]
+        public void Explicit_model_binder_binds_only_to_configured_ctor_parameters()
+        {
+            var intOption = new Option("-a") { Argument = new Argument<int>() };
+            var stringOption = new Option("-b") { Argument = new Argument<string>() };
+            var parser = new Parser(intOption, stringOption);
+            var ctor = typeof(ClassWithMultiLetterCtorParameters)
+                .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
+                .First();
+            var paramInfo = ctor.GetParameters().First();
+
+            var bindingContext = new BindingContext(parser.Parse("-a 42 -b Hello"));
+            var binder = new ModelBinder<ClassWithMultiLetterCtorParameters>()
+            { EnforceExplicitBinding = true };
+            binder.BindConstructorArgumentFromValue(paramInfo, intOption);
+            var instance = binder.CreateInstance(bindingContext) as ClassWithMultiLetterCtorParameters;
+
+            instance.Should().NotBeNull();
+            instance.IntOption.Should().Be(42);
+            instance.StringOption.Should().Be("the default");
         }
     }
 }
