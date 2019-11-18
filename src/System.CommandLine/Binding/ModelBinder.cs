@@ -245,7 +245,7 @@ namespace System.CommandLine.Binding
             {
                 // Return a value source that will match from the parseResult
                 // by name and type (or a possible conversion)
-                return new CurrentSymbolResultValueSource();
+                return new ParseResultMatchingValueSource();
             }
 
             return null;
