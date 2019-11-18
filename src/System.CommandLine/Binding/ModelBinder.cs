@@ -208,10 +208,13 @@ namespace System.CommandLine.Binding
                     if (includeMissingValues)
                     {
                         if (valueDescriptor is ParameterDescriptor parameterDescriptor &&
-                            parameterDescriptor.Parent is ConstructorDescriptor constructorDescriptor &&
-                            ShouldPassNullToConstructor(constructorDescriptor.Parent, constructorDescriptor))
+                            parameterDescriptor.Parent is ConstructorDescriptor constructorDescriptor)
                         {
-                            boundValue = BoundValue.DefaultForType(valueDescriptor);
+                            if (parameterDescriptor.HasDefaultValue)
+                                boundValue = BoundValue.DefaultForValueDescriptor(parameterDescriptor);
+                            else if (parameterDescriptor.AllowsNull && 
+                                ShouldPassNullToConstructor(constructorDescriptor.Parent, constructorDescriptor))
+                                boundValue = BoundValue.DefaultForType(valueDescriptor);
                         }
                     }
                 }
