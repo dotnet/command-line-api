@@ -461,11 +461,8 @@ namespace System.CommandLine.Tests.Help
         public void Arguments_section_is_not_included_if_there_are_commands_but_no_arguments_configured()
         {
             var command = new Command("the-command", "command help");
-            var commandLineBuilder = new CommandLineBuilder()
-                                     .AddCommand(command)
-                                     .Command;
 
-            _helpBuilder.Write(commandLineBuilder);
+            _helpBuilder.Write(command);
             _console.Out.ToString().Should().NotContain("Arguments:");
             
             _helpBuilder.Write(command);
@@ -493,15 +490,13 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_not_included_if_there_are_options_with_no_arguments_configured()
         {
-            var commandLineBuilder = new CommandLineBuilder
-                                     {
-                                     }
-                                     .AddOption(
-                                         new Option(new[] { "-v", "--verbosity" },
-                                                    "Sets the verbosity."))
-                                     .Command;
+            var command = new RootCommand
+            {
+                new Option(new[] { "-v", "--verbosity" },
+                           "Sets the verbosity.")
+            };
 
-            _helpBuilder.Write(commandLineBuilder);
+            _helpBuilder.Write(command);
 
             _console.Out.ToString().Should().NotContain("Arguments:");
         }
@@ -539,13 +534,8 @@ namespace System.CommandLine.Tests.Help
                     Description = "Sets the verbosity."
                 }
             };
-            var commandLineBuilder = new CommandLineBuilder()
-                                     .AddCommand(command)
-                                     .Command;
-
-            var subcommand = commandLineBuilder
-                .Subcommand("the-command");
-            _helpBuilder.Write(subcommand);
+          
+            _helpBuilder.Write(command);
 
             var help = _console.Out.ToString();
             help.Should().Contain("-v, --verbosity <LEVEL>");
@@ -908,15 +898,9 @@ namespace System.CommandLine.Tests.Help
             {
                 IsHidden = false
             });
+            
 
-            var commandLineBuilder = new CommandLineBuilder()
-                                     .AddCommand(command)
-                                     .Command;
-
-            Command subcommand = commandLineBuilder
-                .Subcommand("the-command");
-
-            _helpBuilder.Write(subcommand);
+            _helpBuilder.Write(command);
 
             var help = _console.Out.ToString();
             help.Should().Contain("-n");
@@ -1005,20 +989,17 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_removes_added_newlines()
         {
-            var commandLineBuilder = new CommandLineBuilder().AddCommand(
-                                                                 new Command(
-                                                                     "test-command",
-                                                                     "Help text for the command")
-                                                                 {
-                                                                     new Option(
-                                                                         new[] { "-a", "--aaa" },
-                                                                         $"Help{NewLine}for {NewLine} the{NewLine}option")
-                                                                 })
-                                                             .Command;
+            var command =
+                new Command(
+                    "test-command",
+                    "Help text for the command")
+                {
+                    new Option(
+                        new[] { "-a", "--aaa" },
+                        $"Help{NewLine}for {NewLine} the{NewLine}option")
+                };
 
-            Command subcommand = commandLineBuilder
-                .Subcommand("test-command");
-            _helpBuilder.Write(subcommand);
+            _helpBuilder.Write(command);
 
             var expected =
                 $"Options:{NewLine}" +

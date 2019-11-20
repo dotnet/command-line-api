@@ -8,21 +8,6 @@ namespace System.CommandLine
 {
     public static class CommandExtensions
     {
-        public static TCommand Subcommand<TCommand>(
-            this TCommand command,
-            string name)
-            where TCommand : ICommand
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
-            }
-
-            return command.Children
-                          .OfType<TCommand>()
-                          .Single(c => c.Name == name);
-        }
-
         public static ParseResult Parse(
             this Command command,
             params string[] args) =>
