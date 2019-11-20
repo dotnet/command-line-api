@@ -100,7 +100,7 @@ namespace System.CommandLine
             {
                 var includeArgumentName =
                     argumentResult.Argument is Argument argument &&
-                    argument.Parents[0] is ICommand command &&
+                    argument.Parents.First() is ICommand command &&
                     command.Name != argument.Name;
 
                 if (includeArgumentName)

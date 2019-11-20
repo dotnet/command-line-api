@@ -22,5 +22,7 @@ namespace System.CommandLine
         bool IsHidden { get; }
 
         ISymbolSet Children { get; }
+
+        ISymbolSet Parents { get; }
     }
 }

@@ -219,8 +219,11 @@ namespace System.CommandLine.Parsing
 
                     if (arityFailure != null)
                     {
-                        _errors.Add(
-                            new ParseError(arityFailure.ErrorMessage, commandResult));
+                        if (_innermostCommandResult.Command == commandResult.Command)
+                        {
+                            _errors.Add(
+                                new ParseError(arityFailure.ErrorMessage, commandResult));
+                        }
                     }
 
                     foreach (var validator in argument.SymbolValidators)

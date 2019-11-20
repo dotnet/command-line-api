@@ -13,7 +13,7 @@ namespace System.CommandLine
         private string _longestAlias = "";
         private string _specifiedName;
 
-        private readonly List<Symbol> _parents = new List<Symbol>();
+        private readonly SymbolSet _parents = new SymbolSet();
 
         private protected Symbol()
         {
@@ -61,7 +61,7 @@ namespace System.CommandLine
             }
         }
 
-        internal IReadOnlyList<Symbol> Parents => _parents; 
+        public ISymbolSet Parents => _parents; 
 
         private protected void AddParent(Symbol symbol)
         {

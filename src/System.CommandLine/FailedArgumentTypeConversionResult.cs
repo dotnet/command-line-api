@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
+
 namespace System.CommandLine
 {
     internal class FailedArgumentTypeConversionResult : FailedArgumentConversionResult
@@ -23,14 +25,16 @@ namespace System.CommandLine
             {
                 // TODO: (FailedArgumentTypeConversionResult) localize
 
+                var firstParent = a.Parents.First();
+
                 var symbolType =
-                    a.Parents[0] switch {
+                    firstParent switch {
                         ICommand _ => "command",
                         IOption _ => "option",
                         _ => null
                         };
 
-                var alias = a.Parents[0].RawAliases[0];
+                var alias = firstParent.RawAliases[0];
 
                 return $"Cannot parse argument '{value}' for {symbolType} '{alias}' as expected type {type}.";
             }
