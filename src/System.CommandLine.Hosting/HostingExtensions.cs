@@ -13,7 +13,7 @@ namespace System.CommandLine.Hosting
 {
     public static class HostingExtensions
     {
-        public const string ConfigurationDirectiveName = "config";
+        private const string ConfigurationDirectiveName = "config";
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
             Func<string[], IHostBuilder> hostBuilderFactory,
