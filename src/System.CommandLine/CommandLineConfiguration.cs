@@ -58,11 +58,19 @@ namespace System.CommandLine
             }
             else
             {
-                rootCommand = new RootCommand();
+                // reuse existing auto-generated root command, if one is present, to prevent repeated mutations
+                rootCommand = symbols.SelectMany(s => s.Parents)
+                                     .OfType<RootCommand>()
+                                     .FirstOrDefault();
 
-                foreach (var symbol in symbols)
+                if (rootCommand == null)
                 {
-                    rootCommand.Add(symbol);
+                    rootCommand = new RootCommand();
+
+                    foreach (var symbol in symbols)
+                    {
+                        rootCommand.Add(symbol);
+                    }
                 }
 
                 RootCommand = rootCommand;

@@ -1008,9 +1008,46 @@ namespace System.CommandLine.Tests
             result.CommandResult["x"].Arguments.Should().BeEquivalentTo("the-argument");
             result.CommandResult.Arguments.Should().BeEmpty();
         }
+        
+        [Fact]
+        public void Required_arguments_on_parent_commands_do_not_create_parse_errors_when_an_inner_command_is_specified()
+        {
+            var child = new Command("child");
+
+            var parent = new RootCommand
+            {
+                new Argument<string>(),
+                child
+            };
+            parent.Name = "parent";
+
+            var result = parent.Parse("child");
+
+            result.Errors.Should().BeEmpty();
+        }
 
         [Fact]
-        public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_at_the_end_then_it_attaches_to_the_inner_command()
+        public void Required_arguments_on_grandparent_commands_do_not_create_parse_errors_when_an_inner_command_is_specified()
+        {
+            var grandchild = new Command("grandchild");
+
+            var grandparent = new RootCommand
+            {
+                new Argument<string>(),
+                new Command("parent")
+                {
+                    grandchild
+                }
+            };
+            grandparent.Name = "grandparent";
+
+            var result = grandparent.Parse("parent grandchild");
+
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void When_options_with_the_same_name_are_defined_on_parent_and_child_commands_and_specified_at_the_end_then_it_attaches_to_the_inner_command()
         {
             var outer = new Command("outer")
                         {
@@ -1035,7 +1072,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_the_same_option_is_defined_on_both_outer_and_inner_command_and_specified_in_between_then_it_attaches_to_the_outer_command()
+        public void When_options_with_the_same_name_are_defined_on_parent_and_child_commands_and_specified_in_between_then_it_attaches_to_the_outer_command()
         {
             var outer = new Command("outer");
             outer.AddOption(new Option("-x"));
