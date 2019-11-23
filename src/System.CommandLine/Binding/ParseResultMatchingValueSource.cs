@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace System.CommandLine.Binding
 {
-    internal class CurrentSymbolResultValueSource : IValueSource
+    internal class ParseResultMatchingValueSource : IValueSource
     {
         public bool TryGetValue(
             IValueDescriptor valueDescriptor,
