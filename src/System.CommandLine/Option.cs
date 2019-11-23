@@ -39,7 +39,13 @@ namespace System.CommandLine
 
         public void AddAlias(string alias) => AddAliasInner(alias);
 
+        internal List<ValidateSymbol<OptionResult>> Validators { get; } = new List<ValidateSymbol<OptionResult>>();
+
+        public void AddValidator(ValidateSymbol<OptionResult> validate) => Validators.Add(validate);
+
         IArgument IOption.Argument => Argument;
+
+        public bool Required { get; set; }
 
         string IValueDescriptor.ValueName => Name;
 

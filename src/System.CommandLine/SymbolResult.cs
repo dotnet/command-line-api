@@ -234,19 +234,6 @@ namespace System.CommandLine
             return null;
         }
 
-        internal ParseError CustomError(Argument argument)
-        {
-            foreach (var symbolValidator in argument.SymbolValidators)
-            {
-                var errorMessage = symbolValidator(this);
-
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    return new ParseError(errorMessage, this);
-                }
-            }
-
-            return null;
-        }
+     
     }
 }

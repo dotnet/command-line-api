@@ -153,88 +153,78 @@ namespace System.CommandLine.Parsing
         {
             ValidateCommandHandler(_innermostCommandResult);
 
-            foreach (var commandResult in _innermostCommandResult.RecurseWhileNotNull(c => c.ParentCommandResult))
+            foreach (var symbol in _innermostCommandResult.Command.Children)
             {
-                foreach (var symbol in commandResult.Command.Children)
+                PopulateDefaultValues(_innermostCommandResult, symbol);
+            }
+
+            ValidateCommandResult(_innermostCommandResult);
+
+            foreach (var result in _innermostCommandResult.Children)
+            {
+                switch (result)
                 {
-                    PopulateDefaultValues(commandResult, symbol);
-                }
+                    case ArgumentResult argumentResult:
 
-                ValidateCommand(commandResult);
+                        ValidateArgumentResult(argumentResult);
 
-                foreach (var result in commandResult.Children)
-                {
-                    switch (result)
-                    {
-                        case ArgumentResult argumentResult:
+                        break;
 
-                            ValidateArgument(argumentResult);
+                    case OptionResult optionResult:
 
-                            break;
+                        ValidateOptionResult(optionResult);
 
-                        case OptionResult optionResult:
-
-                            var argument = optionResult.Option.Argument;
-
-                            var arityFailure = ArgumentArity.Validate(
-                                optionResult,
-                                argument,
-                                argument.Arity.MinimumNumberOfValues,
-                                argument.Arity.MaximumNumberOfValues);
-
-                            if (arityFailure != null)
-                            {
-                                _errors.Add(
-                                    new ParseError(arityFailure.ErrorMessage, optionResult));
-                            }
-
-                            var results = optionResult.Children
-                                                      .OfType<ArgumentResult>()
-                                                      .ToArray();
-
-                            foreach (var a in results)
-                            {
-                                ValidateArgument(a);
-                            }
-
-                            break;
-                    }
+                        break;
                 }
             }
         }
 
-        private void ValidateCommand(CommandResult commandResult)
+        private void ValidateCommandResult(CommandResult commandResult)
         {
-            foreach (var a in commandResult
-                              .Command
-                              .Arguments)
+            if (commandResult.Command is Command command)
             {
-                if (a is Argument argument)
+                foreach (var validator in command.Validators)
+                {
+                    var errorMessage = validator(commandResult);
+
+                    if (!string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        _errors.Add(
+                            new ParseError(errorMessage, commandResult));
+                    }
+                }
+            }
+
+            foreach (var option in commandResult
+                                   .Command
+                                   .Options)
+            {
+                if (option is Option o &&
+                    o.Required && 
+                    _rootCommandResult.FindResultFor(o) == null)
+                {
+                    _errors.Add(
+                        new ParseError($"Option '{o.RawAliases.First()}' is required.",
+                                       commandResult));
+                }
+            }
+
+            foreach (var symbol in commandResult
+                                   .Command
+                                   .Arguments)
+            {
+                if (symbol is Argument argument)
                 {
                     var arityFailure = ArgumentArity.Validate(
                         commandResult,
-                        a,
-                        a.Arity.MinimumNumberOfValues,
-                        a.Arity.MaximumNumberOfValues);
+                        argument,
+                        argument.Arity.MinimumNumberOfValues,
+                        argument.Arity.MaximumNumberOfValues);
 
                     if (arityFailure != null)
                     {
-                        if (_innermostCommandResult.Command == commandResult.Command)
-                        {
-                            _errors.Add(
-                                new ParseError(arityFailure.ErrorMessage, commandResult));
-                        }
-                    }
-
-                    foreach (var validator in argument.SymbolValidators)
-                    {
-                        var errorMessage = validator(commandResult);
-
-                        if (!string.IsNullOrWhiteSpace(errorMessage))
-                        {
-                            _errors.Add(
-                                new ParseError(errorMessage, commandResult));
-                        }
+                        _errors.Add(
+                            new ParseError(arityFailure.ErrorMessage, commandResult));
                     }
                 }
             }
@@ -253,25 +243,54 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void ValidateArgument(ArgumentResult argumentResult)
+        private void ValidateOptionResult(OptionResult optionResult)
         {
-            var arityFailure = ArgumentArity.Validate(argumentResult);
+            var argument = optionResult.Option.Argument;
 
-            if (_errors.Any())
-            {
-                return;
-            }
+            var arityFailure = ArgumentArity.Validate(
+                optionResult,
+                argument,
+                argument.Arity.MinimumNumberOfValues,
+                argument.Arity.MaximumNumberOfValues);
 
             if (arityFailure != null)
             {
-                _errors.Add(new ParseError(arityFailure.ErrorMessage));
+                _errors.Add(
+                    new ParseError(arityFailure.ErrorMessage, optionResult));
+            }
+
+            if (optionResult.Option is Option option)
+            {
+                foreach (var validate in option.Validators)
+                {
+                    var message = validate(optionResult);
+
+                    if (!string.IsNullOrWhiteSpace(message))
+                    {
+                        _errors.Add(new ParseError(message, optionResult));
+                    }
+                }
+            }
+
+            foreach (var a in optionResult.Children
+                                          .OfType<ArgumentResult>()
+                                          .ToArray())
+            {
+                ValidateArgumentResult(a);
+            }
+        }
+
+        private void ValidateArgumentResult(ArgumentResult argumentResult)
+        {
+            if (_errors.Any())
+            {
                 return;
             }
 
             if (argumentResult.Argument is Argument argument)
             {
                 var parseError = argumentResult.Parent.UnrecognizedArgumentError(argument) ??
-                                 argumentResult.Parent.CustomError(argument);
+                                 argumentResult.CustomError(argument);
 
                 if (parseError != null)
                 {

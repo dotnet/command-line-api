@@ -10,6 +10,8 @@ namespace System.CommandLine
         bool TreatUnmatchedTokensAsErrors { get; }
 
         IEnumerable<IArgument> Arguments { get; }
+        
+        IEnumerable<IOption> Options { get; }
 
         [Obsolete("Use the Arguments property instead")]
         IArgument Argument { get; }

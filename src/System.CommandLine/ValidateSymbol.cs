@@ -3,5 +3,6 @@
 
 namespace System.CommandLine
 {
-    public delegate string ValidateSymbol(SymbolResult symbolResult);
+    public delegate string ValidateSymbol<in T>(T symbolResult) 
+        where T : SymbolResult;
 }

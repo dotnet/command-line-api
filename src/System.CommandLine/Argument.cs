@@ -108,9 +108,9 @@ namespace System.CommandLine
 
         public Type ArgumentType { get; set; }
 
-        internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
+        internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new List<ValidateSymbol<ArgumentResult>>();
 
-        public void AddValidator(ValidateSymbol validator) => SymbolValidators.Add(validator);
+        public void AddValidator(ValidateSymbol<ArgumentResult> validator) => Validators.Add(validator);
 
         public object GetDefaultValue() => _defaultValue?.Invoke();
 
