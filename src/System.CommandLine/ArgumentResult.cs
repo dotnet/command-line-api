@@ -23,5 +23,20 @@ namespace System.CommandLine
             ConversionResult ??= Convert(this, Argument);
 
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
+
+        internal ParseError CustomError(Argument argument)
+        {
+            foreach (var symbolValidator in argument.Validators)
+            {
+                var errorMessage = symbolValidator(this);
+
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    return new ParseError(errorMessage, this);
+                }
+            }
+
+            return null;
+        }
     }
 }

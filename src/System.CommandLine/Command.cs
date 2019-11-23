@@ -31,6 +31,8 @@ namespace System.CommandLine
         }
 
         public IEnumerable<Argument> Arguments => Children.OfType<Argument>();
+        
+        public IEnumerable<Option> Options => Children.OfType<Option>();
 
         public void AddArgument(Argument argument) => AddArgumentInner(argument);
 
@@ -43,6 +45,10 @@ namespace System.CommandLine
         public void Add(Argument argument) => AddArgument(argument);
 
         public void AddAlias(string alias) => AddAliasInner(alias);
+
+        internal List<ValidateSymbol<CommandResult>> Validators { get; } = new List<ValidateSymbol<CommandResult>>();
+
+        public void AddValidator(ValidateSymbol<CommandResult> validate) => Validators.Add(validate);
 
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
@@ -57,5 +63,7 @@ namespace System.CommandLine
 #pragma warning restore 618
 
         IEnumerable<IArgument> ICommand.Arguments => Arguments;
+
+        IEnumerable<IOption> ICommand.Options => Options;
     }
 }

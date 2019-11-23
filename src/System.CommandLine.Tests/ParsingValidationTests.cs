@@ -82,6 +82,71 @@ namespace System.CommandLine.Tests
                   .Contain(e => e.Message == "Required argument missing for option: -x");
         }
 
+        
+        [Fact]
+        public void When_a_required_option_is_not_supplied_then_an_error_is_returned()
+        {
+            var command = new Command("command")
+            {
+                new Option("-x")
+                {
+                    Required = true
+                }
+            };
+
+            var result = command.Parse("");
+
+            result.Errors
+                  .Should()
+                  .ContainSingle(e => e.SymbolResult.Symbol == command)
+                  .Which
+                  .Message
+                  .Should()
+                  .Be("Option '-x' is required.");
+        }
+
+        [Theory]
+        [InlineData("subcommand -x arg")]
+        [InlineData("-x arg subcommand")]
+        public void When_a_required_option_is_allowed_at_more_than_one_position_it_only_needs_to_be_satisfied_in_one(string commandLine)
+        {
+            var option = new Option<string>("-x")
+            {
+                Required = true
+            };
+
+            var command = new RootCommand
+            {
+                option,
+                new Command("subcommand")
+                {
+                    option
+                }
+            };
+
+            var result = command.Parse(commandLine);
+
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Required_options_on_parent_commands_do_not_create_parse_errors_when_an_inner_command_is_specified()
+        {
+            var child = new Command("child");
+
+            var parent = new RootCommand
+            {
+                new Option<string>("-x") { Required = true },
+                child
+            };
+            parent.Name = "parent";
+
+            var result = parent.Parse("child");
+
+            result.Errors.Should().BeEmpty();
+        }
+
+
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
@@ -102,25 +167,24 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_can_be_invalid_when_used_in_combination_with_another_option()
+        public void A_custom_validator_can_be_added_to_a_command()
         {
-            var argument = new Argument();
-            argument.AddValidator(symbol => {
-                if (symbol.Children.Contains("one") &&
-                    symbol.Children.Contains("two"))
+            var command = new Command("the-command")
+            {
+                new Option("--one"),
+                new Option("--two")
+            };
+
+            command.AddValidator(commandResult =>
+            {
+                if (commandResult.Children.Contains("one") &&
+                    commandResult.Children.Contains("two"))
                 {
                     return "Options '--one' and '--two' cannot be used together.";
                 }
 
                 return null;
             });
-
-            var command = new Command("the-command")
-            {
-                new Option("--one"),
-                new Option("--two"),
-                argument
-            };
 
             var result = command.Parse("the-command --one --two");
 
@@ -129,6 +193,56 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .ContainSingle("Options '--one' and '--two' cannot be used together.");
+        }
+
+        [Fact]
+        public void A_custom_validator_can_be_added_to_an_option()
+        {
+            var option = new Option<int>("-x");
+
+            option.AddValidator(r =>
+            {
+                var value = r.GetValueOrDefault<int>();
+
+                return $"Option {r.Token.Value} cannot be set to {value}";
+            });
+
+            var command = new RootCommand { option };
+
+            var result = command.Parse("-x 123");
+
+            result.Errors
+                  .Should()
+                  .ContainSingle(e => e.SymbolResult.Symbol == option)
+                  .Which
+                  .Message
+                  .Should()
+                  .Be("Option -x cannot be set to 123");
+        }
+
+        [Fact]
+        public void A_custom_validator_can_be_added_to_an_argument()
+        {
+            var argument = new Argument<int>("x");
+
+            argument.AddValidator(r =>
+            {
+                var value = r.GetValueOrDefault<int>();
+
+                return $"Argument {r.Argument.Name} cannot be set to {value}";
+            });
+
+            var command = new RootCommand { argument };
+
+            var result = command.Parse("123");
+
+            result.Errors
+                  .Should()
+                  .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                  .Which
+                  .Message
+                  .Should()
+                  .Be("Argument x cannot be set to 123");
         }
 
         [Fact]

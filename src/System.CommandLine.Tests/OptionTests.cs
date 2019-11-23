@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -251,6 +250,32 @@ namespace System.CommandLine.Tests
             };
 
             option.Argument.Name.Should().Be("arg");
+        }
+
+        [Fact]
+        public void Option_T_Argument_returns_an_Argument_T_when_not_explicitly_initialized()
+        {
+            var option = new Option<int>("-i");
+
+            option.Argument.Should().BeOfType<Argument<int>>();
+        }
+
+        [Theory]
+        [InlineData(typeof(Argument))]
+        [InlineData(typeof(Argument<string>))]
+        public void Option_T_Argument_cannot_be_set_to_Argument_of_incorrect_type(Type argumentType)
+        {
+            var option = new Option<int>("i");
+
+            var argument = Activator.CreateInstance(argumentType);
+
+            option.Invoking(o => o.Argument = (Argument) argument)
+                  .Should()
+                  .Throw<ArgumentException>()
+                  .Which
+                  .Message
+                  .Should()
+                  .Be($"Argument must be of type {typeof(Argument<int>)} but was {argument.GetType()}");
         }
 
         protected override Symbol CreateSymbol(string name) => new Option(name);
