@@ -35,7 +35,7 @@ namespace System.CommandLine
             {
                 location = Environment.GetCommandLineArgs().FirstOrDefault();
             }
-            return Path.GetFileNameWithoutExtension(location);
+            return Path.GetFileNameWithoutExtension(location).Replace(" ", "");
         });
 
         private static Assembly GetAssembly() =>
