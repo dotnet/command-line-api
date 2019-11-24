@@ -213,19 +213,16 @@ namespace System.CommandLine.Parsing
                                    .Command
                                    .Arguments)
             {
-                if (symbol is Argument argument)
-                {
-                    var arityFailure = ArgumentArity.Validate(
-                        commandResult,
-                        argument,
-                        argument.Arity.MinimumNumberOfValues,
-                        argument.Arity.MaximumNumberOfValues);
+                var arityFailure = ArgumentArity.Validate(
+                    commandResult,
+                    symbol,
+                    symbol.Arity.MinimumNumberOfValues,
+                    symbol.Arity.MaximumNumberOfValues);
 
-                    if (arityFailure != null)
-                    {
-                        _errors.Add(
-                            new ParseError(arityFailure.ErrorMessage, commandResult));
-                    }
+                if (arityFailure != null)
+                {
+                    _errors.Add(
+                        new ParseError(arityFailure.ErrorMessage, commandResult));
                 }
             }
         }
@@ -272,11 +269,11 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            foreach (var a in optionResult.Children
-                                          .OfType<ArgumentResult>()
-                                          .ToArray())
+            foreach (var argumentResult in optionResult
+                                           .Children
+                                           .OfType<ArgumentResult>())
             {
-                ValidateArgumentResult(a);
+                ValidateArgumentResult(argumentResult);
             }
         }
 
