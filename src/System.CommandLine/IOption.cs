@@ -8,5 +8,7 @@ namespace System.CommandLine
     public interface IOption : ISymbol, IValueDescriptor
     {
         IArgument Argument { get; }
+
+        bool Required { get; }
     }
 }
