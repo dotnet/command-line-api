@@ -51,8 +51,8 @@ namespace System.CommandLine
 
         Type IValueDescriptor.Type => Argument.ArgumentType;
 
-        bool IValueDescriptor.HasDefaultValue => Arguments.Single().HasDefaultValue;
+        bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 
-        object IValueDescriptor.GetDefaultValue() => Arguments.Single().GetDefaultValue();
+        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

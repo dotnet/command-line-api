@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -151,14 +152,11 @@ namespace System.CommandLine.Parsing
 
         protected override void Stop(SyntaxNode node)
         {
-            ValidateCommandHandler(_innermostCommandResult);
+            ValidateCommandHandler();
+          
+            PopulateDefaultValues();
 
-            foreach (var symbol in _innermostCommandResult.Command.Children)
-            {
-                PopulateDefaultValues(_innermostCommandResult, symbol);
-            }
-
-            ValidateCommandResult(_innermostCommandResult);
+            ValidateCommandResult();
 
             foreach (var result in _innermostCommandResult.Children)
             {
@@ -179,23 +177,23 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void ValidateCommandResult(CommandResult commandResult)
+        private void ValidateCommandResult()
         {
-            if (commandResult.Command is Command command)
+            if (_innermostCommandResult.Command is Command command)
             {
                 foreach (var validator in command.Validators)
                 {
-                    var errorMessage = validator(commandResult);
+                    var errorMessage = validator(_innermostCommandResult);
 
                     if (!string.IsNullOrWhiteSpace(errorMessage))
                     {
                         _errors.Add(
-                            new ParseError(errorMessage, commandResult));
+                            new ParseError(errorMessage, _innermostCommandResult));
                     }
                 }
             }
 
-            foreach (var option in commandResult
+            foreach (var option in _innermostCommandResult
                                    .Command
                                    .Options)
             {
@@ -205,16 +203,16 @@ namespace System.CommandLine.Parsing
                 {
                     _errors.Add(
                         new ParseError($"Option '{o.RawAliases.First()}' is required.",
-                                       commandResult));
+                                       _innermostCommandResult));
                 }
             }
 
-            foreach (var symbol in commandResult
+            foreach (var symbol in _innermostCommandResult
                                    .Command
                                    .Arguments)
             {
                 var arityFailure = ArgumentArity.Validate(
-                    commandResult,
+                    _innermostCommandResult,
                     symbol,
                     symbol.Arity.MinimumNumberOfValues,
                     symbol.Arity.MaximumNumberOfValues);
@@ -222,21 +220,21 @@ namespace System.CommandLine.Parsing
                 if (arityFailure != null)
                 {
                     _errors.Add(
-                        new ParseError(arityFailure.ErrorMessage, commandResult));
+                        new ParseError(arityFailure.ErrorMessage, _innermostCommandResult));
                 }
             }
         }
 
-        private void ValidateCommandHandler(CommandResult commandResult)
+        private void ValidateCommandHandler()
         {
-            if (commandResult.Command is Command cmd &&
+            if (_innermostCommandResult.Command is Command cmd &&
                 cmd.Handler == null &&
                 cmd.Children.OfType<ICommand>().Any())
             {
                 _errors.Insert(0,
                                new ParseError(
-                                   commandResult.ValidationMessages.RequiredCommandWasNotProvided(),
-                                   commandResult));
+                                   _innermostCommandResult.ValidationMessages.RequiredCommandWasNotProvided(),
+                                   _innermostCommandResult));
             }
         }
 
@@ -305,62 +303,69 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static void PopulateDefaultValues(
-            CommandResult parentCommandResult,
-            ISymbol symbol)
+        private void PopulateDefaultValues()
         {
-            var symbolResult = parentCommandResult.Children.ResultFor(symbol);
+            var commandResults = _innermostCommandResult
+                .RecurseWhileNotNull(c => c.ParentCommandResult);
 
-            if (symbolResult == null)
+            foreach (var commandResult in commandResults)
             {
-                switch (symbol)
+                foreach (var symbol in commandResult.Command.Children)
                 {
-                    case Option option when option.Argument.HasDefaultValue:
+                    var symbolResult = _rootCommandResult.FindResultFor(symbol);
 
-                        var optionResult = new OptionResult(
-                            option,
-                            option.CreateImplicitToken());
+                    if (symbolResult == null)
+                    {
+                        switch (symbol)
+                        {
+                            case Option option when option.Argument.HasDefaultValue:
 
-                        var token = new ImplicitToken(
-                            optionResult.GetDefaultValueFor(option.Argument),
-                            TokenType.Argument);
+                                var optionResult = new OptionResult(
+                                    option,
+                                    option.CreateImplicitToken());
 
-                        optionResult.Children.Add(
+                                var token = new ImplicitToken(
+                                    optionResult.GetDefaultValueFor(option.Argument),
+                                    TokenType.Argument);
+
+                                optionResult.Children.Add(
+                                    new ArgumentResult(
+                                        option.Argument,
+                                        token,
+                                        optionResult));
+
+                                commandResult.Children.Add(optionResult);
+                                optionResult.AddToken(token);
+
+                                break;
+
+                            case Argument argument when argument.HasDefaultValue:
+
+                                var implicitToken = new ImplicitToken(argument.GetDefaultValue(), TokenType.Argument);
+
+                                var argumentResult = new ArgumentResult(
+                                    argument,
+                                    implicitToken,
+                                    commandResult);
+
+                                commandResult.Children.Add(argumentResult);
+                                commandResult.AddToken(implicitToken);
+
+                                break;
+                        }
+                    }
+
+                    if (symbolResult is OptionResult o &&
+                        o.Option.Argument.Type == typeof(bool) &&
+                        o.Children.Count == 0)
+                    {
+                        o.Children.Add(
                             new ArgumentResult(
-                                option.Argument,
-                                token,
-                                optionResult));
-
-                        parentCommandResult.Children.Add(optionResult);
-                        optionResult.AddToken(token);
-
-                        break;
-
-                    case Argument argument when argument.HasDefaultValue:
-
-                        var implicitToken = new ImplicitToken(argument.GetDefaultValue(), TokenType.Argument);
-
-                        var argumentResult = new ArgumentResult(
-                            argument,
-                            implicitToken,
-                            parentCommandResult);
-
-                        parentCommandResult.Children.Add(argumentResult);
-                        parentCommandResult.AddToken(implicitToken);
-
-                        break;
+                                o.Option.Argument,
+                                new ImplicitToken(true, TokenType.Argument),
+                                o));
+                    }
                 }
-            }
-
-            if (symbolResult is OptionResult o &&
-                o.Option.Argument.Type == typeof(bool) &&
-                o.Children.Count == 0)
-            {
-                o.Children.Add(
-                    new ArgumentResult(
-                        o.Option.Argument,
-                        new ImplicitToken(true, TokenType.Argument),
-                        o));
             }
         }
 

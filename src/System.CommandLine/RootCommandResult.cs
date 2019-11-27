@@ -74,5 +74,20 @@ namespace System.CommandLine
 
             return result;
         }
+
+        public SymbolResult FindResultFor(ISymbol symbol)
+        {
+            switch (symbol)
+            {
+                case IArgument argument:
+                    return FindResultFor(argument);
+                case ICommand command:
+                    return FindResultFor(command);
+                case IOption option:
+                    return FindResultFor(option);
+                default: 
+                    throw new ArgumentException($"Unsupported symbol type: {symbol.GetType()}");
+            }
+        }
     }
 }
