@@ -287,6 +287,29 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Default_values_from_options_on_parent_commands_are_bound_by_name_by_default()
+        {
+            var parentCommand = new Command("parent-command")
+                                {
+                                    new Option("--int-option")
+                                    {
+                                        Argument = new Argument<int>(() => 123)
+                                    },
+                                    new Command("child-command")
+                                };
+
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
+
+            var parseResult = parentCommand.Parse("parent-command child-command");
+
+            var bindingContext = new BindingContext(parseResult);
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(123);
+        }
+
+        [Fact]
         public void Values_from_parent_command_arguments_are_bound_by_name_by_default()
         {
             var parentCommand = new Command("parent-command")
@@ -301,6 +324,29 @@ namespace System.CommandLine.Tests.Binding
             var binder = new ModelBinder<ClassWithMultiLetterSetters>();
 
             var parseResult = parentCommand.Parse("parent-command 123 child-command");
+
+            var bindingContext = new BindingContext(parseResult);
+
+            var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
+
+            instance.IntOption.Should().Be(123);
+        }
+        
+        [Fact]
+        public void Default_values_from_parent_command_arguments_are_bound_by_name_by_default()
+        {
+            var parentCommand = new Command("parent-command")
+            {
+                new Argument<int>(() => 123)
+                {
+                    Name = nameof(ClassWithMultiLetterSetters.IntOption)
+                },
+                new Command("child-command")
+            };
+
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>();
+
+            var parseResult = parentCommand.Parse("parent-command child-command");
 
             var bindingContext = new BindingContext(parseResult);
 
