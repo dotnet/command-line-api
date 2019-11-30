@@ -333,24 +333,31 @@ namespace System.CommandLine
             var rawAliases = symbol.RawAliases
                 .OrderBy(alias => alias.Length);
 
-            var option = string.Join(", ", rawAliases);
+            var invocation = string.Join(", ", rawAliases);
 
             if (ShouldShowHelp(symbol))
             {
                 foreach (var argument in symbol.Arguments())
                 {
-                    if (ShouldShowHelp(argument) && !string.IsNullOrWhiteSpace(argument.Name))
+                    if (ShouldShowHelp(argument) &&
+                        !string.IsNullOrWhiteSpace(argument.Name))
                     {
                         var argumentDescriptor = ArgumentDescriptor(argument);
                         if (!string.IsNullOrWhiteSpace(argumentDescriptor))
                         {
-                            option = $"{option} <{argumentDescriptor}>";
+                            invocation = $"{invocation} <{argumentDescriptor}>";
                         }
                     }
                 }
             }
 
-            yield return new HelpItem(option, symbol.Description);
+            if (symbol is IOption option &&
+                option.Required)
+            {
+                invocation += " (REQUIRED)";
+            }
+
+            yield return new HelpItem(invocation, symbol.Description);
         }
 
         /// <summary>

@@ -1065,6 +1065,45 @@ namespace System.CommandLine.Tests.Help
             help.Should().Contain("the-visible");
         }
 
+        [Fact]
+        public void Required_options_are_indicated()
+        {
+            var command = new RootCommand
+            {
+                new Option("--required")
+                {
+                    Required = true
+                }
+            };
+
+            _helpBuilder.Write(command);
+            
+            var help = _console.Out.ToString();
+
+            help.Should()
+                .Contain("--required (REQUIRED)");
+        }
+        
+        [Fact]
+        public void Required_options_are_indicated_when_argument_is_named()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] {"-r", "--required" })
+                {
+                    Required = true,
+                    Argument = new Argument<string>("ARG")
+                }
+            };
+
+            _helpBuilder.Write(command);
+            
+            var help = _console.Out.ToString();
+
+            help.Should()
+                .Contain("-r, --required <ARG> (REQUIRED)");
+        }
+
         #endregion Options
 
         #region Subcommands
