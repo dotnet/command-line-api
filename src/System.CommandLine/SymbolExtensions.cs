@@ -8,11 +8,6 @@ namespace System.CommandLine
 {
     public static class SymbolExtensions
     {
-        internal static IEnumerable<string> ChildSymbolAliases(this ISymbol symbol) =>
-            symbol.Children
-                  .Where(s => !s.IsHidden)
-                  .SelectMany(s => s.RawAliases);
-
         internal static IEnumerable<IArgument> Arguments(this ISymbol symbol)
         {
             switch (symbol)

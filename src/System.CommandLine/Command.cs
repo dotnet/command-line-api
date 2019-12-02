@@ -10,7 +10,11 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Command : Symbol, ICommand, IEnumerable<Symbol>
+    public class Command : 
+        Symbol, 
+        ICommand, 
+        IEnumerable<Symbol>, 
+        INotifyNamedChanged
     {
         private readonly SymbolSet _globalOptions = new SymbolSet();
 

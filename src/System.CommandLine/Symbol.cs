@@ -9,7 +9,9 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public abstract class Symbol : ISymbol
+    public abstract class Symbol : 
+        ISymbol,
+        INotifyNamedChanged
     {
         private readonly HashSet<string> _aliases = new HashSet<string>();
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
@@ -58,6 +60,16 @@ namespace System.CommandLine
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
+                }
+
+                // FIX: (Name) 
+
+                // if (_specifiedName is { } &&
+                //     !string.Equals(_specifiedName, value, StringComparison.Ordinal))
+                {
+                    _onNameChanged?.Invoke(this, (_specifiedName, value));
+                    _aliases.Remove(_specifiedName);
+                    _aliases.Add(value);
                 }
 
                 _specifiedName = value;
@@ -145,17 +157,33 @@ namespace System.CommandLine
                     .SelectMany(a => a.GetSuggestions(parseResult, textToMatch))
                     .ToArray();
 
-            return this.ChildSymbolAliases()
-                       .Concat(argumentSuggestions)
-                       .Distinct()
-                       .Containing(textToMatch)
-                       .Where(symbol => symbol != null)
-                       .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
-                       .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
+            return Children
+                   .Where(s => !s.IsHidden)
+                   .SelectMany(s => s.RawAliases)
+                   .Concat(argumentSuggestions)
+                   .Distinct()
+                   .Containing(textToMatch)
+                   .Where(symbol => symbol != null)
+                   .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
+                   .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
         ISymbolSet ISymbol.Children => Children;
+
+        private event EventHandler<(string oldName, string newName)> _onNameChanged;
+
+        event EventHandler<(string oldName, string newName)> INotifyNamedChanged.OnNameChanged
+        {
+            add
+            {
+                _onNameChanged += value;
+            }
+            remove
+            {
+                _onNameChanged -= value;
+            }
+        }
     }
 }

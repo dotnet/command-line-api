@@ -11,11 +11,32 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_Name_is_explicitly_set_then_adding_aliases_does_not_change_it()
         {
-            var symbol = CreateSymbol("--zzzzzz");
+            var symbol = CreateSymbol("original");
 
-            symbol.Name = "bbb";
+            symbol.Name = "changed";
 
-            symbol.Name.Should().Be("bbb");
+            symbol.Name.Should().Be("changed");
+        }
+
+        [Fact]
+        public void When_Name_is_changed_then_old_name_is_not_among_aliases()
+        {
+            var symbol = CreateSymbol("original");
+
+            symbol.Name = "changed";
+
+            symbol.HasAlias("original").Should().BeFalse();
+        }
+
+        [Fact]
+        public void Aliases_is_aware_of_added_alias()
+        {
+            var symbol = CreateSymbol("original");
+
+            symbol.AddAlias("added");
+
+            symbol.Aliases.Should().Contain("added");
+            symbol.HasAlias("added").Should().BeTrue();
         }
 
         protected abstract Symbol CreateSymbol(string name);

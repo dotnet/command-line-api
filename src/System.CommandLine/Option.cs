@@ -8,7 +8,9 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Option : Symbol, IOption
+    public class Option : 
+        Symbol, 
+        IOption
     {
         public Option(string alias, string? description = null)
             : base(new[]

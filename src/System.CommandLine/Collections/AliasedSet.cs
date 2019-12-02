@@ -51,6 +51,11 @@ namespace System.CommandLine.Collections
                     _itemsByAlias.Add(alias, item);
                 }
             }
+
+            if (item is INotifyNamedChanged notify)
+            {
+                notify.OnNameChanged += OnNameChanged;
+            }
         }
 
         internal void Remove(T item)
@@ -72,6 +77,11 @@ namespace System.CommandLine.Collections
                     _itemsByAlias.Remove(alias);
                 }
             }
+            
+            if (item is INotifyNamedChanged notify)
+            {
+                notify.OnNameChanged -= OnNameChanged;
+            }
         }
 
         protected abstract IReadOnlyCollection<string> GetAliases(T item);
@@ -81,5 +91,10 @@ namespace System.CommandLine.Collections
         public bool Contains(string alias) => _itemsByAlias.ContainsKey(alias);
 
         public T this[int index] => Items[index];
+
+        private void OnNameChanged(object sender, (string oldName, string newName) e)
+        {
+            // FIX-JOSEQU: do something 
+        }
     }
 }
