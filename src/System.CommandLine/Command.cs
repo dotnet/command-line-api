@@ -44,8 +44,6 @@ namespace System.CommandLine
 
         public void Add(Argument argument) => AddArgument(argument);
 
-        public void AddAlias(string alias) => AddAliasInner(alias);
-
         internal List<ValidateSymbol<CommandResult>> Validators { get; } = new List<ValidateSymbol<CommandResult>>();
 
         public void AddValidator(ValidateSymbol<CommandResult> validate) => Validators.Add(validate);

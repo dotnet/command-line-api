@@ -35,7 +35,7 @@ namespace System.CommandLine
 
             foreach (var alias in aliases)
             {
-                AddAliasInner(alias);
+                AddAlias(alias);
             }
 
             Description = description;
@@ -65,7 +65,7 @@ namespace System.CommandLine
 
         private protected void AddParent(Symbol symbol)
         {
-            _parents.Add(symbol);
+            _parents.AddWithoutAliasCollisionCheck(symbol);
         }
 
         private protected void AddSymbol(Symbol symbol)
@@ -97,7 +97,7 @@ namespace System.CommandLine
 
         public SymbolSet Children { get; } = new SymbolSet();
 
-        protected void AddAliasInner(string alias)
+        public void AddAlias(string alias)
         {
             var unprefixedAlias = alias?.RemovePrefix();
 
