@@ -37,8 +37,6 @@ namespace System.CommandLine
 
         private IEnumerable<Argument> Arguments => Children.OfType<Argument>();
 
-        public void AddAlias(string alias) => AddAliasInner(alias);
-
         internal List<ValidateSymbol<OptionResult>> Validators { get; } = new List<ValidateSymbol<OptionResult>>();
 
         public void AddValidator(ValidateSymbol<OptionResult> validate) => Validators.Add(validate);

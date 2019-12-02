@@ -9,24 +9,37 @@ namespace System.CommandLine
     {
         internal override void Add(ISymbol item)
         {
+            string rawAliasAlreadyInUse;
+
             switch (item)
             {
                 case IOption _:
                 case ICommand _:
-                    CheckForCollision(item, GetRawAliases);
+                    if (IsAliasInUse(item, GetRawAliases, out rawAliasAlreadyInUse))
+                    {
+                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
+                    }
+
                     break;
 
                 case IArgument argument:
-                    CheckForCollision(argument, i => new[] { i.Name });
+                    if (IsAliasInUse(argument, i => new[] { i.Name }, out rawAliasAlreadyInUse))
+                    {
+                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
+                    }
+
                     break;
             }
 
             base.Add(item);
         }
 
-        private void CheckForCollision(
-            ISymbol item, 
-            Func<ISymbol, IReadOnlyList<string>> values)
+        internal void AddWithoutAliasCollisionCheck(ISymbol item) => base.Add(item);
+
+        private bool IsAliasInUse(
+            ISymbol item,
+            Func<ISymbol, IReadOnlyList<string>> values,
+            out string rawAliasAlreadyInUse)
         {
             var itemRawAliases = values(item);
 
@@ -40,10 +53,14 @@ namespace System.CommandLine
 
                     if (Contains(values(existingItem), rawAliasToCheckFor))
                     {
-                        throw new ArgumentException($"Alias '{rawAliasToCheckFor}' is already in use.");
+                        rawAliasAlreadyInUse = rawAliasToCheckFor;
+                        return true;
                     }
                 }
             }
+
+            rawAliasAlreadyInUse = null;
+            return false;
         }
 
         protected override IReadOnlyList<string> GetAliases(ISymbol item) =>

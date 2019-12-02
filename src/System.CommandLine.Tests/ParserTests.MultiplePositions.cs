@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Invocation;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -155,6 +156,45 @@ namespace System.CommandLine.Tests
 
                 result.Errors.Should().BeEmpty();
                 result.CommandResult.Parent.Name.Should().Be(expectedParent);
+            }
+
+            [Fact]
+            public void An_option_can_have_multiple_parents_with_the_same_name()
+            {
+                var option = new Option<string>("--the-option");
+
+                var sprocket = new Command("sprocket")
+                {
+                    new Command("add")
+                    {
+                        option
+                    }
+                };
+
+                var widget = new Command("widget")
+                {
+                    new Command("add")
+                    {
+                        option
+                    }
+                };
+
+                var root = new RootCommand
+                {
+                    sprocket,
+                    widget
+                };
+
+                option.Parents
+                      .Select(p => p.Name)
+                      .Should()
+                      .BeEquivalentTo("add", "add");
+
+                option.Parents
+                      .SelectMany(p => p.Parents)
+                      .Select(p => p.Name)
+                      .Should()
+                      .BeEquivalentTo("sprocket", "widget");
             }
         }
     }
