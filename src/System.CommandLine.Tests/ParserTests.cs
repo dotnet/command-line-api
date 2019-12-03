@@ -278,7 +278,7 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Children
-                  .Select(o => o.Name)
+                  .Select(o => o.Symbol.Name)
                   .Should()
                   .BeEquivalentTo("x", "y", "z");
         }
@@ -319,7 +319,7 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Children
-                  .Select(o => o.Name)
+                  .Select(o => o.Symbol.Name)
                   .Should()
                   .BeEquivalentTo("xyz");
         }
@@ -813,13 +813,13 @@ namespace System.CommandLine.Tests
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     o.Name == "inner1" &&
+                                     o.Symbol.Name == "inner1" &&
                                      o.Arguments.Single() == "argument1");
             result.CommandResult
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     o.Name == "inner2" &&
+                                     o.Symbol.Name == "inner2" &&
                                      o.Arguments.Single() == "argument2");
         }
 
@@ -1064,11 +1064,11 @@ namespace System.CommandLine.Tests
                   .Parent
                   .Children
                   .Should()
-                  .NotContain(o => o.Name == "x");
+                  .NotContain(o => o.Symbol.Name == "x");
             result.CommandResult
                   .Children
                   .Should()
-                  .ContainSingle(o => o.Name == "x");
+                  .ContainSingle(o => o.Symbol.Name == "x");
         }
 
         [Fact]
@@ -1090,7 +1090,7 @@ namespace System.CommandLine.Tests
                   .Parent
                   .Children
                   .Should()
-                  .ContainSingle(o => o.Name == "x");
+                  .ContainSingle(o => o.Symbol.Name == "x");
         }
 
         [Fact]

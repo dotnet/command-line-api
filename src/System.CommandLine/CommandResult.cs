@@ -29,7 +29,7 @@ namespace System.CommandLine
             return Children[alias] as OptionResult;
         }
 
-        internal virtual RootCommandResult Root => ParentCommandResult.Root;
+        internal virtual RootCommandResult Root => (Parent as CommandResult)?.Root;
 
         internal bool TryGetValueForArgument(
             IValueDescriptor valueDescriptor,

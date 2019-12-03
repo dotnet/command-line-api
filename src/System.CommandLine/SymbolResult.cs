@@ -74,11 +74,7 @@ namespace System.CommandLine
 
         public SymbolResultSet Children { get; } = new SymbolResultSet();
 
-        public string Name => Symbol.Name;
-
         public SymbolResult Parent { get; }
-
-        public CommandResult ParentCommandResult => Parent as CommandResult;
 
         public ISymbol Symbol { get; }
 

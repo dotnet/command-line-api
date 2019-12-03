@@ -111,12 +111,12 @@ namespace System.CommandLine.Tests
 
             var result = new Parser(command).Parse("outer inner-one inner-two");
 
-            result.CommandResult.Name.Should().Be("inner-one");
+            result.CommandResult.Symbol.Name.Should().Be("inner-one");
             result.Errors.Count.Should().Be(1);
 
             var result2 = new Parser(command).Parse("outer inner-two inner-one");
 
-            result2.CommandResult.Name.Should().Be("inner-two");
+            result2.CommandResult.Symbol.Name.Should().Be("inner-two");
             result2.Errors.Count.Should().Be(1);
         }
 

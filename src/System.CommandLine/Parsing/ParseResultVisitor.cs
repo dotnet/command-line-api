@@ -306,7 +306,7 @@ namespace System.CommandLine.Parsing
         private void PopulateDefaultValues()
         {
             var commandResults = _innermostCommandResult
-                .RecurseWhileNotNull(c => c.ParentCommandResult);
+                .RecurseWhileNotNull(c => c.Parent as CommandResult);
 
             foreach (var commandResult in commandResults)
             {
