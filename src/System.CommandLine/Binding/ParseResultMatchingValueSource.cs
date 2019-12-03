@@ -33,7 +33,7 @@ namespace System.CommandLine.Binding
                         return true;
                     }
 
-                    commandResult = commandResult.ParentCommandResult;
+                    commandResult = commandResult.Parent as CommandResult;
                 }
             }
 

@@ -155,7 +155,7 @@ namespace System.CommandLine.Tests
                 var result = outer.Parse(commandLine);
 
                 result.Errors.Should().BeEmpty();
-                result.CommandResult.Parent.Name.Should().Be(expectedParent);
+                result.CommandResult.Parent.Symbol.Name.Should().Be(expectedParent);
             }
 
             [Fact]

@@ -57,7 +57,7 @@ namespace System.CommandLine
 
             if (children.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {String.Join(",", children.Select(o => o.Name))}");
+                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {String.Join(",", children.Select(o => o.Symbol.Name))}");
             }
 
             if (children.Length == 1)

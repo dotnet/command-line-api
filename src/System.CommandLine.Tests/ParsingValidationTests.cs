@@ -61,7 +61,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Where(e => e.SymbolResult != null)
                   .Should()
-                  .Contain(e => e.SymbolResult.Name == option.Name);
+                  .Contain(e => e.SymbolResult.Symbol.Name == option.Name);
         }
 
         [Fact]
@@ -281,7 +281,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .Contain(e => e.SymbolResult.Name == "the-command" &&
+                  .Contain(e => e.SymbolResult.Symbol.Name == "the-command" &&
                                 e.Message == $"Character not allowed in a path: {invalidCharacter}");
         }
 
@@ -329,7 +329,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .Contain(e => e.SymbolResult.Name == "move" &&
+                  .Contain(e => e.SymbolResult.Symbol.Name == "move" &&
                                 e.Message == $"File does not exist: {guid}");
         }
 
@@ -358,7 +358,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .Contain(e => e.SymbolResult.Name == "move" &&
+                  .Contain(e => e.SymbolResult.Symbol.Name == "move" &&
                                 e.Message == $"File or directory does not exist: {guid}");
         }
 
@@ -388,7 +388,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File or directory does not exist: {guid1}");
+                  .Contain(e => e.SymbolResult.Symbol.Name == "move" && e.Message == $"File or directory does not exist: {guid1}");
         }
 
         [Fact]
@@ -417,7 +417,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                 .Should()
-                .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File or directory does not exist: {guid}");
+                .Contain(e => e.SymbolResult.Symbol.Name == "move" && e.Message == $"File or directory does not exist: {guid}");
         }
 
         [Fact] 
@@ -446,7 +446,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid1}");
+                  .Contain(e => e.SymbolResult.Symbol.Name == "move" && e.Message == $"File does not exist: {guid1}");
         }
 
         [Fact]
@@ -475,7 +475,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                 .Should()
-                .Contain(e => e.SymbolResult.Name == "move" && e.Message == $"File does not exist: {guid}");
+                .Contain(e => e.SymbolResult.Symbol.Name == "move" && e.Message == $"File does not exist: {guid}");
         }
 
         [Fact]
@@ -507,7 +507,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .Contain(e => e.SymbolResult.Name == "to" &&
+                  .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
                                 e.Message == $"Directory does not exist: {trash}");
         }
 
@@ -543,7 +543,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => e.SymbolResult.Name == "to" && e.Message == $"Directory does not exist: {trash1}");
+                  .Contain(e => e.SymbolResult.Symbol.Name == "to" && e.Message == $"Directory does not exist: {trash1}");
         }
 
         [Fact]
@@ -578,7 +578,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .HaveCount(1)
                 .And
-                .Contain(e => e.SymbolResult.Name == "to" && e.Message == $"Directory does not exist: {trash}");
+                .Contain(e => e.SymbolResult.Symbol.Name == "to" && e.Message == $"Directory does not exist: {trash}");
         }
 
         [Fact]
@@ -596,7 +596,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
-                           e.SymbolResult.Name.Equals("inner"));
+                           e.SymbolResult.Symbol.Name.Equals("inner"));
         }
 
         [Fact]

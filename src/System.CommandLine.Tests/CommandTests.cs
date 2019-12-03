@@ -36,6 +36,7 @@ namespace System.CommandLine.Tests
 
             result
                 .RootCommandResult
+                .Symbol
                 .Name
                 .Should()
                 .Be("outer");
@@ -49,6 +50,7 @@ namespace System.CommandLine.Tests
             result
                 .CommandResult
                 .Parent
+                .Symbol
                 .Name
                 .Should()
                 .Be("outer");
@@ -60,6 +62,7 @@ namespace System.CommandLine.Tests
             var result = _parser.Parse("outer inner --option argument1");
 
             result.CommandResult
+                  .Symbol
                   .Name
                   .Should()
                   .Be("inner");
@@ -73,6 +76,7 @@ namespace System.CommandLine.Tests
             result.CommandResult
                   .Children
                   .ElementAt(0)
+                  .Symbol
                   .Name
                   .Should()
                   .Be("option");
@@ -211,7 +215,7 @@ namespace System.CommandLine.Tests
 
             var result = outer.Parse(input);
 
-            result.CommandResult.Name.Should().Be(expectedCommand);
+            result.CommandResult.Symbol.Name.Should().Be(expectedCommand);
         }
 
         [Fact]
