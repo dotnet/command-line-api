@@ -25,7 +25,7 @@ namespace System.CommandLine
             SetDefaultValue(() => defaultValue());
         }
 
-        public Argument(TryConvertArgument<T> convert) : this()
+        public Argument(TryConvertArgument<T> convert, Func<T> defaultValue = default) : this()
         {
             if (convert == null)
             {
@@ -45,6 +45,11 @@ namespace System.CommandLine
                     return false;
                 }
             };
+
+            if (defaultValue != default)
+            {
+                SetDefaultValue(() => defaultValue());
+            }
         }
     }
 }

@@ -336,6 +336,7 @@ namespace System.CommandLine.Parsing
 
                                 commandResult.Children.Add(optionResult);
                                 optionResult.AddToken(token);
+                                _rootCommandResult.AddToSymbolMap(optionResult);
 
                                 break;
 
@@ -350,6 +351,7 @@ namespace System.CommandLine.Parsing
 
                                 commandResult.Children.Add(argumentResult);
                                 commandResult.AddToken(implicitToken);
+                                _rootCommandResult.AddToSymbolMap(argumentResult);
 
                                 break;
                         }
