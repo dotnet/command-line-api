@@ -4,11 +4,10 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using System.Globalization;
 using System.IO;
+using FluentAssertions;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
@@ -19,20 +18,20 @@ namespace System.CommandLine.Tests.Binding
         public void Custom_types_and_conversion_logic_can_be_specified()
         {
             var argument = new Argument<MyCustomType>((SymbolResult parsed, out MyCustomType value) =>
-                           {
-                               var custom = new MyCustomType();
-                               foreach (var a in parsed.Arguments)
-                               {
-                                   custom.Add(a);
-                               }
+            {
+                var custom = new MyCustomType();
+                foreach (var a in parsed.Arguments)
+                {
+                    custom.Add(a);
+                }
 
-                               value = custom;
-                               return true;
-                           })
-                           {
-                               Arity = ArgumentArity.ZeroOrMore,
-                               Name = "arg"
-                           };
+                value = custom;
+                return true;
+            })
+            {
+                Arity = ArgumentArity.ZeroOrMore,
+                Name = "arg"
+            };
 
             var parser = new Parser(
                 new Command("custom")
@@ -50,7 +49,6 @@ namespace System.CommandLine.Tests.Binding
                 .Should()
                 .BeEquivalentTo("one", "two", "three");
         }
-
 
         [Fact]
         public void Option_argument_with_arity_of_one_can_be_bound_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
@@ -153,9 +151,9 @@ namespace System.CommandLine.Tests.Binding
         public void Command_Argument_defaults_arity_to_ZeroOrOne_for_nullable_types()
         {
             var command = new Command("the-command")
-                          {
-                            new Argument<int?>()
-                          };
+            {
+                new Argument<int?>()
+            };
 
             command.Arguments.Single().Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
         }
@@ -164,9 +162,9 @@ namespace System.CommandLine.Tests.Binding
         public void Option_Argument_defaults_arity_to_ExactlyOne_for_nullable_types()
         {
             var option = new Option("-i")
-                         {
-                             Argument = new Argument<int?>()
-                         };
+            {
+                Argument = new Argument<int?>()
+            };
 
             option.Argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
@@ -477,7 +475,7 @@ namespace System.CommandLine.Tests.Binding
         public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_one_argument_parses_as_a_sequence_of_strings()
         {
             var command = new Command("the-command")
-            { 
+            {
                 new Option("-x")
                 {
                     Argument = new Argument
@@ -501,8 +499,8 @@ namespace System.CommandLine.Tests.Binding
             var valueOrDefault = result.GetValueOrDefault();
 
             valueOrDefault
-                  .Should()
-                  .BeNull();
+                .Should()
+                .BeNull();
         }
 
         [Theory]
@@ -512,17 +510,17 @@ namespace System.CommandLine.Tests.Binding
         public void When_command_argument_has_arity_greater_than_one_it_captures_arguments_before_and_after_option(string commandLine)
         {
             var command = new Command("the-command")
-                          {
-                              new Option("-a")
-                              {
-                                  Argument = new Argument<string>()
-                              }
-                          };
+            {
+                new Option("-a")
+                {
+                    Argument = new Argument<string>()
+                }
+            };
 
             command.Argument = new Argument<string>
-                               {
-                                   Arity = ArgumentArity.ZeroOrMore
-                               };
+            {
+                Arity = ArgumentArity.ZeroOrMore
+            };
 
             var result = command.Parse(commandLine);
 
@@ -1008,7 +1006,7 @@ namespace System.CommandLine.Tests.Binding
                          .Build();
 
             await parser.InvokeAsync("--value 42");
-            
+
             callCount.Should().Be(1);
             handlerWasCalled.Should().BeTrue();
 
@@ -1019,6 +1017,29 @@ namespace System.CommandLine.Tests.Binding
             }
 
             void Run(int value) => handlerWasCalled = true;
+        }
+
+        [Fact]
+        public void Default_value_and_custom_argument_converter_can_be_used_together()
+        {
+            bool TryConvertArgument(SymbolResult _, out int value)
+            {
+                value = 789;
+                return true;
+            }
+
+            var argument = new Argument<int>(
+                TryConvertArgument,
+                () => 123);
+
+            var result = new RootCommand { argument }.Parse("");
+
+            var argumentResult = result.FindResultFor(argument);
+
+            argumentResult
+                  .GetValueOrDefault<int>()
+                  .Should()
+                  .Be(123);
         }
 
         public class MyCustomType

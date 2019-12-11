@@ -14,9 +14,9 @@ namespace System.CommandLine
         {
             var queue = new Queue<T>();
 
-            foreach (var option in source)
+            foreach (var item in source)
             {
-                queue.Enqueue(option);
+                queue.Enqueue(item);
             }
 
             while (queue.Count > 0)

@@ -88,5 +88,24 @@ namespace System.CommandLine
                     throw new ArgumentException($"Unsupported symbol type: {symbol.GetType()}");
             }
         }
+
+        internal void AddToSymbolMap(SymbolResult result)
+        {
+             switch (result)
+            {
+                case ArgumentResult argumentResult:
+                    _allArgumentResults.Add(argumentResult.Argument, argumentResult);
+                    break;
+                case CommandResult commandResult:
+                    _allCommandResults.Add(commandResult.Command, commandResult);
+                    break;
+                case OptionResult optionResult:
+                    _allOptionResults.Add(optionResult.Option, optionResult);
+                    break;
+                
+                default: 
+                    throw new ArgumentException($"Unsupported {nameof(SymbolResult)} type: {result.GetType()}");
+            }
+        }
     }
 }
