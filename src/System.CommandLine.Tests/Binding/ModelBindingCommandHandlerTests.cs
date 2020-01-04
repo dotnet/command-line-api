@@ -172,7 +172,7 @@ namespace System.CommandLine.Tests.Binding
             object expectedValue)
         {
             var captureMethod = GetType()
-                                .GetMethod(nameof(Capture), BindingFlags.NonPublic | BindingFlags.Instance)
+                                .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
                                 .MakeGenericMethod(parameterType);
 
             var handler = CommandHandler.Create(captureMethod);
@@ -251,25 +251,51 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Theory]
-        [InlineData(typeof(ClassWithCtorParameter<int>))]
-        [InlineData(typeof(ClassWithSetter<int>))]
-        [InlineData(typeof(ClassWithCtorParameter<string>))]
-        [InlineData(typeof(ClassWithSetter<string>))]
-        [InlineData(typeof(FileInfo))]
-        [InlineData(typeof(FileInfo[]))]
-        [InlineData(typeof(string[]))]
-        [InlineData(typeof(List<string>))]
-        [InlineData(typeof(int[]))]
-        [InlineData(typeof(List<int>))]
-        public async Task Handler_method_receives_option_arguments_bound_to_the_specified_type(Type type)
+        [InlineData(typeof(ClassWithCtorParameter<int>), false)]
+        [InlineData(typeof(ClassWithCtorParameter<int>), true)]
+        [InlineData(typeof(ClassWithSetter<int>), false)]
+        [InlineData(typeof(ClassWithSetter<int>), true)]
+        [InlineData(typeof(ClassWithCtorParameter<string>), false)]
+        [InlineData(typeof(ClassWithCtorParameter<string>), true)]
+        [InlineData(typeof(ClassWithSetter<string>), false)]
+        [InlineData(typeof(ClassWithSetter<string>), true)]
+        [InlineData(typeof(FileInfo), false)]
+        [InlineData(typeof(FileInfo), true)]
+        [InlineData(typeof(FileInfo[]), false)]
+        [InlineData(typeof(FileInfo[]), true)]
+        [InlineData(typeof(string[]), false)]
+        [InlineData(typeof(string[]), true)]
+        [InlineData(typeof(List<string>), false)]
+        [InlineData(typeof(List<string>), true)]
+        [InlineData(typeof(int[]), false)]
+        [InlineData(typeof(int[]), true)]
+        [InlineData(typeof(List<int>), false)]
+        [InlineData(typeof(List<int>), true)]
+        public async Task Handler_method_receives_option_arguments_bound_to_the_specified_type(
+            Type type,
+            bool useDelegate)
         {
             var testCase = _bindingCases[type];
 
-            var captureMethod = GetType()
-                                .GetMethod(nameof(Capture), BindingFlags.NonPublic | BindingFlags.Instance)
-                                .MakeGenericMethod(testCase.ParameterType);
+            ICommandHandler handler;
+            if (!useDelegate)
+            {
+                var captureMethod = GetType()
+                                    .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
+                                    .MakeGenericMethod(testCase.ParameterType);
 
-            var handler = CommandHandler.Create(captureMethod);
+                handler = CommandHandler.Create(captureMethod);
+            }
+            else
+            {
+                 var createCaptureDelegate = GetType()
+                                    .GetMethod(nameof(CaptureDelegate), BindingFlags.NonPublic | BindingFlags.Static)
+                                    .MakeGenericMethod(testCase.ParameterType);
+
+                 var @delegate = createCaptureDelegate.Invoke(null, null);
+
+                 handler = CommandHandler.Create((dynamic) @delegate);
+            }
 
             var command = new Command("command")
                           {
@@ -295,6 +321,34 @@ namespace System.CommandLine.Tests.Binding
 
             testCase.AssertBoundValue(boundValue);
         }
+        
+        [Fact]
+        public async Task When_binding_fails_due_to_parameter_naming_mismatch_then_handler_is_called_and_no_error_is_produced()
+        {
+            string[] received = { "this should get overwritten" };
+
+            var o = new Option(
+                new[] {  "-i" },
+                "Path to an image or directory of supported images")
+            {
+                Argument = new Argument<string[]>()
+            };
+
+            var command = new Command("command") { o };
+            command.Handler = CommandHandler.Create<string[], InvocationContext>((nameDoesNotMatch, c) =>
+            {
+                received = nameDoesNotMatch;
+            });
+
+            var testConsole = new TestConsole();
+            var commandLine = "command -i 1 -i 2 -i 3 ";
+
+            await command.InvokeAsync(commandLine, testConsole);
+
+            testConsole.Error.ToString().Should().BeEmpty();
+
+            received.Should().BeNull();
+        }
 
         [Theory]
         [InlineData(typeof(ClassWithCtorParameter<int>))]
@@ -313,7 +367,7 @@ namespace System.CommandLine.Tests.Binding
             var c = _bindingCases[type];
 
             var captureMethod = GetType()
-                                .GetMethod(nameof(Capture), BindingFlags.NonPublic | BindingFlags.Instance)
+                                .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
                                 .MakeGenericMethod(c.ParameterType);
 
             var handler = CommandHandler.Create(captureMethod);
@@ -342,9 +396,17 @@ namespace System.CommandLine.Tests.Binding
             c.AssertBoundValue(boundValue);
         }
 
-        private void Capture<T>(T value, InvocationContext invocationContext)
+        private static void CaptureMethod<T>(T value, InvocationContext invocationContext)
         {
             invocationContext.InvocationResult = new BoundValueCapturer(value);
+        }
+
+        private static Action<T, InvocationContext> CaptureDelegate<T>()
+        {
+            return (value, invocationContext) =>
+            {
+                invocationContext.InvocationResult = new BoundValueCapturer(value);
+            };
         }
 
         private class BoundValueCapturer : IInvocationResult
@@ -361,7 +423,7 @@ namespace System.CommandLine.Tests.Binding
             }
         }
 
-        private readonly BindingTestSet _bindingCases = new BindingTestSet
+        private static readonly BindingTestSet _bindingCases = new BindingTestSet
         {
               BindingTestCase.Create<ClassWithCtorParameter<int>>(
                  "123",

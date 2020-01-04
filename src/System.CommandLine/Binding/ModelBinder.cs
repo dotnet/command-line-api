@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -130,30 +130,41 @@ namespace System.CommandLine.Binding
             BindingContext context,
             out object instance)
         {
-            var constructorDescriptors = _modelDescriptor.ConstructorDescriptors
-                // Find constructors with most non-optional parameters first
-                .OrderByDescending(d => d.ParameterDescriptors.Count(p => !p.HasDefaultValue));
+            var constructorDescriptors =
+                _modelDescriptor
+                    .ConstructorDescriptors
+                    .OrderByDescending(d => d.ParameterDescriptors.Count);
 
-            // Attempt first to bind all values, then attempt to fill default values
-            foreach (bool includeMissingValues in new[] { false, true })
+            foreach (var constructor in constructorDescriptors)
             {
-                foreach (var constructor in constructorDescriptors)
+                var boundConstructorArguments = GetValues(
+                    ConstructorArgumentBindingSources,
+                    context, 
+                    constructor.ParameterDescriptors,
+                    true);
+
+                if (boundConstructorArguments.Count != constructor.ParameterDescriptors.Count)
                 {
-                    var boundConstructorArguments = GetValues(
-                        ConstructorArgumentBindingSources,
-                        context, constructor.ParameterDescriptors,
-                        includeMissingValues);
-                    if (boundConstructorArguments.Count != constructor.ParameterDescriptors.Count)
-                        continue;
-                    
-                    // Found invocable constructor, invoke and return
-                    var values = boundConstructorArguments.Select(v => v.Value).ToArray();
+                    continue;
+                }
+
+                // Found invocable constructor, invoke and return
+                var values = boundConstructorArguments.Select(v => v.Value).ToArray();
+
+                try
+                {
                     var fromModelBinder = constructor.Invoke(values);
 
                     UpdateInstance(fromModelBinder, context);
 
                     instance = fromModelBinder;
+
                     return true;
+                }
+                catch
+                {
+                    instance = null;
+                    return false;
                 }
             }
 
