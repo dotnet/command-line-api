@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <PackageId>System.CommandLine.Experimental</PackageId>
+    <PackageId>System.CommandLine</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8</LangVersion>
     <Description>This package includes a powerful command line parser and other tools for building command line applications, including:
