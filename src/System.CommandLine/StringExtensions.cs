@@ -434,11 +434,6 @@ namespace System.CommandLine
 
         private static Token Directive(string value) => new Token(value, TokenType.Directive);
 
-        public static IEnumerable<string> SplitCommandLine(this string commandLine)
-        {
-            return CommandLineStringSplitter.Instance.Split(commandLine);
-        }
-
         private static IEnumerable<string> ExpandResponseFile(
             string filePath,
             ResponseFileHandling responseFileHandling)
@@ -481,7 +476,7 @@ namespace System.CommandLine
                         break;
                     case ResponseFileHandling.ParseArgsAsSpaceSeparated:
 
-                        foreach (var word in SplitCommandLine(arg))
+                        foreach (var word in CommandLineStringSplitter.Instance.Split(arg))
                         {
                             yield return word;
                         }

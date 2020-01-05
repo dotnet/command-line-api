@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -38,7 +39,7 @@ namespace System.CommandLine.Suggest.Tests
         {
             string receivedTargetExeName = null;
 
-            string[] args = $@"get -p 12 -e ""{CurrentExeFullPath()}"" -- ""{_currentExeName} add""".SplitCommandLine().ToArray();
+            string[] args = CommandLineStringSplitter.Instance.Split($@"get -p 12 -e ""{CurrentExeFullPath()}"" -- ""{_currentExeName} add""").ToArray();
 
             await InvokeAsync(
                 args,
@@ -111,13 +112,13 @@ namespace System.CommandLine.Suggest.Tests
         private static string[] PrepareArgs(string args)
         {
             var formattableString = args.Replace("$", "");
-            return formattableString.SplitCommandLine().ToArray();
+            return CommandLineStringSplitter.Instance.Split(formattableString).ToArray();
         }
 
         [Fact]
         public async Task InvokeAsync_with_unknown_suggestion_provider_returns_empty_string()
         {
-            string[] args = @"get -p 10 -e ""testcli.exe"" -- command op".SplitCommandLine().ToArray();
+            string[] args = Enumerable.ToArray(( CommandLineStringSplitter.Instance.Split(@"get -p 10 -e ""testcli.exe"" -- command op")));
             (await InvokeAsync(args, new TestSuggestionRegistration()))
                 .Should()
                 .BeEmpty();
@@ -131,7 +132,7 @@ namespace System.CommandLine.Suggest.Tests
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             var testConsole = new TestConsole();
 
-            var args = $@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add".SplitCommandLine().ToArray();
+            var args = CommandLineStringSplitter.Instance.Split($@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add").ToArray();
 
             await dispatcher.InvokeAsync(args, testConsole);
 
@@ -167,7 +168,7 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = $"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"".SplitCommandLine().ToArray();
+            var args = CommandLineStringSplitter.Instance.Split($"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"").ToArray();
 
             await dispatcher.InvokeAsync(args);
 
@@ -181,7 +182,7 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = $"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"".SplitCommandLine().ToArray();
+            var args = CommandLineStringSplitter.Instance.Split($"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"").ToArray();
 
             await dispatcher.InvokeAsync(args);
             await dispatcher.InvokeAsync(args);
