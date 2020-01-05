@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
-    public class CommandLineStringSplitter : ICommandLineStringSplitter
+    public class CommandLineStringSplitter
     {
-        public static readonly ICommandLineStringSplitter Instance = new CommandLineStringSplitter();
+        public static readonly CommandLineStringSplitter Instance = new CommandLineStringSplitter();
 
         private enum Boundary
         {
