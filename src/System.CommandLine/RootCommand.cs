@@ -8,7 +8,7 @@ using System.Reflection;
 namespace System.CommandLine
 {
     /// <summary>
-    /// A command represents the entry point of an application. The name defaults to the executable name.
+    /// A command representing entry point of an application and used to Invoke the correct handlers.
     /// </summary>
     public class RootCommand : Command
     {
