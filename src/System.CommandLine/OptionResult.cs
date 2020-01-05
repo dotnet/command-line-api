@@ -1,22 +1,26 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Parsing;
+
 namespace System.CommandLine
 {
     public class OptionResult : SymbolResult
     {
-        public OptionResult(
+        internal OptionResult(
             IOption option,
-            string token = null,
+            Token token,
             CommandResult parent = null) :
-            base(option, token ?? option?.Token(), parent)
+            base(option ?? throw new ArgumentNullException(nameof(option)),
+                 token ?? throw new ArgumentNullException(nameof(token)),
+                 parent)
         {
             Option = option;
         }
 
         public IOption Option { get; }
 
-        public bool IsImplicit { get; private set; }
+        public bool IsImplicit => Token is ImplicitToken;
 
         private protected override int RemainingArgumentCapacity
         {
@@ -24,45 +28,13 @@ namespace System.CommandLine
             {
                 var capacity = base.RemainingArgumentCapacity;
 
-                if (IsImplicit && capacity < int.MaxValue
-                )
+                if (IsImplicit && capacity < int.MaxValue)
                 {
                     capacity += 1;
                 }
 
                 return capacity;
             }
-        }
-
-        internal override SymbolResult TryTakeToken(Token token) =>
-            TryTakeArgument(token);
-
-        internal static OptionResult CreateImplicit(
-            IOption option,
-            CommandResult parent)
-        {
-            var result = new OptionResult(option,
-                                          option.Token());
-
-            result.IsImplicit = true;
-
-            if (option.Argument.HasDefaultValue)
-            {
-                var value = option.Argument.GetDefaultValue();
-
-                switch (value)
-                {
-                    case string arg:
-                        result.TryTakeToken(new Token(arg, TokenType.Argument));
-                        break;
-
-                    default:
-                        result.ArgumentResult = ArgumentResult.Success(value);
-                        break;
-                }
-            }
-
-            return result;
         }
     }
 }

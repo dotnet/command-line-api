@@ -2,24 +2,26 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine
 {
     public abstract class Symbol : ISymbol
     {
-        private readonly HashSet<string> _aliases = new HashSet<string>();
-        private readonly HashSet<string> _rawAliases = new HashSet<string>();
+        private readonly List<string> _aliases = new List<string>();
+        private readonly List<string> _rawAliases = new List<string>();
         private string _longestAlias = "";
         private string _specifiedName;
-        private Argument _argument;
+
+        private readonly SymbolSet _parents = new SymbolSet();
+
+        private protected Symbol()
+        {
+        }
 
         protected Symbol(
-            IReadOnlyCollection<string> aliases,
-            string description = null,
-            Argument argument = null,
-            bool isHidden = false)
+            IReadOnlyCollection<string> aliases = null,
+            string description = null)
         {
             if (aliases == null)
             {
@@ -37,31 +39,11 @@ namespace System.CommandLine
             }
 
             Description = description;
-
-            IsHidden = isHidden;
-
-            Argument = argument ?? Argument.None;
         }
 
-        public IReadOnlyCollection<string> Aliases => _aliases;
+        public IReadOnlyList<string> Aliases => _aliases;
 
-        public IReadOnlyCollection<string> RawAliases => _rawAliases;
-
-        public Argument Argument
-        {
-            get => _argument;
-            set
-            {
-                if (value?.Arity.MaximumNumberOfArguments > 0 && 
-                    string.IsNullOrEmpty(value.Name))
-                {
-                    value.Name = _aliases.First().ToLower();
-                }
-
-                _argument = value ?? Argument.None;
-                _argument.Parent = this;
-            }
-        }
+        public IReadOnlyList<string> RawAliases => _rawAliases;
 
         public string Description { get; set; }
 
@@ -75,25 +57,42 @@ namespace System.CommandLine
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
                 }
 
-                if (value.Length != value.RemovePrefix().Length)
-                {
-                    throw new ArgumentException($"Property {GetType().Name}.{nameof(Name)} cannot have a prefix.");
-                }
-
                 _specifiedName = value;
             }
         }
 
-        public Command Parent { get; private protected set; }
+        public ISymbolSet Parents => _parents; 
+
+        private protected void AddParent(Symbol symbol)
+        {
+            _parents.AddWithoutAliasCollisionCheck(symbol);
+        }
 
         private protected void AddSymbol(Symbol symbol)
         {
             if (this is Command command)
             {
-                symbol.Parent = command;
+                symbol.AddParent(command);
             }
 
             Children.Add(symbol);
+        }
+
+        private protected void AddArgumentInner(Argument argument)
+        {
+            if (argument == null)
+            {
+                throw new ArgumentNullException(nameof(argument));
+            }
+
+            argument.AddParent(this);
+
+            if (string.IsNullOrEmpty(argument.Name))
+            {
+                argument.Name = _aliases.First().ToLower();
+            }
+
+            Children.Add(argument);
         }
 
         public SymbolSet Children { get; } = new SymbolSet();
@@ -107,7 +106,7 @@ namespace System.CommandLine
                 throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            for (int i = 0; i < alias.Length; i++)
+            for (var i = 0; i < alias.Length; i++)
             {
                 if (char.IsWhiteSpace(alias[i]))
                 {
@@ -124,6 +123,12 @@ namespace System.CommandLine
             }
         }
 
+        protected void ClearAliases()
+        {
+            _aliases.Clear();
+            _rawAliases.Clear();
+        }
+
         public bool HasAlias(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
@@ -138,11 +143,13 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public IEnumerable<string> Suggest(string textToMatch = null)
+        public virtual IEnumerable<string> Suggest(string textToMatch = null)
         {
             var argumentSuggestions =
-                Argument.Suggest(textToMatch)
-                        .ToArray();
+                Children
+                    .OfType<IArgument>()
+                    .SelectMany(a => a.Suggest(textToMatch))
+                    .ToArray();
 
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
@@ -153,16 +160,6 @@ namespace System.CommandLine
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
-        IArgument ISymbol.Argument => Argument;
-
-        ICommand ISymbol.Parent => Parent;
-
         ISymbolSet ISymbol.Children => Children;
-
-        Type IValueDescriptor.Type => Argument.ArgumentType;
-
-        bool IValueDescriptor.HasDefaultValue  => Argument.HasDefaultValue;
-
-        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

@@ -17,18 +17,21 @@ namespace System.CommandLine
 
         public virtual string ExpectsOneArgument(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"Command '{symbolResult.Token}' expects a single argument but {symbolResult.Arguments.Count} were provided."
-                : $"Option '{symbolResult.Token}' expects a single argument but {symbolResult.Arguments.Count} were provided.";
+                ? $"Command '{symbolResult.Token.Value}' expects a single argument but {symbolResult.Tokens.Count} were provided."
+                : $"Option '{symbolResult.Token.Value}' expects a single argument but {symbolResult.Tokens.Count} were provided.";
 
         public virtual string NoArgumentProvided(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"No argument was provided for Command '{symbolResult.Token}'."
-                : $"No argument was provided for Option '{symbolResult.Token}'.";
+                ? $"No argument was provided for Command '{symbolResult.Token.Value}'."
+                : $"No argument was provided for Option '{symbolResult.Token.Value}'.";
 
-        public virtual string ExpectsFewerArguments(SymbolResult symbolResult, int maximumNumberOfArguments) =>
-            symbolResult is CommandResult
-                ? $"Command '{symbolResult.Token}' expects no more than {maximumNumberOfArguments} arguments, but {symbolResult.Arguments.Count} were provided."
-                : $"Option '{symbolResult.Token}' expects no more than {maximumNumberOfArguments} arguments, but {symbolResult.Arguments.Count} were provided.";
+        public virtual string ExpectsFewerArguments(
+            Token token, 
+            int providedNumberOfValues,
+            int maximumNumberOfValues) =>
+            token.Type == TokenType.Command
+                ? $"Command '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided."
+                : $"Option '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided.";
 
         public virtual string DirectoryDoesNotExist(string path) =>
             $"Directory does not exist: {path}";
@@ -36,16 +39,16 @@ namespace System.CommandLine
         public virtual string FileDoesNotExist(string filePath) =>
             $"File does not exist: {filePath}";
 
+        public virtual string FileOrDirectoryDoesNotExist(string path) =>
+            $"File or directory does not exist: {path}";
+
         public virtual string InvalidCharactersInPath(char invalidChar) =>
             $"Character not allowed in a path: {invalidChar}";
 
         public virtual string RequiredArgumentMissing(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"Required argument missing for command: {symbolResult.Token}"
-                : $"Required argument missing for option: {symbolResult.Token}";
-
-        public virtual string RequiredArgumentNameMissing(string argumentAlias) =>
-            $"Name must be set for arguments with an arity above zero. The argument missing a name has the alias '{argumentAlias}'.";
+                ? $"Required argument missing for command: {symbolResult.Token.Value}"
+                : $"Required argument missing for option: {symbolResult.Token.Value}";
 
         public virtual string RequiredCommandWasNotProvided() =>
             "Required command was not provided.";
@@ -55,9 +58,6 @@ namespace System.CommandLine
 
         public virtual string UnrecognizedCommandOrArgument(string arg) =>
             $"Unrecognized command or argument '{arg}'";
-
-        public virtual string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) =>
-            $"Option '{unrecognizedOption}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
 
         public virtual string ResponseFileNotFound(string filePath) =>
             $"Response file not found '{filePath}'";

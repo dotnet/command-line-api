@@ -1,6 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.CommandLine.Builder;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -57,7 +60,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("-y [suggest]");
 
-            result.UnmatchedTokens.Should().Contain("[suggest]");
+            result.Directives.Should().BeEmpty();
         }
 
         [Theory]
@@ -123,6 +126,40 @@ namespace System.CommandLine.Tests
 
             result.Directives.TryGetValues("directive", out var values).Should().BeTrue();
             values.Should().BeEquivalentTo("one", "two");
+        }
+
+        [Fact]
+        public void Directive_count_is_based_on_distinct_instances_of_directive_name()
+        {
+            var command = new RootCommand();
+
+            var result = command.Parse("[one] [two] [one:a] [one:b]");
+
+            result.Directives.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public void Directives_can_be_disabled()
+        {
+            var parser = new Parser(
+                new CommandLineConfiguration(
+                    new[]
+                    {
+                        new RootCommand
+                        {
+                            new Argument<List<string>>()
+                        }
+                    },
+                    enableDirectives: false));
+
+            var result = parser.Parse("[hello]");
+
+            result.Directives.Count().Should().Be(0);
+            result.CommandResult
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("[hello]");
         }
     }
 }

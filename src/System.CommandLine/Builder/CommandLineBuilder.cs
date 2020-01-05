@@ -17,7 +17,7 @@ namespace System.CommandLine.Builder
         {
         }
 
-        public bool EnablePositionalOptions { get; set; } = false;
+        public bool EnableDirectives { get; set; } = true;
 
         public bool EnablePosixBundling { get; set; } = true;
 
@@ -36,7 +36,7 @@ namespace System.CommandLine.Builder
                     new[] { rootCommand },
                     prefixes: Prefixes,
                     enablePosixBundling: EnablePosixBundling,
-                    enablePositionalOptions: EnablePositionalOptions,
+                    enableDirectives: EnableDirectives,
                     validationMessages: ValidationMessages.Instance,
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList?.OrderBy(m => m.order)

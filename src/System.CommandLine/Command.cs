@@ -10,31 +10,31 @@ namespace System.CommandLine
 {
     public class Command : Symbol, ICommand, IEnumerable<Symbol>
     {
-        public Command(
-            string name,
-            string description = "",
-            IReadOnlyCollection<Symbol> symbols = null,
-            Argument argument = null,
-            bool treatUnmatchedTokensAsErrors = true,
-            ICommandHandler handler = null,
-            bool isHidden = false) :
-            base(new[] { name }, description, isHidden: isHidden)
+        public Command(string name, string description = null) : base(new[] { name }, description)
         {
-            TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
-            Handler = handler;
-            symbols = symbols ?? Array.Empty<Symbol>();
+        }
 
-            Argument = argument ??
-                       new Argument
-                       {
-                           Arity = ArgumentArity.Zero
-                       };
-
-            foreach (var symbol in symbols)
+        [Obsolete("Use the Arguments property instead")]
+        public virtual Argument Argument
+        {
+            get => Arguments.SingleOrDefault() ??
+                   Argument.None;
+            set
             {
-                AddSymbol(symbol);
+                foreach (var argument in Arguments.ToArray())
+                {
+                    Children.Remove(argument);
+                }
+
+                AddArgumentInner(value);
             }
         }
+
+        public IEnumerable<Argument> Arguments => Children.OfType<Argument>();
+        
+        public IEnumerable<Option> Options => Children.OfType<Option>();
+
+        public void AddArgument(Argument argument) => AddArgumentInner(argument);
 
         public void AddCommand(Command command) => AddSymbol(command);
 
@@ -42,12 +42,26 @@ namespace System.CommandLine
 
         public void Add(Symbol symbol) => AddSymbol(symbol);
 
-        public bool TreatUnmatchedTokensAsErrors { get; set; }
+        public void Add(Argument argument) => AddArgument(argument);
+
+        internal List<ValidateSymbol<CommandResult>> Validators { get; } = new List<ValidateSymbol<CommandResult>>();
+
+        public void AddValidator(ValidateSymbol<CommandResult> validate) => Validators.Add(validate);
+
+        public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
         public ICommandHandler Handler { get; set; }
 
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+#pragma warning disable 618
+        IArgument ICommand.Argument => Argument;
+#pragma warning restore 618
+
+        IEnumerable<IArgument> ICommand.Arguments => Arguments;
+
+        IEnumerable<IOption> ICommand.Options => Options;
     }
 }

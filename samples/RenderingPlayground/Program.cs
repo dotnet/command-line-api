@@ -58,7 +58,7 @@ namespace RenderingPlayground
             {
                 case SampleName.Colors:
                 {
-                    var screen = new ScreenView(renderer: consoleRenderer);
+                    var screen = new ScreenView(renderer: consoleRenderer, invocationContext.Console);
                     screen.Child = new ColorsView(text ?? "*");
 
                     screen.Render(region);
@@ -94,14 +94,14 @@ namespace RenderingPlayground
                     table.AddColumn(process => $"{process.ProcessName} ", "Name");
                     table.AddColumn(process => ContentView.FromObservable(process.TrackCpuUsage(), x => $"{x.UsageTotal:P}"), "CPU", ColumnDefinition.Star(1));
 
-                    var screen = new ScreenView(renderer: consoleRenderer) { Child = table };
+                    var screen = new ScreenView(renderer: consoleRenderer, invocationContext.Console) { Child = table };
                     screen.Render();
                 }
                     break;
 
                 case SampleName.Clock:
                 {
-                    var screen = new ScreenView(renderer: consoleRenderer);
+                    var screen = new ScreenView(renderer: consoleRenderer, invocationContext.Console);
                     var lastTime = DateTime.Now;
                     var clockObservable = new BehaviorSubject<DateTime>(lastTime);
                     var clockView = ContentView.FromObservable(clockObservable, x => $"{x:T}");
@@ -121,7 +121,7 @@ namespace RenderingPlayground
 
                 case SampleName.GridLayout:
                 {
-                    var screen = new ScreenView(renderer: consoleRenderer);
+                    var screen = new ScreenView(renderer: consoleRenderer, invocationContext.Console);
                     var content = new ContentView(
                         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum for Kevin.");
                     var smallContent = new ContentView("Kevin Bost");
@@ -159,7 +159,7 @@ namespace RenderingPlayground
                     }
                     else
                     {
-                        var screen = new ScreenView(renderer: consoleRenderer);
+                        var screen = new ScreenView(renderer: consoleRenderer, invocationContext.Console);
                         var stackLayout = new StackLayoutView();
                         var content1 = new ContentView("Hello World!");
                         var content2 = new ContentView(

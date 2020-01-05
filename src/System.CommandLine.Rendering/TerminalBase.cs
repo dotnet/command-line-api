@@ -52,5 +52,9 @@ namespace System.CommandLine.Rendering
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        public abstract void HideCursor();
+
+        public abstract void ShowCursor();
     }
 }

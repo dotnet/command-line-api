@@ -20,5 +20,7 @@ namespace System.CommandLine.Builder
         internal void AddCommand(Command command) => Command.AddCommand(command);
 
         internal void AddOption(Option option) => Command.AddOption(option);
+
+        internal void AddArgument(Argument argument) => Command.AddArgument(argument);
     }
 }

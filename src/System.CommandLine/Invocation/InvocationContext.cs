@@ -18,7 +18,7 @@ namespace System.CommandLine.Invocation
             IConsole console = null)
         {
             BindingContext = new BindingContext(parseResult, console);
-            BindingContext.ServiceProvider.AddService(AddCancellationHandling);
+            BindingContext.ServiceProvider.AddService(GetCancellationToken);
             BindingContext.ServiceProvider.AddService(() => this);
         }
 
@@ -51,18 +51,17 @@ namespace System.CommandLine.Invocation
         }
 
         /// <summary>
-        /// Indicates the invocation can be cancelled.
+        /// Gets token to implement cancellation handling.
         /// </summary>
         /// <returns>Token used by the caller to implement cancellation handling.</returns>
-        internal CancellationToken AddCancellationHandling()
+        public CancellationToken GetCancellationToken()
         {
-            if (_cts != null)
+            if (_cts == null)
             {
-                throw new InvalidOperationException("Cancellation handling was already added.");
+                _cts = new CancellationTokenSource();
+                _cancellationHandlingAddedEvent?.Invoke(_cts);
             }
 
-            _cts = new CancellationTokenSource();
-            _cancellationHandlingAddedEvent?.Invoke(_cts);
             return _cts.Token;
         }
 

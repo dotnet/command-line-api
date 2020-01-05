@@ -198,4 +198,19 @@ namespace System.CommandLine.Tests.Binding
             return Task.FromResult(86);
         }
     }
+
+    public class ClassWithMultipleCtor
+    {
+        public ClassWithMultipleCtor()
+        {
+
+        }
+
+        public ClassWithMultipleCtor(int intProperty)
+        {
+            IntProperty = intProperty;
+        }
+
+        public int IntProperty { get; }
+    }
 }

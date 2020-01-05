@@ -9,8 +9,11 @@ namespace System.CommandLine.Invocation
 {
     public static class CommandHandler
     {
-        public static ICommandHandler Create(MethodInfo method) =>
-            HandlerDescriptor.FromMethodInfo(method).GetCommandHandler();
+        public static ICommandHandler Create(Delegate @delegate) =>
+            HandlerDescriptor.FromDelegate(@delegate).GetCommandHandler();
+
+        public static ICommandHandler Create(MethodInfo method, object target = null) =>
+            HandlerDescriptor.FromMethodInfo(method, target).GetCommandHandler();
 
         public static ICommandHandler Create(Action action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();

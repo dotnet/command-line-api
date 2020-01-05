@@ -59,7 +59,10 @@ namespace System.CommandLine.Tests
             var result = new RootCommand
                          {
                              new Option("--flag"),
-                             new Option("--flag2", argument: new Argument<int>())
+                             new Option("--flag2")
+                             {
+                                 Argument = new Argument<int>()
+                             }
                          }
                 .Parse($"@{responseFile}");
 
@@ -163,7 +166,10 @@ namespace System.CommandLine.Tests
                 "123");
 
             var result = new CommandLineBuilder()
-                         .AddOption(new Option("--flag", argument: new Argument<int>()))
+                         .AddOption(new Option("--flag")
+                         {
+                             Argument = new Argument<int>()
+                         })
                          .Build()
                          .Parse($"@{responseFile}");
 
@@ -257,10 +263,16 @@ namespace System.CommandLine.Tests
             var responseFile = ResponseFile(input);
 
             var rootCommand = new RootCommand
-                              {
-                                  new Option("--flag", "", new Argument<string>()),
-                                  new Option("--flag2", "", new Argument<int>())
-                              };
+            {
+                new Option("--flag")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--flag2")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
             var parser = new CommandLineBuilder(rootCommand)
                          .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
                          .Build();
@@ -274,17 +286,22 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_processing_is_disabled_then_it_returns_response_file_name_as_argument()
         {
-            var result = new CommandLineBuilder()
-                         .AddOption(new Option("--flag"))
-                         .AddOption(new Option("--flag2"))
-                         .ParseResponseFileAs(ResponseFileHandling.Disabled)
-                         .Build()
-                         .Parse("--flag @file.rsp --flag2");
+            var command = new RootCommand
+            {
+                new Argument<List<string>>()
+            };
+            var configuration = new CommandLineConfiguration(
+                new[] { command },
+                responseFileHandling: ResponseFileHandling.Disabled);
+            var parser = new Parser(configuration);
 
-            result.HasOption("--flag").Should().BeTrue();
-            result.HasOption("--flag2").Should().BeTrue();
-            result.Errors.Should().HaveCount(1);
-            result.Errors.Single().Message.Should().Be("Unrecognized command or argument '@file.rsp'");
+            var result = parser.Parse("@file.rsp");
+
+            result.Tokens
+                  .Should()
+                  .Contain(t => t.Value == "@file.rsp" && 
+                                t.Type == TokenType.Argument);
+            result.Errors.Should().HaveCount(0);
         }
 
         [Fact]
@@ -307,6 +324,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse($"@{file1}");
 
+            result.FindResultFor(option1).GetValueOrDefault().Should().Be(1);
             result.FindResultFor(option1).GetValueOrDefault().Should().Be(1);
             result.FindResultFor(option2).GetValueOrDefault().Should().Be(2);
             result.FindResultFor(option3).GetValueOrDefault().Should().Be(3);

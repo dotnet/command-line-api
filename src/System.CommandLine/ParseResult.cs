@@ -8,43 +8,48 @@ namespace System.CommandLine
 {
     public class ParseResult
     {
-        private readonly List<ParseError> _errors = new List<ParseError>();
+        private readonly List<ParseError> _errors;
+        private readonly RootCommandResult _rootCommandResult;
 
         internal ParseResult(
             Parser parser,
-            CommandResult rootCommandResult,
+            RootCommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
-            IReadOnlyList<Token> tokens,
+            TokenizeResult tokenizeResult,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
-            IReadOnlyCollection<TokenizeError> tokenizeErrors,
-            string rawInput)
+            List<ParseError> errors = null,
+            string rawInput = null)
         {
             Parser = parser;
-            RootCommandResult = rootCommandResult;
+            _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             Directives = directives;
-            Tokens = tokens;
+
+            // skip the root command
+            Tokens = tokenizeResult.Tokens.Skip(1).ToArray();
+
             UnparsedTokens = unparsedTokens;
             UnmatchedTokens = unmatchedTokens;
 
             RawInput = rawInput;
 
-            if (tokenizeErrors?.Count > 0)
+            _errors = errors ?? new List<ParseError>();
+
+            if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
                 _errors.AddRange(
-                    tokenizeErrors.Select(e => new ParseError(e.Message)));
+                    unmatchedTokens.Select(token =>
+                                               new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
             }
-
-            AddImplicitOptionsAndCheckForErrors();
         }
 
         public CommandResult CommandResult { get; }
 
         public Parser Parser { get; }
 
-        public CommandResult RootCommandResult { get; }
+        public CommandResult RootCommandResult => _rootCommandResult;
 
         public IReadOnlyCollection<ParseError> Errors => _errors;
 
@@ -58,61 +63,6 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        private void AddImplicitOptionsAndCheckForErrors()
-        {
-            foreach (var result in RootCommandResult.AllSymbolResults().ToArray())
-            {
-                if (result is CommandResult command)
-                {
-                    foreach (var symbol in command.Command.Children)
-                    {
-                        if (symbol.Argument.HasDefaultValue &&
-                            command.Children[symbol.Name] == null)
-                        {
-                            switch (symbol)
-                            {
-                                case IOption option:
-                                    command.AddImplicitOption(option);
-                                    break;
-                            }
-                        }
-                    }
-
-                    if (!command.IsArgumentLimitReached &&
-                        command.Command.Argument.HasDefaultValue)
-                    {
-                        var defaultValue = command.Command.Argument.GetDefaultValue();
-
-                        if (defaultValue is string stringArg)
-                        {
-                            command.TryTakeToken(new Token(stringArg, TokenType.Argument));
-                        }
-                        else
-                        {
-                            command.UseDefaultValue = true;
-                        }
-                    }
-                }
-
-                var error = result.Validate();
-
-                if (error != null)
-                {
-                    _errors.Add(error);
-                }
-            }
-
-            if (CommandResult.Command is Command cmd &&
-                cmd.Handler == null && 
-                cmd.Children.OfType<ICommand>().Any())
-            {
-                _errors.Insert(0,
-                               new ParseError(
-                                   CommandResult.ValidationMessages.RequiredCommandWasNotProvided(),
-                                   CommandResult));
-            }
-        }
-
         public object ValueForOption(
             string alias) =>
             ValueForOption<object>(alias);
@@ -125,15 +75,27 @@ namespace System.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return this[alias].GetValueOrDefault<T>();
+            if (this[alias] is OptionResult optionResult)
+            {
+                return optionResult.GetValueOrDefault<T>();
+            }
+            else
+            {
+                return default;
+            }
         }
 
         public SymbolResult this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
 
-        public SymbolResult FindResultFor(ISymbol symbol) =>
-            RootCommandResult.AllSymbolResults()
-                             .FirstOrDefault(s => s.Symbol == symbol);
+        public ArgumentResult FindResultFor(IArgument argument) =>
+            _rootCommandResult.FindResultFor(argument);
+            
+        public CommandResult FindResultFor(ICommand command) =>
+            _rootCommandResult.FindResultFor(command);
+
+        public OptionResult FindResultFor(IOption option) =>
+            _rootCommandResult.FindResultFor(option);
     }
 }

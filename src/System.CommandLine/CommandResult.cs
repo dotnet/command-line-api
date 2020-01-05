@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.CommandLine.Binding;
 
@@ -8,9 +9,15 @@ namespace System.CommandLine
 {
     public class CommandResult : SymbolResult
     {
-        public CommandResult(ICommand command, CommandResult parent = null) : base(command, command?.Name, parent)
+        internal CommandResult(
+            ICommand command,
+            Token token,
+            CommandResult parent = null) :
+            base(command ?? throw new ArgumentNullException(nameof(command)),
+                 token ?? throw new ArgumentNullException(nameof(token)),
+                 parent)
         {
-            Command = command ?? throw new ArgumentNullException(nameof(command));
+            Command = command;
         }
 
         public ICommand Command { get; }
@@ -22,98 +29,53 @@ namespace System.CommandLine
             return Children[alias] as OptionResult;
         }
 
-        internal void AddImplicitOption(IOption option)
+        internal virtual RootCommandResult Root => (Parent as CommandResult)?.Root;
+
+        internal bool TryGetValueForArgument(
+            IValueDescriptor valueDescriptor,
+            out object value)
         {
-            Children.Add(CommandLine.OptionResult.CreateImplicit(option, this));
+            foreach (var argument in Command.Arguments)
+            {
+                if (valueDescriptor.ValueName.IsMatch(argument.Name))
+                {
+                    value = ArgumentConversionResults[argument.Name].GetValueOrDefault();
+                    return true;
+                }
+            }
+
+            value = null;
+            return false;
         }
 
-        internal override SymbolResult TryTakeToken(Token token) =>
-            TryTakeArgument(token) ??
-            TryTakeOptionOrCommand(token);
-
-        private SymbolResult TryTakeOptionOrCommand(Token token)
+        public object ValueForOption(string alias)
         {
-            var symbol =
-                Children.SingleOrDefault(o => o.Symbol.HasRawAlias(token.Value));
-
-            if (symbol != null)
+            if (Children[alias] is OptionResult optionResult)
             {
-                symbol.OptionWasRespecified = true;
-                return symbol;
+                if (optionResult.Option.Argument.Arity.MaximumNumberOfValues > 1)
+                {
+                    return optionResult.GetValueOrDefault<IEnumerable<string>>();
+                }
             }
 
-            symbol =
-                Command.Children
-                       .Where(o => o.RawAliases.Contains(token.Value))
-                       .Select(o => Create(o, token.Value, this, ValidationMessages))
-                       .SingleOrDefault();
-
-            if (symbol != null)
-            {
-                Children.Add(symbol);
-            }
-
-            return symbol;
+            return ValueForOption<object>(alias);
         }
 
-        public bool TryGetValueForArgument(IValueDescriptor valueDescriptor, out object value)
-        {
-            if (valueDescriptor.Name.IsMatch(Command.Argument.Name))
-            {
-                value = this.GetValueOrDefault();
-                return true;
-            }
-            else
-            {
-                value = null;
-                return false;
-            }
-        }
-
-        public bool TryGetValueForOption(IValueDescriptor valueDescriptor, out object value)
-        {
-            var children = Children
-                           .Where(o => valueDescriptor.Name.IsMatch(o.Symbol))
-                           .ToArray();
-
-            SymbolResult symbolResult = null;
-
-            if (children.Length > 1)
-            {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.Name} among: {string.Join(",", children.Select(o => o.Name))}");
-            }
-
-            if (children.Length == 1)
-            {
-                symbolResult = children[0];
-            }
-
-            if (symbolResult is OptionResult && 
-                symbolResult.GetValueAs(valueDescriptor.Type) is SuccessfulArgumentResult successful)
-            {
-                value = successful.Value;
-                return true;
-            }
-            else
-            {
-                value = null;
-                return false;
-            }
-        }
-
-        public object ValueForOption(
-            string alias) =>
-            ValueForOption<object>(alias);
-
-        public T ValueForOption<T>(
-            string alias)
+        public T ValueForOption<T>(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return Children[alias].GetValueOrDefault<T>();
+            if (Children[alias] is OptionResult optionResult)
+            {
+                return optionResult.GetValueOrDefault<T>();
+            }
+            else
+            {
+                return default;
+            }
         }
     }
 }

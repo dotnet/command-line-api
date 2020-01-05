@@ -5,12 +5,17 @@ namespace System.CommandLine
 {
     public class Argument<T> : Argument
     {
-        public Argument()
+        public Argument(string name) : this()
+        {
+            Name = name;
+        }
+
+        public Argument() : base(null)
         {
             ArgumentType = typeof(T);
         }
 
-        public Argument(T defaultValue) : this()
+        public Argument(string name, T defaultValue) : this(name)
         {
             SetDefaultValue(defaultValue);
         }
@@ -20,9 +25,31 @@ namespace System.CommandLine
             SetDefaultValue(() => defaultValue());
         }
 
-        public Argument(ConvertArgument convert) : this()
+        public Argument(TryConvertArgument<T> convert, Func<T> defaultValue = default) : this()
         {
-            ConvertArguments = convert ?? throw new ArgumentNullException(nameof(convert));
+            if (convert == null)
+            {
+                throw new ArgumentNullException(nameof(convert));
+            }
+
+            ConvertArguments = (SymbolResult result, out object value) =>
+            {
+                if (convert(result, out var valueObj))
+                {
+                    value = valueObj;
+                    return true;
+                }
+                else
+                {
+                    value = default;
+                    return false;
+                }
+            };
+
+            if (defaultValue != default)
+            {
+                SetDefaultValue(() => defaultValue());
+            }
         }
     }
 }

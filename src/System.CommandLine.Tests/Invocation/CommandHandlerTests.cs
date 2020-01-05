@@ -43,11 +43,15 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command");
             command.AddOption(
-                new Option("--name",
-                           argument: new Argument<string>()));
+                new Option("--name")
+                {
+                    Argument = new Argument<string>()
+                });
             command.AddOption(
-                new Option("--age",
-                           argument: new Argument<int>()));
+                new Option("--age")
+                {
+                    Argument = new Argument<int>()
+                });
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
@@ -66,9 +70,16 @@ namespace System.CommandLine.Tests.Invocation
                 boundFirstName = firstName;
             }
 
-            var command = new Command("command");
-            command.AddOption(new Option("--first-name",
-                                         argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            var command = new Command("command")
+            {
+                new Option("--first-name")
+                {
+                    Argument = new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }
+                }
+            };
             command.Handler = CommandHandler.Create<string>(Execute);
 
             await command.InvokeAsync("command --first-name Gandalf", _console);
@@ -89,8 +100,14 @@ namespace System.CommandLine.Tests.Invocation
             }
 
             var command = new Command("command");
-            command.AddOption(new Option("--NAME", argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
-            command.AddOption(new Option("--age", argument: new Argument<int>()));
+            command.AddOption(new Option("--NAME")
+            {
+                Argument = new Argument { Arity = ArgumentArity.ExactlyOne }
+            });
+            command.AddOption(new Option("--age")
+            {
+                Argument = new Argument<int>()
+            });
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command --age 425 --NAME Gandalf", _console);
@@ -111,9 +128,17 @@ namespace System.CommandLine.Tests.Invocation
                 boundAge = age;
             }
 
-            var command = new Command("command");
-            command.AddOption(new Option("--name", argument: new Argument<string>()));
-            command.AddOption(new Option("--age", argument: new Argument<int>()));
+            var command = new Command("command")
+            {
+                new Option("--name")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--age")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command", _console);
@@ -134,9 +159,17 @@ namespace System.CommandLine.Tests.Invocation
                 boundAge = age;
             }
 
-            var command = new Command("command");
-            command.AddOption(new Option(new[] { "-n", "--NAME" }, argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
-            command.AddOption(new Option(new[] { "-a", "--age" }, argument: new Argument<int>()));
+            var command = new Command("command")
+            {
+                new Option(new[] { "-n", "--NAME" })
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option(new[] { "-a", "--age" })
+                {
+                    Argument = new Argument<int>()
+                }
+            };
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command -a 425 -n Gandalf", _console);
@@ -151,9 +184,17 @@ namespace System.CommandLine.Tests.Invocation
             string boundName = default;
             int boundAge = default;
 
-            var command = new Command("command");
-            command.AddOption(new Option("--name", "", new Argument<string>()));
-            command.AddOption(new Option("--age", "", new Argument<int>()));
+            var command = new Command("command")
+            {
+                new Option("--name")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--age")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
             command.Handler = CommandHandler.Create<string, int>((name, age) =>
             {
                 boundName = name;
@@ -171,8 +212,13 @@ namespace System.CommandLine.Tests.Invocation
         {
             int? boundAge = default;
 
-            var command = new Command("command");
-            command.AddOption(new Option("--age", "", new Argument<int?>()));
+            var command = new Command("command")
+            {
+                new Option("--age")
+                {
+                    Argument = new Argument<int?>()
+                }
+            };
             command.Handler = CommandHandler.Create<int?>(age =>
             {
                 boundAge = age;
@@ -189,8 +235,13 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             int? boundAge = default;
 
-            var command = new Command("command");
-            command.AddOption(new Option("--age", "", new Argument<int?>()));
+            var command = new Command("command")
+            {
+                new Option("--age")
+                {
+                    Argument = new Argument<int?>()
+                }
+            };
             command.Handler = CommandHandler.Create<int?>(age =>
             {
                 wasCalled = true;
@@ -209,8 +260,13 @@ namespace System.CommandLine.Tests.Invocation
             DirectoryInfo boundDirectoryInfo = default;
             var tempPath = Path.GetTempPath();
 
-            var command = new Command("command");
-            command.AddOption(new Option("--dir", "", new Argument<DirectoryInfo>()));
+            var command = new Command("command")
+            {
+                new Option("--dir")
+                {
+                    Argument = new Argument<DirectoryInfo>()
+                }
+            };
             command.Handler = CommandHandler.Create<DirectoryInfo>(dir =>
             {
                 boundDirectoryInfo = dir;
@@ -226,8 +282,13 @@ namespace System.CommandLine.Tests.Invocation
         {
             ParseResult boundParseResult = default;
 
-            var command = new Command("command");
-            command.AddOption(new Option("-x", "", new Argument<int>()));
+            var command = new Command("command")
+            {
+                new Option("-x")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
             command.Handler = CommandHandler.Create<ParseResult>(result => { boundParseResult = result; });
 
             await command.InvokeAsync("command -x 123", _console);
@@ -240,8 +301,13 @@ namespace System.CommandLine.Tests.Invocation
         {
             BindingContext boundContext = default;
 
-            var command = new Command("command");
-            command.AddOption(new Option("-x", "", new Argument<int>()));
+            var command = new Command("command")
+            {
+                new Option("-x")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
             command.Handler = CommandHandler.Create<BindingContext>(context => { boundContext = context; });
 
             await command.InvokeAsync("command -x 123", _console);
@@ -252,8 +318,13 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Method_parameters_of_type_IConsole_receive_the_current_console_instance()
         {
-            var command = new Command("command");
-            command.AddOption(new Option("-x", "", new Argument<int>()));
+            var command = new Command("command")
+            {
+                new Option("-x")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
             command.Handler = CommandHandler.Create<IConsole>(console => { console.Out.Write("Hello!"); });
 
             await command.InvokeAsync("command", _console);
@@ -266,13 +337,83 @@ namespace System.CommandLine.Tests.Invocation
         {
             InvocationContext boundContext = default;
 
-            var command = new Command("command");
-            command.AddOption(new Option("-x", "", new Argument<int>()));
+            var command = new Command("command")
+            {
+                new Option("-x")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
             command.Handler = CommandHandler.Create<InvocationContext>(context => { boundContext = context; });
 
             await command.InvokeAsync("command -x 123", _console);
 
             boundContext.ParseResult.ValueForOption("-x").Should().Be(123);
+        }
+
+
+        private class ExecuteTestClass
+        {
+            public string boundName = default;
+            public int boundAge = default;
+
+            public void Execute(string name, int age)
+            {
+                boundName = name;
+                boundAge = age;
+            }
+        }
+
+        private delegate void ExecuteTestDelegate(string name, int age);
+
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_member_method_are_bound_to_matching_option_names_by_delegate()
+        {
+            var testClass = new ExecuteTestClass();
+
+            var command = new Command("command")
+            {
+                new Option("--name")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--age")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
+            command.Handler = CommandHandler.Create((ExecuteTestDelegate)testClass.Execute);
+
+            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+
+            testClass.boundName.Should().Be("Gandalf");
+            testClass.boundAge.Should().Be(425);
+        }
+
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_member_method_are_bound_to_matching_option_names_by_MethodInfo_with_target()
+        {
+            var testClass = new ExecuteTestClass();
+
+            var command = new Command("command")
+            {
+                new Option("--name")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--age")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
+            command.Handler = CommandHandler.Create(
+                testClass.GetType().GetMethod(nameof(ExecuteTestClass.Execute)),
+                testClass);
+
+            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+
+            testClass.boundName.Should().Be("Gandalf");
+            testClass.boundAge.Should().Be(425);
         }
     }
 }

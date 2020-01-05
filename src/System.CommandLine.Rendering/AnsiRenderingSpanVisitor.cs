@@ -61,6 +61,13 @@ namespace System.CommandLine.Rendering
                 Writer.Write(controlCode.EscapeSequence);
             }
         }
+        public override void VisitCursorControlSpan(CursorControlSpan cursorControlSpan)
+        {
+            if (_styleControlCodeMappings.TryGetValue(cursorControlSpan.Name, out var controlCode))
+            {
+                Writer.Write(controlCode.EscapeSequence);
+            }
+        }
 
         private static readonly Dictionary<string, AnsiControlCode> _foregroundColorControlCodeMappings =
             new Dictionary<string, AnsiControlCode>

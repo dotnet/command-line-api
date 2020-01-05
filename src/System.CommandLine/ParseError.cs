@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace System.CommandLine
@@ -7,8 +7,7 @@ namespace System.CommandLine
     {
         internal ParseError(
             string message, 
-            SymbolResult symbolResult = null,
-            bool canTokenBeRetried = true)
+            SymbolResult symbolResult = null)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -17,14 +16,11 @@ namespace System.CommandLine
           
             Message = message;
             SymbolResult = symbolResult;
-            CanTokenBeRetried = canTokenBeRetried;
         }
 
         public string Message { get; }
 
         public SymbolResult SymbolResult { get; }
-
-        internal bool CanTokenBeRetried { get; }
 
         public override string ToString() => Message;
     }

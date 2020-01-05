@@ -3,5 +3,10 @@
 
 namespace System.CommandLine
 {
-    internal delegate ArgumentResult ConvertString(string argument);
+    internal class NoArgumentConversionResult : ArgumentConversionResult
+    {
+        internal NoArgumentConversionResult(IArgument argument) : base(argument)
+        {
+        }
+    }
 }

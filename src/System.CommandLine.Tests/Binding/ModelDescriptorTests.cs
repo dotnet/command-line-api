@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
 using FluentAssertions;
 using System.Linq;
@@ -17,7 +16,7 @@ namespace System.CommandLine.Tests.Binding
             var descriptor = ModelDescriptor.FromType<ClassWithMultiLetterSetters>();
 
             descriptor.PropertyDescriptors
-                      .Select(p => p.Name)
+                      .Select(p => p.ValueName)
                       .Should()
                       .BeEquivalentTo(
                           nameof(ClassWithMultiLetterSetters.BoolOption),
@@ -32,7 +31,7 @@ namespace System.CommandLine.Tests.Binding
 
             descriptor.ConstructorDescriptors
                       .SelectMany(p => p.ParameterDescriptors)
-                      .Select(p => p.Name)
+                      .Select(p => p.ValueName)
                       .Should()
                       .BeEquivalentSequenceTo("i", "s", "b");
         }

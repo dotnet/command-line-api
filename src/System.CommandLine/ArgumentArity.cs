@@ -3,55 +3,92 @@
 
 using System.Collections;
 using System.CommandLine.Binding;
+using System.Linq;
 
 namespace System.CommandLine
 {
     public class ArgumentArity : IArgumentArity
     {
-        public ArgumentArity(int minimumNumberOfArguments, int maximumNumberOfArguments)
+        public ArgumentArity(int minimumNumberOfValues, int maximumNumberOfValues)
         {
-            if (minimumNumberOfArguments < 0)
+            if (minimumNumberOfValues < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(minimumNumberOfArguments));
+                throw new ArgumentOutOfRangeException(nameof(minimumNumberOfValues));
             }
 
-            if (maximumNumberOfArguments < minimumNumberOfArguments)
+            if (maximumNumberOfValues < minimumNumberOfValues)
             {
-                throw new ArgumentException($"{nameof(maximumNumberOfArguments)} must be greater than or equal to {nameof(minimumNumberOfArguments)}");
+                throw new ArgumentException($"{nameof(maximumNumberOfValues)} must be greater than or equal to {nameof(minimumNumberOfValues)}");
             }
 
-            MinimumNumberOfArguments = minimumNumberOfArguments;
-            MaximumNumberOfArguments = maximumNumberOfArguments;
+            MinimumNumberOfValues = minimumNumberOfValues;
+            MaximumNumberOfValues = maximumNumberOfValues;
         }
 
-        public int MinimumNumberOfArguments { get; set; }
+        public int MinimumNumberOfValues { get; set; }
 
-        public int MaximumNumberOfArguments { get; set; }
+        public int MaximumNumberOfValues { get; set; }
 
-        internal static FailedArgumentArityResult Validate(
+        internal static FailedArgumentConversionArityResult Validate(
+            ArgumentResult argumentResult) =>
+            Validate(argumentResult.Parent,
+                     argumentResult.Argument,
+                     argumentResult.Argument.Arity.MinimumNumberOfValues,
+                     argumentResult.Argument.Arity.MaximumNumberOfValues);
+
+        internal static FailedArgumentConversionArityResult Validate(
             SymbolResult symbolResult,
-            int minimumNumberOfArguments,
-            int maximumNumberOfArguments)
+            IArgument argument,
+            int minimumNumberOfValues,
+            int maximumNumberOfValues)
         {
-            if (symbolResult.Arguments.Count < minimumNumberOfArguments)
+            SymbolResult argumentResult = null;
+
+            switch (symbolResult)
             {
-                if (symbolResult.UseDefaultValue)
+                case CommandResult commandResult:
+                    argumentResult = commandResult.Root.FindResultFor(argument);
+                    break;
+
+                case OptionResult optionResult:
+                    argumentResult = optionResult.Children.ResultFor(argument);
+                    break;
+
+                case ArgumentResult _:
+                    throw new ArgumentException("");
+            }
+
+
+            var tokenCount = argumentResult?.Tokens.Count ?? 0;
+
+            if (tokenCount < minimumNumberOfValues)
+            {
+                if (symbolResult.UseDefaultValueFor(argument))
                 {
                     return null;
                 }
 
-                return new FailedArgumentArityResult(symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
+                return new MissingArgumentConversionResult(
+                    argument,
+                    symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
             }
 
-            if (symbolResult.Arguments.Count > maximumNumberOfArguments)
+            if (tokenCount > maximumNumberOfValues)
             {
-                if (maximumNumberOfArguments == 1)
+                if (maximumNumberOfValues == 1)
                 {
-                    return new FailedArgumentArityResult(symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
+                    return new TooManyArgumentsConversionResult(
+                        argument,
+                        symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
                 }
                 else
                 {
-                    return new FailedArgumentArityResult(symbolResult.ValidationMessages.ExpectsFewerArguments(symbolResult, maximumNumberOfArguments));
+                    return new TooManyArgumentsConversionResult(
+                        argument,
+                        symbolResult.ValidationMessages.ExpectsFewerArguments(
+                            symbolResult.Token,
+                            tokenCount,
+                            maximumNumberOfValues));
                 }
             }
 
@@ -64,16 +101,16 @@ namespace System.CommandLine
 
         public static IArgumentArity ExactlyOne => new ArgumentArity(1, 1);
 
-        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, int.MaxValue);
+        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, byte.MaxValue);
 
-        public static IArgumentArity OneOrMore => new ArgumentArity(1, int.MaxValue);
+        public static IArgumentArity OneOrMore => new ArgumentArity(1, byte.MaxValue);
 
-        internal static IArgumentArity Default(Type type, ISymbol symbol)
+        internal static IArgumentArity Default(Type type, Argument argument, ISymbol parent)
         {
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
                 type != typeof(string))
             {
-                return symbol is ICommand
+                return parent is ICommand
                            ? ZeroOrMore
                            : OneOrMore;
             }
@@ -83,8 +120,14 @@ namespace System.CommandLine
                 return ZeroOrOne;
             }
 
-            if (symbol is ICommand &&
+            if (parent is ICommand &&
                 type.IsNullable())
+            {
+                return ZeroOrOne;
+            }
+
+            if (parent is ICommand &&
+                argument.HasDefaultValue)
             {
                 return ZeroOrOne;
             }

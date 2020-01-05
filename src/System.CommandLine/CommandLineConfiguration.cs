@@ -19,7 +19,7 @@ namespace System.CommandLine
             IReadOnlyCollection<char> argumentDelimiters = null,
             IReadOnlyCollection<string> prefixes = null,
             bool enablePosixBundling = true,
-            bool enablePositionalOptions = false,
+            bool enableDirectives = true,
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
@@ -39,15 +39,6 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
-                foreach (var childSymbol in symbol.Children.FlattenBreadthFirst(o => o.Children))
-                {
-                    if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0 && string.IsNullOrEmpty(childSymbol.Argument.Name))
-                    {
-                        throw new ArgumentException(
-                            ValidationMessages.RequiredArgumentNameMissing(childSymbol.Aliases.FirstOrDefault()));
-                    }
-                }
-
                 foreach (var alias in symbol.RawAliases)
                 {
                     foreach (var delimiter in ArgumentDelimiters)
@@ -67,13 +58,28 @@ namespace System.CommandLine
             }
             else
             {
-                RootCommand = new RootCommand(symbols: symbols);
+                // reuse existing auto-generated root command, if one is present, to prevent repeated mutations
+                rootCommand = symbols.SelectMany(s => s.Parents)
+                                     .OfType<RootCommand>()
+                                     .FirstOrDefault();
+
+                if (rootCommand == null)
+                {
+                    rootCommand = new RootCommand();
+
+                    foreach (var symbol in symbols)
+                    {
+                        rootCommand.Add(symbol);
+                    }
+                }
+
+                RootCommand = rootCommand;
             }
 
             _symbols.Add(RootCommand);
 
             EnablePosixBundling = enablePosixBundling;
-            EnablePositionalOptions = enablePositionalOptions;
+            EnableDirectives = enableDirectives;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
             _middlewarePipeline = middlewarePipeline;
@@ -84,13 +90,16 @@ namespace System.CommandLine
             {
                 foreach (var symbol in symbols)
                 {
-                    foreach (var alias in symbol.RawAliases.ToList())
+                    if (symbol is Option option)
                     {
-                        if (!prefixes.All(prefix => alias.StartsWith(prefix)))
+                        foreach (var alias in option.RawAliases.ToList())
                         {
-                            foreach (var prefix in prefixes)
+                            if (!prefixes.All(prefix => alias.StartsWith(prefix)))
                             {
-                                symbol.AddAlias(prefix + alias);
+                                foreach (var prefix in prefixes)
+                                {
+                                    option.AddAlias(prefix + alias);
+                                }
                             }
                         }
                     }
@@ -104,19 +113,17 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
 
-        public bool EnablePositionalOptions { get; }
+        public bool EnableDirectives { get; }
 
         public bool EnablePosixBundling { get; }
 
         public ValidationMessages ValidationMessages { get; }
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory =>
-            _helpBuilderFactory ??
-            (_helpBuilderFactory = context => new HelpBuilder(context.Console));
+            _helpBuilderFactory ??= context => new HelpBuilder(context.Console);
 
         internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
-            _middlewarePipeline ??
-            (_middlewarePipeline = new List<InvocationMiddleware>());
+            _middlewarePipeline ??= new List<InvocationMiddleware>();
 
         public ICommand RootCommand { get; }
 

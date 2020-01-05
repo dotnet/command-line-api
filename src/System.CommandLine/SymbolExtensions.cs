@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine
@@ -10,21 +11,37 @@ namespace System.CommandLine
     {
         internal static IEnumerable<string> ChildSymbolAliases(this ISymbol symbol) =>
             symbol.Children
-                  .Where(s => !s.IsHidden)
-                  .SelectMany(s => s.RawAliases);
+                .Where(s => !s.IsHidden)
+                .SelectMany(s => s.RawAliases);
 
-        internal static bool ShouldShowHelp(this ISymbol symbol) =>
-            !symbol.IsHidden &&
-            (!string.IsNullOrWhiteSpace(symbol.Name) ||
-             !string.IsNullOrWhiteSpace(symbol.Description) ||
-             symbol.Argument.ShouldShowHelp());
+        internal static IEnumerable<IArgument> Arguments(this ISymbol symbol)
+        {
+            switch (symbol)
+            {
+                case IOption option:
+                    return new[]
+                    {
+                        option.Argument
+                    };
+                case ICommand command:
+                    return command.Arguments;
+                case IArgument argument:
+                    return new[]
+                    {
+                        argument
+                    };
+                default:
+                    throw new NotSupportedException();
+            }
+        }
 
-        internal static bool ShouldShowHelp(
-            this IArgument argument) =>
-            argument != null &&
-            (!string.IsNullOrWhiteSpace(argument.Name) || string.IsNullOrWhiteSpace(argument.Description)) && 
-            argument.Arity.MaximumNumberOfArguments > 0;
+        internal static Token CreateImplicitToken(this IOption option)
+        {
+            var optionName = option.Name;
 
-        internal static string Token(this ISymbol symbol) => symbol.RawAliases.First(alias => alias.RemovePrefix() == symbol.Name);
+            var defaultAlias = option.RawAliases.First(alias => alias.RemovePrefix() == optionName);
+
+            return new ImplicitToken(defaultAlias, TokenType.Option);
+        }
     }
 }

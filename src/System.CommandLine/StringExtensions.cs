@@ -2,27 +2,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
+using System.ComponentModel.Design;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace System.CommandLine
 {
     public static class StringExtensions
     {
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
-
-        private static readonly Regex _commandLineSplitter = new Regex(
-            @"((?<opt>[^""\s]+)""(?<arg>[^""]+)"") # token + quoted argument with non-space argument delimiter, ex: --opt:""c:\path with\spaces""
-              |                                
-              (""(?<token>[^""]*)"")               # tokens surrounded by spaces, ex: ""c:\path with\spaces""
-              |
-              (?<token>\S+)                        # tokens containing no quotes or spaces
-              ",
-            RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace
-        );
 
         internal static bool ContainsCaseInsensitive(
             this string source,
@@ -47,20 +38,21 @@ namespace System.CommandLine
         }
 
         internal static TokenizeResult Tokenize(
-            this IEnumerable<string> args,
+            this IReadOnlyList<string> args,
             CommandLineConfiguration configuration)
         {
             var tokenList = new List<Token>();
             var errorList = new List<TokenizeError>();
 
-            ISymbol currentSymbol = null;
+            ICommand currentCommand = null;
             var foundEndOfArguments = false;
-            var foundEndOfDirectives = false;
-            var argList = args.ToList();
+            var foundEndOfDirectives = !configuration.EnableDirectives;
+            var argList = NormalizeRootCommand(configuration, args);
 
             var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
             var knownTokens = new HashSet<Token>(configuration.Symbols.SelectMany(ValidTokens));
+            var knownTokensStrings = new HashSet<string>(knownTokens.Select(t => t.Value));
 
             for (var i = 0; i < argList.Count; i++)
             {
@@ -97,19 +89,24 @@ namespace System.CommandLine
                 }
 
                 if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
-                    arg.GetResponseFileReference() is string filePath)
+                    arg.GetResponseFileReference() is { } filePath)
                 {
                     ReadResponseFile(filePath, i);
                     continue;
                 }
 
-                var argHasPrefix = HasPrefix(arg);
+                if (configuration.EnablePosixBundling && 
+                         CanBeUnbundled(arg, out var replacement))
+                {
+                    argList.InsertRange(i + 1, replacement);
+                    argList.RemoveAt(i);
+                    arg = argList[i];
+                }
 
-                if (argHasPrefix &&
-                    arg.SplitByDelimiters(argumentDelimiters) is string[] subtokens &&
+                if (arg.SplitByDelimiters(argumentDelimiters) is { } subtokens &&
                     subtokens.Length > 1)
                 {
-                    if (knownTokens.Any(t => t.Value == subtokens.First()))
+                    if (knownTokensStrings.Contains(subtokens[0]))
                     {
                         tokenList.Add(Option(subtokens[0]));
 
@@ -125,24 +122,16 @@ namespace System.CommandLine
                         tokenList.Add(Argument(arg));
                     }
                 }
-                else if (configuration.EnablePosixBundling && 
-                         arg.CanBeUnbundled(knownTokens))
-                {
-                    foreach (var character in arg.Skip(1))
-                    {
-                        // unbundle e.g. -xyz into -x -y -z
-                        tokenList.Add(Option($"-{character}"));
-                    }
-                }
-                else if (knownTokens.All(t => t.Value != arg) ||
+                else if (!knownTokensStrings.Contains(arg) ||
                          // if token matches the current command name, consider it an argument
-                         currentSymbol?.HasRawAlias(arg) == true)
+                         currentCommand?.HasRawAlias(arg) == true)
                 {
                     tokenList.Add(Argument(arg));
                 }
                 else
                 {
-                    if (argHasPrefix)
+                    if (knownTokens.Any(t => t.Type == TokenType.Option &&
+                                             t.Value == arg))
                     {
                         tokenList.Add(Option(arg));
                     }
@@ -151,7 +140,7 @@ namespace System.CommandLine
                         // when a subcommand is encountered, re-scope which tokens are valid
                         ISymbolSet symbolSet;
 
-                        if (currentSymbol is ICommand subcommand)
+                        if (currentCommand is { } subcommand)
                         {
                             symbolSet = subcommand.Children;
                         }
@@ -160,14 +149,107 @@ namespace System.CommandLine
                             symbolSet = configuration.Symbols;
                         }
 
-                        currentSymbol = symbolSet.GetByAlias(arg);
-                        knownTokens = currentSymbol.ValidTokens();
+                        currentCommand = (ICommand) symbolSet.GetByAlias(arg);
+                        knownTokens = currentCommand.ValidTokens();
+                        knownTokensStrings = new HashSet<string>(knownTokens.Select(t => t.Value));
                         tokenList.Add(Command(arg));
                     }
                 }
             }
 
             return new TokenizeResult(tokenList, errorList);
+
+            bool CanBeUnbundled(string arg, out IEnumerable<string> replacement)
+            {
+                replacement = null;
+
+                // don't unbundle if the last token is an option expecting an argument
+                if (tokenList.LastOrDefault() is { } lastToken &&
+                    lastToken.Type == TokenType.Option &&
+                    currentCommand?.Children.GetByAlias(lastToken.Value) is IOption option && 
+                    option.Argument.Arity.MinimumNumberOfValues > 0)
+                {
+                    return false;
+                }
+
+                return arg.StartsWith("-") &&
+                       !arg.StartsWith("--") &&
+                       TryUnbundle(arg.RemovePrefix(), out replacement);
+
+                Token TokenForOptionAlias(char c) =>
+                    argumentDelimiters.Contains(c) 
+                    ? null
+                    : knownTokens.FirstOrDefault(t => 
+                        t.Type == TokenType.Option && 
+                        t.Value.RemovePrefix() == c.ToString());
+                
+                void AddRestValue(List<string> list, string rest)
+                {
+                    if (argumentDelimiters.Contains(rest[0]))
+                    {
+                        list[list.Count - 1] += rest;
+                    }
+                    else
+                    {
+                        list.Add(rest);
+                    }
+                }
+                
+                bool TryUnbundle(string arg, out IEnumerable<string> replacement)
+                {
+                    var lastTokenHasArgument = false;
+                    var builder = new List<string>();
+                    for (var i = 0; i < arg.Length; i++)
+                    {
+                        var token = TokenForOptionAlias(arg[i]);
+                        if (token == null)
+                        {
+                            if (lastTokenHasArgument)
+                            {
+                                // The previous token had an optional argument while the current
+                                // character does not match any known tokens. Interpret this as
+                                // the current character is the first char in the argument.
+                                AddRestValue(builder, arg.Substring(i));
+                                break;
+                            }
+                            else
+                            {
+                                // The previous token did not expect an argument, and the current
+                                // character does not match an option, so unbundeling cannot be
+                                // done.
+                                replacement = null;
+                                return false;
+                            }
+                        }
+
+                        var option = currentCommand?.Children.GetByAlias(token.Value) as IOption;
+                        builder.Add(token.Value);
+
+                        // Here we're at an impass, because if we don't have the `IOption`
+                        // because we haven't received the correct command yet for instance,
+                        // we will take the wrong decision. This is the same logic as the earlier
+                        // `CanBeUnbundled` check to take the decision.
+                        // A better option is probably introducing a new token-type, and resolve
+                        // this after we have the correct model available.
+                        var requiresArgument = option?.Argument.Arity.MinimumNumberOfValues > 0;
+                        lastTokenHasArgument = option?.Argument.Arity.MaximumNumberOfValues > 0;
+
+                        // If i == arg.Length - 1, we're already at the end of the string
+                        // so no need for the custom handling of argument.
+                        if (requiresArgument && i < arg.Length - 1)
+                        {
+                            // The current option requires an argument, and we're still in
+                            // the middle of unbundling a string. Example: `-lsomelib.so`
+                            // should be interpreted as `-l somelib.so`.
+                            AddRestValue(builder, arg.Substring(i + 1));
+                            break;
+                        }
+                    }
+
+                    replacement = builder;
+                    return true;
+                }
+            }
 
             void ReadResponseFile(string filePath, int i)
             {
@@ -207,6 +289,75 @@ namespace System.CommandLine
                     errorList.Add(
                         new TokenizeError(message));
                 }
+            }
+        }
+
+        private static List<string> NormalizeRootCommand(
+            CommandLineConfiguration commandLineConfiguration, 
+            IReadOnlyList<string> args)
+        {
+            if (args == null)
+            {
+                args = new List<string>();
+            }
+
+            string potentialRootCommand = null;
+
+            if (args.Count > 0)
+            {
+                try
+                {
+                    potentialRootCommand = Path.GetFileName(args[0]);
+                }
+                catch (ArgumentException)
+                {
+                    // possible exception for illegal characters in path on .NET Framework
+                }
+
+                if (commandLineConfiguration.RootCommand.HasRawAlias(potentialRootCommand))
+                {
+                    return args.ToList();
+                }
+            }
+
+            var commandName = commandLineConfiguration.RootCommand.Name;
+
+            if (FirstArgMatchesRootCommand())
+            {
+                return new[]
+                {
+                    commandName
+                }.Concat(args.Skip(1))
+                 .ToList();
+            }
+            else
+            {
+                return new[]
+                {
+                    commandName
+                }.Concat(args)
+                 .ToList();
+            }
+
+
+            bool FirstArgMatchesRootCommand()
+            {
+                if (potentialRootCommand == null)
+                {
+                    return false;
+                }
+
+                if (potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                return false;
             }
         }
 
@@ -284,43 +435,9 @@ namespace System.CommandLine
 
         private static Token Directive(string value) => new Token(value, TokenType.Directive);
 
-        private static bool CanBeUnbundled(
-            this string arg,
-            IReadOnlyCollection<Token> knownTokens)
-        {
-            return arg.StartsWith("-") &&
-                   !arg.StartsWith("--") &&
-                   arg.RemovePrefix()
-                      .All(CharacterIsValidOptionAlias);
-
-            bool CharacterIsValidOptionAlias(char c) =>
-                knownTokens.Where(t => t.Type == TokenType.Option)
-                           .Select(t => t.Value.RemovePrefix())
-                           .Contains(c.ToString());
-        }
-
-        private static bool HasPrefix(string arg) => _optionPrefixStrings.Any(arg.StartsWith);
-
         public static IEnumerable<string> SplitCommandLine(this string commandLine)
         {
-            var matches = _commandLineSplitter.Matches(commandLine);
-
-            foreach (Match match in matches)
-            {
-                if (match.Groups["arg"].Captures.Count > 0)
-                {
-                    var opt = match.Groups["opt"];
-                    var arg = match.Groups["arg"];
-                    yield return $"{opt}{arg}";
-                }
-                else
-                {
-                    foreach (var capture in match.Groups["token"].Captures)
-                    {
-                        yield return capture.ToString();
-                    }
-                }
-            }
+            return CommandLineStringSplitter.Instance.Split(commandLine);
         }
 
         private static IEnumerable<string> ExpandResponseFile(

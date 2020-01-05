@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.Linq;
 using System.Text;
 
@@ -90,54 +89,78 @@ namespace System.CommandLine
             {
                 builder.Append("!");
             }
-
-            if (symbolResult is OptionResult option &&
-                option.IsImplicit)
+            
+            if (symbolResult is OptionResult optionResult && 
+                optionResult.IsImplicit)
             {
                 builder.Append("*");
             }
 
-            builder.Append("[ ");
-
-            builder.Append(symbolResult.Token);
-
-            foreach (var child in symbolResult.Children)
+            if (symbolResult is ArgumentResult argumentResult)
             {
-                builder.Append(" ");
-                builder.Diagram(child, parseResult);
-            }
+                var includeArgumentName =
+                    argumentResult.Argument is Argument argument &&
+                    argument.Parents.First() is ICommand command &&
+                    command.Name != argument.Name;
 
-            if (symbolResult.Arguments.Count > 0)
-            {
-                foreach (var arg in symbolResult.Arguments)
+                if (includeArgumentName)
                 {
-                    builder.Append(" <");
-                    builder.Append(arg);
-                    builder.Append(">");
+                    builder.Append("[ ");
+                    builder.Append(argumentResult.Argument.Name);
+                    builder.Append(" ");
+                }
+
+                switch (symbolResult.ArgumentConversionResult)
+                {
+                    case SuccessfulArgumentConversionResult successful:
+
+                        switch (successful.Value)
+                        {
+                            case null:
+                            case IReadOnlyCollection<string> a when a.Count == 0:
+                                break;
+                            case IEnumerable<string> args:
+                                builder.Append("<");
+                                builder.Append(string.Join("> <", args));
+                                builder.Append(">");
+                                break;
+                            default:
+                                builder.Append("<");
+                                builder.Append(successful.Value);
+                                builder.Append(">");
+                                break;
+                        }
+
+                        break;
+
+                    case FailedArgumentConversionResult _:
+
+                        builder.Append("<");
+                        builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
+                        builder.Append(">");
+
+                        break;
+
+                }
+
+                if (includeArgumentName)
+                {
+                    builder.Append(" ]");
                 }
             }
             else
             {
-                var result = symbolResult.ArgumentResult;
-                if (result is SuccessfulArgumentResult _)
+                builder.Append("[ ");
+                builder.Append(symbolResult.Token.Value);
+
+                foreach (var child in symbolResult.Children)
                 {
-                    var value = symbolResult.GetValueOrDefault();
-
-                    switch (value)
-                    {
-                        case null:
-                        case IReadOnlyCollection<string> a when a.Count == 0:
-                            break;
-                        default:
-                            builder.Append(" <");
-                            builder.Append(value);
-                            builder.Append(">");
-                            break;
-                    }
+                    builder.Append(" ");
+                    builder.Diagram(child, parseResult);
                 }
+                
+                builder.Append(" ]");
             }
-
-            builder.Append(" ]");
         }
 
         public static bool HasOption(
@@ -178,20 +201,21 @@ namespace System.CommandLine
                     : Array.Empty<string>();
 
             IEnumerable<string> siblingSuggestions;
+            var parentSymbol = currentSymbolResult.Parent?.Symbol;
 
-            if (currentSymbol.Parent == null ||
+            if (parentSymbol == null ||
                 !currentSymbolResult.IsArgumentLimitReached)
             {
                 siblingSuggestions = Array.Empty<string>();
             }
             else
             {
-                siblingSuggestions = currentSymbol.Parent
-                                                  .Suggest(textToMatch)
-                                                  .Except(currentSymbol.Parent
-                                                                       .Children
-                                                                       .OfType<ICommand>()
-                                                                       .Select(c => c.Name));
+                siblingSuggestions = parentSymbol
+                                     .Suggest(textToMatch)
+                                     .Except(parentSymbol
+                                             .Children
+                                             .OfType<ICommand>()
+                                             .Select(c => c.Name));
             }
 
             if (currentSymbolResult is CommandResult commandResult)
@@ -255,23 +279,6 @@ namespace System.CommandLine
                         }
                     }
                 }
-            }
-        }
-
-        internal static IEnumerable<IValueDescriptor> ValueDescriptors(this ParseResult parseResult)
-        {
-            var command = parseResult.CommandResult.Command;
-
-            while (command != null)
-            {
-                yield return command;
-
-                foreach (var option in command.Children.OfType<Option>())
-                {
-                    yield return option;
-                }
-
-                command = command.Parent;
             }
         }
     }

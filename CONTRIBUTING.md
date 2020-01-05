@@ -52,12 +52,3 @@ macOS/Linux:
 
     $ ./build.sh --test
 
-To run tests without compiling,
-
-Windows:
-
-    > .\test.cmd
-
-macOS/Linux
-
-    $ ./test.sh

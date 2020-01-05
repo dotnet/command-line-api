@@ -2,19 +2,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 
 namespace System.CommandLine
 {
-    public interface ISymbol : IValueDescriptor, ISuggestionSource
+    public interface ISymbol : ISuggestionSource
     {
+        string Name { get; }
+
         string Description { get; }
 
-        IReadOnlyCollection<string> Aliases { get; }
+        IReadOnlyList<string> Aliases { get; }
 
-        IReadOnlyCollection<string> RawAliases { get; }
-
-        ICommand Parent { get; }
+        IReadOnlyList<string> RawAliases { get; }
 
         bool HasAlias(string alias);
 
@@ -22,8 +21,8 @@ namespace System.CommandLine
 
         bool IsHidden { get; }
 
-        IArgument Argument { get; }
-
         ISymbolSet Children { get; }
+
+        ISymbolSet Parents { get; }
     }
 }

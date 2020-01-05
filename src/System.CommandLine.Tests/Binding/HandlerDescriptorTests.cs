@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests.Binding
                 var descriptor = HandlerDescriptor.FromMethodInfo(method);
 
                 descriptor.ParameterDescriptors
-                          .Select(p => p.Name)
+                          .Select(p => p.ValueName)
                           .Should()
                           .BeEquivalentSequenceTo("value");
             }
@@ -60,7 +60,7 @@ namespace System.CommandLine.Tests.Binding
                 var descriptor = HandlerDescriptor.FromMethodInfo(method);
 
                 descriptor.ParameterDescriptors
-                          .Select(p => p.Name)
+                          .Select(p => p.ValueName)
                           .Should()
                           .BeEquivalentSequenceTo("value");
             }
@@ -94,7 +94,7 @@ namespace System.CommandLine.Tests.Binding
                 var descriptor = HandlerDescriptor.FromExpression<ClassWithInvokeAndDefaultCtor, string, int, Task<int>>((model, s, i) => model.Invoke(s, i));
 
                 descriptor.ParameterDescriptors
-                          .Select(p => p.Name)
+                          .Select(p => p.ValueName)
                           .Should()
                           .BeEquivalentSequenceTo("stringParam", "intParam");
             }

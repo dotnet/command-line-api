@@ -28,6 +28,23 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
+        public void Command_Invoke_uses_default_pipeline_by_default()
+        {
+            var command = new Command("the-command");
+            var theHelpText = "the help text";
+            command.Description = theHelpText;
+
+            var console = new TestConsole();
+
+            command.Invoke("-h", console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Contain(theHelpText);
+        }
+
+        [Fact]
         public async Task RootCommand_InvokeAsync_returns_0_when_handler_is_successful()
         {
             var wasCalled = false;
@@ -36,6 +53,20 @@ namespace System.CommandLine.Tests.Invocation
             rootCommand.Handler = CommandHandler.Create(() => wasCalled = true);
 
             var result = await rootCommand.InvokeAsync("");
+
+            wasCalled.Should().BeTrue();
+            result.Should().Be(0);
+        }
+
+        [Fact]
+        public void RootCommand_Invoke_returns_0_when_handler_is_successful()
+        {
+            var wasCalled = false;
+            var rootCommand = new RootCommand();
+
+            rootCommand.Handler = CommandHandler.Create(() => wasCalled = true);
+
+            int result = rootCommand.Invoke("");
 
             wasCalled.Should().BeTrue();
             result.Should().Be(0);
@@ -65,6 +96,29 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
+        public void RootCommand_Invoke_returns_1_when_handler_throws()
+        {
+            var wasCalled = false;
+            var rootCommand = new RootCommand();
+
+            rootCommand.Handler = CommandHandler.Create(() =>
+            {
+                wasCalled = true;
+                throw new Exception("oops!");
+
+                // Help the compiler pick a CommandHandler.Create overload.
+#pragma warning disable CS0162 // Unreachable code detected
+                return 0;
+#pragma warning restore CS0162
+            });
+
+            var resultCode = rootCommand.Invoke("");
+
+            wasCalled.Should().BeTrue();
+            resultCode.Should().Be(1);
+        }
+
+        [Fact]
         public async Task RootCommand_InvokeAsync_can_set_custom_result_code()
         {
             var rootCommand = new RootCommand();
@@ -75,6 +129,21 @@ namespace System.CommandLine.Tests.Invocation
             });
 
             var resultCode = await rootCommand.InvokeAsync("");
+
+            resultCode.Should().Be(123);
+        }
+
+        [Fact]
+        public void RootCommand_Invoke_can_set_custom_result_code()
+        {
+            var rootCommand = new RootCommand();
+
+            rootCommand.Handler = CommandHandler.Create<InvocationContext>(context =>
+            {
+                context.ResultCode = 123;
+            });
+
+            int resultCode = rootCommand.Invoke("");
 
             resultCode.Should().Be(123);
         }

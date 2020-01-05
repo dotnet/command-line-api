@@ -5,7 +5,8 @@ namespace System.CommandLine
 {
     public interface IArgumentArity
     {
-        int MinimumNumberOfArguments { get;  }
-        int MaximumNumberOfArguments { get;  }
+        int MinimumNumberOfValues { get;  }
+
+        int MaximumNumberOfValues { get;  }
     }
 }

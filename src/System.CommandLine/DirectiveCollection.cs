@@ -51,7 +51,7 @@ namespace System.CommandLine
 
         public IEnumerator<KeyValuePair<string, IEnumerable<string>>> GetEnumerator() =>
             _directives
-                .OfType<KeyValuePair<string, IEnumerable<string>>>()
+                .Select(pair => new KeyValuePair<string, IEnumerable<string>>(pair.Key, pair.Value))
                 .GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

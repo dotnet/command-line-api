@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Rendering
 {
-    public class SpanVisitor
+    public abstract class SpanVisitor
     {
         public void Visit(Span span)
         {
@@ -36,6 +36,10 @@ namespace System.CommandLine.Rendering
 
                 case StyleSpan styleSpan:
                     VisitStyleSpan(styleSpan);
+                    break;
+
+                case CursorControlSpan cursorControlSpan:
+                    VisitCursorControlSpan(cursorControlSpan);
                     break;
 
                 default:
@@ -77,6 +81,10 @@ namespace System.CommandLine.Rendering
         }
 
         public virtual void VisitStyleSpan(StyleSpan span)
+        {
+        }
+
+        public virtual void VisitCursorControlSpan(CursorControlSpan cursorControlSpan)
         {
         }
     }

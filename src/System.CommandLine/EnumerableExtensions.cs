@@ -14,9 +14,9 @@ namespace System.CommandLine
         {
             var queue = new Queue<T>();
 
-            foreach (var option in source)
+            foreach (var item in source)
             {
-                queue.Enqueue(option);
+                queue.Enqueue(item);
             }
 
             while (queue.Count > 0)
@@ -44,12 +44,5 @@ namespace System.CommandLine
                 yield return source;
             }
         }
-
-        internal static bool None<TSource>(this IEnumerable<TSource> source) 
-            => !source.Any();
-
-        internal static bool None<TSource>(this IEnumerable<TSource> source,
-                                         Func<TSource, bool> predicate) 
-            => !source.Any(predicate);
     }
 }

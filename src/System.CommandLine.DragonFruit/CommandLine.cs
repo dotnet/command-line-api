@@ -46,6 +46,36 @@ namespace System.CommandLine.DragonFruit
             return await InvokeMethodAsync(args, entryMethod, xmlDocsFilePath, null, console);
         }
 
+        /// <summary>
+        /// Finds and executes 'Program.Main', but with strong types.
+        /// </summary>
+        /// <param name="entryAssembly">The entry assembly</param>
+        /// <param name="args">The string arguments.</param>
+        /// <param name="entryPointFullTypeName">Explicitly defined entry point</param>
+        /// <param name="xmlDocsFilePath">Explicitly defined path to xml file containing XML Docs</param>
+        /// <param name="console">Output console</param>
+        /// <returns>The exit code.</returns>
+        public static int ExecuteAssembly(
+            Assembly entryAssembly,
+            string[] args,
+            string entryPointFullTypeName,
+            string xmlDocsFilePath = null,
+            IConsole console = null)
+        {
+            if (entryAssembly == null)
+            {
+                throw new ArgumentNullException(nameof(entryAssembly));
+            }
+
+            args = args ?? Array.Empty<string>();
+            entryPointFullTypeName = entryPointFullTypeName?.Trim();
+
+            MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly, entryPointFullTypeName);
+
+            //TODO The xml docs file name and location can be customized using <DocumentationFile> project property.
+            return InvokeMethod(args, entryMethod, xmlDocsFilePath, null, console);
+        }
+
         public static async Task<int> InvokeMethodAsync(
             string[] args,
             MethodInfo method,
@@ -53,15 +83,34 @@ namespace System.CommandLine.DragonFruit
             object target = null,
             IConsole console = null)
         {
-            var builder = new CommandLineBuilder()
-                          .ConfigureRootCommandFromMethod(method, target)
-                          .ConfigureHelpFromXmlComments(method, xmlDocsFilePath)
-                          .UseDefaults()
-                          .UseAnsiTerminalWhenAvailable();
-
-            Parser parser = builder.Build();
+            Parser parser = BuildParser(method, xmlDocsFilePath, target);
 
             return await parser.InvokeAsync(args, console);
+        }
+
+        public static int InvokeMethod(
+            string[] args,
+            MethodInfo method,
+            string xmlDocsFilePath = null,
+            object target = null,
+            IConsole console = null)
+        {
+            Parser parser = BuildParser(method, xmlDocsFilePath, target);
+
+            return parser.Invoke(args, console);
+        }
+
+        private static Parser BuildParser(MethodInfo method,
+            string xmlDocsFilePath,
+            object target)
+        {
+            var builder = new CommandLineBuilder()
+                .ConfigureRootCommandFromMethod(method, target)
+                .ConfigureHelpFromXmlComments(method, xmlDocsFilePath)
+                .UseDefaults()
+                .UseAnsiTerminalWhenAvailable();
+
+            return  builder.Build();
         }
 
         public static CommandLineBuilder ConfigureRootCommandFromMethod(
@@ -81,27 +130,8 @@ namespace System.CommandLine.DragonFruit
 
             builder.Command.ConfigureFromMethod(method, target);
 
-            if (target != null)
-            {
-                builder.UseMiddleware(
-                    async (context, next) =>
-                    {
-                        context.BindingContext
-                               .AddService(
-                                   target.GetType(),
-                                   () => target);
-                        await next(context);
-                    });
-            }
-
             return builder;
         }
-
-        internal static void ConfigureFromMethod(
-            this Command command,
-            MethodInfo method,
-            object target = null) =>
-            command.ConfigureFromMethod(method, () => target);
 
         private static readonly string[] _argumentParameterNames =
         {
@@ -113,7 +143,7 @@ namespace System.CommandLine.DragonFruit
         public static void ConfigureFromMethod(
             this Command command,
             MethodInfo method,
-            Func<object> target)
+            object target = null)
         {
             if (command == null)
             {
@@ -133,14 +163,21 @@ namespace System.CommandLine.DragonFruit
             if (method.GetParameters()
                       .FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is ParameterInfo argsParam)
             {
-                command.Argument = new Argument
-                                   {
-                                       ArgumentType = argsParam.ParameterType,
-                                       Name = argsParam.Name
-                                   };
+                var argument = new Argument
+                {
+                    ArgumentType = argsParam.ParameterType,
+                    Name = argsParam.Name
+                };
+
+                if (argsParam.HasDefaultValue)
+                {
+                    argument.SetDefaultValue(argsParam.DefaultValue);
+                }
+
+                command.AddArgument(argument);
             }
 
-            command.Handler = CommandHandler.Create(method);
+            command.Handler = CommandHandler.Create(method, target);
         }
 
         public static CommandLineBuilder ConfigureHelpFromXmlComments(
@@ -158,14 +195,13 @@ namespace System.CommandLine.DragonFruit
                 throw new ArgumentNullException(nameof(method));
             }
 
-            var metadata = new CommandHelpMetadata();
             if (XmlDocReader.TryLoad(xmlDocsFilePath ?? GetDefaultXmlDocsFileLocation(method.DeclaringType.Assembly), out var xmlDocs))
             {
-                if (xmlDocs.TryGetMethodDescription(method, out metadata) &&
+                if (xmlDocs.TryGetMethodDescription(method, out CommandHelpMetadata metadata) &&
                     metadata.Description != null)
                 {
                     builder.Command.Description = metadata.Description;
-                    var options = builder.Options;
+                    var options = builder.Options.ToArray();
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
                     {
@@ -179,10 +215,15 @@ namespace System.CommandLine.DragonFruit
                         }
                         else
                         {
-                            var argument = builder.Command.Argument;
-                            if (argument != null && !string.IsNullOrEmpty(argument.Name) && argument.Name.Equals(kebabCasedParameterName, StringComparison.OrdinalIgnoreCase))
+                            foreach (var argument in builder.Command.Arguments)
                             {
-                                argument.Description = parameterDescription.Value;
+                                if (string.Equals(
+                                        argument.Name,
+                                        kebabCasedParameterName, 
+                                        StringComparison.OrdinalIgnoreCase))
+                                {
+                                    argument.Description = parameterDescription.Value;
+                                }
                             }
                         }
                     }
@@ -201,7 +242,7 @@ namespace System.CommandLine.DragonFruit
                 throw new ArgumentNullException(nameof(descriptor));
             }
 
-            return BuildAlias(descriptor.Name);
+            return BuildAlias(descriptor.ValueName);
         }
 
         internal static string BuildAlias(string parameterName)
@@ -231,7 +272,7 @@ namespace System.CommandLine.DragonFruit
 
             foreach (var option in descriptor.ParameterDescriptors
                                              .Where(d => !omittedTypes.Contains (d.Type))
-                                             .Where(d => !_argumentParameterNames.Contains(d.Name))
+                                             .Where(d => !_argumentParameterNames.Contains(d.ValueName))
                                              .Select(p => p.BuildOption()))
             {
                 yield return option;
@@ -252,8 +293,10 @@ namespace System.CommandLine.DragonFruit
 
             var option = new Option(
                 parameter.BuildAlias(),
-                parameter.Name,
-                argument);
+                parameter.ValueName)
+            {
+                Argument = argument
+            };
 
             return option;
         }

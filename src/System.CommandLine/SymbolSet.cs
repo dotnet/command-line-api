@@ -7,17 +7,65 @@ namespace System.CommandLine
 {
     public class SymbolSet : AliasedSet<ISymbol>, ISymbolSet
     {
-        protected override bool ContainsItemWithAlias(ISymbol item, string alias) =>
-            item.HasAlias(alias);
+        internal override void Add(ISymbol item)
+        {
+            string rawAliasAlreadyInUse;
 
-        protected override bool ContainsItemWithRawAlias(ISymbol item, string alias) =>
-            item.HasRawAlias(alias);
+            switch (item)
+            {
+                case IOption _:
+                case ICommand _:
+                    if (IsAliasInUse(item, GetRawAliases, out rawAliasAlreadyInUse))
+                    {
+                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
+                    }
 
-        protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
-            item.RawAliases;
+                    break;
 
-        IEnumerator<ISymbol> IEnumerable<ISymbol>.GetEnumerator() => base.GetEnumerator();
+                case IArgument argument:
+                    if (IsAliasInUse(argument, i => new[] { i.Name }, out rawAliasAlreadyInUse))
+                    {
+                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
+                    }
 
-        ISymbol ISymbolSet.GetByAlias(string alias) => base.GetByAlias(alias);
+                    break;
+            }
+
+            base.Add(item);
+        }
+
+        internal void AddWithoutAliasCollisionCheck(ISymbol item) => base.Add(item);
+
+        private bool IsAliasInUse(
+            ISymbol item,
+            Func<ISymbol, IReadOnlyList<string>> values,
+            out string rawAliasAlreadyInUse)
+        {
+            var itemRawAliases = values(item);
+
+            for (var i = 0; i < Items.Count; i++)
+            {
+                var existingItem = Items[i];
+
+                for (var j = 0; j < itemRawAliases.Count; j++)
+                {
+                    var rawAliasToCheckFor = itemRawAliases[j];
+
+                    if (Contains(values(existingItem), rawAliasToCheckFor))
+                    {
+                        rawAliasAlreadyInUse = rawAliasToCheckFor;
+                        return true;
+                    }
+                }
+            }
+
+            rawAliasAlreadyInUse = null;
+            return false;
+        }
+
+        protected override IReadOnlyList<string> GetAliases(ISymbol item) =>
+            item.Aliases;
+
+        protected override IReadOnlyList<string> GetRawAliases(ISymbol item) => item.RawAliases;
     }
 }

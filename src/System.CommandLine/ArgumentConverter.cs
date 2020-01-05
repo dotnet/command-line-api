@@ -2,50 +2,57 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using static System.CommandLine.ArgumentResult;
+using static System.CommandLine.ArgumentConversionResult;
 
 namespace System.CommandLine
 {
     internal static class ArgumentConverter
     {
-        private static readonly ConcurrentDictionary<Type, ConvertString> _stringConverters = new ConcurrentDictionary<Type, ConvertString>();
-
-        internal static ArgumentResult Parse(Type type, object value)
+        internal static ArgumentConversionResult ConvertObject(
+            IArgument argument,
+            Type type,
+            object value)
         {
+            if (value == null &&
+                type == typeof(bool))
+            {
+                // the presence of the parsed symbol is treated as true
+                return new SuccessfulArgumentConversionResult(argument, true);
+            }
+
             switch (value)
             {
-                // try to parse the single string argument to the requested type
-                case string argument:
-                    return Parse(type, argument);
-
-                // try to parse the multiple string arguments to the request type
-                case IReadOnlyCollection<string> arguments:
-                    return ParseMany(type, arguments);
-
-                case null:
-                    if (type == typeof(bool))
+                case string singleValue:
+                    if (type.IsEnumerable() && !type.HasStringTypeConverter())
                     {
-                        // the presence of the parsed symbol is treated as true
-                        return new SuccessfulArgumentResult(true);
+                        return ConvertStrings(argument, type, new[] { singleValue });
+                    }
+                    else
+                    {
+                        return ConvertString(argument, type, singleValue);
                     }
 
+                case IReadOnlyCollection<string> manyValues:
+                    return ConvertStrings(argument, type, manyValues);
+
+                case null:
                     break;
             }
 
-            return null;
+            return None(argument);
         }
 
-        public static ArgumentResult Parse(Type type, string value)
+        private static ArgumentConversionResult ConvertString(
+            IArgument argument,
+            Type type,
+            string value)
         {
-            if (_stringConverters.TryGetValue(type, out var convert))
-            {
-                return convert(value);
-            }
+            type ??= typeof(string);
 
             if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter)
             {
@@ -53,32 +60,33 @@ namespace System.CommandLine
                 {
                     try
                     {
-                        return Success(typeConverter.ConvertFromInvariantString(value));
+                        return Success(
+                            argument,
+                            typeConverter.ConvertFromInvariantString(value));
                     }
                     catch (Exception)
                     {
-                        return Failure(type, value);
+                        return Failure(argument, type, value);
                     }
                 }
             }
 
-            if (type.ConstructorWithSingleParameterOfType(typeof(string)) is ConstructorInfo ctor)
+            if (type.TryFindConstructorWithSingleParameterOfType(
+                typeof(string), out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) tuple))
             {
-                convert = _stringConverters.GetOrAdd(
-                    type,
-                    _ => arg =>
-                    {
-                        var instance = ctor.Invoke(new object[] { arg });
-                        return Success(instance);
-                    });
+                var instance = tuple.ctor.Invoke(new object[]
+                {
+                    value
+                });
 
-                return convert(value);
+                return Success(argument, instance);
             }
 
-            return Failure(type, value);
+            return Failure(argument, type, value);
         }
 
-        public static ArgumentResult ParseMany(
+        public static ArgumentConversionResult ConvertStrings(
+            IArgument argument,
             Type type, 
             IReadOnlyCollection<string> arguments)
         {
@@ -105,11 +113,11 @@ namespace System.CommandLine
             }
 
             var allParseResults = arguments
-                                  .Select(arg => Parse(itemType, arg))
+                                  .Select(arg => ConvertString(argument, itemType, arg))
                                   .ToArray();
 
             var successfulParseResults = allParseResults
-                                         .OfType<SuccessfulArgumentResult>()
+                                         .OfType<SuccessfulArgumentConversionResult>()
                                          .ToArray();
 
             if (successfulParseResults.Length == arguments.Count)
@@ -125,11 +133,11 @@ namespace System.CommandLine
                                 ? (object)Enumerable.ToArray((dynamic)list)
                                 : list;
 
-                return Success(value);
+                return Success(argument, value);
             }
             else
             {
-                return allParseResults.OfType<FailedArgumentResult>().First();
+                return allParseResults.OfType<FailedArgumentConversionResult>().First();
             }
         }
 
@@ -148,17 +156,26 @@ namespace System.CommandLine
             }
 
             return enumerableInterface.GenericTypeArguments[0];
-
-            bool IsEnumerable(Type i)
-            {
-                return i.IsGenericType &&
-                       i.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-            }
         }
 
-        private static FailedArgumentResult Failure(Type type, string value)
+        internal static bool IsEnumerable(this Type i)
         {
-            return new FailedArgumentTypeConversionResult(type, value);
+            return i.IsGenericType &&
+                   i.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+        }
+
+        private static bool HasStringTypeConverter(this Type type)
+        {
+            return TypeDescriptor.GetConverter(type) is TypeConverter typeConverter
+                && typeConverter.CanConvertFrom(typeof(string));
+        }
+
+        private static FailedArgumentConversionResult Failure(
+            IArgument argument,
+            Type type, 
+            string value)
+        {
+            return new FailedArgumentTypeConversionResult(argument, type, value);
         }
 
         public static bool CanBeBoundFromScalarValue(this Type type)
@@ -180,7 +197,7 @@ namespace System.CommandLine
                 return true;
             }
 
-            if (ConstructorWithSingleParameterOfType(type, typeof(string)) != null)
+            if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _) )
             {
                 return true;
             }
@@ -193,17 +210,88 @@ namespace System.CommandLine
             return false;
         }
 
-        private static ConstructorInfo ConstructorWithSingleParameterOfType(
+        private static bool TryFindConstructorWithSingleParameterOfType(
             this Type type,
-            Type parameterType) =>
-            type.GetConstructors()
-                .Where(c =>
-                {
-                    var parameters = c.GetParameters();
-                    return c.IsPublic &&
-                           parameters.Length == 1 &&
-                           parameters[0].ParameterType == parameterType;
-                })
-                .SingleOrDefault();
+            Type parameterType,
+            out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) info)
+        {
+            var (x, y) = type.GetConstructors()
+                             .Select(c => (ctor: c, parameters: c.GetParameters()))
+                             .SingleOrDefault(tuple => tuple.ctor.IsPublic &&
+                                                       tuple.parameters.Length == 1 &&
+                                                       tuple.parameters[0].ParameterType == parameterType);
+
+            if (x != null)
+            {
+                info = (x, new ParameterDescriptor(y[0], new ConstructorDescriptor(x, ModelDescriptor.FromType(type))));
+                return true;
+            }
+            else
+            {
+                info = (null, null);
+                return false;
+            }
+        }
+
+        internal static ArgumentConversionResult ConvertIfNeeded(
+            this ArgumentConversionResult conversionResult,
+            SymbolResult symbolResult,
+            Type type)
+        {
+            if (conversionResult == null)
+            {
+                throw new ArgumentNullException(nameof(conversionResult));
+            }
+
+            switch (conversionResult)
+            {
+                case SuccessfulArgumentConversionResult successful when !type.IsInstanceOfType(successful.Value):
+                    return ConvertObject(
+                        conversionResult.Argument,
+                        type,
+                        successful.Value);
+
+                case NoArgumentConversionResult _ when type == typeof(bool):
+                    return Success(conversionResult.Argument, true);
+
+                case NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0:
+                    return new MissingArgumentConversionResult(
+                        conversionResult.Argument,
+                        ValidationMessages.Instance.RequiredArgumentMissing(symbolResult));
+
+                case NoArgumentConversionResult _ when type.IsEnumerable():
+                    return ConvertObject(
+                        conversionResult.Argument,
+                        type,
+                        Array.Empty<string>());
+
+                case TooManyArgumentsConversionResult _:
+                    return conversionResult;
+
+                case MissingArgumentConversionResult _:
+                    return conversionResult;
+
+                default:
+                    return conversionResult;
+            }
+        }
+
+        internal static object GetValueOrDefault(this ArgumentConversionResult result) =>
+            result.GetValueOrDefault<object>();
+
+        internal static T GetValueOrDefault<T>(this ArgumentConversionResult result)
+        {
+            switch (result)
+            {
+                case SuccessfulArgumentConversionResult successful:
+                    return (T)successful.Value;
+                case FailedArgumentConversionResult failed:
+                    throw new InvalidOperationException(failed.ErrorMessage);
+                case NoArgumentConversionResult _:
+                    return default;
+                default:
+                    return default;
+            }
+        }
     }
 }

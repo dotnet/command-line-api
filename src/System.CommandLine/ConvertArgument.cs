@@ -3,5 +3,7 @@
 
 namespace System.CommandLine
 {
-    public delegate ArgumentResult ConvertArgument(SymbolResult symbolResult);
+    public delegate bool TryConvertArgument(SymbolResult symbolResult, out object value);
+
+    public delegate bool TryConvertArgument<T>(SymbolResult symbolResult, out T value);
 }

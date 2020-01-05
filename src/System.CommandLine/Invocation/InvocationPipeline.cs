@@ -18,9 +18,28 @@ namespace System.CommandLine.Invocation
 
         public async Task<int> InvokeAsync(IConsole console = null)
         {
-            var context = new InvocationContext(parseResult,
-                                                console);
+            var context = new InvocationContext(parseResult, console);
 
+            InvocationMiddleware invocationChain = BuildInvocationChain(context);
+
+            await invocationChain(context, invocationContext => Task.CompletedTask);
+
+            return GetResultCode(context);
+        }
+
+        public int Invoke(IConsole console = null)
+        {
+            var context = new InvocationContext(parseResult, console);
+
+            InvocationMiddleware invocationChain = BuildInvocationChain(context);
+
+            Task.Run(() => invocationChain(context, invocationContext => Task.CompletedTask)).GetAwaiter().GetResult();
+
+            return GetResultCode(context);
+        }
+
+        private static InvocationMiddleware BuildInvocationChain(InvocationContext context)
+        {
             var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware);
 
             invocations.Add(async (invocationContext, next) =>
@@ -39,14 +58,15 @@ namespace System.CommandLine.Invocation
                 }
             });
 
-            var invocationChain = invocations.Aggregate(
+            return invocations.Aggregate(
                 (first, second) =>
                     (ctx, next) =>
                         first(ctx,
-                              c => second(c, next)));
+                            c => second(c, next)));
+        }
 
-            await invocationChain(context, invocationContext => Task.CompletedTask);
-
+        private static int GetResultCode(InvocationContext context)
+        {
             context.InvocationResult?.Apply(context);
 
             return context.ResultCode;

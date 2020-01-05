@@ -258,14 +258,50 @@ namespace System.CommandLine.Invocation
             string[] args,
             IConsole console = null)
         {
+            return await GetInvocationPipeline(command, args).InvokeAsync(console);
+        }
+
+        public static int Invoke(
+            this Parser parser,
+            ParseResult parseResult,
+            IConsole console = null) =>
+            new InvocationPipeline(parseResult).Invoke(console);
+
+        public static int Invoke(
+            this Parser parser,
+            string commandLine,
+            IConsole console = null) =>
+            parser.Invoke(commandLine.SplitCommandLine().ToArray(), console);
+
+        public static int Invoke(
+            this Parser parser,
+            string[] args,
+            IConsole console = null) =>
+            parser.Invoke(parser.Parse(args), console);
+
+        public static int Invoke(
+            this Command command,
+            string commandLine,
+            IConsole console = null) =>
+            command.Invoke(commandLine.SplitCommandLine().ToArray(), console);
+
+        public static int Invoke(
+            this Command command,
+            string[] args,
+            IConsole console = null)
+        {
+            return GetInvocationPipeline(command, args).Invoke(console);
+        }
+
+        private static InvocationPipeline GetInvocationPipeline(Command command, string[] args)
+        {
             var parser = new CommandLineBuilder(command)
-                         .UseDefaults()
-                         .Build();
+                .UseDefaults()
+                .Build();
 
-            var parseResult = parser.Parse(args);
+            ParseResult parseResult = parser.Parse(args);
 
-            return await new InvocationPipeline(parseResult)
-                       .InvokeAsync(console);
+            return new InvocationPipeline(parseResult);
         }
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)

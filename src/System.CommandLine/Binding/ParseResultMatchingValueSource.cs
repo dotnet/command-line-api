@@ -5,21 +5,20 @@ using System.Linq;
 
 namespace System.CommandLine.Binding
 {
-    internal class CurrentSymbolResultValueSource : IValueSource
+    internal class ParseResultMatchingValueSource : IValueSource
     {
         public bool TryGetValue(
             IValueDescriptor valueDescriptor,
             BindingContext bindingContext,
             out object boundValue)
         {
-            if (!string.IsNullOrEmpty(valueDescriptor.Name))
+            if (!string.IsNullOrEmpty(valueDescriptor.ValueName))
             {
                 var commandResult = bindingContext.ParseResult.CommandResult;
 
                 while (commandResult != null)
                 {
-                    if (commandResult.TryGetValueForOption(
-                        valueDescriptor,
+                    if (commandResult.TryGetValueForOption(valueDescriptor,
                         out var optionValue))
                     {
                         boundValue = optionValue;
@@ -34,7 +33,7 @@ namespace System.CommandLine.Binding
                         return true;
                     }
 
-                    commandResult = commandResult.Parent;
+                    commandResult = commandResult.Parent as CommandResult;
                 }
             }
 

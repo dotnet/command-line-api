@@ -2,153 +2,234 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine
 {
     public abstract class SymbolResult
     {
-        private readonly List<string> _arguments = new List<string>();
-        private ArgumentResult _result;
+        private protected readonly List<Token> _tokens = new List<Token>();
+        private ArgumentConversionResultSet _results;
+        private ValidationMessages _validationMessages;
+        private readonly Dictionary<IArgument, object> _defaultArgumentValues = new Dictionary<IArgument, object>();
 
-        private ValidationMessages _validationMessages = ValidationMessages.Instance;
-
-        protected SymbolResult(
+        private protected SymbolResult(
             ISymbol symbol, 
-            string token, 
-            CommandResult parent = null)
+            Token token, 
+            SymbolResult parent = null)
         {
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(token));
-            }
-
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
-            Token = token;
+            Token = token ?? throw new ArgumentNullException(nameof(token));
 
             Parent = parent;
         }
 
-        public IReadOnlyCollection<string> Arguments => _arguments;
+        internal virtual ArgumentConversionResult ArgumentConversionResult
+        {
+            get
+            {
+                var argument =  Symbol switch {
+                    IOption o => o.Argument,
+                    ICommand c => c.Argument,
+                    IArgument a => a,
+                    _ => null
+                };
+
+                return ArgumentConversionResults.SingleOrDefault() ??
+                       ArgumentConversionResult.None(argument);
+            }
+        }
+
+        internal ArgumentConversionResultSet ArgumentConversionResults
+        {
+            get
+            {
+                if (_results == null)
+                {
+                    var results = Children
+                                  .OfType<ArgumentResult>()
+                                  .Select(r => Convert(r, r.Argument));
+
+                    _results = new ArgumentConversionResultSet();
+
+                    foreach (var result in results)
+                    {
+                        _results.Add(result);
+                    }
+
+                    return _results;
+                }
+
+                return _results;
+            }
+        }
+
+        [Obsolete("Use the Tokens property instead. The Arguments property will be removed in a later version.")]
+        public IReadOnlyCollection<string> Arguments => 
+            Tokens.Select(t => t.Value).ToArray();
+
+        public string ErrorMessage { get; set; }
 
         public SymbolResultSet Children { get; } = new SymbolResultSet();
 
-        public string Name => Symbol.Name;
-
-        internal bool OptionWasRespecified { get; set; } = true;
-
-        public CommandResult Parent { get; }
+        public SymbolResult Parent { get; }
 
         public ISymbol Symbol { get; }
 
-        public string Token { get; }
+        public Token Token { get; }
 
-        public bool HasAlias(string alias) => Symbol.HasAlias(alias);
+        public IReadOnlyList<Token> Tokens => _tokens;
 
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
 
         private protected virtual int RemainingArgumentCapacity =>
-             Symbol.Argument.Arity.MaximumNumberOfArguments - Arguments.Count;
+            MaximumArgumentCapacity() - Tokens.Count;
 
-        public ValidationMessages ValidationMessages    
-        {
-            get => _validationMessages ?? (_validationMessages = ValidationMessages.Instance);
-            set => _validationMessages = value;
-        }
+        internal int MaximumArgumentCapacity() =>
+            Symbol.Arguments()
+                  .Sum(a => a.Arity.MaximumNumberOfValues);
 
-        protected internal ParseError Validate()
-        {
-            // TODO: (Validate) don't cast
-            if (Symbol.Argument is Argument argument)
-            {
-                var (result, error) = argument.Validate(this);
-                _result = result;
-                return error;
-            }
-
-            return null;
-        }
-
-        internal abstract SymbolResult TryTakeToken(Token token);
-
-        internal SymbolResult TryTakeArgument(Token token)
-        {
-            if (token.Type != TokenType.Argument)
-            {
-                return null;
-            }
-
-            if (!OptionWasRespecified)
-            {          
-                if (IsArgumentLimitReached)
-                {
-                    return null;
-                }
-            }
-
-            _arguments.Add(token.Value);
-
-            var parseError = Validate();
-
-            if (parseError == null)
-            {
-                OptionWasRespecified = false;
-                return this;
-            }
-
-            if (!parseError.CanTokenBeRetried)
-            {
-                OptionWasRespecified = false;
-                return this;
-            }
-
-            _arguments.RemoveAt(_arguments.Count - 1);
-
-            return null;
-        }
-
-        internal static SymbolResult Create(
-            ISymbol symbol, 
-            string token, 
-            CommandResult parent = null, 
-            ValidationMessages validationMessages = null)
-        {
-            switch (symbol)
-            {
-                case ICommand command:
-                    return new CommandResult(command, parent)
-                    {
-                        ValidationMessages = validationMessages
-                    };
-
-                case IOption option:
-                    return new OptionResult(option, token, parent)
-                    {
-                        ValidationMessages = validationMessages
-                    };
-
-                default:
-                    throw new ArgumentException($"Unrecognized symbol type: {symbol.GetType()}");
-            }
-        }
-
-        public ArgumentResult ArgumentResult
+        protected internal ValidationMessages ValidationMessages
         {
             get
             {
-                if (_result == null)
+                if (_validationMessages == null)
                 {
-                    Validate();
+                    if (Parent == null)
+                    {
+                        _validationMessages = ValidationMessages.Instance;
+                    }
+                    else
+                    {
+                        _validationMessages = Parent.ValidationMessages;
+                    }
                 }
 
-                return _result;
+                return _validationMessages;
             }
-            protected set => _result = value;
+            set => _validationMessages = value;
         }
 
-        internal bool UseDefaultValue { get; set; }
+        internal void AddToken(Token token) => _tokens.Add(token);
+
+        internal object GetDefaultValueFor(IArgument argument)
+        {
+            return _defaultArgumentValues.GetOrAdd(
+                argument,
+                a => a.GetDefaultValue());
+        }
+
+        internal bool UseDefaultValueFor(IArgument argument)
+        {
+            if (this is OptionResult optionResult &&
+                optionResult.IsImplicit)
+            {
+                return true;
+            }
+
+            if (this is CommandResult &&
+                Children.ResultFor(argument)?.Token is ImplicitToken)
+            {
+                return true;
+            }
+
+            return _defaultArgumentValues.ContainsKey(argument);
+        }
 
         public override string ToString() => $"{GetType().Name}: {Token}";
+
+        internal static ArgumentConversionResult Convert(
+            ArgumentResult argumentResult,
+            IArgument argument) =>
+            Convert(argumentResult.Parent, argument);
+
+        internal static ArgumentConversionResult Convert(
+            SymbolResult symbolResult,
+            IArgument argument)
+        {
+            if (ShouldCheckArity() &&
+                ArgumentArity.Validate(symbolResult,
+                                       argument,
+                                       argument.Arity.MinimumNumberOfValues,
+                                       argument.Arity.MaximumNumberOfValues) is FailedArgumentConversionResult failedResult)
+            {
+                return failedResult;
+            }
+
+            if (symbolResult.UseDefaultValueFor(argument))
+            {
+                var defaultValueFor = symbolResult.GetDefaultValueFor(argument);
+
+                return ArgumentConversionResult.Success(argument, defaultValueFor);
+            }
+
+            if (argument is Argument a &&
+                a.ConvertArguments != null)
+            {
+                var argumentResult = (ArgumentResult) symbolResult.Children.ResultFor(argument);
+
+                if (argumentResult.ConversionResult != null)
+                {
+                    return argumentResult.ConversionResult;
+                }
+
+                var success = a.ConvertArguments(argumentResult, out var value);
+
+                if (value is ArgumentConversionResult conversionResult)
+                {
+                    return conversionResult;
+                }
+                else if (success)
+                {
+                    return ArgumentConversionResult.Success(argument, value);
+                }
+                else 
+                {
+                    return ArgumentConversionResult.Failure(argument, argumentResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Arguments)}");
+                }
+            }
+
+            switch (argument.Arity.MaximumNumberOfValues)
+            {
+                case 0:
+                    return ArgumentConversionResult.Success(argument, null);
+
+                case 1:
+                    return ArgumentConversionResult.Success(argument, symbolResult.Arguments.SingleOrDefault());
+
+                default:
+                    return ArgumentConversionResult.Success(argument, symbolResult.Arguments);
+            }
+
+            bool ShouldCheckArity()
+            {
+                return !(symbolResult is OptionResult optionResult &&
+                       optionResult.IsImplicit);
+            }
+        }
+
+        internal ParseError UnrecognizedArgumentError(Argument argument)
+        {
+            if (argument.AllowedValues?.Count > 0 &&
+                Tokens.Count > 0)
+            {
+                foreach (var token in Tokens)
+                {
+                    if (!argument.AllowedValues.Contains(token.Value))
+                    {
+                        return new ParseError(
+                            ValidationMessages
+                                .UnrecognizedArgument(token.Value, argument.AllowedValues),
+                            this);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+     
     }
 }
