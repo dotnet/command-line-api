@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.ComponentModel.Design;
 using System.Globalization;
 using System.IO;
 using System.Linq;

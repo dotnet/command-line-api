@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine
+namespace System.CommandLine.Parsing
 {
     public static class ParseResultExtensions
     {
