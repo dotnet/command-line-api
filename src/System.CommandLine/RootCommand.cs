@@ -7,12 +7,22 @@ using System.Reflection;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// A command represents the entry point of an application. The name defaults to the executable name.
+    /// </summary>
     public class RootCommand : Command
     {
+        /// <summary>
+        /// Create a new instance of RootCommand
+        /// </summary>
+        /// <param name="description">The description of the command that could be used in a help display.</param>
         public RootCommand(string description = "") : base(ExeName, description)
         {
         }
 
+        /// <summary>
+        /// The name of the command. Defaults to the executable name.
+        /// </summary>
         public override string Name
         {
             get => base.Name;
@@ -42,8 +52,14 @@ namespace System.CommandLine
             Assembly.GetEntryAssembly() ??
             Assembly.GetExecutingAssembly();
 
+        /// <summary>
+        /// The name of the executable currently running, or if missing the first string argument.
+        /// </summary>
         public static string ExeName => executableName.Value;
 
+        /// <summary>
+        /// The path to the currently running executable.
+        /// </summary>
         public static string ExePath => executablePath.Value;
     }
 }
