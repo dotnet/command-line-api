@@ -2,13 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine
+namespace System.CommandLine.Parsing
 {
     public static class StringExtensions
     {
