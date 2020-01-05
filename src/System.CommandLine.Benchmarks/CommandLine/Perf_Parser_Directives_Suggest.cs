@@ -4,6 +4,7 @@
 using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 

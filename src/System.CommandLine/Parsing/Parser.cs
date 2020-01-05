@@ -2,9 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
 
-namespace System.CommandLine
+namespace System.CommandLine.Parsing
 {
     public class Parser
     {
@@ -23,11 +22,29 @@ namespace System.CommandLine
 
         public CommandLineConfiguration Configuration { get; }
 
-        public virtual ParseResult Parse(
+        public ParseResult Parse(
             IReadOnlyList<string> arguments,
             string rawInput = null)
         {
-            return new CommandLineParser(Configuration).Parse(arguments, rawInput);
+            var tokenizeResult = arguments.Tokenize(Configuration);
+
+            var operation = new ParseOperation(
+                tokenizeResult,
+                Configuration);
+
+            operation.Parse();
+
+            var visitor = new ParseResultVisitor(
+                this,
+                tokenizeResult,
+                operation.UnparsedTokens,
+                operation.UnmatchedTokens,
+                operation.Errors,
+                rawInput);
+
+            visitor.Visit(operation.RootCommandNode);
+
+            return visitor.Result;
         }
     }
 }

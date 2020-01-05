@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using Xunit;
