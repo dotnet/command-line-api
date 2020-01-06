@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Collections;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
