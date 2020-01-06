@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Linq;
 
-namespace System.CommandLine
+namespace System.CommandLine.Suggestions
 {
-    internal static class Suggestions
+    internal static class SuggestionExtensions
     {
         public static IEnumerable<string> Containing(
             this IEnumerable<string> candidates,

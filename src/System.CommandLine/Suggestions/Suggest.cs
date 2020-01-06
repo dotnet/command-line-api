@@ -3,10 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine
+namespace System.CommandLine.Suggestions
 {
-    public interface ISuggestionSource
-    {
-        IEnumerable<string> Suggest(string textToMatch = null);
-    }
+    public delegate IEnumerable<string> Suggest(string textToMatch);
 }

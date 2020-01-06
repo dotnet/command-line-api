@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.CommandLine.Binding;
 using System.Linq;
 
-namespace System.CommandLine
+namespace System.CommandLine.Suggestions
 {
     public static class SuggestionSource
     {
