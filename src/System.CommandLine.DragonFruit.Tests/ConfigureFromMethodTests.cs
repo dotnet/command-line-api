@@ -31,7 +31,7 @@ namespace System.CommandLine.DragonFruit.Tests
                              GetMethodInfo(nameof(Method_taking_bool)), this)
                          .Build();
 
-            await parser.InvokeAsync($"{RootCommand.ExeName} --value", _testConsole);
+            await parser.InvokeAsync($"{RootCommand.ExecutableName} --value", _testConsole);
 
             _receivedValues.Should().BeEquivalentTo(true);
         }

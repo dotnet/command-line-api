@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().Contain($"{RootCommand.ExeName} command subcommand");
+            _console.Out.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand");
         }
 
         [Fact]

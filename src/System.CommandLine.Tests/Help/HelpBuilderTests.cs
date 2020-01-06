@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests.Help
             _output = output;
             _columnPadding = new string(' ', ColumnGutterWidth);
             _indentation = new string(' ', IndentationWidth);
-            _executableName = RootCommand.ExeName;
+            _executableName = RootCommand.ExecutableName;
         }
 
         private HelpBuilder GetHelpBuilder(int maxWidth)

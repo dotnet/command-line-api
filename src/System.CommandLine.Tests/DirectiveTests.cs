@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option("-y");
 
-            var result = option.Parse($"{RootCommand.ExeName} [parse] -y");
+            var result = option.Parse($"{RootCommand.ExecutableName} [parse] -y");
 
             result.UnmatchedTokens.Should().BeEmpty();
         }

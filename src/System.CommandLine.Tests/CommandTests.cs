@@ -238,8 +238,8 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand();
             command.AddAlias("that");
-            command.Aliases.Should().BeEquivalentTo(RootCommand.ExeName, "that");
-            command.RawAliases.Should().BeEquivalentTo(RootCommand.ExeName, "that");
+            command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
+            command.RawAliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
 
             var result = command.Parse("that");
 
