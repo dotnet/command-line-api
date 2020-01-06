@@ -3,7 +3,7 @@
 
 using System.IO;
 
-namespace System.CommandLine
+namespace System.CommandLine.IO
 {
     public static class StandardStreamWriter
     {

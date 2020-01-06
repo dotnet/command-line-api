@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine
+namespace System.CommandLine.Parsing
 {
     internal static class SymbolResultExtensions
     {

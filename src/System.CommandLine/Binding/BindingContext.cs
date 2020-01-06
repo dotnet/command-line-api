@@ -3,6 +3,7 @@
 
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
 

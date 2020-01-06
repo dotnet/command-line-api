@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine
+namespace System.CommandLine.Collections
 {
     public interface ISymbolSet : IReadOnlyCollection<ISymbol>
     {

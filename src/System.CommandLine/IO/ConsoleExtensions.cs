@@ -3,7 +3,7 @@
 
 using System.Linq;
 
-namespace System.CommandLine
+namespace System.CommandLine.IO
 {
     internal static class ConsoleExtensions
     {

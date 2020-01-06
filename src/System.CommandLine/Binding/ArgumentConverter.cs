@@ -3,13 +3,13 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.Binding;
+using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using static System.CommandLine.ArgumentConversionResult;
+using static System.CommandLine.Binding.ArgumentConversionResult;
 
-namespace System.CommandLine
+namespace System.CommandLine.Binding
 {
     internal static class ArgumentConverter
     {

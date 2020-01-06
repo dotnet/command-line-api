@@ -4,7 +4,7 @@
 using System.IO;
 using System.Text;
 
-namespace System.CommandLine
+namespace System.CommandLine.IO
 {
     public class TestConsole : IConsole
     {
