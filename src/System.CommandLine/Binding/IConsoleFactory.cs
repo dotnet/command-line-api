@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Binding
 {
-    public interface IConsoleFactory
+    internal interface IConsoleFactory
     {
         IConsole CreateConsole(BindingContext invocationContext);
     }
