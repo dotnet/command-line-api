@@ -2,12 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using static System.CommandLine.DefaultHelpText;
+using static System.CommandLine.Help.DefaultHelpText;
 
-namespace System.CommandLine
+namespace System.CommandLine.Help
 {
     public class HelpBuilder : IHelpBuilder
     {

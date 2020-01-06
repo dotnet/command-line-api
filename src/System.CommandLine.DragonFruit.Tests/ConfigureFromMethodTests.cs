@@ -4,6 +4,8 @@
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.CommandLine.Tests;
 using System.CommandLine.Tests.Binding;
 using System.IO;
