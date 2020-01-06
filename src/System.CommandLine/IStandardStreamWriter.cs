@@ -3,10 +3,8 @@
 
 namespace System.CommandLine
 {
-    public interface IConsole :
-        IStandardOut,
-        IStandardError,
-        IStandardIn
+    public interface IStandardStreamWriter
     {
+        void Write(string value);
     }
 }

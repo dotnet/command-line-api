@@ -3,10 +3,10 @@
 
 namespace System.CommandLine
 {
-    public interface IConsole :
-        IStandardOut,
-        IStandardError,
-        IStandardIn
+    public interface IStandardOut
     {
+        IStandardStreamWriter Out { get; }
+
+        bool IsOutputRedirected { get; }
     }
 }

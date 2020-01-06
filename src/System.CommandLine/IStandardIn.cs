@@ -3,10 +3,8 @@
 
 namespace System.CommandLine
 {
-    public interface IConsole :
-        IStandardOut,
-        IStandardError,
-        IStandardIn
+    public interface IStandardIn
     {
+        bool IsInputRedirected { get; }
     }
 }
