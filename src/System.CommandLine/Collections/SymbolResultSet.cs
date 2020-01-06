@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace System.CommandLine
+namespace System.CommandLine.Collections
 {
     public class SymbolResultSet : AliasedSet<SymbolResult>
     {

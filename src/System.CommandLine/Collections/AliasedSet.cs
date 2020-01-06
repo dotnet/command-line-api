@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace System.CommandLine
+namespace System.CommandLine.Collections
 {
     public abstract class AliasedSet<T> : IReadOnlyCollection<T>
         where T : class

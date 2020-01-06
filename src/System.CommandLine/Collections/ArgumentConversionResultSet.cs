@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine
+namespace System.CommandLine.Collections
 {
     internal class ArgumentConversionResultSet : AliasedSet<ArgumentConversionResult>
     {

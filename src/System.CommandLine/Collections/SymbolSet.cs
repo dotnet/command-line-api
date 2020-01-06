@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine
+namespace System.CommandLine.Collections
 {
     public class SymbolSet : AliasedSet<ISymbol>, ISymbolSet
     {
