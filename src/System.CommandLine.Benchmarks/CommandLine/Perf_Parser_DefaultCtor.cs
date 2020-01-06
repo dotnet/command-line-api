@@ -7,7 +7,7 @@ using BenchmarkDotNet.Attributes;
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="Parsing.Parser"/> default constructor.
+    /// Measures the performance of <see cref="Parser"/> default constructor.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_DefaultCtor
