@@ -1218,7 +1218,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result1 = command.Parse("inner -x hello");
 
-            ParseResult result2 = command.Parse($"{RootCommand.ExePath} inner -x hello");
+            ParseResult result2 = command.Parse($"{RootCommand.ExecutablePath} inner -x hello");
 
             result1.Diagram().Should().Be(result2.Diagram());
         }
@@ -1243,7 +1243,7 @@ namespace System.CommandLine.Tests
 
             var result1 = rootCommand.Parse("inner -x hello");
             var result2 = rootCommand.Parse("outer inner -x hello");
-            var result3 = rootCommand.Parse($"{RootCommand.ExeName} inner -x hello");
+            var result3 = rootCommand.Parse($"{RootCommand.ExecutableName} inner -x hello");
 
             result2.RootCommandResult.Command.Should().Be(result1.RootCommandResult.Command);
             result3.RootCommandResult.Command.Should().Be(result1.RootCommandResult.Command);
@@ -1704,7 +1704,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse(null);
 
-            result.CommandResult.Command.Name.Should().Be(RootCommand.ExeName);
+            result.CommandResult.Command.Name.Should().Be(RootCommand.ExecutableName);
         }
 
         [Fact]

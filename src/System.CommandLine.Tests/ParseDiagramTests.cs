@@ -74,7 +74,7 @@ namespace System.CommandLine.Tests
 
             result.Diagram()
                   .Should()
-                  .Be($"[ {RootCommand.ExeName} [ -f !<not-an-int> ] ]");
+                  .Be($"[ {RootCommand.ExecutableName} [ -f !<not-an-int> ] ]");
         }
 
         [Fact]
@@ -102,7 +102,7 @@ namespace System.CommandLine.Tests
             var diagram = result.Diagram();
 
             diagram.Should()
-                   .Be($"[ {RootCommand.ExeName} [ -w <9000> ] *[ --height <10> ] *[ --color <Cyan> ] ]");
+                   .Be($"[ {RootCommand.ExecutableName} [ -w <9000> ] *[ --height <10> ] *[ --color <Cyan> ] ]");
         }
 
         [Fact]
