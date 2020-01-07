@@ -132,14 +132,15 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("aa:")]
-        [InlineData("aa=")]
-        [InlineData(":aa")]
-        [InlineData("=aa")]
-        [InlineData("aa:aa")]
-        [InlineData("aa=aa")]
+        [InlineData("aa:", ":")]
+        [InlineData("aa=", "=")]
+        [InlineData(":aa", ":")]
+        [InlineData("=aa", "=")]
+        [InlineData("aa:aa", ":")]
+        [InlineData("aa=aa", "=")]
         public void When_a_command_name_contains_a_delimiter_then_an_error_is_returned(
-            string commandWithDelimiter)
+            string commandWithDelimiter,
+            string delimiter)
         {
             Action create = () =>
             {
@@ -153,7 +154,12 @@ namespace System.CommandLine.Tests
                     });
             };
 
-            create.Should().Throw<SymbolCannotContainDelimiterArgumentException>();
+            create.Should()
+                  .Throw<ArgumentException>()
+                  .Which
+                  .Message
+                  .Should()
+                  .Be($"Command \"{commandWithDelimiter}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
         }
 
         [Theory]
@@ -182,14 +188,6 @@ namespace System.CommandLine.Tests
 
             addAlias.Should().Throw<ArgumentException>().Which.Message.Should()
                     .Be($"Command alias cannot contain whitespace: \"{alias}\"");
-        }
-
-        [Fact]
-        public void When_a_command_name_contains_a_delimiter_then_the_error_is_informative()
-        {
-            var subject = new SymbolCannotContainDelimiterArgumentException('ツ');
-            subject.Message.Should()
-                   .Be(@"Symbol cannot contain delimiter: ""ツ""");
         }
 
         [Theory]
