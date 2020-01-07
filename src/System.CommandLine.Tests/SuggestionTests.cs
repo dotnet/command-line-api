@@ -189,11 +189,11 @@ namespace System.CommandLine.Tests
         public void When_a_subcommand_has_been_specified_then_its_sibling_options_will_be_suggested()
         {
             var command = new RootCommand("parent")
-                          {
-                              new Command("child"),
-                              new Option("--parent-option")
-                          };
-            command.Argument = new Argument<string>();
+            {
+                new Command("child"), 
+                new Option("--parent-option"), 
+                new Argument<string>()
+            };
 
             var commandLine = "child";
             var parseResult = command.Parse(commandLine);

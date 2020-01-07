@@ -61,7 +61,7 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("the-command")
             {
-                Argument = new Argument
+                new Argument
                 {
                     Name = "value",
                     ArgumentType = type
@@ -146,7 +146,7 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("the-command")
             {
-                Argument = new Argument
+                new Argument
                 {
                     Name = "value",
                     ArgumentType = type

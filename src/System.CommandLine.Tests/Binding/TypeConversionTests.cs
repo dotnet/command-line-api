@@ -76,14 +76,14 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Command("the-command")
             {
-                new Argument<FileInfo>()
+                new Argument<FileInfo>("the-arg")
             };
 
             var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
             var result = option.Parse($"{file.FullName}");
 
             result.CommandResult
-                  .GetValueOrDefault()
+                  .GetArgumentValueOrDefault("the-arg")
                   .Should()
                   .BeOfType<FileInfo>()
                   .Which
@@ -95,18 +95,18 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Command_argument_with_arity_of_zero_or_one_when_type_has_a_constructor_that_takes_a_single_string_returns_null_when_argument_is_not_provided()
         {
-            var option = new Command("the-command")
+            var command = new Command("the-command")
             {
-                new Argument<FileInfo>
+                new Argument<FileInfo>("the-arg")
                 {
                     Arity = ArgumentArity.ZeroOrOne
                 }
             };
 
-            var result = option.Parse("");
+            var result = command.Parse("");
 
             result.CommandResult
-                  .GetValueOrDefault()
+                  .GetArgumentValueOrDefault("the-arg")
                   .Should()
                   .BeNull();
         }
@@ -492,18 +492,6 @@ namespace System.CommandLine.Tests.Binding
                    .BeEquivalentTo(new[] { "arg1" });
         }
 
-        [Fact]
-        public void The_default_value_of_a_command_with_no_arguments_is_null()
-        {
-            var result = new Command("x").Parse("").CommandResult;
-
-            var valueOrDefault = result.GetValueOrDefault();
-
-            valueOrDefault
-                .Should()
-                .BeNull();
-        }
-
         [Theory]
         [InlineData("c -a o c c")]
         [InlineData("c c -a o c")]
@@ -515,18 +503,18 @@ namespace System.CommandLine.Tests.Binding
                 new Option("-a")
                 {
                     Argument = new Argument<string>()
+                },
+                new Argument<string>("the-arg")
+                {
+                    Arity = ArgumentArity.ZeroOrMore
                 }
             };
 
-            command.Argument = new Argument<string>
-            {
-                Arity = ArgumentArity.ZeroOrMore
-            };
 
             var result = command.Parse(commandLine);
 
             result.CommandResult
-                  .GetValueOrDefault()
+                  .GetArgumentValueOrDefault("the-arg")
                   .Should()
                   .BeEquivalentTo(new[] { "c", "c", "c" });
         }
@@ -633,14 +621,14 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("something")
             {
-                new Argument<DirectoryInfo>(() => directoryInfo)
+                new Argument<DirectoryInfo>("the-arg", () => directoryInfo)
             };
 
             var result = command.Parse("something");
 
             result.Errors.Should().BeEmpty();
 
-            var value = result.CommandResult.GetValueOrDefault();
+            var value = result.CommandResult.GetArgumentValueOrDefault("the-arg");
 
             value.Should().Be(directoryInfo);
         }
@@ -659,21 +647,6 @@ namespace System.CommandLine.Tests.Binding
             var result = command.Parse("something");
 
             var value = result.CommandResult.ValueForOption<int>("x");
-
-            value.Should().Be(123);
-        }
-
-        [Fact]
-        public void A_command_argument_with_a_default_value_can_be_converted_to_the_requested_type()
-        {
-            var command = new Command("something")
-            {
-                new Argument<string>(() => "123")
-            };
-
-            var result = command.Parse("something");
-
-            var value = result.CommandResult.GetValueOrDefault<int>();
 
             value.Should().Be(123);
         }

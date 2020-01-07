@@ -7,24 +7,6 @@ namespace System.CommandLine.Parsing
 {
     public static class CommandResultExtensions
     {
-        [Obsolete("Use GetArgumentValueOrDefault instead. This method will be removed in a future version.")]
-        public static object GetValueOrDefault(this CommandResult commandResult)
-        {
-            return commandResult.GetValueOrDefault<object>();
-        }
-
-        [Obsolete("Use GetArgumentValueOrDefault instead. This method will be removed in a future version.")]
-        public static T GetValueOrDefault<T>(this CommandResult commandResult)
-        {
-            var conversionResult = commandResult.ArgumentConversionResults
-                                                .SingleOrDefault() ??
-                                   ArgumentConversionResult.None(commandResult.ArgumentConversionResult.Argument);
-
-            return conversionResult
-                   .ConvertIfNeeded(commandResult, typeof(T))
-                   .GetValueOrDefault<T>();
-        }
-
         public static object GetArgumentValueOrDefault(
             this CommandResult commandResult,
             string argumentName)
