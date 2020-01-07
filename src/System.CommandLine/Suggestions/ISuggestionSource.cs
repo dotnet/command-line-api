@@ -7,6 +7,6 @@ namespace System.CommandLine.Suggestions
 {
     public interface ISuggestionSource
     {
-        IEnumerable<string> Suggest(string textToMatch = null);
+        IEnumerable<string> GetSuggestions(string textToMatch = null);
     }
 }

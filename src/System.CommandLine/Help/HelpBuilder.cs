@@ -315,7 +315,7 @@ namespace System.CommandLine.Help
                 return "";
             }
 
-            var suggestions = argument.Suggest().ToArray();
+            var suggestions = argument.GetSuggestions().ToArray();
             if (suggestions.Length > 0)
             {
                 return string.Join("|", suggestions);

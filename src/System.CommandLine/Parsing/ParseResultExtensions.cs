@@ -199,7 +199,7 @@ namespace System.CommandLine.Parsing
 
             var currentSymbolSuggestions =
                 currentSymbol is ISuggestionSource currentSuggestionSource
-                    ? currentSuggestionSource.Suggest(textToMatch)
+                    ? currentSuggestionSource.GetSuggestions(textToMatch)
                     : Array.Empty<string>();
 
             IEnumerable<string> siblingSuggestions;
@@ -213,7 +213,7 @@ namespace System.CommandLine.Parsing
             else
             {
                 siblingSuggestions = parentSymbol
-                                     .Suggest(textToMatch)
+                                     .GetSuggestions(textToMatch)
                                      .Except(parentSymbol
                                              .Children
                                              .OfType<ICommand>()
