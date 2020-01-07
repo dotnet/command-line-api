@@ -8,14 +8,14 @@ using System.Reflection;
 namespace System.CommandLine
 {
     /// <summary>
-    /// A command representing entry point of an application and used to Invoke the correct handlers.
+    /// A command representing an application entry point.
     /// </summary>
     public class RootCommand : Command
     {
         /// <summary>
         /// Create a new instance of RootCommand
         /// </summary>
-        /// <param name="description">The description of the command that could be used in a help display.</param>
+        /// <param name="description">The description of the command shown in help.</param>
         public RootCommand(string description = "") : base(ExeName, description)
         {
         }
