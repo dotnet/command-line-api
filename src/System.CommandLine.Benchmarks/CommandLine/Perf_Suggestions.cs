@@ -50,7 +50,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Benchmark]
         public void SuggestionsFromSymbol()
         {
-            _testSymbol.Suggest().Consume(new Consumer());
+            _testSymbol.GetSuggestions().Consume(new Consumer());
         }
 
         [GlobalSetup(Target = nameof(SuggestionsFromParseResult))]

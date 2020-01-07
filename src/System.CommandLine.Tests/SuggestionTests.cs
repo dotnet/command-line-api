@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests
                     .WithSuggestions("one", "two", "three")
             };
 
-            var suggestions = option.Suggest();
+            var suggestions = option.GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("one", "two", "three");
         }
@@ -58,7 +58,7 @@ namespace System.CommandLine.Tests
 
             var command = command1;
 
-            var suggestions = command.Suggest();
+            var suggestions = command.GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("--one", "--two", "--three");
         }
@@ -73,7 +73,7 @@ namespace System.CommandLine.Tests
                 new Command("three")
             };
 
-            var suggestions = command.Suggest();
+            var suggestions = command.GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("one", "two", "three");
         }
@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
                 new Option("--option")
             };
 
-            var suggestions = command.Suggest();
+            var suggestions = command.GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("subcommand", "--option");
         }
@@ -106,7 +106,7 @@ namespace System.CommandLine.Tests
                     .WithSuggestions("command-argument")
             };
 
-            var suggestions = command.Suggest();
+            var suggestions = command.GetSuggestions();
 
             suggestions.Should()
                        .BeEquivalentTo("subcommand", "--option", "command-argument");
