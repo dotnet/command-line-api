@@ -14,7 +14,7 @@ namespace System.CommandLine.Suggestions
             this.suggest = suggest;
         }
 
-        public IEnumerable<string> Suggest(string textToMatch = null)
+        public IEnumerable<string> GetSuggestions(string textToMatch = null)
         {
             return suggest(textToMatch);
         }
