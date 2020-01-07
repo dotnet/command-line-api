@@ -40,6 +40,10 @@ Finally, launch the `dotnet try` pointing to the tutorial directory inside the c
 > dotnet try <PATH_TO_COMMAND_LINE_API_REPO>/samples/tutorial
 ```
 
+## Code of Conduct
+
+This project has adopted the code of conduct defined by the [Contributor Covenant](https://www.contributor-covenant.org/) to clarify expected behavior in our community. For more information, see the [.NET Foundation Code of Conduct](https://www.dotnetfoundation.org/code-of-conduct)
+
 ## Contributing
 
 See the [Contributing guide](CONTRIBUTING.md) for developer documentation.
