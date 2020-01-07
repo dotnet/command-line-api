@@ -153,12 +153,19 @@ namespace System.CommandLine.Tests
             string delimiter,
             string template)
         {
-            Action create = () => new Parser(
-                new Option(
-                    string.Format(template, delimiter)));
+            var alias = string.Format(template, delimiter);
 
-            create.Should().Throw<ArgumentException>().Which.Message.Should()
-                  .Be($"Symbol cannot contain delimiter: \"{delimiter}\"");
+            Action create = () =>
+            {
+                new Parser(new Option(alias));
+            };
+
+            create.Should()
+                  .Throw<ArgumentException>()
+                  .Which
+                  .Message
+                  .Should()
+                  .Be($"Option \"{alias}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
         }
 
         [Theory]

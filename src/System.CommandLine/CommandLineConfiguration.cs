@@ -48,7 +48,7 @@ namespace System.CommandLine
                     {
                         if (alias.Contains(delimiter))
                         {
-                            throw new SymbolCannotContainDelimiterArgumentException(delimiter);
+                            throw new ArgumentException($"{symbol.GetType().Name} \"{alias}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
                         }
                     }
                 }
