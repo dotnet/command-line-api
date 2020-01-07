@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -332,7 +332,7 @@ namespace System.CommandLine.Tests
             outer.AddOption(new Option("-a"));
             var inner = new Command("inner")
             {
-                Argument = new Argument
+                new Argument
                 {
                     Arity = ArgumentArity.ZeroOrMore
                 }
@@ -1298,12 +1298,15 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Argument<string>(() => "default")
+                new Argument<string>("the-arg", () => "default")
             };
 
             ParseResult result = command.Parse("command");
 
-            result.CommandResult.GetValueOrDefault().Should().Be("default");
+            result.CommandResult
+                  .GetArgumentValueOrDefault("the-arg")
+                  .Should()
+                  .Be("default");
         }
 
         [Fact]
@@ -1347,23 +1350,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_default_argument_value_does_not_override_parsed_value()
         {
-            DirectoryInfo receivedArg = null;
-
             var command = new Command("inner")
             {
-                Argument = new Argument<DirectoryInfo>(() => new DirectoryInfo(Directory.GetCurrentDirectory()))
+                new Argument<DirectoryInfo>(() => new DirectoryInfo(Directory.GetCurrentDirectory()))
                 {
-                    Name = "arg"
-                },
-                Handler = CommandHandler.Create<DirectoryInfo>(arg => receivedArg = arg)
+                    Name = "the-arg"
+                }
             };
+            command.Handler = CommandHandler.Create<DirectoryInfo>(arg => { } );
 
             var result = command.Parse("the-directory");
 
             _output.WriteLine(result.ToString());
 
             result.CommandResult
-                  .GetValueOrDefault<DirectoryInfo>()
+                  .GetArgumentValueOrDefault<DirectoryInfo>("the-arg")
                   .Name
                   .Should()
                   .Be("the-directory");
@@ -1712,7 +1713,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                Argument = new Argument
+                new Argument
                 {
                     Arity = new ArgumentArity(3, 3)
                 }
@@ -1733,7 +1734,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                Argument = new Argument
+                new Argument
                 {
                     Arity = new ArgumentArity(3, 5)
                 }
@@ -1764,7 +1765,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                Argument = new Argument
+                new Argument
                 {
                     Arity = new ArgumentArity(2, 3)
                 }
@@ -1783,7 +1784,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                Argument = new Argument
+                new Argument
                 {
                     Arity = new ArgumentArity(2, 3)
                 }

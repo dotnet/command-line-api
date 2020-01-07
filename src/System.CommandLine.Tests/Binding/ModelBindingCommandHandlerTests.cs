@@ -147,13 +147,13 @@ namespace System.CommandLine.Tests.Binding
                                            .GetCommandHandler();
 
             var command = new Command("the-command")
-                          {
-                              Argument = new Argument
-                                         {
-                                             Name = "value",
-                                             ArgumentType = type
-                                         }
-                          };
+            {
+                new Argument
+                {
+                    Name = "value",
+                    ArgumentType = type
+                }
+            };
 
             var console = new TestConsole();
 

@@ -33,7 +33,6 @@ namespace System.CommandLine.Parsing
             {
                 var argument =  Symbol switch {
                     IOption o => o.Argument,
-                    ICommand c => c.Argument,
                     IArgument a => a,
                     _ => null
                 };

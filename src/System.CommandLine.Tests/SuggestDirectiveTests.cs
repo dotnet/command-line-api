@@ -243,8 +243,8 @@ namespace System.CommandLine.Tests
                               new Command("child"),
                               new Option("--option1"),
                               new Option("--option2"),
+                              new Argument<string>()
                           };
-            command.Argument = new Argument<string>();
 
             var console = new TestConsole();
 
