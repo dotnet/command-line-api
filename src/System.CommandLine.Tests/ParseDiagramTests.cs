@@ -41,16 +41,9 @@ namespace System.CommandLine.Tests
         public void Parse_result_diagram_displays_unmatched_tokens()
         {
             var command = new Command("command")
-                                      {
-                                          new Option("-x")
-                                          {
-                                              Argument = new Argument
-                                                  {
-                                                      Arity = ArgumentArity.ExactlyOne
-                                                  }
-                                                  .FromAmong("arg1", "arg2", "arg3")
-                                          }
-                                      };
+            {
+                new Option<string>("-x").FromAmong("arg1", "arg2", "arg3")
+            };
 
             var result = command.Parse("command -x ar");
 

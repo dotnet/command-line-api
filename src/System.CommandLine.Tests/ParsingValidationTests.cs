@@ -306,7 +306,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_argument_can_be_invalid_based_on_file_existence()
+        public void A_command_argument_can_be_invalid_based_on_file_existence()
         {
             var command = new Command("move")
             {
@@ -331,6 +331,25 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .Contain(e => e.SymbolResult.Symbol.Name == "move" &&
+                                e.Message == $"File does not exist: {guid}");
+        }
+
+        [Fact]
+        public void An_option_argument_can_be_invalid_based_on_file_existence()
+        {
+            var command = new Command("move")
+            {
+                new Option<FileInfo>("--to").ExistingOnly()
+            };
+
+            Guid guid = Guid.NewGuid();
+            var result =
+                command.Parse(
+                    $@"move --to ""{guid}""");
+
+            result.Errors
+                  .Should()
+                  .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
                                 e.Message == $"File does not exist: {guid}");
         }
 

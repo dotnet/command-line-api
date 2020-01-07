@@ -490,7 +490,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Suggestions_can_be_provided_using_a_delegate()
+        public void Command_argument_suggestions_can_be_provided_using_a_delegate()
         {
             var command = new Command("the-command")
             {
@@ -510,7 +510,29 @@ namespace System.CommandLine.Tests
             };
 
             command.Parse("the-command one m")
-                   .Suggestions()
+                   .GetSuggestions()
+                   .Should()
+                   .BeEquivalentTo("animal", "mineral");
+        }
+
+        [Fact]
+        public void Option_argument_suggestions_can_be_provided_using_a_delegate()
+        {
+            var command = new Command("the-command")
+            {
+                new Option<string>("-x")
+                    .WithSuggestionSource(_ => new[]
+                    {
+                        "vegetable",
+                        "mineral",
+                        "animal"
+                    })
+            };
+
+            var parseResult = command.Parse("the-command -x m");
+
+            parseResult
+                   .GetSuggestions()
                    .Should()
                    .BeEquivalentTo("animal", "mineral");
         }
