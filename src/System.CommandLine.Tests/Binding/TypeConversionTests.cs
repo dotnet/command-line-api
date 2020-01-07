@@ -21,9 +21,9 @@ namespace System.CommandLine.Tests.Binding
             var argument = new Argument<MyCustomType>((SymbolResult parsed, out MyCustomType value) =>
             {
                 var custom = new MyCustomType();
-                foreach (var a in parsed.Arguments)
+                foreach (var a in parsed.Tokens)
                 {
-                    custom.Add(a);
+                    custom.Add(a.Value);
                 }
 
                 value = custom;
@@ -263,7 +263,7 @@ namespace System.CommandLine.Tests.Binding
                 {
                     Argument = new Argument<int>((SymbolResult symbol, out int value) =>
                     {
-                        if (int.TryParse(symbol.Arguments.Single(), out value))
+                        if (int.TryParse(symbol.Tokens.Select(t => t.Value).Single(), out value))
                         {
                             return true;
                         }
@@ -708,7 +708,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("the-command -x nope yep");
 
-            result.CommandResult.Arguments.Count.Should().Be(1);
+            result.CommandResult.Tokens.Count.Should().Be(1);
         }
 
         [Fact]

@@ -87,7 +87,8 @@ namespace System.CommandLine.Tests
                 .Parse($"@{responseFile}");
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three");
         }
@@ -110,7 +111,8 @@ namespace System.CommandLine.Tests
                 .Parse($"subcommand @{responseFile}");
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three");
         }
@@ -130,7 +132,8 @@ namespace System.CommandLine.Tests
                 .Parse($"@{responseFile} one two three");
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three");
         }
@@ -153,7 +156,8 @@ namespace System.CommandLine.Tests
                 .Parse($"subcommand @{responseFile}");
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three");
         }

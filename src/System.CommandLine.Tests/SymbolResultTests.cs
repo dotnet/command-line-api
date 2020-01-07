@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests
             }.Parse("-x")
              .FindResultFor(option);
 
-            result.Arguments.Should().BeEmpty();
+            result.Tokens.Should().BeEmpty();
         }
 
         [Fact]

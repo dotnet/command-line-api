@@ -66,10 +66,6 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        [Obsolete("Use the Tokens property instead. The Arguments property will be removed in a later version.")]
-        public IReadOnlyCollection<string> Arguments => 
-            Tokens.Select(t => t.Value).ToArray();
-
         public string ErrorMessage { get; set; }
 
         public SymbolResultSet Children { get; } = new SymbolResultSet();
@@ -187,7 +183,7 @@ namespace System.CommandLine.Parsing
                 }
                 else 
                 {
-                    return ArgumentConversionResult.Failure(argument, argumentResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Arguments)}");
+                    return ArgumentConversionResult.Failure(argument, argumentResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Tokens.Select(t => t.Value))}");
                 }
             }
 
@@ -197,10 +193,10 @@ namespace System.CommandLine.Parsing
                     return ArgumentConversionResult.Success(argument, null);
 
                 case 1:
-                    return ArgumentConversionResult.Success(argument, symbolResult.Arguments.SingleOrDefault());
+                    return ArgumentConversionResult.Success(argument, symbolResult.Tokens.Select(t => t.Value).SingleOrDefault());
 
                 default:
-                    return ArgumentConversionResult.Success(argument, symbolResult.Arguments);
+                    return ArgumentConversionResult.Success(argument, symbolResult.Tokens.Select(t => t.Value).ToArray());
             }
 
             bool ShouldCheckArity()

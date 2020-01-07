@@ -91,14 +91,14 @@ namespace System.CommandLine
                             value = ArgumentConverter.ConvertObject(
                                 this,
                                 ArgumentType,
-                                symbol.Arguments.SingleOrDefault());
+                                symbol.Tokens.Select(t => t.Value).SingleOrDefault());
                             break;
 
                         default:
                             value = ArgumentConverter.ConvertStrings(
                                 this,
                                 ArgumentType,
-                                symbol.Arguments);
+                                symbol.Tokens.Select(t => t.Value).ToArray());
                             break;
                     }
 

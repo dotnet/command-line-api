@@ -91,7 +91,8 @@ namespace System.CommandLine.Tests
             result.CommandResult
                   .Children
                   .ElementAt(0)
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("argument1");
         }
@@ -121,12 +122,14 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Parent
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("arg1");
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
         }
