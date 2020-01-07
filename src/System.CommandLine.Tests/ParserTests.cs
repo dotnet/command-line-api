@@ -130,8 +130,8 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("-o args_for_one -t args_for_two");
 
-            result["one"].Arguments.Single().Should().Be("args_for_one");
-            result["two"].Arguments.Single().Should().Be("args_for_two");
+            result["one"].Tokens.Single().Value.Should().Be("args_for_one");
+            result["two"].Tokens.Single().Value.Should().Be("args_for_two");
         }
 
         [Fact]
@@ -208,7 +208,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result["x"].Arguments.Should().ContainSingle(a => a == "some-value");
+            result["x"].Tokens.Should().ContainSingle(a => a.Value == "some-value");
         }
 
         [Fact]
@@ -227,7 +227,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result["hello"].Arguments.Should().ContainSingle(a => a == "there");
+            result["hello"].Tokens.Should().ContainSingle(a => a.Value == "there");
         }
 
         [Fact]
@@ -246,7 +246,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result["x"].Arguments.Should().ContainSingle(a => a == "some-value");
+            result["x"].Tokens.Should().ContainSingle(a => a.Value == "some-value");
         }
 
         [Fact]
@@ -264,7 +264,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result["hello"].Arguments.Should().ContainSingle(a => a == "there");
+            result["hello"].Tokens.Should().ContainSingle(a => a.Value == "there");
         }
 
         [Fact]
@@ -346,7 +346,8 @@ namespace System.CommandLine.Tests
             ParseResult result = parser.Parse("outer inner -abc");
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("-abc");
         }
@@ -574,12 +575,14 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("-a cat -v carrot -a dog");
 
             result["animals"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
             result["vegetables"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("carrot");
         }
@@ -610,12 +613,14 @@ namespace System.CommandLine.Tests
             var command = result.CommandResult;
 
             command["animals"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
             command["vegetables"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("carrot");
         }
@@ -642,12 +647,14 @@ namespace System.CommandLine.Tests
             ParseResult result = parser.Parse("-a cat dog -v carrot");
 
             result["animals"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo(new[] { "cat", "dog" });
 
             result["vegetables"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("carrot");
 
@@ -679,12 +686,14 @@ namespace System.CommandLine.Tests
             ParseResult result = parser.Parse("-a cat some-arg -v carrot");
 
             result["animals"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat");
 
             result["vegetables"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("carrot");
 
@@ -725,17 +734,19 @@ namespace System.CommandLine.Tests
             var command = result.CommandResult;
 
             command["animals"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
             command["vegetables"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("carrot");
 
             command
-                .Arguments
+                .Tokens
                 .Should()
                 .BeNullOrEmpty();
         }
@@ -770,17 +781,20 @@ namespace System.CommandLine.Tests
             var command = result.CommandResult;
 
             command["animals"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat");
 
             command["vegetables"]
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("carrot");
 
             command
-                .Arguments
+                .Tokens
+                .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("some-arg");
         }
@@ -815,13 +829,13 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(o =>
                                      o.Symbol.Name == "inner1" &&
-                                     o.Arguments.Single() == "argument1");
+                                     o.Tokens.Single().Value == "argument1");
             result.CommandResult
                   .Children
                   .Should()
                   .ContainSingle(o =>
                                      o.Symbol.Name == "inner2" &&
-                                     o.Arguments.Single() == "argument2");
+                                     o.Tokens.Single().Value == "argument2");
         }
 
         [Fact]
@@ -946,9 +960,17 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("outer arg1 inner arg2");
 
-            result.CommandResult.Parent.Arguments.Should().BeEquivalentTo("arg1");
+            result.CommandResult
+                  .Parent
+                  .Tokens.Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("arg1");
 
-            result.CommandResult.Arguments.Should().BeEquivalentTo("arg2");
+            result.CommandResult
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("arg2");
         }
 
         [Fact]
@@ -989,8 +1011,8 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            result.CommandResult["x"].Arguments.Should().BeEmpty();
-            result.CommandResult.Arguments.Should().BeEquivalentTo("the-argument");
+            result.CommandResult["x"].Tokens.Should().BeEmpty();
+            result.CommandResult.Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
         }
 
         [Fact]
@@ -1006,10 +1028,10 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
-            result.CommandResult["x"].Arguments.Should().BeEquivalentTo("the-argument");
-            result.CommandResult.Arguments.Should().BeEmpty();
+            result.CommandResult["x"].Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
+            result.CommandResult.Tokens.Should().BeEmpty();
         }
-        
+
         [Fact]
         public void Required_arguments_on_parent_commands_do_not_create_parse_errors_when_an_inner_command_is_specified()
         {
@@ -1110,11 +1132,12 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Parent
-                  .Arguments
+                  .Tokens
                   .Should()
                   .BeEmpty();
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("arg1");
             result.UnmatchedTokens
@@ -1173,7 +1196,7 @@ namespace System.CommandLine.Tests
 
             CommandResult completeResult = result.CommandResult;
 
-            completeResult.Arguments.Should().BeEquivalentTo("the-command");
+            completeResult.Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-command");
         }
 
         [Fact]
@@ -1266,7 +1289,8 @@ namespace System.CommandLine.Tests
             var result = parser.Parse(command);
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .OnlyContain(a => a == @"/temp/the file.txt");
         }
@@ -1288,9 +1312,9 @@ namespace System.CommandLine.Tests
             ParseResult result = parser.Parse(command);
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
                   .Should()
-                  .OnlyContain(a => a == @"c:\temp\the file.txt\");
+                  .OnlyContain(a => a.Value == @"c:\temp\the file.txt\");
         }
 
         [Fact]
@@ -1388,7 +1412,8 @@ namespace System.CommandLine.Tests
             ParseResult result = outer.Parse("outer inner -p:RandomThing=random");
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("-p:RandomThing=random");
         }
@@ -1440,7 +1465,8 @@ namespace System.CommandLine.Tests
             ParseResult result = command.Parse("the-command --one one");
 
             result.CommandResult["one"]
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("one");
         }
@@ -1531,7 +1557,8 @@ namespace System.CommandLine.Tests
                     })
                 .Parse(input);
 
-            parseResult["x"].Arguments
+            parseResult["x"].Tokens
+                            .Select(t => t.Value)
                             .Should()
                             .BeEquivalentTo(new[] { expected });
         }
