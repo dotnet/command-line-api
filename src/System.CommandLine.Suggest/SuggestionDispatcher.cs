@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -69,16 +71,21 @@ namespace System.CommandLine.Suggest
                         c => c.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration)))
                 };
 
-            Command CompleteScriptCommand() =>
-                new Command("script")
+            Command CompleteScriptCommand()
+            {
+                var command = new Command("script")
                 {
-                    Argument = new Argument<ShellType>
+                    new Argument<ShellType>
                     {
                         Name = nameof(ShellType)
-                    },
-                    Description = "Print complete script for specific shell",
-                    Handler = CommandHandler.Create<IConsole, ShellType>(SuggestionShellScriptHandler.Handle)
+                    }
                 };
+                
+                command.Handler = CommandHandler.Create<IConsole, ShellType>(SuggestionShellScriptHandler.Handle);
+                command.Description = "Print complete script for specific shell";
+                
+                return command;
+            }
 
             Command RegisterCommand()
             {

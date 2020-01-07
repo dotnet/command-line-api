@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.CommandLine.Binding;
+﻿using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Linq;

@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine
@@ -12,22 +13,6 @@ namespace System.CommandLine
     {
         public Command(string name, string description = null) : base(new[] { name }, description)
         {
-        }
-
-        [Obsolete("Use the Arguments property instead")]
-        public virtual Argument Argument
-        {
-            get => Arguments.SingleOrDefault() ??
-                   Argument.None;
-            set
-            {
-                foreach (var argument in Arguments.ToArray())
-                {
-                    Children.Remove(argument);
-                }
-
-                AddArgumentInner(value);
-            }
         }
 
         public IEnumerable<Argument> Arguments => Children.OfType<Argument>();
@@ -55,10 +40,6 @@ namespace System.CommandLine
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-#pragma warning disable 618
-        IArgument ICommand.Argument => Argument;
-#pragma warning restore 618
 
         IEnumerable<IArgument> ICommand.Arguments => Arguments;
 

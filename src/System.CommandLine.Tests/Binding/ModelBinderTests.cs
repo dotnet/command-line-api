@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -60,7 +61,7 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("the-command")
             {
-                Argument = new Argument
+                new Argument
                 {
                     Name = "value",
                     ArgumentType = type
@@ -145,7 +146,7 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("the-command")
             {
-                Argument = new Argument
+                new Argument
                 {
                     Name = "value",
                     ArgumentType = type

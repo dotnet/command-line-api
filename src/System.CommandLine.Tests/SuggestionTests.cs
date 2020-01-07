@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using Xunit;
@@ -32,7 +33,7 @@ namespace System.CommandLine.Tests
                     .WithSuggestions("one", "two", "three")
             };
 
-            var suggestions = option.Suggest();
+            var suggestions = option.GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("one", "two", "three");
         }
@@ -57,7 +58,7 @@ namespace System.CommandLine.Tests
 
             var command = command1;
 
-            var suggestions = command.Suggest();
+            var suggestions = command.GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("--one", "--two", "--three");
         }
@@ -72,7 +73,7 @@ namespace System.CommandLine.Tests
                 new Command("three")
             };
 
-            var suggestions = command.Suggest();
+            var suggestions = command.GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("one", "two", "three");
         }
@@ -86,7 +87,7 @@ namespace System.CommandLine.Tests
                 new Option("--option")
             };
 
-            var suggestions = command.Suggest();
+            var suggestions = command.GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("subcommand", "--option");
         }
@@ -105,7 +106,7 @@ namespace System.CommandLine.Tests
                     .WithSuggestions("command-argument")
             };
 
-            var suggestions = command.Suggest();
+            var suggestions = command.GetSuggestions();
 
             suggestions.Should()
                        .BeEquivalentTo("subcommand", "--option", "command-argument");
@@ -188,11 +189,11 @@ namespace System.CommandLine.Tests
         public void When_a_subcommand_has_been_specified_then_its_sibling_options_will_be_suggested()
         {
             var command = new RootCommand("parent")
-                          {
-                              new Command("child"),
-                              new Option("--parent-option")
-                          };
-            command.Argument = new Argument<string>();
+            {
+                new Command("child"), 
+                new Option("--parent-option"), 
+                new Argument<string>()
+            };
 
             var commandLine = "child";
             var parseResult = command.Parse(commandLine);

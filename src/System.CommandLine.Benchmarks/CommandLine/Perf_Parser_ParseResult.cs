@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 

@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Parsing;
+using System.CommandLine.Suggestions;
 using System.Linq;
 
 namespace System.CommandLine
@@ -162,15 +164,15 @@ namespace System.CommandLine
             AllowedValues.UnionWith(values);
         }
 
-        public override IEnumerable<string> Suggest(string textToMatch)
+        public override IEnumerable<string> GetSuggestions(string textToMatch)
         {
             var fixedSuggestions = _suggestions;
 
             var dynamicSuggestions = _suggestionSources
-                .SelectMany(source => source.Suggest(textToMatch));
+                .SelectMany(source => source.GetSuggestions(textToMatch));
 
             var typeSuggestions = SuggestionSource.ForType(ArgumentType)
-                                                  .Suggest(textToMatch);
+                                                  .GetSuggestions(textToMatch);
 
             return fixedSuggestions
                    .Concat(dynamicSuggestions)

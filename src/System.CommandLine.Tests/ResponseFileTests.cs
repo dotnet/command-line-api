@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -81,7 +82,7 @@ namespace System.CommandLine.Tests
 
             var result = new RootCommand
                          {
-                             Argument = new Argument<string[]>()
+                             new Argument<string[]>()
                          }
                 .Parse($"@{responseFile}");
 
@@ -103,7 +104,7 @@ namespace System.CommandLine.Tests
                          {
                              new Command("subcommand")
                              {
-                                 Argument = new Argument<string[]>()
+                                 new Argument<string[]>()
                              }
                          }
                 .Parse($"subcommand @{responseFile}");
@@ -123,7 +124,7 @@ namespace System.CommandLine.Tests
                          {
                              new Command("subcommand")
                              {
-                                 Argument = new Argument<string[]>()
+                                 new Argument<string[]>()
                              }
                          }
                 .Parse($"@{responseFile} one two three");
@@ -146,7 +147,7 @@ namespace System.CommandLine.Tests
                          {
                              new Command("subcommand")
                              {
-                                 Argument = new Argument<string[]>()
+                                 new Argument<string[]>()
                              }
                          }
                 .Parse($"subcommand @{responseFile}");

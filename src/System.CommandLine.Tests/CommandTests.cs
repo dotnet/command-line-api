@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Parsing;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
@@ -237,8 +238,8 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand();
             command.AddAlias("that");
-            command.Aliases.Should().BeEquivalentTo(RootCommand.ExeName, "that");
-            command.RawAliases.Should().BeEquivalentTo(RootCommand.ExeName, "that");
+            command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
+            command.RawAliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
 
             var result = command.Parse("that");
 

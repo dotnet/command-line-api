@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Help;
+using System.CommandLine.Parsing;
 using System.Threading;
 
 namespace System.CommandLine.Invocation

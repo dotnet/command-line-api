@@ -4,6 +4,8 @@
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.CommandLine.Tests;
 using System.CommandLine.Tests.Binding;
 using System.IO;
@@ -29,7 +31,7 @@ namespace System.CommandLine.DragonFruit.Tests
                              GetMethodInfo(nameof(Method_taking_bool)), this)
                          .Build();
 
-            await parser.InvokeAsync($"{RootCommand.ExeName} --value", _testConsole);
+            await parser.InvokeAsync($"{RootCommand.ExecutableName} --value", _testConsole);
 
             _receivedValues.Should().BeEquivalentTo(true);
         }

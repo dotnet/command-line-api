@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option("-y");
 
-            var result = option.Parse($"{RootCommand.ExeName} [parse] -y");
+            var result = option.Parse($"{RootCommand.ExecutableName} [parse] -y");
 
             result.UnmatchedTokens.Should().BeEmpty();
         }

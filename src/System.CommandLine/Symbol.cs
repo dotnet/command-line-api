@@ -2,6 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Collections;
+using System.CommandLine.Parsing;
+using System.CommandLine.Suggestions;
 using System.Linq;
 
 namespace System.CommandLine
@@ -143,12 +146,12 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public virtual IEnumerable<string> Suggest(string textToMatch = null)
+        public virtual IEnumerable<string> GetSuggestions(string textToMatch = null)
         {
             var argumentSuggestions =
                 Children
                     .OfType<IArgument>()
-                    .SelectMany(a => a.Suggest(textToMatch))
+                    .SelectMany(a => a.GetSuggestions(textToMatch))
                     .ToArray();
 
             return this.ChildSymbolAliases()

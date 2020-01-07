@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -36,7 +38,7 @@ namespace System.CommandLine.Tests.Help
             _output = output;
             _columnPadding = new string(' ', ColumnGutterWidth);
             _indentation = new string(' ', IndentationWidth);
-            _executableName = RootCommand.ExeName;
+            _executableName = RootCommand.ExecutableName;
         }
 
         private HelpBuilder GetHelpBuilder(int maxWidth)

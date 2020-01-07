@@ -16,7 +16,7 @@ namespace System.CommandLine
         /// Create a new instance of RootCommand
         /// </summary>
         /// <param name="description">The description of the command shown in help.</param>
-        public RootCommand(string description = "") : base(ExeName, description)
+        public RootCommand(string description = "") : base(ExecutableName, description
         {
         }
 
@@ -33,14 +33,14 @@ namespace System.CommandLine
             }
         }
 
-        private static readonly Lazy<string> executablePath = new Lazy<string>(() =>
+        private static readonly Lazy<string> _executablePath = new Lazy<string>(() =>
         {
             return GetAssembly().Location;
         });
 
-        private static readonly Lazy<string> executableName = new Lazy<string>(() =>
+        private static readonly Lazy<string> _executableName = new Lazy<string>(() =>
         {
-            var location = executablePath.Value;
+            var location = _executablePath.Value;
             if (string.IsNullOrEmpty(location))
             {
                 location = Environment.GetCommandLineArgs().FirstOrDefault();
@@ -53,13 +53,13 @@ namespace System.CommandLine
             Assembly.GetExecutingAssembly();
 
         /// <summary>
-        /// The name of the executable currently running, or if missing the first string argument.
+        /// The name of the currently running executable.
         /// </summary>
-        public static string ExeName => executableName.Value;
+        public static string ExecutableName => _executableName.Value;
 
         /// <summary>
         /// The path to the currently running executable.
         /// </summary>
-        public static string ExePath => executablePath.Value;
+        public static string ExecutablePath => _executablePath.Value;
     }
 }

@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests.Parsing
 {
     public class CommandLineStringSplitterTests
     {
-        private readonly ICommandLineStringSplitter _splitter = CommandLineStringSplitter.Instance;
+        private readonly CommandLineStringSplitter _splitter = CommandLineStringSplitter.Instance;
 
         [Theory]
         [InlineData("one two three four")]

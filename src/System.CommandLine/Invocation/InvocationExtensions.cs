@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -239,7 +241,7 @@ namespace System.CommandLine.Invocation
             this Parser parser,
             string commandLine,
             IConsole console = null) =>
-            parser.InvokeAsync(commandLine.SplitCommandLine().ToArray(), console);
+            parser.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Parser parser,
@@ -251,7 +253,7 @@ namespace System.CommandLine.Invocation
             this Command command,
             string commandLine,
             IConsole console = null) =>
-            command.InvokeAsync(commandLine.SplitCommandLine().ToArray(), console);
+            command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Command command,
@@ -271,7 +273,7 @@ namespace System.CommandLine.Invocation
             this Parser parser,
             string commandLine,
             IConsole console = null) =>
-            parser.Invoke(commandLine.SplitCommandLine().ToArray(), console);
+            parser.Invoke(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
         public static int Invoke(
             this Parser parser,
@@ -283,7 +285,7 @@ namespace System.CommandLine.Invocation
             this Command command,
             string commandLine,
             IConsole console = null) =>
-            command.Invoke(commandLine.SplitCommandLine().ToArray(), console);
+            command.Invoke(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
         public static int Invoke(
             this Command command,

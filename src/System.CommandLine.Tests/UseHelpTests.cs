@@ -3,6 +3,8 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -30,7 +32,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(result, _console);
 
-            _console.Out.ToString().Should().Contain($"{RootCommand.ExeName} command subcommand");
+            _console.Out.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand");
         }
 
         [Fact]

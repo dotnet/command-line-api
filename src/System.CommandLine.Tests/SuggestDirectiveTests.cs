@@ -3,6 +3,8 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -241,8 +243,8 @@ namespace System.CommandLine.Tests
                               new Command("child"),
                               new Option("--option1"),
                               new Option("--option2"),
+                              new Argument<string>()
                           };
-            command.Argument = new Argument<string>();
 
             var console = new TestConsole();
 

@@ -2,13 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="System.CommandLine.Parser"/> when parsing options with arguments.
+    /// Measures the performance of <see cref="Parser"/> when parsing options with arguments.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Options_With_Arguments

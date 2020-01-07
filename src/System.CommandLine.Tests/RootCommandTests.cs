@@ -13,7 +13,7 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.Name.Should().Be(RootCommand.ExeName);
+            rootCommand.Name.Should().Be(RootCommand.ExecutableName);
         }
 
         [Fact]
@@ -22,8 +22,8 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand();
             rootCommand.Name = "custom";
 
-            rootCommand.Aliases.Should().BeEquivalentTo("custom", RootCommand.ExeName);
-            rootCommand.RawAliases.Should().BeEquivalentTo("custom", RootCommand.ExeName);
+            rootCommand.Aliases.Should().BeEquivalentTo("custom", RootCommand.ExecutableName);
+            rootCommand.RawAliases.Should().BeEquivalentTo("custom", RootCommand.ExecutableName);
         }
     }
 }

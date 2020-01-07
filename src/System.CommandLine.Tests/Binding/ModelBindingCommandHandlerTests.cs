@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -146,13 +147,13 @@ namespace System.CommandLine.Tests.Binding
                                            .GetCommandHandler();
 
             var command = new Command("the-command")
-                          {
-                              Argument = new Argument
-                                         {
-                                             Name = "value",
-                                             ArgumentType = type
-                                         }
-                          };
+            {
+                new Argument
+                {
+                    Name = "value",
+                    ArgumentType = type
+                }
+            };
 
             var console = new TestConsole();
 
