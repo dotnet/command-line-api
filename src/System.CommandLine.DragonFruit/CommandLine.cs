@@ -172,7 +172,14 @@ namespace System.CommandLine.DragonFruit
 
                 if (argsParam.HasDefaultValue)
                 {
-                    argument.SetDefaultValue(argsParam.DefaultValue);
+                    if (argsParam.DefaultValue != null)
+                    {
+                        argument.SetDefaultValue(argsParam.DefaultValue);
+                    }
+                    else
+                    {
+                        argument.SetDefaultValue(() => null);
+                    }
                 }
 
                 command.AddArgument(argument);

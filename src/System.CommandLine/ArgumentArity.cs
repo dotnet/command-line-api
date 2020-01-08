@@ -122,13 +122,8 @@ namespace System.CommandLine
             }
 
             if (parent is ICommand &&
-                type.IsNullable())
-            {
-                return ZeroOrOne;
-            }
-
-            if (parent is ICommand &&
-                argument.HasDefaultValue)
+                (argument.HasDefaultValue ||
+                 type.IsNullable()))
             {
                 return ZeroOrOne;
             }

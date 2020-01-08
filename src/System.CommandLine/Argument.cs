@@ -116,9 +116,20 @@ namespace System.CommandLine
 
         public object GetDefaultValue() => _defaultValue?.Invoke();
 
-        public void SetDefaultValue(object value) => SetDefaultValue(() => value);
+        public void SetDefaultValue(object value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
 
-        public void SetDefaultValue(Func<object> value) => _defaultValue = value;
+            SetDefaultValue(() => value);
+        }
+
+        public void SetDefaultValue(Func<object> value)
+        {
+            _defaultValue = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         public bool HasDefaultValue => _defaultValue != null;
 
