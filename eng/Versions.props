@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <UsingToolSourceLink>true</UsingToolSourceLink>
     <UsingToolSymbolUploader>true</UsingToolSymbolUploader>
     <PublishWindowsPdb>true</PublishWindowsPdb>
   </PropertyGroup>
