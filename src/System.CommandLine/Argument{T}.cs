@@ -18,17 +18,17 @@ namespace System.CommandLine
             ArgumentType = typeof(T);
         }
 
-        public Argument(string name, Func<T> defaultValue) : this(name)
+        public Argument(string name, Func<T> getDefaultValue) : this(name)
         {
-            SetDefaultValue(() => defaultValue());
+            SetDefaultValueFactory(() => getDefaultValue());
         }
 
         public Argument(Func<T> defaultValue) : this()
         {
-            SetDefaultValue(() => defaultValue());
+            SetDefaultValueFactory(() => defaultValue());
         }
 
-        public Argument(TryConvertArgument<T> convert, Func<T> defaultValue = default) : this()
+        public Argument(TryConvertArgument<T> convert, Func<T> getDefaultValue = default) : this()
         {
             if (convert == null)
             {
@@ -49,9 +49,9 @@ namespace System.CommandLine
                 }
             };
 
-            if (defaultValue != default)
+            if (getDefaultValue != default)
             {
-                SetDefaultValue(() => defaultValue());
+                SetDefaultValueFactory(() => getDefaultValue());
             }
         }
     }

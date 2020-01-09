@@ -11,7 +11,7 @@ namespace System.CommandLine
 {
     public class Argument : Symbol, IArgument
     {
-        private Func<object> _defaultValue;
+        private Func<object> _getDefaultValue;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity _arity;
@@ -114,24 +114,27 @@ namespace System.CommandLine
 
         public void AddValidator(ValidateSymbol<ArgumentResult> validator) => Validators.Add(validator);
 
-        public object GetDefaultValue() => _defaultValue?.Invoke();
+        public object GetDefaultValue()
+        {
+            if (_getDefaultValue is null)
+            {
+                throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
+            }
+
+            return _getDefaultValue.Invoke();
+        }
 
         public void SetDefaultValue(object value)
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            SetDefaultValue(() => value);
+            SetDefaultValueFactory(() => value);
         }
 
-        public void SetDefaultValue(Func<object> value)
+        public void SetDefaultValueFactory(Func<object> getValue)
         {
-            _defaultValue = value ?? throw new ArgumentNullException(nameof(value));
+            _getDefaultValue = getValue ?? throw new ArgumentNullException(nameof(getValue));
         }
 
-        public bool HasDefaultValue => _defaultValue != null;
+        public bool HasDefaultValue => _getDefaultValue != null;
 
         internal static Argument None => new Argument { Arity = ArgumentArity.Zero };
 
