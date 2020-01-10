@@ -35,6 +35,8 @@ namespace System.CommandLine.Invocation
 
         public int ResultCode { get; set; }
 
+        public object ResultObject { get; set; }
+
         public IInvocationResult InvocationResult { get; set; }
 
         internal event Action<CancellationTokenSource> CancellationHandlingAdded

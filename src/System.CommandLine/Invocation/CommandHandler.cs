@@ -156,5 +156,22 @@ namespace System.CommandLine.Invocation
                     throw new NotSupportedException();
             }
         }
+        
+        internal static void SetResultObject(object value, InvocationContext context)
+        {
+            if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                var taskResult = value.GetType().GetProperty("Result").GetValue(value);
+
+                if (taskResult.GetType().Name != "VoidTaskResult")
+                {
+                    context.ResultObject = taskResult;
+                }
+            }
+            else
+            {
+                context.ResultObject = value;
+            }
+        }
     }
 }

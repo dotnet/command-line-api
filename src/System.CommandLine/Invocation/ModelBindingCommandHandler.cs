@@ -68,7 +68,11 @@ namespace System.CommandLine.Invocation
                 result = _handlerDelegate.DynamicInvoke(invocationArguments);
             }
 
-            return await CommandHandler.GetResultCodeAsync(result, context);
+            var resultCode = await CommandHandler.GetResultCodeAsync(result, context);
+            
+            CommandHandler.SetResultObject(result, context);
+            
+            return resultCode;
         }
     }
 }
