@@ -150,27 +150,24 @@ namespace System.CommandLine.Invocation
                     return context.ResultCode;
                 case int resultCode:
                     return resultCode;
-                case null:
-                    return context.ResultCode;
                 default:
-                    throw new NotSupportedException();
+                    return context.ResultCode;
             }
         }
         
         internal static void SetResultObject(object value, InvocationContext context)
         {
-            if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(Task<>))
+            switch (value)
             {
-                var taskResult = value.GetType().GetProperty("Result").GetValue(value);
-
-                if (taskResult.GetType().Name != "VoidTaskResult")
-                {
-                    context.ResultObject = taskResult;
-                }
-            }
-            else
-            {
-                context.ResultObject = value;
+                case Task task:
+                    value = task.GetType().GetProperty("Result").GetValue(value);
+                    SetResultObject(value, context);
+                    break;
+                case null:
+                    break;
+                default:
+                    context.ResultObject = value;
+                    break;
             }
         }
     }

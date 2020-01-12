@@ -193,6 +193,20 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         [Fact]
+        public async Task When_method_returns_guid_then_return_code_is_set_to_0()
+        {
+            var parser = new CommandLineBuilder()
+                         .ConfigureRootCommandFromMethod(
+                             GetMethodInfo(nameof(Method_returning_guid)), this)
+                         .Build();
+
+            var guid = new Guid("7F7EDB92-516F-4C69-AC42-369B16820299");
+            var result = await parser.InvokeAsync($"-g {guid}", _testConsole);
+
+            result.Should().Be(0);
+        }
+
+        [Fact]
         public async Task When_method_returns_Task_of_int_then_return_code_is_set_to_return_value()
         {
             var parser = new CommandLineBuilder()
@@ -203,6 +217,20 @@ namespace System.CommandLine.DragonFruit.Tests
             var result = await parser.InvokeAsync("-i 123", _testConsole);
 
             result.Should().Be(123);
+        }
+
+        [Fact]
+        public async Task When_method_returns_Task_of_guid_then_return_code_is_set_to_0()
+        {
+            var parser = new CommandLineBuilder()
+                         .ConfigureRootCommandFromMethod(
+                             GetMethodInfo(nameof(Method_returning_Task_of_guid)), this)
+                         .Build();
+
+            var guid = new Guid("7F7EDB92-516F-4C69-AC42-369B16820299");
+            var result = await parser.InvokeAsync($"-g {guid}", _testConsole);
+
+            result.Should().Be(0);
         }
 
         [Theory]
@@ -259,6 +287,17 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             await Task.Yield();
             return i;
+        }
+
+        internal Guid Method_returning_guid(Guid g)
+        {
+            return g;
+        }
+
+        internal async Task<Guid> Method_returning_Task_of_guid(Guid g)
+        {
+            await Task.Yield();
+            return g;
         }
 
         internal void Method_having_string_argument(string stringOption, int intOption, string argument)
