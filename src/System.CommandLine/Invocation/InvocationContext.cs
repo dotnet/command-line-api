@@ -4,6 +4,7 @@
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
@@ -35,7 +36,7 @@ namespace System.CommandLine.Invocation
 
         public int ResultCode { get; set; }
 
-        public object ResultObject { get; set; }
+        internal object InvokeResult { get; set; }
 
         public IInvocationResult InvocationResult { get; set; }
 
@@ -66,6 +67,27 @@ namespace System.CommandLine.Invocation
             }
 
             return _cts.Token;
+        }
+
+        /// <summary>
+        /// Set <see cref="InvokeResult"/> to the result of the command that was invoked.
+        /// </summary>
+        /// <param name="value">The result of the command invocation. When a task, it's assumed to already have been awaited.</param>
+        internal void SetInvokeResult(object value)
+        {
+            if (value is Task task)
+            {
+                var result = task.GetType().GetProperty("Result").GetValue(value);
+
+                if (result != null)
+                {
+                    InvokeResult = result;
+                }
+            }
+            else if (value != null)
+            {
+                InvokeResult = value;
+            }
         }
 
         public void Dispose()

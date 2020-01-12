@@ -154,21 +154,5 @@ namespace System.CommandLine.Invocation
                     return context.ResultCode;
             }
         }
-        
-        internal static void SetResultObject(object value, InvocationContext context)
-        {
-            switch (value)
-            {
-                case Task task:
-                    value = task.GetType().GetProperty("Result").GetValue(value);
-                    SetResultObject(value, context);
-                    break;
-                case null:
-                    break;
-                default:
-                    context.ResultObject = value;
-                    break;
-            }
-        }
     }
 }

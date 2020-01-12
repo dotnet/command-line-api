@@ -233,6 +233,32 @@ namespace System.CommandLine.DragonFruit.Tests
             result.Should().Be(0);
         }
 
+        [Fact]
+        public async Task When_ReturnValueResult_middleware_executes_then_value_contains_return_value()
+        {
+            ReturnValueResult returnValueResult = null;
+
+            var parser = new CommandLineBuilder()
+                            .UseDefaults()
+                            .UseReturnValue()
+                            .UseMiddleware((context) =>
+                            {
+                                returnValueResult = context.InvocationResult as ReturnValueResult;
+                                // returnValueResult.Value is null at this point because all middleware run before the command that executes.
+                            })
+                            .ConfigureRootCommandFromMethod(
+                                GetMethodInfo(nameof(Method_returning_Task_of_guid)), this)
+                            .Build();
+
+            var guid = new Guid("7F7EDB92-516F-4C69-AC42-369B16820299");
+            await parser.InvokeAsync($"-g {guid}", _testConsole);
+
+            // now that the command has executed, we can obtain the return value from IInvocationResult on ReturnValueResult
+            var result = returnValueResult.Value;
+
+            result.Should().BeEquivalentTo(guid);
+        }
+
         [Theory]
         [InlineData(typeof(IConsole))]
         [InlineData(typeof(InvocationContext))]

@@ -372,6 +372,17 @@ namespace System.CommandLine.Invocation
             return builder;
         }
 
+        public static CommandLineBuilder UseReturnValue(
+            this CommandLineBuilder builder)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                context.InvocationResult = new ReturnValueResult();
+                await next(context);
+            }, CommandLineBuilder.MiddlewareOrder.Middle);
+            return builder;
+        }
+
         public static CommandLineBuilder RegisterWithDotnetSuggest(
             this CommandLineBuilder builder)
         {

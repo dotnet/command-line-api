@@ -69,8 +69,8 @@ namespace System.CommandLine.Invocation
             }
 
             var resultCode = await CommandHandler.GetResultCodeAsync(result, context);
-            
-            CommandHandler.SetResultObject(result, context);
+
+            context.SetInvokeResult(result);
             
             return resultCode;
         }
