@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
                 };
 
             var i = 0;
-            option.Argument.SetDefaultValue(() => ++i);
+            option.Argument.SetDefaultValueFactory(() => ++i);
 
             var result1 = option.Parse("");
             var result2 = option.Parse("");

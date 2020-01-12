@@ -172,7 +172,14 @@ namespace System.CommandLine.DragonFruit
 
                 if (argsParam.HasDefaultValue)
                 {
-                    argument.SetDefaultValue(argsParam.DefaultValue);
+                    if (argsParam.DefaultValue != null)
+                    {
+                        argument.SetDefaultValue(argsParam.DefaultValue);
+                    }
+                    else
+                    {
+                        argument.SetDefaultValueFactory(() => null);
+                    }
                 }
 
                 command.AddArgument(argument);
@@ -289,7 +296,7 @@ namespace System.CommandLine.DragonFruit
 
             if (parameter.HasDefaultValue)
             {
-                argument.SetDefaultValue(parameter.GetDefaultValue);
+                argument.SetDefaultValueFactory(parameter.GetDefaultValue);
             }
 
             var option = new Option(

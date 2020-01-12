@@ -396,7 +396,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            option.Argument.SetDefaultValue(() => "the-default");
+            option.Argument.SetDefaultValueFactory(() => "the-default");
 
             IReadOnlyCollection<Symbol> symbols = new[]
             {

@@ -71,7 +71,8 @@ namespace System.CommandLine.DragonFruit.Tests
 
         [Theory]
         [InlineData(nameof(Method_having_string_argument), 1, 1)]
-        [InlineData(nameof(Method_having_string_argument_with_default_value), 0, 1)]
+        [InlineData(nameof(Method_having_string_argument_with_null_default_value), 0, 1)]
+        [InlineData(nameof(Method_having_string_argument_with_non_null_default_value), 0, 1)]
         [InlineData(nameof(Method_having_string_array_arguments), 0, byte.MaxValue)]
         [InlineData(nameof(Method_having_string_array_arguments_with_default_value), 0, byte.MaxValue)]
         [InlineData(nameof(Method_having_FileInfo_argument), 1, 1)]
@@ -95,7 +96,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
         [Theory]
         [InlineData(nameof(Method_having_string_argument), "argument")]
-        [InlineData(nameof(Method_having_string_argument_with_default_value), "argument")]
+        [InlineData(nameof(Method_having_string_argument_with_null_default_value), "argument")]
         [InlineData(nameof(Method_having_string_array_arguments), "arguments")]
         [InlineData(nameof(Method_having_string_array_arguments_with_default_value), "arguments")]
         [InlineData(nameof(Method_having_FileInfo_argument), "argument")]
@@ -116,7 +117,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
         [Theory]
         [InlineData(nameof(Method_having_string_argument))]
-        [InlineData(nameof(Method_having_string_argument_with_default_value))]
+        [InlineData(nameof(Method_having_string_argument_with_null_default_value))]
         [InlineData(nameof(Method_having_string_array_arguments))]
         [InlineData(nameof(Method_having_string_array_arguments_with_default_value))]
         [InlineData(nameof(Method_having_FileInfo_argument))]
@@ -145,7 +146,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
         [Theory]
         [InlineData(nameof(Method_having_string_argument), typeof(string))]
-        [InlineData(nameof(Method_having_string_argument_with_default_value), typeof(string))]
+        [InlineData(nameof(Method_having_string_argument_with_null_default_value), typeof(string))]
         [InlineData(nameof(Method_having_string_array_arguments), typeof(string[]))]
         [InlineData(nameof(Method_having_string_array_arguments_with_default_value), typeof(string[]))]
         [InlineData(nameof(Method_having_FileInfo_argument), typeof(FileInfo))]
@@ -265,7 +266,11 @@ namespace System.CommandLine.DragonFruit.Tests
         {
         }
 
-        internal void Method_having_string_argument_with_default_value(string stringOption, int intOption, string argument = null)
+        internal void Method_having_string_argument_with_null_default_value(string stringOption, int intOption, string argument = null)
+        {
+        }
+
+        internal void Method_having_string_argument_with_non_null_default_value(string stringOption, int intOption, string argument = "the-default-value")
         {
         }
 
