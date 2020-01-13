@@ -721,7 +721,7 @@ namespace System.CommandLine.Tests
             {
                 new Option("--implicit")
                 {
-                    Argument = new Argument<string>(defaultValue: () => "the-default")
+                    Argument = new Argument<string>(getDefaultValue: () => "the-default")
                 },
                 new Option("--not")
                 {

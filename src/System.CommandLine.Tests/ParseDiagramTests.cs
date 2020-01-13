@@ -84,11 +84,11 @@ namespace System.CommandLine.Tests
             {
                 new Option(new[] { "-h", "--height" })
                 {
-                    Argument = new Argument<int>(defaultValue: () => 10), Description = ""
+                    Argument = new Argument<int>(getDefaultValue: () => 10), Description = ""
                 },
                 new Option(new[] { "-w", "--width" })
                 {
-                    Argument = new Argument<int>(defaultValue: () => 15), Description = ""
+                    Argument = new Argument<int>(getDefaultValue: () => 15), Description = ""
                 },
                 new Option(new[] { "-c", "--color" })
                 {

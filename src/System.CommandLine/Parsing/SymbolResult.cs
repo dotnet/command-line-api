@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Collections;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -50,7 +49,7 @@ namespace System.CommandLine.Parsing
                 {
                     var results = Children
                                   .OfType<ArgumentResult>()
-                                  .Select(r => Convert(r, r.Argument));
+                                  .Select(r => ArgumentResult.Convert(r, r.Argument));
 
                     _results = new ArgumentConversionResultSet();
 
@@ -136,76 +135,6 @@ namespace System.CommandLine.Parsing
 
         public override string ToString() => $"{GetType().Name}: {Token}";
 
-        internal static ArgumentConversionResult Convert(
-            ArgumentResult argumentResult,
-            IArgument argument) =>
-            Convert(argumentResult.Parent, argument);
-
-        internal static ArgumentConversionResult Convert(
-            SymbolResult symbolResult,
-            IArgument argument)
-        {
-            if (ShouldCheckArity() &&
-                ArgumentArity.Validate(symbolResult,
-                                       argument,
-                                       argument.Arity.MinimumNumberOfValues,
-                                       argument.Arity.MaximumNumberOfValues) is FailedArgumentConversionResult failedResult)
-            {
-                return failedResult;
-            }
-
-            if (symbolResult.UseDefaultValueFor(argument))
-            {
-                var defaultValueFor = symbolResult.GetDefaultValueFor(argument);
-
-                return ArgumentConversionResult.Success(argument, defaultValueFor);
-            }
-
-            if (argument is Argument a &&
-                a.ConvertArguments != null)
-            {
-                var argumentResult = (ArgumentResult) symbolResult.Children.ResultFor(argument);
-
-                if (argumentResult.ConversionResult != null)
-                {
-                    return argumentResult.ConversionResult;
-                }
-
-                var success = a.ConvertArguments(argumentResult, out var value);
-
-                if (value is ArgumentConversionResult conversionResult)
-                {
-                    return conversionResult;
-                }
-                else if (success)
-                {
-                    return ArgumentConversionResult.Success(argument, value);
-                }
-                else 
-                {
-                    return ArgumentConversionResult.Failure(argument, argumentResult.ErrorMessage ?? $"Invalid: {symbolResult.Token} {string.Join(" ", symbolResult.Tokens.Select(t => t.Value))}");
-                }
-            }
-
-            switch (argument.Arity.MaximumNumberOfValues)
-            {
-                case 0:
-                    return ArgumentConversionResult.Success(argument, null);
-
-                case 1:
-                    return ArgumentConversionResult.Success(argument, symbolResult.Tokens.Select(t => t.Value).SingleOrDefault());
-
-                default:
-                    return ArgumentConversionResult.Success(argument, symbolResult.Tokens.Select(t => t.Value).ToArray());
-            }
-
-            bool ShouldCheckArity()
-            {
-                return !(symbolResult is OptionResult optionResult &&
-                       optionResult.IsImplicit);
-            }
-        }
-
         internal ParseError UnrecognizedArgumentError(Argument argument)
         {
             if (argument.AllowedValues?.Count > 0 &&
@@ -225,7 +154,5 @@ namespace System.CommandLine.Parsing
 
             return null;
         }
-
-     
     }
 }
