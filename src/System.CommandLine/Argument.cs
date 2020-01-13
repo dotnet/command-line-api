@@ -11,7 +11,7 @@ namespace System.CommandLine
 {
     public class Argument : Symbol, IArgument
     {
-        private Func<object> _getDefaultValue;
+        private Func<object> _defaultValueFactory;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity _arity;
@@ -116,12 +116,12 @@ namespace System.CommandLine
 
         public object GetDefaultValue()
         {
-            if (_getDefaultValue is null)
+            if (_defaultValueFactory is null)
             {
                 throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
             }
 
-            return _getDefaultValue.Invoke();
+            return _defaultValueFactory.Invoke();
         }
 
         public void SetDefaultValue(object value)
@@ -129,12 +129,12 @@ namespace System.CommandLine
             SetDefaultValueFactory(() => value);
         }
 
-        public void SetDefaultValueFactory(Func<object> getValue)
+        public void SetDefaultValueFactory(Func<object> getDefaultValue)
         {
-            _getDefaultValue = getValue ?? throw new ArgumentNullException(nameof(getValue));
+            _defaultValueFactory = getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue));
         }
 
-        public bool HasDefaultValue => _getDefaultValue != null;
+        public bool HasDefaultValue => _defaultValueFactory != null;
 
         internal static Argument None => new Argument { Arity = ArgumentArity.Zero };
 
@@ -178,7 +178,7 @@ namespace System.CommandLine
             AllowedValues.UnionWith(values);
         }
 
-        public override IEnumerable<string> GetSuggestions(string textToMatch)
+        public override IEnumerable<string> GetSuggestions(string textToMatch = null)
         {
             var fixedSuggestions = _suggestions;
 

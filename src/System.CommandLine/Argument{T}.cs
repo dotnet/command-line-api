@@ -20,12 +20,22 @@ namespace System.CommandLine
 
         public Argument(string name, Func<T> getDefaultValue) : this(name)
         {
+            if (getDefaultValue == null)
+            {
+                throw new ArgumentNullException(nameof(getDefaultValue));
+            }
+
             SetDefaultValueFactory(() => getDefaultValue());
         }
 
-        public Argument(Func<T> defaultValue) : this()
+        public Argument(Func<T> getDefaultValue) : this()
         {
-            SetDefaultValueFactory(() => defaultValue());
+            if (getDefaultValue == null)
+            {
+                throw new ArgumentNullException(nameof(getDefaultValue));
+            }
+
+            SetDefaultValueFactory(() => getDefaultValue());
         }
 
         public Argument(TryConvertArgument<T> convert, Func<T> getDefaultValue = default) : this()

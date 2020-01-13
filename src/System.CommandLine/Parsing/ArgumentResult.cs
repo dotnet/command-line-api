@@ -39,5 +39,71 @@ namespace System.CommandLine.Parsing
 
             return null;
         }
+
+        internal static ArgumentConversionResult Convert(
+            ArgumentResult argumentResult,
+            IArgument argument)
+        {
+            var parentResult = argumentResult.Parent;
+
+            if (ShouldCheckArity() &&
+                ArgumentArity.Validate(parentResult,
+                                       argument,
+                                       argument.Arity.MinimumNumberOfValues,
+                                       argument.Arity.MaximumNumberOfValues) is FailedArgumentConversionResult failedResult)
+            {
+                return failedResult;
+            }
+
+            if (parentResult.UseDefaultValueFor(argument))
+            {
+                var defaultValueFor = parentResult.GetDefaultValueFor(argument);
+
+                return ArgumentConversionResult.Success(argument, defaultValueFor);
+            }
+
+            if (argument is Argument a &&
+                a.ConvertArguments != null)
+            {
+                if (argumentResult.ConversionResult != null)
+                {
+                    return argumentResult.ConversionResult;
+                }
+
+                var success = a.ConvertArguments(argumentResult, out var value);
+
+                if (value is ArgumentConversionResult conversionResult)
+                {
+                    return conversionResult;
+                }
+                else if (success)
+                {
+                    return ArgumentConversionResult.Success(argument, value);
+                }
+                else 
+                {
+                    return ArgumentConversionResult.Failure(argument, argumentResult.ErrorMessage ?? $"Invalid: {parentResult.Token} {string.Join(" ", parentResult.Tokens.Select(t => t.Value))}");
+                }
+            }
+
+            switch (argument.Arity.MaximumNumberOfValues)
+            {
+                case 0:
+                    return ArgumentConversionResult.Success(argument, null);
+
+                case 1:
+                    return ArgumentConversionResult.Success(argument, parentResult.Tokens.Select(t => t.Value).SingleOrDefault());
+
+                default:
+                    return ArgumentConversionResult.Success(argument, parentResult.Tokens.Select(t => t.Value).ToArray());
+            }
+
+            bool ShouldCheckArity()
+            {
+                return !(parentResult is OptionResult optionResult &&
+                       optionResult.IsImplicit);
+            }
+        }
+
     }
 }
