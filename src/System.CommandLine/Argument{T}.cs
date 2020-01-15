@@ -45,7 +45,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(convert));
             }
 
-            ConvertArguments = (SymbolResult result, out object value) =>
+            ConvertArguments = (ArgumentResult result, out object value) =>
             {
                 if (convert(result, out var valueObj))
                 {
