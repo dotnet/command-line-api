@@ -39,7 +39,7 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-        internal ArgumentConversionResult Convert(
+        internal virtual ArgumentConversionResult Convert(
             IArgument argument)
         {
             var parentResult = Parent;

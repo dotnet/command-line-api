@@ -64,5 +64,63 @@ namespace System.CommandLine
                 SetDefaultValueFactory(() => getDefaultValue());
             }
         }
+
+        public Argument(ParseArgument<T> parse, bool isDefault = false) : this()
+        {
+            if (isDefault)
+            {
+                SetDefaultValueFactory(() =>
+                {
+                    var argumentResult = new ArgumentResult<T>(
+                        this,
+                        null);
+
+                    if (parse(argumentResult))
+                    {
+                        argumentResult.ValueWasSpecified = true;
+                        return argumentResult.Value;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                });
+            }
+
+            ConvertArguments = (ArgumentResult originalResult, out object value) =>
+            {
+                var newResult = new ArgumentResult<T>(
+                    this,
+                    originalResult.Parent);
+
+                foreach (var token in originalResult.Tokens)
+                {
+                    newResult.AddToken(token);
+                }
+
+                if (parse(newResult))
+                {
+                    if (string.IsNullOrEmpty(newResult.ErrorMessage))
+                    {
+                        newResult.ValueWasSpecified = true;
+                        value = newResult.Value;
+                        originalResult.Parent.Children.Remove(originalResult);
+                        originalResult.Parent.Children.Add(newResult);
+                        return true;
+                    }
+                    else
+                    {
+                        originalResult.ErrorMessage = newResult.ErrorMessage;
+                        value = default(T);
+                        return false;
+                    }
+                }
+                else
+                {
+                    value = default(T);
+                    return false;
+                }
+            };
+        }
     }
 }
