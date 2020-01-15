@@ -1,10 +1,15 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Binding;
+using System.Linq;
+
 namespace System.CommandLine.Parsing
 {
     public class OptionResult : SymbolResult
     {
+        private ArgumentConversionResult _argumentConversionResult;
+
         internal OptionResult(
             IOption option,
             Token token,
@@ -32,6 +37,24 @@ namespace System.CommandLine.Parsing
                 }
 
                 return capacity;
+            }
+        }
+
+        internal ArgumentConversionResult ArgumentConversionResult
+        {
+            get
+            {
+                if (_argumentConversionResult == null)
+                {
+                    var results = Children
+                                  .OfType<ArgumentResult>()
+                                  .Select(r => r.Convert(r.Argument));
+
+                    _argumentConversionResult = results.SingleOrDefault() ??
+                                                ArgumentConversionResult.None(Option.Argument);
+                }
+
+                return _argumentConversionResult;
             }
         }
     }

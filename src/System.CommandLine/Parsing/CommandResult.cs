@@ -9,6 +9,8 @@ namespace System.CommandLine.Parsing
 {
     public class CommandResult : SymbolResult
     {
+        private ArgumentConversionResultSet _results;
+
         internal CommandResult(
             ICommand command,
             Token token,
@@ -75,6 +77,28 @@ namespace System.CommandLine.Parsing
             else
             {
                 return default;
+            }
+        }
+
+        internal ArgumentConversionResultSet ArgumentConversionResults
+        {
+            get
+            {
+                if (_results == null)
+                {
+                    var results = Children
+                                  .OfType<ArgumentResult>()
+                                  .Select(r => r.Convert(r.Argument));
+
+                    _results = new ArgumentConversionResultSet();
+
+                    foreach (var result in results)
+                    {
+                        _results.Add(result);
+                    }
+                }
+
+                return _results;
             }
         }
     }
