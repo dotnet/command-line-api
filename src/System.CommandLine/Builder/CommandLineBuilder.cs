@@ -12,7 +12,7 @@ namespace System.CommandLine.Builder
 {
     public class CommandLineBuilder : CommandBuilder
     {
-        private List<(InvocationMiddleware middleware, int order)> _middlewareList;
+        private List<(InvocationMiddleware middleware, MiddlewareOrder order)> _middlewareList;
 
         public CommandLineBuilder(Command rootCommand = null)
             : base(rootCommand ?? new RootCommand())
@@ -49,24 +49,14 @@ namespace System.CommandLine.Builder
 
         internal void AddMiddleware(
             InvocationMiddleware middleware,
-            int order)
+            MiddlewareOrder order)
         {
             if (_middlewareList == null)
             {
-                _middlewareList = new List<(InvocationMiddleware, int)>();
+                _middlewareList = new List<(InvocationMiddleware, MiddlewareOrder)>();
             }
 
             _middlewareList.Add((middleware, order));
-        }
-
-        internal static class MiddlewareOrder
-        {
-            public const int ProcessExit = int.MinValue;
-            public const int ExceptionHandler = ProcessExit + 100;
-            public const int Configuration = ExceptionHandler + 100;
-            public const int Preprocessing = Configuration + 100;
-            public const int AfterPreprocessing = Preprocessing + 100;
-            public const int Middle = 0;
         }
     }
 }
