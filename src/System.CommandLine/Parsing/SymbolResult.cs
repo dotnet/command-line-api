@@ -14,12 +14,9 @@ namespace System.CommandLine.Parsing
 
         private protected SymbolResult(
             ISymbol symbol, 
-            Token token, 
             SymbolResult parent = null)
         {
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
-
-            Token = token ?? throw new ArgumentNullException(nameof(token));
 
             Parent = parent;
         }
@@ -31,8 +28,6 @@ namespace System.CommandLine.Parsing
         public SymbolResult Parent { get; }
 
         public ISymbol Symbol { get; }
-
-        public Token Token { get; }
 
         public IReadOnlyList<Token> Tokens => _tokens;
 
@@ -84,7 +79,8 @@ namespace System.CommandLine.Parsing
             }
 
             if (this is CommandResult &&
-                Children.ResultFor(argument)?.Token is ImplicitToken)
+                Children.ResultFor(argument)?.Tokens is {} tokens && 
+                tokens.All(t => t is ImplicitToken))
             {
                 return true;
             }
@@ -92,7 +88,7 @@ namespace System.CommandLine.Parsing
             return _defaultArgumentValues.ContainsKey(argument);
         }
 
-        public override string ToString() => $"{GetType().Name}: {Token}";
+        public override string ToString() => $"{GetType().Name}: {this.Token()}";
 
         internal ParseError UnrecognizedArgumentError(Argument argument)
         {

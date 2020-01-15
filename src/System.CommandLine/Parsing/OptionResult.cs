@@ -15,15 +15,17 @@ namespace System.CommandLine.Parsing
             Token token,
             CommandResult parent = null) :
             base(option ?? throw new ArgumentNullException(nameof(option)),
-                 token ?? throw new ArgumentNullException(nameof(token)),
                  parent)
         {
             Option = option;
+            Token = token ?? throw new ArgumentNullException(nameof(token));
         }
 
         public IOption Option { get; }
 
         public bool IsImplicit => Token is ImplicitToken;
+
+        public Token Token { get; }
 
         private protected override int RemainingArgumentCapacity
         {

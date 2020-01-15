@@ -16,10 +16,11 @@ namespace System.CommandLine.Parsing
             Token token,
             CommandResult parent = null) :
             base(command ?? throw new ArgumentNullException(nameof(command)),
-                 token ?? throw new ArgumentNullException(nameof(token)),
                  parent)
         {
             Command = command;
+
+            Token = token ?? throw new ArgumentNullException(nameof(token));
         }
 
         public ICommand Command { get; }
@@ -30,6 +31,9 @@ namespace System.CommandLine.Parsing
         {
             return Children[alias] as OptionResult;
         }
+
+        public Token Token { get; }
+
 
         internal virtual RootCommandResult Root => (Parent as CommandResult)?.Root;
 

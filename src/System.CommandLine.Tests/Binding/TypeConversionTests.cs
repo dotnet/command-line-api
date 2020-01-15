@@ -261,14 +261,14 @@ namespace System.CommandLine.Tests.Binding
             {
                 new Option(new[] { "-o", "--one" })
                 {
-                    Argument = new Argument<int>((ArgumentResult symbol, out int value) =>
+                    Argument = new Argument<int>((ArgumentResult argumentResult, out int value) =>
                     {
-                        if (int.TryParse(symbol.Tokens.Select(t => t.Value).Single(), out value))
+                        if (int.TryParse(argumentResult.Tokens.Select(t => t.Value).Single(), out value))
                         {
                             return true;
                         }
 
-                        symbol.ErrorMessage = $"'{symbol.Token.Value}' is not an integer";
+                        argumentResult.ErrorMessage = $"'{argumentResult.Tokens.Single().Value}' is not an integer";
 
                         return false;
                     }),
@@ -984,10 +984,10 @@ namespace System.CommandLine.Tests.Binding
             callCount.Should().Be(1);
             handlerWasCalled.Should().BeTrue();
 
-            bool TryConvertInt(SymbolResult result, out int value)
+            bool TryConvertInt(ArgumentResult result, out int value)
             {
                 callCount++;
-                return int.TryParse(result.Token.Value, out value);
+                return int.TryParse(result.Tokens.Single().Value, out value);
             }
 
             void Run(int value) => handlerWasCalled = true;

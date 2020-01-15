@@ -10,8 +10,7 @@ namespace System.CommandLine.Parsing
     {
         internal ArgumentResult(
             IArgument argument,
-            Token token,
-            SymbolResult parent) : base(argument, token, parent)
+            SymbolResult parent) : base(argument, parent)
         {
             Argument = argument;
         }
@@ -81,7 +80,7 @@ namespace System.CommandLine.Parsing
                 }
                 else 
                 {
-                    return ArgumentConversionResult.Failure(argument, this.ErrorMessage ?? $"Invalid: {parentResult.Token} {string.Join(" ", parentResult.Tokens.Select(t => t.Value))}");
+                    return ArgumentConversionResult.Failure(argument, ErrorMessage ?? $"Invalid: {parentResult.Token()} {string.Join(" ", parentResult.Tokens.Select(t => t.Value))}");
                 }
             }
 

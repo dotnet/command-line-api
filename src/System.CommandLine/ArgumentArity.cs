@@ -59,7 +59,6 @@ namespace System.CommandLine
                     throw new ArgumentException("");
             }
 
-
             var tokenCount = argumentResult?.Tokens.Count ?? 0;
 
             if (tokenCount < minimumNumberOfValues)
@@ -87,7 +86,7 @@ namespace System.CommandLine
                     return new TooManyArgumentsConversionResult(
                         argument,
                         symbolResult.ValidationMessages.ExpectsFewerArguments(
-                            symbolResult.Token,
+                            symbolResult.Tokens.Last(),
                             tokenCount,
                             maximumNumberOfValues));
                 }

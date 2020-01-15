@@ -165,7 +165,7 @@ namespace System.CommandLine.Parsing
             else
             {
                 builder.Append("[ ");
-                builder.Append(symbolResult.Token.Value);
+                builder.Append(symbolResult.Token().Value);
 
                 foreach (var child in symbolResult.Children)
                 {

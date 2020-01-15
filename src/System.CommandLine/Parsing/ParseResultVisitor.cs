@@ -89,9 +89,8 @@ namespace System.CommandLine.Parsing
                 argumentResult =
                     new ArgumentResult(
                         argumentNode.Argument,
-                        argumentNode.Token,
                         commandResult);
-
+                
                 commandResult.Children.Add(argumentResult);
             }
 
@@ -131,7 +130,6 @@ namespace System.CommandLine.Parsing
                 argumentResult =
                     new ArgumentResult(
                         argumentNode.Argument,
-                        argumentNode.Token,
                         optionResult);
                 optionResult.Children.Add(argumentResult);
             }
@@ -158,7 +156,7 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            foreach (var result in _innermostCommandResult.Children)
+            foreach (var result in _innermostCommandResult.Children.ToArray())
             {
                 switch (result)
                 {
@@ -331,7 +329,6 @@ namespace System.CommandLine.Parsing
                                 optionResult.Children.Add(
                                     new ArgumentResult(
                                         option.Argument,
-                                        token,
                                         optionResult));
 
                                 commandResult.Children.Add(optionResult);
@@ -346,11 +343,11 @@ namespace System.CommandLine.Parsing
 
                                 var argumentResult = new ArgumentResult(
                                     argument,
-                                    implicitToken,
                                     commandResult);
 
                                 commandResult.Children.Add(argumentResult);
                                 commandResult.AddToken(implicitToken);
+                                argumentResult.AddToken(implicitToken);
                                 _rootCommandResult.AddToSymbolMap(argumentResult);
 
                                 break;
@@ -364,7 +361,6 @@ namespace System.CommandLine.Parsing
                         o.Children.Add(
                             new ArgumentResult(
                                 o.Option.Argument,
-                                new ImplicitToken(true, TokenType.Argument),
                                 o));
                     }
                 }
@@ -381,7 +377,6 @@ namespace System.CommandLine.Parsing
                 _unparsedTokens,
                 _unmatchedTokens,
                 _errors,
-                _rawInput
-            );
+                _rawInput);
     }
 }
