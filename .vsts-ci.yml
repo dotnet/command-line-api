@@ -1,6 +1,8 @@
 variables:
   - name: _TeamName
-    value: DotNetCore
+  value: DotNetCore
+  - name: _DotNetArtifactsCategory
+    value: .NETCore
 
 # CI and PR triggers
 trigger:
@@ -60,8 +62,6 @@ stages:
                   /p:PublishToSymbolServer=true
                   /p:DotNetSymbolServerTokenMsdl=$(microsoft-symbol-server-pat)
                   /p:DotNetSymbolServerTokenSymWeb=$(symweb-symbol-server-pat)
-          - name: _DotNetArtifactsCategory
-            value: .NETCore
           - name: _PublishUsingPipelines
             value: true 
         # else
