@@ -56,7 +56,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -81,7 +81,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -107,7 +107,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -136,7 +136,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -160,7 +160,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -185,7 +185,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -206,7 +206,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -227,7 +227,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()

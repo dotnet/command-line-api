@@ -233,11 +233,9 @@ namespace System.CommandLine.Invocation
         }
 
         public static async Task<int> InvokeAsync(
-            this Parser parser,
-            ParseResult parseResult,
+            this ParseResult parseResult,
             IConsole console = null) =>
-            await new InvocationPipeline(parseResult)
-                .InvokeAsync(console);
+            await new InvocationPipeline(parseResult).InvokeAsync(console);
 
         public static Task<int> InvokeAsync(
             this Parser parser,
@@ -249,25 +247,10 @@ namespace System.CommandLine.Invocation
             this Parser parser,
             string[] args,
             IConsole console = null) =>
-            await parser.InvokeAsync(parser.Parse(args), console);
-
-        public static Task<int> InvokeAsync(
-            this Command command,
-            string commandLine,
-            IConsole console = null) =>
-            command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
-
-        public static async Task<int> InvokeAsync(
-            this Command command,
-            string[] args,
-            IConsole console = null)
-        {
-            return await GetInvocationPipeline(command, args).InvokeAsync(console);
-        }
+            await parser.Parse(args).InvokeAsync(console);
 
         public static int Invoke(
-            this Parser parser,
-            ParseResult parseResult,
+            this ParseResult parseResult,
             IConsole console = null) =>
             new InvocationPipeline(parseResult).Invoke(console);
 
@@ -281,32 +264,7 @@ namespace System.CommandLine.Invocation
             this Parser parser,
             string[] args,
             IConsole console = null) =>
-            parser.Invoke(parser.Parse(args), console);
-
-        public static int Invoke(
-            this Command command,
-            string commandLine,
-            IConsole console = null) =>
-            command.Invoke(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
-
-        public static int Invoke(
-            this Command command,
-            string[] args,
-            IConsole console = null)
-        {
-            return GetInvocationPipeline(command, args).Invoke(console);
-        }
-
-        private static InvocationPipeline GetInvocationPipeline(Command command, string[] args)
-        {
-            var parser = new CommandLineBuilder(command)
-                .UseDefaults()
-                .Build();
-
-            ParseResult parseResult = parser.Parse(args);
-
-            return new InvocationPipeline(parseResult);
-        }
+            parser.Parse(args).Invoke(console);
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {

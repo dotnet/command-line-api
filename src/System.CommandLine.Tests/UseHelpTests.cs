@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command subcommand --help");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand");
         }
@@ -116,7 +116,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command -h");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().BeEmpty();
         }
