@@ -3,5 +3,12 @@
 
 namespace System.CommandLine.Parsing
 {
-    public delegate bool ParseArgument<T>(ArgumentResult<T> result);
+    /// <summary>
+    /// Performs custom parsing of an argument.
+    /// </summary>
+    /// <typeparam name="T">The type which the argument is to be parsed as.</typeparam>
+    /// <param name="result">The argument result.</param>
+    /// <returns>The parsed value.</returns>
+    /// <remarks>Validation errors can be returned by setting <see cref="SymbolResult.ErrorMessage"/>.</remarks>
+    public delegate T ParseArgument<T>(ArgumentResult<T> result);
 }

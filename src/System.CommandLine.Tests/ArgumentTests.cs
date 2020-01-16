@@ -59,7 +59,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void HasDefaultValue_can_be_set_to_true()
             {
-                var argument = new Argument<FileSystemInfo>(result => true, true);
+                var argument = new Argument<FileSystemInfo>(result => null, true);
 
                 argument.HasDefaultValue
                         .Should()
@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void HasDefaultValue_can_be_set_to_false()
             {
-                var argument = new Argument<FileSystemInfo>(result => true, false);
+                var argument = new Argument<FileSystemInfo>(result => null, false);
 
                 argument.HasDefaultValue
                         .Should()
@@ -79,11 +79,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void GetDefaultValue_returns_specified_value()
             {
-                var argument = new Argument<string>(result =>
-                {
-                    result.Value = "the-default";
-                    return true;
-                }, isDefault: true);
+                var argument = new Argument<string>(result => "the-default", isDefault: true);
 
                 argument.GetDefaultValue()
                         .Should()
@@ -93,7 +89,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void GetDefaultValue_returns_null_when_parse_delegate_returns_true_without_setting_a_value()
             {
-                var argument = new Argument<string>(result => { return true; }, isDefault: true);
+                var argument = new Argument<string>(result => null, isDefault: true);
 
                 argument.GetDefaultValue()
                         .Should()
@@ -103,7 +99,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void GetDefaultValue_returns_null_when_parse_delegate_returns_true_and_sets_value_to_null()
             {
-                var argument = new Argument<string>(result => { return true; }, isDefault: true);
+                var argument = new Argument<string>(result => null, isDefault: true);
 
                 argument.GetDefaultValue()
                         .Should()
@@ -113,7 +109,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void GetDefaultValue_can_return_null()
             {
-                var argument = new Argument<string>(result => { return true; }, isDefault: true);
+                var argument = new Argument<string>(result => null, isDefault: true);
 
                 argument.GetDefaultValue()
                         .Should()
@@ -126,7 +122,7 @@ namespace System.CommandLine.Tests
                 var argument = new Argument<FileSystemInfo>(result =>
                 {
                     result.ErrorMessage = "oops!";
-                    return true;
+                    return null;
                 });
 
                 argument.Parse("x")
@@ -142,12 +138,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void custom_parsing_of_scalar_value_from_an_argument_with_one_token()
             {
-                var argument = new Argument<int>(result =>
-                {
-                    result.Value = int.Parse(result.Tokens.Single().Value);
-
-                    return true;
-                });
+                var argument = new Argument<int>(result => int.Parse(result.Tokens.Single().Value));
 
                 argument.Parse("123")
                         .FindResultFor(argument)
@@ -159,12 +150,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void custom_parsing_of_sequence_value_from_an_argument_with_one_token()
             {
-                var argument = new Argument<IEnumerable<int>>(result =>
-                {
-                    result.Value = result.Tokens.Single().Value.Split(',').Select(int.Parse);
-
-                    return true;
-                });
+                var argument = new Argument<IEnumerable<int>>(result => result.Tokens.Single().Value.Split(',').Select(int.Parse));
 
                 argument.Parse("1,2,3")
                         .FindResultFor(argument)
@@ -178,8 +164,7 @@ namespace System.CommandLine.Tests
             {
                 var argument = new Argument<IEnumerable<int>>(result =>
                 {
-                    result.Value = result.Tokens.Select(t => int.Parse(t.Value)).ToArray();
-                    return true;
+                    return result.Tokens.Select(t => int.Parse(t.Value)).ToArray();
                 });
 
                 argument.Parse("1 2 3")
@@ -192,13 +177,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void custom_parsing_of_scalar_value_from_an_argument_with_multiple_tokens()
             {
-                var argument = new Argument<int>(result =>
+                var argument = new Argument<int>(result => result.Tokens.Select(t => int.Parse(t.Value)).Sum())
                 {
-                    result.Value = result.Tokens.Select(t => int.Parse(t.Value)).Sum();
-                    return true;
-                });
-
-                argument.Arity = ArgumentArity.ZeroOrMore;
+                    Arity = ArgumentArity.ZeroOrMore
+                };
 
                 argument.Parse("1 2 3")
                         .FindResultFor(argument)

@@ -75,15 +75,9 @@ namespace System.CommandLine
                         this,
                         null);
 
-                    if (parse(argumentResult))
-                    {
-                        argumentResult.ValueWasSpecified = true;
-                        return argumentResult.Value;
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    var result = parse(argumentResult);
+                    argumentResult.ValueWasSpecified = true;
+                    return result;
                 });
             }
 
@@ -98,25 +92,19 @@ namespace System.CommandLine
                     newResult.AddToken(token);
                 }
 
-                if (parse(newResult))
+                var result = parse(newResult);
+                
+                if (string.IsNullOrEmpty(newResult.ErrorMessage))
                 {
-                    if (string.IsNullOrEmpty(newResult.ErrorMessage))
-                    {
-                        newResult.ValueWasSpecified = true;
-                        value = newResult.Value;
-                        originalResult.Parent.Children.Remove(originalResult);
-                        originalResult.Parent.Children.Add(newResult);
-                        return true;
-                    }
-                    else
-                    {
-                        originalResult.ErrorMessage = newResult.ErrorMessage;
-                        value = default(T);
-                        return false;
-                    }
+                    newResult.ValueWasSpecified = true;
+                    value = result;
+                    originalResult.Parent.Children.Remove(originalResult);
+                    originalResult.Parent.Children.Add(newResult);
+                    return true;
                 }
                 else
                 {
+                    originalResult.ErrorMessage = newResult.ErrorMessage;
                     value = default(T);
                     return false;
                 }
