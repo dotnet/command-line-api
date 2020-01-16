@@ -71,40 +71,25 @@ namespace System.CommandLine
             {
                 SetDefaultValueFactory(() =>
                 {
-                    var argumentResult = new ArgumentResult<T>(
+                    var argumentResult = new ArgumentResult(
                         this,
                         null);
 
-                    var result = parse(argumentResult);
-                    argumentResult.ValueWasSpecified = true;
-                    return result;
+                    return parse(argumentResult);
                 });
             }
 
-            ConvertArguments = (ArgumentResult originalResult, out object value) =>
+            ConvertArguments = (ArgumentResult argumentResult, out object value) =>
             {
-                var newResult = new ArgumentResult<T>(
-                    this,
-                    originalResult.Parent);
-
-                foreach (var token in originalResult.Tokens)
-                {
-                    newResult.AddToken(token);
-                }
-
-                var result = parse(newResult);
+                var result = parse(argumentResult);
                 
-                if (string.IsNullOrEmpty(newResult.ErrorMessage))
+                if (string.IsNullOrEmpty(argumentResult.ErrorMessage))
                 {
-                    newResult.ValueWasSpecified = true;
                     value = result;
-                    originalResult.Parent.Children.Remove(originalResult);
-                    originalResult.Parent.Children.Add(newResult);
                     return true;
                 }
                 else
                 {
-                    originalResult.ErrorMessage = newResult.ErrorMessage;
                     value = default(T);
                     return false;
                 }
