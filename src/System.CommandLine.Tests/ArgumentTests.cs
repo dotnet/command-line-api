@@ -161,7 +161,7 @@ namespace System.CommandLine.Tests
             {
                 var argument = new Argument<IEnumerable<int>>(result =>
                 {
-                    result.Value = result.Tokens.Single().Value.Split(",").Select(int.Parse);
+                    result.Value = result.Tokens.Single().Value.Split(',').Select(int.Parse);
 
                     return true;
                 });
