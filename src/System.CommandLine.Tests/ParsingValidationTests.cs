@@ -342,12 +342,10 @@ namespace System.CommandLine.Tests
                 new Option<FileInfo>("--to").ExistingOnly()
             };
 
-            Guid guid = Guid.NewGuid();
+            var guid = Guid.NewGuid();
             var result =
                 command.Parse(
                     $@"move --to ""{guid}""");
-
-            // FIX: (An_option_argument_can_be_invalid_based_on_file_existence) the symbol that the result points to is actually the argument, which is a bit unintuitive
 
             result.Errors
                   .Should()
