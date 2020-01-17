@@ -3,12 +3,26 @@
 
 namespace System.CommandLine.Invocation
 {
-    public enum MiddlewareOrder : byte
+    public enum MiddlewareOrder
     {
-        ProcessStart = byte.MinValue,
-        ExceptionHandler = ProcessStart + 10,
-        Configuration = ExceptionHandler + 10,
-        Default = Configuration + 50,
-        ErrorReporting = Default + 10,
+        ExceptionHandler = -2000,
+        Configuration = -1000,
+        Default = default,
+        ErrorReporting = 1000,
+    }
+
+    internal enum MiddlewareOrderInternal
+    {
+        Startup = -4000,
+        ExceptionHandler = -3000,
+        ConfigureConsole = -2500,
+        RegisterWithDotnetSuggest = -2400,
+        DebugDirective = -2300,
+        ParseDirective = -2200,
+        SuggestDirective = -2000,
+        TypoCorrection = -1900,
+        VersionOption = -1200,
+        HelpOption = -1100,
+        ParseErrorReporting = 1000,
     }
 }

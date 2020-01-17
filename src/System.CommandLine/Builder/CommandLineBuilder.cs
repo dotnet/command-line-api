@@ -12,7 +12,7 @@ namespace System.CommandLine.Builder
 {
     public class CommandLineBuilder : CommandBuilder
     {
-        private List<(InvocationMiddleware middleware, MiddlewareOrder order)> _middlewareList;
+        private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new List<(InvocationMiddleware middleware, int order)>();
 
         public CommandLineBuilder(Command rootCommand = null)
             : base(rootCommand ?? new RootCommand())
@@ -43,7 +43,7 @@ namespace System.CommandLine.Builder
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
-                                                       .ToArray(), 
+                                                       .ToArray(),
                     helpBuilderFactory: HelpBuilderFactory));
         }
 
@@ -51,12 +51,14 @@ namespace System.CommandLine.Builder
             InvocationMiddleware middleware,
             MiddlewareOrder order)
         {
-            if (_middlewareList == null)
-            {
-                _middlewareList = new List<(InvocationMiddleware, MiddlewareOrder)>();
-            }
+            _middlewareList.Add((middleware, (int) order));
+        }
 
-            _middlewareList.Add((middleware, order));
+        internal void AddMiddleware(
+            InvocationMiddleware middleware,
+            MiddlewareOrderInternal order)
+        {
+            _middlewareList.Add((middleware, (int) order));
         }
     }
 }
