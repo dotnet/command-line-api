@@ -41,6 +41,8 @@ namespace System.CommandLine
             return option;
         }
 
+        // FIX: (OptionExtensions) reduce/generalize ExistingOnly overloads
+
         public static Option<FileInfo> ExistingOnly(this Option<FileInfo> option)
         {
             option.Argument.AddValidator(symbol =>

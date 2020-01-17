@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -445,7 +446,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("move")
             {
-                new Argument<FileInfo[]>
+                new Argument<IEnumerable<FileInfo>>
                 {
                     Arity = ArgumentArity.ZeroOrMore
                 }.ExistingOnly(),
