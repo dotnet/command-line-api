@@ -79,7 +79,7 @@ namespace System.CommandLine.Builder
                 {
                     await next(context);
                 }
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            }, MiddlewareOrderInternal.VersionOption);
 
             return builder;
         }

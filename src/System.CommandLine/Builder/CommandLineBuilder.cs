@@ -12,7 +12,7 @@ namespace System.CommandLine.Builder
 {
     public class CommandLineBuilder : CommandBuilder
     {
-        private List<(InvocationMiddleware middleware, int order)> _middlewareList;
+        private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new List<(InvocationMiddleware middleware, int order)>();
 
         public CommandLineBuilder(Command rootCommand = null)
             : base(rootCommand ?? new RootCommand())
@@ -43,30 +43,22 @@ namespace System.CommandLine.Builder
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
-                                                       .ToArray(), 
+                                                       .ToArray(),
                     helpBuilderFactory: HelpBuilderFactory));
         }
 
         internal void AddMiddleware(
             InvocationMiddleware middleware,
-            int order)
+            MiddlewareOrder order)
         {
-            if (_middlewareList == null)
-            {
-                _middlewareList = new List<(InvocationMiddleware, int)>();
-            }
-
-            _middlewareList.Add((middleware, order));
+            _middlewareList.Add((middleware, (int) order));
         }
 
-        internal static class MiddlewareOrder
+        internal void AddMiddleware(
+            InvocationMiddleware middleware,
+            MiddlewareOrderInternal order)
         {
-            public const int ProcessExit = int.MinValue;
-            public const int ExceptionHandler = ProcessExit + 100;
-            public const int Configuration = ExceptionHandler + 100;
-            public const int Preprocessing = Configuration + 100;
-            public const int AfterPreprocessing = Preprocessing + 100;
-            public const int Middle = 0;
+            _middlewareList.Add((middleware, (int) order));
         }
     }
 }

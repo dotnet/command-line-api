@@ -66,7 +66,7 @@ namespace System.CommandLine.Invocation
                         blockProcessExit.Set();
                     }
                 }
-            }, CommandLineBuilder.MiddlewareOrder.ProcessExit);
+            }, MiddlewareOrderInternal.Startup);
 
             return builder;
         }
@@ -79,31 +79,33 @@ namespace System.CommandLine.Invocation
             {
                 context.BindingContext.ConsoleFactory = new AnonymousConsoleFactory(createConsole);
                 await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.Middle);
+            }, MiddlewareOrderInternal.ConfigureConsole);
 
             return builder;
         }
 
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
-            InvocationMiddleware middleware)
+            InvocationMiddleware middleware,
+            MiddlewareOrder order = MiddlewareOrder.Default)
         {
             builder.AddMiddleware(
                 middleware,
-                CommandLineBuilder.MiddlewareOrder.Middle);
+                order);
 
             return builder;
         }
 
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
-            Action<InvocationContext> onInvoke)
+            Action<InvocationContext> onInvoke,
+            MiddlewareOrder order = MiddlewareOrder.Default)
         {
             builder.AddMiddleware(async (context, next) =>
             {
                 onInvoke(context);
                 await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.Middle);
+            }, order);
 
             return builder;
         }
@@ -128,7 +130,7 @@ namespace System.CommandLine.Invocation
                 }
 
                 await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.ExceptionHandler - 1);
+            }, MiddlewareOrderInternal.DebugDirective);
 
             return builder;
         }
@@ -147,7 +149,7 @@ namespace System.CommandLine.Invocation
                 {
                     (onException ?? Default)(exception, context);
                 }
-            }, order: CommandLineBuilder.MiddlewareOrder.ExceptionHandler);
+            }, MiddlewareOrderInternal.ExceptionHandler);
 
             return builder;
 
@@ -178,7 +180,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            }, MiddlewareOrderInternal.ParseDirective);
 
             return builder;
         }
@@ -207,7 +209,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            }, MiddlewareOrderInternal.SuggestDirective);
 
             return builder;
         }
@@ -225,7 +227,7 @@ namespace System.CommandLine.Invocation
                     typoCorrection.ProvideSuggestions(context.ParseResult, context.Console);
                 }
                 await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            }, MiddlewareOrderInternal.TypoCorrection);
 
             return builder;
         }
@@ -336,7 +338,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            }, MiddlewareOrderInternal.HelpOption);
 
             return builder;
         }
@@ -351,7 +353,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            }, CommandLineBuilder.MiddlewareOrder.Preprocessing);
+            }, MiddlewareOrderInternal.HelpOption);
             return builder;
         }
 
@@ -368,7 +370,7 @@ namespace System.CommandLine.Invocation
                 {
                     await next(context);
                 }
-            }, CommandLineBuilder.MiddlewareOrder.AfterPreprocessing);
+            }, MiddlewareOrderInternal.ParseErrorReporting);
             return builder;
         }
 
@@ -406,7 +408,7 @@ namespace System.CommandLine.Invocation
                 });
 
                 await next(context);
-            }, CommandLineBuilder.MiddlewareOrder.Configuration);
+            }, MiddlewareOrderInternal.RegisterWithDotnetSuggest);
 
             return builder;
         }
