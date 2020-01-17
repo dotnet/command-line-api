@@ -3,14 +3,26 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Invocation;
 using System.CommandLine.Suggestions;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Parsing
 {
     public static class ParseResultExtensions
     {
+        public static async Task<int> InvokeAsync(
+            this ParseResult parseResult,
+            IConsole console = null) =>
+            await new InvocationPipeline(parseResult).InvokeAsync(console);
+
+        public static int Invoke(
+            this ParseResult parseResult,
+            IConsole console = null) =>
+            new InvocationPipeline(parseResult).Invoke(console);
+
         public static string TextToMatch(
             this ParseResult source,
             int? position = null)

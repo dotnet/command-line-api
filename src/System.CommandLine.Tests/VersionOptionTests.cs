@@ -4,6 +4,7 @@
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;

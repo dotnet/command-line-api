@@ -2,6 +2,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 
 namespace EndToEndTestApp
@@ -33,10 +34,7 @@ namespace EndToEndTestApp
             rootCommand.Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)));
 
             var commandLine = new CommandLineBuilder(rootCommand)
-                .UseHelp()
-                .UseSuggestDirective()
-                .UseExceptionHandler()
-                .RegisterWithDotnetSuggest()
+                .UseDefaults()
                 .Build();
 
             await commandLine.InvokeAsync(args);

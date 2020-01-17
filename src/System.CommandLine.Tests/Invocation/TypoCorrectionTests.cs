@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = parser.Parse("niof");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().Contain("'niof' was not matched. Did you mean 'info'?");
         }
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = parser.Parse("zzzzzzz");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().NotContain("was not matched");
         }
@@ -61,7 +61,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = parser.Parse("sertor");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().Contain("'sertor' was not matched. Did you mean 'restore'?");
         }
@@ -80,7 +80,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = parser.Parse("een");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'seen', or 'been'?");
         }
@@ -98,7 +98,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = parser.Parse("een");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'been'?");
         }
@@ -115,7 +115,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var result = parser.Parse("een");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'been'?");
         }
@@ -132,7 +132,7 @@ namespace System.CommandLine.Tests.Invocation
                     .Build();
             var result = parser.Parse("een");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'been'?");
         }
@@ -148,7 +148,7 @@ namespace System.CommandLine.Tests.Invocation
                     .Build();
             var result = parser.Parse("-all");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().Contain("'-all' was not matched. Did you mean '-call'?");
         }
