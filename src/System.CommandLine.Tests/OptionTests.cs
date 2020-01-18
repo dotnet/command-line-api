@@ -286,6 +286,14 @@ namespace System.CommandLine.Tests
                   .Be($"Argument must be of type {typeof(Argument<int>)} but was {argument.GetType()}");
         }
 
+        [Fact]
+        public void Option_T_default_value_can_be_set()
+        {
+            var option = new Option<int>("-x", parseArgument: parsed => , isDefault: );
+
+            throw new NotImplementedException("test not written");
+        }
+
         protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }
