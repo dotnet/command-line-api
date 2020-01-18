@@ -22,7 +22,7 @@ namespace System.CommandLine.Invocation
 
             var suggestionParseResult = context.Parser.Parse(commandLineToSuggest);
 
-            var suggestions = suggestionParseResult.Suggestions(_position);
+            var suggestions = suggestionParseResult.GetSuggestions(_position);
 
             context.Console.Out.WriteLine(
                 string.Join(

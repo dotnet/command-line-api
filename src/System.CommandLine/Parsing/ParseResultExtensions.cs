@@ -201,7 +201,7 @@ namespace System.CommandLine.Parsing
             return parseResult.CommandResult.Children.Contains(alias);
         }
 
-        public static IEnumerable<string> Suggestions(
+        public static IEnumerable<string> GetSuggestions(
             this ParseResult parseResult,
             int? position = null)
         {

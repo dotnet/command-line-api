@@ -133,7 +133,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            result.Suggestions()
+            result.GetSuggestions()
                   .Should()
                   .BeEquivalentTo("--apple",
                                   "--banana",
@@ -153,7 +153,7 @@ namespace System.CommandLine.Tests
             var commandLine = "--apple grannysmith";
             var result = parser.Parse(commandLine);
 
-            result.Suggestions(commandLine.Length + 1)
+            result.GetSuggestions(commandLine.Length + 1)
                   .Should()
                   .BeEquivalentTo("--banana",
                                   "--cherry");
@@ -180,7 +180,7 @@ namespace System.CommandLine.Tests
 
             var result = rootCommand.Parse("cherry ");
 
-            result.Suggestions()
+            result.GetSuggestions()
                   .Should()
                   .NotContain(new[]{"apple", "banana", "cherry"});
         }
@@ -199,7 +199,7 @@ namespace System.CommandLine.Tests
             var parseResult = command.Parse(commandLine);
 
             parseResult
-                .Suggestions(commandLine.Length + 1)
+                .GetSuggestions(commandLine.Length + 1)
                 .Should()
                 .Contain("--parent-option");
         }
@@ -221,7 +221,7 @@ namespace System.CommandLine.Tests
             var parseResult = command.Parse(commandLine);
 
             parseResult
-                .Suggestions(commandLine.Length + 1)
+                .GetSuggestions(commandLine.Length + 1)
                 .Should()
                 .NotContain("--parent-option");
         }
@@ -245,7 +245,7 @@ namespace System.CommandLine.Tests
             var parseResult = command.Parse(commandLine);
 
             parseResult
-                .Suggestions(commandLine.Length + 1)
+                .GetSuggestions(commandLine.Length + 1)
                 .Should()
                 .Contain("--child-option");
         }
@@ -272,7 +272,7 @@ namespace System.CommandLine.Tests
             var commandLine = "cherry";
             var result = rootCommand.Parse(commandLine);
 
-            result.Suggestions(commandLine.Length + 1)
+            result.GetSuggestions(commandLine.Length + 1)
                   .Should()
                   .BeEquivalentTo("rainier");
         }
@@ -290,7 +290,7 @@ namespace System.CommandLine.Tests
             var input = "a";
             var result = command.Parse(input);
 
-            result.Suggestions(input.Length)
+            result.GetSuggestions(input.Length)
                   .Should()
                   .BeEquivalentTo("--apple",
                                   "--banana");
@@ -308,7 +308,7 @@ namespace System.CommandLine.Tests
                 new Option("-n", "Not hidden")
             };
 
-            var suggestions = command.Parse("the-command ").Suggestions();
+            var suggestions = command.Parse("the-command ").GetSuggestions();
 
             suggestions.Should().NotContain("--hide-me");
         }
@@ -331,14 +331,14 @@ namespace System.CommandLine.Tests
             var commandLine = "--bread";
             var result = parser.Parse(commandLine);
 
-            result.Suggestions(commandLine.Length + 1)
+            result.GetSuggestions(commandLine.Length + 1)
                   .Should()
                   .BeEquivalentTo("rye", "sourdough", "wheat");
 
             commandLine = "--bread wheat --cheese ";
             result = parser.Parse(commandLine);
 
-            result.Suggestions(commandLine.Length + 1)
+            result.GetSuggestions(commandLine.Length + 1)
                   .Should()
                   .BeEquivalentTo("cheddar", "cream cheese", "provolone");
         }
@@ -358,7 +358,7 @@ namespace System.CommandLine.Tests
 
             var commandLine = "test";
             command.Parse(commandLine)
-                   .Suggestions(commandLine.Length + 1)
+                   .GetSuggestions(commandLine.Length + 1)
                    .Should()
                    .BeEquivalentTo("one", "two");
         }
@@ -379,7 +379,7 @@ namespace System.CommandLine.Tests
             var commandLine = "test";
 
             command.Parse(commandLine)
-                   .Suggestions(commandLine.Length + 1)
+                   .GetSuggestions(commandLine.Length + 1)
                    .Should()
                    .BeEquivalentTo("one", "--one");
         }
@@ -399,7 +399,7 @@ namespace System.CommandLine.Tests
             var parser = new Parser(command);
 
             ParseResult result = parser.Parse(input);
-            result.Suggestions().Should().BeEmpty();
+            result.GetSuggestions().Should().BeEmpty();
         }
 
         [Fact]
@@ -416,7 +416,7 @@ namespace System.CommandLine.Tests
             var commandLine = "outer";
             ParseResult result = parser.Parse(commandLine);
 
-            result.Suggestions(commandLine.Length + 1).Should().BeEquivalentTo("--one", "--two", "--three");
+            result.GetSuggestions(commandLine.Length + 1).Should().BeEquivalentTo("--one", "--two", "--three");
         }
 
         [Fact]
@@ -446,7 +446,7 @@ namespace System.CommandLine.Tests
             var commandLine = "outer --two";
             ParseResult result = parser.Parse(commandLine);
 
-            result.Suggestions(commandLine.Length + 1).Should().BeEquivalentTo("two-a", "two-b");
+            result.GetSuggestions(commandLine.Length + 1).Should().BeEquivalentTo("two-a", "two-b");
         }
 
         [Fact]
@@ -462,7 +462,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("outer o");
 
-            result.Suggestions().Should().BeEquivalentTo("one", "two");
+            result.GetSuggestions().Should().BeEquivalentTo("one", "two");
         }
 
         [Fact]
@@ -481,7 +481,7 @@ namespace System.CommandLine.Tests
                 };
 
             command.Parse("the-command -t m")
-                   .Suggestions()
+                   .GetSuggestions()
                    .Should()
                    .BeEquivalentTo("animal",
                                    "mineral");
@@ -490,7 +490,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Suggestions_can_be_provided_using_a_delegate()
+        public void Command_argument_suggestions_can_be_provided_using_a_delegate()
         {
             var command = new Command("the-command")
             {
@@ -510,7 +510,29 @@ namespace System.CommandLine.Tests
             };
 
             command.Parse("the-command one m")
-                   .Suggestions()
+                   .GetSuggestions()
+                   .Should()
+                   .BeEquivalentTo("animal", "mineral");
+        }
+
+        [Fact]
+        public void Option_argument_suggestions_can_be_provided_using_a_delegate()
+        {
+            var command = new Command("the-command")
+            {
+                new Option<string>("-x")
+                    .WithSuggestionSource(_ => new[]
+                    {
+                        "vegetable",
+                        "mineral",
+                        "animal"
+                    })
+            };
+
+            var parseResult = command.Parse("the-command -x m");
+
+            parseResult
+                   .GetSuggestions()
                    .Should()
                    .BeEquivalentTo("animal", "mineral");
         }
@@ -549,7 +571,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("outer two b" );
 
-            result.Suggestions()
+            result.GetSuggestions()
                   .Should()
                   .BeEquivalentTo("two-b");
         }
@@ -584,7 +606,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("outer two b");
 
-            result.Suggestions()
+            result.GetSuggestions()
                   .Should()
                   .BeEquivalentTo("two-b");
         }
@@ -619,7 +641,7 @@ namespace System.CommandLine.Tests
 
             var result = outer.Parse("outer two b");
 
-            result.Suggestions()
+            result.GetSuggestions()
                   .Should()
                   .BeEquivalentTo("two-b");
         }
@@ -654,7 +676,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = outer.Parse("outer two b");
 
-            result.Suggestions()
+            result.GetSuggestions()
                   .Should()
                   .BeEquivalentTo("two-b");
         }
@@ -668,7 +690,7 @@ namespace System.CommandLine.Tests
             };
 
             var suggestions = command.Parse("the-command create")
-                                     .Suggestions();
+                                     .GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("CreateNew", "Create", "OpenOrCreate");
         }
@@ -689,7 +711,7 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "--allows-one x";
-            var suggestions = command.Parse(commandLine).Suggestions(commandLine.Length + 1);
+            var suggestions = command.Parse(commandLine).GetSuggestions(commandLine.Length + 1);
 
             suggestions.Should().BeEquivalentTo("--allows-many");
         }
@@ -709,7 +731,7 @@ namespace System.CommandLine.Tests
                          .UseSuggestDirective()
                          .Build();
 
-            var suggestions = parser.Parse("--allows-one ").Suggestions();
+            var suggestions = parser.Parse("--allows-one ").GetSuggestions();
 
             suggestions.Should().BeEmpty();
         }
@@ -729,7 +751,7 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var suggestions = command.Parse("m").Suggestions();
+            var suggestions = command.Parse("m").GetSuggestions();
 
             suggestions.Should().BeEquivalentTo("--implicit");
         }

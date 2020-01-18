@@ -22,21 +22,16 @@ namespace System.CommandLine.Tests
 
         public SuggestDirectiveTests()
         {
-            _fruitOption = new Option("--fruit")
-            {
-                Argument = new Argument<string>()
-                    .WithSuggestions("apple", "banana", "cherry")
-            };
+            _fruitOption = new Option<string>("--fruit")
+                .WithSuggestions("apple", "banana", "cherry");
 
-            _vegetableOption = new Option("--vegetable")
-            {
-                Argument = new Argument<string>()
-                    .WithSuggestions("asparagus", "broccoli", "carrot")
-            };
+            _vegetableOption = new Option<string>("--vegetable")
+                .WithSuggestions("asparagus", "broccoli", "carrot");
 
             _eatCommand = new Command("eat")
             {
-                _fruitOption, _vegetableOption
+                _fruitOption,
+                _vegetableOption
             };
         }
 

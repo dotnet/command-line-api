@@ -69,7 +69,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Benchmark]
         public void SuggestionsFromParseResult()
         {
-            _testParseResult.Suggestions("--wrong".Length + 1).Consume(new Consumer());
+            _testParseResult.GetSuggestions("--wrong".Length + 1).Consume(new Consumer());
         }
     }
 }
