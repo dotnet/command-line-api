@@ -2,13 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
+using FluentAssertions;
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -42,7 +41,7 @@ namespace System.CommandLine.Tests
                   .Select(e => e.Message)
                   .Single()
                   .Should()
-                  .Contain($"Argument 'none-of-those' not recognized. Must be one of:\n\t'this'\n\t'that'\n\t'the-other-thing'");
+                  .Contain("Argument 'none-of-those' not recognized. Must be one of:\n\t'this'\n\t'that'\n\t'the-other-thing'");
         }
 
         [Fact]
@@ -266,158 +265,275 @@ namespace System.CommandLine.Tests
                   .ContainSingle(errorMessage);
         }
 
-        [Fact]
-        public void LegalFilePathsOnly_rejects_arguments_containing_invalid_path_characters()
+        public class PathValidity
         {
-            var command = new Command("the-command")
+            [Fact]
+            public void LegalFilePathsOnly_rejects_command_arguments_containing_invalid_path_characters()
             {
-                new Argument
+                var command = new Command("the-command")
                 {
-                    Arity = ArgumentArity.ZeroOrMore
-                }.LegalFilePathsOnly()
-            };
+                    new Argument<string>().LegalFilePathsOnly()
+                };
 
-            var invalidCharacter = Path.GetInvalidPathChars().First(c => c!= '"');
+                var invalidCharacter = Path.GetInvalidPathChars().First(c => c != '"');
 
-            var result = command.Parse($"the-command {invalidCharacter}");
+                var result = command.Parse($"the-command {invalidCharacter}");
 
-            result.Errors
-                  .Should()
-                  .Contain(e => e.SymbolResult.Symbol.Name == "the-command" &&
-                                e.Message == $"Character not allowed in a path: {invalidCharacter}");
+                result.Errors
+                      .Should()
+                      .Contain(e => e.SymbolResult.Symbol.Name == "the-command" &&
+                                    e.Message == $"Character not allowed in a path: {invalidCharacter}");
+            }   
+            
+            [Fact]
+            public void LegalFilePathsOnly_rejects_option_arguments_containing_invalid_path_characters()
+            {
+                var command = new Command("the-command")
+                {
+                    new Option<string>("-x").LegalFilePathsOnly()
+                };
+
+                var invalidCharacter = Path.GetInvalidPathChars().First(c => c != '"');
+
+                var result = command.Parse($"the-command -x {invalidCharacter}");
+
+                result.Errors
+                      .Should()
+                      .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
+                                    e.Message == $"Character not allowed in a path: {invalidCharacter}");
+            }
+
+            [Fact]
+            public void LegalFilePathsOnly_accepts_command_arguments_containing_valid_path_characters()
+            {
+                var command = new Command("the-command")
+                {
+                    new Argument<string[]>().LegalFilePathsOnly()
+                };
+
+                var validPathName = Directory.GetCurrentDirectory();
+                var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
+
+                var result = command.Parse($"the-command {validPathName} {validNonExistingFileName}");
+
+                result.Errors.Should().BeEmpty();
+            }
+            
+            [Fact]
+            public void LegalFilePathsOnly_accepts_option_arguments_containing_valid_path_characters()
+            {
+                var command = new Command("the-command")
+                {
+                    new Option<string[]>("-x").LegalFilePathsOnly()
+                };
+
+                var validPathName = Directory.GetCurrentDirectory();
+                var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
+
+                var result = command.Parse($"the-command -x {validPathName} {validNonExistingFileName}");
+
+                result.Errors.Should().BeEmpty();
+            }
         }
 
-        [Fact]
-        public void LegalFilePathsOnly_accepts_arguments_containing_valid_path_characters()
+        public class FileExistence
         {
-            var command = new Command("the-command")
+            [Fact]
+            public void A_command_argument_can_be_invalid_based_on_file_existence()
             {
-                new Argument
+                var command = new Command("move")
                 {
-                    Arity = ArgumentArity.ZeroOrMore
-                }.LegalFilePathsOnly()
-            };
+                    new Argument<FileInfo>("to").ExistingOnly()
+                };
 
-            var validPathName = Directory.GetCurrentDirectory();
-            var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
+                var path = NonexistentPath();
+                var result = command.Parse($@"move ""{path}""");
 
-            var result = command.Parse($"the-command {validPathName} {validNonExistingFileName}");
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"File does not exist: {path}");
+            }
 
-            result.Errors.Should().BeEmpty();
-        }
-
-        [Fact]
-        public void A_command_argument_can_be_invalid_based_on_file_existence()
-        {
-            var command = new Command("move")
+            [Fact]
+            public void An_option_argument_can_be_invalid_based_on_file_existence()
             {
-                new Argument<FileInfo>
+                var command = new Command("move")
                 {
-                    Arity = ArgumentArity.ExactlyOne
-                }.ExistingOnly(),
-                new Option("--to")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                }
-            };
+                    new Option<FileInfo>("--to").ExistingOnly()
+                };
 
-            Guid guid = Guid.NewGuid();
-            var result =
-                command.Parse(
-                    $@"move ""{guid}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+                var path = NonexistentPath();
+                var result = command.Parse($@"move --to ""{path}""");
 
-            result.Errors
-                  .Should()
-                  .Contain(e => e.SymbolResult.Symbol.Name == "move" &&
-                                e.Message == $"File does not exist: {guid}");
-        }
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"File does not exist: {path}");
+            }
 
-        [Fact]
-        public void An_option_argument_can_be_invalid_based_on_file_existence()
-        {
-            var command = new Command("move")
+            [Fact]
+            public void A_command_argument_can_be_invalid_based_on_directory_existence()
             {
-                new Option<FileInfo>("--to").ExistingOnly()
-            };
+                var command = new Command("move")
+                {
+                    new Argument<DirectoryInfo>("to").ExistingOnly()
+                };
 
-            var guid = Guid.NewGuid();
-            var result =
-                command.Parse(
-                    $@"move --to ""{guid}""");
+                var path = NonexistentPath();
+                var result = command.Parse($@"move ""{path}""");
 
-            result.Errors
-                  .Should()
-                  .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                e.Message == $"File does not exist: {guid}");
-        }
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"Directory does not exist: {path}");
+            }
 
-        [Fact]
-        public void An_argument_can_be_invalid_based_on_file_or_directory_existence()
-        {
-            var command = new Command("move")
+            [Fact]
+            public void An_option_argument_can_be_invalid_based_on_directory_existence()
             {
-                new Argument<FileSystemInfo>
+                var command = new Command("move")
                 {
-                    Arity = ArgumentArity.ExactlyOne
-                }.ExistingOnly(),
-                new Option("--to")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                }
-            };
+                    new Option<DirectoryInfo>("--to").ExistingOnly()
+                };
 
-            Guid guid = Guid.NewGuid();
-            var result =
-                command.Parse(
-                    $@"move ""{guid}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+                var path = NonexistentPath();
+                var result = command.Parse($@"move --to ""{path}""");
 
-            result.Errors
-                  .Should()
-                  .Contain(e => e.SymbolResult.Symbol.Name == "move" &&
-                                e.Message == $"File or directory does not exist: {guid}");
-        }
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"Directory does not exist: {path}");
+            }
 
-        [Fact] 
-        public void An_argument_with_multiple_file_system_info_can_be_invalid_based_on_first_file_existence()
-        {
-            var command = new Command("move")
+            [Fact]
+            public void A_command_argument_can_be_invalid_based_on_file_or_directory_existence()
             {
-                new Argument<FileSystemInfo[]>
+                var command = new Command("move")
                 {
-                    Arity = ArgumentArity.ZeroOrMore
-                }.ExistingOnly(),
-                new Option("--to")
+                    new Argument<FileSystemInfo>().ExistingOnly()
+                };
+
+                var path = NonexistentPath();
+                var result = command.Parse($"move \"{path}\"");
+
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "move" &&
+                                    e.Message == $"File or directory does not exist: {path}");
+            }
+
+            [Fact]
+            public void An_option_argument_can_be_invalid_based_on_file_or_directory_existence()
+            {
+                var command = new Command("move")
                 {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                }
-            };
+                    new Option<FileSystemInfo>("--to").ExistingOnly()
+                };
 
-            Guid guid1 = Guid.NewGuid();
-            Guid guid2 = Guid.NewGuid();
-            var result =
-                command.Parse(
-                    $@"move ""{guid1}"" ""{guid2}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+                var path = NonexistentPath();
+                var result = command.Parse($@"move --to ""{path}""");
 
-            result.Errors
-                  .Should()
-                  .Contain(e => e.SymbolResult.Symbol.Name == "move" && e.Message == $"File or directory does not exist: {guid1}");
-        }
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"File or directory does not exist: {path}");
+            }
 
-        [Fact]
-        public void An_argument_with_multiple_file_system_info_can_be_invalid_based_on_second_directory_existence()
-        {
-            var command = new Command("move")
+            [Fact]
+            public void A_command_argument_with_multiple_files_can_be_invalid_based_on_file_existence()
+            {
+                var command = new Command("move")
                 {
-                    new Argument<FileSystemInfo[]>
+                    new Argument<IEnumerable<FileInfo>>("to").ExistingOnly()
+                };
+
+                var path = NonexistentPath();
+                var result = command.Parse($@"move ""{path}""");
+
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
+                                    e.Message == $"File does not exist: {path}");
+            }
+            
+            [Fact]
+            public void An_option_argument_with_multiple_files_can_be_invalid_based_on_file_existence()
+            {
+                var command = new Command("move")
+                {
+                    new Option<IEnumerable<FileInfo>>("--to").ExistingOnly()
+                };
+
+                var path = NonexistentPath();
+                var result = command.Parse($@"move --to ""{path}""");
+
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
+                                    e.Message == $"File does not exist: {path}");
+            }
+
+            [Fact]
+            public void A_command_argument_with_multiple_directories_can_be_invalid_based_on_directory_existence()
+            {
+                var command = new Command("move")
+                {
+                    new Argument<List<DirectoryInfo>>("to").ExistingOnly()
+                };
+
+                var path = NonexistentPath();
+                var result = command.Parse($@"move ""{path}""");
+
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"Directory does not exist: {path}");
+            }
+
+            [Fact]
+            public void An_option_argument_with_multiple_directories_can_be_invalid_based_on_directory_existence()
+            {
+                var command = new Command("move")
+                {
+                    new Option<DirectoryInfo[]>("--to").ExistingOnly()
+                };
+
+                var path = NonexistentPath();
+                var result = command.Parse($@"move --to ""{path}""");
+
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"Directory does not exist: {path}");
+            }
+
+            [Fact]
+            public void A_command_argument_with_multiple_FileSystemInfos_can_be_invalid_based_on_file_existence()
+            {
+                var command = new Command("move")
+                {
+                    new Argument<FileSystemInfo[]>("to")
                     {
                         Arity = ArgumentArity.ZeroOrMore
                     }.ExistingOnly(),
@@ -430,176 +546,142 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-            var executingAssemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var guid = Guid.NewGuid();
-            var result =
-                command.Parse(
-                    $@"move ""{executingAssemblyLocation}"" ""{guid}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+                var path = NonexistentPath();
+                var result = command.Parse($@"move ""{path}""");
 
-            result.Errors
-                .Should()
-                .Contain(e => e.SymbolResult.Symbol.Name == "move" && e.Message == $"File or directory does not exist: {guid}");
-        }
+                result.Errors
+                      .Should()
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
+                                    e.Message == $"File or directory does not exist: {path}");
+            }
 
-        [Fact] 
-        public void An_argument_with_multiple_file_info_can_be_invalid_based_on_first_file_existence()
-        {
-            var command = new Command("move")
+            [Fact]
+            public void An_option_argument_with_multiple_FileSystemInfos_can_be_invalid_based_on_file_existence()
             {
-                new Argument<IEnumerable<FileInfo>>
+                var command = new Command("move")
                 {
-                    Arity = ArgumentArity.ZeroOrMore
-                }.ExistingOnly(),
-                new Option("--to")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                }
-            };
-
-            Guid guid1 = Guid.NewGuid();
-            Guid guid2 = Guid.NewGuid();
-            var result =
-                command.Parse(
-                    $@"move ""{guid1}"" ""{guid2}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
-
-            result.Errors
-                  .Should()
-                  .Contain(e => e.SymbolResult.Symbol.Name == "move" && e.Message == $"File does not exist: {guid1}");
-        }
-
-        [Fact]
-        public void An_argument_with_multiple_file_info_can_be_invalid_based_on_second_file_existence()
-        {
-            var command = new Command("move")
-                {
-                    new Argument<FileInfo[]>
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }.ExistingOnly(),
-                    new Option("--to")
-                    {
-                        Argument = new Argument
-                        {
-                            Arity = ArgumentArity.ExactlyOne
-                        }
-                    }
+                    new Option<FileSystemInfo[]>("--to").ExistingOnly()
                 };
 
-            var executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
-            var guid = Guid.NewGuid();
-            var result =
-                command.Parse(
-                    $@"move ""{executingAssemblyLocation}"" ""{guid}"" --to ""{Path.Combine(Directory.GetCurrentDirectory(), ".trash")}""");
+                var path = NonexistentPath();
+                var result =
+                    command.Parse(
+                        $@"move --to ""{path}""");
 
-            result.Errors
-                .Should()
-                .Contain(e => e.SymbolResult.Symbol.Name == "move" && e.Message == $"File does not exist: {guid}");
-        }
+                result.Errors
+                      .Should()
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"File or directory does not exist: {path}");
+            }
 
-        [Fact]
-        public void An_argument_can_be_invalid_based_on_directory_existence()
-        {
-            var command = new Command("move")
+            [Fact]
+            public void A_command_argument_with_multiple_FileSystemInfos_can_be_invalid_based_on_directory_existence()
             {
-                new Argument
+                var command = new Command("move")
                 {
-                    Arity = ArgumentArity.ExactlyOne
-                },
-                new Option("--to")
-                {
-                    Argument = new Argument<DirectoryInfo>
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.ExistingOnly()
-                }
-            };
+                    new Argument<FileSystemInfo>("to").ExistingOnly()
+                };
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var trash = Path.Combine(currentDirectory, ".trash");
+                var path = NonexistentPath();
+                var result = command.Parse($@"move ""{path}""");
 
-            var commandLine = $@"move ""{currentDirectory}"" --to ""{trash}""";
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"File or directory does not exist: {path}");
+            }
 
-            var result = command.Parse(commandLine);
-
-            _output.WriteLine(result.Diagram());
-
-            result.Errors
-                  .Should()
-                  .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                e.Message == $"Directory does not exist: {trash}");
-        }
-
-        [Fact]
-        public void An_argument_with_multiple_directory_info_can_be_invalid_based_on_first_directory_existence()
-        {
-            var command = new Command("move")
+            [Fact]
+            public void An_option_argument_with_multiple_FileSystemInfos_can_be_invalid_based_on_directory_existence()
             {
-                new Argument
+                var command = new Command("move")
                 {
-                    Arity = ArgumentArity.ExactlyOne
-                },
-                new Option("--to")
-                {
-                    Argument = new Argument<DirectoryInfo[]>
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }.ExistingOnly()
-                }
-            };
+                    new Option<FileSystemInfo[]>("--to").ExistingOnly()
+                };
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var trash1 = Path.Combine(currentDirectory, ".trash1");
-            var trash2 = Path.Combine(currentDirectory, ".trash2");
+                var path = NonexistentPath();
+                var result = command.Parse($@"move --to ""{path}""");
 
-            var commandLine = $@"move ""{currentDirectory}"" --to ""{trash1}"" ""{trash2}""";
+                result.Errors
+                      .Should()
+                      .HaveCount(1)
+                      .And
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                                    e.Message == $"File or directory does not exist: {path}");
+            }
 
-            var result = command.Parse(commandLine);
-
-            _output.WriteLine(result.Diagram());
-
-            result.Errors
-                  .Should()
-                  .HaveCount(1)
-                  .And
-                  .Contain(e => e.SymbolResult.Symbol.Name == "to" && e.Message == $"Directory does not exist: {trash1}");
-        }
-
-        [Fact]
-        public void An_argument_with_multiple_directory_info_can_be_invalid_based_on_second_directory_existence()
-        {
-            var command = new Command("move")
+            [Fact]
+            public void Command_argument_does_not_return_errors_when_file_exists()
             {
-                new Argument
+                var command = new Command("move")
                 {
-                    Arity = ArgumentArity.ExactlyOne
-                },
-                new Option("--to")
+                    new Argument<FileInfo>().ExistingOnly()
+                };
+
+                var path = ExistingFile();
+                var result = command.Parse($@"move ""{path}""");
+
+                result.Errors.Should().BeEmpty();
+            }
+
+            [Fact]
+            public void Option_argument_does_not_return_errors_when_file_exists()
+            {
+                var command = new Command("move")
                 {
-                    Argument = new Argument<DirectoryInfo[]>
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }.ExistingOnly()
-                }
-            };
+                    new Option<FileInfo>("--to").ExistingOnly()
+                };
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var executionAssemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var trash = Path.Combine(currentDirectory, ".trash2");
+                var path = ExistingFile();
+                var result = command.Parse($@"move --to ""{path}""");
 
-            var commandLine = $@"move ""{currentDirectory}"" --to ""{executionAssemblyPath}"" ""{trash}""";
+                result.Errors.Should().BeEmpty();
+            }
 
-            var result = command.Parse(commandLine);
+            [Fact]
+            public void Command_argument_does_not_return_errors_when_Directory_exists()
+            {
+                var command = new Command("move")
+                {
+                    new Argument<DirectoryInfo>().ExistingOnly()
+                };
 
-            _output.WriteLine(result.Diagram());
+                var path = ExistingDirectory();
+                var result = command.Parse($@"move ""{path}""");
 
-            result.Errors
-                .Should()
-                .HaveCount(1)
-                .And
-                .Contain(e => e.SymbolResult.Symbol.Name == "to" && e.Message == $"Directory does not exist: {trash}");
+                result.Errors.Should().BeEmpty();
+            }
+
+            [Fact]
+            public void Option_argument_does_not_return_errors_when_Directory_exists()
+            {
+                var command = new Command("move")
+                {
+                    new Option<DirectoryInfo>("--to").ExistingOnly()
+                };
+
+                var path = ExistingDirectory();
+                var result = command.Parse($@"move --to ""{path}""");
+
+                result.Errors.Should().BeEmpty();
+            }
+
+            private string NonexistentPath()
+            {
+                return Guid.NewGuid().ToString();
+            }
+
+            private string ExistingDirectory()
+            {
+                return Directory.GetCurrentDirectory();
+            }
+            
+            private string ExistingFile()
+            {
+                return new DirectoryInfo(Directory.GetCurrentDirectory()).GetFiles().First().FullName;
+            }
         }
 
         [Fact]

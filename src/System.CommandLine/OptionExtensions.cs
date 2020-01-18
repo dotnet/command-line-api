@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.CommandLine.Suggestions;
 using System.IO;
@@ -41,71 +42,53 @@ namespace System.CommandLine
             return option;
         }
 
-        // FIX: (OptionExtensions) reduce/generalize ExistingOnly overloads
-
         public static Option<FileInfo> ExistingOnly(this Option<FileInfo> option)
         {
-            option.Argument.AddValidator(symbol =>
-                                             symbol.Tokens
-                                                   .Select(t => t.Value)
-                                                   .Where(filePath => !File.Exists(filePath))
-                                                   .Select(symbol.ValidationMessages.FileDoesNotExist)
-                                                   .FirstOrDefault());
+            option.Argument.AddValidator(
+                a =>
+                    a.Tokens
+                     .Select(t => t.Value)
+                     .Where(filePath => !File.Exists(filePath))
+                     .Select(a.ValidationMessages.FileDoesNotExist)
+                     .FirstOrDefault());
+
             return option;
         }
 
         public static Option<DirectoryInfo> ExistingOnly(this Option<DirectoryInfo> option)
         {
-            option.Argument.AddValidator(symbol =>
-                                             symbol.Tokens
-                                                   .Select(t => t.Value)
-                                                   .Where(filePath => !Directory.Exists(filePath))
-                                                   .Select(symbol.ValidationMessages.DirectoryDoesNotExist)
-                                                   .FirstOrDefault());
+            option.Argument.AddValidator(
+                a =>
+                    a.Tokens
+                     .Select(t => t.Value)
+                     .Where(filePath => !Directory.Exists(filePath))
+                     .Select(a.ValidationMessages.DirectoryDoesNotExist)
+                     .FirstOrDefault());
+
             return option;
         }
 
         public static Option<FileSystemInfo> ExistingOnly(this Option<FileSystemInfo> option)
         {
-            option.Argument.AddValidator(symbol =>
-                                             symbol.Tokens
-                                                   .Select(t => t.Value)
-                                                   .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
-                                                   .Select(symbol.ValidationMessages.FileOrDirectoryDoesNotExist)
-                                                   .FirstOrDefault());
+            option.Argument.AddValidator(
+                a =>
+                    a.Tokens
+                     .Select(t => t.Value)
+                     .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
+                     .Select(a.ValidationMessages.FileOrDirectoryDoesNotExist)
+                     .FirstOrDefault());
+
             return option;
         }
 
-        public static Option<FileInfo[]> ExistingOnly(this Option<FileInfo[]> option)
+        public static Option<T> ExistingOnly<T>(this Option<T> option)
+            where T : IEnumerable<FileSystemInfo>
         {
-            option.Argument.AddValidator(symbol =>
-                                             symbol.Tokens
-                                                   .Select(t => t.Value)
-                                                   .Where(filePath => !File.Exists(filePath))
-                                                   .Select(symbol.ValidationMessages.FileDoesNotExist)
-                                                   .FirstOrDefault());
-            return option;
-        }
+            if (option.Argument is Argument<T> arg)
+            {
+                arg.ExistingOnly();
+            }
 
-        public static Option<DirectoryInfo[]> ExistingOnly(this Option<DirectoryInfo[]> option)
-        {
-            option.Argument.AddValidator(symbol =>
-                                             symbol.Tokens
-                                                   .Select(t => t.Value)
-                                                   .Where(filePath => !Directory.Exists(filePath))
-                                                   .Select(symbol.ValidationMessages.DirectoryDoesNotExist)
-                                                   .FirstOrDefault());
-            return option;
-        }
-
-        public static Option<FileSystemInfo[]> ExistingOnly(this Option<FileSystemInfo[]> option)
-        {
-            option.Argument.AddValidator(symbol =>
-                                             symbol.Tokens
-                                                   .Select(t => t.Value)
-                                                   .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
-                                                   .Select(symbol.ValidationMessages.FileOrDirectoryDoesNotExist)
-                                                   .FirstOrDefault());
             return option;
         }
 
@@ -113,22 +96,7 @@ namespace System.CommandLine
             this TOption option)
             where TOption : Option
         {
-            option.Argument.AddValidator(symbol =>
-            {
-                foreach (var token in symbol.Tokens)
-                {
-                    // File class no longer check invalid character
-                    // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
-                    var invalidCharactersIndex = token.Value.IndexOfAny(Path.GetInvalidPathChars());
-
-                    if (invalidCharactersIndex >= 0)
-                    {
-                        return symbol.ValidationMessages.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
-                    }
-                }
-
-                return null;
-            });
+            option.Argument.LegalFilePathsOnly();
 
             return option;
         }
