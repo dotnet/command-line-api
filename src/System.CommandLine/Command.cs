@@ -73,7 +73,7 @@ namespace System.CommandLine
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
         /// <summary>
-        /// The action to perform when the command is executed. 
+        /// The action to perform when the command is invoked. 
         /// </summary>
         public ICommandHandler Handler { get; set; }
 
