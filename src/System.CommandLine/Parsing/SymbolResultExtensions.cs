@@ -23,5 +23,18 @@ namespace System.CommandLine.Parsing
                 yield return item;
             }
         }
+
+        internal static Token Token(this SymbolResult symbolResult)
+        {
+            switch (symbolResult)
+            {
+                case CommandResult commandResult:
+                    return commandResult.Token;
+                case OptionResult optionResult:
+                    return optionResult.Token;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(symbolResult));
+            }
+        }
     }
 }

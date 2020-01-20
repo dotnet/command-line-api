@@ -26,19 +26,21 @@ namespace System.CommandLine.Parsing
         }
 
         internal static bool TryGetValueForOption(
-            this CommandResult commandResult, 
-            IValueDescriptor valueDescriptor, 
+            this CommandResult commandResult,
+            IValueDescriptor valueDescriptor,
             out object value)
         {
-            var children = commandResult.Children
-                                        .Where(o => valueDescriptor.ValueName.IsMatch(o.Symbol))
-                                        .ToArray();
+            var children = commandResult
+                           .Children
+                           .Where(o => valueDescriptor.ValueName.IsMatch(o.Symbol))
+                           .ToArray();
 
             SymbolResult symbolResult = null;
 
             if (children.Length > 1)
             {
-                throw new ArgumentException($"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {String.Join(",", children.Select(o => o.Symbol.Name))}");
+                throw new ArgumentException(
+                    $"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {string.Join(",", children.Select(o => o.Symbol.Name))}");
             }
 
             if (children.Length == 1)

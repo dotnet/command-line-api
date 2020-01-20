@@ -45,7 +45,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(convert));
             }
 
-            ConvertArguments = (SymbolResult result, out object value) =>
+            ConvertArguments = (ArgumentResult result, out object value) =>
             {
                 if (convert(result, out var valueObj))
                 {
@@ -63,6 +63,37 @@ namespace System.CommandLine
             {
                 SetDefaultValueFactory(() => getDefaultValue());
             }
+        }
+
+        public Argument(ParseArgument<T> parse, bool isDefault = false) : this()
+        {
+            if (isDefault)
+            {
+                SetDefaultValueFactory(() =>
+                {
+                    var argumentResult = new ArgumentResult(
+                        this,
+                        null);
+
+                    return parse(argumentResult);
+                });
+            }
+
+            ConvertArguments = (ArgumentResult argumentResult, out object value) =>
+            {
+                var result = parse(argumentResult);
+                
+                if (string.IsNullOrEmpty(argumentResult.ErrorMessage))
+                {
+                    value = result;
+                    return true;
+                }
+                else
+                {
+                    value = default(T);
+                    return false;
+                }
+            };
         }
     }
 }

@@ -124,7 +124,7 @@ namespace System.CommandLine.Parsing
                     builder.Append(" ");
                 }
 
-                switch (symbolResult.ArgumentConversionResult)
+                switch (argumentResult.ArgumentConversionResult)
                 {
                     case SuccessfulArgumentConversionResult successful:
 
@@ -165,7 +165,7 @@ namespace System.CommandLine.Parsing
             else
             {
                 builder.Append("[ ");
-                builder.Append(symbolResult.Token.Value);
+                builder.Append(symbolResult.Token().Value);
 
                 foreach (var child in symbolResult.Children)
                 {

@@ -16,15 +16,17 @@ namespace System.CommandLine
         {
         }
 
-        public virtual string ExpectsOneArgument(SymbolResult symbolResult) =>
-            symbolResult is CommandResult
-                ? $"Command '{symbolResult.Token.Value}' expects a single argument but {symbolResult.Tokens.Count} were provided."
-                : $"Option '{symbolResult.Token.Value}' expects a single argument but {symbolResult.Tokens.Count} were provided.";
+        public virtual string ExpectsOneArgument(SymbolResult symbolResult)
+        {
+            return symbolResult is CommandResult
+                       ? $"Command '{symbolResult.Token().Value}' expects a single argument but {symbolResult.Tokens.Count} were provided."
+                       : $"Option '{symbolResult.Token().Value}' expects a single argument but {symbolResult.Tokens.Count} were provided.";
+        }
 
         public virtual string NoArgumentProvided(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"No argument was provided for Command '{symbolResult.Token.Value}'."
-                : $"No argument was provided for Option '{symbolResult.Token.Value}'.";
+                ? $"No argument was provided for Command '{symbolResult.Token().Value}'."
+                : $"No argument was provided for Option '{symbolResult.Token().Value}'.";
 
         public virtual string ExpectsFewerArguments(
             Token token, 
@@ -48,8 +50,8 @@ namespace System.CommandLine
 
         public virtual string RequiredArgumentMissing(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"Required argument missing for command: {symbolResult.Token.Value}"
-                : $"Required argument missing for option: {symbolResult.Token.Value}";
+                ? $"Required argument missing for command: {symbolResult.Token().Value}"
+                : $"Required argument missing for option: {symbolResult.Token().Value}";
 
         public virtual string RequiredCommandWasNotProvided() =>
             "Required command was not provided.";

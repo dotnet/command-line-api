@@ -10,8 +10,7 @@ namespace System.CommandLine.Parsing
     {
         internal ArgumentResult(
             IArgument argument,
-            Token token,
-            SymbolResult parent) : base(argument, token, parent)
+            SymbolResult parent) : base(argument, parent)
         {
             Argument = argument;
         }
@@ -20,8 +19,8 @@ namespace System.CommandLine.Parsing
 
         public IArgument Argument { get; }
 
-        internal override ArgumentConversionResult ArgumentConversionResult =>
-            ConversionResult ??= Convert(this, Argument);
+        internal ArgumentConversionResult ArgumentConversionResult =>
+            ConversionResult ??= Convert(Argument);
 
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
@@ -40,11 +39,10 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-        internal static ArgumentConversionResult Convert(
-            ArgumentResult argumentResult,
+        internal virtual ArgumentConversionResult Convert(
             IArgument argument)
         {
-            var parentResult = argumentResult.Parent;
+            var parentResult = Parent;
 
             if (ShouldCheckArity() &&
                 ArgumentArity.Validate(parentResult,
@@ -65,12 +63,12 @@ namespace System.CommandLine.Parsing
             if (argument is Argument a &&
                 a.ConvertArguments != null)
             {
-                if (argumentResult.ConversionResult != null)
+                if (ConversionResult != null)
                 {
-                    return argumentResult.ConversionResult;
+                    return ConversionResult;
                 }
 
-                var success = a.ConvertArguments(argumentResult, out var value);
+                var success = a.ConvertArguments(this, out var value);
 
                 if (value is ArgumentConversionResult conversionResult)
                 {
@@ -82,7 +80,7 @@ namespace System.CommandLine.Parsing
                 }
                 else 
                 {
-                    return ArgumentConversionResult.Failure(argument, argumentResult.ErrorMessage ?? $"Invalid: {parentResult.Token} {string.Join(" ", parentResult.Tokens.Select(t => t.Value))}");
+                    return ArgumentConversionResult.Failure(argument, ErrorMessage ?? $"Invalid: {parentResult.Token()} {string.Join(" ", parentResult.Tokens.Select(t => t.Value))}");
                 }
             }
 
@@ -104,6 +102,5 @@ namespace System.CommandLine.Parsing
                        optionResult.IsImplicit);
             }
         }
-
     }
 }

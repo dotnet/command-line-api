@@ -18,7 +18,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Custom_types_and_conversion_logic_can_be_specified()
         {
-            var argument = new Argument<MyCustomType>((SymbolResult parsed, out MyCustomType value) =>
+            var argument = new Argument<MyCustomType>((ArgumentResult parsed, out MyCustomType value) =>
             {
                 var custom = new MyCustomType();
                 foreach (var a in parsed.Tokens)
@@ -261,14 +261,14 @@ namespace System.CommandLine.Tests.Binding
             {
                 new Option(new[] { "-o", "--one" })
                 {
-                    Argument = new Argument<int>((SymbolResult symbol, out int value) =>
+                    Argument = new Argument<int>((ArgumentResult argumentResult, out int value) =>
                     {
-                        if (int.TryParse(symbol.Tokens.Select(t => t.Value).Single(), out value))
+                        if (int.TryParse(argumentResult.Tokens.Select(t => t.Value).Single(), out value))
                         {
                             return true;
                         }
 
-                        symbol.ErrorMessage = $"'{symbol.Token.Value}' is not an integer";
+                        argumentResult.ErrorMessage = $"'{argumentResult.Tokens.Single().Value}' is not an integer";
 
                         return false;
                     }),
@@ -674,7 +674,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var command = new Command("tally")
             {
-                new Argument<int>((SymbolResult symbolResult, out int value) =>
+                new Argument<int>((ArgumentResult symbolResult, out int value) =>
                 {
                     value = default;
                     symbolResult.ErrorMessage = "Could not parse int";
@@ -698,7 +698,7 @@ namespace System.CommandLine.Tests.Binding
                 new Argument<string>(),
                 new Option("-x")
                 {
-                    Argument = new Argument<string>((SymbolResult symbolResult, out string value) =>
+                    Argument = new Argument<string>((ArgumentResult symbolResult, out string value) =>
                     {
                         value = null;
                         return false;
@@ -984,10 +984,10 @@ namespace System.CommandLine.Tests.Binding
             callCount.Should().Be(1);
             handlerWasCalled.Should().BeTrue();
 
-            bool TryConvertInt(SymbolResult result, out int value)
+            bool TryConvertInt(ArgumentResult result, out int value)
             {
                 callCount++;
-                return int.TryParse(result.Token.Value, out value);
+                return int.TryParse(result.Tokens.Single().Value, out value);
             }
 
             void Run(int value) => handlerWasCalled = true;

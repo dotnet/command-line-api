@@ -64,7 +64,7 @@ namespace System.CommandLine
                         if (Arity.MaximumNumberOfValues == 1 &&
                             ArgumentType == typeof(bool))
                         {
-                            _convertArguments = (SymbolResult symbol, out object value) =>
+                            _convertArguments = (ArgumentResult symbol, out object value) =>
                             {
                                 value = ArgumentConverter.ConvertObject(
                                     this,
