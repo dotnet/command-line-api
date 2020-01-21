@@ -1,18 +1,79 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Parsing;
+
 namespace System.CommandLine
 {
     public class Option<T> : Option
     {
-        public Option(string alias, string description = null) : base(alias, description)
+        public Option(string alias) : base(alias)
         {
             Argument = new Argument<T>();
         }
 
-        public Option(string[] aliases, string description = null) : base(aliases, description)
+        public Option(string alias, string description) : base(alias, description)
         {
             Argument = new Argument<T>();
+        }
+
+        public Option(string[] aliases, string description) : base(aliases, description)
+        {
+            Argument = new Argument<T>();
+        }
+
+        public Option(
+            string alias,
+            ParseArgument<T> parseArgument,
+            bool isDefault = false,
+            string description = null) : base(alias, description)
+        {
+            if (parseArgument is null)
+            {
+                throw new ArgumentNullException(nameof(parseArgument));
+            }
+
+            Argument = new Argument<T>(parseArgument, isDefault);
+        }
+
+        public Option(
+            string[] aliases,
+            ParseArgument<T> parseArgument,
+            bool isDefault = false,
+            string description = null) : base(aliases, description)
+        {
+            if (parseArgument is null)
+            {
+                throw new ArgumentNullException(nameof(parseArgument));
+            }
+
+            Argument = new Argument<T>(parseArgument, isDefault);
+        }
+
+        public Option(
+            string alias,
+            Func<T> getDefaultValue,
+            string description = null) : base(alias, description)
+        {
+            if (getDefaultValue is null)
+            {
+                throw new ArgumentNullException(nameof(getDefaultValue));
+            }
+
+            Argument = new Argument<T>(getDefaultValue);
+        }
+
+        public Option(
+            string[] aliases,
+            Func<T> getDefaultValue,
+            string description = null) : base(aliases, description)
+        {
+            if (getDefaultValue is null)
+            {
+                throw new ArgumentNullException(nameof(getDefaultValue));
+            }
+
+            Argument = new Argument<T>(getDefaultValue);
         }
 
         public override Argument Argument
