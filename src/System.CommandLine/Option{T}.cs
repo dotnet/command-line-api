@@ -12,6 +12,11 @@ namespace System.CommandLine
             Argument = new Argument<T>();
         }
 
+        public Option(string[] aliases) : base(aliases)
+        {
+            Argument = new Argument<T>();
+        }
+
         public Option(string alias, string description) : base(alias, description)
         {
             Argument = new Argument<T>();
@@ -74,6 +79,31 @@ namespace System.CommandLine
             }
 
             Argument = new Argument<T>(getDefaultValue);
+        }
+        public Option(
+            string alias,
+            T defaultValue,
+            string description = null) : base(alias, description)
+        {
+            if (defaultValue is null)
+            {
+                throw new ArgumentNullException(nameof(defaultValue));
+            }
+
+            Argument = new Argument<T>(() => defaultValue);
+        }
+
+        public Option(
+            string[] aliases,
+            T defaultValue,
+            string description = null) : base(aliases, description)
+        {
+            if (defaultValue is null)
+            {
+                throw new ArgumentNullException(nameof(defaultValue));
+            }
+
+            Argument = new Argument<T>(() => defaultValue);
         }
 
         public override Argument Argument
