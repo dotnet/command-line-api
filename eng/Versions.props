@@ -6,8 +6,8 @@
   </PropertyGroup>
   <!-- Repo Version Information -->
   <PropertyGroup>
-    <VersionPrefix>0.3.0</VersionPrefix>
-    <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
+    <VersionPrefix>2.0.0</VersionPrefix>
+    <PreReleaseVersionLabel>beta1</PreReleaseVersionLabel>
   </PropertyGroup>
 
   <PropertyGroup>
