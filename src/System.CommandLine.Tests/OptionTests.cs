@@ -1,14 +1,23 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
     public class OptionTests : SymbolTests
     {
+        private ITestOutputHelper _output;
+
+        public OptionTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public void When_an_option_has_only_one_alias_then_that_alias_is_its_name()
         {
@@ -284,6 +293,22 @@ namespace System.CommandLine.Tests
                   .Message
                   .Should()
                   .Be($"Argument must be of type {typeof(Argument<int>)} but was {argument.GetType()}");
+        }
+
+        [Fact]
+        public void Option_T_default_value_can_be_set()
+        {
+            var option = new Option<int>(
+                "-x",
+                parseArgument: parsed => 123,
+                isDefault: true);
+
+            var result = option
+                         .Parse("")
+                         .FindResultFor(option)
+                         .GetValueOrDefault()
+                         .Should()
+                         .Be(123);
         }
 
         protected override Symbol CreateSymbol(string name) => new Option(name);

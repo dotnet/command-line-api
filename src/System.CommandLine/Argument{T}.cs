@@ -67,6 +67,11 @@ namespace System.CommandLine
 
         public Argument(ParseArgument<T> parse, bool isDefault = false) : this()
         {
+            if (parse == null)
+            {
+                throw new ArgumentNullException(nameof(parse));
+            }
+
             if (isDefault)
             {
                 SetDefaultValueFactory(() =>
