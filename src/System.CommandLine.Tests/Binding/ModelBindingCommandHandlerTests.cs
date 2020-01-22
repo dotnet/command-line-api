@@ -252,6 +252,28 @@ namespace System.CommandLine.Tests.Binding
             received.Should().Be(123);
         }
 
+        [Fact]
+        public void When_argument_type_is_more_specific_than_parameter_type_then_parameter_is_bound_correctly()
+        {
+            FileSystemInfo received = null;
+
+            var root = new RootCommand
+            {
+                new Option<DirectoryInfo>("-f")
+            };
+            root.Handler = CommandHandler.Create<FileSystemInfo>(f => received = f);
+            var path = $"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}";
+
+            root.Invoke($"-f {path}");
+
+            received.Should()
+                    .BeOfType<DirectoryInfo>()
+                    .Which
+                    .FullName
+                    .Should()
+                    .Be(path);
+        }
+
         [Theory]
         [InlineData(typeof(ClassWithCtorParameter<int>), false)]
         [InlineData(typeof(ClassWithCtorParameter<int>), true)]
