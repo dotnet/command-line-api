@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
@@ -260,10 +261,22 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(ClassWithCtorParameter<string>), true)]
         [InlineData(typeof(ClassWithSetter<string>), false)]
         [InlineData(typeof(ClassWithSetter<string>), true)]
+
         [InlineData(typeof(FileInfo), false)]
         [InlineData(typeof(FileInfo), true)]
         [InlineData(typeof(FileInfo[]), false)]
         [InlineData(typeof(FileInfo[]), true)]
+        
+        [InlineData(typeof(DirectoryInfo), false)]
+        [InlineData(typeof(DirectoryInfo), true)]
+        [InlineData(typeof(DirectoryInfo[]), false)]
+        [InlineData(typeof(DirectoryInfo[]), true)]
+        
+        [InlineData(typeof(FileSystemInfo), true, nameof(ExistingFile))]
+        [InlineData(typeof(FileSystemInfo), true, nameof(ExistingDirectory))]
+        [InlineData(typeof(FileSystemInfo), true, nameof(NonexistentPathWithTrailingSlash))]
+        [InlineData(typeof(FileSystemInfo), true, nameof(NonexistentPathWithoutTrailingSlash))]
+
         [InlineData(typeof(string[]), false)]
         [InlineData(typeof(string[]), true)]
         [InlineData(typeof(List<string>), false)]
@@ -274,9 +287,10 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(List<int>), true)]
         public async Task Handler_method_receives_option_arguments_bound_to_the_specified_type(
             Type type,
-            bool useDelegate)
+            bool useDelegate,
+            string variation = null)
         {
-            var testCase = _bindingCases[type];
+            var testCase = _bindingCases[(type, variation)];
 
             ICommandHandler handler;
             if (!useDelegate)
@@ -318,7 +332,7 @@ namespace System.CommandLine.Tests.Binding
 
             var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
 
-            boundValue.Should().BeOfType(testCase.ParameterType);
+            boundValue.Should().BeAssignableTo(testCase.ParameterType);
 
             testCase.AssertBoundValue(boundValue);
         }
@@ -443,14 +457,82 @@ namespace System.CommandLine.Tests.Binding
                 o => o.Value.Should().Be("123")),
 
             BindingTestCase.Create<FileInfo>(
-                Path.Combine(Directory.GetCurrentDirectory(), "file1.txt"),
-                o => o.FullName.Should().Be(Path.Combine(Directory.GetCurrentDirectory(), "file1.txt"))),
+                Path.Combine(ExistingDirectory(), "file1.txt"),
+                o => o.FullName
+                      .Should()
+                      .Be(Path.Combine(ExistingDirectory(), "file1.txt"))),
 
             BindingTestCase.Create<FileInfo[]>(
-                $"{Path.Combine(Directory.GetCurrentDirectory(), "file1.txt")} {Path.Combine(Directory.GetCurrentDirectory(), "file2.txt")}",
+                $"{Path.Combine(ExistingDirectory(), "file1.txt")} {Path.Combine(ExistingDirectory(), "file2.txt")}",
                 o => o.Select(f => f.FullName)
                       .Should()
-                      .BeEquivalentTo(new[] { Path.Combine(Directory.GetCurrentDirectory(), "file1.txt"), Path.Combine(Directory.GetCurrentDirectory(), "file2.txt") })),
+                      .BeEquivalentTo(new[]
+                      {
+                          Path.Combine(ExistingDirectory(), "file1.txt"),
+                          Path.Combine(ExistingDirectory(), "file2.txt")
+                      })),
+
+            BindingTestCase.Create<DirectoryInfo>(
+                ExistingDirectory(),
+                fsi => fsi.Should()
+                          .BeOfType<DirectoryInfo>()
+                          .Which
+                          .FullName
+                          .Should()
+                          .Be(ExistingDirectory())),
+
+            BindingTestCase.Create<DirectoryInfo[]>(
+                $"{ExistingDirectory()} {ExistingDirectory()}",
+                fsi => fsi.Should()
+                          .BeAssignableTo<IEnumerable<DirectoryInfo>>()
+                          .Which
+                          .Select(d => d.FullName)
+                          .Should()
+                          .BeEquivalentTo(new[]
+                          {
+                              ExistingDirectory(),
+                              ExistingDirectory()
+                          })),
+
+            BindingTestCase.Create<FileSystemInfo>(
+                ExistingFile(),
+                fsi => fsi.Should()
+                          .BeOfType<FileInfo>()
+                          .Which
+                          .FullName
+                          .Should()
+                          .Be(ExistingFile()),
+                variationName: nameof(ExistingFile)),
+
+            BindingTestCase.Create<FileSystemInfo>(
+                ExistingDirectory(),
+                fsi => fsi.Should()
+                          .BeOfType<DirectoryInfo>()
+                          .Which
+                          .FullName
+                          .Should()
+                          .Be(ExistingDirectory()),
+                variationName: nameof(ExistingDirectory)),
+
+            BindingTestCase.Create<FileSystemInfo>(
+                NonexistentPathWithTrailingSlash(),
+                fsi => fsi.Should()
+                          .BeOfType<DirectoryInfo>()
+                          .Which
+                          .FullName
+                          .Should()
+                          .Be(NonexistentPathWithTrailingSlash()),
+                variationName: nameof(NonexistentPathWithTrailingSlash)),
+                
+            BindingTestCase.Create<FileSystemInfo>(
+                NonexistentPathWithoutTrailingSlash(),
+                fsi => fsi.Should()
+                          .BeOfType<FileInfo>()
+                          .Which
+                          .FullName
+                          .Should()
+                          .Be(NonexistentPathWithoutTrailingSlash()),
+                variationName: nameof(NonexistentPathWithoutTrailingSlash)),
 
             BindingTestCase.Create<string[]>(
                 "one two",
@@ -468,5 +550,21 @@ namespace System.CommandLine.Tests.Binding
                 "1 2",
                 o => o.Should().BeEquivalentTo(new List<int> { 1, 2 }))
         };
+
+        private static string NonexistentPathWithoutTrailingSlash()
+        {
+            return Path.Combine(
+                ExistingDirectory(),
+                "does-not-exist");
+        }
+
+        private static string NonexistentPathWithTrailingSlash() => 
+            NonexistentPathWithoutTrailingSlash() + Path.DirectorySeparatorChar;
+
+        private static string ExistingFile() =>
+            Directory.GetFiles(ExistingDirectory()).FirstOrDefault() ?? 
+            throw new AssertionFailedException("No files found in current directory");
+
+        private static string ExistingDirectory() => Directory.GetCurrentDirectory();
     }
 }

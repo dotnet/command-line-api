@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using static System.CommandLine.Binding.ArgumentConversionResult;
@@ -13,6 +14,24 @@ namespace System.CommandLine.Binding
 {
     internal static class ArgumentConverter
     {
+        private static readonly Dictionary<Type, Func<string, object>> _converters = new Dictionary<Type, Func<string, object>>
+        {
+            [typeof(FileSystemInfo)] = value =>
+            {
+                if (Directory.Exists(value))
+                {
+                    return new DirectoryInfo(value);
+                }
+
+                if (value.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                {
+                    return new DirectoryInfo(value);
+                }
+
+                return new FileInfo(value);
+            }
+        };
+
         internal static ArgumentConversionResult ConvertObject(
             IArgument argument,
             Type type,
@@ -54,7 +73,7 @@ namespace System.CommandLine.Binding
         {
             type ??= typeof(string);
 
-            if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter)
+            if (TypeDescriptor.GetConverter(type) is { } typeConverter)
             {
                 if (typeConverter.CanConvertFrom(typeof(string)))
                 {
@@ -68,6 +87,20 @@ namespace System.CommandLine.Binding
                     {
                         return Failure(argument, type, value);
                     }
+                }
+            }
+
+            if (_converters.TryGetValue(type, out var convert))
+            {
+                try
+                {
+                    return Success(
+                        argument,
+                        convert(value));
+                }
+                catch (Exception)
+                {
+                    return Failure(argument, type, value);
                 }
             }
 
