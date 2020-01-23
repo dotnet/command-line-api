@@ -23,7 +23,8 @@ namespace System.CommandLine.Binding
                     return new DirectoryInfo(value);
                 }
 
-                if (value.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                if (value.EndsWith(Path.DirectorySeparatorChar.ToString()) ||
+                    value.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
                 {
                     return new DirectoryInfo(value);
                 }

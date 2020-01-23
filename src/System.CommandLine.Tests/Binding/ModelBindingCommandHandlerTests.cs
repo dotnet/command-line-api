@@ -297,6 +297,7 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(FileSystemInfo), true, nameof(ExistingFile))]
         [InlineData(typeof(FileSystemInfo), true, nameof(ExistingDirectory))]
         [InlineData(typeof(FileSystemInfo), true, nameof(NonexistentPathWithTrailingSlash))]
+        [InlineData(typeof(FileSystemInfo), true, nameof(NonexistentPathWithTrailingAltSlash))]
         [InlineData(typeof(FileSystemInfo), true, nameof(NonexistentPathWithoutTrailingSlash))]
 
         [InlineData(typeof(string[]), false)]
@@ -545,7 +546,18 @@ namespace System.CommandLine.Tests.Binding
                           .Should()
                           .Be(NonexistentPathWithTrailingSlash()),
                 variationName: nameof(NonexistentPathWithTrailingSlash)),
-                
+
+            BindingTestCase.Create<FileSystemInfo>(
+                NonexistentPathWithTrailingAltSlash(),
+                fsi => fsi.Should()
+                          .BeOfType<DirectoryInfo>()
+                          .Which
+                          .FullName
+                          .Should()
+                          .Be(NonexistentPathWithTrailingSlash(), 
+                              "DirectoryInfo replaces Path.AltDirectorySeparatorChar with Path.DirectorySeparatorChar on Windows"),
+                variationName: nameof(NonexistentPathWithTrailingAltSlash)),
+
             BindingTestCase.Create<FileSystemInfo>(
                 NonexistentPathWithoutTrailingSlash(),
                 fsi => fsi.Should()
@@ -582,6 +594,8 @@ namespace System.CommandLine.Tests.Binding
 
         private static string NonexistentPathWithTrailingSlash() => 
             NonexistentPathWithoutTrailingSlash() + Path.DirectorySeparatorChar;
+        private static string NonexistentPathWithTrailingAltSlash() => 
+            NonexistentPathWithoutTrailingSlash() + Path.AltDirectorySeparatorChar;
 
         private static string ExistingFile() =>
             Directory.GetFiles(ExistingDirectory()).FirstOrDefault() ?? 
