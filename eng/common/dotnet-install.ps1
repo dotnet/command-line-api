@@ -1,21 +1,27 @@
 [CmdletBinding(PositionalBinding=$false)]
 Param(
-  [string] $verbosity = "minimal",
-  [string] $architecture = "",
-  [string] $version = "Latest",
-  [string] $runtime = "dotnet"
+  [string] $verbosity = 'minimal',
+  [string] $architecture = '',
+  [string] $version = 'Latest',
+  [string] $runtime = 'dotnet',
+  [string] $RuntimeSourceFeed = '',
+  [string] $RuntimeSourceFeedKey = ''
 )
 
 . $PSScriptRoot\tools.ps1
 
+$dotnetRoot = Join-Path $RepoRoot '.dotnet'
+
+$installdir = $dotnetRoot
 try {
-  $dotnetRoot = Join-Path $RepoRoot ".dotnet"
-  InstallDotNet $dotnetRoot $version $architecture $runtime $true
-} 
+    if ($architecture -and $architecture.Trim() -eq 'x86') {
+        $installdir = Join-Path $installdir 'x86'
+    }
+    InstallDotNet $installdir $version $architecture $runtime $true -RuntimeSourceFeed $RuntimeSourceFeed -RuntimeSourceFeedKey $RuntimeSourceFeedKey
+}
 catch {
-  Write-Host $_
-  Write-Host $_.Exception
   Write-Host $_.ScriptStackTrace
+  Write-PipelineTelemetryError -Category 'InitializeToolset' -Message $_
   ExitWithExitCode 1
 }
 
