@@ -126,12 +126,6 @@ namespace System.CommandLine
             }
         }
 
-        protected void ClearAliases()
-        {
-            _aliases.Clear();
-            _rawAliases.Clear();
-        }
-
         public bool HasAlias(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
