@@ -275,7 +275,7 @@ namespace System.CommandLine.Builder
                 "--help",
                 "-?",
                 "/?"
-            });
+            }, "Show help and usage information");
 
             return builder.UseHelp(helpOption);
         }
@@ -428,7 +428,7 @@ namespace System.CommandLine.Builder
                 return builder;
             }
 
-            var versionOption = new Option("--version", "Display version information");
+            var versionOption = new Option("--version", "Show version information");
 
             builder.AddOption(versionOption);
 

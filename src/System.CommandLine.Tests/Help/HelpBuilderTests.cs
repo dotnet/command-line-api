@@ -1106,6 +1106,21 @@ namespace System.CommandLine.Tests.Help
                 .Contain("-r, --required <ARG> (REQUIRED)");
         }
 
+        [Fact]
+        public void Help_option_is_shown_in_help()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseHelp()
+                         .Build();
+
+            _helpBuilder.Write(parser.Configuration.RootCommand);
+
+            var help = _console.Out.ToString();
+
+            help.Should()
+                .Contain($"--help{_columnPadding}Show help and usage information");
+        }
+
         #endregion Options
 
         #region Subcommands

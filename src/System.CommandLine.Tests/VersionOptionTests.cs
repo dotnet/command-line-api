@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests
             console.Out
                    .ToString()
                    .Should()
-                   .Match("*Options:*--version*Display version information*");
+                   .Match("*Options:*--version*Show version information*");
         }
 
         [Fact]
