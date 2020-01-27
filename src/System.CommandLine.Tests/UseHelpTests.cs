@@ -55,21 +55,6 @@ namespace System.CommandLine.Tests
             wasCalled.Should().BeFalse();
         }
 
-        [Fact]
-        public async Task UseHelp_allows_help_for_all_configured_prefixes()
-        {
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(new Command("command"))
-                    .UseHelp()
-                    .UsePrefixes(new[] { "~" })
-                    .Build();
-
-            await parser.InvokeAsync("command ~help", _console);
-
-            _console.Out.ToString().Should().StartWith("Usage:");
-        }
-
         [Theory]
         [InlineData("-h")]
         [InlineData("--help")]
@@ -89,12 +74,12 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task UseHelp_accepts_collection_of_help_options()
+        public async Task UseHelp_accepts_custom_aliases()
         {
             var parser =
                 new CommandLineBuilder()
                     .AddCommand(new Command("command"))
-                    .UseHelp(new[] { "~cthulhu" })
+                    .UseHelp(new Option(new[] { "~cthulhu" }))
                     .Build();
 
             await parser.InvokeAsync("command ~cthulhu", _console);
@@ -119,6 +104,39 @@ namespace System.CommandLine.Tests
             await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().BeEmpty();
+        }
+
+        [Fact]
+        public void There_are_no_parse_errors_when_help_is_invoked_on_root_command()
+        {
+            var parser = new CommandLineBuilder()
+                .UseDefaults()
+                .Build();
+
+            var result = parser.Parse("-h");
+
+            result.Errors
+                  .Should()
+                  .BeEmpty();
+        }
+        
+        [Fact]
+        public void There_are_no_parse_errors_when_help_is_invoked_on_subcommand()
+        {
+            var command = new RootCommand
+            {
+                new Command("subcommand")
+            };
+
+            var parser = new CommandLineBuilder(command)
+                         .UseDefaults()
+                         .Build();
+
+            var result = parser.Parse("subcommand -h");
+
+            result.Errors
+                  .Should()
+                  .BeEmpty();
         }
     }
 }

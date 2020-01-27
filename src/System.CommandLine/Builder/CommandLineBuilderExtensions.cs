@@ -268,50 +268,35 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) =>
+            var helpOption = new Option(new []
             {
-                var helpOptionTokens = new HashSet<string>();
-                var prefixes = context.Parser.Configuration.Prefixes;
-                if (prefixes == null)
-                {
-                    helpOptionTokens.Add("-h");
-                    helpOptionTokens.Add("/h");
-                    helpOptionTokens.Add("--help");
-                    helpOptionTokens.Add("-?");
-                    helpOptionTokens.Add("/?");
-                }
-                else
-                {
-                    string[] helpOptionNames = { "help", "h", "?" };
-                    foreach (var helpOption in helpOptionNames)
-                    {
-                        foreach (var prefix in prefixes)
-                        {
-                            helpOptionTokens.Add($"{prefix}{helpOption}");
-                        }
-                    }
-                }
+                "-h",
+                "/h",
+                "--help",
+                "-?",
+                "/?"
+            });
 
-                if (!ShowHelp(context, helpOptionTokens))
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.HelpOption);
-
-            return builder;
+            return builder.UseHelp(helpOption);
         }
 
         public static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
-            IReadOnlyCollection<string> helpOptionTokens)
+            Option helpOption)
         {
+            builder.HelpOption = helpOption ?? throw new ArgumentNullException(nameof(helpOption));
+            builder.HelpOption.Argument.Arity = ArgumentArity.Zero;
+            
+            builder.Command.AddGlobalOption(builder.HelpOption);
+
             builder.AddMiddleware(async (context, next) =>
             {
-                if (!ShowHelp(context, helpOptionTokens))
+                if (!ShowHelp(context, builder.HelpOption))
                 {
                     await next(context);
                 }
             }, MiddlewareOrderInternal.HelpOption);
+
             return builder;
         }
 
@@ -384,13 +369,6 @@ namespace System.CommandLine.Builder
                     await next(context);
                 }
             }, MiddlewareOrderInternal.ParseErrorReporting);
-            return builder;
-        }
-
-        public static TBuilder UsePrefixes<TBuilder>(this TBuilder builder, IReadOnlyCollection<string> prefixes)
-            where TBuilder : CommandLineBuilder
-        {
-            builder.Prefixes = prefixes;
             return builder;
         }
 
@@ -471,26 +449,15 @@ namespace System.CommandLine.Builder
 
         private static bool ShowHelp(
             InvocationContext context,
-            IReadOnlyCollection<string> helpOptionAliases)
+            IOption helpOption)
         {
-            var lastToken = context.ParseResult.Tokens.LastOrDefault();
-
-            if (helpOptionAliases.Contains(lastToken?.Value) &&
-                !TokenIsDefinedInSyntax())
+            if (context.ParseResult.FindResultFor(helpOption) != null)
             {
                 context.InvocationResult = new HelpResult();
                 return true;
             }
 
             return false;
-
-            bool TokenIsDefinedInSyntax() =>
-                context.Parser
-                       .Configuration
-                       .Symbols
-                       .FlattenBreadthFirst(s => s.Children)
-                       .SelectMany(s => s.RawAliases)
-                       .Any(helpOptionAliases.Contains);
         }
     }
 }

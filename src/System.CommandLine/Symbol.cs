@@ -66,18 +66,13 @@ namespace System.CommandLine
 
         public ISymbolSet Parents => _parents; 
 
-        private protected void AddParent(Symbol symbol)
+        internal void AddParent(Symbol symbol)
         {
             _parents.AddWithoutAliasCollisionCheck(symbol);
         }
 
-        private protected void AddSymbol(Symbol symbol)
+        private protected virtual void AddSymbol(Symbol symbol)
         {
-            if (this is Command command)
-            {
-                symbol.AddParent(command);
-            }
-
             Children.Add(symbol);
         }
 

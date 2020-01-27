@@ -323,16 +323,44 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command")
             {
                 new Option("--same")
-                {
-                    Argument = new Argument<string>()
-                }
             };
 
             command
-                .Invoking(c => c.Add(new Option("--same")
-                {
-                    Argument = new Argument<string>()
-                }))
+                .Invoking(c => c.Add(new Option("--same")))
+                .Should()
+                .Throw<ArgumentException>()
+                .And
+                .Message
+                .Should()
+                .Be("Alias '--same' is already in use.");
+        }
+
+        [Fact]
+        public void When_global_options_are_added_then_they_must_differ_from_local_options_by_name()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("--same")
+            };
+
+            command
+                .Invoking(c => c.AddGlobalOption(new Option("--same")))
+                .Should()
+                .Throw<ArgumentException>()
+                .And
+                .Message
+                .Should()
+                .Be("Alias '--same' is already in use.");
+        }
+
+        [Fact]
+        public void When_local_options_are_added_then_they_must_differ_from_global_options_by_name()
+        {
+            var command = new Command("the-command");
+            command.AddGlobalOption(new Option("--same"));
+
+            command
+                .Invoking(c => c.Add(new Option("--same")))
                 .Should()
                 .Throw<ArgumentException>()
                 .And

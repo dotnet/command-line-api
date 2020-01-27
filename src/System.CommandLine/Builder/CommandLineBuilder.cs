@@ -23,11 +23,11 @@ namespace System.CommandLine.Builder
 
         public bool EnablePosixBundling { get; set; } = true;
 
-        public IReadOnlyCollection<string> Prefixes { get; set; }
-
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; set; }
+
+        internal Option HelpOption { get; set; }
 
         public Parser Build()
         {
@@ -36,7 +36,6 @@ namespace System.CommandLine.Builder
             return new Parser(
                 new CommandLineConfiguration(
                     new[] { rootCommand },
-                    prefixes: Prefixes,
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
                     validationMessages: ValidationMessages.Instance,
