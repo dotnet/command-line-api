@@ -14,7 +14,7 @@ namespace System.CommandLine.Rendering
         {
         }
 
-        protected override void SetCursorPosition(int left, int top)
+        protected override void SetCursorPosition(int? left = null, int? top = null)
         {
             if (top > 0 && left == 0)
             {

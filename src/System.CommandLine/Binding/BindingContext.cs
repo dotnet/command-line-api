@@ -60,6 +60,16 @@ namespace System.CommandLine.Binding
 
             ServiceProvider.AddService(serviceType, factory);
         }
+        
+        public void AddService<T>(Func<IServiceProvider, T> factory)
+        {
+            if (factory == null)
+            {
+                throw new ArgumentNullException(nameof(factory));
+            }
+
+            ServiceProvider.AddService(typeof(T), s => factory(s));
+        }
 
         internal bool TryGetValueSource(
             IValueDescriptor valueDescriptor,

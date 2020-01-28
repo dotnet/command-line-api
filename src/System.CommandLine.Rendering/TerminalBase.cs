@@ -27,7 +27,7 @@ namespace System.CommandLine.Rendering
 
         public OutputMode OutputMode { get; set; } = OutputMode.Auto;
 
-        public virtual Region GetRegion() => EntireConsoleRegion.Instance;
+        public virtual Region GetRegion() => Region.EntireTerminal;
 
         public abstract ConsoleColor BackgroundColor { get; set; }
 

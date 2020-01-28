@@ -5,6 +5,10 @@ namespace System.CommandLine.Rendering
 {
     public class Region
     {
+        public static readonly Region EntireTerminal = new EntireTerminalRegion();
+        
+        public static readonly Region Scrolling = new ScrollingTerminalRegion();
+
         public Region(
             int left,
             int top,

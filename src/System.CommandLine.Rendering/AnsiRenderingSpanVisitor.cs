@@ -14,12 +14,13 @@ namespace System.CommandLine.Rendering
         {
         }
 
-        protected override void SetCursorPosition(int left, int top)
+        protected override void SetCursorPosition(int? left = null, int? top = null)
         {
             Writer.Write(
                 Cursor.Move
                       .ToLocation(left: left + 1, top: top + 1)
                       .EscapeSequence);
+
         }
 
         public override void VisitForegroundColorSpan(ForegroundColorSpan span)

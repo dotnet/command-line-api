@@ -202,7 +202,9 @@ namespace System.CommandLine.Rendering
             return true;
         }
 
-        private void TrySetCursorPosition(int left, int top)
+        private void TrySetCursorPosition(
+            int left, 
+            int? top = null)
         {
             if (left == _cursorLeft &&
                 top == _cursorTop)
@@ -211,11 +213,16 @@ namespace System.CommandLine.Rendering
             }
 
             _cursorLeft = left;
-            _cursorTop = top;
+            if (top != null)
+            {
+                _cursorTop = top.Value;
+            }
 
             SetCursorPosition(_cursorLeft, _cursorTop);
         }
 
-        protected abstract void SetCursorPosition(int left, int top);
+        protected abstract void SetCursorPosition(
+            int? left = null, 
+            int? top = null);
     }
 }

@@ -1,10 +1,14 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.CommandLine.Rendering.Views;
 using System.CommandLine.Tests;
 using System.Drawing;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace System.CommandLine.Rendering.Tests
@@ -13,36 +17,73 @@ namespace System.CommandLine.Rendering.Tests
     {
         private readonly TestTerminal _terminal = new TestTerminal();
 
-        [Fact(Skip = "WIP")]
-        public void In_NonAnsi_mode_ConsoleView_keeps_track_of_position_so_that_multiple_WriteLine_statements_do_not_overwrite_the_target_region()
+        [Fact]
+        public void Views_can_be_registered_for_specific_types()
         {
-            var renderer = new ConsoleRenderer(
-                _terminal,
-                OutputMode.NonAnsi);
+            ParseResult parseResult = null;
 
-            var view = new StringsView(new[] {
-                "1",
-                "2",
-                "3"
-            });
+            var command = new RootCommand
+            {
+                Handler = CommandHandler.Create<ParseResult, IConsole>(
+                    (r, c) =>
+                    {
+                        parseResult = r;
+                        c.Append(new ParseResultView(r));
+                    })
+            };
 
-            view.Render(renderer, new Region(3, 5, 1, 3));
+            var parser = new CommandLineBuilder(command)
+                         .UseMiddleware(c =>
+                         {
+                             c.BindingContext
+                              .AddService(
+                                  s => new ParseResultView(s.GetService<ParseResult>()));
+                         })
+                         .Build();
 
-            _terminal.RenderOperations()
-                    .Should()
-                    .BeEquivalentSequenceTo(new TextRendered("1", new Point(3, 5)),
-                        new TextRendered("2", new Point(3, 6)),
-                        new TextRendered("3", new Point(3, 7)));
+            var terminal = new TestTerminal
+            {
+                IsAnsiTerminal = false
+            };
+
+            parser.Invoke("", terminal);
+
+            terminal.Out.ToString().Should().Contain(parseResult.Diagram());
         }
 
-        [Fact(Skip = "WIP")]
-        public void In_Ansi_mode_ConsoleView_keeps_track_of_position_so_that_multiple_WriteLine_statements_do_not_overwrite_the_target_region()
+        [Theory]
+        [InlineData(OutputMode.NonAnsi)]
+        [InlineData(OutputMode.Ansi)]
+        public void Views_can_be_appended_to_output(OutputMode outputMode)
+        {
+            var view = new StringsView(new[]
+            {
+                "1",
+                "2",
+                "3"
+            });
+
+            _terminal.Append(view, outputMode);
+
+            _terminal.RenderOperations()
+                     .Should()
+                     .BeEquivalentSequenceTo(
+                         new TextRendered("1", new Point(0, 2)),
+                         new TextRendered("2", new Point(0, 3)),
+                         new TextRendered("3" + Environment.NewLine, new Point(0, 4)));
+        }
+
+        [Theory]
+        [InlineData(OutputMode.NonAnsi)]
+        [InlineData(OutputMode.Ansi)]
+        public void ConsoleView_keeps_track_of_position_so_that_multiple_WriteLine_statements_do_not_overwrite_the_target_region(OutputMode outputMode)
         {
             var renderer = new ConsoleRenderer(
                 _terminal,
-                OutputMode.Ansi);
-            
-            var view = new StringsView(new[] {
+                outputMode);
+
+            var view = new StringsView(new[]
+            {
                 "1",
                 "2",
                 "3"
@@ -51,22 +92,29 @@ namespace System.CommandLine.Rendering.Tests
             view.Render(renderer, new Region(3, 5, 1, 3));
 
             _terminal.RenderOperations()
-                    .Should()
-                    .BeEquivalentSequenceTo(
-                        new TextRendered("1", new Point(3, 5)),
-                        new TextRendered("2", new Point(3, 6)),
-                        new TextRendered("3", new Point(3, 7)));
+                     .Should()
+                     .BeEquivalentSequenceTo(
+                         new TextRendered("1", new Point(3, 5)),
+                         new TextRendered("2", new Point(3, 6)),
+                         new TextRendered("3", new Point(3, 7)));
         }
 
         private class StringsView : StackLayoutView
         {
             public StringsView(string[] strings)
             {
-                foreach(var @string in strings)
+                foreach (var @string in strings)
                 {
                     Add(new ContentView(@string));
                 }
             }
+        }
+    }
+
+    public class ParseResultView : ContentView<ParseResult>
+    {
+        public ParseResultView(ParseResult value) : base(value)
+        {
         }
     }
 }

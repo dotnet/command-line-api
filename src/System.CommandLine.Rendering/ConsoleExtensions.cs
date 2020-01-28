@@ -1,6 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.IO;
+using System.CommandLine.Rendering.Views;
+
 namespace System.CommandLine.Rendering
 {
     public static class ConsoleExtensions
@@ -29,6 +32,18 @@ namespace System.CommandLine.Rendering
             {
                 return OutputMode.PlainText;
             }
+        }
+
+        public static void Append(
+            this IConsole console, 
+            View view, 
+            OutputMode outputMode = OutputMode.Auto)
+        {
+            var renderer = new ConsoleRenderer(console, outputMode);
+            
+            view.Render(renderer, Region.Scrolling);
+            
+            console.Out.WriteLine();
         }
     }
 }
