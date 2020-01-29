@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -331,8 +332,14 @@ namespace System.CommandLine.Help
         /// <returns>A new <see cref="HelpItem"/></returns>
         private IEnumerable<HelpItem> GetOptionHelpItems(ISymbol symbol)
         {
-            var rawAliases = symbol.RawAliases
-                .OrderBy(alias => alias.Length);
+            var rawAliases = symbol
+                             .RawAliases
+                             .Select(r => r.SplitPrefix())
+                             .OrderBy(r => r.alias)
+                             .ThenBy(r => r.prefix)
+                             .GroupBy(t => t.alias)
+                             .Select(t => t.First())
+                             .Select(t => $"{t.prefix}{t.alias}");
 
             var invocation = string.Join(", ", rawAliases);
 

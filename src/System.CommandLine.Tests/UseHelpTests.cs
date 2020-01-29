@@ -110,7 +110,7 @@ namespace System.CommandLine.Tests
         public void There_are_no_parse_errors_when_help_is_invoked_on_root_command()
         {
             var parser = new CommandLineBuilder()
-                .UseDefaults()
+                .UseHelp()
                 .Build();
 
             var result = parser.Parse("-h");
@@ -129,7 +129,7 @@ namespace System.CommandLine.Tests
             };
 
             var parser = new CommandLineBuilder(command)
-                         .UseDefaults()
+                         .UseHelp()
                          .Build();
 
             var result = parser.Parse("subcommand -h");

@@ -23,17 +23,30 @@ namespace System.CommandLine.Parsing
                                 value ?? "",
                                 CompareOptions.OrdinalIgnoreCase) >= 0;
 
-        internal static string RemovePrefix(this string option)
+        internal static string RemovePrefix(this string rawAlias)
         {
             foreach (var prefix in _optionPrefixStrings)
             {
-                if (option.StartsWith(prefix))
+                if (rawAlias.StartsWith(prefix))
                 {
-                    return option.Substring(prefix.Length);
+                    return rawAlias.Substring(prefix.Length);
                 }
             }
 
-            return option;
+            return rawAlias;
+        }
+
+        internal static (string prefix, string alias) SplitPrefix(this string rawAlias)
+        {
+            foreach (var prefix in _optionPrefixStrings)
+            {
+                if (rawAlias.StartsWith(prefix))
+                {
+                    return (prefix, rawAlias.Substring(prefix.Length));
+                }
+            }
+
+            return (null, rawAlias);
         }
 
         internal static TokenizeResult Tokenize(
@@ -171,9 +184,10 @@ namespace System.CommandLine.Parsing
                     return false;
                 }
 
-                return arg.StartsWith("-") &&
-                       !arg.StartsWith("--") &&
-                       TryUnbundle(arg.RemovePrefix(), out replacement);
+                var (prefix, alias) = arg.SplitPrefix();
+
+                return prefix == "-" && 
+                       TryUnbundle(alias, out replacement);
 
                 Token TokenForOptionAlias(char c) =>
                     argumentDelimiters.Contains(c) 
