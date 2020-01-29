@@ -1625,26 +1625,6 @@ namespace System.CommandLine.Tests
             valueForOption.Should().Be("-y");
         }
 
-        [Theory]
-        [InlineData("/o")]
-        [InlineData("-o")]
-        [InlineData("--o")]
-        [InlineData("/output")]
-        [InlineData("-output")]
-        [InlineData("--output")]
-        public void Option_aliases_can_be_specified_and_are_prefixed_with_defaults(string input)
-        {
-            var option = new Option(new[] { "output", "o" });
-            var configuration = new CommandLineConfiguration(
-                new[] { option },
-                prefixes: new[] { "-", "--", "/" });
-            var parser = new Parser(configuration);
-
-            ParseResult parseResult = parser.Parse(input);
-            parseResult["output"].Should().NotBeNull();
-            parseResult["o"].Should().NotBeNull();
-        }
-
         [Fact]
         public void Option_aliases_do_not_need_to_be_prefixed()
         {
@@ -1653,27 +1633,6 @@ namespace System.CommandLine.Tests
             var result = new RootCommand { option }.Parse("noprefix");
 
             result.HasOption(option).Should().BeTrue();
-        }
-
-        [Theory]
-        [InlineData("/o")]
-        [InlineData("-o")]
-        [InlineData("--output")]
-        [InlineData("--out")]
-        [InlineData("-out")]
-        [InlineData("/out")]
-        public void Option_aliases_can_be_specified_for_particular_prefixes(string input)
-        {
-            var option = new Option(new[] { "--output", "-o", "/o", "out" });
-            var configuration = new CommandLineConfiguration(
-                new[] { option },
-                prefixes: new[] { "-", "--", "/" });
-            var parser = new Parser(configuration);
-
-            ParseResult parseResult = parser.Parse(input);
-            parseResult["o"].Should().NotBeNull();
-            parseResult["out"].Should().NotBeNull();
-            parseResult["output"].Should().NotBeNull();
         }
 
         [Fact]

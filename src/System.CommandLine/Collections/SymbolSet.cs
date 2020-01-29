@@ -9,39 +9,18 @@ namespace System.CommandLine.Collections
     {
         internal override void Add(ISymbol item)
         {
-            string rawAliasAlreadyInUse;
-
-            switch (item)
-            {
-                case IOption _:
-                case ICommand _:
-                    if (IsAliasInUse(item, GetRawAliases, out rawAliasAlreadyInUse))
-                    {
-                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
-                    }
-
-                    break;
-
-                case IArgument argument:
-                    if (IsAliasInUse(argument, i => new[] { i.Name }, out rawAliasAlreadyInUse))
-                    {
-                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
-                    }
-
-                    break;
-            }
+            ThrowIfAnyAliasIsInUse(item);
 
             base.Add(item);
         }
 
         internal void AddWithoutAliasCollisionCheck(ISymbol item) => base.Add(item);
 
-        private bool IsAliasInUse(
+        internal bool IsAnyAliasInUse(
             ISymbol item,
-            Func<ISymbol, IReadOnlyList<string>> values,
-            out string rawAliasAlreadyInUse)
+            out string aliasAlreadyInUse)
         {
-            var itemRawAliases = values(item);
+            var itemRawAliases = GetRawAliases(item);
 
             for (var i = 0; i < Items.Count; i++)
             {
@@ -51,16 +30,50 @@ namespace System.CommandLine.Collections
                 {
                     var rawAliasToCheckFor = itemRawAliases[j];
 
-                    if (Contains(values(existingItem), rawAliasToCheckFor))
+                    if (Contains(GetRawAliases(existingItem), rawAliasToCheckFor))
                     {
-                        rawAliasAlreadyInUse = rawAliasToCheckFor;
+                        aliasAlreadyInUse = rawAliasToCheckFor;
                         return true;
                     }
                 }
             }
 
-            rawAliasAlreadyInUse = null;
+            aliasAlreadyInUse = null;
             return false;
+
+            static IReadOnlyList<string> GetRawAliases(ISymbol symbol)
+            {
+                return symbol switch
+                {
+                    IArgument arg => new[] { arg.Name },
+                    _ => symbol.RawAliases
+                };
+            }
+        }
+
+        internal void ThrowIfAnyAliasIsInUse(ISymbol item)
+        {
+            string rawAliasAlreadyInUse;
+
+            switch (item)
+            {
+                case IOption _:
+                case ICommand _:
+                    if (IsAnyAliasInUse(item, out rawAliasAlreadyInUse))
+                    {
+                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
+                    }
+
+                    break;
+
+                case IArgument argument:
+                    if (IsAnyAliasInUse(argument, out rawAliasAlreadyInUse))
+                    {
+                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
+                    }
+
+                    break;
+            }
         }
 
         protected override IReadOnlyList<string> GetAliases(ISymbol item) =>

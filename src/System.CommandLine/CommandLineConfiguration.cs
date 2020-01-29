@@ -20,7 +20,6 @@ namespace System.CommandLine
         public CommandLineConfiguration(
             IReadOnlyCollection<Symbol> symbols,
             IReadOnlyCollection<char> argumentDelimiters = null,
-            IReadOnlyCollection<string> prefixes = null,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
             ValidationMessages validationMessages = null,
@@ -81,29 +80,27 @@ namespace System.CommandLine
 
             _symbols.Add(RootCommand);
 
+            AddGlobalOptionsToChildren(rootCommand);
+
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
             _middlewarePipeline = middlewarePipeline;
             _helpBuilderFactory = helpBuilderFactory;
-            Prefixes = prefixes;
+        }
 
-            if (prefixes?.Count > 0)
+        private void AddGlobalOptionsToChildren(Command parentCommand)
+        {
+            foreach (var globalOption in parentCommand.GlobalOptions)
             {
-                foreach (var symbol in symbols)
+                foreach (var child in parentCommand.Children.FlattenBreadthFirst(c => c.Children))
                 {
-                    if (symbol is Option option)
+                    if (child is Command childCommand)
                     {
-                        foreach (var alias in option.RawAliases.ToList())
+                        if (!childCommand.Children.IsAnyAliasInUse(globalOption, out var inUse))
                         {
-                            if (!prefixes.All(prefix => alias.StartsWith(prefix)))
-                            {
-                                foreach (var prefix in prefixes)
-                                {
-                                    option.AddAlias(prefix + alias);
-                                }
-                            }
+                            childCommand.AddOption(globalOption);
                         }
                     }
                 }

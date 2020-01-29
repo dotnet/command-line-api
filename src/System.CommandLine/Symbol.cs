@@ -66,18 +66,13 @@ namespace System.CommandLine
 
         public ISymbolSet Parents => _parents; 
 
-        private protected void AddParent(Symbol symbol)
+        internal void AddParent(Symbol symbol)
         {
             _parents.AddWithoutAliasCollisionCheck(symbol);
         }
 
-        private protected void AddSymbol(Symbol symbol)
+        private protected virtual void AddSymbol(Symbol symbol)
         {
-            if (this is Command command)
-            {
-                symbol.AddParent(command);
-            }
-
             Children.Add(symbol);
         }
 
@@ -151,7 +146,7 @@ namespace System.CommandLine
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
                        .Distinct()
-                       .OrderBy(symbol => symbol)
+                       .OrderBy(symbol => symbol, StringComparer.OrdinalIgnoreCase)
                        .Containing(textToMatch);
         }
 

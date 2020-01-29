@@ -192,7 +192,7 @@ namespace System.CommandLine
                    .Concat(dynamicSuggestions)
                    .Concat(typeSuggestions)
                    .Distinct()
-                   .OrderBy(c => c)
+                   .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
                    .Containing(textToMatch);
         }
 

@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Collections;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace System.CommandLine
 {
     public class Command : Symbol, ICommand, IEnumerable<Symbol>
     {
+        private readonly SymbolSet _globalOptions = new SymbolSet();
+
         public Command(string name, string description = null) : base(new[] { name }, description)
         {
         }
@@ -19,15 +22,36 @@ namespace System.CommandLine
         
         public IEnumerable<Option> Options => Children.OfType<Option>();
 
+        public IEnumerable<Option> GlobalOptions => _globalOptions.OfType<Option>();
+
         public void AddArgument(Argument argument) => AddArgumentInner(argument);
 
         public void AddCommand(Command command) => AddSymbol(command);
 
         public void AddOption(Option option) => AddSymbol(option);
 
+        public void AddGlobalOption(Option option)
+        {
+            Children.ThrowIfAnyAliasIsInUse(option);
+            _globalOptions.Add(option);
+            Children.AddWithoutAliasCollisionCheck(option);
+        }
+
         public void Add(Symbol symbol) => AddSymbol(symbol);
 
         public void Add(Argument argument) => AddArgument(argument);
+
+        private protected override void AddSymbol(Symbol symbol)
+        {
+            if (symbol is IOption option)
+            {
+                _globalOptions.ThrowIfAnyAliasIsInUse(option);
+            }
+
+            symbol.AddParent(this);
+
+            base.AddSymbol(symbol);
+        }
 
         internal List<ValidateSymbol<CommandResult>> Validators { get; } = new List<ValidateSymbol<CommandResult>>();
 

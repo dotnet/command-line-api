@@ -1106,6 +1106,51 @@ namespace System.CommandLine.Tests.Help
                 .Contain("-r, --required <ARG> (REQUIRED)");
         }
 
+        [Fact]
+        public void Help_option_is_shown_in_help()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseHelp()
+                         .Build();
+
+            _helpBuilder.Write(parser.Configuration.RootCommand);
+
+            var help = _console.Out.ToString();
+
+            help.Should()
+                .Contain($"-?, -h, --help{_columnPadding}Show help and usage information");
+        }
+
+        [Fact]
+        public void Options_aliases_differing_only_by_prefix_are_deduplicated_favoring_dashed_prefixes()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] { "-x", "/x" })
+            };
+
+            _helpBuilder.Write(command);
+            
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("/x");
+        }
+        
+        [Fact]
+        public void Options_aliases_differing_only_by_prefix_are_deduplicated_favoring_double_dashed_prefixes()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] { "--long", "/long" })
+            };
+
+            _helpBuilder.Write(command);
+            
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("/long");
+        }
+
         #endregion Options
 
         #region Subcommands

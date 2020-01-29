@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Rendering;
-using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -64,7 +63,7 @@ namespace System.CommandLine.DragonFruit.Tests
                   .Contain("<args>    These are arguments")
                   .And.Contain("Arguments:");
             stdOut.Should()
-                  .Contain("--name <name>    Specifies the name option")
+                  .ContainAll("--name <name>", "Specifies the name option")
                   .And.Contain("Options:");
             stdOut.Should()
                   .Contain("Help for the test program");
@@ -88,7 +87,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 .Contain("<args>    These are arguments")
                 .And.Contain("Arguments:");
             stdOut.Should()
-                .Contain("--name <name>    Specifies the name option")
+                .ContainAll("--name <name>","Specifies the name option")
                 .And.Contain("Options:");
             stdOut.Should()
                 .Contain("Help for the test program");
