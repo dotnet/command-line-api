@@ -146,7 +146,7 @@ namespace System.CommandLine
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
                        .Distinct()
-                       .OrderBy(symbol => symbol)
+                       .OrderBy(symbol => symbol, StringComparer.OrdinalIgnoreCase)
                        .Containing(textToMatch);
         }
 

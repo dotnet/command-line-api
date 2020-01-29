@@ -155,7 +155,7 @@ namespace System.CommandLine.Suggest.Tests
 
             stdOut.ToString()
                 .Should()
-                .Be($"/?{NewLine}/h{NewLine}-?{NewLine}--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}-h{NewLine}--help{NewLine}--version{NewLine}");
+                .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
         }
     }
 }
