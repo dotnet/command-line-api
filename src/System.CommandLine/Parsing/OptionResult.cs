@@ -13,7 +13,7 @@ namespace System.CommandLine.Parsing
         internal OptionResult(
             IOption option,
             Token token,
-            CommandResult parent = null) :
+            CommandResult parent) :
             base(option ?? throw new ArgumentNullException(nameof(option)),
                  parent)
         {

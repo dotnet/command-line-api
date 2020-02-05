@@ -320,7 +320,8 @@ namespace System.CommandLine.Parsing
 
                                 var optionResult = new OptionResult(
                                     option,
-                                    option.CreateImplicitToken());
+                                    option.CreateImplicitToken(),
+                                    commandResult);
 
                                 var token = new ImplicitToken(
                                     optionResult.GetDefaultValueFor(option.Argument),
