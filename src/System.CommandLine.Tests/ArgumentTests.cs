@@ -117,7 +117,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void validation_failure_message()
+            public void Validation_failure_message_can_be_specified()
             {
                 var argument = new Argument<FileSystemInfo>(result =>
                 {
@@ -187,6 +187,79 @@ namespace System.CommandLine.Tests
                         .GetValueOrDefault()
                         .Should()
                         .Be(6);
+            }
+
+            [Fact]
+            public void ArgumentResult_Parent_is_set_correctly_when_token_is_present()
+            {
+                ArgumentResult argumentResult = null;
+
+                var command = new Command("the-command")
+                {
+                    new Option<string>(
+                        "-x",
+                        parseArgument: argResult =>
+                        {
+                            argumentResult = argResult;
+                            return null;
+                        })
+                };
+
+                command.Parse("-x abc");
+
+                argumentResult
+                    .Parent
+                    .Should()
+                    .NotBeNull();
+            }
+
+            [Fact]
+            public void Option_ArgumentResult_Parent_is_set_correctly_when_token_is_implicit()
+            {
+                ArgumentResult argumentResult = null;
+
+                var command = new Command("the-command")
+                {
+                    new Option<string>(
+                        "-x",
+                        parseArgument: argResult =>
+                        {
+                            argumentResult = argResult;
+                            return null;
+                        }, isDefault: true)
+                };
+
+                command.Parse("");
+
+                argumentResult
+                    .Parent
+                    .Symbol
+                    .Should()
+                    .Be(command.Options.Single());
+            }
+
+            [Fact]
+            public void Command_ArgumentResult_Parent_is_set_correctly_when_token_is_implicit()
+            {
+                ArgumentResult argumentResult = null;
+
+                var command = new Command("the-command")
+                {
+                    new Argument<string>(
+                        parse: argResult =>
+                        {
+                            argumentResult = argResult;
+                            return null;
+                        }, isDefault: true)
+                };
+
+                command.Parse("");
+
+                argumentResult
+                    .Parent
+                    .Symbol
+                    .Should()
+                    .Be(command);
             }
         }
 

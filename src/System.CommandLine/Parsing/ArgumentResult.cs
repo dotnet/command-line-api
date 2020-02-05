@@ -102,5 +102,8 @@ namespace System.CommandLine.Parsing
                        optionResult.IsImplicit);
             }
         }
+
+        internal override object CreateDefaultArgumentResultAndGetItsValue(Argument argument) => 
+            argument.GetDefaultValue(this);
     }
 }

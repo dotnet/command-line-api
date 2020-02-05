@@ -74,14 +74,7 @@ namespace System.CommandLine
 
             if (isDefault)
             {
-                SetDefaultValueFactory(() =>
-                {
-                    var argumentResult = new ArgumentResult(
-                        this,
-                        null);
-
-                    return parse(argumentResult);
-                });
+                SetDefaultValueFactory(argumentResult => parse(argumentResult));
             }
 
             ConvertArguments = (ArgumentResult argumentResult, out object value) =>
