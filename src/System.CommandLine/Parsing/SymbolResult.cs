@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -63,11 +64,23 @@ namespace System.CommandLine.Parsing
 
         internal void AddToken(Token token) => _tokens.Add(token);
 
-        internal object GetDefaultValueFor(IArgument argument)
+        internal virtual object GetDefaultValueFor(IArgument argument)
         {
             return _defaultArgumentValues.GetOrAdd(
                 argument,
-                a => a.GetDefaultValue());
+                a => a is Argument arg 
+                         ? CreateDefaultArgumentResultAndGetItsValue(arg) 
+                         : a.GetDefaultValue());
+        }
+        
+        internal virtual object CreateDefaultArgumentResultAndGetItsValue(Argument argument)
+        {
+            if (!(Children.ResultFor(argument) is ArgumentResult result))
+            {
+                result = new ArgumentResult(argument, this);
+            }
+
+            return argument.GetDefaultValue(result);
         }
 
         internal bool UseDefaultValueFor(IArgument argument)

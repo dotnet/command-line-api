@@ -11,7 +11,7 @@ namespace System.CommandLine
 {
     public class Argument : Symbol, IArgument
     {
-        private Func<object> _defaultValueFactory;
+        private Func<ArgumentResult, object> _defaultValueFactory;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity _arity;
@@ -116,12 +116,17 @@ namespace System.CommandLine
 
         public object GetDefaultValue()
         {
+            return GetDefaultValue(new ArgumentResult(this, null));
+        }
+
+        internal object GetDefaultValue(ArgumentResult argumentResult)
+        {
             if (_defaultValueFactory is null)
             {
                 throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
             }
 
-            return _defaultValueFactory.Invoke();
+            return _defaultValueFactory.Invoke(argumentResult);
         }
 
         public void SetDefaultValue(object value)
@@ -130,6 +135,16 @@ namespace System.CommandLine
         }
 
         public void SetDefaultValueFactory(Func<object> getDefaultValue)
+        {
+            if (getDefaultValue == null)
+            {
+                throw new ArgumentNullException(nameof(getDefaultValue));
+            }
+
+            SetDefaultValueFactory(_ => getDefaultValue());
+        }
+        
+        public void SetDefaultValueFactory(Func<ArgumentResult, object> getDefaultValue)
         {
             _defaultValueFactory = getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue));
         }
