@@ -190,30 +190,6 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void ArgumentResult_Parent_is_set_correctly_when_token_is_present()
-            {
-                ArgumentResult argumentResult = null;
-
-                var command = new Command("the-command")
-                {
-                    new Option<string>(
-                        "-x",
-                        parseArgument: argResult =>
-                        {
-                            argumentResult = argResult;
-                            return null;
-                        })
-                };
-
-                command.Parse("-x abc");
-
-                argumentResult
-                    .Parent
-                    .Should()
-                    .NotBeNull();
-            }
-
-            [Fact]
             public void Option_ArgumentResult_Parent_is_set_correctly_when_token_is_implicit()
             {
                 ArgumentResult argumentResult = null;
@@ -236,6 +212,32 @@ namespace System.CommandLine.Tests
                     .Symbol
                     .Should()
                     .Be(command.Options.Single());
+            }
+
+            [Fact]
+            public void Option_ArgumentResult_parentage_to_root_symbol_is_set_correctly_when_token_is_implicit()
+            {
+                ArgumentResult argumentResult = null;
+
+                var command = new Command("the-command")
+                {
+                    new Option<string>(
+                        "-x",
+                        parseArgument: argResult =>
+                        {
+                            argumentResult = argResult;
+                            return null;
+                        }, isDefault: true)
+                };
+
+                command.Parse("");
+
+                argumentResult
+                    .Parent
+                    .Parent
+                    .Symbol
+                    .Should()
+                    .Be(command);
             }
 
             [Fact]

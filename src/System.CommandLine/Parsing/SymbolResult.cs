@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -15,7 +14,7 @@ namespace System.CommandLine.Parsing
 
         private protected SymbolResult(
             ISymbol symbol, 
-            SymbolResult parent = null)
+            SymbolResult parent)
         {
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
