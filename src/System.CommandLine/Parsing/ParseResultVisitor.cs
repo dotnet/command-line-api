@@ -327,13 +327,14 @@ namespace System.CommandLine.Parsing
                                     optionResult.GetDefaultValueFor(option.Argument),
                                     TokenType.Argument);
 
-                                optionResult.Children.Add(
-                                    new ArgumentResult(
+                                var childArgumentResult = new ArgumentResult(
                                         option.Argument,
-                                        optionResult));
+                                        optionResult);
 
+                                optionResult.Children.Add(childArgumentResult);
                                 commandResult.Children.Add(optionResult);
                                 optionResult.AddToken(token);
+                                childArgumentResult.AddToken(token);
                                 _rootCommandResult.AddToSymbolMap(optionResult);
 
                                 break;

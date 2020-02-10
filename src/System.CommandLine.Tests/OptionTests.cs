@@ -3,6 +3,7 @@
 
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -309,6 +310,38 @@ namespace System.CommandLine.Tests
                          .GetValueOrDefault()
                          .Should()
                          .Be(123);
+        }
+
+        [Fact]
+        public void Option_T_default_value_is_validated()
+        {
+            var arg = new Argument<int>(() => 123);
+            arg.AddValidator( symbol =>
+                    symbol.Tokens
+                    .Select(t => t.Value)
+                    .Where(v => v == "123")
+                    .Select(x => "ERR")
+                    .FirstOrDefault());
+
+            var option = new Option("-x")
+            { 
+                Argument = arg
+            };
+
+            option
+                .Parse("-x 123")
+                .Errors
+                .Select(e => e.Message)
+                .Should()
+                .BeEquivalentTo(new[] { "ERR" });
+
+            option
+                .Parse("")
+                .Errors
+                .Select(e => e.Message)
+                .Should()
+                .BeEquivalentTo(new[] { "ERR" });
+
         }
 
         protected override Symbol CreateSymbol(string name) => new Option(name);
