@@ -19,8 +19,8 @@ namespace System.CommandLine.Invocation
             IConsole console = null)
         {
             BindingContext = new BindingContext(parseResult, console);
-            BindingContext.ServiceProvider.AddService(GetCancellationToken);
-            BindingContext.ServiceProvider.AddService(() => this);
+            BindingContext.ServiceProvider.AddService(_ => GetCancellationToken());
+            BindingContext.ServiceProvider.AddService(_ => this);
         }
 
         public IConsole Console => BindingContext.Console;

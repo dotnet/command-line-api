@@ -46,7 +46,7 @@ namespace System.CommandLine.Binding
 
         internal ServiceProvider ServiceProvider { get; }
 
-        public void AddService(Type serviceType, Func<object> factory)
+        public void AddService(Type serviceType, Func<IServiceProvider, object> factory)
         {
             if (serviceType == null)
             {

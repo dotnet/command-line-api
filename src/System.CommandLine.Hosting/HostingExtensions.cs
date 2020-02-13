@@ -41,7 +41,7 @@ namespace System.CommandLine.Hosting
 
                 using (var host = hostBuilder.Build())
                 {
-                    invocation.BindingContext.AddService(typeof(IHost), () => host);
+                    invocation.BindingContext.AddService(typeof(IHost), _ => host);
 
                     await host.StartAsync();
 
