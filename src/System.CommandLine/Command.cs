@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using System.CommandLine.Collections;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -32,7 +33,6 @@ namespace System.CommandLine
 
         public void AddGlobalOption(Option option)
         {
-            Children.ThrowIfAnyAliasIsInUse(option);
             _globalOptions.Add(option);
             Children.AddWithoutAliasCollisionCheck(option);
         }
@@ -68,5 +68,7 @@ namespace System.CommandLine
         IEnumerable<IArgument> ICommand.Arguments => Arguments;
 
         IEnumerable<IOption> ICommand.Options => Options;
+
+        internal Parser ImplicitParser { get; set; }
     }
 }

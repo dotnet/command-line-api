@@ -42,11 +42,12 @@ namespace System.CommandLine
 
         private static InvocationPipeline GetInvocationPipeline(Command command, string[] args)
         {
-            var parser = new CommandLineBuilder(command)
-                         .UseDefaults()
-                         .Build();
+            var parser = command.ImplicitParser ??=
+                             new CommandLineBuilder(command)
+                                 .UseDefaults()
+                                 .Build();
 
-            ParseResult parseResult = parser.Parse(args);
+            var parseResult = parser.Parse(args);
 
             return new InvocationPipeline(parseResult);
         }
