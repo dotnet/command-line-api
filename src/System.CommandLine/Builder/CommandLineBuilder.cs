@@ -17,6 +17,10 @@ namespace System.CommandLine.Builder
         public CommandLineBuilder(Command rootCommand = null)
             : base(rootCommand ?? new RootCommand())
         {
+            if (rootCommand?.ImplicitParser != null)
+            {
+                throw new ArgumentException($"Command \"{rootCommand.Name}\" has already been configured.");
+            }
         }
 
         public bool EnableDirectives { get; set; } = true;
@@ -33,7 +37,7 @@ namespace System.CommandLine.Builder
         {
             var rootCommand = Command;
 
-            return new Parser(
+            var parser = new Parser(
                 new CommandLineConfiguration(
                     new[] { rootCommand },
                     enablePosixBundling: EnablePosixBundling,
@@ -44,6 +48,10 @@ namespace System.CommandLine.Builder
                                                        .Select(m => m.middleware)
                                                        .ToArray(),
                     helpBuilderFactory: HelpBuilderFactory));
+
+            Command.ImplicitParser = parser;
+
+            return parser;
         }
 
         internal void AddMiddleware(

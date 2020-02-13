@@ -336,7 +336,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_global_options_are_added_then_they_must_differ_from_local_options_by_name()
+        public void Global_options_may_be_added_with_aliases_that_conflict_with_local_options()
         {
             var command = new Command("the-command")
             {
@@ -346,8 +346,21 @@ namespace System.CommandLine.Tests
             command
                 .Invoking(c => c.AddGlobalOption(new Option("--same")))
                 .Should()
+                .NotThrow<ArgumentException>();
+        }
+
+        [Fact]
+        public void Global_options_may_not_have_aliases_conflicting_with_other_global_option_aliases()
+        {
+            var command = new Command("the-command");
+
+            command.AddGlobalOption(new Option("--same"));
+
+            command
+                .Invoking(c => c.AddGlobalOption(new Option("--same")))
+                .Should()
                 .Throw<ArgumentException>()
-                .And
+                .Which
                 .Message
                 .Should()
                 .Be("Alias '--same' is already in use.");

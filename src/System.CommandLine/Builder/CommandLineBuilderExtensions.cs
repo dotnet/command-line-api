@@ -401,7 +401,6 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-
         public static CommandLineBuilder UseTypoCorrections(
             this CommandLineBuilder builder, int maxLevenshteinDistance = 3)
         {
