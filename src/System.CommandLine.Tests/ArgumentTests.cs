@@ -2,10 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -263,6 +266,106 @@ namespace System.CommandLine.Tests
                     .Should()
                     .Be(command);
             }
+
+            [Fact]
+            public async Task Custom_argument_parser_is_only_called_once()
+            {
+                var callCount = 0;
+                var handlerWasCalled = false;
+
+                var command = new RootCommand
+                {
+                    Handler = CommandHandler.Create<int>(Run)
+                };
+                command.AddOption(new Option("--value")
+                {
+                    Argument = new Argument<int>(result =>
+                    {
+                        callCount++;
+                        return int.Parse(result.Tokens.Single().Value);
+                    })
+                });
+
+                await command.InvokeAsync("--value 42");
+
+                callCount.Should().Be(1);
+                handlerWasCalled.Should().BeTrue();
+
+                void Run(int value) => handlerWasCalled = true;
+            }
+
+            [Fact]
+            public void Default_value_and_custom_argument_parser_can_be_used_together()
+            {
+                var argument = new Argument<int>(_ => 789, true);
+                argument.SetDefaultValue(123);
+
+                var result =  argument.Parse("");
+
+                var argumentResult = result.FindResultFor(argument);
+
+                argumentResult
+                    .GetValueOrDefault<int>()
+                    .Should()
+                    .Be(123);
+            }
+
+            [Fact]
+            public void When_custom_conversion_fails_then_an_option_does_not_accept_further_arguments()
+            {
+                var command = new Command("the-command")
+                {
+                    new Argument<string>(),
+                    new Option("-x")
+                    {
+                        Argument = new Argument<string>(argResult =>
+                        {
+                            argResult.ErrorMessage = "nope";
+                            return default;
+                        })
+                    }
+                };
+
+                var result = command.Parse("the-command -x nope yep");
+
+                result.CommandResult.Tokens.Count.Should().Be(1);
+            }
+            
+            [Fact]
+            public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
+            {
+                var command = new Command("the-command")
+                {
+                    new Option(new[] { "-o", "--one" })
+                    {
+                        Argument = new Argument<int>(argumentResult =>
+                        {
+                            if (int.TryParse(argumentResult.Tokens.Select(t => t.Value).Single(), out var value))
+                            {
+                                return value;
+                            }
+
+                            argumentResult.ErrorMessage = $"'{argumentResult.Tokens.Single().Value}' is not an integer";
+
+                            return default;
+                        }),
+                        Description = ""
+                    }
+                };
+
+                var result = command.Parse("the-command -o not-an-int");
+
+                Action getValue = () =>
+                    result.CommandResult.ValueForOption("o");
+
+                getValue.Should()
+                        .Throw<InvalidOperationException>()
+                        .Which
+                        .Message
+                        .Should()
+                        .Be("'not-an-int' is not an integer");
+            }
+
         }
 
         protected override Symbol CreateSymbol(string name)

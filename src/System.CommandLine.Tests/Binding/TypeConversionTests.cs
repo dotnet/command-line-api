@@ -2,55 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
 {
     public class TypeConversionTests
     {
-        [Fact]
-        public void Custom_types_and_conversion_logic_can_be_specified()
-        {
-            var argument = new Argument<MyCustomType>((ArgumentResult parsed, out MyCustomType value) =>
-            {
-                var custom = new MyCustomType();
-                foreach (var a in parsed.Tokens)
-                {
-                    custom.Add(a.Value);
-                }
-
-                value = custom;
-                return true;
-            })
-            {
-                Arity = ArgumentArity.ZeroOrMore,
-                Name = "arg"
-            };
-
-            var parser = new Parser(
-                new Command("custom")
-                {
-                    argument
-                });
-
-            var result = parser.Parse("custom one two three");
-
-            var customType = result.CommandResult
-                                   .GetArgumentValueOrDefault<MyCustomType>("arg");
-
-            customType
-                .Values
-                .Should()
-                .BeEquivalentTo("one", "two", "three");
-        }
-
         [Fact]
         public void Option_argument_with_arity_of_one_can_be_bound_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
         {
@@ -252,41 +213,6 @@ namespace System.CommandLine.Tests.Binding
                 .GetValueOrDefault()
                 .Should()
                 .Be(true);
-        }
-
-        [Fact]
-        public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
-        {
-            var command = new Command("the-command")
-            {
-                new Option(new[] { "-o", "--one" })
-                {
-                    Argument = new Argument<int>((ArgumentResult argumentResult, out int value) =>
-                    {
-                        if (int.TryParse(argumentResult.Tokens.Select(t => t.Value).Single(), out value))
-                        {
-                            return true;
-                        }
-
-                        argumentResult.ErrorMessage = $"'{argumentResult.Tokens.Single().Value}' is not an integer";
-
-                        return false;
-                    }),
-                    Description = ""
-                }
-            };
-
-            var result = command.Parse("the-command -o not-an-int");
-
-            Action getValue = () =>
-                result.CommandResult.ValueForOption("o");
-
-            getValue.Should()
-                    .Throw<InvalidOperationException>()
-                    .Which
-                    .Message
-                    .Should()
-                    .Be("'not-an-int' is not an integer");
         }
 
         [Fact]
@@ -670,48 +596,6 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void When_custom_converter_is_specified_and_an_argument_is_of_the_wrong_type_then_an_error_is_returned()
-        {
-            var command = new Command("tally")
-            {
-                new Argument<int>((ArgumentResult symbolResult, out int value) =>
-                {
-                    value = default;
-                    symbolResult.ErrorMessage = "Could not parse int";
-                    return false;
-                })
-            };
-
-            var result = command.Parse("tally one");
-
-            result.Errors
-                  .Select(e => e.Message)
-                  .Should()
-                  .Contain("Could not parse int");
-        }
-
-        [Fact]
-        public void When_custom_conversion_fails_then_an_option_does_not_accept_further_arguments()
-        {
-            var command = new Command("the-command")
-            {
-                new Argument<string>(),
-                new Option("-x")
-                {
-                    Argument = new Argument<string>((ArgumentResult symbolResult, out string value) =>
-                    {
-                        value = null;
-                        return false;
-                    })
-                }
-            };
-
-            var result = command.Parse("the-command -x nope yep");
-
-            result.CommandResult.Tokens.Count.Should().Be(1);
-        }
-
-        [Fact]
         public void Values_can_be_correctly_converted_to_int_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option("-x")
@@ -959,61 +843,6 @@ namespace System.CommandLine.Tests.Binding
                     .Message
                     .Should()
                     .Be("Option '-x' expects a single argument but 2 were provided.");
-        }
-
-        [Fact]
-        public async Task Custom_argument_converter_is_only_called_once()
-        {
-            var callCount = 0;
-            var handlerWasCalled = false;
-
-            var parser = new CommandLineBuilder(
-                             new RootCommand
-                             {
-                                 Handler = CommandHandler.Create<int>(Run)
-                             })
-                         .AddOption(new Option("--value")
-                         {
-                             Argument = new Argument<int>(TryConvertInt)
-                         })
-                         .UseDefaults()
-                         .Build();
-
-            await parser.InvokeAsync("--value 42");
-
-            callCount.Should().Be(1);
-            handlerWasCalled.Should().BeTrue();
-
-            bool TryConvertInt(ArgumentResult result, out int value)
-            {
-                callCount++;
-                return int.TryParse(result.Tokens.Single().Value, out value);
-            }
-
-            void Run(int value) => handlerWasCalled = true;
-        }
-
-        [Fact]
-        public void Default_value_and_custom_argument_converter_can_be_used_together()
-        {
-            bool TryConvertArgument(SymbolResult _, out int value)
-            {
-                value = 789;
-                return true;
-            }
-
-            var argument = new Argument<int>(
-                TryConvertArgument,
-                () => 123);
-
-            var result = new RootCommand { argument }.Parse("");
-
-            var argumentResult = result.FindResultFor(argument);
-
-            argumentResult
-                  .GetValueOrDefault<int>()
-                  .Should()
-                  .Be(123);
         }
 
         public class MyCustomType
