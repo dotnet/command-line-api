@@ -42,7 +42,7 @@ namespace System.CommandLine
 
         private static InvocationPipeline GetInvocationPipeline(Command command, string[] args)
         {
-            var parser = command.ImplicitParser ??=
+            var parser = command.ImplicitParser ??
                              new CommandLineBuilder(command)
                                  .UseDefaults()
                                  .Build();
