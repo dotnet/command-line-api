@@ -17,10 +17,6 @@ namespace System.CommandLine.Builder
         public CommandLineBuilder(Command rootCommand = null)
             : base(rootCommand ?? new RootCommand())
         {
-            if (rootCommand?.ImplicitParser != null)
-            {
-                throw new ArgumentException($"Command \"{rootCommand.Name}\" has already been configured.");
-            }
         }
 
         public bool EnableDirectives { get; set; } = true;
