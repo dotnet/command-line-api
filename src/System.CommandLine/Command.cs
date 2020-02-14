@@ -36,6 +36,20 @@ namespace System.CommandLine
             Children.AddWithoutAliasCollisionCheck(option);
         }
 
+        public bool TryAddGlobalOption(Option option)
+        {
+            if (!_globalOptions.IsAnyAliasInUse(option, out _))
+            {
+                _globalOptions.Add(option);
+                Children.AddWithoutAliasCollisionCheck(option);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public void Add(Symbol symbol) => AddSymbol(symbol);
 
         public void Add(Argument argument) => AddArgument(argument);
