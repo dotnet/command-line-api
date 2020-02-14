@@ -268,36 +268,67 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
-            var helpOption = new Option(new []
+            var helpOption = new HelpOption();
+
+            return builder.UseHelp(helpOption);
+        }
+
+        internal static CommandLineBuilder UseHelp(
+            this CommandLineBuilder builder,
+            Option helpOption)
+        {
+            if (builder.HelpOption == null)
+            {
+                builder.HelpOption = helpOption; 
+                builder.Command.TryAddGlobalOption(helpOption);
+
+                builder.AddMiddleware(async (context, next) =>
+                {
+                    if (!ShowHelp(context, builder.HelpOption))
+                    {
+                        await next(context);
+                    }
+                }, MiddlewareOrderInternal.HelpOption);
+
+                return builder;
+            }
+
+            return builder;
+        }
+
+        private class HelpOption : Option
+        {
+            public HelpOption() : base(new[]
             {
                 "-h",
                 "/h",
                 "--help",
                 "-?",
                 "/?"
-            }, "Show help and usage information");
-
-            return builder.UseHelp(helpOption);
-        }
-
-        public static CommandLineBuilder UseHelp(
-            this CommandLineBuilder builder,
-            Option helpOption)
-        {
-            builder.HelpOption = helpOption ?? throw new ArgumentNullException(nameof(helpOption));
-            builder.HelpOption.Argument.Arity = ArgumentArity.Zero;
-            
-            builder.Command.AddGlobalOption(builder.HelpOption);
-
-            builder.AddMiddleware(async (context, next) =>
+            }, "Show help and usage information")
             {
-                if (!ShowHelp(context, builder.HelpOption))
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.HelpOption);
+            }
 
-            return builder;
+            public override Argument Argument
+            {
+                get => Argument.None;
+                set => throw new NotSupportedException();
+            }
+
+            protected bool Equals(HelpOption other)
+            {
+                return other != null;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is HelpOption;
+            }
+
+            public override int GetHashCode()
+            {
+                return typeof(HelpOption).GetHashCode();
+            }
         }
 
         public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, Func<BindingContext, IHelpBuilder> getHelpBuilder)
@@ -381,7 +412,7 @@ namespace System.CommandLine.Builder
                 {
                     int position;
 
-                    if (values.FirstOrDefault() is string positionString)
+                    if (values.FirstOrDefault() is { } positionString)
                     {
                         position = int.Parse(positionString);
                     }

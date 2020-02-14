@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
 
             _console.Out.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand");
         }
-
+         
         [Fact]
         public async Task UseHelp_interrupts_execution_of_the_specified_command()
         {
@@ -69,20 +69,6 @@ namespace System.CommandLine.Tests
                     .Build();
 
             await parser.InvokeAsync($"command {value}", _console);
-
-            _console.Out.ToString().Should().StartWith("Usage:");
-        }
-
-        [Fact]
-        public async Task UseHelp_accepts_custom_aliases()
-        {
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(new Command("command"))
-                    .UseHelp(new Option(new[] { "~cthulhu" }))
-                    .Build();
-
-            await parser.InvokeAsync("command ~cthulhu", _console);
 
             _console.Out.ToString().Should().StartWith("Usage:");
         }
@@ -137,6 +123,61 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .BeEmpty();
+        }
+
+        [Theory]
+        [InlineData("-h")]
+        [InlineData("inner -h")]
+        public void UseHelp_can_be_called_more_than_once_on_the_same_CommandLineBuilder(string commandline)
+        {
+            var root = new RootCommand
+            {
+                new Command("inner")
+            };
+
+            var parser = new CommandLineBuilder(root)
+                         .UseHelp()
+                         .UseHelp()
+                         .Build();
+
+            var console1 = new TestConsole();
+
+            parser.Invoke(commandline, console1);
+
+            console1.Out.ToString().Should().Contain("Usage:");
+            console1.Error.ToString().Should().BeEmpty();
+        }
+
+        [Theory]
+        [InlineData("-h")]
+        [InlineData("inner -h")]
+        public void UseHelp_can_be_called_more_than_once_on_the_same_command_with_different_CommandLineBuilders(string commandline)
+        {
+            var root = new RootCommand
+            {
+                new Command("inner")
+            };
+
+            var parser1 = new CommandLineBuilder(root)
+                          .UseHelp()
+                          .Build();
+
+            var console1 = new TestConsole();
+
+            parser1.Invoke(commandline, console1);
+
+            console1.Out.ToString().Should().Contain("Usage:");
+            console1.Error.ToString().Should().BeEmpty();
+
+            var parser2 = new CommandLineBuilder(root)
+                          .UseHelp()
+                          .Build();
+            var console2 = new TestConsole();
+
+            parser2.Invoke(commandline, console2);
+
+            console2.Out.ToString().Should().Contain("Usage:");
+            console2.Error.ToString().Should().BeEmpty();
         }
     }
 }
