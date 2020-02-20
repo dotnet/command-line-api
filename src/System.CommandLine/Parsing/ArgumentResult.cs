@@ -74,14 +74,15 @@ namespace System.CommandLine.Parsing
                 {
                     return conversionResult;
                 }
-                else if (success)
+
+                if (success)
                 {
                     return ArgumentConversionResult.Success(argument, value);
                 }
-                else 
-                {
-                    return ArgumentConversionResult.Failure(argument, ErrorMessage ?? $"Invalid: {parentResult.Token()} {string.Join(" ", parentResult.Tokens.Select(t => t.Value))}");
-                }
+
+                return ArgumentConversionResult.Failure(
+                    argument, 
+                    ErrorMessage ?? $"Invalid: {parentResult.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}");
             }
 
             switch (argument.Arity.MaximumNumberOfValues)
@@ -90,10 +91,14 @@ namespace System.CommandLine.Parsing
                     return ArgumentConversionResult.Success(argument, null);
 
                 case 1:
-                    return ArgumentConversionResult.Success(argument, parentResult.Tokens.Select(t => t.Value).SingleOrDefault());
+                    return ArgumentConversionResult.Success(
+                        argument, 
+                        Tokens.Select(t => t.Value).SingleOrDefault());
 
                 default:
-                    return ArgumentConversionResult.Success(argument, parentResult.Tokens.Select(t => t.Value).ToArray());
+                    return ArgumentConversionResult.Success(
+                        argument, 
+                        Tokens.Select(t => t.Value).ToArray());
             }
 
             bool ShouldCheckArity()
