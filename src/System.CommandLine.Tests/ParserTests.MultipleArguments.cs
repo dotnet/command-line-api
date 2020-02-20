@@ -119,6 +119,35 @@ namespace System.CommandLine.Tests
                              .Should()
                              .BeTrue();
             }
+
+            [Fact]
+            public void Multiple_arguments_of_unspecified_type_are_parsed_correctly()
+            {
+                var root = new RootCommand
+                {
+                    new Argument("source")
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    },
+                    new Argument("destination")
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }
+                };
+
+                var result = root.Parse("src.txt", "dest.txt");
+
+                result.RootCommandResult
+                      .GetArgumentValueOrDefault("source")
+                      .Should()
+                      .Be("src.txt");
+                
+                result.RootCommandResult
+                      .GetArgumentValueOrDefault("destination")
+                      .Should()
+                      .Be("dest.txt");
+            }
+
         }
     }
 }
