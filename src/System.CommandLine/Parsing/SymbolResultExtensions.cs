@@ -24,17 +24,12 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        internal static Token Token(this SymbolResult symbolResult)
-        {
-            switch (symbolResult)
+        internal static Token Token(this SymbolResult symbolResult) =>
+            symbolResult switch
             {
-                case CommandResult commandResult:
-                    return commandResult.Token;
-                case OptionResult optionResult:
-                    return optionResult.Token;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(symbolResult));
-            }
-        }
+                CommandResult commandResult => commandResult.Token,
+                OptionResult optionResult => optionResult.Token,
+                _ => throw new ArgumentOutOfRangeException(nameof(symbolResult))
+            };
     }
 }

@@ -31,33 +31,17 @@ namespace System.CommandLine
         public int MaximumNumberOfValues { get; set; }
 
         internal static FailedArgumentConversionArityResult Validate(
-            ArgumentResult argumentResult) =>
-            Validate(argumentResult.Parent,
-                     argumentResult.Argument,
-                     argumentResult.Argument.Arity.MinimumNumberOfValues,
-                     argumentResult.Argument.Arity.MaximumNumberOfValues);
-
-        internal static FailedArgumentConversionArityResult Validate(
             SymbolResult symbolResult,
             IArgument argument,
             int minimumNumberOfValues,
             int maximumNumberOfValues)
         {
-            SymbolResult argumentResult = null;
-
-            switch (symbolResult)
+            var argumentResult = symbolResult switch
             {
-                case CommandResult commandResult:
-                    argumentResult = commandResult.Root.FindResultFor(argument);
-                    break;
-
-                case OptionResult optionResult:
-                    argumentResult = optionResult.Children.ResultFor(argument);
-                    break;
-
-                case ArgumentResult _:
-                    throw new ArgumentException("");
-            }
+                CommandResult commandResult => commandResult.Root.FindResultFor(argument),
+                OptionResult optionResult => optionResult.Children.ResultFor(argument),
+                _ => symbolResult
+            };
 
             var tokenCount = argumentResult?.Tokens.Count ?? 0;
 
