@@ -132,6 +132,30 @@ namespace System.CommandLine.Tests.Binding
             console.Out.ToString().Should().Be($"ClassWithCtorParameter<{type.Name}>: {expectedValue}");
         }
 
+        [Fact]
+        public void When_name_is_not_among_aliases_then_binder_will_bind_option_by_name()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Option("-n")
+                {
+                    Argument = new Argument<string[]>("header"),
+                    Name = "name"
+                }
+            };
+
+            string[] receivedHeaders = null;
+
+            rootCommand.Handler = CommandHandler.Create((string[] name) =>
+            {
+                receivedHeaders = name;
+            });
+
+            rootCommand.Invoke("-n one -n two");
+
+            receivedHeaders.Should().BeEquivalentTo("one", "two");
+        }
+      
         [Theory]
         [InlineData(typeof(string), "hello", "hello")]
         [InlineData(typeof(int), "123", 123)]
