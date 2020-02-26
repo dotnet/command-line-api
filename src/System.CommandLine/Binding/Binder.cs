@@ -15,7 +15,7 @@ namespace System.CommandLine.Binding
                           StringComparison.OrdinalIgnoreCase);
 
         internal static bool IsMatch(this string parameterName, ISymbol symbol) =>
-            symbol.Aliases.Any(parameterName.IsMatch);
+            parameterName.IsMatch(symbol.Name) || symbol.Aliases.Any(parameterName.IsMatch);
 
         internal static bool IsNullable(this Type t)
         {
