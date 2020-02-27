@@ -5,6 +5,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -109,12 +110,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void There_are_no_parse_errors_when_help_is_invoked_on_subcommand()
         {
-            var command = new RootCommand
+            var root = new RootCommand
             {
                 new Command("subcommand")
             };
 
-            var parser = new CommandLineBuilder(command)
+            var parser = new CommandLineBuilder(root)
                          .UseHelp()
                          .Build();
 
@@ -123,6 +124,23 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .BeEmpty();
+        }
+
+        [Fact]
+        public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_subcommands()
+        {
+            var root = new RootCommand
+            {
+                new Command("subcommand")
+            };
+
+            var parser = new CommandLineBuilder(root)
+                         .UseHelp()
+                         .Build();
+
+            var result = parser.Parse("-h");
+
+            result.Errors.Should().BeEmpty();
         }
 
         [Theory]
