@@ -1998,7 +1998,7 @@ namespace System.CommandLine.Tests
 
             }
         }
-
+      
         public class CustomCollectionTypeConverter : TypeConverter
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)

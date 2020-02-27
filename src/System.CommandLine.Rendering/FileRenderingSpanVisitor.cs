@@ -7,7 +7,6 @@ namespace System.CommandLine.Rendering
 {
     internal class FileRenderingSpanVisitor : ContentRenderingSpanVisitor
     {
-        // TODO: (FileRenderingSpanVisitor) rename: PlainTextRenderingSpanVisitor?
         public FileRenderingSpanVisitor(
             IStandardStreamWriter writer,
             Region region) : base(writer, region)

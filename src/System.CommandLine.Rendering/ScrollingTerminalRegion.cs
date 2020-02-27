@@ -3,13 +3,13 @@
 
 namespace System.CommandLine.Rendering
 {
-    internal class EntireTerminalRegion : Region
+    internal class ScrollingTerminalRegion : Region
     {
-        public EntireTerminalRegion() : base(0, 0, Console.WindowWidth, Console.WindowHeight, false)
+        public ScrollingTerminalRegion() : base(0, 0, isOverwrittenOnRender: false)
         {
         }
 
-        public override int Height => Console.WindowHeight;
+        public override int Height => int.MaxValue;
 
         public override int Width => Console.WindowWidth;
 
