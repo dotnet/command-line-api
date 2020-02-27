@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
@@ -268,9 +267,7 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
-            var helpOption = new HelpOption();
-
-            return builder.UseHelp(helpOption);
+            return builder.UseHelp(new HelpOption());
         }
 
         internal static CommandLineBuilder UseHelp(
@@ -294,41 +291,6 @@ namespace System.CommandLine.Builder
             }
 
             return builder;
-        }
-
-        private class HelpOption : Option
-        {
-            public HelpOption() : base(new[]
-            {
-                "-h",
-                "/h",
-                "--help",
-                "-?",
-                "/?"
-            }, "Show help and usage information")
-            {
-            }
-
-            public override Argument Argument
-            {
-                get => Argument.None;
-                set => throw new NotSupportedException();
-            }
-
-            protected bool Equals(HelpOption other)
-            {
-                return other != null;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is HelpOption;
-            }
-
-            public override int GetHashCode()
-            {
-                return typeof(HelpOption).GetHashCode();
-            }
         }
 
         public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, Func<BindingContext, IHelpBuilder> getHelpBuilder)

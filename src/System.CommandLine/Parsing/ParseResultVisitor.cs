@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Help;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -227,7 +228,8 @@ namespace System.CommandLine.Parsing
         {
             if (_innermostCommandResult.Command is Command cmd &&
                 cmd.Handler == null &&
-                cmd.Children.OfType<ICommand>().Any())
+                cmd.Children.OfType<ICommand>().Any() && 
+                !cmd.Options.OfType<HelpOption>().Any())
             {
                 _errors.Insert(0,
                                new ParseError(
