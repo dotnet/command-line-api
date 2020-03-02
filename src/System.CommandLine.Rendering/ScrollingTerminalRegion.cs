@@ -11,10 +11,16 @@ namespace System.CommandLine.Rendering
 
         public override int Height => int.MaxValue;
 
-        public override int Width => Console.WindowWidth;
+        public override int Width => Console.IsOutputRedirected
+                                         ? 100
+                                         : Console.WindowWidth;
 
-        public override int Top => Console.CursorTop;
+        public override int Top => Console.IsOutputRedirected
+                                       ? 0
+                                       : Console.CursorTop;
 
-        public override int Left => Console.CursorLeft;
+        public override int Left => Console.IsOutputRedirected
+                                        ? 0
+                                        : Console.CursorLeft;
     }
 }
