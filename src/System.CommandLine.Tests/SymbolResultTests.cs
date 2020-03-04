@@ -28,28 +28,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Default_values_are_reevaluated_and_not_cached_between_parses()
-        {
-            var option =
-                new Option("-x")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                };
-
-            var i = 0;
-            option.Argument.SetDefaultValueFactory(() => ++i);
-
-            var result1 = option.Parse("");
-            var result2 = option.Parse("");
-
-            result1.ValueForOption<int>("x").Should().Be(1);
-            result2.ValueForOption<int>("x").Should().Be(2);
-        }
-
-        [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_option()
         {
             IReadOnlyCollection<Symbol> symbols = new[] {

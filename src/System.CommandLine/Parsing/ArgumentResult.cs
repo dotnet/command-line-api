@@ -26,6 +26,11 @@ namespace System.CommandLine.Parsing
 
         internal ParseError CustomError(Argument argument)
         {
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                return new ParseError(ErrorMessage, this);
+            }
+
             foreach (var symbolValidator in argument.Validators)
             {
                 var errorMessage = symbolValidator(this);
@@ -55,9 +60,25 @@ namespace System.CommandLine.Parsing
 
             if (parentResult.UseDefaultValueFor(argument))
             {
-                var defaultValueFor = parentResult.GetDefaultValueFor(argument);
+                if (argument is Argument arg)
+                {
+                    var argumentResult = new ArgumentResult(arg, Parent);
 
-                return ArgumentConversionResult.Success(argument, defaultValueFor);
+                    var defaultValue = arg.GetDefaultValue(argumentResult);
+
+                    if (string.IsNullOrEmpty(argumentResult.ErrorMessage))
+                    {
+                        return ArgumentConversionResult.Success(
+                            argument,
+                            defaultValue);
+                    }
+                    else
+                    {
+                        return ArgumentConversionResult.Failure(
+                            argument,
+                            argumentResult.ErrorMessage);
+                    }
+                }
             }
 
             if (argument is Argument a &&
@@ -107,8 +128,5 @@ namespace System.CommandLine.Parsing
                        optionResult.IsImplicit);
             }
         }
-
-        internal override object CreateDefaultArgumentResultAndGetItsValue(Argument argument) => 
-            argument.GetDefaultValue(this);
     }
 }

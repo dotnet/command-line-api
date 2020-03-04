@@ -277,15 +277,11 @@ namespace System.CommandLine.Parsing
 
         private void ValidateArgumentResult(ArgumentResult argumentResult)
         {
-            if (_errors.Any())
-            {
-                return;
-            }
-
             if (argumentResult.Argument is Argument argument)
             {
-                var parseError = argumentResult.Parent.UnrecognizedArgumentError(argument) ??
-                                 argumentResult.CustomError(argument);
+                var parseError =
+                    argumentResult.Parent.UnrecognizedArgumentError(argument) ??
+                    argumentResult.CustomError(argument);
 
                 if (parseError != null)
                 {
@@ -325,33 +321,21 @@ namespace System.CommandLine.Parsing
                                     option.CreateImplicitToken(),
                                     commandResult);
 
-                                var token = new ImplicitToken(
-                                    optionResult.GetDefaultValueFor(option.Argument),
-                                    TokenType.Argument);
-
-                                var childArgumentResult = new ArgumentResult(
-                                        option.Argument,
-                                        optionResult);
+                                var childArgumentResult = optionResult.GetOrCreateDefaultArgumentResult(
+                                    option.Argument);
 
                                 optionResult.Children.Add(childArgumentResult);
                                 commandResult.Children.Add(optionResult);
-                                optionResult.AddToken(token);
-                                childArgumentResult.AddToken(token);
                                 _rootCommandResult.AddToSymbolMap(optionResult);
 
                                 break;
 
                             case Argument argument when argument.HasDefaultValue:
 
-                                var implicitToken = new ImplicitToken(argument.GetDefaultValue(), TokenType.Argument);
-
-                                var argumentResult = new ArgumentResult(
-                                    argument,
-                                    commandResult);
+                                var argumentResult = commandResult.GetOrCreateDefaultArgumentResult(
+                                    argument);
 
                                 commandResult.Children.Add(argumentResult);
-                                commandResult.AddToken(implicitToken);
-                                argumentResult.AddToken(implicitToken);
                                 _rootCommandResult.AddToSymbolMap(argumentResult);
 
                                 break;

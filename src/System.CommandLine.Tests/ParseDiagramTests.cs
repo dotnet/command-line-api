@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
+using System.IO;
 using FluentAssertions;
 using Xunit;
 
@@ -106,6 +107,23 @@ namespace System.CommandLine.Tests
                 new Argument<string> { Name = "first" },
                 new Argument<string> { Name = "second" },
                 new Argument<string[]> { Name = "third" }
+            };
+
+            var result = command.Parse("one two three four five");
+
+            result.Diagram()
+                  .Should()
+                  .Be("[ the-command [ first <one> ] [ second <two> ] [ third <three> <four> <five> ] ]");
+        }
+        
+        [Fact]
+        public void Parse_diagram_indicates_which_tokens_were_applied_to_which_command_argument_for_sequences_of_complex_types()
+        {
+            var command = new Command("the-command")
+            {
+                new Argument<FileInfo> { Name = "first" },
+                new Argument<FileInfo> { Name = "second" },
+                new Argument<FileInfo[]> { Name = "third" }
             };
 
             var result = command.Parse("one two three four five");

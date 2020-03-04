@@ -135,7 +135,7 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-                var result = root.Parse("src.txt", "dest.txt");
+                var result = root.Parse("src.txt dest.txt");
 
                 result.RootCommandResult
                       .GetArgumentValueOrDefault("source")
@@ -147,7 +147,6 @@ namespace System.CommandLine.Tests
                       .Should()
                       .Be("dest.txt");
             }
-
         }
     }
 }

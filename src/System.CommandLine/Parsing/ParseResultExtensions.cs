@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
@@ -130,14 +131,18 @@ namespace System.CommandLine.Parsing
 
                         switch (successful.Value)
                         {
-                            case null:
-                            case IReadOnlyCollection<string> a when a.Count == 0:
+                            case string s:
+                                builder.Append($"<{s}>");
                                 break;
-                            case IEnumerable<string> args:
+
+                            case IEnumerable items:
                                 builder.Append("<");
-                                builder.Append(string.Join("> <", args));
+                                builder.Append(
+                                    string.Join("> <",
+                                                items.Cast<object>().ToArray()));
                                 builder.Append(">");
                                 break;
+
                             default:
                                 builder.Append("<");
                                 builder.Append(successful.Value);

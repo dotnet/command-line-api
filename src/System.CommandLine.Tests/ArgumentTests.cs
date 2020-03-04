@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
@@ -120,7 +121,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void Validation_failure_message_can_be_specified()
+            public void Validation_failure_message_can_be_specified_when_parsing_tokens()
             {
                 var argument = new Argument<FileSystemInfo>(result =>
                 {
@@ -136,6 +137,46 @@ namespace System.CommandLine.Tests
                         .Message
                         .Should()
                         .Be("oops!");
+            }
+
+            [Fact]
+            public void Validation_failure_message_can_be_specified_when_evaluating_default_argument_value()
+            {
+                var argument = new Argument<FileSystemInfo>(result =>
+                {
+                    result.ErrorMessage = "oops!";
+                    return null;
+                }, true);
+
+                argument.Parse("")
+                        .Errors
+                        .Should()
+                        .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                        .Which
+                        .Message
+                        .Should()
+                        .Be("oops!");
+            }
+
+            [Fact]
+            public void Validation_failure_message_can_be_specified_when_evaluating_default_option_value()
+            {
+                var option = new Option<FileSystemInfo>(
+                    "-x",
+                    result =>
+                    {
+                        result.ErrorMessage = "oops!";
+                        return null;
+                    }, true);
+
+                option.Parse("")
+                      .Errors
+                      .Should()
+                      .ContainSingle()
+                      .Which
+                      .Message
+                      .Should()
+                      .Be("oops!");
             }
 
             [Fact]
@@ -308,6 +349,42 @@ namespace System.CommandLine.Tests
                     .GetValueOrDefault<int>()
                     .Should()
                     .Be(123);
+            }
+            
+            [Fact]
+            public void Multiple_command_arguments_can_have_custom_parse_delegates()
+            {
+                var root = new RootCommand
+                {
+                    new Argument<FileInfo[]>("from", argumentResult =>
+                    {
+                        argumentResult.ErrorMessage = "nope";
+                        return null;
+                    }, true)
+                    {
+                        Arity = new ArgumentArity(0, 2)
+                    },
+                    new Argument<DirectoryInfo>("to", argumentResult =>
+                    {
+                        argumentResult.ErrorMessage = "UH UH";
+                        return null;
+                    }, true)
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }
+                };
+
+                var result = root.Parse("a.txt b.txt /path/to/dir");
+
+                result.Errors
+                      .Select(e => e.Message)
+                      .Should()
+                      .Contain("nope");
+
+                result.Errors
+                      .Select(e => e.Message)
+                      .Should()
+                      .Contain("UH UH");
             }
 
             [Fact]
