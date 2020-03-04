@@ -1372,6 +1372,45 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_an_option_with_a_default_value_is_not_matched_then_there_are_no_tokens()
+        {
+            var option = new Option<string>(
+                "-o", 
+                () => "the-default");
+
+            var command = new Command("command")
+            {
+                option
+            };
+
+            var result = command.Parse("command");
+
+            result.FindResultFor(option)
+                  .Token
+                  .Should()
+                  .BeNull();
+        }
+
+        [Fact]
+        public void When_an_argument_with_a_default_value_is_not_matched_then_there_are_no_tokens()
+        {
+            var argument = new Argument<string>(
+                "o", 
+                () => "the-default");
+
+            var command = new Command("command")
+            {
+                argument
+            };
+            var result = command.Parse("command");
+
+            result.FindResultFor(argument)
+                  .Tokens
+                  .Should()
+                  .BeEmpty();
+        }
+
+        [Fact]
         public void Command_default_argument_value_does_not_override_parsed_value()
         {
             var command = new Command("inner")

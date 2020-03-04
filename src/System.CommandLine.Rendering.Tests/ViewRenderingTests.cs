@@ -41,7 +41,6 @@ namespace System.CommandLine.Rendering.Tests
             var renderer = new ConsoleRenderer(
                 _terminal,
                 OutputMode.Ansi);
-
             
             var view = new StringsView(new[] {
                 "1",

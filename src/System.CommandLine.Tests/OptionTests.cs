@@ -325,14 +325,6 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { "ERR" });
-
-            option
-                .Parse("")
-                .Errors
-                .Select(e => e.Message)
-                .Should()
-                .BeEquivalentTo(new[] { "ERR" });
-
         }
    
         protected override Symbol CreateSymbol(string name) => new Option(name);

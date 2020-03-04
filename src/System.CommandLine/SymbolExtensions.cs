@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine
@@ -11,8 +10,8 @@ namespace System.CommandLine
     {
         internal static IEnumerable<string> ChildSymbolAliases(this ISymbol symbol) =>
             symbol.Children
-                .Where(s => !s.IsHidden)
-                .SelectMany(s => s.RawAliases);
+                  .Where(s => !s.IsHidden)
+                  .SelectMany(s => s.RawAliases);
 
         internal static IEnumerable<IArgument> Arguments(this ISymbol symbol)
         {
@@ -33,15 +32,6 @@ namespace System.CommandLine
                 default:
                     throw new NotSupportedException();
             }
-        }
-
-        internal static Token CreateImplicitToken(this IOption option)
-        {
-            var optionName = option.Name;
-
-            var defaultAlias = option.RawAliases.First(alias => alias.RemovePrefix() == optionName);
-
-            return new ImplicitToken(defaultAlias, TokenType.Option);
         }
     }
 }

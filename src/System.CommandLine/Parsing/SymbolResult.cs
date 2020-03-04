@@ -10,7 +10,7 @@ namespace System.CommandLine.Parsing
     {
         private protected readonly List<Token> _tokens = new List<Token>();
         private ValidationMessages _validationMessages;
-        private readonly Dictionary<IArgument, object> _defaultArgumentValues = new Dictionary<IArgument, object>();
+        private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new Dictionary<IArgument, ArgumentResult>();
 
         private protected SymbolResult(
             ISymbol symbol, 
@@ -63,41 +63,40 @@ namespace System.CommandLine.Parsing
 
         internal void AddToken(Token token) => _tokens.Add(token);
 
-        internal virtual object GetDefaultValueFor(IArgument argument)
+        internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument)
         {
             return _defaultArgumentValues.GetOrAdd(
                 argument,
-                a => a is Argument arg 
-                         ? CreateDefaultArgumentResultAndGetItsValue(arg) 
-                         : a.GetDefaultValue());
-        }
-        
-        internal virtual object CreateDefaultArgumentResultAndGetItsValue(Argument argument)
-        {
-            if (!(Children.ResultFor(argument) is ArgumentResult result))
-            {
-                result = new ArgumentResult(argument, this);
-            }
+                arg =>
+                {
+                    var argumentResult = new ArgumentResult(
+                        argument,
+                        this);
 
-            return argument.GetDefaultValue(result);
+                    if (arg is Argument a)
+                    {
+                        a.GetDefaultValue(argumentResult);
+                    }
+
+                    return argumentResult;
+                });
         }
 
         internal bool UseDefaultValueFor(IArgument argument)
         {
-            if (this is OptionResult optionResult &&
-                optionResult.IsImplicit)
+            switch (this)
             {
-                return true;
-            }
+                case OptionResult optionResult
+                    when optionResult.IsImplicit:
+                    return true;
 
-            if (this is CommandResult &&
-                Children.ResultFor(argument)?.Tokens is {} tokens && 
-                tokens.All(t => t is ImplicitToken))
-            {
-                return true;
-            }
+                case CommandResult _
+                    when Children.ResultFor(argument)?.Tokens.Count == 0:
+                    return true;
 
-            return _defaultArgumentValues.ContainsKey(argument);
+                default:
+                    return false;
+            }
         }
 
         public override string ToString() => $"{GetType().Name}: {this.Token()}";
