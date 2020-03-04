@@ -318,7 +318,7 @@ namespace System.CommandLine.Parsing
 
                                 var optionResult = new OptionResult(
                                     option,
-                                    option.CreateImplicitToken(),
+                                    null,
                                     commandResult);
 
                                 var childArgumentResult = optionResult.GetOrCreateDefaultArgumentResult(

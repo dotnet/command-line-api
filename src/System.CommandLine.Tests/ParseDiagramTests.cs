@@ -90,7 +90,6 @@ namespace System.CommandLine.Tests
                 }
             };
 
-
             var result = rootCommand.Parse("-w 9000");
 
             var diagram = result.Diagram();

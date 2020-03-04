@@ -12,18 +12,18 @@ namespace System.CommandLine.Parsing
 
         internal OptionResult(
             IOption option,
-            Token token,
-            CommandResult parent) :
+            Token token = null,
+            CommandResult parent = null) :
             base(option ?? throw new ArgumentNullException(nameof(option)),
                  parent)
         {
             Option = option;
-            Token = token ?? throw new ArgumentNullException(nameof(token));
+            Token = token;
         }
 
         public IOption Option { get; }
 
-        public bool IsImplicit => Token is ImplicitToken;
+        public bool IsImplicit => Token is ImplicitToken || Token is null;
 
         public Token Token { get; }
 
