@@ -443,6 +443,24 @@ namespace System.CommandLine.Tests
                         .Be("'not-an-int' is not an integer");
             }
 
+            [Fact]
+            public void Parse_delegate_is_called_once_per_parse_operation()
+            {
+                var i = 0;
+
+                var command = new RootCommand
+                {
+                    new Option<int>(
+                        "-x", 
+                        result => ++i, 
+                        isDefault: true)
+                };
+
+                command.Parse("");
+                command.Parse("");
+
+                i.Should().Be(2);
+            }
         }
 
         protected override Symbol CreateSymbol(string name)
