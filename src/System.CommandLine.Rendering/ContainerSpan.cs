@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Rendering
@@ -52,6 +53,12 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public override string ToString() => string.Join("", _children);
+        public override void WriteTo(TextWriter writer, OutputMode outputMode)
+        {
+            for (var i = 0; i < _children.Count; i++)
+            {
+                _children[i].WriteTo(writer, outputMode);
+            }
+        }
     }
 }

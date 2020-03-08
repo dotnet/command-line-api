@@ -51,7 +51,6 @@ namespace System.CommandLine.Rendering
                     if (char.IsLetter(c))
                     {
                         // terminate the in-progress ANSI sequence
-
                         var escapeSequence = _ansiCodeBuffer.ToString();
 
                         _ansiCodeBuffer.Clear();

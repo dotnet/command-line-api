@@ -68,9 +68,9 @@ namespace System.CommandLine.Rendering.Tests
             _terminal.RenderOperations()
                      .Should()
                      .BeEquivalentSequenceTo(
-                         new TextRendered("1", new Point(0, 2)),
-                         new TextRendered("2", new Point(0, 3)),
-                         new TextRendered("3" + Environment.NewLine, new Point(0, 4)));
+                         new TextRendered("1", new Point(0, 0)),
+                         new TextRendered("2", new Point(0, 1)),
+                         new TextRendered("3" + Environment.NewLine, new Point(0, 2)));
         }
 
         [Theory]

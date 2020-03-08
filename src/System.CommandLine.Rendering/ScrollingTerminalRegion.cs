@@ -13,11 +13,11 @@ namespace System.CommandLine.Rendering
 
         public override int Width => Console.IsOutputRedirected
                                          ? 100
-                                         : Console.WindowWidth;
+                                         : base.Width;
 
         public override int Top => Console.IsOutputRedirected
                                        ? 0
-                                       : Console.CursorTop;
+                                       : base.Top;
 
         public override int Left => Console.IsOutputRedirected
                                         ? 0
