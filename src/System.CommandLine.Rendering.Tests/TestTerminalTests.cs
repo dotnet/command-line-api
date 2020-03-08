@@ -48,7 +48,7 @@ namespace System.CommandLine.Rendering.Tests
         {
             var terminal = (TestTerminal)GetTerminal();
 
-            terminal.IsVirtualTerminalModeEnabled = true;
+            terminal.IsAnsiTerminal = true;
 
             terminal.Out.Write($"before move{Ansi.Cursor.Move.ToLocation(3, 5).EscapeSequence}after move");
 
@@ -65,7 +65,7 @@ namespace System.CommandLine.Rendering.Tests
         {
             var terminal = (TestTerminal)GetTerminal();
             
-            terminal.IsVirtualTerminalModeEnabled = false;
+            terminal.IsAnsiTerminal = false;
 
             var stringWithEscapeSequence = $"before move{Ansi.Cursor.Move.ToLocation(3, 5).EscapeSequence}after move";
 

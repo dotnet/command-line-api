@@ -17,7 +17,7 @@ namespace System.CommandLine.Rendering.Views
 
         public Orientation Orientation { get; }
 
-        public override void Render(ConsoleRenderer renderer, Region region)
+        public override void Render(ConsoleRenderer renderer, Region region = null)
         {
             switch (Orientation)
             {

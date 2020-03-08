@@ -34,6 +34,13 @@ namespace System.CommandLine.Rendering
             RenderToRegion(formatted, region);
         }
 
+        public void Append(FormattableString value) => Append(Formatter.ParseToSpan(value));
+
+        public void Append(Span span)
+        {
+            Render(span);
+        }
+
         public void RenderToRegion(
             FormattableString value,
             Region region)
@@ -52,6 +59,11 @@ namespace System.CommandLine.Rendering
                 throw new ArgumentNullException(nameof(region));
             }
 
+            Render(span, region);
+        }
+
+        private void Render(Span span, Region region = null)
+        {
             if (span == null)
             {
                 span = Span.Empty();

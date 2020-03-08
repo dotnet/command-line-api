@@ -7,14 +7,13 @@ namespace System.CommandLine.Rendering
 {
     internal class FileRenderingSpanVisitor : ContentRenderingSpanVisitor
     {
-        // TODO: (FileRenderingSpanVisitor) rename: PlainTextRenderingSpanVisitor?
         public FileRenderingSpanVisitor(
             IStandardStreamWriter writer,
             Region region) : base(writer, region)
         {
         }
 
-        protected override void SetCursorPosition(int left, int top)
+        protected override void SetCursorPosition(int? left = null, int? top = null)
         {
             if (top > 0 && left == 0)
             {

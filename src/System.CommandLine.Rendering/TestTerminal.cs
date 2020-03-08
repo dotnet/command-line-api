@@ -37,7 +37,7 @@ namespace System.CommandLine.Rendering
 
         private void OnCharWrittenToOut(char c)
         {
-            if (IsVirtualTerminalModeEnabled)
+            if (IsAnsiTerminal)
             {
                 if (_ansiCodeBuffer.Length == 0 &&
                     c != Ansi.Esc[0])
@@ -51,7 +51,6 @@ namespace System.CommandLine.Rendering
                     if (char.IsLetter(c))
                     {
                         // terminate the in-progress ANSI sequence
-
                         var escapeSequence = _ansiCodeBuffer.ToString();
 
                         _ansiCodeBuffer.Clear();
@@ -208,7 +207,7 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public bool IsVirtualTerminalModeEnabled { get; set; } = true;
+        public bool IsAnsiTerminal { get; set; } = true;
 
         public IEnumerable<TextRendered> RenderOperations()
         {

@@ -82,5 +82,27 @@ namespace System.CommandLine.Rendering.Tests
             innerContainerSpan[3].Start.Should().Be("firstsecond".Length);
             innerContainerSpan[4].Start.Should().Be("firstsecondthird".Length);
         }
+
+        [Fact]
+        public void ToString_with_non_ansi_omits_ANSI_codes()
+        {
+            var span = new SpanFormatter()
+                .ParseToSpan($"one{ForegroundColorSpan.Red()}two{ForegroundColorSpan.Reset()}three");
+
+            span.ToString(OutputMode.NonAnsi)
+                .Should()
+                .Be("onetwothree");
+        }
+
+        [Fact]
+        public void ToString_with_ansi_includes_ANSI_codes()
+        {
+            var span = new SpanFormatter()
+                .ParseToSpan($"one{ForegroundColorSpan.Red()}two{ForegroundColorSpan.Reset()}three");
+
+            span.ToString(OutputMode.Ansi)
+                .Should()
+                .Be($"one{Ansi.Color.Foreground.Red.EscapeSequence}two{Ansi.Color.Foreground.Default.EscapeSequence}three");
+        }
     }
 }

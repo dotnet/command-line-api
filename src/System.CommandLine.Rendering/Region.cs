@@ -5,11 +5,15 @@ namespace System.CommandLine.Rendering
 {
     public class Region
     {
+        public static readonly Region EntireTerminal = new EntireTerminalRegion();
+        
+        public static readonly Region Scrolling = new ScrollingTerminalRegion();
+
         public Region(
             int left,
             int top,
-            int width,
-            int height,
+            int? width = null,
+            int? height = null,
             bool isOverwrittenOnRender = true)
         {
             if (height < 0)
@@ -32,8 +36,14 @@ namespace System.CommandLine.Rendering
                 throw new ArgumentOutOfRangeException(nameof(left));
             }
 
-            Height = height;
-            Width = width;
+            Height = height ??
+                     (Console.IsOutputRedirected
+                          ? 100
+                          : Console.WindowHeight);
+            Width = width ??
+                    (Console.IsOutputRedirected
+                         ? 100
+                         : Console.WindowWidth);
             Top = top;
             Left = left;
 

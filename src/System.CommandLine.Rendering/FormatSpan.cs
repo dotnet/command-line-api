@@ -2,13 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
+using System.IO;
 
 namespace System.CommandLine.Rendering
 {
     [DebuggerDisplay("{" + nameof(Name) + "}")]
     public abstract class FormatSpan : Span
     {
-        protected FormatSpan(string name)
+        protected FormatSpan(string name, AnsiControlCode ansiControlCode)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -16,13 +17,29 @@ namespace System.CommandLine.Rendering
             }
 
             Name = name;
+            AnsiControlCode = ansiControlCode;
         }
 
         public string Name { get; }
 
-        public override int ContentLength => 0;
+        public AnsiControlCode AnsiControlCode { get; }
 
+        public override int ContentLength => 0;
+        
         public override string ToString() => "";
+
+        public override void WriteTo(TextWriter writer, OutputMode outputMode)
+        {
+            switch (outputMode)
+            {
+                case OutputMode.Ansi:
+                    writer.Write(AnsiControlCode.EscapeSequence);
+                    break;
+                default:
+                    writer.Write(ToString());
+                    break;
+            }
+        }
 
         protected bool Equals(FormatSpan other) => string.Equals(Name, other.Name);
 
