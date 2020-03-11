@@ -6,17 +6,17 @@ using System.Diagnostics;
 namespace System.CommandLine.Rendering
 {
     [DebuggerDisplay("{" + nameof(Name) + "}")]
-    public class CursorControlSpan : Span
+    public class CursorControlSpan : ControlSpan
     {
-        public CursorControlSpan(string name)
+        public CursorControlSpan(string name, AnsiControlCode ansiControlCode) :
+            base(name, ansiControlCode)
         {
-            Name = name;
         }
+
         public override int ContentLength => 0;
 
-        public string Name { get; }
-        public static CursorControlSpan Hide() => new CursorControlSpan(nameof(Hide));
-        public static CursorControlSpan Show() => new CursorControlSpan(nameof(Show));
+        public static CursorControlSpan Hide() => new CursorControlSpan(nameof(Hide), Ansi.Cursor.Hide);
 
+        public static CursorControlSpan Show() => new CursorControlSpan(nameof(Show), Ansi.Cursor.Show);
     }
 }

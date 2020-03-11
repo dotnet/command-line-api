@@ -8,31 +8,31 @@ using System.Linq;
 
 namespace System.CommandLine.Rendering
 {
-    public class ContainerSpan : Span, IReadOnlyList<Span>
+    public class ContainerSpan : TextSpan, IReadOnlyList<TextSpan>
     {
-        private readonly List<Span> _children;
+        private readonly List<TextSpan> _children;
 
-        public ContainerSpan(params Span[] children)
+        public ContainerSpan(params TextSpan[] children)
         {
             if (children == null)
             {
                 throw new ArgumentNullException(nameof(children));
             }
 
-            _children = new List<Span>(children);
+            _children = new List<TextSpan>(children);
 
             RecalculateChildPositions();
         }
 
         public override int ContentLength => _children.Sum(span => span.ContentLength);
 
-        public IEnumerator<Span> GetEnumerator() => _children.GetEnumerator();
+        public IEnumerator<TextSpan> GetEnumerator() => _children.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public int Count => _children.Count;
 
-        public Span this[int index] => _children[index];
+        public TextSpan this[int index] => _children[index];
 
         internal override void RecalculatePositions(ContainerSpan parent, int start)
         {

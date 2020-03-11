@@ -70,7 +70,7 @@ namespace System.CommandLine.Rendering.Tests.Views
             var view = new TestableContentView<int>(42);
 
             view.Render(_renderer, new Region(0, 0, 0, 0));
-            Span firstSpan = view.GetSpan();
+            TextSpan firstSpan = view.GetSpan();
             view.Render(_renderer, new Region(0, 0, 0, 0));
 
             ReferenceEquals(view.GetSpan(), firstSpan).Should().BeTrue();
@@ -82,7 +82,7 @@ namespace System.CommandLine.Rendering.Tests.Views
             var view = new TestableContentView<int>(42);
 
             view.Measure(_renderer, new Size(0, 0));
-            Span firstSpan = view.GetSpan();
+            TextSpan firstSpan = view.GetSpan();
             view.Measure(_renderer, new Size(0, 0));
 
             ReferenceEquals(view.GetSpan(), firstSpan).Should().BeTrue();
@@ -92,7 +92,7 @@ namespace System.CommandLine.Rendering.Tests.Views
         {
             public bool IsSpanCreated => Span != null;
 
-            public Span GetSpan() => Span;
+            public TextSpan GetSpan() => Span;
 
             public TestableContentView(T value)
                 : base(value)

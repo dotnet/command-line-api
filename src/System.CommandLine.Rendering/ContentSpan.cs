@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Rendering
 {
-    public class ContentSpan : Span
+    public class ContentSpan : TextSpan
     {
         public ContentSpan(string content)
         {

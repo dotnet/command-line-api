@@ -6,7 +6,7 @@ using System.Text;
 
 namespace System.CommandLine.Rendering
 {
-    internal abstract class ContentRenderingSpanVisitor : SpanVisitor
+    internal abstract class ContentRenderingSpanVisitor : TextSpanVisitor
     {
         private readonly StringBuilder _buffer = new StringBuilder();
 
@@ -29,7 +29,7 @@ namespace System.CommandLine.Rendering
 
         protected Region Region { get; }
 
-        protected override void Start(Span span)
+        protected override void Start(TextSpan span)
         {
             TrySetCursorPosition(Region.Left, Region.Top);
         }
@@ -73,7 +73,7 @@ namespace System.CommandLine.Rendering
             _lastSpanEndedWithWhitespace = text.EndsWithWhitespace();
         }
 
-        protected override void Stop(Span span)
+        protected override void Stop(TextSpan span)
         {
             if (_positionOnLine > 0 ||
                 span.ContentLength == 0)

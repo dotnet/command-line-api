@@ -301,7 +301,7 @@ namespace System.CommandLine.Rendering.Tests
                     throw new ArgumentNullException(nameof(directory));
                 }
 
-                var formatter = new SpanFormatter();
+                var formatter = new TextSpanFormatter();
                 formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}");
 
                 Add(new ContentView(""));
@@ -331,7 +331,7 @@ namespace System.CommandLine.Rendering.Tests
 
                 Add(tableView);
 
-                Span Span(FormattableString formattableString)
+                TextSpan Span(FormattableString formattableString)
                 {
                     return formatter.ParseToSpan(formattableString);
                 }

@@ -1,12 +1,13 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.IO;
 using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Rendering.Tests
 {
-    public class SpanTests
+    public class TextSpanTests
     {
         [Fact]
         public void Content_span_length_is_the_same_as_the_contained_string_length()
@@ -86,7 +87,7 @@ namespace System.CommandLine.Rendering.Tests
         [Fact]
         public void ToString_with_non_ansi_omits_ANSI_codes()
         {
-            var span = new SpanFormatter()
+            var span = new TextSpanFormatter()
                 .ParseToSpan($"one{ForegroundColorSpan.Red()}two{ForegroundColorSpan.Reset()}three");
 
             span.ToString(OutputMode.NonAnsi)
@@ -97,12 +98,28 @@ namespace System.CommandLine.Rendering.Tests
         [Fact]
         public void ToString_with_ansi_includes_ANSI_codes()
         {
-            var span = new SpanFormatter()
+            var span = new TextSpanFormatter()
                 .ParseToSpan($"one{ForegroundColorSpan.Red()}two{ForegroundColorSpan.Reset()}three");
 
             span.ToString(OutputMode.Ansi)
                 .Should()
                 .Be($"one{Ansi.Color.Foreground.Red.EscapeSequence}two{Ansi.Color.Foreground.Default.EscapeSequence}three");
+        }
+
+        [Fact]
+        public void Ansi_control_codes_can_be_included_in_interpolated_strings()
+        {
+            var writer = new StringWriter();
+
+            var formatter = new TextSpanFormatter();
+
+            var span = formatter.ParseToSpan($"{Ansi.Color.Foreground.LightGray}hello{Ansi.Color.Off}");
+
+            writer.Write(span.ToString(OutputMode.Ansi));
+
+            writer.ToString()
+                  .Should()
+                  .Be($"{Ansi.Color.Foreground.LightGray.EscapeSequence}hello{Ansi.Color.Off.EscapeSequence}");
         }
     }
 }

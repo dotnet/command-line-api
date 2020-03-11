@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace System.CommandLine.Rendering
 {
-    public class SpanFormatter :
+    public class TextSpanFormatter :
         ICustomFormatter,
         IFormatProvider
     {
@@ -23,50 +23,47 @@ namespace System.CommandLine.Rendering
                       RegexOptions.Compiled |
                       RegexOptions.IgnorePatternWhitespace);
 
-        private readonly Dictionary<Type, Func<object, Span>> _formatters = new Dictionary<Type, Func<object, Span>>();
+        private readonly Dictionary<Type, Func<object, TextSpan>> _formatters = new Dictionary<Type, Func<object, TextSpan>>();
 
-        public void AddFormatter<T>(Func<T, Span> format)
+        public void AddFormatter<T>(Func<T, TextSpan> format)
         {
             _formatters.Add(typeof(T),
                             t =>
                             {
                                 var span = format((T)t);
 
-                                return span ?? Span.Empty();
+                                return span ?? TextSpan.Empty();
                             });
         }
 
-        public Span Format(object value)
+        public TextSpan Format(object value)
         {
-            if (value is null)
-            {
-                return Span.Empty();
-            }
-
-            if (value is Span span)
-            {
-                return span;
-            }
-
             string content;
+
+            switch (value)
+            {
+                case null:
+                    return TextSpan.Empty();
+                case TextSpan span:
+                    return span;
+                case AnsiControlCode ansiCode:
+                    return new ControlSpan(ansiCode.EscapeSequence, ansiCode);
+                case FormattableString formattable:
+                    content = ((IFormattable) formattable).ToString("", this);
+                    break;
+                default:
+                    content = value.ToString();
+                    break;
+            }
 
             if (_formatters.TryGetValue(value.GetType(), out var formatter))
             {
                 return formatter(value);
             }
 
-            if (value is FormattableString formattable)
-            {
-                content = ((IFormattable)formattable).ToString("", this);
-            }
-            else
-            {
-                content = value.ToString();
-            }
-
             if (string.IsNullOrEmpty(content))
             {
-                return Span.Empty();
+                return TextSpan.Empty();
             }
             else
             {
@@ -81,7 +78,7 @@ namespace System.CommandLine.Rendering
                                 var formattableString = format((T)t);
 
                                 return formattableString == null
-                                           ? Span.Empty()
+                                           ? TextSpan.Empty()
                                            : ParseToSpan(formattableString);
                             });
         }
@@ -97,7 +94,7 @@ namespace System.CommandLine.Rendering
             return Format(arg).ToString();
         }
 
-        public Span ParseToSpan(FormattableString formattableString)
+        public TextSpan ParseToSpan(FormattableString formattableString)
         {
             var formatted = formattableString.ToString();
 
@@ -112,7 +109,7 @@ namespace System.CommandLine.Rendering
                 return new ContainerSpan(DestructureIntoSpans().ToArray());
             }
 
-            IEnumerable<Span> DestructureIntoSpans()
+            IEnumerable<TextSpan> DestructureIntoSpans()
             {
                 var partIndex = 0;
 

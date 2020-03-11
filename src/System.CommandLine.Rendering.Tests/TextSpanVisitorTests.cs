@@ -9,7 +9,7 @@ using Xunit;
 
 namespace System.CommandLine.Rendering.Tests
 {
-    public class SpanVisitorTests
+    public class TextSpanVisitorTests
     {
         [Fact]
         public void Initialize_is_only_called_once()
@@ -27,11 +27,11 @@ namespace System.CommandLine.Rendering.Tests
             visitor.InitializeCount.Should().Be(1);
         }
 
-        public class TestVisitor : SpanVisitor
+        public class TestVisitor : TextSpanVisitor
         {
             public int InitializeCount { get; set; }
 
-            protected override void Start(Span span)
+            protected override void Start(TextSpan span)
             {
                 InitializeCount++;
             }
@@ -66,9 +66,9 @@ namespace System.CommandLine.Rendering.Tests
         }
     }
 
-    public class RecordingSpanVisitor : SpanVisitor
+    public class RecordingSpanVisitor : TextSpanVisitor
     {
-        public override void VisitUnknownSpan(Span span) => VisitedSpans.Add(span);
+        public override void VisitUnknownSpan(TextSpan span) => VisitedSpans.Add(span);
 
         public override void VisitContainerSpan(ContainerSpan span)
         {
@@ -85,6 +85,6 @@ namespace System.CommandLine.Rendering.Tests
 
         public override void VisitStyleSpan(StyleSpan span) => VisitedSpans.Add(span);
 
-        public List<Span> VisitedSpans { get; } = new List<Span>();
+        public List<TextSpan> VisitedSpans { get; } = new List<TextSpan>();
     }
 }

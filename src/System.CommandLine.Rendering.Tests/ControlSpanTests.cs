@@ -6,7 +6,7 @@ using Xunit;
 
 namespace System.CommandLine.Rendering.Tests
 {
-    public class FormatSpanTests
+    public class ControlSpanTests
     {
         [Fact]
         public void ForegroundColorSpans_with_equivalent_content_have_the_same_hash_code()

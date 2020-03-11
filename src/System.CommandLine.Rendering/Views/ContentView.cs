@@ -9,7 +9,7 @@ namespace System.CommandLine.Rendering.Views
             : this (new ContentSpan(content))
         { }
 
-        public ContentView(Span span)
+        public ContentView(TextSpan span)
         {
             Span = span ?? throw new ArgumentNullException(nameof(span));
         }
@@ -17,7 +17,7 @@ namespace System.CommandLine.Rendering.Views
         protected ContentView()
         { }
 
-        protected Span Span { get; set; }
+        protected TextSpan Span { get; set; }
 
         public override void Render(ConsoleRenderer renderer, Region region)
         {
@@ -69,29 +69,29 @@ namespace System.CommandLine.Rendering.Views
             return rv;
         }
 
-        internal static ContentView Create(object content, SpanFormatter formatter)
+        internal static ContentView Create(object content, TextSpanFormatter formatter)
         {
-            if (content == null) return new ContentView(Span.Empty());
+            if (content == null) return new ContentView(TextSpan.Empty());
             return CreateView((dynamic)content, formatter);
         }
 
-        private static ContentView CreateView(string stringContent, SpanFormatter _)
+        private static ContentView CreateView(string stringContent, TextSpanFormatter _)
             => new ContentView(stringContent);
 
-        private static ContentView CreateView(Span span, SpanFormatter _) 
+        private static ContentView CreateView(TextSpan span, TextSpanFormatter _) 
             => new ContentView(span);
 
-        private static ContentView CreateView<T>(IObservable<T> observable, SpanFormatter _)
+        private static ContentView CreateView<T>(IObservable<T> observable, TextSpanFormatter _)
             => FromObservable(observable);
 
-        private static ContentView CreateView(object value, SpanFormatter formatter)
+        private static ContentView CreateView(object value, TextSpanFormatter formatter)
             => new ContentView(formatter.Format(value));
 
         private class Observer<T> : IObserver<T>
         {
             private readonly ContentView _contentView;
             private readonly Func<T, FormattableString> _formatProvider;
-            private readonly SpanFormatter _spanFormatter = new SpanFormatter();
+            private readonly TextSpanFormatter _textSpanFormatter = new TextSpanFormatter();
 
             public Observer(ContentView contentView, Func<T, FormattableString> formatProvider)
             {
@@ -105,7 +105,7 @@ namespace System.CommandLine.Rendering.Views
 
             public void OnNext(T value)
             {
-                _contentView.Span = _spanFormatter.ParseToSpan(_formatProvider(value));
+                _contentView.Span = _textSpanFormatter.ParseToSpan(_formatProvider(value));
                 _contentView.OnUpdated();
             }
         }

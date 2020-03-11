@@ -4,7 +4,7 @@
     {
         public static void Render(
             this ITerminal terminal,
-            Span span,
+            TextSpan span,
             Region region = null)
         {
             if (terminal is IRenderable t)

@@ -23,7 +23,7 @@ namespace System.CommandLine.Rendering
             _resetAfterRender = resetAfterRender;
         }
 
-        public SpanFormatter Formatter { get; } = new SpanFormatter();
+        public TextSpanFormatter Formatter { get; } = new TextSpanFormatter();
 
         public void RenderToRegion(
             object value,
@@ -36,7 +36,7 @@ namespace System.CommandLine.Rendering
 
         public void Append(FormattableString value) => Append(Formatter.ParseToSpan(value));
 
-        public void Append(Span span)
+        public void Append(TextSpan span)
         {
             Render(span);
         }
@@ -51,7 +51,7 @@ namespace System.CommandLine.Rendering
         }
 
         public void RenderToRegion(
-            Span span,
+            TextSpan span,
             Region region)
         {
             if (region == null)
@@ -62,11 +62,11 @@ namespace System.CommandLine.Rendering
             Render(span, region);
         }
 
-        private void Render(Span span, Region region = null)
+        private void Render(TextSpan span, Region region = null)
         {
             if (span == null)
             {
-                span = Span.Empty();
+                span = TextSpan.Empty();
             }
             else if (_resetAfterRender)
             {
@@ -76,7 +76,7 @@ namespace System.CommandLine.Rendering
                     BackgroundColorSpan.Reset());
             }
 
-            SpanVisitor visitor = null;
+            TextSpanVisitor visitor = null;
 
             if (_mode == OutputMode.Auto)
             {
@@ -115,7 +115,7 @@ namespace System.CommandLine.Rendering
             visitor.Visit(span);
         }
 
-        internal static Size MeasureSpan(Span span, Size maxSize)
+        internal static Size MeasureSpan(TextSpan span, Size maxSize)
         {
             var measuringVisitor = new SpanMeasuringVisitor(new Region(0, 0, maxSize.Width, maxSize.Height));
             measuringVisitor.Visit(span);

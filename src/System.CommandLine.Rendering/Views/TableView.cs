@@ -104,7 +104,7 @@ namespace System.CommandLine.Rendering.Views
                 _cellValue = cellValue ?? throw new ArgumentNullException(nameof(cellValue));
             }
 
-            public View GetCell(TItem item, SpanFormatter formatter)
+            public View GetCell(TItem item, TextSpanFormatter formatter)
             {
                 T value = _cellValue(item);
 

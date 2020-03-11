@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using FluentAssertions;
 using Xunit;
@@ -30,21 +29,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_option()
         {
-            IReadOnlyCollection<Symbol> symbols = new[] {
-                new Option(
-                    new[] { "-h", "--help" })
-            };
-            var command1 = new Command(
-                "the-command",
-                ""
-            );
-
-            foreach (var symbol in symbols)
+            var command = new Command("the-command")
             {
-                command1.Add(symbol);
-            }
-
-            var command = command1;
+                new Option(new[] { "-h", "--help" })
+            };
 
             var result = command.Parse("the-command -h");
 
