@@ -5,15 +5,15 @@ using System.IO;
 
 namespace System.CommandLine.Rendering
 {
-    public abstract class Span
+    public abstract class TextSpan
     {
-        public static Span Empty() => new ContentSpan("");
+        public static TextSpan Empty() => new ContentSpan("");
 
-        private Span _root;
+        private TextSpan _root;
 
         public abstract int ContentLength { get; }
 
-        public Span Root => _root ?? (_root = this);
+        public TextSpan Root => _root ?? (_root = this);
 
         public ContainerSpan Parent { get; private set; }
 

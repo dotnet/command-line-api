@@ -3,9 +3,9 @@
 
 namespace System.CommandLine.Rendering
 {
-    public abstract class SpanVisitor
+    public abstract class TextSpanVisitor
     {
-        public void Visit(Span span)
+        public void Visit(TextSpan span)
         {
             Start(span);
 
@@ -14,7 +14,7 @@ namespace System.CommandLine.Rendering
             Stop(span);
         }
 
-        private void VisitInternal(Span span)
+        private void VisitInternal(TextSpan span)
         {
             switch (span)
             {
@@ -48,15 +48,15 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        protected virtual void Start(Span span)
+        protected virtual void Start(TextSpan span)
         {
         }
 
-        protected virtual void Stop(Span span)
+        protected virtual void Stop(TextSpan span)
         {
         }
 
-        public virtual void VisitUnknownSpan(Span span)
+        public virtual void VisitUnknownSpan(TextSpan span)
         {
         }
 

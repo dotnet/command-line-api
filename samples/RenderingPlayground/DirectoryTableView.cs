@@ -44,16 +44,16 @@ namespace RenderingPlayground
             Formatter.AddFormatter<DateTime>(d => $"{d:d} {ForegroundColorSpan.DarkGray()}{d:t}");
         }
 
-        Span Span(FormattableString formattableString)
+        TextSpan Span(FormattableString formattableString)
         {
             return Formatter.ParseToSpan(formattableString);
         }
 
-        Span Span(object obj)
+        TextSpan Span(object obj)
         {
             return Formatter.Format(obj);
         }
 
-        protected SpanFormatter Formatter { get; } = new SpanFormatter();
+        protected TextSpanFormatter Formatter { get; } = new TextSpanFormatter();
     }
 }

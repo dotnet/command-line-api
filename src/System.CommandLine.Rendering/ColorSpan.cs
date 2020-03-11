@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Rendering
 {
-    public abstract class ColorSpan : FormatSpan
+    public abstract class ColorSpan : ControlSpan
     {
         protected ColorSpan(string name, AnsiControlCode ansiControlCode)
             : base(name, ansiControlCode)

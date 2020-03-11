@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Rendering
 {
-    internal sealed class SpanMeasuringVisitor : SpanVisitor
+    internal sealed class SpanMeasuringVisitor : TextSpanVisitor
     {
         private bool _LastSpanEndedWithWhitespace;
         private int _PositionOnLine;
@@ -67,7 +67,7 @@ namespace System.CommandLine.Rendering
             _LastSpanEndedWithWhitespace = text.EndsWithWhitespace();
         }
 
-        protected override void Stop(Span span)
+        protected override void Stop(TextSpan span)
         {
             if (PositionOnLine > 0 ||
                 span.ContentLength == 0)

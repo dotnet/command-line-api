@@ -34,7 +34,7 @@ namespace System.CommandLine.Rendering.Tests.Views
         [Fact]
         public void When_constructing_the_span_argument_cannot_be_null()
         {
-            Span span = null;
+            TextSpan span = null;
             Action constructView = () => new ContentView(span);
             
             constructView.Should().Throw<ArgumentNullException>();
@@ -171,7 +171,7 @@ namespace System.CommandLine.Rendering.Tests.Views
         {
             public bool IsSpanNull => Span == null;
 
-            public Span GetSpan() => Span;
+            public TextSpan GetSpan() => Span;
 
             public TestContentView()
             { }

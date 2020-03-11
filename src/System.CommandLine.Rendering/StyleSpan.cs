@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Rendering
 {
-    public class StyleSpan : FormatSpan
+    public class StyleSpan : ControlSpan
     {
         public StyleSpan(string name, AnsiControlCode ansiControlCode) : base(name, ansiControlCode)
         {

@@ -7,9 +7,9 @@ using System.IO;
 namespace System.CommandLine.Rendering
 {
     [DebuggerDisplay("{" + nameof(Name) + "}")]
-    public abstract class FormatSpan : Span
+    public class ControlSpan : TextSpan
     {
-        protected FormatSpan(string name, AnsiControlCode ansiControlCode)
+        public ControlSpan(string name, AnsiControlCode ansiControlCode)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -41,7 +41,7 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        protected bool Equals(FormatSpan other) => string.Equals(Name, other.Name);
+        protected bool Equals(ControlSpan other) => string.Equals(Name, other.Name);
 
         public override bool Equals(object obj)
         {
@@ -60,7 +60,7 @@ namespace System.CommandLine.Rendering
                 return false;
             }
 
-            return Equals((FormatSpan)obj);
+            return Equals((ControlSpan)obj);
         }
 
         public override int GetHashCode()
