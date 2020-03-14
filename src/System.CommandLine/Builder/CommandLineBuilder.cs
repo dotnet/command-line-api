@@ -29,6 +29,8 @@ namespace System.CommandLine.Builder
 
         internal Option HelpOption { get; set; }
 
+        internal ValidationMessages ValidationMessages { get; set; }
+
         public Parser Build()
         {
             var rootCommand = Command;
@@ -38,7 +40,7 @@ namespace System.CommandLine.Builder
                     new[] { rootCommand },
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
-                    validationMessages: ValidationMessages.Instance,
+                    validationMessages: ValidationMessages,
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
