@@ -412,6 +412,14 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        public static CommandLineBuilder UseValidationMessages(
+            this CommandLineBuilder builder,
+            ValidationMessages validationMessages)
+        {
+            builder.ValidationMessages = validationMessages;
+            return builder;
+        }
+
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder)
         {
