@@ -703,6 +703,22 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void A_root_command_is_invalid_if_it_has_no_handler()
+        {
+            var rootCommand = new RootCommand();
+            var inner = new Command("inner");
+            rootCommand.Add(inner);
+
+            var result = rootCommand.Parse("");
+
+            result.Errors
+                  .Should()
+                  .ContainSingle(
+                      e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
+                           e.SymbolResult.Symbol == rootCommand);
+        }
+
+        [Fact]
         public void A_command_with_subcommands_is_valid_to_invoke_if_it_has_a_handler()
         {
             var outer = new Command("outer");

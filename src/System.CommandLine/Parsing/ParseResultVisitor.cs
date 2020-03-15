@@ -226,10 +226,20 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandHandler()
         {
-            if (_innermostCommandResult.Command is Command cmd &&
-                cmd.Handler == null &&
-                cmd.Children.OfType<ICommand>().Any() && 
-                !cmd.Options.OfType<HelpOption>().Any())
+            if (!(_innermostCommandResult.Command is Command cmd) || 
+                cmd.Handler != null)
+            {
+                return;
+            }
+
+            if (!cmd.Children.OfType<ICommand>().Any())
+            {
+                return;
+            }
+
+            if (!_innermostCommandResult
+                 .Children
+                 .Select(o => o.Symbol is HelpOption).Any())
             {
                 _errors.Insert(0,
                                new ParseError(
