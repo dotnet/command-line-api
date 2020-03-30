@@ -21,6 +21,8 @@ namespace System.CommandLine.Builder
 
         internal void AddOption(Option option) => Command.AddOption(option);
 
+        internal void AddGlobalOption(Option option) => Command.AddGlobalOption(option);
+
         internal void AddArgument(Argument argument) => Command.AddArgument(argument);
     }
 }
