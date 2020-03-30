@@ -64,6 +64,16 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        public static TBuilder AddGlobalOption<TBuilder>(
+            this TBuilder builder, 
+            Option option)
+            where TBuilder : CommandBuilder
+        {
+            builder.AddGlobalOption(option);
+
+            return builder;
+        }
+
         public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) =>
