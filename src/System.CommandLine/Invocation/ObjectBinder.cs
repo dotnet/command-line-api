@@ -24,10 +24,14 @@ namespace System.CommandLine.Invocation
             _target = target ?? throw new NullReferenceException( nameof(target) );
         }
 
-        public async Task<int> InvokeAsync( InvocationContext context )
+        public Task<int> InvokeAsync( InvocationContext context )
         {
             if( context == null )
-                throw new NullReferenceException( nameof(context) );
+                return Task.FromResult( 1 );
+
+            var cancelToken = context.GetCancellationToken();
+            if( cancelToken.IsCancellationRequested )
+                return (Task<int>) Task.FromCanceled( cancelToken );
 
             // Trap possible binding failures. These usually occur because a provided
             // alias doesn't match the aliases defined among the options and arguments
@@ -52,10 +56,10 @@ namespace System.CommandLine.Invocation
             {
                 context.InvocationResult = new ObjectBinderErrorResult( e.Alias, e.ForOption );
 
-                return 1;
+                return Task.FromResult(1);
             }
 
-            return 0;
+            return Task.FromResult(0);
         }
     }
 }
