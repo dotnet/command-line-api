@@ -10,6 +10,10 @@ namespace System.CommandLine.Invocation
             context.BindingContext
                    .HelpBuilder
                    .Write(context.ParseResult.CommandResult.Command);
+
+            // indicate it's not an error but it's not a normal result, either;
+            // it's short-circuited
+            context.ResultCode = 2;
         }
     }
 }

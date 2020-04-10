@@ -28,15 +28,15 @@ namespace System.CommandLine.Invocation
             return GetResultCode(context);
         }
 
-        public int Invoke(IConsole console = null)
+        public int Invoke( IConsole console = null )
         {
-            var context = new InvocationContext(parseResult, console);
+            var context = new InvocationContext( parseResult, console );
 
-            InvocationMiddleware invocationChain = BuildInvocationChain(context);
+            InvocationMiddleware invocationChain = BuildInvocationChain( context );
 
-            Task.Run(() => invocationChain(context, invocationContext => Task.CompletedTask)).GetAwaiter().GetResult();
+            Task.Run( () => invocationChain( context, invocationContext => Task.CompletedTask ) ).GetAwaiter().GetResult();
 
-            return GetResultCode(context);
+            return GetResultCode( context );
         }
 
         private static InvocationMiddleware BuildInvocationChain(InvocationContext context)

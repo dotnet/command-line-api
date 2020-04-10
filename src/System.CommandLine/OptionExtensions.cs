@@ -105,5 +105,28 @@ namespace System.CommandLine
             this Option option,
             string commandLine) =>
             new Parser(new CommandLineConfiguration(new[] { option })).Parse(commandLine);
+
+        /// <summary>
+        /// Helper method to locate an <see cref="IOption"/> based on a provided alias
+        /// </summary>
+        /// <param name="options">the list of IOptions to search</param>
+        /// <param name="alias">the alias to search for</param>
+        /// <returns>the first <see cref="IOption"/> defining an alias matching the provided one</returns>
+        /// <exception cref="UnknownAliasException">
+        /// thrown if no matching <see cref="IOption"/> could be found
+        /// </exception>
+        public static IOption FindFirstMatch( this List<IOption> options, string alias )
+        {
+            if( string.IsNullOrEmpty(alias))
+                throw new NullReferenceException($"{nameof(alias)} is undefined or empty");
+
+            var retVal = options
+                .Find( x => x.Aliases.FirstOrDefault( a => a == alias ) != null );
+
+            if( retVal == null )
+                throw new UnknownAliasException( alias, true );
+
+            return retVal;
+        }
     }
 }

@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Collections;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -273,6 +275,22 @@ namespace System.CommandLine.Builder
 
                 context.ResultCode = 1;
             }
+        }
+
+        /// <summary>
+        /// Defines a callback to be used to define a ModelBinder instance
+        /// which can be used to map options and arguments to properties
+        /// directly rather than by matching aliases to property names.
+        /// </summary>
+        /// <param name="builder">the CommandLineBuilder instance being configured</param>
+        /// <param name="modelBinderFactory">the callback method to define a ModelBinder</param>
+        /// <returns>the CommandLineBuilder instance being configured</returns>
+        public static CommandLineBuilder UseObjectBinding( 
+            this CommandLineBuilder builder,
+            Func<List<IOption>, List<IArgument>, ModelBinder> modelBinderFactory )
+        {
+            builder.ModelBinderFactory = modelBinderFactory;
+            return builder;
         }
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)

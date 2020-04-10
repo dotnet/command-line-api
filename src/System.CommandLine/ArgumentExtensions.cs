@@ -144,5 +144,29 @@ namespace System.CommandLine
                             argument
                         },
                     })).Parse(commandLine);
+
+        /// <summary>
+        /// Helper method to locate an <see cref="IArgument"/> based on a provided alias
+        /// </summary>
+        /// <param name="args">the list of IArguments to search</param>
+        /// <param name="alias">the alias to search for</param>
+        /// <returns>the first <see cref="IArgument"/> defining an alias matching the provided one</returns>
+        /// <exception cref="UnknownAliasException">
+        /// thrown if no matching Argument could be found
+        /// </exception>
+        public static IArgument FindFirstMatch( this List<IArgument> args, string alias )
+        {
+            if( string.IsNullOrEmpty( alias ) )
+                throw new NullReferenceException( $"{nameof( alias )} is undefined or empty" );
+
+            var retVal = args
+                .Find( x => x.Aliases.FirstOrDefault( a => a == alias ) != null );
+
+            if( retVal == null )
+                throw new UnknownAliasException( alias, false );
+
+            return retVal;
+        }
+
     }
 }

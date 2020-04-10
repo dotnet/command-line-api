@@ -25,7 +25,8 @@ namespace System.CommandLine
             ValidationMessages validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
-            Func<BindingContext, IHelpBuilder> helpBuilderFactory = null)
+            Func<BindingContext, IHelpBuilder> helpBuilderFactory = null,
+            Func<List<IOption>, List<IArgument>, ModelBinder> modelBinderFactory = null)
         {
             if (symbols == null)
             {
@@ -88,6 +89,7 @@ namespace System.CommandLine
             ResponseFileHandling = responseFileHandling;
             _middlewarePipeline = middlewarePipeline;
             _helpBuilderFactory = helpBuilderFactory;
+            ModelBinderFactory = modelBinderFactory;
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)
@@ -118,6 +120,13 @@ namespace System.CommandLine
         public bool EnablePosixBundling { get; }
 
         public ValidationMessages ValidationMessages { get; }
+
+        /// <summary>
+        /// Supports ObjectBinder<T> so that a ModelBinder<T> instance can be created
+        /// to map Options and Arguments to specific properties directly rather than by matching
+        /// property names to aliases.
+        /// </summary>
+        public Func<List<IOption>, List<IArgument>, ModelBinder> ModelBinderFactory { get; }
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory =>
             _helpBuilderFactory ??= context => new HelpBuilder(context.Console);

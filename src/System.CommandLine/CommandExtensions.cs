@@ -15,23 +15,26 @@ namespace System.CommandLine
         public static int Invoke(
             this Command command,
             string[] args,
-            IConsole console = null)
+            IConsole console = null, 
+            CommandLineBuilder builder = null )
         {
-            return GetInvocationPipeline(command, args).Invoke(console);
+            return GetInvocationPipeline(command, args, builder).Invoke(console);
         }
 
         public static int Invoke(
             this Command command,
             string commandLine,
-            IConsole console = null) =>
-            command.Invoke(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
+            IConsole console = null, 
+            CommandLineBuilder builder = null ) =>
+            command.Invoke(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console, builder);
 
         public static async Task<int> InvokeAsync(
             this Command command,
             string[] args,
-            IConsole console = null)
+            IConsole console = null, 
+            CommandLineBuilder builder = null )
         {
-            return await GetInvocationPipeline(command, args).InvokeAsync(console);
+            return await GetInvocationPipeline(command, args, builder).InvokeAsync(console);
         }
 
         public static Task<int> InvokeAsync(
@@ -40,12 +43,12 @@ namespace System.CommandLine
             IConsole console = null) =>
             command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
-        private static InvocationPipeline GetInvocationPipeline(Command command, string[] args)
+        private static InvocationPipeline GetInvocationPipeline(Command command, string[] args, CommandLineBuilder builder = null)
         {
-            var parser = command.ImplicitParser ??
-                             new CommandLineBuilder(command)
-                                 .UseDefaults()
-                                 .Build();
+            builder ??= new CommandLineBuilder( command )
+                .UseDefaults();
+
+            var parser = command.ImplicitParser ?? builder.Build();
 
             var parseResult = parser.Parse(args);
 

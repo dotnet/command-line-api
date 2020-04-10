@@ -3,10 +3,12 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Collections;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Builder
 {
@@ -27,6 +29,13 @@ namespace System.CommandLine.Builder
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; set; }
 
+        /// <summary>
+        /// Supports ObjectBinder<T> so that a ModelBinder<T> instance can be created
+        /// to map Options and Arguments to specific properties directly rather than by matching
+        /// property names to aliases.
+        /// </summary>
+        internal Func<List<IOption>, List<IArgument>, ModelBinder> ModelBinderFactory { get; set; }
+
         internal Option HelpOption { get; set; }
 
         internal ValidationMessages ValidationMessages { get; set; }
@@ -45,7 +54,8 @@ namespace System.CommandLine.Builder
                     middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
                                                        .ToArray(),
-                    helpBuilderFactory: HelpBuilderFactory));
+                    helpBuilderFactory: HelpBuilderFactory,
+                    modelBinderFactory: ModelBinderFactory));
 
             Command.ImplicitParser = parser;
 
