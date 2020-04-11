@@ -13,9 +13,10 @@ namespace System.CommandLine.Invocation
     {
         private readonly string _failedAlias;
         private readonly bool _forOptions;
+        private readonly string _generalError;
 
         /// <summary>
-        /// Create the instance.
+        /// Create an instance tied to a particular alias
         /// </summary>
         /// <param name="failedAlias">the alias which could not be found</param>
         /// <param name="forOptions">true to indicate Options were being searched, false to indicate Arguments</param>
@@ -25,12 +26,26 @@ namespace System.CommandLine.Invocation
             _forOptions = forOptions;
         }
 
+        /// <summary>
+        /// Create a generalized error instance, unrelated to any particular alias
+        /// </summary>
+        /// <param name="error">the error message</param>
+        public ObjectBinderErrorResult( string error )
+        {
+            _generalError = error;
+        }
+
         public void Apply(InvocationContext context)
         {
             context.Console.ResetTerminalForegroundColor();
             context.Console.SetTerminalForegroundRed();
 
-            context.Console.Error.WriteLine($"Could not find matching {(_forOptions ? "Option" : "Argument")} for alias '{_failedAlias}'");
+            context.Console.Error.WriteLine(
+                string.IsNullOrEmpty( _generalError )
+                    ? $"Could not find matching {( _forOptions ? "Option" : "Argument" )} for alias '{_failedAlias}'"
+                    : _generalError
+            );
+
             context.Console.Error.WriteLine();
 
             context.ResultCode = 1;

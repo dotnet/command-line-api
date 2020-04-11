@@ -29,35 +29,17 @@ namespace System.CommandLine.Invocation
             if( context == null )
                 return Task.FromResult( 1 );
 
+            if( context.ModelBinder == null )
+            {
+                context.InvocationResult = new ObjectBinderErrorResult( $"{nameof(context.ModelBinder)} is undefined" );
+                return Task.FromResult( 1 );
+            }
+
             var cancelToken = context.GetCancellationToken();
             if( cancelToken.IsCancellationRequested )
                 return (Task<int>) Task.FromCanceled( cancelToken );
 
-            // Trap possible binding failures. These usually occur because a provided
-            // alias doesn't match the aliases defined among the options and arguments
-            // of the active Command
-            try
-            {
-                // Only provide the Options and Arguments of the active command as potential
-                // sources for bindings. Child Options and Arguments (i.e., from subcommands)
-                // should be bound to child objects.
-
-                // There might be a clever way of allowing the bindings for child objects to be
-                // defined when the parent object bindings are defined but I wasn't able to
-                // think of one.
-                var modelBinder = context.Parser.Configuration.ModelBinderFactory(
-                    context.ParseResult.CommandResult.Command.Options.ToList(),
-                    context.ParseResult.CommandResult.Command.Arguments.ToList()
-                );
-
-                modelBinder.UpdateInstance( _target, context.BindingContext );
-            }
-            catch( UnknownAliasException e )
-            {
-                context.InvocationResult = new ObjectBinderErrorResult( e.Alias, e.ForOption );
-
-                return Task.FromResult(1);
-            }
+            context.ModelBinder.UpdateInstance( _target, context.BindingContext );
 
             return Task.FromResult(0);
         }

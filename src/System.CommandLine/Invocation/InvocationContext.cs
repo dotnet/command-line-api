@@ -52,6 +52,13 @@ namespace System.CommandLine.Invocation
         }
 
         /// <summary>
+        /// Supports <see cref="ObjectBinder{TModel}"/> so that a <see cref="ModelBinder{TModel}"/> instance can be created
+        /// to map Options and Arguments to specific properties directly rather than by matching
+        /// property names to aliases.
+        /// </summary>
+        internal ModelBinder ModelBinder { get; set; }
+
+        /// <summary>
         /// Gets token to implement cancellation handling.
         /// </summary>
         /// <returns>Token used by the caller to implement cancellation handling.</returns>

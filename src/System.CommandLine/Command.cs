@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Collections;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -53,6 +54,13 @@ namespace System.CommandLine
         public void Add(Symbol symbol) => AddSymbol(symbol);
 
         public void Add(Argument argument) => AddArgument(argument);
+
+        /// <summary>
+        /// Supports <see cref="ObjectBinder{TModel}"/> so that a <see cref="ModelBinder{TModel}"/> instance can be created
+        /// to map Options and Arguments to specific properties directly rather than by matching
+        /// property names to aliases.
+        /// </summary>
+        internal Func<List<IOption>, List<IArgument>, ModelBinder> ModelBinderFactory { get; set; }
 
         private protected override void AddSymbol(Symbol symbol)
         {

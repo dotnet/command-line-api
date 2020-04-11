@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -15,26 +16,23 @@ namespace System.CommandLine
         public static int Invoke(
             this Command command,
             string[] args,
-            IConsole console = null, 
-            CommandLineBuilder builder = null )
+            IConsole console = null )
         {
-            return GetInvocationPipeline(command, args, builder).Invoke(console);
+            return GetInvocationPipeline(command, args).Invoke(console);
         }
 
         public static int Invoke(
             this Command command,
             string commandLine,
-            IConsole console = null, 
-            CommandLineBuilder builder = null ) =>
-            command.Invoke(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console, builder);
+            IConsole console = null ) =>
+            command.Invoke(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Command command,
             string[] args,
-            IConsole console = null, 
-            CommandLineBuilder builder = null )
+            IConsole console = null )
         {
-            return await GetInvocationPipeline(command, args, builder).InvokeAsync(console);
+            return await GetInvocationPipeline(command, args).InvokeAsync(console);
         }
 
         public static Task<int> InvokeAsync(
@@ -43,12 +41,11 @@ namespace System.CommandLine
             IConsole console = null) =>
             command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
-        private static InvocationPipeline GetInvocationPipeline(Command command, string[] args, CommandLineBuilder builder = null)
+        private static InvocationPipeline GetInvocationPipeline(Command command, string[] args )
         {
-            builder ??= new CommandLineBuilder( command )
-                .UseDefaults();
-
-            var parser = command.ImplicitParser ?? builder.Build();
+            var parser = command.ImplicitParser ?? new CommandLineBuilder( command )
+                .UseDefaults()
+                .Build();
 
             var parseResult = parser.Parse(args);
 
@@ -65,5 +62,22 @@ namespace System.CommandLine
             string commandLine,
             IReadOnlyCollection<char> delimiters = null) =>
             new Parser(command).Parse(commandLine);
+
+        /// <summary>
+        /// Defines a callback to be used to define a ModelBinder instance
+        /// which can be used to map options and arguments to properties
+        /// directly rather than by matching aliases to property names.
+        /// </summary>
+        /// <param name="command">the <see cref="Command"/> instance being configured</param>
+        /// <param name="modelBinderFactory">the callback method to define a <see cref="ModelBinder{TModel}"/></param>
+        /// <returns>the CommandLineBuilder instance being configured</returns>
+        public static Command UseObjectBinding(
+            this Command command,
+            Func<List<IOption>, List<IArgument>, ModelBinder> modelBinderFactory )
+        {
+            command.ModelBinderFactory = modelBinderFactory;
+            return command;
+        }
+
     }
 }

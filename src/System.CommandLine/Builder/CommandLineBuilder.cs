@@ -29,13 +29,6 @@ namespace System.CommandLine.Builder
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; set; }
 
-        /// <summary>
-        /// Supports ObjectBinder<T> so that a ModelBinder<T> instance can be created
-        /// to map Options and Arguments to specific properties directly rather than by matching
-        /// property names to aliases.
-        /// </summary>
-        internal Func<List<IOption>, List<IArgument>, ModelBinder> ModelBinderFactory { get; set; }
-
         internal Option HelpOption { get; set; }
 
         internal ValidationMessages ValidationMessages { get; set; }
@@ -47,15 +40,15 @@ namespace System.CommandLine.Builder
             var parser = new Parser(
                 new CommandLineConfiguration(
                     new[] { rootCommand },
-                    enablePosixBundling: EnablePosixBundling,
-                    enableDirectives: EnableDirectives,
-                    validationMessages: ValidationMessages,
-                    responseFileHandling: ResponseFileHandling,
-                    middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
-                                                       .Select(m => m.middleware)
-                                                       .ToArray(),
-                    helpBuilderFactory: HelpBuilderFactory,
-                    modelBinderFactory: ModelBinderFactory));
+                    enablePosixBundling : EnablePosixBundling,
+                    enableDirectives : EnableDirectives,
+                    validationMessages : ValidationMessages,
+                    responseFileHandling : ResponseFileHandling,
+                    middlewarePipeline : _middlewareList?.OrderBy( m => m.order )
+                        .Select( m => m.middleware )
+                        .ToArray(),
+                    helpBuilderFactory : HelpBuilderFactory )
+            );
 
             Command.ImplicitParser = parser;
 

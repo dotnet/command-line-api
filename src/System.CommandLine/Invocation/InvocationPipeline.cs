@@ -52,6 +52,27 @@ namespace System.CommandLine.Invocation
                 {
                     var handler = command.Handler;
 
+                    if( command.ModelBinderFactory != null )
+                    {
+                        // Only provide the Options and Arguments of the active command as potential
+                        // sources for bindings. Child Options and Arguments (i.e., from subcommands)
+                        // should be bound to child objects.
+
+                        // trap alias binding errors
+                        try
+                        {
+                            context.ModelBinder = command.ModelBinderFactory(
+                                command.Options.Cast<IOption>().ToList(),
+                                command.Arguments.Cast<IArgument>().ToList()
+                            );
+                        }
+                        catch( UnknownAliasException e )
+                        {
+                            context.ResultCode = 1;
+                            context.InvocationResult = new ObjectBinderErrorResult( e.Alias, e.ForOption );
+                        }
+                    }
+
                     if (handler != null)
                     {
                         context.ResultCode = await handler.InvokeAsync(invocationContext);
