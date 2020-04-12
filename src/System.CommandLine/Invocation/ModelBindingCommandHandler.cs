@@ -15,46 +15,52 @@ namespace System.CommandLine.Invocation
         private readonly object _invocationTarget;
         private readonly ModelBinder _invocationTargetBinder;
         private readonly MethodInfo _handlerMethodInfo;
-        private readonly IReadOnlyCollection<ModelBinder> _parameterBinders;
+        private readonly IReadOnlyList<ParameterDescriptor> _parameterDescriptors;
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
-            IReadOnlyCollection<ModelBinder> parameterBinders,
-            ModelBinder invocationTargetBinder = null)
+            IReadOnlyList<ParameterDescriptor> parameterDescriptors)
         {
-            _invocationTargetBinder = invocationTargetBinder;
             _handlerMethodInfo = handlerMethodInfo;
-            _parameterBinders = parameterBinders;
+            _invocationTargetBinder = _handlerMethodInfo.IsStatic
+                                          ? null
+                                          : new ModelBinder(_handlerMethodInfo.DeclaringType);
+            _parameterDescriptors = parameterDescriptors;
         }
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
-            IReadOnlyCollection<ModelBinder> parameterBinders,
+            IReadOnlyList<ParameterDescriptor> parameterDescriptors,
             object invocationTarget)
         {
             _invocationTarget = invocationTarget;
             _handlerMethodInfo = handlerMethodInfo;
-            _parameterBinders = parameterBinders;
+            _parameterDescriptors = parameterDescriptors;
         }
 
         public ModelBindingCommandHandler(
             Delegate handlerDelegate,
-            IReadOnlyCollection<ModelBinder> parameterBinders)
+            IReadOnlyList<ParameterDescriptor> parameterDescriptors)
         {
             _handlerDelegate = handlerDelegate;
-            _parameterBinders = parameterBinders;
+            _parameterDescriptors = parameterDescriptors;
         }
 
         public async Task<int> InvokeAsync(InvocationContext context)
         {
             var bindingContext = context.BindingContext;
 
+            var parameterBinders = _parameterDescriptors
+                                   .Select(p => bindingContext.GetModelBinder(p))
+                                   .ToList();
+
             var invocationArguments =
-                _parameterBinders.Select(p => p.CreateInstance(bindingContext))
+                parameterBinders
+                    .Select(binder => binder.CreateInstance(bindingContext))
                     .ToArray();
 
             var invocationTarget = _invocationTarget ??
-                _invocationTargetBinder?.CreateInstance(bindingContext);
+                                   _invocationTargetBinder?.CreateInstance(bindingContext);
 
             object result;
             if (_handlerDelegate == null)

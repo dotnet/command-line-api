@@ -18,13 +18,9 @@ namespace System.CommandLine.Binding
 
         public override ICommandHandler GetCommandHandler()
         {
-            var parameterBinders = ParameterDescriptors
-                                   .Select(p => new ModelBinder(p))
-                                   .ToList();
-
             return new ModelBindingCommandHandler(
                 _handlerDelegate,
-                parameterBinders);
+                ParameterDescriptors);
         }
 
         public override ModelDescriptor Parent => null;

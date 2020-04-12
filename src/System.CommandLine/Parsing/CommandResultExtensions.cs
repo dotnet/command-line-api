@@ -50,7 +50,7 @@ namespace System.CommandLine.Parsing
 
             if (symbolResult is OptionResult optionResult)
             {
-                if (optionResult.ConvertIfNeeded(valueDescriptor.Type) is SuccessfulArgumentConversionResult successful)
+                if (optionResult.ConvertIfNeeded(valueDescriptor.ValueType) is SuccessfulArgumentConversionResult successful)
                 {
                     value = successful.Value;
                     return true;

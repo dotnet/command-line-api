@@ -279,7 +279,7 @@ namespace System.CommandLine.DragonFruit
                                };
 
             foreach (var option in descriptor.ParameterDescriptors
-                                             .Where(d => !omittedTypes.Contains (d.Type))
+                                             .Where(d => !omittedTypes.Contains (d.ValueType))
                                              .Where(d => !_argumentParameterNames.Contains(d.ValueName))
                                              .Select(p => p.BuildOption()))
             {
@@ -291,7 +291,7 @@ namespace System.CommandLine.DragonFruit
         {
             var argument = new Argument
                            {
-                               ArgumentType = parameter.Type
+                               ArgumentType = parameter.ValueType
                            };
 
             if (parameter.HasDefaultValue)

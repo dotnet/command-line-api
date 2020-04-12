@@ -207,11 +207,11 @@ namespace System.CommandLine.Parsing
                         return;
                     }
                 }
-                else if (argument.Type == typeof(bool))
+                else if (argument.ValueType == typeof(bool))
                 {
                     if (ArgumentConverter.ConvertObject(
                             argument,
-                            argument.Type,
+                            argument.ValueType,
                             CurrentToken.Value) is FailedArgumentTypeConversionResult)
                     {
                         return;

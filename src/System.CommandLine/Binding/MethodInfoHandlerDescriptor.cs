@@ -14,7 +14,7 @@ namespace System.CommandLine.Binding
         private readonly object _invocationTarget;
 
         public MethodInfoHandlerDescriptor(
-            MethodInfo handlerMethodInfo, 
+            MethodInfo handlerMethodInfo,
             object target = null)
         {
             _handlerMethodInfo = handlerMethodInfo ??
@@ -24,27 +24,17 @@ namespace System.CommandLine.Binding
 
         public override ICommandHandler GetCommandHandler()
         {
-            var parameterBinders = ParameterDescriptors
-                                   .Select(parameterDescriptor => new ModelBinder(parameterDescriptor))
-                                   .ToList();
-
             if (_invocationTarget == null)
             {
-                var invocationTargetBinder =
-                    _handlerMethodInfo.IsStatic
-                        ? null
-                        : new ModelBinder(_handlerMethodInfo.DeclaringType);
-
                 return new ModelBindingCommandHandler(
                     _handlerMethodInfo,
-                    parameterBinders,
-                    invocationTargetBinder);
+                    ParameterDescriptors);
             }
             else
             {
                 return new ModelBindingCommandHandler(
                     _handlerMethodInfo,
-                    parameterBinders,
+                    ParameterDescriptors,
                     _invocationTarget);
             }
         }

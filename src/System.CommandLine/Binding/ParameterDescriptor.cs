@@ -22,7 +22,7 @@ namespace System.CommandLine.Binding
 
         public IMethodDescriptor Parent { get; }
 
-        public Type Type => _parameterInfo.ParameterType;
+        public Type ValueType => _parameterInfo.ParameterType;
 
         public bool HasDefaultValue => _parameterInfo.HasDefaultValue;
 
@@ -37,7 +37,7 @@ namespace System.CommandLine.Binding
                         _allowsNull = true;
                     }
 
-                    if (_parameterInfo.HasDefaultValue && 
+                    if (_parameterInfo.HasDefaultValue &&
                         _parameterInfo.DefaultValue == null)
                     {
                         _allowsNull = true;
@@ -50,9 +50,9 @@ namespace System.CommandLine.Binding
 
         public object GetDefaultValue() =>
             _parameterInfo.DefaultValue is DBNull
-                ? Type.GetDefaultValueForType()
+                ? ValueType.GetDefaultValueForType()
                 : _parameterInfo.DefaultValue;
 
-        public override string ToString() => $"{Type.Name} {ValueName}";
+        public override string ToString() => $"{ValueType.Name} {ValueName}";
     }
 }

@@ -25,17 +25,17 @@ namespace System.CommandLine.Binding
                                     ? Parent + "." + ValueName
                                     : ValueName;
 
-        public Type Type => _propertyInfo.PropertyType;
+        public Type ValueType => _propertyInfo.PropertyType;
 
         public bool HasDefaultValue => false;
 
-        public object GetDefaultValue() => Type.GetDefaultValueForType();
+        public object GetDefaultValue() => ValueType.GetDefaultValueForType();
 
         public void SetValue(object instance, object value)
         {
             _propertyInfo.SetValue(instance, value);
         }
 
-        public override string ToString() => $"{Type.Name} {Path}";
+        public override string ToString() => $"{ValueType.Name} {Path}";
     }
 }

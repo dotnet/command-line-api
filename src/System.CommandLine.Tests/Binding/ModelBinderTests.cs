@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
@@ -523,8 +525,10 @@ namespace System.CommandLine.Tests.Binding
             var parser = new Parser(intOption, stringOption);
 
             var bindingContext = new BindingContext(parser.Parse("--int-property 42 --string-property Hello"));
-            var binder = new ModelBinder<ClassWithMultiLetterSetters>()
-            { EnforceExplicitBinding = true };
+            var binder = new ModelBinder<ClassWithMultiLetterSetters>
+            {
+                EnforceExplicitBinding = true
+            };
             binder.BindMemberFromValue(obj => obj.IntOption, intOption);
             var instance = binder.CreateInstance(bindingContext) as ClassWithMultiLetterSetters;
 
@@ -545,14 +549,72 @@ namespace System.CommandLine.Tests.Binding
             var paramInfo = ctor.GetParameters().First();
 
             var bindingContext = new BindingContext(parser.Parse("-a 42 -b Hello"));
-            var binder = new ModelBinder<ClassWithMultiLetterCtorParameters>()
-            { EnforceExplicitBinding = true };
+            var binder = new ModelBinder<ClassWithMultiLetterCtorParameters>
+            {
+                EnforceExplicitBinding = true
+            };
             binder.BindConstructorArgumentFromValue(paramInfo, intOption);
             var instance = binder.CreateInstance(bindingContext) as ClassWithMultiLetterCtorParameters;
 
             instance.Should().NotBeNull();
             instance.IntOption.Should().Be(42);
             instance.StringOption.Should().Be("the default");
+        }
+
+        [Fact]
+        public void Custom_ModelBinders_specified_via_BindingContext_can_be_used_for_option_binding()
+        {
+            ClassWithSetter<int> boundInstance = null;
+
+            var rootCommand = new RootCommand
+            {
+                new Option<int>("--value")
+            };
+
+            rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
+
+            var parser = new CommandLineBuilder(rootCommand)
+                         .UseMiddleware(context =>
+                         {
+                             var binder = new ModelBinder<ClassWithSetter<int>>();
+
+                             binder.BindMemberFromValue(instance => instance.Value, _ => 456);
+
+                             context.BindingContext.AddModelBinder(binder);
+                         })
+                         .Build();
+
+            parser.Invoke("--value 123");
+
+            boundInstance.Value.Should().Be(456);
+        }
+
+        [Fact]
+        public void Custom_ModelBinders_specified_via_BindingContext_can_be_used_for_command_argument_binding()
+        {
+            ClassWithSetter<int> boundInstance = null;
+
+            var rootCommand = new RootCommand
+            {
+                new Argument<int>()
+            };
+
+            rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
+
+            var parser = new CommandLineBuilder(rootCommand)
+                         .UseMiddleware(context =>
+                         {
+                             var binder = new ModelBinder<ClassWithSetter<int>>();
+
+                             binder.BindMemberFromValue(instance => instance.Value, _ => 456);
+
+                             context.BindingContext.AddModelBinder(binder);
+                         })
+                         .Build();
+
+            parser.Invoke("123");
+
+            boundInstance.Value.Should().Be(456);
         }
     }
 }
