@@ -9,8 +9,6 @@ namespace System.CommandLine.Binding
 {
     public class ModelBinder
     {
-        private readonly ModelDescriptor _modelDescriptor;
-
         public ModelBinder(Type modelType) : this(new AnonymousValueDescriptor(modelType))
         {
             if (modelType == null)
@@ -23,8 +21,10 @@ namespace System.CommandLine.Binding
         {
             ValueDescriptor = valueDescriptor ?? throw new ArgumentNullException(nameof(valueDescriptor));
 
-            _modelDescriptor = ModelDescriptor.FromType(valueDescriptor.Type);
+            ModelDescriptor = ModelDescriptor.FromType(valueDescriptor.ValueType);
         }
+
+        public ModelDescriptor ModelDescriptor { get; }
 
         public IValueDescriptor ValueDescriptor { get; }
 
@@ -41,12 +41,12 @@ namespace System.CommandLine.Binding
         {
             var cmpCtorDesc = new ConstructorDescriptor(constructorInfo,
                 // Parent does not matter for comparison and can be invalid.
-                parent: _modelDescriptor);
+                parent: ModelDescriptor);
             var cmpParamDescs = cmpCtorDesc.ParameterDescriptors
                 .Select(GetParameterDescriptorComparands)
                 .ToList();
 
-            return _modelDescriptor.ConstructorDescriptors
+            return ModelDescriptor.ConstructorDescriptors
                 .FirstOrDefault(matchCtorDesc =>
                 {
                     if (matchCtorDesc.Parent.ModelType != constructorInfo.DeclaringType)
@@ -59,15 +59,15 @@ namespace System.CommandLine.Binding
             // Name matching is not necessary for overload descisions.
             static (Type paramType, bool allowNull, bool hasDefaultValue)
                 GetParameterDescriptorComparands(ParameterDescriptor desc) =>
-                (desc.Type, desc.AllowsNull, desc.HasDefaultValue);
+                (desc.ValueType, desc.AllowsNull, desc.HasDefaultValue);
         }
 
         protected IValueDescriptor FindModelPropertyDescriptor(
             Type propertyType, string propertyName)
         {
-            return _modelDescriptor.PropertyDescriptors
+            return ModelDescriptor.PropertyDescriptors
                 .FirstOrDefault(desc =>
-                    desc.Type == propertyType &&
+                    desc.ValueType == propertyType &&
                     string.Equals(desc.ValueName, propertyName, StringComparison.Ordinal)
                     );
         }
@@ -113,7 +113,7 @@ namespace System.CommandLine.Binding
                 includeMissingValues: false);
 
             if (values.Count == 1 &&
-                _modelDescriptor.ModelType.IsAssignableFrom(values[0].ValueDescriptor.Type))
+                ModelDescriptor.ModelType.IsAssignableFrom(values[0].ValueDescriptor.ValueType))
             {
                 return values[0].Value;
             }
@@ -131,7 +131,7 @@ namespace System.CommandLine.Binding
             out object instance)
         {
             var constructorDescriptors =
-                _modelDescriptor
+                ModelDescriptor
                     .ConstructorDescriptors
                     .OrderByDescending(d => d.ParameterDescriptors.Count);
 
@@ -177,7 +177,7 @@ namespace System.CommandLine.Binding
             var boundValues = GetValues(
                 MemberBindingSources,
                 bindingContext,
-                _modelDescriptor.PropertyDescriptors,
+                ModelDescriptor.PropertyDescriptors,
                 includeMissingValues: false);
 
             foreach (var boundValue in boundValues)
@@ -266,7 +266,7 @@ namespace System.CommandLine.Binding
         }
 
         public override string ToString() =>
-            $"{_modelDescriptor.ModelType.Name}";
+            $"{ModelDescriptor.ModelType.Name}";
 
         private bool ShouldPassNullToConstructor(ModelDescriptor modelDescriptor,
             ConstructorDescriptor ctor = null)
@@ -281,11 +281,11 @@ namespace System.CommandLine.Binding
 
         private class AnonymousValueDescriptor : IValueDescriptor
         {
-            public Type Type { get; }
+            public Type ValueType { get; }
 
             public AnonymousValueDescriptor(Type modelType)
             {
-                Type = modelType;
+                ValueType = modelType;
             }
 
             public string ValueName => null;
@@ -294,7 +294,7 @@ namespace System.CommandLine.Binding
 
             public object GetDefaultValue() => null;
 
-            public override string ToString() => $"{Type}";
+            public override string ToString() => $"{ValueType}";
         }
     }
 }

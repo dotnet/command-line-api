@@ -217,6 +217,6 @@ namespace System.CommandLine
 
         string IValueDescriptor.ValueName => Name;
 
-        Type IValueDescriptor.Type => ArgumentType;
+        Type IValueDescriptor.ValueType => ArgumentType;
     }
 }

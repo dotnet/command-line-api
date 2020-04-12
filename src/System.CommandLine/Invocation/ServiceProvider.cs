@@ -7,29 +7,27 @@ using System.CommandLine.Help;
 using System.CommandLine.Parsing;
 using System.Threading;
 
+#nullable enable
+
 namespace System.CommandLine.Invocation
 {
     internal class ServiceProvider : IServiceProvider
     {
-        private readonly BindingContext _bindingContext;
-
         private readonly Dictionary<Type, Func<IServiceProvider, object>> _services;
 
         public ServiceProvider(BindingContext bindingContext)
         {
-            _bindingContext = bindingContext ?? throw new ArgumentNullException(nameof(bindingContext));
-
             _services = new Dictionary<Type, Func<IServiceProvider, object>>
                         {
-                            [typeof(ParseResult)] = _ => _bindingContext.ParseResult,
-                            [typeof(IConsole)] = _ => _bindingContext.Console,
+                            [typeof(ParseResult)] = _ => bindingContext.ParseResult,
+                            [typeof(IConsole)] = _ => bindingContext.Console,
                             [typeof(CancellationToken)] = _ => CancellationToken.None,
-                            [typeof(IHelpBuilder)] = _ => _bindingContext.ParseResult.Parser.Configuration.HelpBuilderFactory(_bindingContext),
-                            [typeof(BindingContext)] = _ => _bindingContext
+                            [typeof(IHelpBuilder)] = _ => bindingContext.ParseResult.Parser.Configuration.HelpBuilderFactory(bindingContext),
+                            [typeof(BindingContext)] = _ => bindingContext
                         };
         }
 
-        public void AddService<T>(Func<IServiceProvider, T> factory) => _services[typeof(T)] = p => factory(p);
+        public void AddService<T>(Func<IServiceProvider, T> factory) => _services[typeof(T)] = p => factory(p)!;
 
         public void AddService(Type serviceType, Func<IServiceProvider, object> factory) => _services[serviceType] = factory;
 
@@ -42,7 +40,7 @@ namespace System.CommandLine.Invocation
                 return factory(this);
             }
 
-            return null;
+            return null!;
         }
     }
 }

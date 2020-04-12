@@ -7,7 +7,7 @@ namespace System.CommandLine.Binding
     {
         string ValueName { get; }
 
-        Type Type { get; }
+        Type ValueType { get; }
 
         bool HasDefaultValue { get; }
 

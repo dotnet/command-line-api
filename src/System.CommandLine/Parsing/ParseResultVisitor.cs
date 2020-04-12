@@ -353,7 +353,7 @@ namespace System.CommandLine.Parsing
                     }
 
                     if (symbolResult is OptionResult o &&
-                        o.Option.Argument.Type == typeof(bool) &&
+                        o.Option.Argument.ValueType == typeof(bool) &&
                         o.Children.Count == 0)
                     {
                         o.Children.Add(

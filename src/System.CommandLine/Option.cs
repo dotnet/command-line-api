@@ -48,7 +48,7 @@ namespace System.CommandLine
 
         string IValueDescriptor.ValueName => Name;
 
-        Type IValueDescriptor.Type => Argument.ArgumentType;
+        Type IValueDescriptor.ValueType => Argument.ArgumentType;
 
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 

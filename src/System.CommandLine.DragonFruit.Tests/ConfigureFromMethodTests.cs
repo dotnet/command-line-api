@@ -162,7 +162,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
             var rootCommandArgument = parser.Configuration.RootCommand.Arguments.Single();
 
-            rootCommandArgument.Type
+            rootCommandArgument.ValueType
                                .Should()
                                .Be(expectedType);
         }
