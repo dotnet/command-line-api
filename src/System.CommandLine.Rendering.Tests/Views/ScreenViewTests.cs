@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Rendering.Views;
 using System.CommandLine.Tests;
+using System.CommandLine.Tests.Utility;
 using System.Linq;
 using System.Threading;
 using FluentAssertions;

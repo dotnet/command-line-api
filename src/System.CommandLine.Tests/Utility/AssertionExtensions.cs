@@ -1,12 +1,12 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using FluentAssertions;
 using System.Linq;
+using FluentAssertions;
 using FluentAssertions.Collections;
 using FluentAssertions.Execution;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests.Utility
 {
     public static class AssertionExtensions
     {
@@ -42,6 +42,16 @@ namespace System.CommandLine.Tests
             params string[] expectedValues)
         {
             return assertions.BeEquivalentTo(expectedValues, c => c.WithStrictOrderingFor(s => s));
+        }
+
+        public static ConsoleAssertions Should(this IConsole console) => new ConsoleAssertions(console);
+
+        public static AndConstraint<ConsoleAssertions> ShowHelp(this ConsoleAssertions assertions)
+        {
+            assertions.Subject.Out.ToString().Should().Contain("Usage:");
+            assertions.Subject.Error.ToString().Should().BeEmpty();
+
+            return new AndConstraint<ConsoleAssertions>(assertions);
         }
     }
 }

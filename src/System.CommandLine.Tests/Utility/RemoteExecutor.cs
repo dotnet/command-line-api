@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests.Utility
 {
     public class RemoteExecutor
     {
@@ -63,7 +64,7 @@ namespace System.CommandLine.Tests
                 output.AppendLine("  " + exc);
                 output.AppendLine();
                 output.AppendLine("Child process:");
-                output.AppendLine(string.Format("  {0} {1}", type, methodInfo));
+                output.AppendLine($"  {type} {methodInfo}");
                 output.AppendLine();
 
                 if (methodArguments.Length > 0)
@@ -175,7 +176,7 @@ namespace System.CommandLine.Tests
         }
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        private static extern System.IntPtr GetCommandLine();
+        private static extern IntPtr GetCommandLine();
 
         [DllImport("shell32.dll", SetLastError = true)]
         private static extern IntPtr CommandLineToArgvW([MarshalAs(UnmanagedType.LPWStr)] string lpCmdLine, out int pNumArgs);
@@ -185,7 +186,7 @@ namespace System.CommandLine.Tests
             int argc;
             var argv = CommandLineToArgvW(commandLine, out argc);
             if (argv == IntPtr.Zero)
-                throw new System.ComponentModel.Win32Exception();
+                throw new Win32Exception();
             try
             {
                 var args = new string[argc];

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Tests;
+using System.CommandLine.Tests.Utility;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
