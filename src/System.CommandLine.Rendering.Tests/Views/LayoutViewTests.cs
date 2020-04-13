@@ -3,6 +3,7 @@
 
 using System.CommandLine.Rendering.Views;
 using System.CommandLine.Tests;
+using System.CommandLine.Tests.Utility;
 using FluentAssertions;
 using Xunit;
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Tests.Utility;
 using FluentAssertions;
 using System.Linq;
 using Xunit;

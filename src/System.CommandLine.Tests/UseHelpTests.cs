@@ -5,8 +5,10 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.CommandLine.Tests.Utility;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Primitives;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -70,7 +72,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync($"command {value}", _console);
 
-            _console.Out.ToString().Should().StartWith("Usage:");
+            _console.Should().ShowHelp();
         }
 
         [Fact]
@@ -157,12 +159,9 @@ namespace System.CommandLine.Tests
                          .UseHelp()
                          .Build();
 
-            var console1 = new TestConsole();
+            parser.Invoke(commandline, _console);
 
-            parser.Invoke(commandline, console1);
-
-            console1.Out.ToString().Should().Contain("Usage:");
-            console1.Error.ToString().Should().BeEmpty();
+            _console.Should().ShowHelp();
         }
 
         [Theory]
@@ -175,16 +174,15 @@ namespace System.CommandLine.Tests
                 new Command("inner")
             };
 
-            var parser1 = new CommandLineBuilder(root)
-                          .UseHelp()
-                          .Build();
+            var parser = new CommandLineBuilder(root)
+                         .UseHelp()
+                         .Build();
 
             var console1 = new TestConsole();
 
-            parser1.Invoke(commandline, console1);
+            parser.Invoke(commandline, console1);
 
-            console1.Out.ToString().Should().Contain("Usage:");
-            console1.Error.ToString().Should().BeEmpty();
+            console1.Should().ShowHelp();
 
             var parser2 = new CommandLineBuilder(root)
                           .UseHelp()
@@ -193,8 +191,7 @@ namespace System.CommandLine.Tests
 
             parser2.Invoke(commandline, console2);
 
-            console2.Out.ToString().Should().Contain("Usage:");
-            console2.Error.ToString().Should().BeEmpty();
+            console2.Should().ShowHelp();
         }
     }
 }

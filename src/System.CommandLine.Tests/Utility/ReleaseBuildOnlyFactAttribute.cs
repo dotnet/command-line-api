@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests.Utility
 {
     public class ReleaseBuildOnlyFactAttribute : FactAttribute
     {

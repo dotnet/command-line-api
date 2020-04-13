@@ -4,7 +4,7 @@
 using Microsoft.DotNet.PlatformAbstractions;
 using Xunit;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests.Utility
 {
     public class WindowsOnlyFactAttribute : FactAttribute
     {
@@ -12,7 +12,7 @@ namespace System.CommandLine.Tests
         {
             if (RuntimeEnvironment.OperatingSystemPlatform != Platform.Windows)
             {
-                this.Skip = "This test requires Windows to run";
+                Skip = "This test requires Windows to run";
             }
         }
     }

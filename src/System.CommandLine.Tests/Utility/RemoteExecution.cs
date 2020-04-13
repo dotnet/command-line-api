@@ -4,14 +4,13 @@
 using System.Diagnostics;
 using System.IO;
 using Xunit;
-using Xunit.Sdk;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests.Utility
 {
     public class RemoteExecution : IDisposable
     {
         private const int FailWaitTimeoutMilliseconds = 60 * 1000;
-        private string _exceptionFile;
+        private readonly string _exceptionFile;
 
         public RemoteExecution(Process process, string className, string methodName, string exceptionFile)
         {
@@ -22,8 +21,8 @@ namespace System.CommandLine.Tests
         }
 
         public Process Process { get; private set; }
-        public string ClassName { get; private set; }
-        public string MethodName { get; private set; }
+        public string ClassName { get; }
+        public string MethodName { get; }
 
         public void Dispose()
         {
@@ -76,10 +75,7 @@ namespace System.CommandLine.Tests
                 _stackTrace = stackTrace;
             }
 
-            public override string StackTrace
-            {
-                get => _stackTrace ?? base.StackTrace;
-            }
+            public override string StackTrace => _stackTrace ?? base.StackTrace;
         }
     }
 }

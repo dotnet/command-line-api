@@ -3,6 +3,7 @@
 
 using System.CommandLine.Invocation;
 using System.CommandLine.Tests;
+using System.CommandLine.Tests.Utility;
 using System.IO;
 using FluentAssertions;
 using System.Linq;

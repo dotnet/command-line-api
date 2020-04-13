@@ -149,3 +149,6 @@ _ReSharper.*/
 buildlog.txt
 nCrunchTemp*
 TestResults/
+
+.fake
+.ionide
