@@ -31,7 +31,7 @@ namespace System.CommandLine.Binding
 
         internal IConsoleFactory? ConsoleFactory { get; set; }
 
-        internal IHelpBuilder HelpBuilder => (IHelpBuilder)ServiceProvider.GetService(typeof(IHelpBuilder));
+        internal IHelpBuilder HelpBuilder => (IHelpBuilder)ServiceProvider.GetService(typeof(IHelpBuilder))!;
 
         public IConsole Console
         {
@@ -70,7 +70,7 @@ namespace System.CommandLine.Binding
                 throw new ArgumentNullException(nameof(factory));
             }
 
-            ServiceProvider.AddService(typeof(T), s => factory(s)!);
+            ServiceProvider.AddService(typeof(T), s => factory(s));
         }
 
         internal bool TryGetValueSource(
