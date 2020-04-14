@@ -14,7 +14,7 @@ namespace System.CommandLine
     {
         private readonly SymbolSet _globalOptions = new SymbolSet();
 
-        public Command(string name, string description = null) : base(new[] { name }, description)
+        public Command(string name, string? description = null) : base(new[] { name }, description)
         {
         }
 
@@ -72,7 +72,7 @@ namespace System.CommandLine
 
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
-        public ICommandHandler Handler { get; set; }
+        public ICommandHandler? Handler { get; set; }
 
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
@@ -82,6 +82,6 @@ namespace System.CommandLine
 
         IEnumerable<IOption> ICommand.Options => Options;
 
-        internal Parser ImplicitParser { get; set; }
+        internal Parser? ImplicitParser { get; set; }
     }
 }

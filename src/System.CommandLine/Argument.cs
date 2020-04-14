@@ -11,7 +11,7 @@ namespace System.CommandLine
 {
     public class Argument : Symbol, IArgument
     {
-        private Func<ArgumentResult, object>? _defaultValueFactory;
+        private Func<ArgumentResult, object?>? _defaultValueFactory;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity? _arity;
@@ -64,7 +64,7 @@ namespace System.CommandLine
                         if (Arity.MaximumNumberOfValues == 1 &&
                             ArgumentType == typeof(bool))
                         {
-                            _convertArguments = (ArgumentResult symbol, out object value) =>
+                            _convertArguments = (ArgumentResult symbol, out object? value) =>
                             {
                                 value = ArgumentConverter.ConvertObject(
                                     this,
@@ -114,12 +114,12 @@ namespace System.CommandLine
 
         public void AddValidator(ValidateSymbol<ArgumentResult> validator) => Validators.Add(validator);
 
-        public object GetDefaultValue()
+        public object? GetDefaultValue()
         {
             return GetDefaultValue(new ArgumentResult(this, null));
         }
 
-        internal object GetDefaultValue(ArgumentResult argumentResult)
+        internal object? GetDefaultValue(ArgumentResult argumentResult)
         {
             if (_defaultValueFactory is null)
             {
@@ -134,7 +134,7 @@ namespace System.CommandLine
             SetDefaultValueFactory(() => value);
         }
 
-        public void SetDefaultValueFactory(Func<object> getDefaultValue)
+        public void SetDefaultValueFactory(Func<object?> getDefaultValue)
         {
             if (getDefaultValue == null)
             {
@@ -144,7 +144,7 @@ namespace System.CommandLine
             SetDefaultValueFactory(_ => getDefaultValue());
         }
         
-        public void SetDefaultValueFactory(Func<ArgumentResult, object> getDefaultValue)
+        public void SetDefaultValueFactory(Func<ArgumentResult, object?> getDefaultValue)
         {
             _defaultValueFactory = getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue));
         }

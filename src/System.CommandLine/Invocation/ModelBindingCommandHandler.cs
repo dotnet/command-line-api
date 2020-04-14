@@ -65,7 +65,7 @@ namespace System.CommandLine.Invocation
             object result;
             if (_handlerDelegate == null)
             {
-                result = _handlerMethodInfo.Invoke(
+                result = _handlerMethodInfo!.Invoke(
                     invocationTarget,
                     invocationArguments);
             }

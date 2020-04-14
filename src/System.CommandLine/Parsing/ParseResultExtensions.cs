@@ -16,12 +16,12 @@ namespace System.CommandLine.Parsing
     {
         public static async Task<int> InvokeAsync(
             this ParseResult parseResult,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             await new InvocationPipeline(parseResult).InvokeAsync(console);
 
         public static int Invoke(
             this ParseResult parseResult,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             new InvocationPipeline(parseResult).Invoke(console);
 
         public static string TextToMatch(
@@ -30,7 +30,7 @@ namespace System.CommandLine.Parsing
         {
             var lastToken = source.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
 
-            string textToMatch = null;
+            string? textToMatch = null;
             var rawInput = source.RawInput;
 
             if (rawInput != null)

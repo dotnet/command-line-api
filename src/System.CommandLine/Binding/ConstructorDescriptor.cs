@@ -9,7 +9,7 @@ namespace System.CommandLine.Binding
 {
     public class ConstructorDescriptor : IMethodDescriptor
     {
-        private List<ParameterDescriptor> _parameterDescriptors;
+        private List<ParameterDescriptor>? _parameterDescriptors;
 
         private readonly ConstructorInfo _constructorInfo;
 
@@ -24,9 +24,8 @@ namespace System.CommandLine.Binding
         public ModelDescriptor Parent { get; }
 
         public IReadOnlyList<ParameterDescriptor> ParameterDescriptors =>
-            _parameterDescriptors
-            ??
-            (_parameterDescriptors = _constructorInfo.GetParameters().Select(p => new ParameterDescriptor(p, this)).ToList());
+            _parameterDescriptors ??=
+                _constructorInfo.GetParameters().Select(p => new ParameterDescriptor(p, this)).ToList();
 
         internal object Invoke(IReadOnlyCollection<object?> parameters)
         {

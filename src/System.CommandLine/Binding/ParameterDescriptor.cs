@@ -48,7 +48,7 @@ namespace System.CommandLine.Binding
             }
         }
 
-        public object GetDefaultValue() =>
+        public object? GetDefaultValue() =>
             _parameterInfo.DefaultValue is DBNull
                 ? ValueType.GetDefaultValueForType()
                 : _parameterInfo.DefaultValue;

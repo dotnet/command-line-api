@@ -11,11 +11,11 @@ namespace System.CommandLine.Binding
     internal class MethodInfoHandlerDescriptor : HandlerDescriptor
     {
         private readonly MethodInfo _handlerMethodInfo;
-        private readonly object _invocationTarget;
+        private readonly object? _invocationTarget;
 
         public MethodInfoHandlerDescriptor(
             MethodInfo handlerMethodInfo,
-            object target = null)
+            object? target = null)
         {
             _handlerMethodInfo = handlerMethodInfo ??
                                  throw new ArgumentNullException(nameof(handlerMethodInfo));

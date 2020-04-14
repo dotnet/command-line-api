@@ -245,7 +245,7 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder,
-            Action<Exception, InvocationContext> onException = null)
+            Action<Exception, InvocationContext>? onException = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {

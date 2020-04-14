@@ -98,7 +98,7 @@ namespace System.CommandLine.Binding
         {
             if (valueSource.TryGetValue(valueDescriptor, this, out var value))
             {
-                if (value == null || valueDescriptor.ValueType.IsInstanceOfType(value))
+                if (value is null || valueDescriptor.ValueType.IsInstanceOfType(value))
                 {
                     boundValue = new BoundValue(value, valueDescriptor, valueSource);
                     return true;

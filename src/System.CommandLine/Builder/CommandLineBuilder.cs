@@ -14,7 +14,7 @@ namespace System.CommandLine.Builder
     {
         private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new List<(InvocationMiddleware middleware, int order)>();
 
-        public CommandLineBuilder(Command rootCommand = null)
+        public CommandLineBuilder(Command? rootCommand = null)
             : base(rootCommand ?? new RootCommand())
         {
         }
@@ -25,11 +25,11 @@ namespace System.CommandLine.Builder
 
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
-        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; set; }
+        internal Func<BindingContext, IHelpBuilder>? HelpBuilderFactory { get; set; }
 
-        internal Option HelpOption { get; set; }
+        internal Option? HelpOption { get; set; }
 
-        internal ValidationMessages ValidationMessages { get; set; }
+        internal ValidationMessages? ValidationMessages { get; set; }
 
         public Parser Build()
         {
@@ -42,7 +42,7 @@ namespace System.CommandLine.Builder
                     enableDirectives: EnableDirectives,
                     validationMessages: ValidationMessages,
                     responseFileHandling: ResponseFileHandling,
-                    middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
+                    middlewarePipeline: _middlewareList.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
                                                        .ToArray(),
                     helpBuilderFactory: HelpBuilderFactory));

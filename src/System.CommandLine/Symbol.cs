@@ -14,7 +14,7 @@ namespace System.CommandLine
         private readonly List<string> _aliases = new List<string>();
         private readonly List<string> _rawAliases = new List<string>();
         private string _longestAlias = "";
-        private string _specifiedName;
+        private string? _specifiedName;
 
         private readonly SymbolSet _parents = new SymbolSet();
 
@@ -23,10 +23,10 @@ namespace System.CommandLine
         }
 
         protected Symbol(
-            IReadOnlyCollection<string> aliases = null,
-            string description = null)
+            IReadOnlyCollection<string>? aliases = null,
+            string? description = null)
         {
-            if (aliases == null)
+            if (aliases is null)
             {
                 throw new ArgumentNullException(nameof(aliases));
             }
@@ -48,7 +48,7 @@ namespace System.CommandLine
 
         public IReadOnlyList<string> RawAliases => _rawAliases;
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public virtual string Name
         {
@@ -104,7 +104,7 @@ namespace System.CommandLine
                 throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            for (var i = 0; i < alias.Length; i++)
+            for (var i = 0; i < alias!.Length; i++)
             {
                 if (char.IsWhiteSpace(alias[i]))
                 {
@@ -135,7 +135,7 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public virtual IEnumerable<string> GetSuggestions(string textToMatch = null)
+        public virtual IEnumerable<string> GetSuggestions(string? textToMatch = null)
         {
             var argumentSuggestions =
                 Children

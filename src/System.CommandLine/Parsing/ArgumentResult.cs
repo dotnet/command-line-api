@@ -26,10 +26,9 @@ namespace System.CommandLine.Parsing
 
         internal ParseError? CustomError(Argument argument)
         {
-            string errorMessage = ErrorMessage;
-            if (!string.IsNullOrEmpty(errorMessage))
+            if (!string.IsNullOrEmpty(ErrorMessage))
             {
-                return new ParseError(errorMessage, this);
+                return new ParseError(ErrorMessage, this);
             }
 
             for (var i = 0; i < argument.Validators.Count; i++)
@@ -39,7 +38,7 @@ namespace System.CommandLine.Parsing
 
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
-                    return new ParseError(errorMessage, this);
+                    return new ParseError(errorMessage!, this);
                 }
             }
 

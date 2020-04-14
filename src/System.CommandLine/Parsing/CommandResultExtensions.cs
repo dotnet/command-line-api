@@ -28,14 +28,14 @@ namespace System.CommandLine.Parsing
         internal static bool TryGetValueForOption(
             this CommandResult commandResult,
             IValueDescriptor valueDescriptor,
-            out object value)
+            out object? value)
         {
             var children = commandResult
                            .Children
                            .Where(o => valueDescriptor.ValueName.IsMatch(o.Symbol))
                            .ToArray();
 
-            SymbolResult symbolResult = null;
+            SymbolResult? symbolResult = null;
 
             if (children.Length > 1)
             {

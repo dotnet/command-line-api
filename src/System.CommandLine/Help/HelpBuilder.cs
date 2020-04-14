@@ -594,7 +594,7 @@ namespace System.CommandLine.Help
 
             public string Invocation { get; }
 
-            public string? Description { get; }
+            public string Description { get; }
 
             protected bool Equals(HelpItem other) => 
                 (Invocation, Description) == (other.Invocation, other.Description);

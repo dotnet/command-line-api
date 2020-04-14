@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace System.CommandLine.Parsing
             return rawAlias;
         }
 
-        internal static (string prefix, string alias) SplitPrefix(this string rawAlias)
+        internal static (string? prefix, string alias) SplitPrefix(this string rawAlias)
         {
             foreach (var prefix in _optionPrefixStrings)
             {
@@ -61,7 +62,7 @@ namespace System.CommandLine.Parsing
             var tokenList = new List<Token>();
             var errorList = new List<TokenizeError>();
 
-            ICommand currentCommand = null;
+            ICommand? currentCommand = null;
             var foundEndOfArguments = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
@@ -213,7 +214,7 @@ namespace System.CommandLine.Parsing
                     }
                 }
                 
-                bool TryUnbundle(string arg, out IReadOnlyList<string> replacement)
+                bool TryUnbundle(string arg, out IEnumerable<string>? replacement)
                 {
                     if (arg == string.Empty)
                     {
@@ -226,7 +227,7 @@ namespace System.CommandLine.Parsing
                     for (var i = 0; i < arg.Length; i++)
                     {
                         var token = TokenForOptionAlias(arg[i]);
-                        if (token == null)
+                        if (token is null)
                         {
                             if (lastTokenHasArgument)
                             {
@@ -325,7 +326,7 @@ namespace System.CommandLine.Parsing
                 args = new List<string>();
             }
 
-            string potentialRootCommand = null;
+            string? potentialRootCommand = null;
 
             if (args.Count > 0)
             {
@@ -385,7 +386,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static string GetResponseFileReference(this string arg) =>
+        private static string? GetResponseFileReference(this string arg) =>
             arg.StartsWith("@") && arg.Length > 1
                 ? arg.Substring(1)
                 : null;

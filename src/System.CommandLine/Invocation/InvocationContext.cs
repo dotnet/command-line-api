@@ -9,14 +9,14 @@ namespace System.CommandLine.Invocation
 {
     public sealed class InvocationContext : IDisposable
     {
-        private CancellationTokenSource _cts;
-        private Action<CancellationTokenSource> _cancellationHandlingAddedEvent;
+        private CancellationTokenSource? _cts;
+        private Action<CancellationTokenSource>? _cancellationHandlingAddedEvent;
 
         public BindingContext BindingContext { get; }
 
         public InvocationContext(
             ParseResult parseResult,
-            IConsole console = null)
+            IConsole? console = null)
         {
             BindingContext = new BindingContext(parseResult, console);
             BindingContext.ServiceProvider.AddService(_ => GetCancellationToken());
@@ -35,7 +35,7 @@ namespace System.CommandLine.Invocation
 
         public int ResultCode { get; set; }
 
-        public IInvocationResult InvocationResult { get; set; }
+        public IInvocationResult? InvocationResult { get; set; }
 
         internal event Action<CancellationTokenSource> CancellationHandlingAdded
         {

@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Collections
 {
@@ -12,9 +11,9 @@ namespace System.CommandLine.Collections
     {
         protected IList<T> Items { get; } = new List<T>();
 
-        public T this[string alias] => GetByAlias(alias);
+        public T? this[string alias] => GetByAlias(alias);
 
-        public T GetByAlias(string alias)
+        public T? GetByAlias(string alias)
         {
             for (var i = 0; i < Items.Count; i++)
             {

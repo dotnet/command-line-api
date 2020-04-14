@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -13,7 +14,7 @@ namespace System.CommandLine.Parsing
 
         internal CommandResult(
             ICommand command,
-            Token? token,
+            Token token,
             CommandResult? parent = null) :
             base(command ?? throw new ArgumentNullException(nameof(command)),
                  parent)
@@ -25,9 +26,9 @@ namespace System.CommandLine.Parsing
 
         public ICommand Command { get; }
 
-        public OptionResult this[string alias] => OptionResult(alias);
+        public OptionResult? this[string alias] => OptionResult(alias);
 
-        public OptionResult OptionResult(string alias)
+        public OptionResult? OptionResult(string alias)
         {
             return Children[alias] as OptionResult;
         }
@@ -35,11 +36,11 @@ namespace System.CommandLine.Parsing
         public Token Token { get; }
 
 
-        internal virtual RootCommandResult Root => (Parent as CommandResult)?.Root;
+        internal virtual RootCommandResult? Root => (Parent as CommandResult)?.Root;
 
         internal bool TryGetValueForArgument(
             IValueDescriptor valueDescriptor,
-            out object value)
+            [NotNullWhen(true)]out object? value)
         {
             foreach (var argument in Command.Arguments)
             {
@@ -54,7 +55,7 @@ namespace System.CommandLine.Parsing
             return false;
         }
 
-        public object ValueForOption(string alias)
+        public object? ValueForOption(string alias)
         {
             if (Children[alias] is OptionResult optionResult)
             {
@@ -64,9 +65,10 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            return ValueForOption<object>(alias);
+            return ValueForOption<object?>(alias);
         }
 
+        [return:MaybeNull]
         public T ValueForOption<T>(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))

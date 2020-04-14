@@ -19,8 +19,8 @@ namespace System.CommandLine.Parsing
             TokenizeResult tokenizeResult,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
-            List<ParseError> errors = null,
-            string rawInput = null)
+            List<ParseError>? errors = null,
+            string? rawInput = null)
         {
             Parser = parser;
             _rootCommandResult = rootCommandResult;
@@ -59,7 +59,7 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 
-        internal string RawInput { get; }
+        internal string? RawInput { get; }
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
@@ -85,17 +85,17 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        public SymbolResult this[string alias] => CommandResult.Children[alias];
+        public SymbolResult? this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
 
-        public ArgumentResult FindResultFor(IArgument argument) =>
+        public ArgumentResult? FindResultFor(IArgument argument) =>
             _rootCommandResult.FindResultFor(argument);
             
-        public CommandResult FindResultFor(ICommand command) =>
+        public CommandResult? FindResultFor(ICommand command) =>
             _rootCommandResult.FindResultFor(command);
 
-        public OptionResult FindResultFor(IOption option) =>
+        public OptionResult? FindResultFor(IOption option) =>
             _rootCommandResult.FindResultFor(option);
     }
 }

@@ -12,15 +12,15 @@ namespace System.CommandLine.Parsing
     {
         private readonly Parser _parser;
         private readonly TokenizeResult _tokenizeResult;
-        private readonly string _rawInput;
+        private readonly string? _rawInput;
 
         private readonly DirectiveCollection _directives = new DirectiveCollection();
         private readonly List<string> _unparsedTokens;
         private readonly List<string> _unmatchedTokens;
         private readonly List<ParseError> _errors;
 
-        private RootCommandResult _rootCommandResult;
-        private CommandResult _innermostCommandResult;
+        private RootCommandResult? _rootCommandResult;
+        private CommandResult? _innermostCommandResult;
 
         public ParseResultVisitor(
             Parser parser,
@@ -28,7 +28,7 @@ namespace System.CommandLine.Parsing
             IReadOnlyCollection<Token> unparsedTokens,
             IReadOnlyCollection<Token> unmatchedTokens,
             IReadOnlyCollection<ParseError> parseErrors,
-            string rawInput)
+            string? rawInput)
         {
             _parser = parser;
             _tokenizeResult = tokenizeResult;
@@ -124,9 +124,9 @@ namespace System.CommandLine.Parsing
             var argument = argumentNode.Argument;
 
             var argumentResult =
-                (ArgumentResult)optionResult.Children.ResultFor(argument);
+                (ArgumentResult?)optionResult.Children.ResultFor(argument);
 
-            if (argumentResult == null)
+            if (argumentResult is null)
             {
                 argumentResult =
                     new ArgumentResult(
@@ -198,7 +198,7 @@ namespace System.CommandLine.Parsing
             {
                 if (option is Option o &&
                     o.Required && 
-                    _rootCommandResult.FindResultFor(o) == null)
+                    _rootCommandResult.FindResultFor(o) is null)
                 {
                     _errors.Add(
                         new ParseError($"Option '{o.RawAliases.First()}' is required.",
@@ -320,7 +320,7 @@ namespace System.CommandLine.Parsing
                 {
                     var symbolResult = _rootCommandResult.FindResultFor(symbol);
 
-                    if (symbolResult == null)
+                    if (symbolResult is null)
                     {
                         switch (symbol)
                         {

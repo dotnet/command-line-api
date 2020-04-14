@@ -13,19 +13,19 @@ namespace System.CommandLine
 {
     public class CommandLineConfiguration
     {
-        private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
-        private Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
+        private IReadOnlyCollection<InvocationMiddleware>? _middlewarePipeline;
+        private Func<BindingContext, IHelpBuilder>? _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
         public CommandLineConfiguration(
             IReadOnlyCollection<Symbol> symbols,
-            IReadOnlyCollection<char> argumentDelimiters = null,
+            IReadOnlyCollection<char>? argumentDelimiters = null,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
-            ValidationMessages validationMessages = null,
+            ValidationMessages? validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
-            IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
-            Func<BindingContext, IHelpBuilder> helpBuilderFactory = null)
+            IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
+            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null)
         {
             if (symbols == null)
             {
@@ -98,7 +98,7 @@ namespace System.CommandLine
                 {
                     if (child is Command childCommand)
                     {
-                        if (!childCommand.Children.IsAnyAliasInUse(globalOption, out var inUse))
+                        if (!childCommand.Children.IsAnyAliasInUse(globalOption, out _))
                         {
                             childCommand.AddOption(globalOption);
                         }
@@ -106,9 +106,7 @@ namespace System.CommandLine
                 }
             }
         }
-
-        public IReadOnlyCollection<string> Prefixes { get; }
-
+        
         public ISymbolSet Symbols => _symbols;
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }

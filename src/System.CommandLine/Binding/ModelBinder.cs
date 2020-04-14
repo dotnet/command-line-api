@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -128,7 +129,7 @@ namespace System.CommandLine.Binding
 
         private bool TryDefaultConstructorAndPropertiesStrategy(
             BindingContext context,
-            out object instance)
+            [NotNullWhen(true)]out object? instance)
         {
             var constructorDescriptors =
                 ModelDescriptor
@@ -148,7 +149,7 @@ namespace System.CommandLine.Binding
                     continue;
                 }
 
-                // Found invocable constructor, invoke and return
+                // Found invokable constructor, invoke and return
                 var values = boundConstructorArguments.Select(v => v.Value).ToArray();
 
                 try

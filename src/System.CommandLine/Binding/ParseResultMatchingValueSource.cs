@@ -9,12 +9,12 @@ namespace System.CommandLine.Binding
     {
         public bool TryGetValue(
             IValueDescriptor valueDescriptor,
-            BindingContext bindingContext,
-            out object boundValue)
+            BindingContext? bindingContext,
+            out object? boundValue)
         {
             if (!string.IsNullOrEmpty(valueDescriptor.ValueName))
             {
-                var commandResult = bindingContext.ParseResult.CommandResult;
+                CommandResult? commandResult = bindingContext?.ParseResult.CommandResult;
 
                 while (commandResult != null)
                 {

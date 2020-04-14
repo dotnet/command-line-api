@@ -7,9 +7,9 @@ namespace System.CommandLine.Parsing
 {
     internal class RootCommandResult : CommandResult
     {
-        private Dictionary<IArgument, ArgumentResult> _allArgumentResults;
-        private Dictionary<ICommand, CommandResult> _allCommandResults;
-        private Dictionary<IOption, OptionResult> _allOptionResults;
+        private Dictionary<IArgument, ArgumentResult>? _allArgumentResults;
+        private Dictionary<ICommand, CommandResult>? _allCommandResults;
+        private Dictionary<IOption, OptionResult>? _allOptionResults;
 
         public RootCommandResult(
             ICommand command,
@@ -47,34 +47,34 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        public ArgumentResult FindResultFor(IArgument argument)
+        public ArgumentResult? FindResultFor(IArgument argument)
         {
             EnsureResultMapsAreInitialized();
 
-            _allArgumentResults.TryGetValue(argument, out var result);
+            _allArgumentResults!.TryGetValue(argument, out var result);
 
             return result;
         }
 
-        public CommandResult FindResultFor(ICommand command)
+        public CommandResult? FindResultFor(ICommand command)
         {
             EnsureResultMapsAreInitialized();
 
-            _allCommandResults.TryGetValue(command, out var result);
+            _allCommandResults!.TryGetValue(command, out var result);
 
             return result;
         }
 
-        public OptionResult FindResultFor(IOption option)
+        public OptionResult? FindResultFor(IOption option)
         {
             EnsureResultMapsAreInitialized();
 
-            _allOptionResults.TryGetValue(option, out var result);
+            _allOptionResults!.TryGetValue(option, out var result);
 
             return result;
         }
 
-        public SymbolResult FindResultFor(ISymbol symbol)
+        public SymbolResult? FindResultFor(ISymbol symbol)
         {
             switch (symbol)
             {

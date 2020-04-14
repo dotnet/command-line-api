@@ -12,7 +12,7 @@ namespace System.CommandLine.Binding
 
         public IArgument Argument { get; }
 
-        internal string ErrorMessage { get; set; }
+        internal string? ErrorMessage { get; set; }
 
         internal static FailedArgumentConversionResult Failure(IArgument argument, string error) => new FailedArgumentConversionResult(argument, error);
 

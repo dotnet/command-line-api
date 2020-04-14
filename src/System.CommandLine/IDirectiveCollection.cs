@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine
 {
@@ -9,6 +10,6 @@ namespace System.CommandLine
     {
         bool Contains(string name);
 
-        bool TryGetValues(string name, out IEnumerable<string> values);
+        bool TryGetValues(string name,  [NotNullWhen(true)] out IEnumerable<string>? values);
     }
 }

@@ -8,12 +8,12 @@ namespace System.CommandLine.Parsing
 {
     public class OptionResult : SymbolResult
     {
-        private ArgumentConversionResult _argumentConversionResult;
+        private ArgumentConversionResult? _argumentConversionResult;
 
         internal OptionResult(
             IOption option,
-            Token token = null,
-            CommandResult parent = null) :
+            Token? token = null,
+            CommandResult? parent = null) :
             base(option ?? throw new ArgumentNullException(nameof(option)),
                  parent)
         {
@@ -25,7 +25,7 @@ namespace System.CommandLine.Parsing
 
         public bool IsImplicit => Token is ImplicitToken || Token is null;
 
-        public Token Token { get; }
+        public Token? Token { get; }
 
         private protected override int RemainingArgumentCapacity
         {

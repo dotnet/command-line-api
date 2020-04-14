@@ -7,13 +7,13 @@ namespace System.CommandLine.Parsing
     {
         protected SyntaxNode(
             Token token,
-            SyntaxNode parent)
+            SyntaxNode? parent)
         {
             Token = token;
             Parent = parent;
         }
 
-        public SyntaxNode Parent { get; }
+        public SyntaxNode? Parent { get; }
 
         public Token Token { get; }
 

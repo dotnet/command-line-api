@@ -8,7 +8,7 @@ namespace System.CommandLine.Parsing
         public CommandNode(
             Token token,
             ICommand command,
-            CommandNode parent) : base(token, parent)
+            CommandNode? parent) : base(token, parent)
         {
             if (token.Type != TokenType.Command)
             {
