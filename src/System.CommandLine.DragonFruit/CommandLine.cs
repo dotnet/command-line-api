@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -265,9 +265,9 @@ namespace System.CommandLine.DragonFruit
                        : $"-{parameterName.ToLowerInvariant()}";
         }
 
-        public static IEnumerable<Option> BuildOptions(this MethodInfo type)
+        public static IEnumerable<Option> BuildOptions(this MethodInfo method)
         {
-            var descriptor = HandlerDescriptor.FromMethodInfo(type);
+            var descriptor = HandlerDescriptor.FromMethodInfo(method);
 
             var omittedTypes = new[]
                                {
