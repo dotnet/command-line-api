@@ -53,10 +53,14 @@ namespace System.CommandLine.Binding
         public void AddModelBinder(ModelBinder binder) => 
             _modelBindersByValueDescriptor.Add(binder.ValueDescriptor.ValueType, binder);
 
-        public ModelBinder GetModelBinder(IValueDescriptor valueDescriptor) =>
-            _modelBindersByValueDescriptor.GetOrAdd(
-                valueDescriptor.ValueType, 
-                _ => new ModelBinder(valueDescriptor));
+        public ModelBinder GetModelBinder(IValueDescriptor valueDescriptor)
+        {
+            if (_modelBindersByValueDescriptor.TryGetValue(valueDescriptor.ValueType, out ModelBinder binder))
+            {
+                return binder;
+            }
+            return new ModelBinder(valueDescriptor);
+        }
 
         public void AddService(Type serviceType, Func<IServiceProvider, object> factory)
         {

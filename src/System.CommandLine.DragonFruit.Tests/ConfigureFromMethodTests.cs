@@ -235,6 +235,17 @@ namespace System.CommandLine.DragonFruit.Tests
             _receivedValues.Should().BeEquivalentTo(true);
         }
 
+        [Fact]
+        public async Task Method_with_multiple_parameters_with_default_values_are_resolved_correctly()
+        {
+            var command = new Command("test");
+            command.ConfigureFromMethod(GetMethodInfo(nameof(Method_with_multiple_default_values)), this);
+
+            await command.InvokeAsync("");
+
+            _receivedValues.Should().BeEquivalentTo(1, 2);
+        }
+
         internal void Method_taking_bool(bool value = false)
         {
             _receivedValues = new object[] { value };
@@ -292,6 +303,11 @@ namespace System.CommandLine.DragonFruit.Tests
 
         internal void Method_having_FileInfo_array_args(string stringOption, int intOption, FileInfo[] args)
         {
+        }
+
+        internal void Method_with_multiple_default_values(int firstValue = 1, int secondValue = 2)
+        {
+            _receivedValues = new object[] { firstValue, secondValue };
         }
 
         private MethodInfo GetMethodInfo(string name)
