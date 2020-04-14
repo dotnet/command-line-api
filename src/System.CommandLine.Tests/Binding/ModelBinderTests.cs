@@ -616,5 +616,30 @@ namespace System.CommandLine.Tests.Binding
 
             boundInstance.Value.Should().Be(456);
         }
+
+        [Fact]
+        public void Default_values_from_options_with_the_same_type_are_bound_and_use_their_own_defaults()
+        {
+            int first = 0, second = 0;
+
+            var rootCommand = new RootCommand
+            {
+                new Option<int>("one", () => 1),
+                new Option<int>("two", () => 2)
+            };
+            rootCommand.Handler = CommandHandler.Create<int, int>((one, two) =>
+            {
+                first = one;
+                second = two;
+            });
+
+            var parser = new CommandLineBuilder(rootCommand)
+                .Build();
+
+            parser.Invoke("");
+
+            first.Should().Be(1);
+            second.Should().Be(2);
+        }
     }
 }
