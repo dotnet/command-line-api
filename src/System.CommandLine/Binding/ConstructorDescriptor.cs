@@ -28,7 +28,7 @@ namespace System.CommandLine.Binding
             ??
             (_parameterDescriptors = _constructorInfo.GetParameters().Select(p => new ParameterDescriptor(p, this)).ToList());
 
-        internal object Invoke(IReadOnlyCollection<object> parameters)
+        internal object Invoke(IReadOnlyCollection<object?> parameters)
         {
             return _constructorInfo.Invoke(parameters.ToArray());
         }

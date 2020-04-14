@@ -12,7 +12,7 @@ namespace System.CommandLine.Parsing
 
         internal ArgumentResult(
             IArgument argument,
-            SymbolResult parent) : base(argument, parent)
+            SymbolResult? parent) : base(argument, parent)
         {
             Argument = argument;
         }
@@ -24,11 +24,12 @@ namespace System.CommandLine.Parsing
 
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
-        internal ParseError CustomError(Argument argument)
+        internal ParseError? CustomError(Argument argument)
         {
-            if (!string.IsNullOrEmpty(ErrorMessage))
+            string errorMessage = ErrorMessage;
+            if (!string.IsNullOrEmpty(errorMessage))
             {
-                return new ParseError(ErrorMessage, this);
+                return new ParseError(errorMessage, this);
             }
 
             for (var i = 0; i < argument.Validators.Count; i++)

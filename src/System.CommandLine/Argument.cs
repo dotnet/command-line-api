@@ -11,17 +11,17 @@ namespace System.CommandLine
 {
     public class Argument : Symbol, IArgument
     {
-        private Func<ArgumentResult, object> _defaultValueFactory;
+        private Func<ArgumentResult, object>? _defaultValueFactory;
         private readonly List<string> _suggestions = new List<string>();
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
-        private IArgumentArity _arity;
-        private TryConvertArgument _convertArguments;
+        private IArgumentArity? _arity;
+        private TryConvertArgument? _convertArguments;
 
         public Argument()
         {
         }
 
-        public Argument(string name) 
+        public Argument(string? name) 
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -29,7 +29,7 @@ namespace System.CommandLine
             }
         }
 
-        internal HashSet<string> AllowedValues { get; private set; }
+        internal HashSet<string>? AllowedValues { get; private set; }
 
         public IArgumentArity Arity
         {
@@ -52,7 +52,7 @@ namespace System.CommandLine
             set => _arity = value;
         }
 
-        internal TryConvertArgument ConvertArguments
+        internal TryConvertArgument? ConvertArguments
         {
             get
             {
@@ -108,7 +108,7 @@ namespace System.CommandLine
             set => _convertArguments = value;
         }
 
-        public Type ArgumentType { get; set; }
+        public Type? ArgumentType { get; set; }
 
         internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new List<ValidateSymbol<ArgumentResult>>();
 
@@ -193,7 +193,7 @@ namespace System.CommandLine
             AllowedValues.UnionWith(values);
         }
 
-        public override IEnumerable<string> GetSuggestions(string textToMatch = null)
+        public override IEnumerable<string> GetSuggestions(string? textToMatch = null)
         {
             var fixedSuggestions = _suggestions;
 

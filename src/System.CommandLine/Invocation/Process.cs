@@ -11,9 +11,9 @@ namespace System.CommandLine.Invocation
         public static async Task<int> ExecuteAsync(
             string command,
             string args,
-            string workingDir = null,
-            Action<string> stdOut = null,
-            Action<string> stdErr = null,
+            string? workingDir = null,
+            Action<string>? stdOut = null,
+            Action<string>? stdErr = null,
             params (string key, string value)[] environmentVariables)
         {
             var process = StartProcess(command,
@@ -39,9 +39,9 @@ namespace System.CommandLine.Invocation
         public static Diagnostics.Process StartProcess(
             string command,
             string args,
-            string workingDir = null,
-            Action<string> stdOut = null,
-            Action<string> stdErr = null,
+            string? workingDir = null,
+            Action<string>? stdOut = null,
+            Action<string>? stdErr = null,
             params (string key, string value)[] environmentVariables)
         {
             args = args ?? "";

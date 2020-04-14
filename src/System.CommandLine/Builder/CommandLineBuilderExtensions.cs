@@ -79,14 +79,14 @@ namespace System.CommandLine.Builder
             builder.AddMiddleware(async (context, next) =>
             {
                 bool cancellationHandlingAdded = false;
-                ManualResetEventSlim blockProcessExit = null;
-                ConsoleCancelEventHandler consoleHandler = null;
-                EventHandler processExitHandler = null;
+                ManualResetEventSlim? blockProcessExit = null;
+                ConsoleCancelEventHandler? consoleHandler = null;
+                EventHandler? processExitHandler = null;
 
                 context.CancellationHandlingAdded += (CancellationTokenSource cts) =>
                 {
-                    cancellationHandlingAdded = true;
                     blockProcessExit = new ManualResetEventSlim(initialState: false);
+                    cancellationHandlingAdded = true;
                     consoleHandler = (_, args) =>
                     {
                         cts.Cancel();
@@ -119,7 +119,7 @@ namespace System.CommandLine.Builder
                     {
                         Console.CancelKeyPress -= consoleHandler;
                         AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
-                        blockProcessExit.Set();
+                        blockProcessExit!.Set();
                     }
                 }
             }, MiddlewareOrderInternal.Startup);

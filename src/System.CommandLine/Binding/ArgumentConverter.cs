@@ -36,7 +36,7 @@ namespace System.CommandLine.Binding
         internal static ArgumentConversionResult ConvertObject(
             IArgument argument,
             Type type,
-            object value)
+            object? value)
         {
             switch (value)
             {
@@ -59,7 +59,7 @@ namespace System.CommandLine.Binding
 
         private static ArgumentConversionResult ConvertString(
             IArgument argument,
-            Type type,
+            Type? type,
             string value)
         {
             type ??= typeof(string);
@@ -89,7 +89,7 @@ namespace System.CommandLine.Binding
             }
 
             if (type.TryFindConstructorWithSingleParameterOfType(
-                typeof(string), out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) tuple))
+                typeof(string), out (ConstructorInfo? ctor, ParameterDescriptor? parameterDescriptor) tuple))
             {
                 var instance = tuple.ctor.Invoke(new object[]
                 {
@@ -139,7 +139,7 @@ namespace System.CommandLine.Binding
             return Success(argument, value);
         }
 
-        private static Type GetItemTypeIfEnumerable(Type type)
+        private static Type? GetItemTypeIfEnumerable(Type type)
         {
             if (type.IsArray)
             {
@@ -224,7 +224,7 @@ namespace System.CommandLine.Binding
         private static bool TryFindConstructorWithSingleParameterOfType(
             this Type type,
             Type parameterType,
-            out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) info)
+            out (ConstructorInfo? ctor, ParameterDescriptor? parameterDescriptor) info)
         {
             var (x, y) = type.GetConstructors()
                              .Select(c => (ctor: c, parameters: c.GetParameters()))

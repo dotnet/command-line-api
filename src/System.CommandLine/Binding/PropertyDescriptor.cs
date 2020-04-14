@@ -31,7 +31,7 @@ namespace System.CommandLine.Binding
 
         public object GetDefaultValue() => ValueType.GetDefaultValueForType();
 
-        public void SetValue(object instance, object value)
+        public void SetValue(object? instance, object? value)
         {
             _propertyInfo.SetValue(instance, value);
         }

@@ -11,39 +11,39 @@ namespace System.CommandLine.Invocation
 {
     internal class ModelBindingCommandHandler : ICommandHandler
     {
-        private readonly Delegate _handlerDelegate;
-        private readonly object _invocationTarget;
-        private readonly ModelBinder _invocationTargetBinder;
-        private readonly MethodInfo _handlerMethodInfo;
+        private readonly Delegate? _handlerDelegate;
+        private readonly object? _invocationTarget;
+        private readonly ModelBinder? _invocationTargetBinder;
+        private readonly MethodInfo? _handlerMethodInfo;
         private readonly IReadOnlyList<ParameterDescriptor> _parameterDescriptors;
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
             IReadOnlyList<ParameterDescriptor> parameterDescriptors)
         {
-            _handlerMethodInfo = handlerMethodInfo;
+            _handlerMethodInfo = handlerMethodInfo ?? throw new ArgumentNullException(nameof(handlerMethodInfo));
             _invocationTargetBinder = _handlerMethodInfo.IsStatic
                                           ? null
                                           : new ModelBinder(_handlerMethodInfo.DeclaringType);
-            _parameterDescriptors = parameterDescriptors;
+            _parameterDescriptors = parameterDescriptors ?? throw new ArgumentNullException(nameof(parameterDescriptors));
         }
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
             IReadOnlyList<ParameterDescriptor> parameterDescriptors,
-            object invocationTarget)
+            object? invocationTarget)
         {
             _invocationTarget = invocationTarget;
-            _handlerMethodInfo = handlerMethodInfo;
-            _parameterDescriptors = parameterDescriptors;
+            _handlerMethodInfo = handlerMethodInfo ?? throw new ArgumentNullException(nameof(handlerMethodInfo));
+            _parameterDescriptors = parameterDescriptors ?? throw new ArgumentNullException(nameof(parameterDescriptors));
         }
 
         public ModelBindingCommandHandler(
             Delegate handlerDelegate,
             IReadOnlyList<ParameterDescriptor> parameterDescriptors)
         {
-            _handlerDelegate = handlerDelegate;
-            _parameterDescriptors = parameterDescriptors;
+            _handlerDelegate = handlerDelegate ?? throw new ArgumentNullException(nameof(handlerDelegate));
+            _parameterDescriptors = parameterDescriptors ?? throw new ArgumentNullException(nameof(parameterDescriptors));
         }
 
         public async Task<int> InvokeAsync(InvocationContext context)

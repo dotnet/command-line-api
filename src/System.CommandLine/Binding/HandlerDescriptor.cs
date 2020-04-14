@@ -14,7 +14,7 @@ namespace System.CommandLine.Binding
 
         public abstract ICommandHandler GetCommandHandler();
 
-        public abstract ModelDescriptor Parent { get; }
+        public abstract ModelDescriptor? Parent { get; }
 
         public IReadOnlyList<ParameterDescriptor> ParameterDescriptors =>
             _parameterDescriptors ??= new List<ParameterDescriptor>(InitializeParameterDescriptors());

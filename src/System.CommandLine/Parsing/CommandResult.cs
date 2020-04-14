@@ -9,12 +9,12 @@ namespace System.CommandLine.Parsing
 {
     public class CommandResult : SymbolResult
     {
-        private ArgumentConversionResultSet _results;
+        private ArgumentConversionResultSet? _results;
 
         internal CommandResult(
             ICommand command,
-            Token token,
-            CommandResult parent = null) :
+            Token? token,
+            CommandResult? parent = null) :
             base(command ?? throw new ArgumentNullException(nameof(command)),
                  parent)
         {

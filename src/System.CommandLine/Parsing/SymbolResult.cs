@@ -14,7 +14,7 @@ namespace System.CommandLine.Parsing
 
         private protected SymbolResult(
             ISymbol symbol, 
-            SymbolResult parent)
+            SymbolResult? parent)
         {
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
@@ -25,7 +25,7 @@ namespace System.CommandLine.Parsing
 
         public SymbolResultSet Children { get; } = new SymbolResultSet();
 
-        public SymbolResult Parent { get; }
+        public SymbolResult? Parent { get; }
 
         public ISymbol Symbol { get; }
 
