@@ -251,7 +251,7 @@ namespace System.CommandLine.Binding
                 return valueSource;
             }
 
-            if (bindingContext.TryGetValueSource(valueDescriptor, out valueSource))
+            if (bindingContext.TryGetValueSource(valueDescriptor, out valueSource!))
             {
                 return valueSource;
             }

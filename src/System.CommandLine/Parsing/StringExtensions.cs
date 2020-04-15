@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -114,7 +113,7 @@ namespace System.CommandLine.Parsing
                 }
 
                 if (configuration.EnablePosixBundling && 
-                         CanBeUnbundled(arg, out var replacement))
+                    CanBeUnbundled(arg, out IEnumerable<string>? replacement))
                 {
                     argList.InsertRange(i + 1, replacement);
                     argList.RemoveAt(i);
@@ -167,7 +166,7 @@ namespace System.CommandLine.Parsing
                             symbolSet = configuration.Symbols;
                         }
 
-                        currentCommand = (ICommand) symbolSet.GetByAlias(arg);
+                        currentCommand = (ICommand) symbolSet.GetByAlias(arg)!;
                         knownTokens = currentCommand.ValidTokens();
                         knownTokensStrings = new HashSet<string>(knownTokens.Select(t => t.Value));
                         tokenList.Add(Command(arg));
@@ -195,7 +194,7 @@ namespace System.CommandLine.Parsing
                 return prefix == "-" && 
                        TryUnbundle(alias, out replacement);
 
-                Token TokenForOptionAlias(char c) =>
+                Token? TokenForOptionAlias(char c) =>
                     argumentDelimiters.Contains(c) 
                     ? null
                     : knownTokens.FirstOrDefault(t => 
@@ -339,7 +338,8 @@ namespace System.CommandLine.Parsing
                     // possible exception for illegal characters in path on .NET Framework
                 }
 
-                if (commandLineConfiguration.RootCommand.HasRawAlias(potentialRootCommand))
+                if (potentialRootCommand != null &&
+                    commandLineConfiguration.RootCommand.HasRawAlias(potentialRootCommand))
                 {
                     return args.ToList();
                 }
@@ -406,7 +406,7 @@ namespace System.CommandLine.Parsing
             int i = 0;
             bool addDash = false;
 
-            // handles beginning of string, breaks onfirst letter or digit. addDash might be better named "canAddDash"
+            // handles beginning of string, breaks on first letter or digit. addDash might be better named "canAddDash"
             for (; i < value.Length; i++)
             {
                 char ch = value[i];

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Collections
 {
@@ -18,7 +19,7 @@ namespace System.CommandLine.Collections
 
         internal bool IsAnyAliasInUse(
             ISymbol item,
-            out string aliasAlreadyInUse)
+            [MaybeNullWhen(false)]out string aliasAlreadyInUse)
         {
             var itemRawAliases = GetRawAliases(item);
 
@@ -53,7 +54,7 @@ namespace System.CommandLine.Collections
 
         internal void ThrowIfAnyAliasIsInUse(ISymbol item)
         {
-            string rawAliasAlreadyInUse;
+            string? rawAliasAlreadyInUse;
 
             switch (item)
             {

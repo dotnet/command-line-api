@@ -14,20 +14,16 @@ namespace System.CommandLine
 
         public void Add(string name, string? value)
         {
-            if (_directives.TryGetValue(name, out var values))
+            if (!_directives.TryGetValue(name, out var values))
+            {
+                values = new List<string>();
+
+                _directives.Add(name, values);
+            }
+
+            if (value != null)
             {
                 values.Add(value);
-            }
-            else
-            {
-                var list = new List<string>();
-
-                if (value != null)
-                {
-                    list.Add(value);
-                }
-
-                _directives.Add(name, list);
             }
         }
 

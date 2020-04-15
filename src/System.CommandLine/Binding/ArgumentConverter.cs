@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -89,9 +90,9 @@ namespace System.CommandLine.Binding
             }
 
             if (type.TryFindConstructorWithSingleParameterOfType(
-                typeof(string), out (ConstructorInfo? ctor, ParameterDescriptor? parameterDescriptor) tuple))
+                typeof(string), out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor)? tuple))
             {
-                var instance = tuple.ctor.Invoke(new object[]
+                var instance = tuple.Value.ctor.Invoke(new object[]
                 {
                     value
                 });
@@ -224,7 +225,7 @@ namespace System.CommandLine.Binding
         private static bool TryFindConstructorWithSingleParameterOfType(
             this Type type,
             Type parameterType,
-            out (ConstructorInfo? ctor, ParameterDescriptor? parameterDescriptor) info)
+            [NotNullWhen(true)]out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor)? info)
         {
             var (x, y) = type.GetConstructors()
                              .Select(c => (ctor: c, parameters: c.GetParameters()))
@@ -239,7 +240,7 @@ namespace System.CommandLine.Binding
             }
             else
             {
-                info = (null, null);
+                info = null;
                 return false;
             }
         }
@@ -281,9 +282,10 @@ namespace System.CommandLine.Binding
             }
         }
 
-        internal static object GetValueOrDefault(this ArgumentConversionResult result) =>
-            result.GetValueOrDefault<object>();
+        internal static object? GetValueOrDefault(this ArgumentConversionResult result) =>
+            result.GetValueOrDefault<object?>();
 
+        [return:MaybeNull]
         internal static T GetValueOrDefault<T>(this ArgumentConversionResult result)
         {
             switch (result)

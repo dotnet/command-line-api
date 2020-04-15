@@ -31,7 +31,7 @@ namespace System.CommandLine.Parsing
             var lastToken = source.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
 
             string? textToMatch = null;
-            var rawInput = source.RawInput;
+            string? rawInput = source.RawInput;
 
             if (rawInput != null)
             {
@@ -59,12 +59,12 @@ namespace System.CommandLine.Parsing
                 if (source.UnmatchedTokens.Any() ||
                     lastToken?.Type == TokenType.Argument)
                 {
-                    return textToMatch;
+                    return textToMatch ?? "";
                 }
             }
             else 
             {
-                var textBeforeCursor = rawInput.Substring(0, position.Value);
+                var textBeforeCursor = rawInput.Substring(0, position!.Value);
 
                 var textAfterCursor = rawInput.Substring(position.Value);
 
@@ -206,7 +206,7 @@ namespace System.CommandLine.Parsing
             return parseResult.CommandResult.Children.Contains(alias);
         }
 
-        public static IEnumerable<string> GetSuggestions(
+        public static IEnumerable<string?> GetSuggestions(
             this ParseResult parseResult,
             int? position = null)
         {
@@ -219,13 +219,13 @@ namespace System.CommandLine.Parsing
                     ? currentSuggestionSource.GetSuggestions(textToMatch)
                     : Array.Empty<string>();
 
-            IEnumerable<string> siblingSuggestions;
+            IEnumerable<string?> siblingSuggestions;
             var parentSymbol = currentSymbolResult.Parent?.Symbol;
 
             if (parentSymbol == null ||
                 !currentSymbolResult.IsArgumentLimitReached)
             {
-                siblingSuggestions = Array.Empty<string>();
+                siblingSuggestions = Array.Empty<string?>();
             }
             else
             {

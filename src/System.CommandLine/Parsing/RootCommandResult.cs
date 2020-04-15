@@ -84,26 +84,28 @@ namespace System.CommandLine.Parsing
                     return FindResultFor(command);
                 case IOption option:
                     return FindResultFor(option);
-                default: 
+                default:
                     throw new ArgumentException($"Unsupported symbol type: {symbol.GetType()}");
             }
         }
 
         internal void AddToSymbolMap(SymbolResult result)
         {
-             switch (result)
+            EnsureResultMapsAreInitialized();
+
+            switch (result)
             {
                 case ArgumentResult argumentResult:
-                    _allArgumentResults.Add(argumentResult.Argument, argumentResult);
+                    _allArgumentResults!.Add(argumentResult.Argument, argumentResult);
                     break;
                 case CommandResult commandResult:
-                    _allCommandResults.Add(commandResult.Command, commandResult);
+                    _allCommandResults!.Add(commandResult.Command, commandResult);
                     break;
                 case OptionResult optionResult:
-                    _allOptionResults.Add(optionResult.Option, optionResult);
+                    _allOptionResults!.Add(optionResult.Option, optionResult);
                     break;
-                
-                default: 
+
+                default:
                     throw new ArgumentException($"Unsupported {nameof(SymbolResult)} type: {result.GetType()}");
             }
         }

@@ -42,7 +42,7 @@ namespace System.CommandLine.Parsing
                 operation.Errors,
                 rawInput);
 
-            visitor.Visit(operation.RootCommandNode);
+            visitor.Visit(operation.RootCommandNode!);
 
             return visitor.Result;
         }

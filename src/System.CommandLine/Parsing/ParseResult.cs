@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -63,10 +64,11 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public object ValueForOption(
+        public object? ValueForOption(
             string alias) =>
-            ValueForOption<object>(alias);
+            ValueForOption<object?>(alias);
 
+        [return:MaybeNull]
         public T ValueForOption<T>(
             string alias)
         {

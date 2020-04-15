@@ -40,14 +40,17 @@ namespace System.CommandLine.Parsing
 
         internal bool TryGetValueForArgument(
             IValueDescriptor valueDescriptor,
-            [NotNullWhen(true)]out object? value)
+            out object? value)
         {
-            foreach (var argument in Command.Arguments)
+            if (valueDescriptor.ValueName is string valueName)
             {
-                if (valueDescriptor.ValueName.IsMatch(argument.Name))
+                foreach (var argument in Command.Arguments)
                 {
-                    value = ArgumentConversionResults[argument.Name].GetValueOrDefault();
-                    return true;
+                    if (valueName.IsMatch(argument.Name))
+                    {
+                        value = ArgumentConversionResults[argument.Name]?.GetValueOrDefault();
+                        return true;
+                    }
                 }
             }
 

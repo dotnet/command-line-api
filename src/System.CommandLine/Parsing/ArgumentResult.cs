@@ -61,7 +61,7 @@ namespace System.CommandLine.Parsing
 
             if (argument is Argument arg)
             {
-                if (parentResult.UseDefaultValueFor(argument))
+                if (parentResult!.UseDefaultValueFor(argument))
                 {
                     var argumentResult = new ArgumentResult(arg, Parent);
 

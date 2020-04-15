@@ -30,14 +30,14 @@ namespace System.CommandLine
         public int MaximumNumberOfValues { get; set; }
 
         internal static FailedArgumentConversionArityResult? Validate(
-            SymbolResult symbolResult,
+            SymbolResult? symbolResult,
             IArgument argument,
             int minimumNumberOfValues,
             int maximumNumberOfValues)
         {
             var argumentResult = symbolResult switch
             {
-                CommandResult commandResult => commandResult.Root.FindResultFor(argument),
+                CommandResult commandResult => commandResult.Root?.FindResultFor(argument),
                 OptionResult optionResult => optionResult.Children.ResultFor(argument),
                 _ => symbolResult
             };
@@ -46,7 +46,7 @@ namespace System.CommandLine
 
             if (tokenCount < minimumNumberOfValues)
             {
-                if (symbolResult.UseDefaultValueFor(argument))
+                if (symbolResult!.UseDefaultValueFor(argument))
                 {
                     return null;
                 }
@@ -96,6 +96,11 @@ namespace System.CommandLine
                  type.IsNullable()))
             {
                 return ZeroOrOne;
+            }
+
+            if (type == typeof(void))
+            {
+                return Zero;
             }
 
             return ExactlyOne;

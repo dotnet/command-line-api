@@ -95,7 +95,7 @@ namespace System.CommandLine
 
         public SymbolSet Children { get; } = new SymbolSet();
 
-        public void AddAlias(string alias)
+        public void AddAlias(string? alias)
         {
             var unprefixedAlias = alias?.RemovePrefix();
 
@@ -135,7 +135,7 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public virtual IEnumerable<string> GetSuggestions(string? textToMatch = null)
+        public virtual IEnumerable<string?> GetSuggestions(string? textToMatch = null)
         {
             var argumentSuggestions =
                 Children

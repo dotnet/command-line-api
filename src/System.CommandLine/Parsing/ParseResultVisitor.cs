@@ -68,7 +68,7 @@ namespace System.CommandLine.Parsing
                 commandNode.Token,
                 _innermostCommandResult);
 
-            _innermostCommandResult
+            _innermostCommandResult!
                 .Children
                 .Add(commandResult);
 
@@ -81,7 +81,7 @@ namespace System.CommandLine.Parsing
             var commandResult = _innermostCommandResult;
 
             var argumentResult =
-                commandResult.Children
+                commandResult!.Children
                              .OfType<ArgumentResult>()
                              .SingleOrDefault(r => r.Symbol == argumentNode.Argument);
 
@@ -101,7 +101,7 @@ namespace System.CommandLine.Parsing
 
         protected override void VisitOptionNode(OptionNode optionNode)
         {
-            if (_innermostCommandResult.Children.ResultFor(optionNode.Option) == null)
+            if (_innermostCommandResult!.Children.ResultFor(optionNode.Option) == null)
             {
                 var optionResult = new OptionResult(
                     optionNode.Option,
@@ -119,12 +119,12 @@ namespace System.CommandLine.Parsing
         {
             var option = argumentNode.ParentOptionNode.Option;
 
-            var optionResult = _innermostCommandResult.Children.ResultFor(option);
+            var optionResult = _innermostCommandResult!.Children.ResultFor(option);
 
             var argument = argumentNode.Argument;
 
             var argumentResult =
-                (ArgumentResult?)optionResult.Children.ResultFor(argument);
+                (ArgumentResult?)optionResult!.Children.ResultFor(argument);
 
             if (argumentResult is null)
             {
@@ -157,7 +157,7 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            foreach (var result in _innermostCommandResult.Children.ToArray())
+            foreach (var result in _innermostCommandResult!.Children.ToArray())
             {
                 switch (result)
                 {
@@ -178,7 +178,7 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandResult()
         {
-            if (_innermostCommandResult.Command is Command command)
+            if (_innermostCommandResult!.Command is Command command)
             {
                 foreach (var validator in command.Validators)
                 {
@@ -198,7 +198,7 @@ namespace System.CommandLine.Parsing
             {
                 if (option is Option o &&
                     o.Required && 
-                    _rootCommandResult.FindResultFor(o) is null)
+                    _rootCommandResult!.FindResultFor(o) is null)
                 {
                     _errors.Add(
                         new ParseError($"Option '{o.RawAliases.First()}' is required.",
@@ -219,14 +219,14 @@ namespace System.CommandLine.Parsing
                 if (arityFailure != null)
                 {
                     _errors.Add(
-                        new ParseError(arityFailure.ErrorMessage, _innermostCommandResult));
+                        new ParseError(arityFailure.ErrorMessage!, _innermostCommandResult));
                 }
             }
         }
 
         private void ValidateCommandHandler()
         {
-            if (!(_innermostCommandResult.Command is Command cmd) || 
+            if (!(_innermostCommandResult!.Command is Command cmd) || 
                 cmd.Handler != null)
             {
                 return;
@@ -261,7 +261,7 @@ namespace System.CommandLine.Parsing
             if (arityFailure != null)
             {
                 _errors.Add(
-                    new ParseError(arityFailure.ErrorMessage, optionResult));
+                    new ParseError(arityFailure.ErrorMessage!, optionResult));
             }
 
             if (optionResult.Option is Option option)
@@ -290,7 +290,7 @@ namespace System.CommandLine.Parsing
             if (argumentResult.Argument is Argument argument)
             {
                 var parseError =
-                    argumentResult.Parent.UnrecognizedArgumentError(argument) ??
+                    argumentResult.Parent?.UnrecognizedArgumentError(argument) ??
                     argumentResult.CustomError(argument);
 
                 if (parseError != null)
@@ -304,21 +304,21 @@ namespace System.CommandLine.Parsing
             {
                 _errors.Add(
                     new ParseError(
-                        failed.ErrorMessage,
+                        failed.ErrorMessage!,
                         argumentResult));
             }
         }
 
         private void PopulateDefaultValues()
         {
-            var commandResults = _innermostCommandResult
+            var commandResults = _innermostCommandResult!
                 .RecurseWhileNotNull(c => c.Parent as CommandResult);
 
             foreach (var commandResult in commandResults)
             {
                 foreach (var symbol in commandResult.Command.Children)
                 {
-                    var symbolResult = _rootCommandResult.FindResultFor(symbol);
+                    var symbolResult = _rootCommandResult!.FindResultFor(symbol);
 
                     if (symbolResult is null)
                     {
@@ -367,8 +367,8 @@ namespace System.CommandLine.Parsing
         public ParseResult Result =>
             new ParseResult(
                 _parser,
-                _rootCommandResult,
-                _innermostCommandResult,
+                _rootCommandResult ?? throw new InvalidOperationException(),
+                _innermostCommandResult ?? throw new InvalidOperationException(),
                 _directives,
                 _tokenizeResult,
                 _unparsedTokens,

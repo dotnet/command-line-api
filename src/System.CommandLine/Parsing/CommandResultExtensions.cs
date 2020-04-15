@@ -1,19 +1,21 @@
 ﻿// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
     public static class CommandResultExtensions
     {
-        public static object GetArgumentValueOrDefault(
+        public static object? GetArgumentValueOrDefault(
             this CommandResult commandResult,
             string argumentName)
         {
-            return commandResult.GetArgumentValueOrDefault<object>(argumentName);
+            return commandResult.GetArgumentValueOrDefault<object?>(argumentName);
         }
 
+        [return:MaybeNull]
         public static T GetArgumentValueOrDefault<T>(
             this CommandResult commandResult,
             string argumentName)
@@ -32,7 +34,7 @@ namespace System.CommandLine.Parsing
         {
             var children = commandResult
                            .Children
-                           .Where(o => valueDescriptor.ValueName.IsMatch(o.Symbol))
+                           .Where(o => valueDescriptor.ValueName?.IsMatch(o.Symbol) == true)
                            .ToArray();
 
             SymbolResult? symbolResult = null;

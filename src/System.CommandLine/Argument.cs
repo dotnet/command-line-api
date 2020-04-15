@@ -108,7 +108,8 @@ namespace System.CommandLine
             set => _convertArguments = value;
         }
 
-        public Type? ArgumentType { get; set; }
+        //TODO: What if null gets set?
+        public Type ArgumentType { get; set; } = typeof(void);
 
         internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new List<ValidateSymbol<ArgumentResult>>();
 
@@ -193,7 +194,7 @@ namespace System.CommandLine
             AllowedValues.UnionWith(values);
         }
 
-        public override IEnumerable<string> GetSuggestions(string? textToMatch = null)
+        public override IEnumerable<string?> GetSuggestions(string? textToMatch = null)
         {
             var fixedSuggestions = _suggestions;
 

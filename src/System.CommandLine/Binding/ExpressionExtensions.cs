@@ -7,30 +7,26 @@ namespace System.CommandLine.Binding
     {
         internal static (Type memberType, string memberName) MemberTypeAndName<T, TValue>(this Expression<Func<T, TValue>> expression)
         {
-            if (expression == null)
+            if (expression is null)
             {
                 throw new ArgumentNullException(nameof(expression));
             }
 
             if (expression.Body is MemberExpression memberExpression)
             {
-                return TypeAndName();
+                return TypeAndName(memberExpression);
             }
 
             // when the return type of the expression is a value type, it contains a call to Convert, resulting in boxing, so we get a UnaryExpression instead
-            if (expression.Body is UnaryExpression unaryExpression)
+            if (expression.Body is UnaryExpression unaryExpression &&
+                unaryExpression.Operand is MemberExpression operandMemberExpression)
             {
-                memberExpression = unaryExpression.Operand as MemberExpression;
-
-                if (memberExpression != null)
-                {
-                    return TypeAndName();
-                }
+                return TypeAndName(operandMemberExpression);
             }
 
             throw new ArgumentException($"Expression {expression} does not specify a member.");
 
-            (Type memberType, string memberName) TypeAndName()
+            static (Type memberType, string memberName) TypeAndName(MemberExpression memberExpression)
             {
                 return (memberExpression.Member.ReturnType(), memberExpression.Member.Name);
             }

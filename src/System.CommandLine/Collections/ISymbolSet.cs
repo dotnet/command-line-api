@@ -7,6 +7,6 @@ namespace System.CommandLine.Collections
 {
     public interface ISymbolSet : IReadOnlyCollection<ISymbol>
     {
-        ISymbol GetByAlias(string alias);
+        ISymbol? GetByAlias(string alias);
     }
 }
