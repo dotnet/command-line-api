@@ -64,7 +64,7 @@ namespace System.CommandLine.Parsing
             }
             else 
             {
-                var textBeforeCursor = rawInput.Substring(0, position!.Value);
+                var textBeforeCursor = rawInput!.Substring(0, position!.Value);
 
                 var textAfterCursor = rawInput.Substring(position.Value);
 

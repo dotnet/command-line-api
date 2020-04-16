@@ -26,7 +26,7 @@ namespace System.CommandLine.Parsing
             return optionResult.GetValueOrDefault<object?>();
         }
 
-        [return:MaybeNull]
+        [return: MaybeNull]
         public static T GetValueOrDefault<T>(this OptionResult optionResult)
         {
             return optionResult.ConvertIfNeeded(typeof(T))

@@ -71,7 +71,7 @@ namespace System.CommandLine.Parsing
             return ValueForOption<object?>(alias);
         }
 
-        [return:MaybeNull]
+        [return: MaybeNull]
         public T ValueForOption<T>(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))

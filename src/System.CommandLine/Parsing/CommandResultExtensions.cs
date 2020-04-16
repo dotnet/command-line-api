@@ -15,7 +15,7 @@ namespace System.CommandLine.Parsing
             return commandResult.GetArgumentValueOrDefault<object?>(argumentName);
         }
 
-        [return:MaybeNull]
+        [return: MaybeNull]
         public static T GetArgumentValueOrDefault<T>(
             this CommandResult commandResult,
             string argumentName)

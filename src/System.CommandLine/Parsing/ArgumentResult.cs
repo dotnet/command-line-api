@@ -28,7 +28,7 @@ namespace System.CommandLine.Parsing
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
-                return new ParseError(ErrorMessage, this);
+                return new ParseError(ErrorMessage!, this);
             }
 
             for (var i = 0; i < argument.Validators.Count; i++)
@@ -77,7 +77,7 @@ namespace System.CommandLine.Parsing
                     {
                         return ArgumentConversionResult.Failure(
                             argument,
-                            argumentResult.ErrorMessage);
+                            argumentResult.ErrorMessage!);
                     }
                 }
 

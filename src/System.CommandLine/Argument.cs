@@ -25,7 +25,7 @@ namespace System.CommandLine
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
-                Name = name;
+                Name = name!;
             }
         }
 

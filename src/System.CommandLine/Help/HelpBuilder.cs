@@ -670,7 +670,7 @@ namespace System.CommandLine.Help
                     return;
                 }
 
-                builder.AppendDescription(description);
+                builder.AppendDescription(description!);
             }
 
             private static void AddInvocation(

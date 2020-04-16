@@ -246,12 +246,12 @@ namespace System.CommandLine.Binding
             IValueDescriptor valueDescriptor)
         {
             if (!(bindingSources is null) &&
-                bindingSources.TryGetValue(valueDescriptor, out var valueSource))
+                bindingSources.TryGetValue(valueDescriptor, out IValueSource? valueSource))
             {
                 return valueSource;
             }
 
-            if (bindingContext.TryGetValueSource(valueDescriptor, out valueSource!))
+            if (bindingContext.TryGetValueSource(valueDescriptor, out valueSource))
             {
                 return valueSource;
             }

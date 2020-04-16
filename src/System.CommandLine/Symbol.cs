@@ -95,7 +95,7 @@ namespace System.CommandLine
 
         public SymbolSet Children { get; } = new SymbolSet();
 
-        public void AddAlias(string? alias)
+        public void AddAlias(string alias)
         {
             var unprefixedAlias = alias?.RemovePrefix();
 
@@ -113,9 +113,9 @@ namespace System.CommandLine
             }
 
             _rawAliases.Add(alias);
-            _aliases.Add(unprefixedAlias);
+            _aliases.Add(unprefixedAlias!);
 
-            if (unprefixedAlias.Length > Name?.Length)
+            if (unprefixedAlias!.Length > Name?.Length)
             {
                 _longestAlias = unprefixedAlias;
             }

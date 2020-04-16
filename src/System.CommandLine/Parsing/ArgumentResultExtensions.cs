@@ -8,10 +8,10 @@ namespace System.CommandLine.Parsing
 {
     public static class ArgumentResultExtensions
     {
-        public static object? GetValueOrDefault(this ArgumentResult argumentResult) => 
+        public static object? GetValueOrDefault(this ArgumentResult argumentResult) =>
             argumentResult.GetValueOrDefault<object?>();
 
-        [return:MaybeNull]
+        [return: MaybeNull]
         public static T GetValueOrDefault<T>(this ArgumentResult argumentResult) =>
             argumentResult.GetArgumentConversionResult()
                           .ConvertIfNeeded(argumentResult, typeof(T))

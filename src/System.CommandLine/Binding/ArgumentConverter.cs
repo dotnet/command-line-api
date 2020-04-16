@@ -184,7 +184,7 @@ namespace System.CommandLine.Binding
 
         private static FailedArgumentConversionResult Failure(
             IArgument argument,
-            Type type, 
+            Type type,
             string value)
         {
             return new FailedArgumentTypeConversionResult(argument, type, value);
@@ -209,7 +209,7 @@ namespace System.CommandLine.Binding
                 return true;
             }
 
-            if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _) )
+            if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _))
             {
                 return true;
             }
@@ -285,7 +285,7 @@ namespace System.CommandLine.Binding
         internal static object? GetValueOrDefault(this ArgumentConversionResult result) =>
             result.GetValueOrDefault<object?>();
 
-        [return:MaybeNull]
+        [return: MaybeNull]
         internal static T GetValueOrDefault<T>(this ArgumentConversionResult result)
         {
             switch (result)

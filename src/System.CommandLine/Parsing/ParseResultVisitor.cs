@@ -187,7 +187,7 @@ namespace System.CommandLine.Parsing
                     if (!string.IsNullOrWhiteSpace(errorMessage))
                     {
                         _errors.Add(
-                            new ParseError(errorMessage, _innermostCommandResult));
+                            new ParseError(errorMessage!, _innermostCommandResult));
                     }
                 }
             }
@@ -272,7 +272,7 @@ namespace System.CommandLine.Parsing
 
                     if (!string.IsNullOrWhiteSpace(message))
                     {
-                        _errors.Add(new ParseError(message, optionResult));
+                        _errors.Add(new ParseError(message!, optionResult));
                     }
                 }
             }

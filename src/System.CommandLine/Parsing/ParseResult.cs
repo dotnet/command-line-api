@@ -64,13 +64,11 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public object? ValueForOption(
-            string alias) =>
+        public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);
 
-        [return:MaybeNull]
-        public T ValueForOption<T>(
-            string alias)
+        [return: MaybeNull]
+        public T ValueForOption<T>(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
             {
@@ -93,7 +91,7 @@ namespace System.CommandLine.Parsing
 
         public ArgumentResult? FindResultFor(IArgument argument) =>
             _rootCommandResult.FindResultFor(argument);
-            
+
         public CommandResult? FindResultFor(ICommand command) =>
             _rootCommandResult.FindResultFor(command);
 
