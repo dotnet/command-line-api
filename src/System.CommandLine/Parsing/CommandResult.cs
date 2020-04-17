@@ -85,7 +85,7 @@ namespace System.CommandLine.Parsing
             }
             else
             {
-                return default;
+                return default!;
             }
         }
 

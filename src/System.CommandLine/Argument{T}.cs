@@ -76,7 +76,7 @@ namespace System.CommandLine
                 }
                 else
                 {
-                    value = default(T);
+                    value = default(T)!;
                     return false;
                 }
             };

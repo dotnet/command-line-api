@@ -225,7 +225,7 @@ namespace System.CommandLine.Binding
         private static bool TryFindConstructorWithSingleParameterOfType(
             this Type type,
             Type parameterType,
-            [NotNullWhen(true)]out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor)? info)
+            [NotNullWhen(true)] out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor)? info)
         {
             var (x, y) = type.GetConstructors()
                              .Select(c => (ctor: c, parameters: c.GetParameters()))
@@ -291,13 +291,13 @@ namespace System.CommandLine.Binding
             switch (result)
             {
                 case SuccessfulArgumentConversionResult successful:
-                    return (T)successful.Value;
+                    return (T)successful.Value!;
                 case FailedArgumentConversionResult failed:
                     throw new InvalidOperationException(failed.ErrorMessage);
                 case NoArgumentConversionResult _:
-                    return default;
+                    return default!;
                 default:
-                    return default;
+                    return default!;
             }
         }
     }

@@ -19,7 +19,7 @@ namespace System.CommandLine.Collections
 
         internal bool IsAnyAliasInUse(
             ISymbol item,
-            [MaybeNullWhen(false)]out string aliasAlreadyInUse)
+            [MaybeNullWhen(false)] out string aliasAlreadyInUse)
         {
             var itemRawAliases = GetRawAliases(item);
 
@@ -39,7 +39,7 @@ namespace System.CommandLine.Collections
                 }
             }
 
-            aliasAlreadyInUse = null;
+            aliasAlreadyInUse = null!;
             return false;
 
             static IReadOnlyList<string> GetRawAliases(ISymbol symbol)

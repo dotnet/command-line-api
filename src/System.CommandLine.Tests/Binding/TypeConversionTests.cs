@@ -573,7 +573,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("something");
 
-            var value = result.CommandResult.ValueForOption<int>("x");
+            var value = result.CommandResult.ValueForOption<object>("x");
 
             value.Should().Be(123);
         }

@@ -88,7 +88,7 @@ namespace System.CommandLine.Binding
                 return true;
             }
 
-            valueSource = default;
+            valueSource = default!;
             return false;
         }
 

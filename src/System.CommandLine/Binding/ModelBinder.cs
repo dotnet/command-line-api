@@ -129,7 +129,7 @@ namespace System.CommandLine.Binding
 
         private bool TryDefaultConstructorAndPropertiesStrategy(
             BindingContext context,
-            [NotNullWhen(true)]out object? instance)
+            [NotNullWhen(true)] out object? instance)
         {
             var constructorDescriptors =
                 ModelDescriptor

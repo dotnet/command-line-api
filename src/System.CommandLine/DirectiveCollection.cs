@@ -32,7 +32,7 @@ namespace System.CommandLine
             return _directives.ContainsKey(name);
         }
 
-        public bool TryGetValues(string name,  [NotNullWhen(true)]out IEnumerable<string>? values)
+        public bool TryGetValues(string name,  [NotNullWhen(true)] out IEnumerable<string>? values)
         {
             if (_directives.TryGetValue(name, out var v))
             {
