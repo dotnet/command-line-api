@@ -85,9 +85,9 @@ namespace System.CommandLine
 
         public static IArgumentArity ExactlyOne => new ArgumentArity(1, 1);
 
-        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, byte.MaxValue);
+        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, int.MaxValue);
 
-        public static IArgumentArity OneOrMore => new ArgumentArity(1, byte.MaxValue);
+        public static IArgumentArity OneOrMore => new ArgumentArity(1, int.MaxValue);
 
         internal static IArgumentArity Default(Type type, Argument argument, ISymbol parent)
         {
