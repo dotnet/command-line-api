@@ -27,7 +27,7 @@ namespace System.CommandLine
             IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null)
         {
-            if (symbols == null)
+            if (symbols is null)
             {
                 throw new ArgumentNullException(nameof(symbols));
             }
@@ -65,7 +65,7 @@ namespace System.CommandLine
                                      .OfType<RootCommand>()
                                      .FirstOrDefault();
 
-                if (rootCommand == null)
+                if (rootCommand is null)
                 {
                     rootCommand = new RootCommand();
 

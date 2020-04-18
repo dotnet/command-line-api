@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Help;
+using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -68,6 +69,8 @@ namespace System.CommandLine.Parsing
                 commandNode.Token,
                 _innermostCommandResult);
 
+            Debug.Assert(_innermostCommandResult != null);
+
             _innermostCommandResult!
                 .Children
                 .Add(commandResult);
@@ -85,7 +88,7 @@ namespace System.CommandLine.Parsing
                              .OfType<ArgumentResult>()
                              .SingleOrDefault(r => r.Symbol == argumentNode.Argument);
 
-            if (argumentResult == null)
+            if (argumentResult is null)
             {
                 argumentResult =
                     new ArgumentResult(
@@ -101,7 +104,7 @@ namespace System.CommandLine.Parsing
 
         protected override void VisitOptionNode(OptionNode optionNode)
         {
-            if (_innermostCommandResult!.Children.ResultFor(optionNode.Option) == null)
+            if (_innermostCommandResult!.Children.ResultFor(optionNode.Option) is null)
             {
                 var optionResult = new OptionResult(
                     optionNode.Option,

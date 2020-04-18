@@ -93,7 +93,7 @@ namespace System.CommandLine.Parsing
         {
             get
             {
-                if (_results == null)
+                if (_results is null)
                 {
                     var results = Children
                                   .OfType<ArgumentResult>()

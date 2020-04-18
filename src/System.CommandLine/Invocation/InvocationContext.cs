@@ -57,7 +57,7 @@ namespace System.CommandLine.Invocation
         /// <returns>Token used by the caller to implement cancellation handling.</returns>
         public CancellationToken GetCancellationToken()
         {
-            if (_cts == null)
+            if (_cts is null)
             {
                 _cts = new CancellationTokenSource();
                 _cancellationHandlingAddedEvent?.Invoke(_cts);

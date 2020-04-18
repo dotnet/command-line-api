@@ -24,7 +24,7 @@ namespace System.CommandLine.Builder
             new Lazy<string>(() => {
                 var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                if (assemblyVersionAttribute == null)
+                if (assemblyVersionAttribute is null)
                 {
                     return assembly.GetName().Version.ToString();
                 }
@@ -284,7 +284,7 @@ namespace System.CommandLine.Builder
             this CommandLineBuilder builder,
             Option helpOption)
         {
-            if (builder.HelpOption == null)
+            if (builder.HelpOption is null)
             {
                 builder.HelpOption = helpOption; 
                 builder.Command.TryAddGlobalOption(helpOption);
@@ -304,7 +304,7 @@ namespace System.CommandLine.Builder
         public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, Func<BindingContext, IHelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
         {
-            if (builder == null)
+            if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }

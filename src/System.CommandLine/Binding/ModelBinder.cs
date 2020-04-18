@@ -12,7 +12,7 @@ namespace System.CommandLine.Binding
     {
         public ModelBinder(Type modelType) : this(new AnonymousValueDescriptor(modelType))
         {
-            if (modelType == null)
+            if (modelType is null)
             {
                 throw new ArgumentNullException(nameof(modelType));
             }
@@ -215,7 +215,7 @@ namespace System.CommandLine.Binding
                     boundValue = BoundValue.DefaultForValueDescriptor(valueDescriptor);
                 }
 
-                if (boundValue == null)
+                if (boundValue is null)
                 {
                     if (includeMissingValues)
                     {

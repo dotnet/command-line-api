@@ -78,7 +78,7 @@ namespace System.CommandLine
 
         private protected void AddArgumentInner(Argument argument)
         {
-            if (argument == null)
+            if (argument is null)
             {
                 throw new ArgumentNullException(nameof(argument));
             }

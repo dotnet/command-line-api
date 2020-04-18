@@ -44,9 +44,9 @@ namespace System.CommandLine.Parsing
         {
             get
             {
-                if (_validationMessages == null)
+                if (_validationMessages is null)
                 {
-                    if (Parent == null)
+                    if (Parent is null)
                     {
                         _validationMessages = ValidationMessages.Instance;
                     }

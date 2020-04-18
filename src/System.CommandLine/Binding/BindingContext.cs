@@ -70,7 +70,7 @@ namespace System.CommandLine.Binding
         
         public void AddService<T>(Func<IServiceProvider, T> factory)
         {
-            if (factory == null)
+            if (factory is null)
             {
                 throw new ArgumentNullException(nameof(factory));
             }

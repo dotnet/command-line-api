@@ -13,7 +13,7 @@ namespace System.CommandLine.Binding
             PropertyInfo propertyInfo,
             ModelDescriptor parent)
         {
-            Parent = parent;
+            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             _propertyInfo = propertyInfo;
         }
 
@@ -21,9 +21,7 @@ namespace System.CommandLine.Binding
 
         public ModelDescriptor Parent { get; }
 
-        internal string Path => Parent != null
-                                    ? Parent + "." + ValueName
-                                    : ValueName;
+        internal string Path => Parent + "." + ValueName;
 
         public Type ValueType => _propertyInfo.PropertyType;
 

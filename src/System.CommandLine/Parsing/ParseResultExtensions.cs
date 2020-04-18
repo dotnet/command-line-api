@@ -28,7 +28,7 @@ namespace System.CommandLine.Parsing
             this ParseResult source,
             int? position = null)
         {
-            var lastToken = source.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
+            Token? lastToken = source.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
 
             string? textToMatch = null;
             string? rawInput = source.RawInput;
@@ -186,7 +186,7 @@ namespace System.CommandLine.Parsing
             this ParseResult parseResult,
             IOption option)
         {
-            if (parseResult == null)
+            if (parseResult is null)
             {
                 throw new ArgumentNullException(nameof(parseResult));
             }
@@ -198,7 +198,7 @@ namespace System.CommandLine.Parsing
             this ParseResult parseResult,
             string alias)
         {
-            if (parseResult == null)
+            if (parseResult is null)
             {
                 throw new ArgumentNullException(nameof(parseResult));
             }
@@ -222,7 +222,7 @@ namespace System.CommandLine.Parsing
             IEnumerable<string?> siblingSuggestions;
             var parentSymbol = currentSymbolResult.Parent?.Symbol;
 
-            if (parentSymbol == null ||
+            if (parentSymbol is null ||
                 !currentSymbolResult.IsArgumentLimitReached)
             {
                 siblingSuggestions = Array.Empty<string?>();

@@ -108,12 +108,12 @@ namespace System.CommandLine.Binding
             Type type,
             IReadOnlyCollection<string> arguments)
         {
-            if (type == null)
+            if (type is null)
             {
                 throw new ArgumentNullException(nameof(type));
             }
 
-            if (arguments == null)
+            if (arguments is null)
             {
                 throw new ArgumentNullException(nameof(arguments));
             }
@@ -154,7 +154,7 @@ namespace System.CommandLine.Binding
                       .GetInterfaces()
                       .FirstOrDefault(IsEnumerable);
 
-            if (enumerableInterface == null)
+            if (enumerableInterface is null)
             {
                 return null;
             }
@@ -250,7 +250,7 @@ namespace System.CommandLine.Binding
             SymbolResult symbolResult,
             Type type)
         {
-            if (conversionResult == null)
+            if (conversionResult is null)
             {
                 throw new ArgumentNullException(nameof(conversionResult));
             }

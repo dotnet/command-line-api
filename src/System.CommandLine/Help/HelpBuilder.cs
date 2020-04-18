@@ -57,7 +57,7 @@ namespace System.CommandLine.Help
         /// <inheritdoc />
         public virtual void Write(ICommand command)
         {
-            if (command == null)
+            if (command is null)
             {
                 throw new ArgumentNullException(nameof(command));
             }
@@ -205,7 +205,7 @@ namespace System.CommandLine.Help
         /// </param>
         protected void AppendHelpItem(HelpItem helpItem, int maxInvocationWidth)
         {
-            if (helpItem == null)
+            if (helpItem is null)
             {
                 throw new ArgumentNullException(nameof(helpItem));
             }
@@ -562,9 +562,9 @@ namespace System.CommandLine.Help
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private bool ShouldDisplayArgumentHelp(ICommand command)
+        private bool ShouldDisplayArgumentHelp(ICommand? command)
         {
-            if (command == null)
+            if (command is null)
             {
                 return false;
             }

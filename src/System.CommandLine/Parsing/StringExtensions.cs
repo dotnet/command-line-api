@@ -318,9 +318,9 @@ namespace System.CommandLine.Parsing
 
         private static List<string> NormalizeRootCommand(
             CommandLineConfiguration commandLineConfiguration, 
-            IReadOnlyList<string> args)
+            IReadOnlyList<string>? args)
         {
-            if (args == null)
+            if (args is null)
             {
                 args = new List<string>();
             }
@@ -367,7 +367,7 @@ namespace System.CommandLine.Parsing
 
             bool FirstArgMatchesRootCommand()
             {
-                if (potentialRootCommand == null)
+                if (potentialRootCommand is null)
                 {
                     return false;
                 }

@@ -95,7 +95,7 @@ namespace System.CommandLine.Parsing
                                     .Children
                                     .GetByAlias(CurrentToken.Value) as ICommand;
 
-            if (command == null)
+            if (command is null)
             {
                 return null;
             }
@@ -145,7 +145,7 @@ namespace System.CommandLine.Parsing
                                       .Arguments
                                       .FirstOrDefault(a => !IsFull(a));
 
-            if (argument == null)
+            if (argument is null)
             {
                 return null;
             }

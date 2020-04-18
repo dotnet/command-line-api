@@ -46,7 +46,7 @@ namespace System.CommandLine.Parsing
         {
             get
             {
-                if (_argumentConversionResult == null)
+                if (_argumentConversionResult is null)
                 {
                     var results = Children
                                   .OfType<ArgumentResult>()

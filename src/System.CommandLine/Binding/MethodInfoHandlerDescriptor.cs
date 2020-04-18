@@ -24,7 +24,7 @@ namespace System.CommandLine.Binding
 
         public override ICommandHandler GetCommandHandler()
         {
-            if (_invocationTarget == null)
+            if (_invocationTarget is null)
             {
                 return new ModelBindingCommandHandler(
                     _handlerMethodInfo,

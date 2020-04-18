@@ -12,7 +12,7 @@ namespace System.CommandLine.Parsing
             this OptionResult optionResult,
             Type type)
         {
-            if (optionResult == null)
+            if (optionResult is null)
             {
                 throw new ArgumentNullException(nameof(optionResult));
             }

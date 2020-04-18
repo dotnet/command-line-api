@@ -35,7 +35,7 @@ namespace System.CommandLine
         {
             get
             {
-                if (_arity == null)
+                if (_arity is null)
                 {
                     if (ArgumentType != null)
                     {
@@ -137,7 +137,7 @@ namespace System.CommandLine
 
         public void SetDefaultValueFactory(Func<object?> getDefaultValue)
         {
-            if (getDefaultValue == null)
+            if (getDefaultValue is null)
             {
                 throw new ArgumentNullException(nameof(getDefaultValue));
             }
@@ -156,7 +156,7 @@ namespace System.CommandLine
 
         public void AddSuggestions(IReadOnlyCollection<string> suggestions)
         {
-            if (suggestions == null)
+            if (suggestions is null)
             {
                 throw new ArgumentNullException(nameof(suggestions));
             }
@@ -166,7 +166,7 @@ namespace System.CommandLine
 
         public void AddSuggestionSource(ISuggestionSource suggest)
         {
-            if (suggest == null)
+            if (suggest is null)
             {
                 throw new ArgumentNullException(nameof(suggest));
             }
@@ -176,7 +176,7 @@ namespace System.CommandLine
 
         public void AddSuggestionSource(Suggest suggest)
         {
-            if (suggest == null)
+            if (suggest is null)
             {
                 throw new ArgumentNullException(nameof(suggest));
             }
@@ -186,7 +186,7 @@ namespace System.CommandLine
 
         internal void AddAllowedValues(IEnumerable<string> values)
         {
-            if (AllowedValues == null)
+            if (AllowedValues is null)
             {
                 AllowedValues = new HashSet<string>();
             }

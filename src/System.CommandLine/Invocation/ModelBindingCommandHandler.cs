@@ -63,7 +63,7 @@ namespace System.CommandLine.Invocation
                                    _invocationTargetBinder?.CreateInstance(bindingContext);
 
             object result;
-            if (_handlerDelegate == null)
+            if (_handlerDelegate is null)
             {
                 result = _handlerMethodInfo!.Invoke(
                     invocationTarget,
