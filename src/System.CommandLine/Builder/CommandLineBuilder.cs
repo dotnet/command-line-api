@@ -27,7 +27,7 @@ namespace System.CommandLine.Builder
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; set; }
 
-        public Option HelpOption { get; internal set; }
+        internal Option HelpOption { get; set; }
 
         internal ValidationMessages ValidationMessages { get; set; }
 

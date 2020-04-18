@@ -16,9 +16,7 @@ namespace ObjectBinder
     public class ObjectBinder<TModel> : IObjectBinder<TModel> 
         where TModel : class
     {
-        public static string[] DefaultHelpAliases = new[] { "-h", "--help" };
-
-        public ObjectBinder(Command command, TModel target, params string[] helpAliases)
+        public ObjectBinder(Command command, TModel target)
         {
             Command = command ?? throw new NullReferenceException(nameof(command));
             Target = target ?? throw new NullReferenceException(nameof(target));
