@@ -23,14 +23,6 @@ namespace ObjectBinder
             Command = command ?? throw new NullReferenceException(nameof(command));
             Target = target ?? throw new NullReferenceException(nameof(target));
             ModelBinder = new ModelBinder<TModel>();
-
-            if( target is IModelWithHelp )
-            {
-                if( helpAliases == null || helpAliases.Length == 0 )
-                    helpAliases = DefaultHelpAliases;
-
-                this.AddOption( mb => ( (IModelWithHelp) mb ).HelpRequested, helpAliases );
-            }
         }
 
         public Command Command { get; }
