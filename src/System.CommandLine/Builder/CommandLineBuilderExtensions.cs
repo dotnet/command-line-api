@@ -296,8 +296,6 @@ namespace System.CommandLine.Builder
                         await next(context);
                     }
                 }, MiddlewareOrderInternal.HelpOption);
-
-                return builder;
             }
 
             return builder;

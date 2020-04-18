@@ -7,6 +7,7 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -734,6 +735,55 @@ namespace System.CommandLine.Tests.Binding
             var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<int[]>("x");
 
             value.Should().BeEquivalentTo(1, 2, 3);
+        }
+
+        [Theory]
+        [InlineData(0, int.MaxValue, typeof(string[]))]
+        [InlineData(0, 3, typeof(string[]))]
+        [InlineData(0, int.MaxValue, typeof(IEnumerable<string>))]
+        [InlineData(0, 3, typeof(IEnumerable<string>))]
+        [InlineData(0, int.MaxValue, typeof(List<string>))]
+        [InlineData(0, 3, typeof(List<string>))]
+        [InlineData(0, int.MaxValue, typeof(IList<string>))]
+        [InlineData(0, 3, typeof(IList<string>))]
+        [InlineData(0, int.MaxValue, typeof(ICollection<string>))]
+        [InlineData(0, 3, typeof(ICollection<string>))]
+        
+        [InlineData(1, int.MaxValue, typeof(string[]))]
+        [InlineData(1, 3, typeof(string[]))]
+        [InlineData(1, int.MaxValue, typeof(IEnumerable<string>))]
+        [InlineData(1, 3, typeof(IEnumerable<string>))]
+        [InlineData(1, int.MaxValue, typeof(List<string>))]
+        [InlineData(1, 3, typeof(List<string>))]
+        [InlineData(1, int.MaxValue, typeof(IList<string>))]
+        [InlineData(1, 3, typeof(IList<string>))]
+        [InlineData(1, int.MaxValue, typeof(ICollection<string>))]
+        [InlineData(1, 3, typeof(ICollection<string>))]
+        public void Max_arity_greater_than_1_converts_to_enumerable_types(
+            int minArity,
+            int maxArity,
+            Type argumentType)
+        {
+            var argument = new Argument
+            {
+                ArgumentType = argumentType,
+                Arity = new ArgumentArity(minArity, maxArity)
+            };
+
+            var option = new Option("--items")
+            {
+                Argument = argument
+            };
+
+            var command = new RootCommand
+            {
+                option
+            };
+
+            var result = command.Parse("--items one two three");
+
+            result.Errors.Should().BeEmpty();
+            result.FindResultFor(option).GetValueOrDefault().Should().BeAssignableTo(argumentType);
         }
 
         [Fact]

@@ -177,6 +177,11 @@ namespace System.CommandLine.Binding
 
         private static Type GetItemTypeIfEnumerable(Type type)
         {
+            if (type.IsArray)
+            {
+                return type.GetElementType();
+            }
+
             var enumerableInterface =
                 IsEnumerable(type)
                     ? type
@@ -192,10 +197,18 @@ namespace System.CommandLine.Binding
             return enumerableInterface.GenericTypeArguments[0];
         }
 
-        internal static bool IsEnumerable(this Type i)
+        internal static bool IsEnumerable(this Type type)
         {
-            return i.IsGenericType &&
-                   i.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+            if (type == typeof(string))
+            {
+                return false;
+            }
+
+            return 
+                type.IsArray 
+                ||
+                (type.IsGenericType &&
+                 type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         }
 
         private static bool HasStringTypeConverter(this Type type)
