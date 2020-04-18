@@ -52,7 +52,7 @@ namespace System.CommandLine.Builder
             return parser;
         }
 
-        internal void AddMiddleware(
+        public void AddMiddleware(
             InvocationMiddleware middleware,
             MiddlewareOrder order)
         {
