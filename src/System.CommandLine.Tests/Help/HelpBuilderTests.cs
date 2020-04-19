@@ -1148,6 +1148,46 @@ namespace System.CommandLine.Tests.Help
             help.Should().NotContain("/long");
         }
 
+        [Fact]
+        public void Options_help_preserves_the_order_options_are_added_the_the_parent_command()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] { "--first", "-f" }),
+                new Option(new[] { "--second", "-s" }),
+                new Option(new[] { "--third" }),
+                new Option(new[] { "--last", "-l" })
+            };
+
+            _helpBuilder.Write(command);
+            var help = _console
+                       .Out
+                       .ToString()
+                       .Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                       .Select(l => l.Trim());
+
+            help.Should().ContainInOrder(
+                "-f, --first",
+                "-s, --second",
+                "--third",
+                "-l, --last");
+        }
+
+        [Fact]
+        public void Option_aliases_are_shown_before_long_names_regardless_of_alphabetical_order()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] { "-z", "-a", "--zzz", "--aaa" })
+            };
+
+            _helpBuilder.Write(command);
+
+            _console
+                .Out
+                .ToString().Should().Contain("-a, -z, --aaa, --zzz");
+        }
+
         #endregion Options
 
         #region Subcommands
