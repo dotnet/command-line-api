@@ -16,6 +16,7 @@ namespace System.CommandLine
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity? _arity;
         private TryConvertArgument? _convertArguments;
+        private Type _argumentType = typeof(void);
 
         public Argument()
         {
@@ -37,7 +38,7 @@ namespace System.CommandLine
             {
                 if (_arity is null)
                 {
-                    if (ArgumentType != null)
+                    if (ArgumentType != typeof(void))
                     {
                         return ArgumentArity.Default(ArgumentType, this, Parents.FirstOrDefault());
                     }
@@ -57,7 +58,7 @@ namespace System.CommandLine
             get
             {
                 if (_convertArguments == null &&
-                    ArgumentType != null)
+                    ArgumentType != typeof(void))
                 {
                     if (ArgumentType.CanBeBoundFromScalarValue())
                     {
@@ -108,8 +109,11 @@ namespace System.CommandLine
             set => _convertArguments = value;
         }
 
-        //TODO: What if null gets set?
-        public Type ArgumentType { get; set; } = typeof(void);
+        public Type ArgumentType
+        {
+            get => _argumentType;
+            set => _argumentType = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new List<ValidateSymbol<ArgumentResult>>();
 
