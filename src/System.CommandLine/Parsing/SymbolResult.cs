@@ -63,24 +63,12 @@ namespace System.CommandLine.Parsing
 
         internal void AddToken(Token token) => _tokens.Add(token);
 
-        internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument)
-        {
-            return _defaultArgumentValues.GetOrAdd(
+        internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
+            _defaultArgumentValues.GetOrAdd(
                 argument,
-                arg =>
-                {
-                    var argumentResult = new ArgumentResult(
-                        argument,
-                        this);
-
-                    if (arg is Argument a)
-                    {
-                        a.GetDefaultValue(argumentResult);
-                    }
-
-                    return argumentResult;
-                });
-        }
+                arg => new ArgumentResult(
+                    argument,
+                    this));
 
         internal bool UseDefaultValueFor(IArgument argument)
         {
