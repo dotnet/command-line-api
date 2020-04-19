@@ -370,8 +370,8 @@ namespace System.CommandLine.Parsing
         public ParseResult Result =>
             new ParseResult(
                 _parser,
-                _rootCommandResult ?? throw new InvalidOperationException(),
-                _innermostCommandResult ?? throw new InvalidOperationException(),
+                _rootCommandResult ?? throw new InvalidOperationException("No root command was found"),
+                _innermostCommandResult ?? throw new InvalidOperationException("No command was found"),
                 _directives,
                 _tokenizeResult,
                 _unparsedTokens,
