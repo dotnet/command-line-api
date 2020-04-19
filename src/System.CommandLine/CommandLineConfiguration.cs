@@ -61,21 +61,22 @@ namespace System.CommandLine
             else
             {
                 // reuse existing auto-generated root command, if one is present, to prevent repeated mutations
-                rootCommand = symbols.SelectMany(s => s.Parents)
-                                     .OfType<RootCommand>()
-                                     .FirstOrDefault();
+                RootCommand? parentRootCommand = 
+                    symbols.SelectMany(s => s.Parents)
+                           .OfType<RootCommand>()
+                           .FirstOrDefault();
 
-                if (rootCommand is null)
+                if (parentRootCommand is null)
                 {
-                    rootCommand = new RootCommand();
+                    parentRootCommand = new RootCommand();
 
                     foreach (var symbol in symbols)
                     {
-                        rootCommand.Add(symbol);
+                        parentRootCommand.Add(symbol);
                     }
                 }
 
-                RootCommand = rootCommand;
+                RootCommand = rootCommand = parentRootCommand;
             }
 
             _symbols.Add(RootCommand);
