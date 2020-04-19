@@ -423,8 +423,7 @@ namespace System.CommandLine.Tests
                             argumentResult.ErrorMessage = $"'{argumentResult.Tokens.Single().Value}' is not an integer";
 
                             return default;
-                        }),
-                        Description = ""
+                        })
                     }
                 };
 

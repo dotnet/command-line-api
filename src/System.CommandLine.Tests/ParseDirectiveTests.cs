@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
             rootCommand.AddCommand(subcommand);
             var option = new Option(new[] { "-c", "--count" })
             {
-                Argument = new Argument<int>(), Description = ""
+                Argument = new Argument<int>()
             };
             subcommand.AddOption(option);
 
