@@ -94,8 +94,9 @@ namespace System.CommandLine.Parsing
             if (argument.AllowedValues?.Count > 0 &&
                 Tokens.Count > 0)
             {
-                foreach (var token in Tokens)
+                for (var i = 0; i < Tokens.Count; i++)
                 {
+                    var token = Tokens[i];
                     if (!argument.AllowedValues.Contains(token.Value))
                     {
                         return new ParseError(

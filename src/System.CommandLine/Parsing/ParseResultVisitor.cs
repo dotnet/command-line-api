@@ -300,7 +300,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            if (argumentResult.ArgumentConversionResult is FailedArgumentConversionResult failed)
+            if (argumentResult.GetArgumentConversionResult() is FailedArgumentConversionResult failed)
             {
                 _errors.Add(
                     new ParseError(
@@ -342,8 +342,7 @@ namespace System.CommandLine.Parsing
 
                             case Argument argument when argument.HasDefaultValue:
 
-                                var argumentResult = commandResult.GetOrCreateDefaultArgumentResult(
-                                    argument);
+                                var argumentResult = commandResult.GetOrCreateDefaultArgumentResult(argument);
 
                                 commandResult.Children.Add(argumentResult);
                                 _rootCommandResult.AddToSymbolMap(argumentResult);

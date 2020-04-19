@@ -11,9 +11,8 @@ namespace System.CommandLine.Parsing
             argumentResult.GetValueOrDefault<object>();
 
         public static T GetValueOrDefault<T>(this ArgumentResult argumentResult) =>
-            argumentResult
-                .ArgumentConversionResult
-                .ConvertIfNeeded(argumentResult, typeof(T))
-                .GetValueOrDefault<T>();
+            argumentResult.GetArgumentConversionResult()
+                          .ConvertIfNeeded(argumentResult, typeof(T))
+                          .GetValueOrDefault<T>();
     }
 }

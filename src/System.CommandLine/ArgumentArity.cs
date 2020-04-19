@@ -4,7 +4,6 @@
 using System.Collections;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
-using System.Linq;
 
 namespace System.CommandLine
 {
@@ -59,21 +58,9 @@ namespace System.CommandLine
 
             if (tokenCount > maximumNumberOfValues)
             {
-                if (maximumNumberOfValues == 1)
-                {
-                    return new TooManyArgumentsConversionResult(
-                        argument,
-                        symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
-                }
-                else
-                {
-                    return new TooManyArgumentsConversionResult(
-                        argument,
-                        symbolResult.ValidationMessages.ExpectsFewerArguments(
-                            symbolResult.Tokens.Last(),
-                            tokenCount,
-                            maximumNumberOfValues));
-                }
+                return new TooManyArgumentsConversionResult(
+                    argument,
+                    symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
             }
 
             return null;
