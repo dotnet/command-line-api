@@ -7,17 +7,23 @@ namespace System.CommandLine
 {
     public class Argument<T> : Argument
     {
-        public Argument(string name) : this()
-        {
-            Name = name;
-        }
-
         public Argument() : base(null)
         {
             ArgumentType = typeof(T);
         }
 
-        public Argument(string name, Func<T> getDefaultValue) : this(name)
+        public Argument(
+            string name, 
+            string description = null) : base(name)
+        {
+            ArgumentType = typeof(T);
+            Description = description;
+        }
+
+        public Argument(
+            string name, 
+            Func<T> getDefaultValue, 
+            string description = null) : this(name)
         {
             if (getDefaultValue == null)
             {
@@ -25,6 +31,8 @@ namespace System.CommandLine
             }
 
             SetDefaultValueFactory(() => getDefaultValue());
+
+            Description = description;
         }
 
         public Argument(Func<T> getDefaultValue) : this()

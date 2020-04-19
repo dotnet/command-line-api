@@ -7,22 +7,16 @@ namespace System.CommandLine
 {
     public class Option<T> : Option
     {
-        public Option(string alias) : base(alias)
+        public Option(
+            string alias, 
+            string description = null) : base(alias, description)
         {
             Argument = new Argument<T>();
         }
 
-        public Option(string[] aliases) : base(aliases)
-        {
-            Argument = new Argument<T>();
-        }
-
-        public Option(string alias, string description) : base(alias, description)
-        {
-            Argument = new Argument<T>();
-        }
-
-        public Option(string[] aliases, string description) : base(aliases, description)
+        public Option(
+            string[] aliases, 
+            string description = null) : base(aliases, description)
         {
             Argument = new Argument<T>();
         }

@@ -187,18 +187,16 @@ namespace System.CommandLine.Tests.Help
                            {
                                Name = "arg2",
                                Arity = new ArgumentArity(
-                                   minArityForArg2, 
+                                   minArityForArg2,
                                    maxArityForArg2)
-                           };
+            };
             var command = new Command("the-command", "command help")
             {
                 arg1,
                 arg2,
-                new Option(new[] { "-v", "--verbosity" })
-                {
-                    Description = "Sets the verbosity"
-                }
+                new Option(new[] { "-v", "--verbosity" }, "Sets the verbosity")
             };
+
             var rootCommand = new RootCommand();
             rootCommand.AddCommand(command);
 
@@ -479,8 +477,7 @@ namespace System.CommandLine.Tests.Help
                 new Argument
                 {
                     Name = "arg command name",
-                    Description = "test",
-                    Arity = ArgumentArity.ExactlyOne
+                    Description = "test"
                 }
             };
 

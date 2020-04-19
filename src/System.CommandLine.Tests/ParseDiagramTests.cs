@@ -78,15 +78,15 @@ namespace System.CommandLine.Tests
             {
                 new Option(new[] { "-h", "--height" })
                 {
-                    Argument = new Argument<int>(getDefaultValue: () => 10), Description = ""
+                    Argument = new Argument<int>(getDefaultValue: () => 10)
                 },
                 new Option(new[] { "-w", "--width" })
                 {
-                    Argument = new Argument<int>(getDefaultValue: () => 15), Description = ""
+                    Argument = new Argument<int>(getDefaultValue: () => 15)
                 },
                 new Option(new[] { "-c", "--color" })
                 {
-                    Argument = new Argument<ConsoleColor>(() => ConsoleColor.Cyan), Description = ""
+                    Argument = new Argument<ConsoleColor>(() => ConsoleColor.Cyan)
                 }
             };
 
