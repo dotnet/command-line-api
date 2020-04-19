@@ -38,13 +38,6 @@ namespace System.CommandLine.Binding
             Type type,
             object value)
         {
-            if (value == null &&
-                type == typeof(bool))
-            {
-                // the presence of the parsed symbol is treated as true
-                return new SuccessfulArgumentConversionResult(argument, true);
-            }
-
             switch (value)
             {
                 case string singleValue:
@@ -59,9 +52,6 @@ namespace System.CommandLine.Binding
 
                 case IReadOnlyCollection<string> manyValues:
                     return ConvertStrings(argument, type, manyValues);
-
-                case null:
-                    break;
             }
 
             return None(argument);
@@ -93,16 +83,9 @@ namespace System.CommandLine.Binding
 
             if (_converters.TryGetValue(type, out var convert))
             {
-                try
-                {
-                    return Success(
-                        argument,
-                        convert(value));
-                }
-                catch (Exception)
-                {
-                    return Failure(argument, type, value);
-                }
+                return Success(
+                    argument,
+                    convert(value));
             }
 
             if (type.TryFindConstructorWithSingleParameterOfType(
@@ -121,7 +104,7 @@ namespace System.CommandLine.Binding
 
         public static ArgumentConversionResult ConvertStrings(
             IArgument argument,
-            Type type, 
+            Type type,
             IReadOnlyCollection<string> arguments)
         {
             if (type == null)
@@ -134,45 +117,26 @@ namespace System.CommandLine.Binding
                 throw new ArgumentNullException(nameof(arguments));
             }
 
-            Type itemType;
+            var itemType = type == typeof(string)
+                               ? typeof(string)
+                               : GetItemTypeIfEnumerable(type);
 
-            if (type == typeof(string))
+            var successfulParseResults = arguments
+                                         .Select(arg => ConvertString(argument, itemType, arg))
+                                         .OfType<SuccessfulArgumentConversionResult>();
+
+            var list = (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+
+            foreach (var parseResult in successfulParseResults)
             {
-                // don't treat items as char
-                itemType = typeof(string);
-            }
-            else
-            {
-                itemType = GetItemTypeIfEnumerable(type);
+                list.Add(parseResult.Value);
             }
 
-            var allParseResults = arguments
-                                  .Select(arg => ConvertString(argument, itemType, arg))
-                                  .ToArray();
+            var value = type.IsArray
+                            ? (object) Enumerable.ToArray((dynamic) list)
+                            : list;
 
-            var successfulParseResults = allParseResults
-                                         .OfType<SuccessfulArgumentConversionResult>()
-                                         .ToArray();
-
-            if (successfulParseResults.Length == arguments.Count)
-            {
-                var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
-
-                foreach (var parseResult in successfulParseResults)
-                {
-                    list.Add(parseResult.Value);
-                }
-
-                var value = type.IsArray
-                                ? (object)Enumerable.ToArray((dynamic)list)
-                                : list;
-
-                return Success(argument, value);
-            }
-            else
-            {
-                return allParseResults.OfType<FailedArgumentConversionResult>().First();
-            }
+            return Success(argument, value);
         }
 
         private static Type GetItemTypeIfEnumerable(Type type)
@@ -311,12 +275,6 @@ namespace System.CommandLine.Binding
                         conversionResult.Argument,
                         type,
                         Array.Empty<string>());
-
-                case TooManyArgumentsConversionResult _:
-                    return conversionResult;
-
-                case MissingArgumentConversionResult _:
-                    return conversionResult;
 
                 default:
                     return conversionResult;

@@ -11,7 +11,6 @@ using static System.CommandLine.Rendering.Ansi;
 using static System.CommandLine.Rendering.TestTerminal;
 using static System.Environment;
 using System.CommandLine.Rendering.Views;
-using System.CommandLine.Tests;
 using System.CommandLine.Tests.Utility;
 
 namespace System.CommandLine.Rendering.Tests

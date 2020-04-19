@@ -125,7 +125,7 @@ namespace System.CommandLine.Parsing
                     builder.Append(" ");
                 }
 
-                switch (argumentResult.ArgumentConversionResult)
+                switch (argumentResult.GetArgumentConversionResult())
                 {
                     case SuccessfulArgumentConversionResult successful:
 
