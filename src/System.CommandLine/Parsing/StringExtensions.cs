@@ -49,7 +49,7 @@ namespace System.CommandLine.Parsing
             return (null, rawAlias);
         }
 
-        internal static TokenizeResult Tokenize(
+        public static TokenizeResult Tokenize(
             this IReadOnlyList<string> args,
             CommandLineConfiguration configuration)
         {

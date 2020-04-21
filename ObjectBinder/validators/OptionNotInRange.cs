@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace ObjectBinder
+namespace J4JSoftware.CommandLine
 {
     public class OptionNotInRange<T> : IOptionValidator<T>
         where T : IComparable<T>
@@ -63,46 +63,30 @@ namespace ObjectBinder
             return false;
         }
 
-        public string GetErrorMessage( T toCheck )
+        public string GetErrorMessage( string optionName, T toCheck )
         {
             if( IsValid( toCheck ) )
                 return null;
 
             var sb = new StringBuilder();
 
+            sb.Append($"{optionName} is {toCheck} but must be ");
+
             if (MinimumSet)
             {
-                var comparison = Minimum.CompareTo(toCheck);
-
-                if( comparison >= 0 )
-                {
-                    sb.Append( $"{toCheck} is " );
-
-                    if( IncludeMinimumEqual && comparison == 0 )
-                        sb.Append( ">=" );
-                    else sb.Append( ">" );
-
-                    sb.Append( $" {Minimum}" );
-                }
+                sb.Append(IncludeMinimumEqual ? "<=" : "<");
+                sb.Append($" {Minimum}");
             }
 
             if (MaximumSet)
             {
-                var comparison = Maximum.CompareTo(toCheck);
+                if (MinimumSet) sb.Append(" and ");
 
-                if( comparison <= 0 )
-                {
-                    sb.Append( sb.Length > 0 ? " and " : $"{toCheck} is " );
-
-                    if( IncludeMaximumEqual && comparison == 0 )
-                        sb.Append( "<=" );
-                    else sb.Append( "<" );
-
-                    sb.Append( $" {Maximum}" );
-                }
+                sb.Append(IncludeMaximumEqual ? ">=" : ">");
+                sb.Append($" {Maximum}");
             }
 
-            return sb.Length == 0 ? null : sb.ToString();
+            return sb.ToString();
         }
     }
 }

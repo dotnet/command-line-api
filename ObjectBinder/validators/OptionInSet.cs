@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace ObjectBinder
+namespace J4JSoftware.CommandLine
 {
     public class OptionInSet<T> : IOptionValidator<T>
     {
@@ -19,8 +19,8 @@ namespace ObjectBinder
 
         public bool IsValid( T toCheck ) => _checkValues.Any( x => x.Equals( toCheck ) );
 
-        public string GetErrorMessage( T toCheck ) => IsValid( toCheck )
+        public string GetErrorMessage( string optionName, T toCheck ) => IsValid( toCheck )
             ? null
-            : $"{toCheck} isn't one of the allowed values  {string.Join( ",", _checkValues.Select( x => x.ToString() ) )}";
+            : $"{optionName}: {toCheck} isn't one of the allowed values  {string.Join( ",", _checkValues.Select( x => x.ToString() ) )}";
     }
 }

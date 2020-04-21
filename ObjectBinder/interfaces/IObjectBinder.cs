@@ -1,8 +1,9 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 
-namespace ObjectBinder
+namespace J4JSoftware.CommandLine
 {
     public interface IObjectBinder
     {
@@ -11,6 +12,7 @@ namespace ObjectBinder
     }
 
     public interface IObjectBinder<out TModel> : IObjectBinder
+        where TModel : IRootObjectModel
     {
         TModel Target { get; }
     }

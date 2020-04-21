@@ -1,4 +1,4 @@
-﻿namespace ObjectBinder
+﻿namespace J4JSoftware.CommandLine
 {
     public class OptionNotEqual<T> : IOptionValidator<T>
     {
@@ -11,7 +11,7 @@
 
         public bool IsValid(T toCheck) => !_checkValue.Equals(toCheck);
 
-        public string GetErrorMessage(T toCheck) =>
-            IsValid(toCheck) ? null : $"{toCheck} equals {_checkValue}";
+        public string GetErrorMessage( string optionName, T toCheck) =>
+            IsValid(toCheck) ? null : $"{optionName}: {toCheck} equals {_checkValue}";
     }
 }

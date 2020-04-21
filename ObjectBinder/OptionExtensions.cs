@@ -3,7 +3,7 @@ using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Linq.Expressions;
 
-namespace ObjectBinder
+namespace J4JSoftware.CommandLine
 {
     public static class OptionExtensions
     {
@@ -27,7 +27,19 @@ namespace ObjectBinder
 
         public static Option<T> Validator<T>(this Option<T> option, IOptionValidator<T> validator )
         {
-            option.AddValidator( x => validator.GetErrorMessage( x.GetValueOrDefault<T>() ) );
+            option.AddValidator( x => validator.GetErrorMessage( option.Name, x.GetValueOrDefault<T>() ) );
+            return option;
+        }
+
+        public static Option<T> Required<T>( this Option<T> option )
+        {
+            option.Required = true;
+            return option;
+        }
+
+        public static Option<T> Optional<T>(this Option<T> option)
+        {
+            option.Required = false;
             return option;
         }
     }
