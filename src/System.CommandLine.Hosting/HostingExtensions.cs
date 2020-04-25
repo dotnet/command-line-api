@@ -81,5 +81,22 @@ namespace System.CommandLine.Hosting
                 modelBinder.UpdateInstance(opts, bindingContext);
             });
         }
+
+        public static void BindInvocationHandler(InvocationContext invocation, IHostBuilder hostBuilder)
+        {
+            if (invocation
+                .ParseResult
+                .CommandResult
+                .Command is Command command)
+            {
+                if (command.Handler == null && command.HandlerType != null)
+                {
+                    invocation.BindingContext.AddService(command.HandlerType, c => c.GetService<IHost>().Services.GetService(command.HandlerType));
+                    hostBuilder.ConfigureServices(services => services.AddTransient(command.HandlerType));
+
+                    command.Handler = CommandHandler.Create(command.HandlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+                }
+            }
+        }
     }
 }
