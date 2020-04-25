@@ -148,6 +148,21 @@ namespace System.CommandLine.Tests
                   .Be("You must specify at least one option or command.");
         }
 
+        [Theory]
+        [InlineData("-")]
+        [InlineData("/")]
+        public void When_a_token_is_just_a_prefix_then_an_error_is_returned(string prefix)
+        {
+            var parser = new Parser(new RootCommand());
+
+            var result = parser.Parse(prefix);
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument(prefix));
+        }
+
         [Fact]
         public void Two_options_cannot_have_conflicting_aliases()
         {

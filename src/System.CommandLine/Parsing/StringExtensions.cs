@@ -171,7 +171,7 @@ namespace System.CommandLine.Parsing
 
             return new TokenizeResult(tokenList, errorList);
 
-            bool CanBeUnbundled(string arg, out IEnumerable<string> replacement)
+            bool CanBeUnbundled(string arg, out IReadOnlyList<string> replacement)
             {
                 replacement = null;
 
@@ -208,8 +208,14 @@ namespace System.CommandLine.Parsing
                     }
                 }
                 
-                bool TryUnbundle(string arg, out IEnumerable<string> replacement)
+                bool TryUnbundle(string arg, out IReadOnlyList<string> replacement)
                 {
+                    if (arg == string.Empty)
+                    {
+                        replacement = null;
+                        return false;
+                    }
+
                     var lastTokenHasArgument = false;
                     var builder = new List<string>();
                     for (var i = 0; i < arg.Length; i++)
