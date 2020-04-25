@@ -13,8 +13,8 @@ namespace System.CommandLine
 {
     public class CommandLineConfiguration
     {
-        private IReadOnlyCollection<InvocationMiddleware>? _middlewarePipeline;
-        private Func<BindingContext, IHelpBuilder>? _helpBuilderFactory;
+        private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
+        private Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
         public CommandLineConfiguration(
@@ -87,8 +87,8 @@ namespace System.CommandLine
             EnableDirectives = enableDirectives;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
-            _middlewarePipeline = middlewarePipeline;
-            _helpBuilderFactory = helpBuilderFactory;
+            _middlewarePipeline = middlewarePipeline ?? new List<InvocationMiddleware>();
+            _helpBuilderFactory = helpBuilderFactory ?? (context => new HelpBuilder(context.Console));
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)
@@ -118,11 +118,9 @@ namespace System.CommandLine
 
         public ValidationMessages ValidationMessages { get; }
 
-        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory =>
-            _helpBuilderFactory ??= context => new HelpBuilder(context.Console);
+        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory;
 
-        internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
-            _middlewarePipeline ??= new List<InvocationMiddleware>();
+        internal IReadOnlyCollection<InvocationMiddleware> Middleware => _middlewarePipeline;
 
         public ICommand RootCommand { get; }
 
