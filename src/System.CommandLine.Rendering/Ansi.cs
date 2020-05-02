@@ -11,6 +11,7 @@ namespace System.CommandLine.Rendering
         [DebuggerStepThrough]
         public static class Text
         {
+            public static AnsiControlCode AttributesOff { get; } = $"{Esc}[0m";
             public static AnsiControlCode BlinkOff { get; } = $"{Esc}[25m";
             public static AnsiControlCode BlinkOn { get; } = $"{Esc}[5m";
             public static AnsiControlCode BoldOff { get; } = $"{Esc}[22m";
@@ -27,8 +28,6 @@ namespace System.CommandLine.Rendering
         [DebuggerStepThrough]
         public static class Color
         {
-            public static AnsiControlCode Off { get; } = $"{Esc}[0m";
-
             [DebuggerStepThrough]
             public class Background
             {
