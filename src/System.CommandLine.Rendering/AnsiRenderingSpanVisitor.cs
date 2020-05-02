@@ -128,6 +128,7 @@ namespace System.CommandLine.Rendering
         private static readonly Dictionary<string, AnsiControlCode> _styleControlCodeMappings =
             new Dictionary<string, AnsiControlCode>
             {
+                [nameof(StyleSpan.AttributesOff)] = Ansi.Text.AttributesOff,
                 [nameof(StyleSpan.BlinkOff)] = Ansi.Text.BlinkOff,
                 [nameof(StyleSpan.BlinkOn)] = Ansi.Text.BlinkOn,
                 [nameof(StyleSpan.BoldOff)] = Ansi.Text.BoldOff,

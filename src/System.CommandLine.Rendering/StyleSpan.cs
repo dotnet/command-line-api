@@ -9,6 +9,7 @@ namespace System.CommandLine.Rendering
         {
         }
 
+        public static StyleSpan AttributesOff() => new StyleSpan(nameof(AttributesOff), Ansi.Text.AttributesOff);
         public static StyleSpan BlinkOff() => new StyleSpan(nameof(BlinkOff), Ansi.Text.BlinkOn);
         public static StyleSpan BlinkOn() => new StyleSpan(nameof(BlinkOn), Ansi.Text.BlinkOff);
         public static StyleSpan BoldOff() => new StyleSpan(nameof(BoldOff), Ansi.Text.BoldOff);

@@ -113,13 +113,13 @@ namespace System.CommandLine.Rendering.Tests
 
             var formatter = new TextSpanFormatter();
 
-            var span = formatter.ParseToSpan($"{Ansi.Color.Foreground.LightGray}hello{Ansi.Color.Off}");
+            var span = formatter.ParseToSpan($"{Ansi.Color.Foreground.LightGray}hello{Ansi.Text.AttributesOff}");
 
             writer.Write(span.ToString(OutputMode.Ansi));
 
             writer.ToString()
                   .Should()
-                  .Be($"{Ansi.Color.Foreground.LightGray.EscapeSequence}hello{Ansi.Color.Off.EscapeSequence}");
+                  .Be($"{Ansi.Color.Foreground.LightGray.EscapeSequence}hello{Ansi.Text.AttributesOff.EscapeSequence}");
         }
     }
 }
