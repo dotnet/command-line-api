@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests
                 {
                     Argument = new Argument
                         {
-                            Arity = ArgumentArity.ExactlyOne 
+                            Arity = ArgumentArity.ExactlyOne
                         }
                         .FromAmong("this", "that", "the-other-thing")
                 });
@@ -83,7 +83,7 @@ namespace System.CommandLine.Tests
                   .Contain(e => e.Message == "Required argument missing for option: -x");
         }
 
-        
+
         [Fact]
         public void When_a_required_option_is_not_supplied_then_an_error_is_returned()
         {
@@ -99,7 +99,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .ContainSingle(e => e.SymbolResult.Symbol == command)
+                  .ContainSingle(e => Equals(e.SymbolResult.Symbol, command))
                   .Which
                   .Message
                   .Should()
@@ -214,7 +214,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .ContainSingle(e => e.SymbolResult.Symbol == option)
+                  .ContainSingle(e => Equals(e.SymbolResult.Symbol, option))
                   .Which
                   .Message
                   .Should()
@@ -239,7 +239,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                  .ContainSingle(e => Equals(e.SymbolResult.Symbol, argument))
                   .Which
                   .Message
                   .Should()
@@ -283,8 +283,8 @@ namespace System.CommandLine.Tests
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol.Name == "the-command" &&
                                     e.Message == $"Character not allowed in a path: {invalidCharacter}");
-            }   
-            
+            }
+
             [Fact]
             public void LegalFilePathsOnly_rejects_option_arguments_containing_invalid_path_characters()
             {
@@ -318,7 +318,7 @@ namespace System.CommandLine.Tests
 
                 result.Errors.Should().BeEmpty();
             }
-            
+
             [Fact]
             public void LegalFilePathsOnly_accepts_option_arguments_containing_valid_path_characters()
             {
@@ -467,10 +467,10 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
                                     e.Message == $"File does not exist: {path}");
             }
-            
+
             [Fact]
             public void An_option_argument_with_multiple_files_can_be_invalid_based_on_file_existence()
             {
@@ -486,7 +486,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
                                     e.Message == $"File does not exist: {path}");
             }
 
@@ -551,7 +551,7 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
+                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
                                     e.Message == $"File or directory does not exist: {path}");
             }
 
@@ -677,7 +677,7 @@ namespace System.CommandLine.Tests
             {
                 return Directory.GetCurrentDirectory();
             }
-            
+
             private string ExistingFile()
             {
                 return new DirectoryInfo(Directory.GetCurrentDirectory()).GetFiles().First().FullName;
@@ -715,7 +715,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
-                           e.SymbolResult.Symbol == rootCommand);
+                           Equals(e.SymbolResult.Symbol, rootCommand));
         }
 
         [Fact]

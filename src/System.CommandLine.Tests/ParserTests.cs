@@ -301,6 +301,20 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Option_should_be_found_although_new_option_instance_is_used()
+        {
+            var parser = new CommandLineBuilder()
+                         .AddGlobalOption(new Option<bool>("--verbose"))
+                         .Build();
+
+            var parseResult = parser.Parse("--verbose");
+
+            parseResult.HasOption(new Option<bool>("--verbose"))
+                       .Should()
+                       .Be(true);
+        }
+
+        [Fact]
         public void Options_short_forms_do_not_get_unbundled_if_unbundling_is_turned_off()
         {
             var parser = new CommandLineBuilder()
@@ -433,7 +447,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ZeroOrOne
                 }
             };
-            var optionC = new Option("-c") 
+            var optionC = new Option("-c")
             {
                 Argument = new Argument<string>
                 {
@@ -469,7 +483,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ZeroOrOne
                 }
             };
-            var optionC = new Option("-c") 
+            var optionC = new Option("-c")
             {
                 Argument = new Argument<string>
                 {
@@ -505,7 +519,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ZeroOrOne
                 }
             };
-            var optionC = new Option("-c") 
+            var optionC = new Option("-c")
             {
                 Argument = new Argument<string>
                 {
@@ -541,7 +555,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ZeroOrOne
                 }
             };
-            var optionC = new Option("-c") 
+            var optionC = new Option("-c")
             {
                 Argument = new Argument<string>
                 {
@@ -1391,7 +1405,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_with_a_default_value_is_not_matched_then_there_are_no_tokens()
         {
             var option = new Option<string>(
-                "-o", 
+                "-o",
                 () => "the-default");
 
             var command = new Command("command")
@@ -1411,7 +1425,7 @@ namespace System.CommandLine.Tests
         public void When_an_argument_with_a_default_value_is_not_matched_then_there_are_no_tokens()
         {
             var argument = new Argument<string>(
-                "o", 
+                "o",
                 () => "the-default");
 
             var command = new Command("command")
@@ -1570,7 +1584,7 @@ namespace System.CommandLine.Tests
                   .Parent
                   .Children
                   .Should()
-                  .Contain(c => c.Symbol == option);
+                  .Contain(c => Equals(c.Symbol, option));
         }
 
         [Fact]
@@ -2014,7 +2028,7 @@ namespace System.CommandLine.Tests
 
             }
         }
-      
+
         public class CustomCollectionTypeConverter : TypeConverter
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)

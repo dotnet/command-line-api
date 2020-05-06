@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public abstract class Symbol : ISymbol
+    public abstract class Symbol : ISymbol, IEquatable<ISymbol>
     {
         private readonly List<string> _aliases = new List<string>();
         private readonly List<string> _rawAliases = new List<string>();
@@ -64,7 +64,7 @@ namespace System.CommandLine
             }
         }
 
-        public ISymbolSet Parents => _parents; 
+        public ISymbolSet Parents => _parents;
 
         internal void AddParent(Symbol symbol)
         {
@@ -153,5 +153,19 @@ namespace System.CommandLine
         public override string ToString() => $"{GetType().Name}: {Name}";
 
         ISymbolSet ISymbol.Children => Children;
+
+        public override bool Equals(object obj) =>
+            ReferenceEquals(this, obj) || obj is ISymbol other && Equals(other);
+
+
+        public virtual bool Equals(ISymbol other)
+        {
+            return string.Equals(Name, other?.Name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Name) : 0);
+        }
     }
 }

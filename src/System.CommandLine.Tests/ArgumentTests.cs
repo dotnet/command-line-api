@@ -130,7 +130,7 @@ namespace System.CommandLine.Tests
                 argument.Parse("x")
                         .Errors
                         .Should()
-                        .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                        .ContainSingle(e => Equals(e.SymbolResult.Symbol, argument))
                         .Which
                         .Message
                         .Should()
@@ -149,7 +149,7 @@ namespace System.CommandLine.Tests
                 argument.Parse("")
                         .Errors
                         .Should()
-                        .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                        .ContainSingle(e => Equals(e.SymbolResult.Symbol, argument))
                         .Which
                         .Message
                         .Should()
@@ -348,7 +348,7 @@ namespace System.CommandLine.Tests
                     .Should()
                     .Be(123);
             }
-            
+
             [Fact]
             public void Multiple_command_arguments_can_have_custom_parse_delegates()
             {
@@ -405,7 +405,7 @@ namespace System.CommandLine.Tests
 
                 result.CommandResult.Tokens.Count.Should().Be(1);
             }
-            
+
             [Fact]
             public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
             {
@@ -448,8 +448,8 @@ namespace System.CommandLine.Tests
                 var command = new RootCommand
                 {
                     new Option<int>(
-                        "-x", 
-                        result => ++i, 
+                        "-x",
+                        result => ++i,
                         isDefault: true)
                 };
 

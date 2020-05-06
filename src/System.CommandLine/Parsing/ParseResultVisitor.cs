@@ -83,7 +83,7 @@ namespace System.CommandLine.Parsing
             var argumentResult =
                 commandResult.Children
                              .OfType<ArgumentResult>()
-                             .SingleOrDefault(r => r.Symbol == argumentNode.Argument);
+                             .SingleOrDefault(r => Equals(r.Symbol, argumentNode.Argument));
 
             if (argumentResult == null)
             {
@@ -91,7 +91,7 @@ namespace System.CommandLine.Parsing
                     new ArgumentResult(
                         argumentNode.Argument,
                         commandResult);
-                
+
                 commandResult.Children.Add(argumentResult);
             }
 
@@ -152,7 +152,7 @@ namespace System.CommandLine.Parsing
         protected override void Stop(SyntaxNode node)
         {
             ValidateCommandHandler();
-          
+
             PopulateDefaultValues();
 
             ValidateCommandResult();
@@ -197,7 +197,7 @@ namespace System.CommandLine.Parsing
                                    .Options)
             {
                 if (option is Option o &&
-                    o.Required && 
+                    o.Required &&
                     _rootCommandResult.FindResultFor(o) == null)
                 {
                     _errors.Add(
@@ -226,7 +226,7 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandHandler()
         {
-            if (!(_innermostCommandResult.Command is Command cmd) || 
+            if (!(_innermostCommandResult.Command is Command cmd) ||
                 cmd.Handler != null)
             {
                 return;

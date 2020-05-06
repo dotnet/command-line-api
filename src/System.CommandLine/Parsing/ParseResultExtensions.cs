@@ -191,7 +191,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.CommandResult.Children.Any(s => s.Symbol == option);
+            return parseResult.CommandResult.Children.Any(s => Equals(s.Symbol, option));
         }
 
         public static bool HasOption(
