@@ -17,11 +17,16 @@ namespace System.CommandLine.Parsing
         internal static bool ContainsCaseInsensitive(
             this string source,
             string value) =>
+            source.IndexOfCaseInsensitive(value) >= 0;
+
+        internal static int IndexOfCaseInsensitive(
+            this string source,
+            string value) =>
             CultureInfo.InvariantCulture
                        .CompareInfo
                        .IndexOf(source,
                                 value ?? "",
-                                CompareOptions.OrdinalIgnoreCase) >= 0;
+                                CompareOptions.OrdinalIgnoreCase);
 
         internal static string RemovePrefix(this string rawAlias)
         {

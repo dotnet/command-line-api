@@ -146,8 +146,9 @@ namespace System.CommandLine
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
                        .Distinct()
-                       .OrderBy(symbol => symbol, StringComparer.OrdinalIgnoreCase)
-                       .Containing(textToMatch);
+                       .Containing(textToMatch)
+                       .OrderBy(symbol => symbol.IndexOfCaseInsensitive(textToMatch))
+                       .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";
