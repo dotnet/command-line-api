@@ -11,19 +11,23 @@ namespace System.CommandLine.Rendering
         ICustomFormatter,
         IFormatProvider
     {
-        private static readonly Regex _formattableStringParser =
-            new Regex(@"
-(\s*{{\s*)
+        private static readonly Regex _formattableStringParser;
+
+        private readonly Dictionary<Type, Func<object, TextSpan>> _formatters = new Dictionary<Type, Func<object, TextSpan>>();
+
+        static TextSpanFormatter()
+        {
+            _formattableStringParser = new Regex(
+                @"(\s*{{\s*)
 	|
 (\s*}}\s*)
 	|
 (?<token> \{ [0-9]+ [^\}]* \} )
 	|
 (?<text> [^\{\}]* )",
-                      RegexOptions.Compiled |
-                      RegexOptions.IgnorePatternWhitespace);
-
-        private readonly Dictionary<Type, Func<object, TextSpan>> _formatters = new Dictionary<Type, Func<object, TextSpan>>();
+                RegexOptions.Compiled |
+                RegexOptions.IgnorePatternWhitespace);
+        }
 
         public void AddFormatter<T>(Func<T, TextSpan> format)
         {
@@ -108,10 +112,11 @@ namespace System.CommandLine.Rendering
             {
                 return new ContainerSpan(DestructureIntoSpans().ToArray());
             }
-
+            
             IEnumerable<TextSpan> DestructureIntoSpans()
             {
                 var partIndex = 0;
+
 
                 foreach (Match match in _formattableStringParser.Matches(formattableString.Format))
                 {
