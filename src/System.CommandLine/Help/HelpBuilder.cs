@@ -335,8 +335,8 @@ namespace System.CommandLine.Help
             var rawAliases = symbol
                              .RawAliases
                              .Select(r => r.SplitPrefix())
-                             .OrderBy(r => r.prefix)
-                             .ThenBy(r => r.alias)
+                             .OrderBy(r => r.prefix, StringComparer.OrdinalIgnoreCase)
+                             .ThenBy(r => r.alias, StringComparer.OrdinalIgnoreCase)
                              .GroupBy(t => t.alias)
                              .Select(t => t.First())
                              .Select(t => $"{t.prefix}{t.alias}");
