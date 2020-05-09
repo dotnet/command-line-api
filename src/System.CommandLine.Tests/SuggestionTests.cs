@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.CommandLine.Tests.Utility;
 using System.IO;
 using FluentAssertions;
 using Xunit;
@@ -110,6 +111,36 @@ namespace System.CommandLine.Tests
 
             suggestions.Should()
                        .BeEquivalentTo("subcommand", "--option", "command-argument");
+        }
+
+        [Fact]
+        public void Command_Suggest_without_text_to_match_orders_alphabetically()
+        {
+            var command = new Command("command")
+            {
+                new Command("andmythirdsubcommand"),
+                new Command("mysubcommand"),
+                new Command("andmyothersubcommand"),
+            };
+
+            var suggestions = command.GetSuggestions();
+
+            suggestions.Should().BeEquivalentSequenceTo("andmyothersubcommand", "andmythirdsubcommand", "mysubcommand");
+        }
+
+        [Fact]
+        public void Command_Suggest_with_text_to_match_orders_by_match_position_then_alphabetically()
+        {
+            var command = new Command("command")
+            {
+                new Command("andmythirdsubcommand"),
+                new Command("mysubcommand"),
+                new Command("andmyothersubcommand"),
+            };
+
+            var suggestions = command.GetSuggestions("my");
+
+            suggestions.Should().BeEquivalentSequenceTo("mysubcommand", "andmyothersubcommand", "andmythirdsubcommand");
         }
 
         [Fact]
