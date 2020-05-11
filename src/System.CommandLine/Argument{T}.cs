@@ -14,7 +14,7 @@ namespace System.CommandLine
 
         public Argument(
             string name, 
-            string description = null) : base(name)
+            string? description = null) : base(name)
         {
             ArgumentType = typeof(T);
             Description = description;
@@ -23,7 +23,7 @@ namespace System.CommandLine
         public Argument(
             string name, 
             Func<T> getDefaultValue, 
-            string description = null) : this(name)
+            string? description = null) : this(name)
         {
             if (getDefaultValue is null)
             {

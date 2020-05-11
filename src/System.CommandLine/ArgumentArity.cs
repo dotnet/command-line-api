@@ -60,7 +60,7 @@ namespace System.CommandLine
             {
                 return new TooManyArgumentsConversionResult(
                     argument,
-                    symbolResult.ValidationMessages.ExpectsOneArgument(symbolResult));
+                    symbolResult!.ValidationMessages.ExpectsOneArgument(symbolResult));
             }
 
             return null;

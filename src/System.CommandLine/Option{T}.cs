@@ -9,14 +9,14 @@ namespace System.CommandLine
     {
         public Option(
             string alias, 
-            string description = null) : base(alias, description)
+            string? description = null) : base(alias, description)
         {
             Argument = new Argument<T>();
         }
 
         public Option(
             string[] aliases, 
-            string description = null) : base(aliases, description)
+            string? description = null) : base(aliases, description)
         {
             Argument = new Argument<T>();
         }

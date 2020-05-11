@@ -8,7 +8,7 @@ namespace System.CommandLine.Parsing
 {
     public class ArgumentResult : SymbolResult
     {
-        private ArgumentConversionResult _conversionResult;
+        private ArgumentConversionResult? _conversionResult;
 
         internal ArgumentResult(
             IArgument argument,
