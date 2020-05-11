@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
-    <PackageReference Include="system.memory" Version="4.5.3" />
+    <PackageReference Include="system.memory" Version="4.5.4" />
   </ItemGroup>
 
 </Project>
