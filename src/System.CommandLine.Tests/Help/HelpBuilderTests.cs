@@ -842,6 +842,55 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain($"--opt <Read|ReadWrite|Write>{_columnPadding}{description}");
         }
 
+        [Fact]
+        public void Command_argument_default_value_provided()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+                Description = "Help text from HelpDetail",
+            };
+            argument.SetDefaultValue("the-arg-value");
+
+            var command = new Command("the-command",
+                "Help text from description") { argument };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[default: the-arg-value]");
+        }
+
+        [Fact]
+        public void Command_arguments_default_value_provided()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+            };
+
+            var otherArgument = new Argument
+            {
+                Name = "the-other-arg",
+            };
+            argument.SetDefaultValue("the-arg-value");
+            otherArgument.SetDefaultValue("the-other-arg-value");
+            var command = new Command("the-command",
+                "Help text from description") { argument, otherArgument };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[default: the-arg-value]")
+                .And.Contain($"[default: the-other-arg-value]");
+        }
+
         #endregion Arguments
 
         #region Options
@@ -1188,6 +1237,58 @@ namespace System.CommandLine.Tests.Help
                 .ToString().Should().Contain("-a, -z, --aaa, --zzz");
         }
 
+        [Fact]
+        public void Option_argument_default_value_provided()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+            };
+            argument.SetDefaultValue("the-arg-value");
+
+            var command = new Command("the-command", "command help")
+            {
+                new Option(new[] { "-arg"})
+                {
+                    Argument = argument
+                }
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[default: the-arg-value]");
+        }
+
+        [Fact]
+        public void Option_hidden_argument_no_default_values()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+                IsHidden = true
+            };
+            argument.SetDefaultValue("the-arg-value");
+            var command = new Command("the-command", "command help")
+            {
+                new Option(new[] { "-arg"})
+                {
+                    Argument = argument
+                }
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain($"[default: the-arg-value]");
+        }
+
         #endregion Options
 
         #region Subcommands
@@ -1389,6 +1490,82 @@ namespace System.CommandLine.Tests.Help
             parser.Invoke("-h", console);
 
             console.Out.ToString().Should().EndWith("The text to add");
+        }
+
+        [Fact]
+        public void Subcommand_help_one_argument_contains_default_value()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+            };
+            var otherArgumentHidden = new Argument
+            {
+                Name = "the-other-hidden-arg",
+                IsHidden = true
+            };
+            argument.SetDefaultValue("the-arg-value");
+            otherArgumentHidden.SetDefaultValue("the-other-hidden-arg-value");
+
+            var command = new Command("outer", "outer command help")
+                {
+                    new Argument<string>
+                    {
+                        Name = "outer-args"
+                    },
+                    new Command("inner", $"inner command help")
+                    {
+                        argument,
+                        otherArgumentHidden,
+                        new Argument<string>
+                        {
+                            Name = "inner-other-arg-no-default"
+                        }
+                    }
+                };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[default: the-arg-value]");
+        }
+
+        [Fact]
+        public void Subcommand_help_multiple_arguments_with_default_values()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+            };
+            var otherArgument = new Argument
+            {
+                Name = "the-other-arg"
+            };
+            argument.SetDefaultValue("the-arg-value");
+            otherArgument.SetDefaultValue("the-other-arg-value");
+
+            var command = new Command("outer", "outer command help")
+                {
+                    new Argument<string>
+                    {
+                        Name = "outer-args"
+                    },
+                    new Command("inner", $"inner command help")
+                    {
+                        argument, otherArgument
+                    }
+                };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[the-arg: the-arg-value, the-other-arg: the-other-arg-value]");
         }
 
         private class CustomHelpBuilderThatAddsTextAfterDefaultText : HelpBuilder
