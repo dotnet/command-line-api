@@ -16,12 +16,12 @@ namespace System.CommandLine.Parsing
 
         internal static bool ContainsCaseInsensitive(
             this string source,
-            string value) =>
+            string? value) =>
             source.IndexOfCaseInsensitive(value) >= 0;
 
         internal static int IndexOfCaseInsensitive(
             this string source,
-            string value) =>
+            string? value) =>
             CultureInfo.InvariantCulture
                        .CompareInfo
                        .IndexOf(source,
@@ -176,7 +176,7 @@ namespace System.CommandLine.Parsing
 
             return new TokenizeResult(tokenList, errorList);
 
-            bool CanBeUnbundled(string arg, out IReadOnlyList<string> replacement)
+            bool CanBeUnbundled(string arg, out IEnumerable<string>? replacement)
             {
                 replacement = null;
 

@@ -147,7 +147,8 @@ namespace System.CommandLine
                        .Concat(argumentSuggestions)
                        .Distinct()
                        .Containing(textToMatch)
-                       .OrderBy(symbol => symbol.IndexOfCaseInsensitive(textToMatch))
+                       .Where(symbol => symbol != null)
+                       .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
                        .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
