@@ -15,7 +15,7 @@ namespace System.CommandLine
         public static int Invoke(
             this Command command,
             string[] args,
-            IConsole console = null)
+            IConsole? console = null)
         {
             return GetInvocationPipeline(command, args).Invoke(console);
         }
@@ -23,13 +23,13 @@ namespace System.CommandLine
         public static int Invoke(
             this Command command,
             string commandLine,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             command.Invoke(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Command command,
             string[] args,
-            IConsole console = null)
+            IConsole? console = null)
         {
             return await GetInvocationPipeline(command, args).InvokeAsync(console);
         }
@@ -37,7 +37,7 @@ namespace System.CommandLine
         public static Task<int> InvokeAsync(
             this Command command,
             string commandLine,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
         private static InvocationPipeline GetInvocationPipeline(Command command, string[] args)
@@ -60,7 +60,7 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Command command,
             string commandLine,
-            IReadOnlyCollection<char> delimiters = null) =>
+            IReadOnlyCollection<char>? delimiters = null) =>
             new Parser(command).Parse(commandLine);
     }
 }

@@ -17,8 +17,8 @@ namespace System.CommandLine.Binding
 
         private static readonly ConcurrentDictionary<Type, ModelDescriptor> _modelDescriptors = new ConcurrentDictionary<Type, ModelDescriptor>();
 
-        private List<PropertyDescriptor> _propertyDescriptors;
-        private List<ConstructorDescriptor> _constructorDescriptors;
+        private List<PropertyDescriptor>? _propertyDescriptors;
+        private List<ConstructorDescriptor>? _constructorDescriptors;
 
         protected ModelDescriptor(Type modelType)
         {

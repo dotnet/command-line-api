@@ -24,7 +24,7 @@ namespace System.CommandLine.Builder
             new Lazy<string>(() => {
                 var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                if (assemblyVersionAttribute == null)
+                if (assemblyVersionAttribute is null)
                 {
                     return assembly.GetName().Version.ToString();
                 }
@@ -79,14 +79,14 @@ namespace System.CommandLine.Builder
             builder.AddMiddleware(async (context, next) =>
             {
                 bool cancellationHandlingAdded = false;
-                ManualResetEventSlim blockProcessExit = null;
-                ConsoleCancelEventHandler consoleHandler = null;
-                EventHandler processExitHandler = null;
+                ManualResetEventSlim? blockProcessExit = null;
+                ConsoleCancelEventHandler? consoleHandler = null;
+                EventHandler? processExitHandler = null;
 
                 context.CancellationHandlingAdded += (CancellationTokenSource cts) =>
                 {
-                    cancellationHandlingAdded = true;
                     blockProcessExit = new ManualResetEventSlim(initialState: false);
+                    cancellationHandlingAdded = true;
                     consoleHandler = (_, args) =>
                     {
                         cts.Cancel();
@@ -119,7 +119,7 @@ namespace System.CommandLine.Builder
                     {
                         Console.CancelKeyPress -= consoleHandler;
                         AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
-                        blockProcessExit.Set();
+                        blockProcessExit!.Set();
                     }
                 }
             }, MiddlewareOrderInternal.Startup);
@@ -245,7 +245,7 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder,
-            Action<Exception, InvocationContext> onException = null)
+            Action<Exception, InvocationContext>? onException = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
@@ -284,7 +284,7 @@ namespace System.CommandLine.Builder
             this CommandLineBuilder builder,
             Option helpOption)
         {
-            if (builder.HelpOption == null)
+            if (builder.HelpOption is null)
             {
                 builder.HelpOption = helpOption; 
                 builder.Command.TryAddGlobalOption(helpOption);
@@ -304,7 +304,7 @@ namespace System.CommandLine.Builder
         public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, Func<BindingContext, IHelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
         {
-            if (builder == null)
+            if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }

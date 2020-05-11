@@ -14,7 +14,7 @@ namespace System.CommandLine
 
         public Argument(
             string name, 
-            string description = null) : base(name)
+            string? description = null) : base(name)
         {
             ArgumentType = typeof(T);
             Description = description;
@@ -23,9 +23,9 @@ namespace System.CommandLine
         public Argument(
             string name, 
             Func<T> getDefaultValue, 
-            string description = null) : this(name)
+            string? description = null) : this(name)
         {
-            if (getDefaultValue == null)
+            if (getDefaultValue is null)
             {
                 throw new ArgumentNullException(nameof(getDefaultValue));
             }
@@ -37,7 +37,7 @@ namespace System.CommandLine
 
         public Argument(Func<T> getDefaultValue) : this()
         {
-            if (getDefaultValue == null)
+            if (getDefaultValue is null)
             {
                 throw new ArgumentNullException(nameof(getDefaultValue));
             }
@@ -46,16 +46,16 @@ namespace System.CommandLine
         }
 
         public Argument(
-            string name,
-            ParseArgument<T> parse,
+            string? name,
+            ParseArgument<T> parse, 
             bool isDefault = false) : this()
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
-                Name = name;
+                Name = name!;
             }
 
-            if (parse == null)
+            if (parse is null)
             {
                 throw new ArgumentNullException(nameof(parse));
             }
@@ -65,7 +65,7 @@ namespace System.CommandLine
                 SetDefaultValueFactory(argumentResult => parse(argumentResult));
             }
 
-            ConvertArguments = (ArgumentResult argumentResult, out object value) =>
+            ConvertArguments = (ArgumentResult argumentResult, out object? value) =>
             {
                 var result = parse(argumentResult);
 
@@ -76,7 +76,7 @@ namespace System.CommandLine
                 }
                 else
                 {
-                    value = default(T);
+                    value = default(T)!;
                     return false;
                 }
             };

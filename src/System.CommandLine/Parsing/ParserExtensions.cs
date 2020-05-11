@@ -11,25 +11,25 @@ namespace System.CommandLine.Parsing
         public static int Invoke(
             this Parser parser,
             string commandLine,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             parser.Invoke(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
         public static int Invoke(
             this Parser parser,
             string[] args,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             parser.Parse(args).Invoke(console);
 
         public static Task<int> InvokeAsync(
             this Parser parser,
             string commandLine,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             parser.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
         public static async Task<int> InvokeAsync(
             this Parser parser,
             string[] args,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             await parser.Parse(args).InvokeAsync(console);
 
         public static ParseResult Parse(

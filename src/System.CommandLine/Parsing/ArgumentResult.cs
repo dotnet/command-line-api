@@ -8,11 +8,11 @@ namespace System.CommandLine.Parsing
 {
     public class ArgumentResult : SymbolResult
     {
-        private ArgumentConversionResult _conversionResult;
+        private ArgumentConversionResult? _conversionResult;
 
         internal ArgumentResult(
             IArgument argument,
-            SymbolResult parent) : base(argument, parent)
+            SymbolResult? parent) : base(argument, parent)
         {
             Argument = argument;
         }
@@ -24,11 +24,11 @@ namespace System.CommandLine.Parsing
 
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
-        internal ParseError CustomError(Argument argument)
+        internal ParseError? CustomError(Argument argument)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
-                return new ParseError(ErrorMessage, this);
+                return new ParseError(ErrorMessage!, this);
             }
 
             for (var i = 0; i < argument.Validators.Count; i++)
@@ -38,7 +38,7 @@ namespace System.CommandLine.Parsing
 
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
-                    return new ParseError(errorMessage, this);
+                    return new ParseError(errorMessage!, this);
                 }
             }
 
@@ -61,7 +61,7 @@ namespace System.CommandLine.Parsing
 
             if (argument is Argument arg)
             {
-                if (parentResult.UseDefaultValueFor(argument))
+                if (parentResult!.UseDefaultValueFor(argument))
                 {
                     var argumentResult = new ArgumentResult(arg, Parent);
 
@@ -77,7 +77,7 @@ namespace System.CommandLine.Parsing
                     {
                         return ArgumentConversionResult.Failure(
                             argument,
-                            argumentResult.ErrorMessage);
+                            argumentResult.ErrorMessage!);
                     }
                 }
 

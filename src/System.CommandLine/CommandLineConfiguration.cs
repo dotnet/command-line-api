@@ -19,15 +19,15 @@ namespace System.CommandLine
 
         public CommandLineConfiguration(
             IReadOnlyCollection<Symbol> symbols,
-            IReadOnlyCollection<char> argumentDelimiters = null,
+            IReadOnlyCollection<char>? argumentDelimiters = null,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
-            ValidationMessages validationMessages = null,
+            ValidationMessages? validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
-            IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
-            Func<BindingContext, IHelpBuilder> helpBuilderFactory = null)
+            IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
+            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null)
         {
-            if (symbols == null)
+            if (symbols is null)
             {
                 throw new ArgumentNullException(nameof(symbols));
             }
@@ -61,21 +61,22 @@ namespace System.CommandLine
             else
             {
                 // reuse existing auto-generated root command, if one is present, to prevent repeated mutations
-                rootCommand = symbols.SelectMany(s => s.Parents)
-                                     .OfType<RootCommand>()
-                                     .FirstOrDefault();
+                RootCommand? parentRootCommand = 
+                    symbols.SelectMany(s => s.Parents)
+                           .OfType<RootCommand>()
+                           .FirstOrDefault();
 
-                if (rootCommand == null)
+                if (parentRootCommand is null)
                 {
-                    rootCommand = new RootCommand();
+                    parentRootCommand = new RootCommand();
 
                     foreach (var symbol in symbols)
                     {
-                        rootCommand.Add(symbol);
+                        parentRootCommand.Add(symbol);
                     }
                 }
 
-                RootCommand = rootCommand;
+                RootCommand = rootCommand = parentRootCommand;
             }
 
             _symbols.Add(RootCommand);
@@ -86,8 +87,8 @@ namespace System.CommandLine
             EnableDirectives = enableDirectives;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
-            _middlewarePipeline = middlewarePipeline;
-            _helpBuilderFactory = helpBuilderFactory;
+            _middlewarePipeline = middlewarePipeline ?? new List<InvocationMiddleware>();
+            _helpBuilderFactory = helpBuilderFactory ?? (context => new HelpBuilder(context.Console));
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)
@@ -98,7 +99,7 @@ namespace System.CommandLine
                 {
                     if (child is Command childCommand)
                     {
-                        if (!childCommand.Children.IsAnyAliasInUse(globalOption, out var inUse))
+                        if (!childCommand.Children.IsAnyAliasInUse(globalOption, out _))
                         {
                             childCommand.AddOption(globalOption);
                         }
@@ -106,9 +107,7 @@ namespace System.CommandLine
                 }
             }
         }
-
-        public IReadOnlyCollection<string> Prefixes { get; }
-
+        
         public ISymbolSet Symbols => _symbols;
 
         public IReadOnlyCollection<char> ArgumentDelimiters { get; }
@@ -119,11 +118,9 @@ namespace System.CommandLine
 
         public ValidationMessages ValidationMessages { get; }
 
-        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory =>
-            _helpBuilderFactory ??= context => new HelpBuilder(context.Console);
+        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory;
 
-        internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
-            _middlewarePipeline ??= new List<InvocationMiddleware>();
+        internal IReadOnlyCollection<InvocationMiddleware> Middleware => _middlewarePipeline;
 
         public ICommand RootCommand { get; }
 

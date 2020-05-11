@@ -5,14 +5,14 @@ namespace System.CommandLine.Binding
 {
     internal class DelegateValueSource : IValueSource
     {
-        private readonly Func<BindingContext, object> _getValue;
+        private readonly Func<BindingContext?, object?> _getValue;
 
-        public DelegateValueSource(Func<BindingContext, object> getValue)
+        public DelegateValueSource(Func<BindingContext?, object?> getValue)
         {
             _getValue = getValue;
         }
 
-        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object boundValue)
+        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext? bindingContext, out object? boundValue)
         {
             boundValue = _getValue(bindingContext);
 

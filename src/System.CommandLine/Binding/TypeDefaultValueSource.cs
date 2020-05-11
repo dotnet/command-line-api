@@ -5,7 +5,7 @@ namespace System.CommandLine.Binding
 {
     internal class TypeDefaultValueSource : IValueSource
     {
-        public static IValueSource Instance = new TypeDefaultValueSource();
+        public static readonly IValueSource Instance = new TypeDefaultValueSource();
 
         private TypeDefaultValueSource()
         {
@@ -13,8 +13,8 @@ namespace System.CommandLine.Binding
 
         public bool TryGetValue(
             IValueDescriptor valueDescriptor,
-            BindingContext bindingContext,
-            out object boundValue)
+            BindingContext? bindingContext,
+            out object? boundValue)
         {
             boundValue = valueDescriptor.ValueType.GetDefaultValueForType();
             return true;

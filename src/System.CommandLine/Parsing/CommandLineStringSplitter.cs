@@ -95,7 +95,7 @@ namespace System.CommandLine.Parsing
 
             string CurrentToken()
             {
-                if (skipQuoteAtIndex == null)
+                if (skipQuoteAtIndex is null)
                 {
                     return memory.Slice(
                                      startTokenIndex,

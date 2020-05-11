@@ -10,11 +10,11 @@ namespace System.CommandLine.Binding
 {
     public abstract class HandlerDescriptor : IMethodDescriptor
     {
-        private List<ParameterDescriptor> _parameterDescriptors;
+        private List<ParameterDescriptor>? _parameterDescriptors;
 
         public abstract ICommandHandler GetCommandHandler();
 
-        public abstract ModelDescriptor Parent { get; }
+        public abstract ModelDescriptor? Parent { get; }
 
         public IReadOnlyList<ParameterDescriptor> ParameterDescriptors =>
             _parameterDescriptors ??= new List<ParameterDescriptor>(InitializeParameterDescriptors());
@@ -24,7 +24,7 @@ namespace System.CommandLine.Binding
         public override string ToString() =>
             $"{Parent} ({string.Join(", ", ParameterDescriptors)})";
 
-        public static HandlerDescriptor FromMethodInfo(MethodInfo methodInfo, object target = null) =>
+        public static HandlerDescriptor FromMethodInfo(MethodInfo methodInfo, object? target = null) =>
             new MethodInfoHandlerDescriptor(methodInfo, target);
 
         public static HandlerDescriptor FromDelegate(Delegate @delegate) =>

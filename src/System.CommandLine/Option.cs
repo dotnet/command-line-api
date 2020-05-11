@@ -10,7 +10,7 @@ namespace System.CommandLine
 {
     public class Option : Symbol, IOption
     {
-        public Option(string alias, string description = null)
+        public Option(string alias, string? description = null)
             : base(new[]
             {
                 alias
@@ -18,7 +18,7 @@ namespace System.CommandLine
         {
         }
 
-        public Option(string[] aliases, string description = null) : base(aliases, description)
+        public Option(string[] aliases, string? description = null) : base(aliases, description)
         {
         }
 
@@ -52,6 +52,6 @@ namespace System.CommandLine
 
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 
-        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
+        object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

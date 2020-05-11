@@ -8,7 +8,7 @@
         {
             get
             {
-                if (_isConsoleRedirectionCheckSupported == null)
+                if (_isConsoleRedirectionCheckSupported is null)
                 {
                     try
                     {

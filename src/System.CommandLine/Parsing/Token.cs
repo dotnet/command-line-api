@@ -7,7 +7,7 @@ namespace System.CommandLine.Parsing
 {
     public class Token
     {
-        public Token(string value, TokenType type)
+        public Token(string? value, TokenType type)
         {
             Value = value ?? "";
             Type = type;

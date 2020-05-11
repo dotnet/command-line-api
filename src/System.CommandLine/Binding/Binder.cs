@@ -23,7 +23,7 @@ namespace System.CommandLine.Binding
                    t.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
-        public static object GetDefaultValueForType(this Type type)
+        public static object? GetDefaultValueForType(this Type type)
         {
             return type.IsValueType ? Activator.CreateInstance(type) : null;
         }

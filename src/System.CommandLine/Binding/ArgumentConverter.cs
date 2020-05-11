@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -36,7 +37,7 @@ namespace System.CommandLine.Binding
         internal static ArgumentConversionResult ConvertObject(
             IArgument argument,
             Type type,
-            object value)
+            object? value)
         {
             switch (value)
             {
@@ -59,7 +60,7 @@ namespace System.CommandLine.Binding
 
         private static ArgumentConversionResult ConvertString(
             IArgument argument,
-            Type type,
+            Type? type,
             string value)
         {
             type ??= typeof(string);
@@ -89,9 +90,9 @@ namespace System.CommandLine.Binding
             }
 
             if (type.TryFindConstructorWithSingleParameterOfType(
-                typeof(string), out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) tuple))
+                typeof(string), out ConstructorInfo? ctor))
             {
-                var instance = tuple.ctor.Invoke(new object[]
+                var instance = ctor.Invoke(new object[]
                 {
                     value
                 });
@@ -107,12 +108,12 @@ namespace System.CommandLine.Binding
             Type type,
             IReadOnlyCollection<string> arguments)
         {
-            if (type == null)
+            if (type is null)
             {
                 throw new ArgumentNullException(nameof(type));
             }
 
-            if (arguments == null)
+            if (arguments is null)
             {
                 throw new ArgumentNullException(nameof(arguments));
             }
@@ -139,7 +140,7 @@ namespace System.CommandLine.Binding
             return Success(argument, value);
         }
 
-        private static Type GetItemTypeIfEnumerable(Type type)
+        private static Type? GetItemTypeIfEnumerable(Type type)
         {
             if (type.IsArray)
             {
@@ -153,7 +154,7 @@ namespace System.CommandLine.Binding
                       .GetInterfaces()
                       .FirstOrDefault(IsEnumerable);
 
-            if (enumerableInterface == null)
+            if (enumerableInterface is null)
             {
                 return null;
             }
@@ -183,7 +184,7 @@ namespace System.CommandLine.Binding
 
         private static FailedArgumentConversionResult Failure(
             IArgument argument,
-            Type type, 
+            Type type,
             string value)
         {
             return new FailedArgumentTypeConversionResult(argument, type, value);
@@ -208,7 +209,7 @@ namespace System.CommandLine.Binding
                 return true;
             }
 
-            if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _) )
+            if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _))
             {
                 return true;
             }
@@ -224,7 +225,7 @@ namespace System.CommandLine.Binding
         private static bool TryFindConstructorWithSingleParameterOfType(
             this Type type,
             Type parameterType,
-            out (ConstructorInfo ctor, ParameterDescriptor parameterDescriptor) info)
+            [NotNullWhen(true)] out ConstructorInfo? ctor)
         {
             var (x, y) = type.GetConstructors()
                              .Select(c => (ctor: c, parameters: c.GetParameters()))
@@ -234,12 +235,12 @@ namespace System.CommandLine.Binding
 
             if (x != null)
             {
-                info = (x, new ParameterDescriptor(y[0], new ConstructorDescriptor(x, ModelDescriptor.FromType(type))));
+                ctor = x;
                 return true;
             }
             else
             {
-                info = (null, null);
+                ctor = null;
                 return false;
             }
         }
@@ -249,7 +250,7 @@ namespace System.CommandLine.Binding
             SymbolResult symbolResult,
             Type type)
         {
-            if (conversionResult == null)
+            if (conversionResult is null)
             {
                 throw new ArgumentNullException(nameof(conversionResult));
             }
@@ -281,21 +282,22 @@ namespace System.CommandLine.Binding
             }
         }
 
-        internal static object GetValueOrDefault(this ArgumentConversionResult result) =>
-            result.GetValueOrDefault<object>();
+        internal static object? GetValueOrDefault(this ArgumentConversionResult result) =>
+            result.GetValueOrDefault<object?>();
 
+        [return: MaybeNull]
         internal static T GetValueOrDefault<T>(this ArgumentConversionResult result)
         {
             switch (result)
             {
                 case SuccessfulArgumentConversionResult successful:
-                    return (T)successful.Value;
+                    return (T)successful.Value!;
                 case FailedArgumentConversionResult failed:
                     throw new InvalidOperationException(failed.ErrorMessage);
                 case NoArgumentConversionResult _:
-                    return default;
+                    return default!;
                 default:
-                    return default;
+                    return default!;
             }
         }
     }

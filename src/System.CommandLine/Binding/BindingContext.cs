@@ -6,6 +6,7 @@ using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 #nullable enable
@@ -69,7 +70,7 @@ namespace System.CommandLine.Binding
         
         public void AddService<T>(Func<IServiceProvider, T> factory)
         {
-            if (factory == null)
+            if (factory is null)
             {
                 throw new ArgumentNullException(nameof(factory));
             }
@@ -79,7 +80,7 @@ namespace System.CommandLine.Binding
 
         internal bool TryGetValueSource(
             IValueDescriptor valueDescriptor,
-            out IValueSource? valueSource)
+            [MaybeNullWhen(false)] out IValueSource valueSource)
         {
             if (ServiceProvider.AvailableServiceTypes.Contains(valueDescriptor.ValueType))
             {
@@ -87,7 +88,7 @@ namespace System.CommandLine.Binding
                 return true;
             }
 
-            valueSource = default;
+            valueSource = default!;
             return false;
         }
 
@@ -98,7 +99,7 @@ namespace System.CommandLine.Binding
         {
             if (valueSource.TryGetValue(valueDescriptor, this, out var value))
             {
-                if (value == null || valueDescriptor.ValueType.IsInstanceOfType(value))
+                if (value is null || valueDescriptor.ValueType.IsInstanceOfType(value))
                 {
                     boundValue = new BoundValue(value, valueDescriptor, valueSource);
                     return true;

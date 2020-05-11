@@ -11,7 +11,7 @@ namespace System.CommandLine
     {
         string Name { get; }
 
-        string Description { get; }
+        string? Description { get; }
 
         IReadOnlyList<string> Aliases { get; }
 
