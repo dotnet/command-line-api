@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -19,8 +20,8 @@ namespace System.CommandLine.Parsing
             TokenizeResult tokenizeResult,
             IReadOnlyCollection<string> unparsedTokens,
             IReadOnlyCollection<string> unmatchedTokens,
-            List<ParseError> errors = null,
-            string rawInput = null)
+            List<ParseError>? errors = null,
+            string? rawInput = null)
         {
             Parser = parser;
             _rootCommandResult = rootCommandResult;
@@ -59,16 +60,15 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyCollection<string> UnmatchedTokens { get; }
 
-        internal string RawInput { get; }
+        internal string? RawInput { get; }
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        public object ValueForOption(
-            string alias) =>
-            ValueForOption<object>(alias);
+        public object? ValueForOption(string alias) =>
+            ValueForOption<object?>(alias);
 
-        public T ValueForOption<T>(
-            string alias)
+        [return: MaybeNull]
+        public T ValueForOption<T>(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
             {
@@ -81,21 +81,21 @@ namespace System.CommandLine.Parsing
             }
             else
             {
-                return default;
+                return default!;
             }
         }
 
-        public SymbolResult this[string alias] => CommandResult.Children[alias];
+        public SymbolResult? this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
 
-        public ArgumentResult FindResultFor(IArgument argument) =>
+        public ArgumentResult? FindResultFor(IArgument argument) =>
             _rootCommandResult.FindResultFor(argument);
-            
-        public CommandResult FindResultFor(ICommand command) =>
+
+        public CommandResult? FindResultFor(ICommand command) =>
             _rootCommandResult.FindResultFor(command);
 
-        public OptionResult FindResultFor(IOption option) =>
+        public OptionResult? FindResultFor(IOption option) =>
             _rootCommandResult.FindResultFor(option);
     }
 }

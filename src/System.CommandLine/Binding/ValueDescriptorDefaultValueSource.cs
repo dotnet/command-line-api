@@ -5,13 +5,13 @@ namespace System.CommandLine.Binding
 {
     internal class ValueDescriptorDefaultValueSource : IValueSource
     {
-        public static IValueSource Instance = new ValueDescriptorDefaultValueSource();
+        public static readonly IValueSource Instance = new ValueDescriptorDefaultValueSource();
 
         private ValueDescriptorDefaultValueSource()
         {
         }
 
-        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object boundValue)
+        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext? bindingContext, out object? boundValue)
         {
             boundValue = valueDescriptor.GetDefaultValue();
             return true;

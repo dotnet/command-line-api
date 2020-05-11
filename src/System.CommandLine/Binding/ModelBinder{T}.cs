@@ -24,7 +24,7 @@ namespace System.CommandLine.Binding
 
         public void BindMemberFromValue<TValue>(
             Expression<Func<TModel, TValue>> property,
-            Func<BindingContext, TValue> getValue)
+            Func<BindingContext?, TValue> getValue)
         {
             var (propertyType, propertyName) = property.MemberTypeAndName();
             var propertyDescriptor = FindModelPropertyDescriptor(

@@ -9,7 +9,7 @@ namespace System.CommandLine.IO
     {
         public static IStandardStreamWriter Create(TextWriter writer)
         {
-            if (writer == null)
+            if (writer is null)
             {
                 throw new ArgumentNullException(nameof(writer));
             }
@@ -19,7 +19,7 @@ namespace System.CommandLine.IO
 
         public static void WriteLine(this IStandardStreamWriter writer)
         {
-            if (writer == null)
+            if (writer is null)
             {
                 throw new ArgumentNullException(nameof(writer));
             }
@@ -29,7 +29,7 @@ namespace System.CommandLine.IO
 
         public static void WriteLine(this IStandardStreamWriter writer, string value)
         {
-            if (writer == null)
+            if (writer is null)
             {
                 throw new ArgumentNullException(nameof(writer));
             }

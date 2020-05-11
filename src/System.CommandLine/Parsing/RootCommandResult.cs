@@ -7,9 +7,9 @@ namespace System.CommandLine.Parsing
 {
     internal class RootCommandResult : CommandResult
     {
-        private Dictionary<IArgument, ArgumentResult> _allArgumentResults;
-        private Dictionary<ICommand, CommandResult> _allCommandResults;
-        private Dictionary<IOption, OptionResult> _allOptionResults;
+        private Dictionary<IArgument, ArgumentResult>? _allArgumentResults;
+        private Dictionary<ICommand, CommandResult>? _allCommandResults;
+        private Dictionary<IOption, OptionResult>? _allOptionResults;
 
         public RootCommandResult(
             ICommand command,
@@ -47,34 +47,34 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        public ArgumentResult FindResultFor(IArgument argument)
+        public ArgumentResult? FindResultFor(IArgument argument)
         {
             EnsureResultMapsAreInitialized();
 
-            _allArgumentResults.TryGetValue(argument, out var result);
+            _allArgumentResults!.TryGetValue(argument, out var result);
 
             return result;
         }
 
-        public CommandResult FindResultFor(ICommand command)
+        public CommandResult? FindResultFor(ICommand command)
         {
             EnsureResultMapsAreInitialized();
 
-            _allCommandResults.TryGetValue(command, out var result);
+            _allCommandResults!.TryGetValue(command, out var result);
 
             return result;
         }
 
-        public OptionResult FindResultFor(IOption option)
+        public OptionResult? FindResultFor(IOption option)
         {
             EnsureResultMapsAreInitialized();
 
-            _allOptionResults.TryGetValue(option, out var result);
+            _allOptionResults!.TryGetValue(option, out var result);
 
             return result;
         }
 
-        public SymbolResult FindResultFor(ISymbol symbol)
+        public SymbolResult? FindResultFor(ISymbol symbol)
         {
             switch (symbol)
             {
@@ -84,26 +84,28 @@ namespace System.CommandLine.Parsing
                     return FindResultFor(command);
                 case IOption option:
                     return FindResultFor(option);
-                default: 
+                default:
                     throw new ArgumentException($"Unsupported symbol type: {symbol.GetType()}");
             }
         }
 
         internal void AddToSymbolMap(SymbolResult result)
         {
-             switch (result)
+            EnsureResultMapsAreInitialized();
+
+            switch (result)
             {
                 case ArgumentResult argumentResult:
-                    _allArgumentResults.Add(argumentResult.Argument, argumentResult);
+                    _allArgumentResults!.Add(argumentResult.Argument, argumentResult);
                     break;
                 case CommandResult commandResult:
-                    _allCommandResults.Add(commandResult.Command, commandResult);
+                    _allCommandResults!.Add(commandResult.Command, commandResult);
                     break;
                 case OptionResult optionResult:
-                    _allOptionResults.Add(optionResult.Option, optionResult);
+                    _allOptionResults!.Add(optionResult.Option, optionResult);
                     break;
-                
-                default: 
+
+                default:
                     throw new ArgumentException($"Unsupported {nameof(SymbolResult)} type: {result.GetType()}");
             }
         }

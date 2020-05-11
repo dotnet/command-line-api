@@ -6,7 +6,7 @@ namespace System.CommandLine.Binding
     public class BoundValue
     {
         internal BoundValue(
-            object value,
+            object? value,
             IValueDescriptor valueDescriptor,
             IValueSource valueSource)
         {
@@ -25,7 +25,7 @@ namespace System.CommandLine.Binding
 
         public IValueSource ValueSource { get; }
 
-        public object Value { get; }
+        public object? Value { get; }
 
         public override string ToString() => $"{ValueDescriptor}: {Value}";
 

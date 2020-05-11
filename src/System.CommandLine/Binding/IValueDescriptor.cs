@@ -5,12 +5,12 @@ namespace System.CommandLine.Binding
 {
     public interface IValueDescriptor
     {
-        string ValueName { get; }
+        string? ValueName { get; }
 
         Type ValueType { get; }
 
         bool HasDefaultValue { get; }
 
-        object GetDefaultValue();
+        object? GetDefaultValue();
     }
 }

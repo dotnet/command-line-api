@@ -5,5 +5,5 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Suggestions
 {
-    public delegate IEnumerable<string> Suggest(string textToMatch);
+    public delegate IEnumerable<string> Suggest(string? textToMatch);
 }

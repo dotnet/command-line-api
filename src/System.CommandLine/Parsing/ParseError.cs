@@ -7,7 +7,7 @@ namespace System.CommandLine.Parsing
     {
         internal ParseError(
             string message, 
-            SymbolResult symbolResult = null)
+            SymbolResult? symbolResult = null)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -20,7 +20,7 @@ namespace System.CommandLine.Parsing
 
         public string Message { get; }
 
-        public SymbolResult SymbolResult { get; }
+        public SymbolResult? SymbolResult { get; }
 
         public override string ToString() => Message;
     }

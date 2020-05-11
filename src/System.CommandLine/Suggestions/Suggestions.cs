@@ -9,9 +9,9 @@ namespace System.CommandLine.Suggestions
 {
     internal static class SuggestionExtensions
     {
-        public static IEnumerable<string> Containing(
-            this IEnumerable<string> candidates,
-            string textToMatch) =>
-            candidates.Where(c => c.ContainsCaseInsensitive(textToMatch));
+        public static IEnumerable<string?> Containing(
+            this IEnumerable<string?> candidates,
+            string? textToMatch) =>
+            candidates.Where(c => c?.ContainsCaseInsensitive(textToMatch) == true);
     }
 }

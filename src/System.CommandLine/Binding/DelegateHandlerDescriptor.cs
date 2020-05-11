@@ -23,7 +23,7 @@ namespace System.CommandLine.Binding
                 ParameterDescriptors);
         }
 
-        public override ModelDescriptor Parent => null;
+        public override ModelDescriptor? Parent => null;
 
         protected override IEnumerable<ParameterDescriptor> InitializeParameterDescriptors()
         {

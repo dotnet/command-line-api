@@ -30,7 +30,7 @@ namespace System.CommandLine.Binding
         {
             get
             {
-                if (_allowsNull == null)
+                if (_allowsNull is null)
                 {
                     if (_parameterInfo.ParameterType.IsNullable())
                     {
@@ -38,7 +38,7 @@ namespace System.CommandLine.Binding
                     }
 
                     if (_parameterInfo.HasDefaultValue &&
-                        _parameterInfo.DefaultValue == null)
+                        _parameterInfo.DefaultValue is null)
                     {
                         _allowsNull = true;
                     }
@@ -48,7 +48,7 @@ namespace System.CommandLine.Binding
             }
         }
 
-        public object GetDefaultValue() =>
+        public object? GetDefaultValue() =>
             _parameterInfo.DefaultValue is DBNull
                 ? ValueType.GetDefaultValueForType()
                 : _parameterInfo.DefaultValue;

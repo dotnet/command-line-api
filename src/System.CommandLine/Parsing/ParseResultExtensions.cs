@@ -16,22 +16,22 @@ namespace System.CommandLine.Parsing
     {
         public static async Task<int> InvokeAsync(
             this ParseResult parseResult,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             await new InvocationPipeline(parseResult).InvokeAsync(console);
 
         public static int Invoke(
             this ParseResult parseResult,
-            IConsole console = null) =>
+            IConsole? console = null) =>
             new InvocationPipeline(parseResult).Invoke(console);
 
         public static string TextToMatch(
             this ParseResult source,
             int? position = null)
         {
-            var lastToken = source.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
+            Token? lastToken = source.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
 
-            string textToMatch = null;
-            var rawInput = source.RawInput;
+            string? textToMatch = null;
+            string? rawInput = source.RawInput;
 
             if (rawInput != null)
             {
@@ -59,12 +59,12 @@ namespace System.CommandLine.Parsing
                 if (source.UnmatchedTokens.Any() ||
                     lastToken?.Type == TokenType.Argument)
                 {
-                    return textToMatch;
+                    return textToMatch ?? "";
                 }
             }
             else 
             {
-                var textBeforeCursor = rawInput.Substring(0, position.Value);
+                var textBeforeCursor = rawInput!.Substring(0, position!.Value);
 
                 var textAfterCursor = rawInput.Substring(position.Value);
 
@@ -186,7 +186,7 @@ namespace System.CommandLine.Parsing
             this ParseResult parseResult,
             IOption option)
         {
-            if (parseResult == null)
+            if (parseResult is null)
             {
                 throw new ArgumentNullException(nameof(parseResult));
             }
@@ -198,7 +198,7 @@ namespace System.CommandLine.Parsing
             this ParseResult parseResult,
             string alias)
         {
-            if (parseResult == null)
+            if (parseResult is null)
             {
                 throw new ArgumentNullException(nameof(parseResult));
             }
@@ -206,7 +206,7 @@ namespace System.CommandLine.Parsing
             return parseResult.CommandResult.Children.Contains(alias);
         }
 
-        public static IEnumerable<string> GetSuggestions(
+        public static IEnumerable<string?> GetSuggestions(
             this ParseResult parseResult,
             int? position = null)
         {
@@ -219,13 +219,13 @@ namespace System.CommandLine.Parsing
                     ? currentSuggestionSource.GetSuggestions(textToMatch)
                     : Array.Empty<string>();
 
-            IEnumerable<string> siblingSuggestions;
+            IEnumerable<string?> siblingSuggestions;
             var parentSymbol = currentSymbolResult.Parent?.Symbol;
 
-            if (parentSymbol == null ||
+            if (parentSymbol is null ||
                 !currentSymbolResult.IsArgumentLimitReached)
             {
-                siblingSuggestions = Array.Empty<string>();
+                siblingSuggestions = Array.Empty<string?>();
             }
             else
             {

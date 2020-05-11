@@ -24,7 +24,7 @@ namespace System.CommandLine.Parsing
 
         public ParseResult Parse(
             IReadOnlyList<string> arguments,
-            string rawInput = null)
+            string? rawInput = null)
         {
             var tokenizeResult = arguments.Tokenize(Configuration);
 
@@ -42,7 +42,7 @@ namespace System.CommandLine.Parsing
                 operation.Errors,
                 rawInput);
 
-            visitor.Visit(operation.RootCommandNode);
+            visitor.Visit(operation.RootCommandNode!);
 
             return visitor.Result;
         }

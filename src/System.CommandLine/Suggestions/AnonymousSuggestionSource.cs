@@ -7,16 +7,16 @@ namespace System.CommandLine.Suggestions
 {
     internal class AnonymousSuggestionSource : ISuggestionSource
     {
-        private readonly Suggest suggest;
+        private readonly Suggest _suggest;
 
         public AnonymousSuggestionSource(Suggest suggest)
         {
-            this.suggest = suggest;
+            _suggest = suggest ?? throw new ArgumentNullException(nameof(suggest));
         }
 
-        public IEnumerable<string> GetSuggestions(string textToMatch = null)
+        public IEnumerable<string> GetSuggestions(string? textToMatch = null)
         {
-            return suggest(textToMatch);
+            return _suggest(textToMatch);
         }
     }
 }

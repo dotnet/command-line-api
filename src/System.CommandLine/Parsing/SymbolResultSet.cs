@@ -9,7 +9,7 @@ namespace System.CommandLine.Parsing
 {
     public class SymbolResultSet : AliasedSet<SymbolResult>
     {
-        internal SymbolResult ResultFor(ISymbol symbol) =>
+        internal SymbolResult? ResultFor(ISymbol symbol) =>
             Items.SingleOrDefault(i => i.Symbol == symbol);
 
         protected override IReadOnlyList<string> GetAliases(SymbolResult item) =>

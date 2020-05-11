@@ -16,12 +16,17 @@ namespace System.CommandLine.Parsing
 
         internal static bool ContainsCaseInsensitive(
             this string source,
-            string value) =>
+            string? value) =>
+            source.IndexOfCaseInsensitive(value) >= 0;
+
+        internal static int IndexOfCaseInsensitive(
+            this string source,
+            string? value) =>
             CultureInfo.InvariantCulture
                        .CompareInfo
                        .IndexOf(source,
                                 value ?? "",
-                                CompareOptions.OrdinalIgnoreCase) >= 0;
+                                CompareOptions.OrdinalIgnoreCase);
 
         internal static string RemovePrefix(this string rawAlias)
         {
@@ -36,7 +41,7 @@ namespace System.CommandLine.Parsing
             return rawAlias;
         }
 
-        internal static (string prefix, string alias) SplitPrefix(this string rawAlias)
+        internal static (string? prefix, string alias) SplitPrefix(this string rawAlias)
         {
             foreach (var prefix in _optionPrefixStrings)
             {
@@ -56,7 +61,7 @@ namespace System.CommandLine.Parsing
             var tokenList = new List<Token>();
             var errorList = new List<TokenizeError>();
 
-            ICommand currentCommand = null;
+            ICommand? currentCommand = null;
             var foundEndOfArguments = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
@@ -108,7 +113,7 @@ namespace System.CommandLine.Parsing
                 }
 
                 if (configuration.EnablePosixBundling && 
-                         CanBeUnbundled(arg, out var replacement))
+                    CanBeUnbundled(arg, out IEnumerable<string>? replacement))
                 {
                     argList.InsertRange(i + 1, replacement);
                     argList.RemoveAt(i);
@@ -161,7 +166,7 @@ namespace System.CommandLine.Parsing
                             symbolSet = configuration.Symbols;
                         }
 
-                        currentCommand = (ICommand) symbolSet.GetByAlias(arg);
+                        currentCommand = (ICommand) symbolSet.GetByAlias(arg)!;
                         knownTokens = currentCommand.ValidTokens();
                         knownTokensStrings = new HashSet<string>(knownTokens.Select(t => t.Value));
                         tokenList.Add(Command(arg));
@@ -171,7 +176,7 @@ namespace System.CommandLine.Parsing
 
             return new TokenizeResult(tokenList, errorList);
 
-            bool CanBeUnbundled(string arg, out IReadOnlyList<string> replacement)
+            bool CanBeUnbundled(string arg, out IEnumerable<string>? replacement)
             {
                 replacement = null;
 
@@ -189,7 +194,7 @@ namespace System.CommandLine.Parsing
                 return prefix == "-" && 
                        TryUnbundle(alias, out replacement);
 
-                Token TokenForOptionAlias(char c) =>
+                Token? TokenForOptionAlias(char c) =>
                     argumentDelimiters.Contains(c) 
                     ? null
                     : knownTokens.FirstOrDefault(t => 
@@ -208,7 +213,7 @@ namespace System.CommandLine.Parsing
                     }
                 }
                 
-                bool TryUnbundle(string arg, out IReadOnlyList<string> replacement)
+                bool TryUnbundle(string arg, out IEnumerable<string>? replacement)
                 {
                     if (arg == string.Empty)
                     {
@@ -221,7 +226,7 @@ namespace System.CommandLine.Parsing
                     for (var i = 0; i < arg.Length; i++)
                     {
                         var token = TokenForOptionAlias(arg[i]);
-                        if (token == null)
+                        if (token is null)
                         {
                             if (lastTokenHasArgument)
                             {
@@ -313,14 +318,14 @@ namespace System.CommandLine.Parsing
 
         private static List<string> NormalizeRootCommand(
             CommandLineConfiguration commandLineConfiguration, 
-            IReadOnlyList<string> args)
+            IReadOnlyList<string>? args)
         {
-            if (args == null)
+            if (args is null)
             {
                 args = new List<string>();
             }
 
-            string potentialRootCommand = null;
+            string? potentialRootCommand = null;
 
             if (args.Count > 0)
             {
@@ -333,7 +338,8 @@ namespace System.CommandLine.Parsing
                     // possible exception for illegal characters in path on .NET Framework
                 }
 
-                if (commandLineConfiguration.RootCommand.HasRawAlias(potentialRootCommand))
+                if (potentialRootCommand != null &&
+                    commandLineConfiguration.RootCommand.HasRawAlias(potentialRootCommand))
                 {
                     return args.ToList();
                 }
@@ -361,7 +367,7 @@ namespace System.CommandLine.Parsing
 
             bool FirstArgMatchesRootCommand()
             {
-                if (potentialRootCommand == null)
+                if (potentialRootCommand is null)
                 {
                     return false;
                 }
@@ -380,7 +386,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static string GetResponseFileReference(this string arg) =>
+        private static string? GetResponseFileReference(this string arg) =>
             arg.StartsWith("@") && arg.Length > 1
                 ? arg.Substring(1)
                 : null;
@@ -400,7 +406,7 @@ namespace System.CommandLine.Parsing
             int i = 0;
             bool addDash = false;
 
-            // handles beginning of string, breaks onfirst letter or digit. addDash might be better named "canAddDash"
+            // handles beginning of string, breaks on first letter or digit. addDash might be better named "canAddDash"
             for (; i < value.Length; i++)
             {
                 char ch = value[i];

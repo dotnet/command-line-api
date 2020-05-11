@@ -26,7 +26,7 @@ namespace System.CommandLine.Parsing
 
         public List<ParseError> Errors { get; } = new List<ParseError>();
 
-        public RootCommandNode RootCommandNode { get; private set; }
+        public RootCommandNode? RootCommandNode { get; private set; }
 
         public List<Token> UnmatchedTokens { get; } = new List<Token>();
 
@@ -84,7 +84,7 @@ namespace System.CommandLine.Parsing
             return rootCommandNode;
         }
 
-        private CommandNode ParseSubcommand(CommandNode parentNode)
+        private CommandNode? ParseSubcommand(CommandNode parentNode)
         {
             if (CurrentToken.Type != TokenType.Command)
             {
@@ -95,7 +95,7 @@ namespace System.CommandLine.Parsing
                                     .Children
                                     .GetByAlias(CurrentToken.Value) as ICommand;
 
-            if (command == null)
+            if (command is null)
             {
                 return null;
             }
@@ -119,10 +119,10 @@ namespace System.CommandLine.Parsing
                 }
 
                 var child = ParseSubcommand(parent) ??
-                            (SyntaxNode)ParseOption(parent) ??
+                            (SyntaxNode?)ParseOption(parent) ??
                             ParseCommandArgument(parent);
 
-                if (child == null)
+                if (child is null)
                 {
                     UnmatchedTokens.Add(CurrentToken);
                     Advance();
@@ -134,7 +134,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private CommandArgumentNode ParseCommandArgument(CommandNode commandNode)
+        private CommandArgumentNode? ParseCommandArgument(CommandNode commandNode)
         {
             if (CurrentToken.Type != TokenType.Argument)
             {
@@ -145,7 +145,7 @@ namespace System.CommandLine.Parsing
                                       .Arguments
                                       .FirstOrDefault(a => !IsFull(a));
 
-            if (argument == null)
+            if (argument is null)
             {
                 return null;
             }
@@ -162,14 +162,14 @@ namespace System.CommandLine.Parsing
             return argumentNode;
         }
 
-        private OptionNode ParseOption(CommandNode parent)
+        private OptionNode? ParseOption(CommandNode parent)
         {
             if (CurrentToken.Type != TokenType.Option)
             {
                 return null;
             }
 
-            OptionNode optionNode = null;
+            OptionNode? optionNode = null;
 
             if (parent.Command.Children.GetByAlias(CurrentToken.Value) is IOption option)
             {

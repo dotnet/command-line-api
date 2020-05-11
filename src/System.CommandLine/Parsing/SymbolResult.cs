@@ -9,23 +9,23 @@ namespace System.CommandLine.Parsing
     public abstract class SymbolResult
     {
         private protected readonly List<Token> _tokens = new List<Token>();
-        private ValidationMessages _validationMessages;
+        private ValidationMessages? _validationMessages;
         private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new Dictionary<IArgument, ArgumentResult>();
 
         private protected SymbolResult(
             ISymbol symbol, 
-            SymbolResult parent)
+            SymbolResult? parent)
         {
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
             Parent = parent;
         }
 
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
 
         public SymbolResultSet Children { get; } = new SymbolResultSet();
 
-        public SymbolResult Parent { get; }
+        public SymbolResult? Parent { get; }
 
         public ISymbol Symbol { get; }
 
@@ -44,9 +44,9 @@ namespace System.CommandLine.Parsing
         {
             get
             {
-                if (_validationMessages == null)
+                if (_validationMessages is null)
                 {
-                    if (Parent == null)
+                    if (Parent is null)
                     {
                         _validationMessages = ValidationMessages.Instance;
                     }
@@ -89,7 +89,7 @@ namespace System.CommandLine.Parsing
 
         public override string ToString() => $"{GetType().Name}: {this.Token()}";
 
-        internal ParseError UnrecognizedArgumentError(Argument argument)
+        internal ParseError? UnrecognizedArgumentError(Argument argument)
         {
             if (argument.AllowedValues?.Count > 0 &&
                 Tokens.Count > 0)

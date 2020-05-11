@@ -17,7 +17,7 @@ namespace System.CommandLine.Invocation
             this.parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
         }
 
-        public async Task<int> InvokeAsync(IConsole console = null)
+        public async Task<int> InvokeAsync(IConsole? console = null)
         {
             var context = new InvocationContext(parseResult, console);
 
@@ -28,7 +28,7 @@ namespace System.CommandLine.Invocation
             return GetResultCode(context);
         }
 
-        public int Invoke(IConsole console = null)
+        public int Invoke(IConsole? console = null)
         {
             var context = new InvocationContext(parseResult, console);
 

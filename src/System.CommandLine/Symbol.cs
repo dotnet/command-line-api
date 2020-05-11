@@ -14,7 +14,7 @@ namespace System.CommandLine
         private readonly List<string> _aliases = new List<string>();
         private readonly List<string> _rawAliases = new List<string>();
         private string _longestAlias = "";
-        private string _specifiedName;
+        private string? _specifiedName;
 
         private readonly SymbolSet _parents = new SymbolSet();
 
@@ -23,10 +23,10 @@ namespace System.CommandLine
         }
 
         protected Symbol(
-            IReadOnlyCollection<string> aliases = null,
-            string description = null)
+            IReadOnlyCollection<string>? aliases = null,
+            string? description = null)
         {
-            if (aliases == null)
+            if (aliases is null)
             {
                 throw new ArgumentNullException(nameof(aliases));
             }
@@ -48,7 +48,7 @@ namespace System.CommandLine
 
         public IReadOnlyList<string> RawAliases => _rawAliases;
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public virtual string Name
         {
@@ -78,7 +78,7 @@ namespace System.CommandLine
 
         private protected void AddArgumentInner(Argument argument)
         {
-            if (argument == null)
+            if (argument is null)
             {
                 throw new ArgumentNullException(nameof(argument));
             }
@@ -104,7 +104,7 @@ namespace System.CommandLine
                 throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            for (var i = 0; i < alias.Length; i++)
+            for (var i = 0; i < alias!.Length; i++)
             {
                 if (char.IsWhiteSpace(alias[i]))
                 {
@@ -113,9 +113,9 @@ namespace System.CommandLine
             }
 
             _rawAliases.Add(alias);
-            _aliases.Add(unprefixedAlias);
+            _aliases.Add(unprefixedAlias!);
 
-            if (unprefixedAlias.Length > Name?.Length)
+            if (unprefixedAlias!.Length > Name?.Length)
             {
                 _longestAlias = unprefixedAlias;
             }
@@ -135,7 +135,7 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public virtual IEnumerable<string> GetSuggestions(string textToMatch = null)
+        public virtual IEnumerable<string?> GetSuggestions(string? textToMatch = null)
         {
             var argumentSuggestions =
                 Children
@@ -146,8 +146,10 @@ namespace System.CommandLine
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
                        .Distinct()
-                       .OrderBy(symbol => symbol, StringComparer.OrdinalIgnoreCase)
-                       .Containing(textToMatch);
+                       .Containing(textToMatch)
+                       .Where(symbol => symbol != null)
+                       .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
+                       .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";

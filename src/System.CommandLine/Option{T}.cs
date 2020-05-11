@@ -9,14 +9,14 @@ namespace System.CommandLine
     {
         public Option(
             string alias, 
-            string description = null) : base(alias, description)
+            string? description = null) : base(alias, description)
         {
             Argument = new Argument<T>();
         }
 
         public Option(
             string[] aliases, 
-            string description = null) : base(aliases, description)
+            string? description = null) : base(aliases, description)
         {
             Argument = new Argument<T>();
         }
@@ -25,7 +25,7 @@ namespace System.CommandLine
             string alias,
             ParseArgument<T> parseArgument,
             bool isDefault = false,
-            string description = null) : base(alias, description)
+            string? description = null) : base(alias, description)
         {
             if (parseArgument is null)
             {
@@ -39,7 +39,7 @@ namespace System.CommandLine
             string[] aliases,
             ParseArgument<T> parseArgument,
             bool isDefault = false,
-            string description = null) : base(aliases, description)
+            string? description = null) : base(aliases, description)
         {
             if (parseArgument is null)
             {
@@ -52,7 +52,7 @@ namespace System.CommandLine
         public Option(
             string alias,
             Func<T> getDefaultValue,
-            string description = null) : base(alias, description)
+            string? description = null) : base(alias, description)
         {
             if (getDefaultValue is null)
             {
@@ -65,7 +65,7 @@ namespace System.CommandLine
         public Option(
             string[] aliases,
             Func<T> getDefaultValue,
-            string description = null) : base(aliases, description)
+            string? description = null) : base(aliases, description)
         {
             if (getDefaultValue is null)
             {

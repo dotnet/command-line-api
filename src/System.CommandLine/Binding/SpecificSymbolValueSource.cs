@@ -16,14 +16,14 @@ namespace System.CommandLine.Binding
         public IValueDescriptor ValueDescriptor { get; }
 
         public bool TryGetValue(IValueDescriptor valueDescriptor,
-            BindingContext bindingContext,
-            out object boundValue)
+            BindingContext? bindingContext,
+            out object? boundValue)
         {
             var specificDescriptor = ValueDescriptor;
             switch (specificDescriptor)
             {
                 case IOption option:
-                    var optionResult = bindingContext.ParseResult.FindResultFor(option);
+                    var optionResult = bindingContext?.ParseResult.FindResultFor(option);
                     if (!(optionResult is null))
                     {
                         boundValue = optionResult.GetValueOrDefault();
@@ -31,8 +31,8 @@ namespace System.CommandLine.Binding
                     }
                     break;
                 case IArgument argument:
-                    var argumentResult = bindingContext.ParseResult.FindResultFor(argument);
-                    if (!(argument is null))
+                    var argumentResult = bindingContext?.ParseResult.FindResultFor(argument);
+                    if (!(argumentResult is null))
                     {
                         boundValue = argumentResult.GetValueOrDefault();
                         return true;

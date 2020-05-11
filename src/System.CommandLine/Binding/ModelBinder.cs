@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -11,7 +12,7 @@ namespace System.CommandLine.Binding
     {
         public ModelBinder(Type modelType) : this(new AnonymousValueDescriptor(modelType))
         {
-            if (modelType == null)
+            if (modelType is null)
             {
                 throw new ArgumentNullException(nameof(modelType));
             }
@@ -102,7 +103,7 @@ namespace System.CommandLine.Binding
                 new SpecificSymbolValueSource(valueDescriptor);
         }
 
-        public object CreateInstance(BindingContext context)
+        public object? CreateInstance(BindingContext context)
         {
             var values = GetValues(
                 // No binding sources, as were are attempting to bind a value
@@ -128,7 +129,7 @@ namespace System.CommandLine.Binding
 
         private bool TryDefaultConstructorAndPropertiesStrategy(
             BindingContext context,
-            out object instance)
+            [NotNullWhen(true)] out object? instance)
         {
             var constructorDescriptors =
                 ModelDescriptor
@@ -148,7 +149,7 @@ namespace System.CommandLine.Binding
                     continue;
                 }
 
-                // Found invocable constructor, invoke and return
+                // Found invokable constructor, invoke and return
                 var values = boundConstructorArguments.Select(v => v.Value).ToArray();
 
                 try
@@ -187,7 +188,7 @@ namespace System.CommandLine.Binding
         }
 
         private IReadOnlyList<BoundValue> GetValues(
-            IDictionary<IValueDescriptor, IValueSource> bindingSources,
+            IDictionary<IValueDescriptor, IValueSource>? bindingSources,
             BindingContext bindingContext,
             IReadOnlyList<IValueDescriptor> valueDescriptors,
             bool includeMissingValues)
@@ -200,7 +201,7 @@ namespace System.CommandLine.Binding
 
                 var valueSource = GetValueSource(bindingSources, bindingContext, valueDescriptor);
 
-                BoundValue boundValue;
+                BoundValue? boundValue;
                 if (valueSource is null)
                 {
                     // If there is no source to bind from, no value can be bound.
@@ -214,7 +215,7 @@ namespace System.CommandLine.Binding
                     boundValue = BoundValue.DefaultForValueDescriptor(valueDescriptor);
                 }
 
-                if (boundValue == null)
+                if (boundValue is null)
                 {
                     if (includeMissingValues)
                     {
@@ -239,13 +240,13 @@ namespace System.CommandLine.Binding
             return values;
         }
 
-        private IValueSource GetValueSource(
-            IDictionary<IValueDescriptor, IValueSource> bindingSources,
+        private IValueSource? GetValueSource(
+            IDictionary<IValueDescriptor, IValueSource>? bindingSources,
             BindingContext bindingContext,
             IValueDescriptor valueDescriptor)
         {
             if (!(bindingSources is null) &&
-                bindingSources.TryGetValue(valueDescriptor, out var valueSource))
+                bindingSources.TryGetValue(valueDescriptor, out IValueSource? valueSource))
             {
                 return valueSource;
             }
@@ -269,7 +270,7 @@ namespace System.CommandLine.Binding
             $"{ModelDescriptor.ModelType.Name}";
 
         private bool ShouldPassNullToConstructor(ModelDescriptor modelDescriptor,
-            ConstructorDescriptor ctor = null)
+            ConstructorDescriptor? ctor = null)
         {
             if (!(ctor is null))
             {
@@ -288,11 +289,11 @@ namespace System.CommandLine.Binding
                 ValueType = modelType;
             }
 
-            public string ValueName => null;
+            public string? ValueName => null;
 
             public bool HasDefaultValue => false;
 
-            public object GetDefaultValue() => null;
+            public object? GetDefaultValue() => null;
 
             public override string ToString() => $"{ValueType}";
         }

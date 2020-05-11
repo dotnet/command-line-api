@@ -57,7 +57,7 @@ namespace System.CommandLine.Help
         /// <inheritdoc />
         public virtual void Write(ICommand command)
         {
-            if (command == null)
+            if (command is null)
             {
                 throw new ArgumentNullException(nameof(command));
             }
@@ -161,9 +161,9 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="heading">Heading text content to write to the console</param>
         /// <exception cref="ArgumentNullException"></exception>
-        private void AppendHeading(string heading)
+        private void AppendHeading(string? heading)
         {
-            if (heading == null)
+            if (heading is null)
             {
                 throw new ArgumentNullException(nameof(heading));
             }
@@ -178,7 +178,7 @@ namespace System.CommandLine.Help
         /// <exception cref="ArgumentNullException"></exception>
         private void AppendDescription(string description)
         {
-            if (description == null)
+            if (description is null)
             {
                 throw new ArgumentNullException(nameof(description));
             }
@@ -205,7 +205,7 @@ namespace System.CommandLine.Help
         /// </param>
         protected void AppendHelpItem(HelpItem helpItem, int maxInvocationWidth)
         {
-            if (helpItem == null)
+            if (helpItem is null)
             {
                 throw new ArgumentNullException(nameof(helpItem));
             }
@@ -314,7 +314,7 @@ namespace System.CommandLine.Help
                 }
             }
 
-            string BuildDefaultValueHint(IArgument argument)
+            string? BuildDefaultValueHint(IArgument argument)
             {
                 var hint = DefaultValueHint(argument);
                 return !string.IsNullOrWhiteSpace(hint) ? $"[{hint}]" : null;
@@ -355,8 +355,8 @@ namespace System.CommandLine.Help
             var rawAliases = symbol
                              .RawAliases
                              .Select(r => r.SplitPrefix())
-                             .OrderBy(r => r.prefix)
-                             .ThenBy(r => r.alias)
+                             .OrderBy(r => r.prefix, StringComparer.OrdinalIgnoreCase)
+                             .ThenBy(r => r.alias, StringComparer.OrdinalIgnoreCase)
                              .GroupBy(t => t.alias)
                              .Select(t => t.First())
                              .Select(t => $"{t.prefix}{t.alias}");
@@ -389,7 +389,7 @@ namespace System.CommandLine.Help
                                       symbol.Description,
                                       BuildDefaultValueHint(symbol.Arguments()));
 
-            string BuildDefaultValueHint(IEnumerable<IArgument> arguments)
+            string? BuildDefaultValueHint(IEnumerable<IArgument> arguments)
             {
                 int defaultableArgumentCount = arguments
                     .Count(ShouldShowDefaultValueHint);
@@ -597,9 +597,9 @@ namespace System.CommandLine.Help
             HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private bool ShouldDisplayArgumentHelp(ICommand command)
+        private bool ShouldDisplayArgumentHelp(ICommand? command)
         {
-            if (command == null)
+            if (command is null)
             {
                 return false;
             }
@@ -621,7 +621,10 @@ namespace System.CommandLine.Help
 
         protected class HelpItem
         {
-            public HelpItem(string invocation, string description = null, string defaultValueHint = null)
+            public HelpItem(
+                string invocation,
+                string? description = null,
+                string? defaultValueHint = null)
             {
                 Invocation = invocation;
                 Description = description ?? "";
@@ -649,7 +652,7 @@ namespace System.CommandLine.Help
             public static void Write(
                 HelpBuilder builder,
                 string title,
-                string description = null)
+                string? description = null)
             {
                 if (!ShouldWrite(description, null))
                 {
@@ -666,9 +669,9 @@ namespace System.CommandLine.Help
             public static void Write(
                 HelpBuilder builder,
                 string title,
-                IReadOnlyCollection<ISymbol> usageItems = null,
-                Func<ISymbol, IEnumerable<HelpItem>> formatter = null,
-                string description = null)
+                IReadOnlyCollection<ISymbol>? usageItems = null,
+                Func<ISymbol, IEnumerable<HelpItem>>? formatter = null,
+                string? description = null)
             {
                 if (!ShouldWrite(description, usageItems))
                 {
@@ -683,7 +686,7 @@ namespace System.CommandLine.Help
                 builder.AppendBlankLine();
             }
 
-            private static bool ShouldWrite(string description, IReadOnlyCollection<ISymbol> usageItems)
+            private static bool ShouldWrite(string? description, IReadOnlyCollection<ISymbol>? usageItems)
             {
                 if (!string.IsNullOrWhiteSpace(description))
                 {
@@ -693,7 +696,7 @@ namespace System.CommandLine.Help
                 return usageItems?.Any() == true;
             }
 
-            private static void AppendHeading(HelpBuilder builder, string title = null)
+            private static void AppendHeading(HelpBuilder builder, string? title = null)
             {
                 if (string.IsNullOrWhiteSpace(title))
                 {
@@ -703,20 +706,20 @@ namespace System.CommandLine.Help
                 builder.AppendHeading(title);
             }
 
-            private static void AddDescription(HelpBuilder builder, string description = null)
+            private static void AddDescription(HelpBuilder builder, string? description = null)
             {
                 if (string.IsNullOrWhiteSpace(description))
                 {
                     return;
                 }
 
-                builder.AppendDescription(description);
+                builder.AppendDescription(description!);
             }
 
             private static void AddInvocation(
                 HelpBuilder builder,
-                IReadOnlyCollection<ISymbol> symbols,
-                Func<ISymbol, IEnumerable<HelpItem>> formatter)
+                IReadOnlyCollection<ISymbol>? symbols,
+                Func<ISymbol, IEnumerable<HelpItem>>? formatter)
             {
                 var helpItems = symbols
                     .SelectMany(formatter)
