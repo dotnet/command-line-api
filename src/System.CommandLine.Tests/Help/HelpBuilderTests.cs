@@ -843,7 +843,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Command_argument_default_value_provided()
+        public void Help_describes_default_value_for_defaultable_argument()
         {
             var argument = new Argument
             {
@@ -1238,7 +1238,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Option_argument_default_value_provided()
+        public void Help_describes_default_value_for_option_with_defaultable_argument()
         {
             var argument = new Argument
             {
@@ -1264,7 +1264,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Option_hidden_argument_no_default_values()
+        public void Help_should_not_contain_default_value_for_hidden_argument_defined_for_option ()
         {
             var argument = new Argument
             {
@@ -1493,7 +1493,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Subcommand_help_one_argument_contains_default_value()
+        public void Help_describes_default_value_for_subcommand_with_arguments_and_only_defaultable_is_shown()
         {
             var argument = new Argument
             {
@@ -1534,7 +1534,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Subcommand_help_multiple_arguments_with_default_values()
+        public void Help_describes_default_values_for_subcommand_with_multiple_defaultable_arguments ()
         {
             var argument = new Argument
             {
