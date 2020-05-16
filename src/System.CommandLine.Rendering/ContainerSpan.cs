@@ -60,5 +60,17 @@ namespace System.CommandLine.Rendering
                 _children[i].WriteTo(writer, outputMode);
             }
         }
+
+        public void Add(TextSpan child)
+        {
+            if (child == null)
+            {
+                throw new ArgumentNullException(nameof(child));
+            }
+
+            _children.Add(child);
+
+            RecalculateChildPositions();
+        }
     }
 }
