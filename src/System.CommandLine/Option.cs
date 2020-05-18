@@ -45,7 +45,7 @@ namespace System.CommandLine
         IArgument IOption.Argument => Argument;
 
         public bool Required { get; set; }
-
+ 
         string IValueDescriptor.ValueName => Name;
 
         Type IValueDescriptor.ValueType => Argument.ArgumentType;
