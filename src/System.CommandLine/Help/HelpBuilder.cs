@@ -20,11 +20,11 @@ namespace System.CommandLine.Help
 
         protected IConsole Console { get; }
 
-        public int ColumnGutter { get; } 
+        public int ColumnGutter { get; }
 
-        public int IndentationSize { get; } 
+        public int IndentationSize { get; }
 
-        public int MaxWidth { get; } 
+        public int MaxWidth { get; }
 
         /// <summary>
         /// Brokers the generation and output of help text of <see cref="Symbol"/>
@@ -215,8 +215,13 @@ namespace System.CommandLine.Help
             var offset = maxInvocationWidth + ColumnGutter - helpItem.Invocation.Length;
             var availableWidth = GetAvailableWidth();
             var maxDescriptionWidth = availableWidth - maxInvocationWidth - ColumnGutter;
-
-            var descriptionLines = SplitText(helpItem.Description, maxDescriptionWidth);
+            var descriptionColumn = helpItem.Description;
+            if (helpItem.HasDefaultValueHint)
+            {
+                var postfix = string.IsNullOrEmpty(helpItem.Description) ? string.Empty : " ";
+                descriptionColumn += postfix + helpItem.DefaultValueHint;
+            }
+            var descriptionLines = SplitText(descriptionColumn, maxDescriptionWidth);
             var lineCount = descriptionLines.Count;
 
             AppendLine(descriptionLines.FirstOrDefault(), offset);
@@ -253,7 +258,7 @@ namespace System.CommandLine.Help
 
             if (string.IsNullOrWhiteSpace(cleanText) || textLength < maxLength)
             {
-                return new[] {cleanText};
+                return new[] { cleanText };
             }
 
             var lines = new List<string>();
@@ -294,7 +299,7 @@ namespace System.CommandLine.Help
         {
             foreach (var argument in symbol.Arguments())
             {
-                if(ShouldShowHelp(argument))
+                if (ShouldShowHelp(argument))
                 {
                     var argumentDescriptor = ArgumentDescriptor(argument);
 
@@ -303,15 +308,23 @@ namespace System.CommandLine.Help
                                         : $"<{argumentDescriptor}>";
 
                     var argumentDescription = argument?.Description ?? "";
-                
-                    yield return new HelpItem(invocation, argumentDescription);
+                    var defaultValueHint = argument != null
+                        ? BuildDefaultValueHint(argument)
+                        : null;
+                    yield return new HelpItem(invocation, argumentDescription, defaultValueHint);
                 }
+            }
+
+            string? BuildDefaultValueHint(IArgument argument)
+            {
+                var hint = DefaultValueHint(argument);
+                return !string.IsNullOrWhiteSpace(hint) ? $"[{hint}]" : null;
             }
         }
 
         protected virtual string ArgumentDescriptor(IArgument argument)
         {
-            if (argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?) )
+            if (argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?))
             {
                 return "";
             }
@@ -324,6 +337,14 @@ namespace System.CommandLine.Help
 
             return argument.Name;
         }
+
+        protected virtual string DefaultValueHint(IArgument argument, bool isSingleArgument = true) =>
+            (argument.HasDefaultValue, isSingleArgument, ShouldShowDefaultValueHint(argument)) switch
+            {
+                (true, true, true) => $"default: {argument.GetDefaultValue()}",
+                (true, false, true) => $"{argument.Name}: {argument.GetDefaultValue()}",
+                _ => ""
+            };
 
         /// <summary>
         /// Formats the help rows for a given option
@@ -365,7 +386,22 @@ namespace System.CommandLine.Help
                 invocation += " (REQUIRED)";
             }
 
-            yield return new HelpItem(invocation, symbol.Description);
+            yield return new HelpItem(invocation,
+                                      symbol.Description,
+                                      BuildDefaultValueHint(symbol.Arguments()));
+
+            string? BuildDefaultValueHint(IEnumerable<IArgument> arguments)
+            {
+                int defaultableArgumentCount = arguments
+                    .Count(ShouldShowDefaultValueHint);
+                bool isSingleDefault = defaultableArgumentCount == 1;
+                var argumentDefaultValues = arguments
+                    .Where(ShouldShowDefaultValueHint)
+                    .Select(argument => DefaultValueHint(argument, isSingleDefault));
+                return defaultableArgumentCount > 0
+                    ? $"[{string.Join(", ", argumentDefaultValues)}]"
+                    : null;
+            }
         }
 
         /// <summary>
@@ -424,7 +460,7 @@ namespace System.CommandLine.Help
             {
                 usage.Add(Usage.Options);
             }
-            
+
             usage.Add(FormatArgumentUsage(command.Arguments.ToArray()));
 
             var hasCommandHelp = command.Children
@@ -574,34 +610,42 @@ namespace System.CommandLine.Help
 
         private int GetConsoleWindowWidth()
         {
-            try 
+            try
             {
                 return System.Console.WindowWidth;
             }
             catch (System.IO.IOException)
             {
                 return int.MaxValue;
-            }             
+            }
         }
 
         protected class HelpItem
         {
-            public HelpItem(string invocation, string? description = null)
+            public HelpItem(
+                string invocation,
+                string? description = null,
+                string? defaultValueHint = null)
             {
                 Invocation = invocation;
                 Description = description ?? "";
+                DefaultValueHint = defaultValueHint ?? "";
             }
 
             public string Invocation { get; }
 
             public string Description { get; }
 
-            protected bool Equals(HelpItem other) => 
+            public string DefaultValueHint { get; }
+
+            protected bool Equals(HelpItem other) =>
                 (Invocation, Description) == (other.Invocation, other.Description);
 
-            public override bool Equals(object obj) => Equals((HelpItem) obj);
+            public override bool Equals(object obj) => Equals((HelpItem)obj);
 
             public override int GetHashCode() => (Invocation, Description).GetHashCode();
+
+            public bool HasDefaultValueHint => !string.IsNullOrWhiteSpace(DefaultValueHint);
         }
 
         private static class HelpSection
@@ -698,6 +742,11 @@ namespace System.CommandLine.Help
         internal bool ShouldShowHelp(ISymbol symbol)
         {
             return !symbol.IsHidden;
+        }
+
+        internal bool ShouldShowDefaultValueHint(IArgument argument)
+        {
+            return argument.HasDefaultValue && ShouldShowHelp(argument);
         }
     }
 }
