@@ -2,7 +2,7 @@ namespace HostingPlayground
 {
     public class GreeterOptions
     {
-        public string Name { get; set; }
+        public string Name { get; }
 
         public GreeterOptions(string name)
         {
