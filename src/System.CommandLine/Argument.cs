@@ -134,7 +134,7 @@ namespace System.CommandLine
             return _defaultValueFactory.Invoke(argumentResult);
         }
 
-        public void SetDefaultValue(object value)
+        public void SetDefaultValue(object? value)
         {
             SetDefaultValueFactory(() => value);
         }
