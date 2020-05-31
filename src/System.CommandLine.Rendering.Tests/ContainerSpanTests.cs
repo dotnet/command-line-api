@@ -17,5 +17,14 @@ namespace System.CommandLine.Rendering.Tests
 
             span.ContentLength.Should().Be("content with child".Length);
         }
+
+        [Fact]
+        public void Container_span_supports_add_string_method()
+        {
+            var span = new ContainerSpan(new ContentSpan("content"));
+            span.Add(" with string");
+
+            span.ContentLength.Should().Be("content with string".Length);
+        }
     }
 }

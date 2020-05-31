@@ -72,5 +72,17 @@ namespace System.CommandLine.Rendering
 
             RecalculateChildPositions();
         }
+
+        public void Add(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+
+            _children.Add(new ContentSpan(text));
+
+            RecalculateChildPositions();
+        }
     }
 }
