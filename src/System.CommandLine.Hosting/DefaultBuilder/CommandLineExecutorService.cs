@@ -32,7 +32,6 @@ namespace System.CommandLine.Hosting
             this.invocation = invocation;
             this.parseResult = parseResult;
             this.loggerFactory = loggerFactory;
-            // Logger = loggerFactory.CreateLogger("Microsoft.AspNetCore.Hosting.Diagnostics");
             Configuration = configuration;
         }
 
