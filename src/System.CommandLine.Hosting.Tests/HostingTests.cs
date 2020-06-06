@@ -3,7 +3,8 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
-
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
@@ -226,6 +227,37 @@ namespace System.CommandLine.Hosting.Tests
             Assert.Equal(0, result);
             Assert.NotNull(options);
             Assert.Equal(myValue, options.MyArgument);
+        }
+
+
+        [Fact]
+        public static async Task CommandLineHost_default()
+        {
+            //Arrange
+            // var args = new string[] { $"--foo", "42" };
+            // MyOptions options = null;
+            IHost hostToBind = null;
+
+            var rootCmd = new RootCommand();
+            rootCmd.AddOption(new Option($"--foo") { Argument = new Argument<int>() });
+            rootCmd.Handler = CommandHandler.Create<IHost>((host) =>
+            {
+                hostToBind = host;
+            });
+            // Act
+            // var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+            CancellationTokenSource tokenSource = null;
+            await CommandLineHost.CreateDefaultBuilder()
+                .ConfigureCommandLineDefaults((CommandLineBuilder builder) =>
+                {
+                    // TODO: it is not possible to add it like this atm.
+                    builder.AddCommand(rootCmd);
+                })
+                .Build()
+                .RunAsync(tokenSource?.Token ?? default);
+            // Assert
+            // Assert.NotNull(hostToBind);
+            // Assert.Equal(42, options.MyArgument);
         }
 
         private class MyOptions
