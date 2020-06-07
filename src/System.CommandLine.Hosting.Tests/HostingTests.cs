@@ -230,12 +230,12 @@ namespace System.CommandLine.Hosting.Tests
         }
 
 
-        [Fact]
-        public static async Task CommandLineHost_default()
+        [Fact(Skip ="WIP")]
+        public static async Task CommandLineHost_creates_host_for_simple_command()
         {
             //Arrange
             // var args = new string[] { $"--foo", "42" };
-            // MyOptions options = null;
+            MyOptions options = null;
             IHost hostToBind = null;
 
             var rootCmd = new RootCommand();
@@ -256,8 +256,22 @@ namespace System.CommandLine.Hosting.Tests
                 .Build()
                 .RunAsync(tokenSource?.Token ?? default);
             // Assert
-            // Assert.NotNull(hostToBind);
-            // Assert.Equal(42, options.MyArgument);
+            Assert.NotNull(hostToBind);
+            Assert.Equal(42, options.MyArgument);
+        }
+
+        [Fact]
+        public static async Task CommandLineHost_contains_errors_in_ParseResult_service_for_not_mapped_input()
+        {
+            //Arrange
+            // Act
+            var host = CommandLineHost.CreateDefaultBuilder(new string[]{"--foo", "bar"})
+                .ConfigureCommandLineDefaults((CommandLineBuilder builder) => {})
+                .Build();
+            var parseResult = host.Services.GetService<ParseResult>();
+            await host.StartAsync();
+            parseResult.Errors.Should().NotBeEmpty();
+            //TODO: clarify how parsing errors and command execution exceptions should be handled
         }
 
         private class MyOptions

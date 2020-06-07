@@ -23,11 +23,33 @@ namespace System.CommandLine.Hosting
             Action<CommandLineBuilder> configure,
             string[] args = default)
         {
-            var host = new GenericCommandLineHostBuilder(builder, args);
-            host.Configure(configure);
-            builder.ConfigureServices((context, services) => 
+            AddGenericCommandLineHostBuilder(builder, args, out var cmdHostBuilder);
+            cmdHostBuilder.Configure(configure);
+            builder.ConfigureServices((context, services) =>
                 services.AddHostedService<CommandLineExecutorService>());
             return builder;
+        }
+
+        /// <summary>
+        /// Adds <see cref="AddGenericCommandLineHostBuilder"/> to <paramref name="builder"/>.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="args"></param>
+        /// <param name="cmdHostBuilder"></param>
+        /// <returns><see langword="true"/> when new builder is intialized</returns>
+        private static bool AddGenericCommandLineHostBuilder(IHostBuilder builder, string[] args, out GenericCommandLineHostBuilder cmdHostBuilder)
+        {
+            var hostBuilderState = builder.Properties;
+            var cacheKey = nameof(GenericCommandLineHostBuilder);
+            hostBuilderState.TryGetValue(cacheKey, out var initializedHost);
+            cmdHostBuilder = initializedHost as GenericCommandLineHostBuilder;
+            if (cmdHostBuilder is object)
+            {
+                return false;
+            }
+            cmdHostBuilder = new GenericCommandLineHostBuilder(builder, args);
+            hostBuilderState[cacheKey] = cmdHostBuilder;
+            return true;
         }
     }
 }

@@ -31,8 +31,6 @@ namespace System.CommandLine.Hosting
             return builder;
             // TODO: add remaining args parsing
             // var argsRemaining = invocation.ParseResult.UnparsedTokens.ToArray();
-            // TODO: 
-            // ConfigureCommandLineDefaults: remove redundant call GenericCommandLineHostBuilder.Configure
         }
     }
 }

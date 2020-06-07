@@ -31,7 +31,6 @@ namespace System.CommandLine.Hosting
             configure(commandLineBuilder);
             Parser parser = commandLineBuilder.Build();
             ParseResult parseResult = parser.Parse(Args);
-            // TODO: throw/handle error in parse result at this stage
             var invocation = new InvocationContext(parseResult);
             AddSystemCommandLine(builder, invocation);
             builder.ConfigureHostConfiguration(config =>
