@@ -154,8 +154,18 @@ namespace System.CommandLine.Parsing
 
         protected override void Stop(SyntaxNode node)
         {
+            var helpWasRequested =
+                _innermostCommandResult
+                    ?.Children
+                    .Any(o => o.Symbol is HelpOption) == true;
+
+            if (helpWasRequested)
+            {
+                return;
+            }
+
             ValidateCommandHandler();
-          
+
             PopulateDefaultValues();
 
             ValidateCommandResult();
@@ -229,7 +239,7 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandHandler()
         {
-            if (!(_innermostCommandResult!.Command is Command cmd) || 
+            if (!(_innermostCommandResult!.Command is Command cmd) ||
                 cmd.Handler != null)
             {
                 return;
@@ -240,15 +250,11 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            if (!_innermostCommandResult
-                 .Children
-                 .Select(o => o.Symbol is HelpOption).Any())
-            {
-                _errors.Insert(0,
-                               new ParseError(
-                                   _innermostCommandResult.ValidationMessages.RequiredCommandWasNotProvided(),
-                                   _innermostCommandResult));
-            }
+            _errors.Insert(
+                0,
+                new ParseError(
+                    _innermostCommandResult.ValidationMessages.RequiredCommandWasNotProvided(),
+                    _innermostCommandResult));
         }
 
         private void ValidateOptionResult(OptionResult optionResult)

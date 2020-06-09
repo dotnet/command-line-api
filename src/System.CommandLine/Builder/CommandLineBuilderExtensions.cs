@@ -282,7 +282,7 @@ namespace System.CommandLine.Builder
 
         internal static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
-            Option helpOption)
+            HelpOption helpOption)
         {
             if (builder.HelpOption is null)
             {
