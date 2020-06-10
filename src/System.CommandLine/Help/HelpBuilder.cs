@@ -70,6 +70,18 @@ namespace System.CommandLine.Help
             AddAdditionalArguments(command);
         }
 
+        public virtual void Write(IOption option)
+        {
+            if (option is null)
+            {
+                throw new ArgumentNullException(nameof(option));
+            }
+
+            var item = GetOptionHelpItems(option).ToList()[0];
+
+            Console.Out.Write($"{item.Invocation}    {item.Description}");
+        }
+
         protected int CurrentIndentation => _indentationLevel * IndentationSize;
 
         /// <summary>
@@ -120,7 +132,6 @@ namespace System.CommandLine.Help
         {
             Console.Out.WriteLine();
         }
-
 
         /// <summary>
         /// Writes whitespace to the console based on the provided offset,
@@ -203,7 +214,9 @@ namespace System.CommandLine.Help
         /// Maximum number of characters accross all <see cref="HelpItem">help items</see>
         /// occupied by the invocation text
         /// </param>
-        protected void AppendHelpItem(HelpItem helpItem, int maxInvocationWidth)
+        protected void AppendHelpItem(
+            HelpItem helpItem, 
+            int maxInvocationWidth)
         {
             if (helpItem is null)
             {
@@ -346,11 +359,6 @@ namespace System.CommandLine.Help
                 _ => ""
             };
 
-        /// <summary>
-        /// Formats the help rows for a given option
-        /// </summary>
-        /// <param name="symbol"></param>
-        /// <returns>A new <see cref="HelpItem"/></returns>
         private IEnumerable<HelpItem> GetOptionHelpItems(ISymbol symbol)
         {
             var rawAliases = symbol
@@ -416,7 +424,7 @@ namespace System.CommandLine.Help
             }
 
             var title = $"{command.Name}:";
-            HelpSection.Write(this, title, command.Description);
+            HelpSection.WriteHeading(this, title, command.Description);
         }
 
         /// <summary>
@@ -477,7 +485,7 @@ namespace System.CommandLine.Help
                 usage.Add(Usage.AdditionalArguments);
             }
 
-            HelpSection.Write(this, Usage.Title, string.Join(" ", usage.Where(u => !string.IsNullOrWhiteSpace(u))));
+            HelpSection.WriteHeading(this, Usage.Title, string.Join(" ", usage.Where(u => !string.IsNullOrWhiteSpace(u))));
         }
 
         private string FormatArgumentUsage(IReadOnlyCollection<IArgument> arguments)
@@ -553,7 +561,10 @@ namespace System.CommandLine.Help
                 commands.Add(command);
             }
 
-            HelpSection.Write(this, Arguments.Title, commands, GetArgumentHelpItems);
+            HelpSection.WriteItems(
+                this,
+                Arguments.Title,
+                commands.SelectMany(GetArgumentHelpItems).Distinct().ToArray());
         }
 
         /// <summary>
@@ -564,12 +575,15 @@ namespace System.CommandLine.Help
         protected virtual void AddOptions(ICommand command)
         {
             var options = command
-                .Children
-                .OfType<IOption>()
-                .Where(ShouldShowHelp)
-                .ToArray();
+                          .Children
+                          .OfType<IOption>()
+                          .Where(ShouldShowHelp)
+                          .ToArray();
 
-            HelpSection.Write(this, Options.Title, options, GetOptionHelpItems);
+            HelpSection.WriteItems(
+                this,
+                Options.Title,
+                options.SelectMany(GetOptionHelpItems).Distinct().ToArray());
         }
 
         /// <summary>
@@ -580,12 +594,14 @@ namespace System.CommandLine.Help
         protected virtual void AddSubcommands(ICommand command)
         {
             var subcommands = command
-                .Children
-                .OfType<ICommand>()
-                .Where(ShouldShowHelp)
-                .ToArray();
+                              .Children
+                              .OfType<ICommand>()
+                              .Where(ShouldShowHelp)
+                              .ToArray();
 
-            HelpSection.Write(this, Commands.Title, subcommands, GetOptionHelpItems);
+            HelpSection.WriteItems(this, 
+                              Commands.Title,
+                              subcommands.SelectMany(GetOptionHelpItems).ToArray());
         }
 
         protected virtual void AddAdditionalArguments(ICommand command)
@@ -595,7 +611,7 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            HelpSection.Write(this, AdditionalArguments.Title, AdditionalArguments.Description);
+            HelpSection.WriteHeading(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
         private bool ShouldDisplayArgumentHelp(ICommand? command)
@@ -650,12 +666,12 @@ namespace System.CommandLine.Help
 
         private static class HelpSection
         {
-            public static void Write(
+            public static void WriteHeading(
                 HelpBuilder builder,
                 string title,
                 string? description = null)
             {
-                if (!ShouldWrite(description, null))
+                if (!ShouldWrite(description, Array.Empty<ISymbol>()))
                 {
                     return;
                 }
@@ -667,34 +683,35 @@ namespace System.CommandLine.Help
                 builder.AppendBlankLine();
             }
 
-            public static void Write(
+            public static void WriteItems(
                 HelpBuilder builder,
                 string title,
-                IReadOnlyCollection<ISymbol>? usageItems = null,
-                Func<ISymbol, IEnumerable<HelpItem>>? formatter = null,
+                IReadOnlyCollection<HelpItem> usageItems,
                 string? description = null)
             {
-                if (!ShouldWrite(description, usageItems))
+                if (usageItems.Count == 0)
                 {
                     return;
                 }
 
                 AppendHeading(builder, title);
                 builder.Indent();
+
                 AddDescription(builder, description);
-                AddInvocation(builder, usageItems, formatter);
+                AddInvocation(builder, usageItems);
+
                 builder.Outdent();
                 builder.AppendBlankLine();
             }
 
-            private static bool ShouldWrite(string? description, IReadOnlyCollection<ISymbol>? usageItems)
+            private static bool ShouldWrite(string? description, IReadOnlyCollection<ISymbol> usageItems)
             {
                 if (!string.IsNullOrWhiteSpace(description))
                 {
                     return true;
                 }
 
-                return usageItems?.Any() == true;
+                return usageItems.Count > 0;
             }
 
             private static void AppendHeading(HelpBuilder builder, string? title = null)
@@ -719,14 +736,8 @@ namespace System.CommandLine.Help
 
             private static void AddInvocation(
                 HelpBuilder builder,
-                IReadOnlyCollection<ISymbol>? symbols,
-                Func<ISymbol, IEnumerable<HelpItem>>? formatter)
+                IReadOnlyCollection<HelpItem> helpItems)
             {
-                var helpItems = symbols
-                    .SelectMany(formatter)
-                    .Distinct()
-                    .ToList();
-
                 var maxWidth = helpItems
                     .Select(line => line.Invocation.Length)
                     .OrderByDescending(textLength => textLength)

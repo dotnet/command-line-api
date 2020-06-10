@@ -10,6 +10,7 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using System.Text;
+using FluentAssertions.Execution;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Environment;
@@ -1089,7 +1090,7 @@ namespace System.CommandLine.Tests.Help
             var command = new Command("the-command", "Does things.");
             var opt1 = new Option("option1")
             {
-                Argument = new Argument<int>()
+                Argument = new Argument<int>
                 {
                     Name = "the-hidden",
                     IsHidden = true
@@ -1097,7 +1098,7 @@ namespace System.CommandLine.Tests.Help
             };
             var opt2 = new Option("option2")
             {
-                Argument = new Argument<int>()
+                Argument = new Argument<int>
                 {
                     Name = "the-visible",
                     IsHidden = false
@@ -1238,7 +1239,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Help_describes_default_value_for_option_with_defaultable_argument()
+        public void Help_describes_default_value_for_option_with_argument_having_default_value()
         {
             var argument = new Argument
             {
@@ -1287,6 +1288,28 @@ namespace System.CommandLine.Tests.Help
             var help = _console.Out.ToString();
 
             help.Should().NotContain($"[default: the-arg-value]");
+        }
+
+        [Fact]
+        public void Option_help_can_be_requested_in_isolation()
+        {
+            var option = new Option(
+                new[] { "-z", "-a", "--zzz", "--aaa" },
+                "from a to z");
+
+            _helpBuilder.Write(option);
+
+            using var _ = new AssertionScope();
+
+            var output = _console.Out.ToString();
+
+            output
+                .Should()
+                .NotContain("Options");
+
+            output
+                .Should()
+                .Be("-a, -z, --aaa, --zzz    from a to z");
         }
 
         #endregion Options

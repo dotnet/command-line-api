@@ -8,7 +8,6 @@ using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentAssertions.Primitives;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -140,6 +139,25 @@ namespace System.CommandLine.Tests
                          .Build();
 
             var result = parser.Parse("-h");
+
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_required_options()
+        {
+            var command = new RootCommand
+            {
+                new Option<string>("-x")
+                {
+                    Required = true
+                },
+            };
+
+            var result = new CommandLineBuilder(command)
+                         .UseHelp()
+                         .Build()
+                         .Parse("-h");
 
             result.Errors.Should().BeEmpty();
         }
