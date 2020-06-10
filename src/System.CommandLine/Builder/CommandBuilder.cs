@@ -8,14 +8,26 @@ namespace System.CommandLine.Builder
 {
     public class CommandBuilder
     {
-        public CommandBuilder(Command command) 
+        public CommandBuilder(Command command)
         {
             Command = command;
         }
 
-        public Command Command { get; }
+        private protected CommandBuilder()
+        { }
+
+        public Command? Command { get; private set; }
 
         public IEnumerable<Option> Options => Command.Children.OfType<Option>();
+
+        private protected void SetCommandInternal(Command command)
+        {
+            if (!(Command is null))
+            {
+                throw new InvalidOperationException("Command has already been set.");
+            }
+            Command = command;
+        }
 
         internal void AddCommand(Command command) => Command.AddCommand(command);
 

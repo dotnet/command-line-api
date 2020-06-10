@@ -19,6 +19,10 @@ namespace System.CommandLine.Builder
         {
         }
 
+        private protected CommandLineBuilder()
+            : base()
+        { }
+
         public bool EnableDirectives { get; set; } = true;
 
         public bool EnablePosixBundling { get; set; } = true;
