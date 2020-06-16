@@ -7,7 +7,6 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
-using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Tests.Binding
 {

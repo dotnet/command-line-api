@@ -10,10 +10,13 @@ namespace System.CommandLine.Parsing
         public Token(string? value, TokenType type)
         {
             Value = value ?? "";
+            UnprefixedValue = Value.RemovePrefix();
             Type = type;
         }
 
         public string Value { get; }
+
+        internal string UnprefixedValue { get; }
 
         public TokenType Type { get; }
 

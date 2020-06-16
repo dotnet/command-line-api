@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Collections
 {
-    public interface ISymbolSet : IReadOnlyCollection<ISymbol>
+    public interface ISymbolSet : IReadOnlyList<ISymbol>
     {
         ISymbol? GetByAlias(string alias);
     }
