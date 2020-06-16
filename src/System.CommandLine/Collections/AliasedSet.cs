@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Collections
 {
-    public abstract class AliasedSet<T> : IReadOnlyCollection<T>
+    public abstract class AliasedSet<T> : IReadOnlyList<T>
         where T : class
     {
         protected IList<T> Items { get; } = new List<T>();
@@ -65,5 +65,7 @@ namespace System.CommandLine.Collections
         protected abstract IReadOnlyList<string> GetRawAliases(T item);
 
         public bool Contains(string alias) => GetByAlias(alias) != null;
+
+        public T this[int index] => Items[index];
     }
 }

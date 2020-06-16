@@ -6,7 +6,6 @@ using System.CommandLine.Tests.Utility;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
