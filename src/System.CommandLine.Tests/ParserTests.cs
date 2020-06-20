@@ -160,7 +160,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument(prefix));
+                  .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument(prefix, null));
         }
 
         [Fact]
@@ -1837,7 +1837,7 @@ namespace System.CommandLine.Tests
                    .Errors
                    .Select(e => e.Message)
                    .Should()
-                   .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument("4"));
+                   .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument("4", command));
         }
 
         [Fact]
@@ -1926,24 +1926,24 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_arguments_are_greater_than_maximum_arity_then_an_error_is_returned()
         {
+            Option option = new Option("-x")
+            {
+                Argument = new Argument
+                {
+                    Arity = new ArgumentArity(2, 3)
+                }
+            };
             var command = new Command("the-command")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = new ArgumentArity(2, 3)
-                    }
-                }
+                option
             };
 
             command.Parse("-x 1 2 3 4")
                    .Errors
                    .Select(e => e.Message)
                    .Should()
-                   .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument("4"));
+                  .Contain("Unrecognized command or argument '4'");
         }
-
 
         [Fact]
         public void Argument_with_custom_type_converter_can_be_bound()

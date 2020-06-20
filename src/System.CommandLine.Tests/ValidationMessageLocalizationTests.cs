@@ -75,7 +75,7 @@ namespace System.CommandLine.Tests
 
             public override string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) => message;
 
-            public override string UnrecognizedCommandOrArgument(string arg) => message;
+            public override string UnrecognizedCommandOrArgument(string arg, ISymbol? symbol) => message;
         }
     }
 }

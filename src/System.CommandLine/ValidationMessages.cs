@@ -29,7 +29,7 @@ namespace System.CommandLine
                 : $"No argument was provided for Option '{symbolResult.Token().Value}'.";
 
         public virtual string ExpectsFewerArguments(
-            Token token, 
+            Token token,
             int providedNumberOfValues,
             int maximumNumberOfValues) =>
             token.Type == TokenType.Command
@@ -59,13 +59,79 @@ namespace System.CommandLine
         public virtual string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) =>
             $"Argument '{unrecognizedArg}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
 
-        public virtual string UnrecognizedCommandOrArgument(string arg) =>
-            $"Unrecognized command or argument '{arg}'";
+        public virtual string UnrecognizedCommandOrArgument(string arg, ISymbol? symbol)
+        {
+            var possible = symbol switch
+            {
+                null => "",
+                Command command => ExpectedCommandsAndArguments(command),
+                Option option => ExpectedArguments(option),
+                _ => throw new InvalidOperationException("Unexpected symbol type")
+            };
+
+            return $"Unrecognized command or argument '{arg}'. {possible}.";
+        }
 
         public virtual string ResponseFileNotFound(string filePath) =>
             $"Response file not found '{filePath}'";
 
         public virtual string ErrorReadingResponseFile(string filePath, IOException e) =>
             $"Error reading response file '{filePath}': {e.Message}";
+
+        private static string ExpectedArguments(Option option)
+            => (option.Argument is Argument argument)
+                ? $"Available {ExpectedArgument(argument)}"
+                : "Available no arguments";
+
+        private static string ExpectedArgument(Argument argument)
+        {
+            return $"<{ argument.Name}> as {ArgumentType(argument.ArgumentType)}{ArityIfNeeded(argument.Arity)}";
+
+            static string ArityIfNeeded(IArgumentArity arity)
+            {
+                return (arity.MaximumNumberOfValues != int.MaxValue && arity.MinimumNumberOfValues != 0)
+                    ? arity.MinimumNumberOfValues == arity.MaximumNumberOfValues
+                      ? $" ({arity.MinimumNumberOfValues} values)"
+                      : $" ({arity.MinimumNumberOfValues} to {arity.MaximumNumberOfValues} values)"
+                    : arity.MaximumNumberOfValues != int.MaxValue
+                      ? $" (not more than {arity.MaximumNumberOfValues} values)"
+                      : arity.MinimumNumberOfValues != 0
+                        ? $" (at least {arity.MaximumNumberOfValues} values)"
+                        : "";
+            }
+
+            static string ArgumentType(Type type)
+            {
+                return type.ToString() == "System.Void"
+                        ? "<unknown type>"
+                        : type.ToString();
+            }
+        }
+
+        private static string ExpectedCommandsAndArguments(Command command)
+        {
+            var ret = "";
+            var subCommands = command.Children.OfType<Command>().ToList();
+            var arguments = command.Arguments;
+            if (!(subCommands.Any() || arguments.Any()))
+            {
+                return "No commands or arguments are available";
+            }
+            if (subCommands.Any())
+            {
+                var subCommandNames = subCommands.Select(x => x.Name).Distinct();
+                ret += $"Available command {string.Join(", or ", subCommandNames)}";
+            }
+            if (arguments.Any())
+            {
+                var argumentsDisplay = arguments.Select(x => ExpectedArgument(x));
+                var display = string.Join(", or ", argumentsDisplay);
+                ret += string.IsNullOrEmpty(ret)
+                         ? $"Available argument {display}"
+                         : $", or argument {display}";
+            }
+
+            return ret;
+        }
     }
 }

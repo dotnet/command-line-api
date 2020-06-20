@@ -42,7 +42,7 @@ namespace System.CommandLine.Parsing
             {
                 _errors.AddRange(
                     unmatchedTokens.Select(token =>
-                                               new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
+                                               new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token, parser.Configuration.RootCommand))));
             }
         }
 
