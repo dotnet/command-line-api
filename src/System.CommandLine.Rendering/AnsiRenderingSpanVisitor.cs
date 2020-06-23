@@ -135,7 +135,7 @@ namespace System.CommandLine.Rendering
                 [nameof(StyleSpan.BoldOn)] = Ansi.Text.BoldOn,
                 [nameof(StyleSpan.HiddenOn)] = Ansi.Text.HiddenOn,
                 [nameof(StyleSpan.ReverseOn)] = Ansi.Text.ReverseOn,
-                [nameof(StyleSpan.ReversOff)] = Ansi.Text.ReversOff,
+                [nameof(StyleSpan.ReverseOff)] = Ansi.Text.ReverseOff,
                 [nameof(StyleSpan.StandoutOff)] = Ansi.Text.StandoutOff,
                 [nameof(StyleSpan.StandoutOn)] = Ansi.Text.StandoutOn,
                 [nameof(StyleSpan.UnderlinedOff)] = Ansi.Text.UnderlinedOff,
