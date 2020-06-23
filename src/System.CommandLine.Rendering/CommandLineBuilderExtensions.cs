@@ -58,7 +58,7 @@ namespace System.CommandLine.Rendering
                 return mode;
             }
 
-            return context.Console.DetectOutputMode();
+            return Rendering.OutputMode.Auto;
         }
     }
 }
