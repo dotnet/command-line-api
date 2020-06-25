@@ -22,4 +22,5 @@ So for example, you might want an input `"123"` from the command line to be conv
 
 There are a number of ways do binding in `System.CommandLine`. The following tutorials go into detail on the different approaches available:
 
+- [Basic binding - commands with optoins objects](./BasicBinding.md)
 - [Binding to a command handler](./BindingToCommandHandlers.md)
