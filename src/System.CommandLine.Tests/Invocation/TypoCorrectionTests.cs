@@ -108,7 +108,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddArgument(new Argument())
+                    .AddArgument(new Argument("the-argument"))
                     .AddCommand(new Command("been"))
                     .UseTypoCorrections()
                     .Build();

@@ -7,7 +7,6 @@ using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 

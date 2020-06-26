@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     public class Argument<T> : Argument
     {
-        public Argument() : base(null)
+        public Argument()
         {
             ArgumentType = typeof(T);
         }

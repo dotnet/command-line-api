@@ -69,8 +69,6 @@ namespace System.CommandLine.Parsing
                 commandNode.Token,
                 _innermostCommandResult);
 
-            Debug.Assert(_innermostCommandResult != null);
-
             _innermostCommandResult!
                 .Children
                 .Add(commandResult);

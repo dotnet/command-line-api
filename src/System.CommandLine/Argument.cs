@@ -16,13 +16,13 @@ namespace System.CommandLine
         private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity? _arity;
         private TryConvertArgument? _convertArguments;
-        private Type _argumentType = typeof(void);
+        private Type _argumentType = typeof(string);
 
         public Argument()
         {
         }
 
-        public Argument(string? name) 
+        public Argument(string name) 
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -223,5 +223,9 @@ namespace System.CommandLine
         string IValueDescriptor.ValueName => Name;
 
         Type IValueDescriptor.ValueType => ArgumentType;
+
+        private protected override void ChooseNameForUnnamedArgument(Argument argument)
+        {
+        }
     }
 }

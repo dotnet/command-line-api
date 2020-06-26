@@ -15,18 +15,12 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Option_argument_with_arity_of_one_can_be_bound_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
         {
-            var option = new Option("--file")
-            {
-                Argument = new Argument<FileInfo>()
-            };
+            var option = new Option<FileInfo>("--file");
 
             var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
             var result = option.Parse($"--file {file.FullName}");
 
-            result.ValueForOption("--file")
-                  .Should()
-                  .BeOfType<FileInfo>()
-                  .Which
+            result.ValueForOption(option)
                   .Name
                   .Should()
                   .Be("the-file.txt");
@@ -35,19 +29,17 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Command_argument_with_arity_of_one_can_be_bound_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
         {
-            var option = new Command("the-command")
+            var argument = new Argument<FileInfo>("the-arg");
+
+            var command = new Command("the-command")
             {
-                new Argument<FileInfo>("the-arg")
+                argument
             };
 
             var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
-            var result = option.Parse($"{file.FullName}");
+            var result = command.Parse($"{file.FullName}");
 
-            result.CommandResult
-                  .GetArgumentValueOrDefault("the-arg")
-                  .Should()
-                  .BeOfType<FileInfo>()
-                  .Which
+            result.ValueForArgument(argument)
                   .Name
                   .Should()
                   .Be("the-file.txt");
@@ -56,18 +48,18 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Command_argument_with_arity_of_zero_or_one_when_type_has_a_constructor_that_takes_a_single_string_returns_null_when_argument_is_not_provided()
         {
+            var argument = new Argument<FileInfo>("the-arg")
+            {
+                Arity = ArgumentArity.ZeroOrOne
+            };
             var command = new Command("the-command")
             {
-                new Argument<FileInfo>("the-arg")
-                {
-                    Arity = ArgumentArity.ZeroOrOne
-                }
+                argument
             };
 
             var result = command.Parse("");
 
-            result.CommandResult
-                  .GetArgumentValueOrDefault("the-arg")
+            result.ValueForArgument(argument)
                   .Should()
                   .BeNull();
         }
@@ -75,19 +67,13 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_with_arity_of_many_can_be_called_without_custom_conversion_logic_if_the_item_type_has_a_constructor_that_takes_a_single_string()
         {
-            var option = new Option("--file")
-            {
-                Argument = new Argument<FileInfo[]>()
-            };
+            var option = new Option<FileInfo[]>("--file");
 
             var file1 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file1.txt"));
             var file2 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file2.txt"));
             var result = option.Parse($"--file {file1.FullName} --file {file2.FullName}");
 
-            result.ValueForOption("--file")
-                  .Should()
-                  .BeOfType<FileInfo[]>()
-                  .Which
+            result.ValueForOption(option)
                   .Select(fi => fi.Name)
                   .Should()
                   .BeEquivalentTo("file1.txt", "file2.txt");
@@ -145,15 +131,13 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_bool_will_default_to_true_when_no_argument_is_passed()
         {
-            var parser = new Parser(new Option("-x")
-            {
-                Argument = new Argument<bool>()
-            });
+            var option = new Option<bool>("-x");
+            var parser = new Parser(option);
 
             var result = parser.Parse("-x");
 
             result.Errors.Should().BeEmpty();
-            result.ValueForOption("x").Should().Be(true);
+            result.ValueForOption(option).Should().Be(true);
         }
 
         [Fact]
@@ -562,17 +546,19 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void An_option_argument_with_a_default_argument_can_be_converted_to_the_requested_type()
         {
+            var option = new Option("-x")
+            {
+                Argument = new Argument<string>(() => "123")
+            };
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<string>(() => "123")
-                }
+                option
             };
 
             var result = command.Parse("something");
 
-            var value = result.CommandResult.ValueForOption<int>("x");
+            var value = result.ValueForOption<int>(option);
 
             value.Should().Be(123);
         }
@@ -606,7 +592,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 123").ValueForOption<int>("x");
+            var value = option.Parse("-x 123").ValueForOption<int>(option);
 
             value.Should().Be(123);
         }

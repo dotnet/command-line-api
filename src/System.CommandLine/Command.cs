@@ -83,5 +83,10 @@ namespace System.CommandLine
         IEnumerable<IOption> ICommand.Options => Options;
 
         internal Parser? ImplicitParser { get; set; }
+
+        private protected override void ChooseNameForUnnamedArgument(Argument argument)
+        {
+            argument.Name = argument.ArgumentType.Name.ToLower();
+        }
     }
 }

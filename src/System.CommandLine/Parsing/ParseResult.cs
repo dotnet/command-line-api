@@ -85,6 +85,74 @@ namespace System.CommandLine.Parsing
             }
         }
 
+        [return: MaybeNull]
+        public T ValueForArgument<T>(Argument<T> argument)
+        {
+            var result = FindResultFor(argument);
+
+            if (result is {})
+            {
+                return result.GetValueOrDefault<T>() switch
+                {
+                    { } t => t,
+                    _ => default
+                };
+            }
+
+            return default;
+        }
+
+        [return: MaybeNull]
+        public T ValueForArgument<T>(Argument argument)
+        {
+            var result = FindResultFor(argument);
+
+            if (result is {})
+            {
+                return result.GetValueOrDefault<T>() switch
+                {
+                    { } t => t,
+                    _ => default
+                };
+            }
+
+            return default;
+        }
+
+        [return: MaybeNull]
+        public T ValueForOption<T>(Option<T> option)
+        {
+            var result = FindResultFor(option);
+
+            if (result is {})
+            {
+                return result.GetValueOrDefault<T>() switch
+                {
+                    { } t => t,
+                    _ => default
+                };
+            }
+
+            return default;
+        }
+
+        [return: MaybeNull]
+        public T ValueForOption<T>(Option option)
+        {
+            var result = FindResultFor(option);
+
+            if (result is {})
+            {
+                return result.GetValueOrDefault<T>() switch
+                {
+                    { } t => t,
+                    _ => default
+                };
+            }
+
+            return default;
+        }
+
         public SymbolResult? this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";

@@ -11,6 +11,7 @@ namespace System.CommandLine
 {
     public abstract class Symbol : ISymbol
     {
+        // FIX: (Symbol) HashSets?
         private readonly List<string> _aliases = new List<string>();
         private readonly List<string> _rawAliases = new List<string>();
         private string _longestAlias = "";
@@ -87,11 +88,13 @@ namespace System.CommandLine
 
             if (string.IsNullOrEmpty(argument.Name))
             {
-                argument.Name = _aliases.First().ToLower();
+                ChooseNameForUnnamedArgument(argument);
             }
 
             Children.Add(argument);
         }
+
+        private protected abstract void ChooseNameForUnnamedArgument(Argument argument);
 
         public SymbolSet Children { get; } = new SymbolSet();
 
@@ -123,6 +126,7 @@ namespace System.CommandLine
 
         public bool HasAlias(string alias)
         {
+            // FIX: (HasAlias) as much as possible, use an overload that takes a Token
             if (string.IsNullOrWhiteSpace(alias))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
