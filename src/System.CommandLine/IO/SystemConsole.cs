@@ -20,5 +20,7 @@ namespace System.CommandLine.IO
         public bool IsOutputRedirected => Console.IsOutputRedirected;
 
         public bool IsInputRedirected => Console.IsInputRedirected;
+
+        public int GetConsoleWindowWidth() => IsOutputRedirected ? int.MaxValue : System.Console.WindowWidth;
     }
 }

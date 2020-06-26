@@ -215,7 +215,9 @@ namespace System.CommandLine.Help
         protected virtual void AppendHelpItems(IReadOnlyCollection<HelpItem> helpItems)
         {
             if (helpItems is null)
+            {
                 throw new ArgumentNullException(nameof(helpItems));
+            }
 
             var table = CreateTable(helpItems, item => new[]
             {
@@ -228,21 +230,20 @@ namespace System.CommandLine.Help
         }
 
         /// <summary>
-        /// Create a read only table of strings using the projection of a collection.
+        /// Create a table of strings using the projection of a collection.
         /// </summary>
         /// <typeparam name="T">The type of the elements of <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of values to create the table from.</param>
         /// <param name="selector">A transformation function to apply to each element of <paramref name="collection"/>.</param>
         /// <returns>
-        /// A read only table of strings whose elements are the projection of the collection with whitespace formatting removed.
+        /// A table of strings whose elements are the projection of the collection with whitespace formatting removed.
         /// </returns>
-        protected virtual ReadOnlyCollection<ReadOnlyCollection<string>> CreateTable<T>(IEnumerable<T> collection, Func<T, IEnumerable<string>> selector)
+        protected virtual IEnumerable<IReadOnlyList<string>> CreateTable<T>(IEnumerable<T> collection, Func<T, IEnumerable<string>> selector)
         {
             return collection.Select(selector)
                 .Select(row => row
-                    .Select(element => RemoveFormatting(element))
-                    .ToList().AsReadOnly())
-                .ToList().AsReadOnly();
+                    .Select(element => ShortenWhitespace(element))
+                    .ToArray());
         }
 
         /// <summary>
@@ -250,20 +251,25 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="table">The table of values to determine column widths for.</param>
         /// <returns>A collection of column widths.</returns>
-        protected virtual ReadOnlyCollection<int> ColumnWidths(IEnumerable<IList<string>> table)
+        private IReadOnlyList<int> ColumnWidths(IEnumerable<IReadOnlyList<string>> table)
         {
             if (!table.Any())
-                return Array.AsReadOnly(Array.Empty<int>());
+            {
+                return Array.Empty<int>();
+            }
 
             var columns = table.First().Count;
-            Debug.Assert(table.All(e => e.Count == columns), $"Every row in {nameof(table)} must have the same number of columns.");
             var unsetWidth = -1;
             var widths = new int[columns];
             for (int i = 0; i < columns; ++i)
+            {
                 widths[i] = unsetWidth;
+            }
             var maxWidths = new int[columns];
             for (int i = 0; i < columns; ++i)
+            {
                 maxWidths[i] = table.Max(row => row[i].Length);
+            }
 
             var nonEmptyColumns = maxWidths.Count(width => width > 0);
 
@@ -272,7 +278,9 @@ namespace System.CommandLine.Help
             // If available space is not sufficent then do not wrap.
             // If all columns are empty then return array of zeros.
             if (available - nonEmptyColumns < 0 || nonEmptyColumns == 0)
-                return Array.AsReadOnly(maxWidths);
+            {
+                return maxWidths;
+            }
 
             // Loop variables.
             var unset = nonEmptyColumns;
@@ -293,9 +301,13 @@ namespace System.CommandLine.Help
                         // Attempt to fit column to single line.
                         var width = maxWidths[i];
                         if (allocateRemaining)
+                        {
                             width = Math.Min(width, equal);
+                        }
                         if (width <= equal)
+                        {
                             widths[i] = width;
+                        }
                     }
                 }
                 previousUnset = unset;
@@ -303,7 +315,7 @@ namespace System.CommandLine.Help
                 --loopLimit;
             }
 
-            return Array.AsReadOnly(widths);
+            return widths;
         }
 
         /// <summary>
@@ -311,7 +323,7 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="table">The table of values to write.</param>
         /// <param name="columnWidths">The width of each column of the table.</param>
-        protected virtual void AppendTable(IEnumerable<IEnumerable<string>> table, IReadOnlyList<int> columnWidths)
+        private void AppendTable(IEnumerable<IEnumerable<string>> table, IReadOnlyList<int> columnWidths)
         {
             foreach (var row in table)
                 AppendRow(row, columnWidths);
@@ -322,7 +334,7 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="row">The row of elements to write.</param>
         /// <param name="columnWidths">The width of each column of the table.</param>
-        protected virtual void AppendRow(IEnumerable<string> row, IReadOnlyList<int> columnWidths)
+        private void AppendRow(IEnumerable<string> row, IReadOnlyList<int> columnWidths)
         {
             var split = row.Select((element, index) => SplitText(element, columnWidths[index])).ToArray();
             var longest = split.Max(lines => lines.Count);
@@ -361,7 +373,7 @@ namespace System.CommandLine.Help
         /// Collection of lines of at most <paramref name="width"/> characters
         /// generated from the supplied <paramref name="text"/>.
         /// </returns>
-        protected virtual ReadOnlyCollection<string> SplitText(string text, int width)
+        protected virtual IReadOnlyList<string> SplitText(string text, int width)
         {
             if (text is null)
                 throw new ArgumentNullException(nameof(text), $"{nameof(text)} cannot be null.");
@@ -369,13 +381,13 @@ namespace System.CommandLine.Help
                 throw new ArgumentOutOfRangeException(nameof(width), $"{nameof(width)} must be non-negative.");
 
             if (width == 0)
-                return Array.AsReadOnly(Array.Empty<string>());
+                return Array.Empty<string>();
 
             var separator = ' ';
 
             var start = 0;
             var lines = new List<string>();
-            text = RemoveFormatting(text);
+            text = ShortenWhitespace(text);
 
             while (start < text.Length - width)
             {
@@ -398,7 +410,7 @@ namespace System.CommandLine.Help
 
             lines.Add(text.Substring(start, text.Length - start));
 
-            return lines.AsReadOnly();
+            return lines;
         }
 
         /// <summary>
@@ -724,20 +736,13 @@ namespace System.CommandLine.Help
 
         private int GetConsoleWindowWidth(IConsole console)
         {
-            try
-            {
-                if (console is SystemConsole && System.Console.WindowWidth > 0)
-                    return System.Console.WindowWidth;
-                else
-                    return int.MaxValue;
-            }
-            catch
-            {
+            if (console is SystemConsole systemConsole)
+                return systemConsole.GetConsoleWindowWidth();
+            else
                 return int.MaxValue;
-            }
         }
 
-        private string RemoveFormatting(string input)
+        private string ShortenWhitespace(string input)
         {
             return Regex.Replace(input, @"\s+", " ");
         }
