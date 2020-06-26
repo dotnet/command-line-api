@@ -5,7 +5,7 @@ Usage:
   the-root-command [options] <the-root-arg-no-description-no-default> [<the-root-arg-no-description-default> <the-root-arg-no-default> [<the-root-arg> [<the-root-arg-enum-default>]]]
 
 Arguments:
-  <the-root-arg-no-description-no-default>    
+  <the-root-arg-no-description-no-default>
   <the-root-arg-no-description-default>       [default: the-root-arg-no-description-default-value]
   <the-root-arg-no-default>                   the-root-arg-no-default-description
   <the-root-arg>                              the-root-arg-description [default: the-root-arg-one-value]

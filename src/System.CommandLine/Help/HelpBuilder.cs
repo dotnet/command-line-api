@@ -2,8 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -47,11 +49,7 @@ namespace System.CommandLine.Help
             Console = console ?? throw new ArgumentNullException(nameof(console));
             ColumnGutter = columnGutter ?? DefaultColumnGutter;
             IndentationSize = indentationSize ?? DefaultIndentationSize;
-
-            MaxWidth = maxWidth
-                       ?? (Console is SystemConsole
-                               ? GetConsoleWindowWidth()
-                               : int.MaxValue);
+            MaxWidth = maxWidth ?? GetConsoleWindowWidth(Console);
         }
 
         /// <inheritdoc />
@@ -106,13 +104,17 @@ namespace System.CommandLine.Help
         }
 
         /// <summary>
-        /// Gets the currently available space based on the <see cref="MaxWidth"/> from the window
-        /// and the current indentation level
+        /// Gets the currently available space based on the <see cref="MaxWidth"/>
+        /// of the window and the current indentation level.
         /// </summary>
-        /// <returns>The number of characters available on the current line</returns>
+        /// <returns>
+        /// The number of characters available on the current line. If no space is
+        /// available then <see cref="int.MaxValue"/> is returned.
+        /// </returns>
         protected int GetAvailableWidth()
         {
-            return MaxWidth - CurrentIndentation - WindowMargin;
+            var width = MaxWidth - CurrentIndentation - WindowMargin;
+            return (width > 0) ? width : int.MaxValue;
         }
 
         /// <summary>
@@ -204,103 +206,199 @@ namespace System.CommandLine.Help
         }
 
         /// <summary>
-        /// Adds columnar content for a <see cref="HelpItem"/> using the current indentation
-        /// for the line, and adding the appropriate padding between the columns
+        /// Writes a collection of <see cref="HelpItem"/> to the console.
         /// </summary>
-        /// <param name="helpItem">
-        /// Current <see cref="HelpItem" /> to write to the console
+        /// <param name="helpItems">
+        /// Collection of <see cref="HelpItem"/> to write to the console.
         /// </param>
-        /// <param name="maxInvocationWidth">
-        /// Maximum number of characters accross all <see cref="HelpItem">help items</see>
-        /// occupied by the invocation text
-        /// </param>
-        protected void AppendHelpItem(
-            HelpItem helpItem, 
-            int maxInvocationWidth)
+        /// <exception cref="ArgumentNullException"></exception>
+        protected virtual void AppendHelpItems(IReadOnlyCollection<HelpItem> helpItems)
         {
-            if (helpItem is null)
+            if (helpItems is null)
+                throw new ArgumentNullException(nameof(helpItems));
+
+            var table = CreateTable(helpItems, item => new[]
             {
-                throw new ArgumentNullException(nameof(helpItem));
+                item.Invocation,
+                JoinNonEmpty(" ", item.Description, item.DefaultValueHint)
+            });
+
+            var columnWidths = ColumnWidths(table);
+            AppendTable(table, columnWidths);
+        }
+
+        /// <summary>
+        /// Create a read only table of strings using the projection of a collection.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements of <paramref name="collection"/>.</typeparam>
+        /// <param name="collection">The collection of values to create the table from.</param>
+        /// <param name="selector">A transformation function to apply to each element of <paramref name="collection"/>.</param>
+        /// <returns>
+        /// A read only table of strings whose elements are the projection of the collection with whitespace formatting removed.
+        /// </returns>
+        protected virtual ReadOnlyCollection<ReadOnlyCollection<string>> CreateTable<T>(IEnumerable<T> collection, Func<T, IEnumerable<string>> selector)
+        {
+            return collection.Select(selector)
+                .Select(row => row
+                    .Select(element => RemoveFormatting(element))
+                    .ToList().AsReadOnly())
+                .ToList().AsReadOnly();
+        }
+
+        /// <summary>
+        /// Allocate space for columns favoring minimal rows. Wider columns are allocated more space if it is available.
+        /// </summary>
+        /// <param name="table">The table of values to determine column widths for.</param>
+        /// <returns>A collection of column widths.</returns>
+        protected virtual ReadOnlyCollection<int> ColumnWidths(IEnumerable<IList<string>> table)
+        {
+            if (!table.Any())
+                return Array.AsReadOnly(Array.Empty<int>());
+
+            var columns = table.First().Count;
+            Debug.Assert(table.All(e => e.Count == columns), $"Every row in {nameof(table)} must have the same number of columns.");
+            var unsetWidth = -1;
+            var widths = new int[columns];
+            for (int i = 0; i < columns; ++i)
+                widths[i] = unsetWidth;
+            var maxWidths = new int[columns];
+            for (int i = 0; i < columns; ++i)
+                maxWidths[i] = table.Max(row => row[i].Length);
+
+            var nonEmptyColumns = maxWidths.Count(width => width > 0);
+
+            // Usable width is the total available width minus space between columns.
+            var available = GetAvailableWidth() - (ColumnGutter * (nonEmptyColumns - 1));
+            // If available space is not sufficent then do not wrap.
+            // If all columns are empty then return array of zeros.
+            if (available - nonEmptyColumns < 0 || nonEmptyColumns == 0)
+                return Array.AsReadOnly(maxWidths);
+
+            // Loop variables.
+            var unset = nonEmptyColumns;
+            var previousUnset = 0;
+            // Limit looping to avoid O(columns^2) runtime.
+            var loopLimit = 5;
+
+            while (unset > 0)
+            {
+                var equal = (available - widths.Where(width => width > 0).Sum()) / unset;
+                // Allocate remaining space equally if no other columns fit on a single line. Or if loop limit has been reached.
+                var allocateRemaining = unset == previousUnset || loopLimit <= 1;
+                for (int i = 0; i < columns; ++i)
+                {
+                    // If width has not been set.
+                    if (widths[i] == unsetWidth)
+                    {
+                        // Attempt to fit column to single line.
+                        var width = maxWidths[i];
+                        if (allocateRemaining)
+                            width = Math.Min(width, equal);
+                        if (width <= equal)
+                            widths[i] = width;
+                    }
+                }
+                previousUnset = unset;
+                unset = widths.Count(width => width < 0);
+                --loopLimit;
             }
 
-            AppendText(helpItem.Invocation, CurrentIndentation);
+            return Array.AsReadOnly(widths);
+        }
 
-            var offset = maxInvocationWidth + ColumnGutter - helpItem.Invocation.Length;
-            var availableWidth = GetAvailableWidth();
-            var maxDescriptionWidth = availableWidth - maxInvocationWidth - ColumnGutter;
-            var descriptionColumn = helpItem.Description;
-            if (helpItem.HasDefaultValueHint)
+        /// <summary>
+        /// Writes a table of strings to the console.
+        /// </summary>
+        /// <param name="table">The table of values to write.</param>
+        /// <param name="columnWidths">The width of each column of the table.</param>
+        protected virtual void AppendTable(IEnumerable<IEnumerable<string>> table, IReadOnlyList<int> columnWidths)
+        {
+            foreach (var row in table)
+                AppendRow(row, columnWidths);
+        }
+
+        /// <summary>
+        /// Writes a row of strings to the console with columns of the given width.
+        /// </summary>
+        /// <param name="row">The row of elements to write.</param>
+        /// <param name="columnWidths">The width of each column of the table.</param>
+        protected virtual void AppendRow(IEnumerable<string> row, IReadOnlyList<int> columnWidths)
+        {
+            var split = row.Select((element, index) => SplitText(element, columnWidths[index])).ToArray();
+            var longest = split.Max(lines => lines.Count);
+            for (int line = 0; line < longest; ++line)
             {
-                var postfix = string.IsNullOrEmpty(helpItem.Description) ? string.Empty : " ";
-                descriptionColumn += postfix + helpItem.DefaultValueHint;
-            }
-            var descriptionLines = SplitText(descriptionColumn, maxDescriptionWidth);
-            var lineCount = descriptionLines.Count;
+                var columnStart = 0;
+                var appended = 0;
+                AppendPadding(CurrentIndentation);
 
-            AppendLine(descriptionLines.FirstOrDefault(), offset);
-
-            if (lineCount == 1)
-            {
-                return;
-            }
-
-            offset = CurrentIndentation + maxInvocationWidth + ColumnGutter;
-
-            foreach (var descriptionLine in descriptionLines.Skip(1))
-            {
-                AppendLine(descriptionLine, offset);
+                for (int column = 0; column < split.Length; ++column)
+                {
+                    var lines = split[column];
+                    if (line < lines.Count)
+                    {
+                        var text = lines[line];
+                        if (!string.IsNullOrEmpty(text))
+                        {
+                            var offset = columnStart - appended;
+                            AppendText(text, offset);
+                            appended += offset + text.Length;
+                        }
+                    }
+                    columnStart += columnWidths[column] + ColumnGutter;
+                }
+                AppendBlankLine();
             }
         }
 
         /// <summary>
-        /// Takes a string of text and breaks it into lines of <see cref="maxLength"/>
-        /// characters. This does not preserve any formatting of the incoming text.
+        /// Takes a string of text and breaks it into lines of <paramref name="width"/>
+        /// characters. Whitespace formatting of the incoming text is removed.
         /// </summary>
-        /// <param name="text">Text content to split into writable lines</param>
-        /// <param name="maxLength">
-        /// Maximum number of characters allowed for writing the supplied <see cref="text"/>
-        /// </param>
+        /// <param name="text">Text content to split into lines.</param>
+        /// <param name="width">Maximum number of characters allowed per line.</param>
         /// <returns>
-        /// Collection of lines of at most <see cref="maxLength"/> characters
-        /// generated from the supplied <see cref="text"/>
+        /// Collection of lines of at most <paramref name="width"/> characters
+        /// generated from the supplied <paramref name="text"/>.
         /// </returns>
-        protected virtual IReadOnlyCollection<string> SplitText(string text, int maxLength)
+        protected virtual ReadOnlyCollection<string> SplitText(string text, int width)
         {
-            var cleanText = Regex.Replace(text, "\\s+", " ");
-            var textLength = cleanText.Length;
+            if (text is null)
+                throw new ArgumentNullException(nameof(text), $"{nameof(text)} cannot be null.");
+            if (width < 0)
+                throw new ArgumentOutOfRangeException(nameof(width), $"{nameof(width)} must be non-negative.");
 
-            if (string.IsNullOrWhiteSpace(cleanText) || textLength < maxLength)
-            {
-                return new[] { cleanText };
-            }
+            if (width == 0)
+                return Array.AsReadOnly(Array.Empty<string>());
 
+            var separator = ' ';
+
+            var start = 0;
             var lines = new List<string>();
-            var builder = new StringBuilder();
+            text = RemoveFormatting(text);
 
-            foreach (var item in cleanText.Split(new char[0], StringSplitOptions.RemoveEmptyEntries))
+            while (start < text.Length - width)
             {
-                var length = item.Length + builder.Length;
+                var end = text.LastIndexOf(separator, start + width);
 
-                if (length >= maxLength)
+                // If last word starts before width / 2 include entire width.
+                if (end - start <= width / 2)
                 {
-                    lines.Add(builder.ToString());
-                    builder.Clear();
+                    lines.Add(text.Substring(start, width));
+                    // Start next line directly after current line. "abcdef" => abc|def
+                    start = start + width;
                 }
-
-                if (builder.Length > 0)
+                else
                 {
-                    builder.Append(" ");
+                    lines.Add(text.Substring(start, end - start));
+                    // Move past separator for start of next line. "abc def" => abc| |def
+                    start = end + 1;
                 }
-
-                builder.Append(item);
             }
 
-            if (builder.Length > 0)
-            {
-                lines.Add(builder.ToString());
-            }
+            lines.Add(text.Substring(start, text.Length - start));
 
-            return lines;
+            return lines.AsReadOnly();
         }
 
         /// <summary>
@@ -599,7 +697,7 @@ namespace System.CommandLine.Help
                               .Where(ShouldShowHelp)
                               .ToArray();
 
-            HelpSection.WriteItems(this, 
+            HelpSection.WriteItems(this,
                               Commands.Title,
                               subcommands.SelectMany(GetOptionHelpItems).ToArray());
         }
@@ -624,16 +722,29 @@ namespace System.CommandLine.Help
             return command.Arguments.Any(ShouldShowHelp);
         }
 
-        private int GetConsoleWindowWidth()
+        private int GetConsoleWindowWidth(IConsole console)
         {
             try
             {
-                return System.Console.WindowWidth;
+                if (console is SystemConsole && System.Console.WindowWidth > 0)
+                    return System.Console.WindowWidth;
+                else
+                    return int.MaxValue;
             }
-            catch (System.IO.IOException)
+            catch
             {
                 return int.MaxValue;
             }
+        }
+
+        private string RemoveFormatting(string input)
+        {
+            return Regex.Replace(input, @"\s+", " ");
+        }
+
+        private string JoinNonEmpty(string separator, params string?[] values)
+        {
+            return string.Join(separator, values.Where(str => !string.IsNullOrEmpty(str)));
         }
 
         protected class HelpItem
@@ -734,19 +845,9 @@ namespace System.CommandLine.Help
                 builder.AppendDescription(description!);
             }
 
-            private static void AddInvocation(
-                HelpBuilder builder,
-                IReadOnlyCollection<HelpItem> helpItems)
+            private static void AddInvocation(HelpBuilder builder, IReadOnlyCollection<HelpItem> helpItems)
             {
-                var maxWidth = helpItems
-                    .Select(line => line.Invocation.Length)
-                    .OrderByDescending(textLength => textLength)
-                    .First();
-
-                foreach (var helpItem in helpItems)
-                {
-                    builder.AppendHelpItem(helpItem, maxWidth);
-                }
+                builder.AppendHelpItems(helpItems);
             }
         }
 
