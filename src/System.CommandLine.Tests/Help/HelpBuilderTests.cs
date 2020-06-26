@@ -111,9 +111,9 @@ namespace System.CommandLine.Tests.Help
         public void Command_name_in_synopsis_can_be_specified()
         {
             var command = new RootCommand
-                          {
-                              Name = "custom-name"
-                          };
+            {
+                Name = "custom-name"
+            };
 
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
             helpBuilder.Write(command);
@@ -138,10 +138,10 @@ namespace System.CommandLine.Tests.Help
             string expectedDescriptor)
         {
             var argument = new Argument
-                           {
-                               Name = "the-args",
-                               Arity = new ArgumentArity(minArity, maxArity)
-                           };
+            {
+                Name = "the-args",
+                Arity = new ArgumentArity(minArity, maxArity)
+            };
             var command = new Command("the-command", "command help")
             {
                 argument,
@@ -178,18 +178,18 @@ namespace System.CommandLine.Tests.Help
             string expectedDescriptor)
         {
             var arg1 = new Argument
-                           {
-                               Name = "arg1",
-                               Arity = new ArgumentArity(
-                                   minArityForArg1, 
-                                   maxArityForArg1)
-                           };
+            {
+                Name = "arg1",
+                Arity = new ArgumentArity(
+                    minArityForArg1,
+                    maxArityForArg1)
+            };
             var arg2 = new Argument
-                           {
-                               Name = "arg2",
-                               Arity = new ArgumentArity(
-                                   minArityForArg2,
-                                   maxArityForArg2)
+            {
+                Name = "arg2",
+                Arity = new ArgumentArity(
+                    minArityForArg2,
+                    maxArityForArg2)
             };
             var command = new Command("the-command", "command help")
             {
@@ -426,7 +426,7 @@ namespace System.CommandLine.Tests.Help
             var command = new Command(commandName, "Does things");
             var hiddenArg = new Argument<int>
             {
-                Name = "hidden", 
+                Name = "hidden",
                 IsHidden = true
             };
             var visibleArg = new Argument<int>
@@ -442,7 +442,7 @@ namespace System.CommandLine.Tests.Help
             var expected =
                 $"Usage:{NewLine}" +
                 $"{_indentation}{commandName} <{visibleArgName}>{NewLine}{NewLine}";
-            
+
             _console.Out.ToString().Should().Contain(expected);
         }
 
@@ -465,7 +465,7 @@ namespace System.CommandLine.Tests.Help
 
             _helpBuilder.Write(command);
             _console.Out.ToString().Should().NotContain("Arguments:");
-            
+
             _helpBuilder.Write(command);
             _console.Out.ToString().Should().NotContain("Arguments:");
         }
@@ -534,7 +534,7 @@ namespace System.CommandLine.Tests.Help
                     Description = "Sets the verbosity."
                 }
             };
-          
+
             _helpBuilder.Write(command);
 
             var help = _console.Out.ToString();
@@ -589,14 +589,14 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Arguments:{NewLine}" +
-                $"{_indentation}<{visibleArgName}>{_columnPadding}{visibleDesc}{NewLine}{NewLine}";            
+                $"{_indentation}<{visibleArgName}>{_columnPadding}{visibleDesc}{NewLine}{NewLine}";
 
             _helpBuilder.Write(command);
             var help = _console.Out.ToString();
 
             help.Should().Contain(expected);
             help.Should().NotContain(hiddenArgName);
-            help.Should().NotContain(hiddenDesc);            
+            help.Should().NotContain(hiddenDesc);
         }
 
         [Fact]
@@ -736,6 +736,34 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Arguments_section_properly_wraps()
+        {
+            var name = "argument-name-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
+            var description = "Argument description for a command with line breaks that is long enough to wrap to a new line.";
+
+            var command = new RootCommand()
+            {
+                new Argument
+                {
+                    Name = name,
+                    Description = description
+                }
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}<argument-name-for-a-command-th{_columnPadding}Argument description for a{NewLine}" +
+                $"{_indentation}at-is-long-enough-to-wrap-to-a-{_columnPadding}command with line breaks that{NewLine}" +
+                $"{_indentation}new-line>                      {_columnPadding}is long enough to wrap to a new{NewLine}" +
+                $"{_indentation}                               {_columnPadding}line.{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
         [Theory]
         [InlineData(typeof(bool))]
         [InlineData(typeof(bool?))]
@@ -813,10 +841,10 @@ namespace System.CommandLine.Tests.Help
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
             helpBuilder.Write(command);
-            
+
             _console.Out.ToString().Should().Contain($"--opt{_columnPadding}{description}");
         }
-        
+
         [Theory]
         [InlineData(typeof(FileAccess))]
         [InlineData(typeof(FileAccess?))]
@@ -947,7 +975,7 @@ namespace System.CommandLine.Tests.Help
             {
                 IsHidden = false
             });
-            
+
 
             _helpBuilder.Write(command);
 
@@ -1085,6 +1113,29 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        public void Options_section_properly_wraps()
+        {
+            var alias = "--option-alias-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
+            var description = "Option description that is long enough to wrap.";
+
+            var command = new RootCommand()
+            {
+                new Option(alias, description)
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Options:{NewLine}" +
+                $"{_indentation}--option-alias-for-a-command-th{_columnPadding}Option description that is long{NewLine}" +
+                $"{_indentation}at-is-long-enough-to-wrap-to-a-{_columnPadding}enough to wrap.{NewLine}" +
+                $"{_indentation}new-line{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
         public void Options_section_does_not_contain_hidden_argument()
         {
             var command = new Command("the-command", "Does things.");
@@ -1126,13 +1177,13 @@ namespace System.CommandLine.Tests.Help
             };
 
             _helpBuilder.Write(command);
-            
+
             var help = _console.Out.ToString();
 
             help.Should()
                 .Contain("--required (REQUIRED)");
         }
-        
+
         [Fact]
         public void Required_options_are_indicated_when_argument_is_named()
         {
@@ -1146,7 +1197,7 @@ namespace System.CommandLine.Tests.Help
             };
 
             _helpBuilder.Write(command);
-            
+
             var help = _console.Out.ToString();
 
             help.Should()
@@ -1177,12 +1228,12 @@ namespace System.CommandLine.Tests.Help
             };
 
             _helpBuilder.Write(command);
-            
+
             var help = _console.Out.ToString();
 
             help.Should().NotContain("/x");
         }
-        
+
         [Fact]
         public void Options_aliases_differing_only_by_prefix_are_deduplicated_favoring_double_dashed_prefixes()
         {
@@ -1192,7 +1243,7 @@ namespace System.CommandLine.Tests.Help
             };
 
             _helpBuilder.Write(command);
-            
+
             var help = _console.Out.ToString();
 
             help.Should().NotContain("/long");
@@ -1265,7 +1316,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Help_should_not_contain_default_value_for_hidden_argument_defined_for_option ()
+        public void Help_should_not_contain_default_value_for_hidden_argument_defined_for_option()
         {
             var argument = new Argument
             {
@@ -1427,12 +1478,35 @@ namespace System.CommandLine.Tests.Help
                  }
              };
 
-             helpBuilder.Write(command);
+            helpBuilder.Write(command);
 
             var expected =
                 $"Commands:{NewLine}" +
                 $"{_indentation}inner-command <inner-args>{_columnPadding}The subcommand with line breaks that{NewLine}" +
                 $"{_indentation}                          {_columnPadding}is long enough to wrap to a new line{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Subcommands_section_properly_wraps()
+        {
+            var name = "subcommand-name-that-is-long-enough-to-wrap-to-a-new-line";
+            var description = "Subcommand description that is really long. So long that it caused the line to wrap.";
+
+            var command = new RootCommand()
+            {
+                new Command(name, description)
+            };
+
+            var helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Commands:{NewLine}" +
+                $"{_indentation}subcommand-name-that-is-long-en{_columnPadding}Subcommand description that is{NewLine}" +
+                $"{_indentation}ough-to-wrap-to-a-new-line     {_columnPadding}really long. So long that it{NewLine}" +
+                $"{_indentation}                               {_columnPadding}caused the line to wrap.{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -1479,12 +1553,12 @@ namespace System.CommandLine.Tests.Help
             var subCommand = new Command("the-subcommand");
             var hidden = new Argument<int>()
             {
-                Name = "the-hidden", 
+                Name = "the-hidden",
                 IsHidden = true
             };
             var visible = new Argument<int>()
             {
-                Name = "the-visible", 
+                Name = "the-visible",
                 IsHidden = false
             };
             subCommand.AddArgument(hidden);
@@ -1557,7 +1631,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Help_describes_default_values_for_subcommand_with_multiple_defaultable_arguments ()
+        public void Help_describes_default_values_for_subcommand_with_multiple_defaultable_arguments()
         {
             var argument = new Argument
             {
