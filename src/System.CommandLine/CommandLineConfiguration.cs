@@ -13,8 +13,8 @@ namespace System.CommandLine
 {
     public class CommandLineConfiguration
     {
-        private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
-        private Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
+        private readonly IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
+        private readonly Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
         public CommandLineConfiguration(
@@ -37,7 +37,18 @@ namespace System.CommandLine
                 throw new ArgumentException("You must specify at least one option or command.");
             }
 
-            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
+            if (argumentDelimiters is null)
+            {
+                ArgumentDelimitersInternal = new HashSet<char>
+                {
+                    ':', 
+                    '='
+                };
+            }
+            else
+            {
+                ArgumentDelimitersInternal = new HashSet<char>(argumentDelimiters);
+            }
 
             foreach (var symbol in symbols)
             {
@@ -110,8 +121,10 @@ namespace System.CommandLine
         
         public ISymbolSet Symbols => _symbols;
 
-        public IReadOnlyCollection<char> ArgumentDelimiters { get; }
+        public IReadOnlyCollection<char> ArgumentDelimiters => ArgumentDelimitersInternal;
 
+        internal HashSet<char> ArgumentDelimitersInternal { get; }
+     
         public bool EnableDirectives { get; }
 
         public bool EnablePosixBundling { get; }

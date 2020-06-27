@@ -16,7 +16,7 @@ namespace System.CommandLine.Rendering
         public static StyleSpan BoldOn() => new StyleSpan(nameof(BoldOn), Ansi.Text.BoldOn);
         public static StyleSpan HiddenOn() => new StyleSpan(nameof(HiddenOn), Ansi.Text.HiddenOn);
         public static StyleSpan ReverseOn() => new StyleSpan(nameof(ReverseOn), Ansi.Text.ReverseOn);
-        public static StyleSpan ReversOff() => new StyleSpan(nameof(ReversOff), Ansi.Text.ReversOff);
+        public static StyleSpan ReverseOff() => new StyleSpan(nameof(ReverseOff), Ansi.Text.ReverseOff);
         public static StyleSpan StandoutOff() => new StyleSpan(nameof(StandoutOff), Ansi.Text.StandoutOff);
         public static StyleSpan StandoutOn() => new StyleSpan(nameof(StandoutOn), Ansi.Text.StandoutOn);
         public static StyleSpan UnderlinedOff() => new StyleSpan(nameof(UnderlinedOff), Ansi.Text.UnderlinedOff);

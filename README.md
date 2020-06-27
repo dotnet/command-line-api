@@ -31,7 +31,7 @@ To use the tutorial, first clone the `command-line-api` repository:
 Next, install the `dotnet try` global tool:
 
 ```console
-> dotnet tool install -g dotnet-try
+> dotnet tool install -g Microsoft.dotnet-try
 ```
 
 Finally, launch the `dotnet try` pointing to the tutorial directory inside the cloned repository:

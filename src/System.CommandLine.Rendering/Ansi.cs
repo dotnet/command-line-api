@@ -18,7 +18,7 @@ namespace System.CommandLine.Rendering
             public static AnsiControlCode BoldOn { get; } = $"{Esc}[1m";
             public static AnsiControlCode HiddenOn { get; } = $"{Esc}[8m";
             public static AnsiControlCode ReverseOn { get; } = $"{Esc}[7m";
-            public static AnsiControlCode ReversOff { get; } = $"{Esc}[27m";
+            public static AnsiControlCode ReverseOff { get; } = $"{Esc}[27m";
             public static AnsiControlCode StandoutOff { get; } = $"{Esc}[23m";
             public static AnsiControlCode StandoutOn { get; } = $"{Esc}[3m";
             public static AnsiControlCode UnderlinedOff { get; } = $"{Esc}[24m";
