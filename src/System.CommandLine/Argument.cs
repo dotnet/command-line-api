@@ -38,14 +38,10 @@ namespace System.CommandLine
             {
                 if (_arity is null)
                 {
-                    if (ArgumentType != typeof(void))
-                    {
-                        return ArgumentArity.Default(ArgumentType, this, Parents.FirstOrDefault());
-                    }
-                    else
-                    {
-                        return ArgumentArity.Zero;
-                    }
+                    return ArgumentArity.Default(
+                        ArgumentType, 
+                        this, 
+                        Parents.FirstOrDefault());
                 }
 
                 return _arity;
@@ -57,8 +53,7 @@ namespace System.CommandLine
         {
             get
             {
-                if (_convertArguments == null &&
-                    ArgumentType != typeof(void))
+                if (_convertArguments == null)
                 {
                     if (ArgumentType.CanBeBoundFromScalarValue())
                     {
