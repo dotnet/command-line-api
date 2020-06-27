@@ -95,11 +95,11 @@ namespace System.CommandLine.Parsing
                 return result.GetValueOrDefault<T>() switch
                 {
                     { } t => t,
-                    _ => default
+                    _ => default!
                 };
             }
 
-            return default;
+            return default!;
         }
 
         [return: MaybeNull]
