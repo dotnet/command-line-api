@@ -88,15 +88,10 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForArgument<T>(Argument<T> argument)
         {
-            var result = FindResultFor(argument);
-
-            if (result is {})
+            if (FindResultFor(argument) is {} result &&
+                result.GetValueOrDefault<T>() is {} t)
             {
-                return result.GetValueOrDefault<T>() switch
-                {
-                    { } t => t,
-                    _ => default!
-                };
+                return t;
             }
 
             return default!;
@@ -105,52 +100,37 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForArgument<T>(Argument argument)
         {
-            var result = FindResultFor(argument);
-
-            if (result is {})
+            if (FindResultFor(argument) is {} result &&
+                result.GetValueOrDefault<T>() is {} t)
             {
-                return result.GetValueOrDefault<T>() switch
-                {
-                    { } t => t,
-                    _ => default
-                };
+                return t;
             }
 
-            return default;
+            return default!;
         }
 
         [return: MaybeNull]
         public T ValueForOption<T>(Option<T> option)
         {
-            var result = FindResultFor(option);
-
-            if (result is {})
+            if (FindResultFor(option) is {} result &&
+                result.GetValueOrDefault<T>() is {} t)
             {
-                return result.GetValueOrDefault<T>() switch
-                {
-                    { } t => t,
-                    _ => default
-                };
+                return t;
             }
 
-            return default;
+            return default!;
         }
 
         [return: MaybeNull]
         public T ValueForOption<T>(Option option)
         {
-            var result = FindResultFor(option);
-
-            if (result is {})
+            if (FindResultFor(option) is {} result &&
+                result.GetValueOrDefault<T>() is {} t)
             {
-                return result.GetValueOrDefault<T>() switch
-                {
-                    { } t => t,
-                    _ => default
-                };
+                return t;
             }
 
-            return default;
+            return default!;
         }
 
         public SymbolResult? this[string alias] => CommandResult.Children[alias];
