@@ -39,16 +39,15 @@ namespace System.CommandLine.Hosting
                 hostBuilder.UseInvocationLifetime(invocation);
                 configureHost?.Invoke(hostBuilder);
 
-                using (var host = hostBuilder.Build())
-                {
-                    invocation.BindingContext.AddService(typeof(IHost), _ => host);
+                using var host = hostBuilder.Build();
 
-                    await host.StartAsync();
+                invocation.BindingContext.AddService(typeof(IHost), _ => host);
 
-                    await next(invocation);
+                await host.StartAsync();
 
-                    await host.StopAsync();
-                }
+                await next(invocation);
+
+                await host.StopAsync();
             });
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
