@@ -155,7 +155,7 @@ namespace System.CommandLine.Tests.Binding
 
             receivedHeaders.Should().BeEquivalentTo("one", "two");
         }
-      
+
         [Theory]
         [InlineData(typeof(string), "hello", "hello")]
         [InlineData(typeof(int), "123", 123)]
@@ -312,12 +312,12 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(FileInfo), true)]
         [InlineData(typeof(FileInfo[]), false)]
         [InlineData(typeof(FileInfo[]), true)]
-        
+
         [InlineData(typeof(DirectoryInfo), false)]
         [InlineData(typeof(DirectoryInfo), true)]
         [InlineData(typeof(DirectoryInfo[]), false)]
         [InlineData(typeof(DirectoryInfo[]), true)]
-        
+
         [InlineData(typeof(FileSystemInfo), true, nameof(ExistingFile))]
         [InlineData(typeof(FileSystemInfo), true, nameof(ExistingDirectory))]
         [InlineData(typeof(FileSystemInfo), true, nameof(NonexistentPathWithTrailingSlash))]
@@ -350,13 +350,13 @@ namespace System.CommandLine.Tests.Binding
             }
             else
             {
-                 var createCaptureDelegate = GetType()
-                                    .GetMethod(nameof(CaptureDelegate), BindingFlags.NonPublic | BindingFlags.Static)
-                                    .MakeGenericMethod(testCase.ParameterType);
+                var createCaptureDelegate = GetType()
+                                   .GetMethod(nameof(CaptureDelegate), BindingFlags.NonPublic | BindingFlags.Static)
+                                   .MakeGenericMethod(testCase.ParameterType);
 
-                 var @delegate = createCaptureDelegate.Invoke(null, null);
+                var @delegate = createCaptureDelegate.Invoke(null, null);
 
-                 handler = CommandHandler.Create((dynamic) @delegate);
+                handler = CommandHandler.Create((dynamic)@delegate);
             }
 
             var command = new Command("command")
@@ -383,14 +383,14 @@ namespace System.CommandLine.Tests.Binding
 
             testCase.AssertBoundValue(boundValue);
         }
-        
+
         [Fact]
         public async Task When_binding_fails_due_to_parameter_naming_mismatch_then_handler_is_called_and_no_error_is_produced()
         {
             string[] received = { "this should get overwritten" };
 
             var o = new Option(
-                new[] {  "-i" },
+                new[] { "-i" },
                 "Path to an image or directory of supported images")
             {
                 Argument = new Argument<string[]>()
@@ -458,6 +458,96 @@ namespace System.CommandLine.Tests.Binding
             c.AssertBoundValue(boundValue);
         }
 
+        [Theory]
+        [InlineData(typeof(bool), "--value-other-name", true)]
+        [InlineData(typeof(bool), "--value-other-name false", false)]
+        [InlineData(typeof(string), "--value-other-name hello", "hello")]
+        [InlineData(typeof(int), "--value-other-name 123", 123)]
+        public async Task Option_arguments_are_bound_by_explicit_binding_to_method_parameters(
+             Type type,
+             string commandLine,
+             object expectedValue)
+        {
+            var targetType = typeof(ClassWithMethodHavingParameter<>).MakeGenericType(type);
+
+            var handlerMethod = targetType.GetMethod(nameof(ClassWithMethodHavingParameter<int>.HandleAsync));
+
+            var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
+                                           .GetCommandHandler();
+            var option = new Option("--value-other-name")
+                          {
+                              Argument = new Argument
+                              {
+                                  Name = "value",
+                                  ArgumentType = type
+                              }
+                          };
+            var command = new Command("the-command")
+                          {
+                              option
+                          };
+
+            var console = new TestConsole();
+
+            // Obviously this would not be happy code outside a context where you already have the ParameterInfo, like some AppModels
+            var methodBinder = new MethodBinder(handlerMethod);
+            methodBinder.BindParameterFromValue(handlerMethod.GetParameters().First(), option);
+            var invocationContext = new InvocationContext(command.Parse(commandLine), console);
+            var bindingContext = invocationContext.BindingContext;
+            bindingContext.AddMethodBinder(methodBinder);
+
+            await handler.InvokeAsync(invocationContext);
+
+            console.Out.ToString().Should().Be(expectedValue.ToString());
+        }
+
+        [Theory]
+        [InlineData(typeof(bool), "--value-other-name", true)]
+        [InlineData(typeof(bool), "--value-other-name false", false)]
+        [InlineData(typeof(string), "--value-other-name hello", "hello")]
+        [InlineData(typeof(int), "--value-other-name 123", 123)]
+        public async Task Option_arguments_are_bound_by_explicit_binding_to_the_properties_of_method_parameters(
+            Type type,
+            string commandLine,
+            object expectedValue)
+        {
+            var complexParameterType = typeof(ClassWithSetter<>).MakeGenericType(type);
+
+            var handlerType = typeof(ClassWithMethodHavingParameter<>).MakeGenericType(complexParameterType);
+
+            var handlerMethod = handlerType.GetMethod("HandleAsync");
+
+            var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
+                                           .GetCommandHandler();
+
+            var option = new Option("--value-other-name")
+                    {
+                        Argument = new Argument
+                        {
+                            Name = "value",
+                            ArgumentType = type
+                        }
+                    };
+            var command = new Command("the-command")
+                          {
+                              option
+                          };
+
+            var console = new TestConsole();
+
+            // Obviously this would not be happy code outside a context where you already have the ParameterInfo, like some AppModels
+            var methodBinder = new MethodBinder(handlerMethod);
+            methodBinder.BindParameterFromValue(handlerMethod.GetParameters().First(), option);
+            var invocationContext = new InvocationContext(command.Parse(commandLine), console);
+            var bindingContext = invocationContext.BindingContext;
+            bindingContext.AddMethodBinder(methodBinder);
+
+            await handler.InvokeAsync(invocationContext);
+
+            console.Out.ToString().Should().Be($"ClassWithSetter<{type.Name}>: {expectedValue}");
+        }
+
+
         private static void CaptureMethod<T>(T value, InvocationContext invocationContext)
         {
             invocationContext.InvocationResult = new BoundValueCapturer(value);
@@ -490,7 +580,7 @@ namespace System.CommandLine.Tests.Binding
               BindingTestCase.Create<ClassWithCtorParameter<int>>(
                  "123",
                  o => o.Value.Should().Be(123)),
-            
+
               BindingTestCase.Create<ClassWithSetter<int>>(
                  "123",
                  o => o.Value.Should().Be(123)),
@@ -578,7 +668,7 @@ namespace System.CommandLine.Tests.Binding
                           .Which
                           .FullName
                           .Should()
-                          .Be(NonexistentPathWithTrailingSlash(), 
+                          .Be(NonexistentPathWithTrailingSlash(),
                               "DirectoryInfo replaces Path.AltDirectorySeparatorChar with Path.DirectorySeparatorChar on Windows"),
                 variationName: nameof(NonexistentPathWithTrailingAltSlash)),
 
@@ -616,13 +706,13 @@ namespace System.CommandLine.Tests.Binding
                 "does-not-exist");
         }
 
-        private static string NonexistentPathWithTrailingSlash() => 
+        private static string NonexistentPathWithTrailingSlash() =>
             NonexistentPathWithoutTrailingSlash() + Path.DirectorySeparatorChar;
-        private static string NonexistentPathWithTrailingAltSlash() => 
+        private static string NonexistentPathWithTrailingAltSlash() =>
             NonexistentPathWithoutTrailingSlash() + Path.AltDirectorySeparatorChar;
 
         private static string ExistingFile() =>
-            Directory.GetFiles(ExistingDirectory()).FirstOrDefault() ?? 
+            Directory.GetFiles(ExistingDirectory()).FirstOrDefault() ??
             throw new AssertionFailedException("No files found in current directory");
 
         private static string ExistingDirectory() => Directory.GetCurrentDirectory();

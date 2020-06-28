@@ -8,6 +8,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 
 #nullable enable
 
@@ -17,6 +18,7 @@ namespace System.CommandLine.Binding
     {
         private IConsole _console;
         private readonly Dictionary<Type, ModelBinder> _modelBindersByValueDescriptor = new Dictionary<Type, ModelBinder>();
+        private readonly Dictionary<MethodBase, MethodBinder> _methodBindersByValueDescriptor = new Dictionary<MethodBase, MethodBinder>();
 
         public BindingContext(
             ParseResult parseResult,
@@ -61,6 +63,18 @@ namespace System.CommandLine.Binding
                 return binder;
             }
             return new ModelBinder(valueDescriptor);
+        }
+
+        public void AddMethodBinder(MethodBinder binder) =>
+            _methodBindersByValueDescriptor.Add(binder.MethodDescriptor.MethodInfo, binder);
+
+        public MethodBinder GetMethodBinder(MethodInfo methodInfo)
+        {
+            if (_methodBindersByValueDescriptor.TryGetValue(methodInfo, out MethodBinder binder))
+            {
+                return binder;
+            }
+            return new MethodBinder(methodInfo);
         }
 
         public void AddService(Type serviceType, Func<IServiceProvider, object> factory)

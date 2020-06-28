@@ -12,6 +12,8 @@ namespace System.CommandLine.Binding
     {
         private List<ParameterDescriptor>? _parameterDescriptors;
 
+        public abstract MethodBase MethodInfo { get; }
+
         public abstract ICommandHandler GetCommandHandler();
 
         public abstract ModelDescriptor? Parent { get; }

@@ -41,6 +41,8 @@ namespace System.CommandLine.Binding
 
         public override ModelDescriptor Parent => ModelDescriptor.FromType(_handlerMethodInfo.DeclaringType);
 
+        public override MethodBase MethodInfo => _handlerMethodInfo;
+
         protected override IEnumerable<ParameterDescriptor> InitializeParameterDescriptors() =>
             _handlerMethodInfo.GetParameters()
                               .Select(p => new ParameterDescriptor(p, this));

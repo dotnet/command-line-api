@@ -27,6 +27,8 @@ namespace System.CommandLine.Binding
             _parameterDescriptors ??=
                 _constructorInfo.GetParameters().Select(p => new ParameterDescriptor(p, this)).ToList();
 
+        public MethodBase MethodInfo => _constructorInfo;
+
         internal object Invoke(IReadOnlyCollection<object?> parameters)
         {
             return _constructorInfo.Invoke(parameters.ToArray());

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
 using System.Linq;
+using System.Reflection;
 
 namespace System.CommandLine.Binding
 {
@@ -24,6 +25,8 @@ namespace System.CommandLine.Binding
         }
 
         public override ModelDescriptor? Parent => null;
+
+        public override MethodBase MethodInfo => throw new NotImplementedException("KAD: This is a problem");
 
         protected override IEnumerable<ParameterDescriptor> InitializeParameterDescriptors()
         {

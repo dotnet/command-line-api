@@ -32,22 +32,10 @@ namespace System.CommandLine.Parsing
             IValueDescriptor valueDescriptor,
             out object? value)
         {
-            var children = commandResult
-                           .Children
-                           .Where(o => valueDescriptor.ValueName?.IsMatch(o.Symbol) == true)
-                           .ToArray();
-
-            SymbolResult? symbolResult = null;
-
-            if (children.Length > 1)
+            SymbolResult? symbolResult = SymbolFromExplicitSymbol(commandResult, valueDescriptor);
+            if (symbolResult is null)
             {
-                throw new ArgumentException(
-                    $"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {string.Join(",", children.Select(o => o.Symbol.Name))}");
-            }
-
-            if (children.Length == 1)
-            {
-                symbolResult = children[0];
+                symbolResult = SymbolFromName(commandResult, valueDescriptor);
             }
 
             if (symbolResult is OptionResult optionResult)
@@ -61,6 +49,52 @@ namespace System.CommandLine.Parsing
 
             value = null;
             return false;
+
+            static SymbolResult? SymbolFromName(CommandResult commandResult, IValueDescriptor valueDescriptor)
+            {
+                var children = commandResult
+                                           .Children
+                                           .Where(o => valueDescriptor.ValueName?.IsMatch(o.Symbol) == true)
+                                           .ToArray();
+
+                SymbolResult? symbolResult = null;
+
+                if (children.Length > 1)
+                {
+                    throw new ArgumentException(
+                        $"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {string.Join(",", children.Select(o => o.Symbol.Name))}");
+                }
+
+                if (children.Length == 1)
+                {
+                    symbolResult = children[0];
+                }
+
+                return symbolResult;
+            }
+
+            static SymbolResult? SymbolFromExplicitSymbol(CommandResult commandResult, IValueDescriptor valueDescriptor)
+            {
+                var children = commandResult
+                                           .Children
+                                           .Where(o => valueDescriptor == o.Symbol)
+                                           .ToArray();
+
+                SymbolResult? symbolResult = null;
+
+                if (children.Length > 1)
+                {
+                    throw new ArgumentException(
+                        $"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {string.Join(",", children.Select(o => o.Symbol.Name))}");
+                }
+
+                if (children.Length == 1)
+                {
+                    symbolResult = children[0];
+                }
+
+                return symbolResult;
+            }
         }
     }
 }

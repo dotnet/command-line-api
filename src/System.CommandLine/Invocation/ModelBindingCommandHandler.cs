@@ -49,33 +49,41 @@ namespace System.CommandLine.Invocation
 
         public async Task<int> InvokeAsync(InvocationContext context)
         {
+            object result;
             var bindingContext = context.BindingContext;
-
-            var parameterBinders = _parameterDescriptors
-                                   .Select(p => bindingContext.GetModelBinder(p))
-                                   .ToList();
-
-            var invocationArguments =
-                parameterBinders
-                    .Select(binder => binder.CreateInstance(bindingContext))
-                    .ToArray();
-
             var invocationTarget = _invocationTarget ??
                                    _invocationTargetBinder?.CreateInstance(bindingContext);
-
-            object result;
-            if (_handlerDelegate is null)
+            var invocationArguments = new object?[] { };
+            if (!(_handlerDelegate is null))
             {
+                invocationArguments = ArgumentsFromDelegate(bindingContext, _parameterDescriptors);
+                result = _handlerDelegate.DynamicInvoke(invocationArguments);
+            }
+            else if (!(_handlerMethodInfo is null))
+            {
+                var methodBinder = bindingContext.GetMethodBinder(_handlerMethodInfo);
+                invocationArguments = methodBinder.GetInvocationArguments(bindingContext);
                 result = _handlerMethodInfo!.Invoke(
                     invocationTarget,
                     invocationArguments);
             }
             else
             {
-                result = _handlerDelegate.DynamicInvoke(invocationArguments);
+                throw new InvalidOperationException("Either a method info or a delegate must be supplied");
             }
 
             return await CommandHandler.GetResultCodeAsync(result, context);
+
+            static object?[] ArgumentsFromDelegate(BindingContext bindingContext, IReadOnlyList<ParameterDescriptor> parameterDescriptors)
+            {
+                var parameterBinders = parameterDescriptors
+                      .Select(p => bindingContext.GetModelBinder(p))
+                      .ToList();
+
+                return parameterBinders
+                       .Select(binder => binder.CreateInstance(bindingContext))
+                       .ToArray();
+            }
         }
     }
 }
