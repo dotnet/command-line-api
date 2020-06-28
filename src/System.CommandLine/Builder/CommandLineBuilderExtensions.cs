@@ -7,6 +7,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -228,6 +229,32 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        public static CommandLineBuilder UseCultureDirective(
+            this CommandLineBuilder builder)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                var directives = context.ParseResult.Directives;
+                if (directives.Contains("invariantculture"))
+                    CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                if (directives.Contains("invariantuiculture"))
+                    CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+                if (directives.TryGetValues("culture", out var cultures))
+                {
+                    foreach (var cultureName in cultures.Select(c => c.Trim()))
+                        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+                }
+                if (directives.TryGetValues("uiculture", out var uicultures))
+                {
+                    foreach (var cultureName in uicultures.Select(c => c.Trim()))
+                        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
+                }
+                await next(context);
+            }, MiddlewareOrderInternal.CultureDirective);
+
+            return builder;
+        }
+
         public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
         {
             return builder
@@ -235,6 +262,7 @@ namespace System.CommandLine.Builder
                    .UseHelp()
                    .UseParseDirective()
                    .UseDebugDirective()
+                   .UseCultureDirective()
                    .UseSuggestDirective()
                    .RegisterWithDotnetSuggest()
                    .UseTypoCorrections()
