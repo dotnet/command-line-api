@@ -8,6 +8,7 @@ using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.IO;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -29,9 +30,9 @@ namespace System.CommandLine.Tests
             {
                 Argument = new Argument
                     {
-                        Arity = ArgumentArity.ExactlyOne
+                        Arity = ArgumentArity.ExactlyOne,
+                        SuggestionSources = { "one", "two", "three" }
                     }
-                    .WithSuggestions("one", "two", "three")
             };
 
             var suggestions = option.GetSuggestions();
@@ -102,9 +103,9 @@ namespace System.CommandLine.Tests
                 new Option("--option", "option"),
                 new Argument
                     {
-                        Arity = ArgumentArity.OneOrMore
+                        Arity = ArgumentArity.OneOrMore,
+                        SuggestionSources = { "command-argument" }
                     }
-                    .WithSuggestions("command-argument")
             };
 
             var suggestions = command.GetSuggestions();
@@ -505,9 +506,9 @@ namespace System.CommandLine.Tests
                     {
                         Argument = new Argument
                             {
-                                Arity = ArgumentArity.ExactlyOne
+                                Arity = ArgumentArity.ExactlyOne,
+                                SuggestionSources = { "vegetable", "mineral", "animal" }
                             }
-                            .WithSuggestions("vegetable", "mineral", "animal")
                     }
                 };
 
@@ -529,14 +530,9 @@ namespace System.CommandLine.Tests
                 {
                     new Argument
                         {
-                            Arity = ArgumentArity.ExactlyOne
+                            Arity = ArgumentArity.ExactlyOne,
+                            SuggestionSources = { _ => new[] { "vegetable", "mineral", "animal" } }
                         }
-                        .WithSuggestionSource(_ => new[]
-                        {
-                            "vegetable",
-                            "mineral",
-                            "animal"
-                        })
                 }
             };
 
@@ -551,13 +547,13 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option<string>("-x")
-                    .WithSuggestionSource(_ => new[]
+                new Option<string>("-x") 
+                {
+                    Argument = new Argument<string>()
                     {
-                        "vegetable",
-                        "mineral",
-                        "animal"
-                    })
+                        SuggestionSources = { _ => new[] { "vegetable", "mineral", "animal" } }
+                    }
+                }
             };
 
             var parseResult = command.Parse("the-command -x m");
@@ -996,6 +992,40 @@ namespace System.CommandLine.Tests
             public void When_there_are_multiple_arguments_then_suggestions_are_only_offered_for_the_current_argument()
             {
                 Assert.True(false, "Test testname is not written yet.");
+            }
+
+            [Fact]
+            public void Enum_suggestions_can_be_configured_with_list_clear()
+            {
+                var argument = new Argument<LogLevel?>();
+                argument.SuggestionSources.Clear();
+                argument.SuggestionSources.Add(new[] { "q", "quiet", "m", "minimal", "n", "normal", "d", "detailed", "diag", "diagnostic" });
+                var command = new Command("the-command")
+                {
+                    argument
+                };
+
+                var suggestions = command.Parse("the-command d")
+                                         .GetSuggestions();
+
+                suggestions.Should().BeEquivalentTo("d", "detailed", "diag", "diagnostic");
+            }
+
+            [Fact]
+            public void Enum_suggestions_can_be_configured_without_list_clear()
+            {
+                var command = new Command("the-command")
+                {
+                    new Argument<LogLevel?>()
+                    {
+                        SuggestionSources = { "q", "quiet", "m", "minimal", "n", "normal", "d", "detailed", "diag", "diagnostic" }
+                    }
+                };
+
+                var suggestions = command.Parse("the-command d")
+                                         .GetSuggestions();
+
+                suggestions.Should().BeEquivalentTo("d", "Debug", "detailed", "diag", "diagnostic");
             }
         }
     }

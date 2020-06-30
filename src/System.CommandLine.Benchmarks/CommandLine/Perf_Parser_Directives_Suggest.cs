@@ -29,12 +29,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 new Option("--fruit")
                 {
                     Argument = new Argument<string>()
-                        .WithSuggestions("apple", "banana", "cherry")
+                    {
+                        SuggestionSources = {"apple", "banana", "cherry" }
+                    }
                 },
                 new Option("--vegetable")
                 {
                     Argument = new Argument<string>()
-                        .WithSuggestions("asparagus", "broccoli", "carrot")
+                    {
+                        SuggestionSources = {"asparagus", "broccoli", "carrot" }
+                    }
                 }
             };
 

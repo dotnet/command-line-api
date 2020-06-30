@@ -41,9 +41,9 @@ namespace System.CommandLine.Benchmarks.CommandLine
             {
                 Argument = new Argument
                     {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                    .WithSuggestions(GenerateSuggestionsArray(TestSuggestionsCount))
+                        Arity = ArgumentArity.ExactlyOne,
+                        SuggestionSources = { GenerateSuggestionsArray(TestSuggestionsCount) }
+                }
             };
         }
 

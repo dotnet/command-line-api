@@ -12,8 +12,6 @@ namespace System.CommandLine
     public class Argument : Symbol, IArgument
     {
         private Func<ArgumentResult, object?>? _defaultValueFactory;
-        private readonly List<string> _suggestions = new List<string>();
-        private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
         private IArgumentArity? _arity;
         private TryConvertArgument? _convertArguments;
         private Type _argumentType = typeof(void);
@@ -109,6 +107,24 @@ namespace System.CommandLine
             set => _convertArguments = value;
         }
 
+
+        private List<ISuggestionSource>? _suggestionSources = null;
+        public List<ISuggestionSource> SuggestionSources 
+        { 
+            get
+            {
+                if (_suggestionSources is null)
+                {
+                    _suggestionSources = new List<ISuggestionSource>()
+                    {
+                        SuggestionSource.ForType(ArgumentType)
+                    };
+                }
+
+                return _suggestionSources;
+            }
+        }
+
         public Type ArgumentType
         {
             get => _argumentType;
@@ -158,36 +174,6 @@ namespace System.CommandLine
 
         internal static Argument None => new Argument { Arity = ArgumentArity.Zero };
 
-        public void AddSuggestions(IReadOnlyCollection<string> suggestions)
-        {
-            if (suggestions is null)
-            {
-                throw new ArgumentNullException(nameof(suggestions));
-            }
-
-            _suggestions.AddRange(suggestions);
-        }
-
-        public void AddSuggestionSource(ISuggestionSource suggest)
-        {
-            if (suggest is null)
-            {
-                throw new ArgumentNullException(nameof(suggest));
-            }
-
-            _suggestionSources.Add(suggest);
-        }
-
-        public void AddSuggestionSource(Suggest suggest)
-        {
-            if (suggest is null)
-            {
-                throw new ArgumentNullException(nameof(suggest));
-            }
-
-            AddSuggestionSource(new AnonymousSuggestionSource(suggest));
-        }
-
         internal void AddAllowedValues(IEnumerable<string> values)
         {
             if (AllowedValues is null)
@@ -200,17 +186,10 @@ namespace System.CommandLine
 
         public override IEnumerable<string?> GetSuggestions(string? textToMatch = null)
         {
-            var fixedSuggestions = _suggestions;
-
-            var dynamicSuggestions = _suggestionSources
+            var dynamicSuggestions = SuggestionSources
                 .SelectMany(source => source.GetSuggestions(textToMatch));
 
-            var typeSuggestions = SuggestionSource.ForType(ArgumentType)
-                                                  .GetSuggestions(textToMatch);
-
-            return fixedSuggestions
-                   .Concat(dynamicSuggestions)
-                   .Concat(typeSuggestions)
+            return dynamicSuggestions
                    .Distinct()
                    .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
                    .Containing(textToMatch);
