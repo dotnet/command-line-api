@@ -8,7 +8,6 @@ using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.IO;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -997,18 +996,18 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Enum_suggestions_can_be_configured_with_list_clear()
             {
-                var argument = new Argument<LogLevel?>();
+                var argument = new Argument<DayOfWeek?>();
                 argument.SuggestionSources.Clear();
-                argument.SuggestionSources.Add(new[] { "q", "quiet", "m", "minimal", "n", "normal", "d", "detailed", "diag", "diagnostic" });
+                argument.SuggestionSources.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
                 var command = new Command("the-command")
                 {
                     argument
                 };
 
-                var suggestions = command.Parse("the-command d")
+                var suggestions = command.Parse("the-command s")
                                          .GetSuggestions();
 
-                suggestions.Should().BeEquivalentTo("d", "detailed", "diag", "diagnostic");
+                suggestions.Should().BeEquivalentTo("sat", "sun","tues");
             }
 
             [Fact]
@@ -1016,16 +1015,25 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<LogLevel?>()
+                    new Argument<DayOfWeek?>()
                     {
-                        SuggestionSources = { "q", "quiet", "m", "minimal", "n", "normal", "d", "detailed", "diag", "diagnostic" }
+                        SuggestionSources = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
                     }
                 };
 
-                var suggestions = command.Parse("the-command d")
+                var suggestions = command.Parse("the-command s")
                                          .GetSuggestions();
 
-                suggestions.Should().BeEquivalentTo("d", "Debug", "detailed", "diag", "diagnostic");
+                suggestions
+                    .Should()
+                    .BeEquivalentTo(
+                        "sat",
+                        nameof(DayOfWeek.Saturday),
+                        "sun", nameof(DayOfWeek.Sunday),
+                        "tues",
+                        nameof(DayOfWeek.Tuesday),
+                        nameof(DayOfWeek.Thursday),
+                        nameof(DayOfWeek.Wednesday));
             }
         }
     }
