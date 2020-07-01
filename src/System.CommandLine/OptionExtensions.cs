@@ -22,6 +22,26 @@ namespace System.CommandLine
             return option;
         }
 
+        public static TOption AddSuggestions<TOption>(
+            this TOption option,
+            params string[] values)
+            where TOption : Option
+        {
+            option.Argument.Suggestions.Add(values);
+
+            return option;
+        }
+
+        public static TOption AddSuggestion<TOption>(
+            this TOption option,
+            Suggest suggest)
+            where TOption : Option 
+        {
+            option.Argument.Suggestions.Add(suggest);
+
+            return option;
+        }
+
         public static Option<FileInfo> ExistingOnly(this Option<FileInfo> option)
         {
             option.Argument.AddValidator(
