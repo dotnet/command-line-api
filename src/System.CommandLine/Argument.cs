@@ -108,20 +108,20 @@ namespace System.CommandLine
         }
 
 
-        private List<ISuggestionSource>? _suggestionSources = null;
-        public List<ISuggestionSource> SuggestionSources 
+        private List<ISuggestionSource>? _suggestions = null;
+        public List<ISuggestionSource> Suggestions
         { 
             get
             {
-                if (_suggestionSources is null)
+                if (_suggestions is null)
                 {
-                    _suggestionSources = new List<ISuggestionSource>()
+                    _suggestions = new List<ISuggestionSource>()
                     {
                         SuggestionSource.ForType(ArgumentType)
                     };
                 }
 
-                return _suggestionSources;
+                return _suggestions;
             }
         }
 
@@ -186,7 +186,7 @@ namespace System.CommandLine
 
         public override IEnumerable<string?> GetSuggestions(string? textToMatch = null)
         {
-            var dynamicSuggestions = SuggestionSources
+            var dynamicSuggestions = Suggestions
                 .SelectMany(source => source.GetSuggestions(textToMatch));
 
             return dynamicSuggestions

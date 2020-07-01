@@ -17,7 +17,7 @@ namespace System.CommandLine
             where TArgument : Argument
         {
             argument.AddAllowedValues(values);
-            argument.SuggestionSources.Add(values);
+            argument.Suggestions.Add(values);
 
             return argument;
         }

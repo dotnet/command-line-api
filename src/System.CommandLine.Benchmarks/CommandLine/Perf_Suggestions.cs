@@ -42,7 +42,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 Argument = new Argument
                     {
                         Arity = ArgumentArity.ExactlyOne,
-                        SuggestionSources = { GenerateSuggestionsArray(TestSuggestionsCount) }
+                        Suggestions = { GenerateSuggestionsArray(TestSuggestionsCount) }
                 }
             };
         }

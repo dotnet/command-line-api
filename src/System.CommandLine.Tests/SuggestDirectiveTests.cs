@@ -22,10 +22,10 @@ namespace System.CommandLine.Tests
         public SuggestDirectiveTests()
         {
             _fruitOption = new Option<string>("--fruit");
-            _fruitOption.Argument.SuggestionSources.Add( new[] { "apple", "banana", "cherry" });
+            _fruitOption.Argument.Suggestions.Add( new[] { "apple", "banana", "cherry" });
 
             _vegetableOption = new Option<string>("--vegetable");
-            _vegetableOption.Argument.SuggestionSources.Add(new[] { "asparagus", "broccoli", "carrot" });
+            _vegetableOption.Argument.Suggestions.Add(new[] { "asparagus", "broccoli", "carrot" });
 
             _eatCommand = new Command("eat")
             {

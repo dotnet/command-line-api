@@ -17,7 +17,7 @@ namespace System.CommandLine
             where TOption : Option
         {
             option.Argument.AddAllowedValues(values);
-            option.Argument.SuggestionSources.Add(values);
+            option.Argument.Suggestions.Add(values);
 
             return option;
         }

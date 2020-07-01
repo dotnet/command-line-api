@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests
                 Argument = new Argument
                     {
                         Arity = ArgumentArity.ExactlyOne,
-                        SuggestionSources = { "one", "two", "three" }
+                        Suggestions = { "one", "two", "three" }
                     }
             };
 
@@ -103,7 +103,7 @@ namespace System.CommandLine.Tests
                 new Argument
                     {
                         Arity = ArgumentArity.OneOrMore,
-                        SuggestionSources = { "command-argument" }
+                        Suggestions = { "command-argument" }
                     }
             };
 
@@ -506,7 +506,7 @@ namespace System.CommandLine.Tests
                         Argument = new Argument
                             {
                                 Arity = ArgumentArity.ExactlyOne,
-                                SuggestionSources = { "vegetable", "mineral", "animal" }
+                                Suggestions = { "vegetable", "mineral", "animal" }
                             }
                     }
                 };
@@ -530,7 +530,7 @@ namespace System.CommandLine.Tests
                     new Argument
                         {
                             Arity = ArgumentArity.ExactlyOne,
-                            SuggestionSources = { _ => new[] { "vegetable", "mineral", "animal" } }
+                            Suggestions = { _ => new[] { "vegetable", "mineral", "animal" } }
                         }
                 }
             };
@@ -550,7 +550,7 @@ namespace System.CommandLine.Tests
                 {
                     Argument = new Argument<string>()
                     {
-                        SuggestionSources = { _ => new[] { "vegetable", "mineral", "animal" } }
+                        Suggestions = { _ => new[] { "vegetable", "mineral", "animal" } }
                     }
                 }
             };
@@ -997,8 +997,8 @@ namespace System.CommandLine.Tests
             public void Enum_suggestions_can_be_configured_with_list_clear()
             {
                 var argument = new Argument<DayOfWeek?>();
-                argument.SuggestionSources.Clear();
-                argument.SuggestionSources.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
+                argument.Suggestions.Clear();
+                argument.Suggestions.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
                 var command = new Command("the-command")
                 {
                     argument
@@ -1017,7 +1017,7 @@ namespace System.CommandLine.Tests
                 {
                     new Argument<DayOfWeek?>()
                     {
-                        SuggestionSources = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
+                        Suggestions = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
                     }
                 };
 

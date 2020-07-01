@@ -30,14 +30,14 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 {
                     Argument = new Argument<string>()
                     {
-                        SuggestionSources = {"apple", "banana", "cherry" }
+                        Suggestions = {"apple", "banana", "cherry" }
                     }
                 },
                 new Option("--vegetable")
                 {
                     Argument = new Argument<string>()
                     {
-                        SuggestionSources = {"asparagus", "broccoli", "carrot" }
+                        Suggestions = {"asparagus", "broccoli", "carrot" }
                     }
                 }
             };
