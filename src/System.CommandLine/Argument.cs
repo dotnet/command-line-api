@@ -14,13 +14,13 @@ namespace System.CommandLine
         private Func<ArgumentResult, object?>? _defaultValueFactory;
         private IArgumentArity? _arity;
         private TryConvertArgument? _convertArguments;
-        private Type _argumentType = typeof(void);
+        private Type _argumentType = typeof(string);
 
         public Argument()
         {
         }
 
-        public Argument(string? name) 
+        public Argument(string name) 
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -36,14 +36,10 @@ namespace System.CommandLine
             {
                 if (_arity is null)
                 {
-                    if (ArgumentType != typeof(void))
-                    {
-                        return ArgumentArity.Default(ArgumentType, this, Parents.FirstOrDefault());
-                    }
-                    else
-                    {
-                        return ArgumentArity.Zero;
-                    }
+                    return ArgumentArity.Default(
+                        ArgumentType, 
+                        this, 
+                        Parents.FirstOrDefault());
                 }
 
                 return _arity;
@@ -55,8 +51,7 @@ namespace System.CommandLine
         {
             get
             {
-                if (_convertArguments == null &&
-                    ArgumentType != typeof(void))
+                if (_convertArguments == null)
                 {
                     if (ArgumentType.CanBeBoundFromScalarValue())
                     {
@@ -202,5 +197,9 @@ namespace System.CommandLine
         string IValueDescriptor.ValueName => Name;
 
         Type IValueDescriptor.ValueType => ArgumentType;
+
+        private protected override void ChooseNameForUnnamedArgument(Argument argument)
+        {
+        }
     }
 }

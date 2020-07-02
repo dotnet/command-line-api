@@ -289,7 +289,7 @@ namespace System.CommandLine.Binding
                 ValueType = modelType;
             }
 
-            public string? ValueName => null;
+            public string ValueName => "";
 
             public bool HasDefaultValue => false;
 

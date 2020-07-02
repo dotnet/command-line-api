@@ -266,20 +266,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void It_defaults_argument_to_alias_name_when_it_is_not_provided()
-        {
-            var command = new Command("-alias")
-            {
-                new Argument
-                {
-                    Arity = ArgumentArity.ZeroOrOne
-                }
-            };
-
-            command.Arguments.Single().Name.Should().Be("alias");
-        }
-
-        [Fact]
         public void It_retains_argument_name_when_it_is_provided()
         {
             var command = new Command("-alias")

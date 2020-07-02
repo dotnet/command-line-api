@@ -115,8 +115,8 @@ namespace System.CommandLine.Parsing
             {
                 var includeArgumentName =
                     argumentResult.Argument is Argument argument &&
-                    argument.Parents.First() is ICommand command &&
-                    command.Name != argument.Name;
+                    argument.Parents[0] is ICommand command &&
+                    command.Arguments.Count() > 1;
 
                 if (includeArgumentName)
                 {
