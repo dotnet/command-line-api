@@ -29,9 +29,9 @@ namespace System.CommandLine.Tests
             {
                 Argument = new Argument
                     {
-                        Arity = ArgumentArity.ExactlyOne
+                        Arity = ArgumentArity.ExactlyOne,
+                        Suggestions = { "one", "two", "three" }
                     }
-                    .WithSuggestions("one", "two", "three")
             };
 
             var suggestions = option.GetSuggestions();
@@ -102,9 +102,9 @@ namespace System.CommandLine.Tests
                 new Option("--option", "option"),
                 new Argument
                     {
-                        Arity = ArgumentArity.OneOrMore
+                        Arity = ArgumentArity.OneOrMore,
+                        Suggestions = { "command-argument" }
                     }
-                    .WithSuggestions("command-argument")
             };
 
             var suggestions = command.GetSuggestions();
@@ -505,9 +505,9 @@ namespace System.CommandLine.Tests
                     {
                         Argument = new Argument
                             {
-                                Arity = ArgumentArity.ExactlyOne
+                                Arity = ArgumentArity.ExactlyOne,
+                                Suggestions = { "vegetable", "mineral", "animal" }
                             }
-                            .WithSuggestions("vegetable", "mineral", "animal")
                     }
                 };
 
@@ -529,14 +529,9 @@ namespace System.CommandLine.Tests
                 {
                     new Argument
                         {
-                            Arity = ArgumentArity.ExactlyOne
+                            Arity = ArgumentArity.ExactlyOne,
+                            Suggestions = { _ => new[] { "vegetable", "mineral", "animal" } }
                         }
-                        .WithSuggestionSource(_ => new[]
-                        {
-                            "vegetable",
-                            "mineral",
-                            "animal"
-                        })
                 }
             };
 
@@ -551,13 +546,13 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option<string>("-x")
-                    .WithSuggestionSource(_ => new[]
+                new Option<string>("-x") 
+                {
+                    Argument = new Argument<string>()
                     {
-                        "vegetable",
-                        "mineral",
-                        "animal"
-                    })
+                        Suggestions = { _ => new[] { "vegetable", "mineral", "animal" } }
+                    }
+                }
             };
 
             var parseResult = command.Parse("the-command -x m");
@@ -996,6 +991,49 @@ namespace System.CommandLine.Tests
             public void When_there_are_multiple_arguments_then_suggestions_are_only_offered_for_the_current_argument()
             {
                 Assert.True(false, "Test testname is not written yet.");
+            }
+
+            [Fact]
+            public void Enum_suggestions_can_be_configured_with_list_clear()
+            {
+                var argument = new Argument<DayOfWeek?>();
+                argument.Suggestions.Clear();
+                argument.Suggestions.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
+                var command = new Command("the-command")
+                {
+                    argument
+                };
+
+                var suggestions = command.Parse("the-command s")
+                                         .GetSuggestions();
+
+                suggestions.Should().BeEquivalentTo("sat", "sun","tues");
+            }
+
+            [Fact]
+            public void Enum_suggestions_can_be_configured_without_list_clear()
+            {
+                var command = new Command("the-command")
+                {
+                    new Argument<DayOfWeek?>()
+                    {
+                        Suggestions = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
+                    }
+                };
+
+                var suggestions = command.Parse("the-command s")
+                                         .GetSuggestions();
+
+                suggestions
+                    .Should()
+                    .BeEquivalentTo(
+                        "sat",
+                        nameof(DayOfWeek.Saturday),
+                        "sun", nameof(DayOfWeek.Sunday),
+                        "tues",
+                        nameof(DayOfWeek.Tuesday),
+                        nameof(DayOfWeek.Thursday),
+                        nameof(DayOfWeek.Wednesday));
             }
         }
     }

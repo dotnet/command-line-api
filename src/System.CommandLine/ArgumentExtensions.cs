@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.CommandLine.Suggestions;
 using System.Linq;
 using System.IO;
+using System.CommandLine.Suggestions;
 
 namespace System.CommandLine
 {
@@ -17,30 +17,11 @@ namespace System.CommandLine
             where TArgument : Argument
         {
             argument.AddAllowedValues(values);
-            argument.AddSuggestions(values);
+            argument.Suggestions.Add(values);
 
             return argument;
         }
 
-        public static TArgument WithSuggestions<TArgument>(
-            this TArgument argument,
-            params string[] suggestions)
-            where TArgument : Argument
-        {
-            argument.AddSuggestions(suggestions);
-
-            return argument;
-        }
-
-        public static TArgument WithSuggestionSource<TArgument>(
-            this TArgument argument,
-            Suggest suggest)
-            where TArgument : Argument
-        {
-            argument.AddSuggestionSource(suggest);
-
-            return argument;
-        }
         public static Argument<FileInfo> ExistingOnly(this Argument<FileInfo> argument)
         {
             argument.AddValidator(symbol =>
