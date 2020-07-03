@@ -18,9 +18,14 @@ namespace System.CommandLine
         {
         }
 
-        public IEnumerable<Argument> Arguments => Children.OfType<Argument>();
-        
-        public IEnumerable<Option> Options => Children.OfType<Option>();
+        public IEnumerable<Argument> Arguments => 
+            Children.OfType<Argument>();
+
+        public IEnumerable<Option> Options =>
+            Children.OfType<Option>()
+                    .Concat(Parents
+                            .OfType<Command>()
+                            .SelectMany(c => c.GlobalOptions));
 
         public IEnumerable<Option> GlobalOptions => _globalOptions.OfType<Option>();
 
