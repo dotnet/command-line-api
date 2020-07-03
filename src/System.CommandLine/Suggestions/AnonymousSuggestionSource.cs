@@ -7,9 +7,9 @@ namespace System.CommandLine.Suggestions
 {
     internal class AnonymousSuggestionSource : ISuggestionSource
     {
-        private readonly Suggest _suggest;
+        private readonly SuggestDelegate _suggest;
 
-        public AnonymousSuggestionSource(Suggest suggest)
+        public AnonymousSuggestionSource(SuggestDelegate suggest)
         {
             _suggest = suggest ?? throw new ArgumentNullException(nameof(suggest));
         }

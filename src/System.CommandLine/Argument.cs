@@ -15,6 +15,7 @@ namespace System.CommandLine
         private IArgumentArity? _arity;
         private TryConvertArgument? _convertArguments;
         private Type _argumentType = typeof(string);
+        private List<ISuggestionSource>? _suggestions = null;
 
         public Argument()
         {
@@ -102,15 +103,13 @@ namespace System.CommandLine
             set => _convertArguments = value;
         }
 
-
-        private List<ISuggestionSource>? _suggestions = null;
         public List<ISuggestionSource> Suggestions
         { 
             get
             {
                 if (_suggestions is null)
                 {
-                    _suggestions = new List<ISuggestionSource>()
+                    _suggestions = new List<ISuggestionSource>
                     {
                         SuggestionSource.ForType(ArgumentType)
                     };

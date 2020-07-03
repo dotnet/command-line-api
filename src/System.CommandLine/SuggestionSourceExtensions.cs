@@ -10,7 +10,7 @@ namespace System.CommandLine
     {
         public static void Add(
             this List<ISuggestionSource> suggestionSources,
-            Suggest suggest)
+            SuggestDelegate suggest)
         {
             if (suggestionSources is null)
             {
