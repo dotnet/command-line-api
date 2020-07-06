@@ -235,6 +235,9 @@ namespace System.CommandLine.Builder
             builder.AddMiddleware(async (context, next) =>
             {
                 var directives = context.ParseResult.Directives;
+
+                ApplyCultureFromWellKnownEnvironmentVariables();
+
                 if (directives.Contains("invariantculture"))
                     CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
                 if (directives.Contains("invariantuiculture"))
@@ -250,6 +253,50 @@ namespace System.CommandLine.Builder
                         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
                 }
                 await next(context);
+
+                static void ApplyCultureFromWellKnownEnvironmentVariables()
+                {
+                    const string invariant_name = "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT";
+                    const string uiinvariant_name = "DOTNET_SYSTEM_GLOBALIZATION_UIINVARIANT";
+                    const string culture_name = "DOTNET_SYSTEM_GLOBALIZATION_CULTURE";
+                    const string uiculture_name = "DOTNET_SYSTEM_GLOBALIZATION_UICULTURE";
+
+                    if (GetEnvironmentVariable(invariant_name) is string invariant &&
+                        ParseBooleanEnvironmentVariableValue(invariant))
+                    {
+                        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                    }
+                    if (GetEnvironmentVariable(uiinvariant_name) is string uiinvariant &&
+                        ParseBooleanEnvironmentVariableValue(uiinvariant))
+                    {
+                        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                    }
+                    if (GetEnvironmentVariable(culture_name) is string culture)
+                    {
+                        CultureInfo? c = null;
+                        try { c = CultureInfo.GetCultureInfo(culture); }
+                        catch (CultureNotFoundException) { }
+                        if (!(c is null))
+                            CultureInfo.CurrentCulture = c;
+                    }
+                    if (GetEnvironmentVariable(uiculture_name) is string uiculture)
+                    {
+                        CultureInfo? c = null;
+                        try { c = CultureInfo.GetCultureInfo(uiculture); }
+                        catch (CultureNotFoundException) { }
+                        if (!(c is null))
+                            CultureInfo.CurrentUICulture = c;
+                    }
+                }
+
+                static bool ParseBooleanEnvironmentVariableValue(string value)
+                {
+                    if (bool.TryParse(value, out bool boolResult))
+                        return boolResult;
+                    if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numResult))
+                        return numResult != 0;
+                    return false;
+                }
             }, MiddlewareOrderInternal.CultureDirective);
 
             return builder;
