@@ -32,9 +32,9 @@ namespace System.CommandLine
             return option;
         }
 
-        public static TOption AddSuggestion<TOption>(
+        public static TOption AddSuggestions<TOption>(
             this TOption option,
-            Suggest suggest)
+            SuggestDelegate suggest)
             where TOption : Option 
         {
             option.Argument.Suggestions.Add(suggest);

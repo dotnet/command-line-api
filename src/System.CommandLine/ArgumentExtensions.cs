@@ -3,14 +3,34 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
+using System.CommandLine.Suggestions;
 using System.Linq;
 using System.IO;
-using System.CommandLine.Suggestions;
 
 namespace System.CommandLine
 {
     public static class ArgumentExtensions
     {
+        public static TArgument AddSuggestions<TArgument>(
+            this TArgument argument,
+            params string[] values)
+            where TArgument : Argument
+        {
+            argument.Suggestions.Add(values);
+
+            return argument;
+        }
+
+        public static TArgument AddSuggestions<TArgument>(
+            this TArgument argument,
+            SuggestDelegate suggest)
+            where TArgument : Argument
+        {
+            argument.Suggestions.Add(suggest);
+
+            return argument;
+        }
+
         public static TArgument FromAmong<TArgument>(
             this TArgument argument,
             params string[] values)
