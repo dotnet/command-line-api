@@ -15,6 +15,7 @@ namespace System.CommandLine.Invocation
     {
         Startup = -4000,
         ExceptionHandler = -3000,
+        EnvironmentVariableDirective = -2700,
         CultureDirective = -2600,
         ConfigureConsole = -2500,
         RegisterWithDotnetSuggest = -2400,
