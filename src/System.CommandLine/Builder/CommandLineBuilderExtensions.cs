@@ -228,11 +228,36 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        public static CommandLineBuilder UseEnvironmentVariableDirective(
+            this CommandLineBuilder builder)
+        {
+            builder.AddMiddleware((context, next) =>
+            {
+                if (context.ParseResult.Directives.TryGetValues("env", out var directives))
+                {
+                    foreach (var envDirective in directives)
+                    {
+                        var components = envDirective.Split(new[] { '=' }, count: 2);
+                        var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
+                        if (string.IsNullOrEmpty(variable) || components.Length < 2)
+                            continue;
+                        var value = components[1].Trim();
+                        SetEnvironmentVariable(variable, value);
+                    }
+                }
+
+                return next(context);
+            }, MiddlewareOrderInternal.EnvironmentVariableDirective);
+            
+            return builder;
+        }
+
         public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
         {
             return builder
                    .UseVersionOption()
                    .UseHelp()
+                   .UseEnvironmentVariableDirective()
                    .UseParseDirective()
                    .UseDebugDirective()
                    .UseSuggestDirective()
