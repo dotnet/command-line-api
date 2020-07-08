@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace System.CommandLine.Rendering
 {
     [DebuggerStepThrough]
-    public class AnsiControlCode
+    public class AnsiControlCode : IFormattable
     {
         public AnsiControlCode(string escapeSequence)
         {
@@ -21,6 +21,15 @@ namespace System.CommandLine.Rendering
         public string EscapeSequence { get; }
 
         public override string ToString() => "";
+
+        public string ToString(string format, IFormatProvider provider)
+        {
+            ConsoleFormatInfo info = ConsoleFormatInfo.GetInstance(provider);
+
+            return info.SupportsAnsiCodes ?
+                EscapeSequence :
+                string.Empty;
+        }
 
         protected bool Equals(AnsiControlCode other) => string.Equals(EscapeSequence, other.EscapeSequence);
 
