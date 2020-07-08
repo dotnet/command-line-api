@@ -13,12 +13,13 @@ namespace System.CommandLine.Tests
     public class EnvironmentVariableDirectiveTests
     {
         private static readonly Random randomizer = new Random(Seed: 456476756);
+        private readonly string test_variable = $"TEST_ENVIRONMENT_VARIABLE{randomizer.Next()}";
 
         [Fact]
-        public static async Task Sets_environment_variable_to_value()
+        public async Task Sets_environment_variable_to_value()
         {
             bool asserted = false;
-            string variable = $"TEST_ENVIRONMENT_VARIABLE{randomizer.Next()}";
+            string variable = test_variable;
             const string value = "This is a test";
             var rootCommand = new RootCommand
             {
@@ -39,10 +40,10 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public static async Task Trims_environment_variable_name()
+        public async Task Trims_environment_variable_name()
         {
             bool asserted = false;
-            string variable = $"TEST_ENVIRONMENT_VARIABLE{randomizer.Next()}";
+            string variable = test_variable;
             const string value = "This is a test";
             var rootCommand = new RootCommand
             {
@@ -63,10 +64,10 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public static async Task Trims_environment_variable_value()
+        public async Task Trims_environment_variable_value()
         {
             bool asserted = false;
-            string variable = $"TEST_ENVIRONMENT_VARIABLE{randomizer.Next()}";
+            string variable = test_variable;
             const string value = "This is a test";
             var rootCommand = new RootCommand
             {
@@ -87,10 +88,10 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public static async Task Sets_environment_variable_value_containing_equals_sign()
+        public async Task Sets_environment_variable_value_containing_equals_sign()
         {
             bool asserted = false;
-            string variable = $"TEST_ENVIRONMENT_VARIABLE{randomizer.Next()}";
+            string variable = test_variable;
             const string value = "This is = a test containing equals";
             var rootCommand = new RootCommand
             {
@@ -111,10 +112,10 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public static async Task Ignores_environment_directive_without_equals_sign()
+        public async Task Ignores_environment_directive_without_equals_sign()
         {
             bool asserted = false;
-            string variable = $"TEST_ENVIRONMENT_VARIABLE{randomizer.Next()}";
+            string variable = test_variable;
             var rootCommand = new RootCommand
             {
                 Handler = CommandHandler.Create(() =>
