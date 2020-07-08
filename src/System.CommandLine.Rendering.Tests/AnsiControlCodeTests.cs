@@ -42,5 +42,29 @@ namespace System.CommandLine.Rendering.Tests
                .Should()
                .BeFalse();
         }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Control_codes_respect_ConsoleFormatInfo(bool supportsAnsiCodes)
+        {
+            IFormattable code = new AnsiControlCode($"{Ansi.Esc}[s");
+
+            IFormatProvider provider = new ConsoleFormatInfo() { SupportsAnsiCodes = supportsAnsiCodes };
+            string output = code.ToString(null, provider);
+
+            if (supportsAnsiCodes)
+            {
+                output
+                    .Should()
+                    .Contain(Ansi.Esc);
+            }
+            else
+            {
+                output
+                    .Should()
+                    .BeEmpty();
+            }
+        }
     }
 }
