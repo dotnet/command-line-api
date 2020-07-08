@@ -240,7 +240,9 @@ namespace System.CommandLine.Builder
                         var components = envDirective.Split(new[] { '=' }, count: 2);
                         var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
                         if (string.IsNullOrEmpty(variable) || components.Length < 2)
+                        {
                             continue;
+                        }
                         var value = components[1].Trim();
                         SetEnvironmentVariable(variable, value);
                     }
