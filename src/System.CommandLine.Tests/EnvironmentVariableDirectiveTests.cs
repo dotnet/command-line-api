@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FluentAssertions;
+
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -26,7 +25,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal(value, Environment.GetEnvironmentVariable(variable));
+                    Environment.GetEnvironmentVariable(variable).Should().Be(value);
                 })
             };
 
@@ -36,7 +35,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { $"[env:{variable}={value}]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -50,7 +49,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal(value, Environment.GetEnvironmentVariable(variable));
+                    Environment.GetEnvironmentVariable(variable).Should().Be(value);
                 })
             };
 
@@ -60,7 +59,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { $"[env:     {variable}    ={value}]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -74,7 +73,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal(value, Environment.GetEnvironmentVariable(variable));
+                    Environment.GetEnvironmentVariable(variable).Should().Be(value);
                 })
             };
 
@@ -84,7 +83,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { $"[env:{variable}=    {value}     ]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -98,7 +97,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal(value, Environment.GetEnvironmentVariable(variable));
+                    Environment.GetEnvironmentVariable(variable).Should().Be(value);
                 })
             };
 
@@ -108,7 +107,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { $"[env:{variable}={value}]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -121,7 +120,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Null(Environment.GetEnvironmentVariable(variable));
+                    Environment.GetEnvironmentVariable(variable).Should().BeNull();
                 })
             };
 
@@ -131,7 +130,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { $"[env:{variable}]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -145,7 +144,7 @@ namespace System.CommandLine.Tests
                 {
                     asserted = true;
                     var env = Environment.GetEnvironmentVariables();
-                    Assert.DoesNotContain(value, env.Values.Cast<string>().ToArray());
+                    env.Values.Cast<string>().Should().NotContain(value);
                 })
             };
 
@@ -155,7 +154,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { $"[env:={value}]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -169,7 +168,7 @@ namespace System.CommandLine.Tests
                 {
                     asserted = true;
                     var env = Environment.GetEnvironmentVariables();
-                    Assert.DoesNotContain(value, env.Values.Cast<string>().ToArray());
+                    env.Values.Cast<string>().Should().NotContain(value);
                 })
             };
 
@@ -179,7 +178,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { $"[env:    ={value}]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
     }
 }
