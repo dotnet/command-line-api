@@ -216,6 +216,34 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_a_subcommand_has_been_specified_then_its_sibling_commands_aliases_will_not_be_suggested()
+        {
+            var apple = new Command("apple")
+            {
+                new Option("--cortland")
+            };
+            apple.AddAlias("apl");
+
+            var banana = new Command("banana")
+            {
+                new Option("--cavendish")
+            };
+            banana.AddAlias("bnn");
+
+            var rootCommand = new RootCommand
+            {
+                apple,
+                banana
+            };
+
+            var result = rootCommand.Parse("banana ");
+
+            result.GetSuggestions()
+                  .Should()
+                  .NotContain(new[] { "apl", "bnn" });
+        }
+
+        [Fact]
         public void When_a_subcommand_has_been_specified_then_its_sibling_options_will_be_suggested()
         {
             var command = new RootCommand("parent")
