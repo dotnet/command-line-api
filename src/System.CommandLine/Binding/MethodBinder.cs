@@ -26,8 +26,8 @@ namespace System.CommandLine.Binding
 
         public bool EnforceExplicitBinding { get; set; }
 
-        internal Dictionary<IValueDescriptor, ModelBinder> ParameterBindingSources { get; } =
-            new Dictionary<IValueDescriptor, ModelBinder>();
+        internal Dictionary<IValueDescriptor, Func<BindingContext, ModelBinder>> ParameterBindingSources { get; } =
+            new Dictionary<IValueDescriptor, Func<BindingContext, ModelBinder>>();
 
         protected IValueDescriptor GetParameterDescriptor(
             Type parameterType, string parameterName)
@@ -42,35 +42,40 @@ namespace System.CommandLine.Binding
         internal object?[] GetInvocationArguments(BindingContext bindingContext)
         {
             var parameterBinders = MethodDescriptor.ParameterDescriptors
-                           .Select(p => GetSource(p, ParameterBindingSources, bindingContext))
+                           .Select(p => GetModelBinder(p, ParameterBindingSources, bindingContext))
                            .ToList();
 
             return parameterBinders
                     .Select(parameterBinder => parameterBinder.CreateInstance(bindingContext))
                     .ToArray();
 
-            static ModelBinder GetSource(ParameterDescriptor p, Dictionary<IValueDescriptor, ModelBinder> parameterBindingSources, BindingContext bindingContext)
+            static ModelBinder GetModelBinder(ParameterDescriptor p, Dictionary<IValueDescriptor, Func<BindingContext, ModelBinder>> parameterBindingSources, BindingContext bindingContext)
             {
                 if (parameterBindingSources.TryGetValue(p, out var valueSource))
                 {
-                    return valueSource;
+                    return valueSource(bindingContext);
                 }
                 return bindingContext.GetModelBinder(p);
             }
         }
+        //public void BindParameterFromValue(ParameterInfo parameter, IValueDescriptor valueDescriptor, Type modelType)
+        //{
+        //    if (!(parameter.Member is MethodInfo methodInfo))
+        //        throw new ArgumentException(paramName: nameof(parameter),
+        //            message: "Parameter must be declared on a method that is not a constructor.");
 
+        //    var paramDesc = MethodDescriptor.ParameterDescriptors[parameter.Position];
+        //   // ParameterBindingSources[paramDesc] = bindingContext => bindingContext.GetModelBinder(modelType);
+        //}
 
-
-        public void BindParameterFromValue(ParameterInfo parameter,
-            IValueDescriptor valueDescriptor)
+        public void BindParameterFromValue(ParameterInfo parameter, IValueDescriptor valueDescriptor)
         {
             if (!(parameter.Member is MethodInfo methodInfo))
                 throw new ArgumentException(paramName: nameof(parameter),
                     message: "Parameter must be declared on a method that is not a constructor.");
 
             var paramDesc = MethodDescriptor.ParameterDescriptors[parameter.Position];
-            ParameterBindingSources[paramDesc] =
-                new ModelBinder(valueDescriptor);
+            ParameterBindingSources[paramDesc] = bindingContext => bindingContext.GetModelBinder(valueDescriptor);
         }
 
         //private IReadOnlyList<BoundValue> GetValues(
