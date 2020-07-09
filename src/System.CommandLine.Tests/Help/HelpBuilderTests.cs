@@ -1172,7 +1172,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option("--required")
                 {
-                    Required = true
+                    IsRequired = true
                 }
             };
 
@@ -1191,7 +1191,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option(new[] {"-r", "--required" })
                 {
-                    Required = true,
+                    IsRequired = true,
                     Argument = new Argument<string>("ARG")
                 }
             };
