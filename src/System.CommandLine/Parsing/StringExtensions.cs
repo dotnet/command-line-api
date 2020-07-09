@@ -167,9 +167,16 @@ namespace System.CommandLine.Parsing
 
                         currentCommand = (ICommand) symbolSet.GetByAlias(arg)!;
 
-                        knownTokens = currentCommand.ValidTokens();
+                        if (currentCommand != null)
+                        {
+                            knownTokens = currentCommand.ValidTokens();
 
-                        tokenList.Add(Command(arg));
+                            tokenList.Add(Command(arg));
+                        }
+                        else
+                        {
+                            tokenList.Add(Argument(arg));
+                        }
                     }
                 }
             }
@@ -562,7 +569,7 @@ namespace System.CommandLine.Parsing
 
         private static Dictionary<string, Token> ValidTokens(this ICommand command)
         {
-            var tokens = new Dictionary<string, Token>();
+            var tokens = new Dictionary<string, Token>(StringComparer.OrdinalIgnoreCase);
 
             for (var commandAliasIndex = 0; commandAliasIndex < command.RawAliases.Count; commandAliasIndex++)
             {

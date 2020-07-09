@@ -23,6 +23,8 @@ namespace System.CommandLine
 
         bool IsHidden { get; }
 
+        bool IsCaseInsensitive { get; }
+
         ISymbolSet Children { get; }
 
         ISymbolSet Parents { get; }

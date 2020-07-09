@@ -54,6 +54,17 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Option_aliases_are_case_insensitive()
+        {
+            var option = new Option(new[] { "-o" })
+            {
+               IsCaseInsensitive = true
+            };
+
+            option.HasAlias("O").Should().BeTrue();
+        }
+
+        [Fact]
         public void HasAlias_accepts_prefixed_short_value()
         {
             var option = new Option(new[] { "-o", "--option" });

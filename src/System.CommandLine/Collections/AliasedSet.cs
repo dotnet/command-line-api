@@ -18,9 +18,10 @@ namespace System.CommandLine.Collections
             for (var i = 0; i < Items.Count; i++)
             {
                 var item = Items[i];
+                var caseInsensitive = IsCaseInsensitive(item);
 
-                if (Contains(GetAliases(item), alias) || 
-                    Contains(GetRawAliases(item), alias))
+                if (Contains(GetAliases(item), alias, caseInsensitive) || 
+                    Contains(GetRawAliases(item), alias, caseInsensitive))
                 {
                     return item;
                 }
@@ -31,11 +32,13 @@ namespace System.CommandLine.Collections
 
         private protected bool Contains(
             IReadOnlyList<string> aliases,
-            string alias)
+            string alias,
+            bool caseInsensitive = false)
         {
             for (var i = 0; i < aliases.Count; i++)
             {
-                if (string.Equals(aliases[i], alias))
+                if (string.Equals(aliases[i], alias,
+                    caseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -63,6 +66,8 @@ namespace System.CommandLine.Collections
         protected abstract IReadOnlyList<string> GetAliases(T item);
 
         protected abstract IReadOnlyList<string> GetRawAliases(T item);
+
+        protected virtual bool IsCaseInsensitive(T item) => false;
 
         public bool Contains(string alias) => GetByAlias(alias) != null;
 

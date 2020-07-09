@@ -50,6 +50,8 @@ namespace System.CommandLine
 
         public string? Description { get; set; }
 
+        public bool IsCaseInsensitive { get; set; } = false;
+
         public virtual string Name
         {
             get => _specifiedName ?? _longestAlias;
@@ -130,7 +132,8 @@ namespace System.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return _aliases.Contains(alias.RemovePrefix());
+            return _aliases.Contains(alias.RemovePrefix(),
+                                     IsCaseInsensitive ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
         }
 
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);

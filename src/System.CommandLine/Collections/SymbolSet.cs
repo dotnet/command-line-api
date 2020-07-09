@@ -81,5 +81,7 @@ namespace System.CommandLine.Collections
             item.Aliases;
 
         protected override IReadOnlyList<string> GetRawAliases(ISymbol item) => item.RawAliases;
+
+        protected override bool IsCaseInsensitive(ISymbol item) => item.IsCaseInsensitive;
     }
 }
