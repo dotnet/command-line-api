@@ -61,7 +61,7 @@ namespace System.CommandLine.Tests.Help
                     Argument = new Argument<FileAccess>("the-root-option-arg", () => FileAccess.Read)
                     {
                         Description = "the-root-option-arg-description",
-                    },
+                    }
                 },
                 new Option(aliases: new string[] {"--the-root-option-required-enum-arg", "-trorea"}) {
                     Description = "the-root-option-description",

@@ -11,36 +11,37 @@ namespace System.CommandLine
 {
     public static class ArgumentExtensions
     {
+        public static TArgument AddSuggestions<TArgument>(
+            this TArgument argument,
+            params string[] values)
+            where TArgument : Argument
+        {
+            argument.Suggestions.Add(values);
+
+            return argument;
+        }
+
+        public static TArgument AddSuggestions<TArgument>(
+            this TArgument argument,
+            SuggestDelegate suggest)
+            where TArgument : Argument
+        {
+            argument.Suggestions.Add(suggest);
+
+            return argument;
+        }
+
         public static TArgument FromAmong<TArgument>(
             this TArgument argument,
             params string[] values)
             where TArgument : Argument
         {
             argument.AddAllowedValues(values);
-            argument.AddSuggestions(values);
+            argument.Suggestions.Add(values);
 
             return argument;
         }
 
-        public static TArgument WithSuggestions<TArgument>(
-            this TArgument argument,
-            params string[] suggestions)
-            where TArgument : Argument
-        {
-            argument.AddSuggestions(suggestions);
-
-            return argument;
-        }
-
-        public static TArgument WithSuggestionSource<TArgument>(
-            this TArgument argument,
-            Suggest suggest)
-            where TArgument : Argument
-        {
-            argument.AddSuggestionSource(suggest);
-
-            return argument;
-        }
         public static Argument<FileInfo> ExistingOnly(this Argument<FileInfo> argument)
         {
             argument.AddValidator(symbol =>

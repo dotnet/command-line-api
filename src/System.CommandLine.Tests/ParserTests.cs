@@ -1948,14 +1948,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_with_custom_type_converter_can_be_bound()
         {
-            var option = new Option("--value")
-            {
-                Argument = new Argument<ClassWithCustomTypeConverter>()
-            };
+            var option = new Option<ClassWithCustomTypeConverter>("--value");
 
             var parseResult = option.Parse("--value a;b;c");
 
-            var instance = (ClassWithCustomTypeConverter)parseResult.ValueForOption("--value");
+            var instance = parseResult.ValueForOption(option);
 
             instance.Values.Should().BeEquivalentTo("a", "b", "c");
         }

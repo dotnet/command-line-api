@@ -108,7 +108,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var parser =
                 new CommandLineBuilder()
-                    .AddArgument(new Argument())
+                    .AddArgument(new Argument("the-argument"))
                     .AddCommand(new Command("been"))
                     .UseTypoCorrections()
                     .Build();
@@ -117,7 +117,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'been'?");
+            _console.Out.ToString().Should().NotContain("the-argument");
         }
 
         [Fact]

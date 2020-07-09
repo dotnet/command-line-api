@@ -87,11 +87,13 @@ namespace System.CommandLine
 
             if (string.IsNullOrEmpty(argument.Name))
             {
-                argument.Name = _aliases.First().ToLower();
+                ChooseNameForUnnamedArgument(argument);
             }
 
             Children.Add(argument);
         }
+
+        private protected abstract void ChooseNameForUnnamedArgument(Argument argument);
 
         public SymbolSet Children { get; } = new SymbolSet();
 

@@ -5,7 +5,7 @@ namespace System.CommandLine.Binding
 {
     public interface IValueDescriptor
     {
-        string? ValueName { get; }
+        string ValueName { get; }
 
         Type ValueType { get; }
 

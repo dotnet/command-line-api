@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -17,27 +17,27 @@ namespace System.CommandLine
             where TOption : Option
         {
             option.Argument.AddAllowedValues(values);
-            option.Argument.AddSuggestions(values);
+            option.Argument.Suggestions.Add(values);
 
             return option;
         }
 
-        public static TOption WithSuggestions<TOption>(
+        public static TOption AddSuggestions<TOption>(
             this TOption option,
-            params string[] suggestions)
+            params string[] values)
             where TOption : Option
         {
-            option.Argument.AddSuggestions(suggestions);
+            option.Argument.Suggestions.Add(values);
 
             return option;
         }
 
-        public static TOption WithSuggestionSource<TOption>(
+        public static TOption AddSuggestions<TOption>(
             this TOption option,
-            Suggest suggest)
-            where TOption : Option
+            SuggestDelegate suggest)
+            where TOption : Option 
         {
-            option.Argument.AddSuggestionSource(suggest);
+            option.Argument.Suggestions.Add(suggest);
 
             return option;
         }
