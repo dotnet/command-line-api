@@ -151,7 +151,7 @@ namespace System.CommandLine.Tests
             {
                 new Option<string>("-x")
                 {
-                    Required = true
+                    IsRequired = true
                 },
             };
 

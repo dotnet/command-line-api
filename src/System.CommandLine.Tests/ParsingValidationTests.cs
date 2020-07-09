@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests
             {
                 new Option("-x")
                 {
-                    Required = true
+                    IsRequired = true
                 }
             };
 
@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("-x")
             {
-                Required = true
+                IsRequired = true
             };
 
             var command = new RootCommand
@@ -136,7 +136,7 @@ namespace System.CommandLine.Tests
 
             var parent = new RootCommand
             {
-                new Option<string>("-x") { Required = true },
+                new Option<string>("-x") { IsRequired = true },
                 child
             };
             parent.Name = "parent";

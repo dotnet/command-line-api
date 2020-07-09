@@ -208,7 +208,7 @@ namespace System.CommandLine.Parsing
                                    .Options)
             {
                 if (option is Option o &&
-                    o.Required && 
+                    o.IsRequired && 
                     _rootCommandResult!.FindResultFor(o) is null)
                 {
                     _errors.Add(

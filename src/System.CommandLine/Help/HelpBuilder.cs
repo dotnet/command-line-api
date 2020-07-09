@@ -499,7 +499,7 @@ namespace System.CommandLine.Help
             }
 
             if (symbol is IOption option &&
-                option.Required)
+                option.IsRequired)
             {
                 invocation += " (REQUIRED)";
             }
