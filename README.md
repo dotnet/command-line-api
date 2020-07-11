@@ -16,6 +16,34 @@ Package                          | Version                                      
 
 Daily builds are available if you add this feed to your nuget.config: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet5/nuget/v3/index.json.
 
+## Documentation
+
+### Getting started
+
+[Syntax Concepts and Parser](docs/Syntax-Concepts-and-Parser)
+
+#### Features
+* [Suggestions (tab completion)](docs/Features-overview#Suggestions)
+* [Help](docs/Features-overview#Help)
+* [Version option](docs/Features-overview#version-option)
+* [Parse preview](docs/Features-overview#parse-preview)
+* [Debugging](docs/Features-overview#debugging)
+* [Response files](docs/Features-overview#Response-files)
+* [Termination handling](docs/Process-termination-handling)
+
+#### Your first app
+* [System.CommandLine](docs/Your-first-app-with-System-CommandLine)
+* [System.CommandLine.DragonFruit](docs/Your-first-app-with-System-CommandLine-DragonFruit)
+
+#### How to...
+
+* [Add a subcommand (or verb)](docs/How-To#Add-a-subcommand)
+* [Add an alias to an option or command](docs/How-To#Add-an-alias-to-an-option-or-command)
+* [Call a method](docs/How-To#Call-a-method)
+* [Pass parameters to a method](docs/How-To#Pass-parameters-to-a-method)
+* [Argument validation and binding](docs/How-To#Argument-validation-and-binding)
+* [Middleware Pipeline](docs/How-To#Middleware-Pipeline)
+
 ## Interactive tutorials
 
 You can try out `System.CommandLine` using an interactive tutorial that showcases its features and APIs, powered by Try .NET.
@@ -46,7 +74,7 @@ This project has adopted the code of conduct defined by the [Contributor Covenan
 
 ## Contributing
 
-See the [Contributing guide](CONTRIBUTING.md) for developer documentation.
+See the [Contributing guide](CONTRIBUTING) for developer documentation.
 
 ## License
 
