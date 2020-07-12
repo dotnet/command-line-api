@@ -297,6 +297,41 @@ namespace System.CommandLine.Tests
                     .Should()
                     .Be(command);
             }
+            
+            [Theory]
+            [InlineData("-x value-x -y value-y")]
+            [InlineData("-y value-y -x value-x")]
+            public void Symbol_can_be_found_without_explicitly_traversing_result_tree(string commandLine)
+            {
+                SymbolResult resultForOptionX = null;
+                var optionX = new Option<string>(
+                    "-x",
+                    parseArgument: _ => string.Empty);
+                
+                var optionY = new Option<string>(
+                    "-y",
+                    parseArgument: argResult =>
+                    {
+                        resultForOptionX = argResult.FindResultFor(optionX);
+                        return string.Empty;
+                    });
+            
+                var command = new Command("the-command")
+                {
+                    optionX,
+                    optionY,
+                };
+            
+                command.Parse(commandLine);
+
+                resultForOptionX
+                    .Should()
+                    .BeOfType<OptionResult>()
+                    .Which
+                    .Option
+                    .Should()
+                    .BeSameAs(optionX);
+            }
 
             [Fact]
             public void Command_ArgumentResult_Parent_is_set_correctly_when_token_is_implicit()
