@@ -20,7 +20,7 @@ Daily builds are available if you add this feed to your nuget.config: https://pk
 
 ### Getting started
 
-[Syntax Concepts and Parser](docs/Syntax-Concepts-and-Parser)
+[Syntax Concepts and Parser](docs/Syntax-Concepts-and-Parser.md)
 
 #### Features
 * [Suggestions (tab completion)](docs/Features-overview#Suggestions)
