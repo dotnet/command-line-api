@@ -325,7 +325,7 @@ namespace System.CommandLine.Parsing
             {
                 foreach (var symbol in commandResult.Command.Children)
                 {
-                    var symbolResult = _rootCommandResult!.FindResultFor(symbol);
+                    var symbolResult = _rootCommandResult!.FindResultForSymbol(symbol);
 
                     if (symbolResult is null)
                     {
