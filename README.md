@@ -23,26 +23,26 @@ Daily builds are available if you add this feed to your nuget.config: https://pk
 [Syntax Concepts and Parser](docs/Syntax-Concepts-and-Parser.md)
 
 #### Features
-* [Suggestions (tab completion)](docs/Features-overview#Suggestions)
-* [Help](docs/Features-overview#Help)
-* [Version option](docs/Features-overview#version-option)
-* [Parse preview](docs/Features-overview#parse-preview)
-* [Debugging](docs/Features-overview#debugging)
-* [Response files](docs/Features-overview#Response-files)
+* [Suggestions (tab completion)](docs/Features-overview.md#Suggestions)
+* [Help](docs/Features-overview.md#Help)
+* [Version option](docs/Features-overview.md#version-option)
+* [Parse preview](docs/Features-overview.md#parse-preview)
+* [Debugging](docs/Features-overview.md#debugging)
+* [Response files](docs/Features-overview.md#Response-files)
 * [Termination handling](docs/Process-termination-handling)
 
 #### Your first app
-* [System.CommandLine](docs/Your-first-app-with-System-CommandLine)
-* [System.CommandLine.DragonFruit](docs/Your-first-app-with-System-CommandLine-DragonFruit)
+* [System.CommandLine](docs/Your-first-app-with-System-CommandLine.md)
+* [System.CommandLine.DragonFruit](docs/Your-first-app-with-System-CommandLine-DragonFruit.md)
 
 #### How to...
 
-* [Add a subcommand (or verb)](docs/How-To#Add-a-subcommand)
-* [Add an alias to an option or command](docs/How-To#Add-an-alias-to-an-option-or-command)
-* [Call a method](docs/How-To#Call-a-method)
-* [Pass parameters to a method](docs/How-To#Pass-parameters-to-a-method)
-* [Argument validation and binding](docs/How-To#Argument-validation-and-binding)
-* [Middleware Pipeline](docs/How-To#Middleware-Pipeline)
+* [Add a subcommand (or verb)](docs/How-To.md#Add-a-subcommand)
+* [Add an alias to an option or command](docs/How-To.md#Add-an-alias-to-an-option-or-command)
+* [Call a method](docs/How-To.md#Call-a-method)
+* [Pass parameters to a method](docs/How-To.md#Pass-parameters-to-a-method)
+* [Argument validation and binding](docs/How-To.md#Argument-validation-and-binding)
+* [Middleware Pipeline](docs/How-To.md#Middleware-Pipeline)
 
 ## Interactive tutorials
 
