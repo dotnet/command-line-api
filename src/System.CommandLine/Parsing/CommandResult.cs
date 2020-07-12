@@ -35,8 +35,6 @@ namespace System.CommandLine.Parsing
 
         public Token Token { get; }
 
-        internal virtual RootCommandResult? Root => (Parent as CommandResult)?.Root;
-
         internal bool TryGetValueForArgument(
             IValueDescriptor valueDescriptor,
             out object? value)

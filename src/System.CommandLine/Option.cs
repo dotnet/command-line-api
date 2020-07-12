@@ -56,7 +56,7 @@ namespace System.CommandLine
 
         private protected override void ChooseNameForUnnamedArgument(Argument argument)
         {
-            argument.Name = Aliases[0].ToLower();
+            argument.Name = Name.ToLower();
         }
     }
 }

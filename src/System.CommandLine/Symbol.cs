@@ -11,8 +11,8 @@ namespace System.CommandLine
 {
     public abstract class Symbol : ISymbol
     {
-        private readonly List<string> _aliases = new List<string>();
-        private readonly List<string> _rawAliases = new List<string>();
+        private readonly HashSet<string> _aliases = new HashSet<string>();
+        private readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string _longestAlias = "";
         private string? _specifiedName;
 
@@ -44,9 +44,9 @@ namespace System.CommandLine
             Description = description;
         }
 
-        public IReadOnlyList<string> Aliases => _aliases;
+        public IReadOnlyCollection<string> Aliases => _aliases;
 
-        public IReadOnlyList<string> RawAliases => _rawAliases;
+        public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
         public string? Description { get; set; }
 
@@ -132,7 +132,7 @@ namespace System.CommandLine
 
             return _aliases.Contains(alias.RemovePrefix());
         }
-
+  
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
 
         public bool IsHidden { get; set; }

@@ -9,39 +9,21 @@ namespace System.CommandLine.Collections
     public abstract class AliasedSet<T> : IReadOnlyList<T>
         where T : class
     {
+        private protected Dictionary<string, T> _itemsByAlias = new Dictionary<string, T>();
+
         protected IList<T> Items { get; } = new List<T>();
 
         public T? this[string alias] => GetByAlias(alias);
 
         public T? GetByAlias(string alias)
         {
-            for (var i = 0; i < Items.Count; i++)
+            if (_itemsByAlias.TryGetValue(alias, out var value) && 
+                value is { })
             {
-                var item = Items[i];
-
-                if (Contains(GetAliases(item), alias) || 
-                    Contains(GetRawAliases(item), alias))
-                {
-                    return item;
-                }
+                return value;
             }
 
             return null;
-        }
-
-        private protected bool Contains(
-            IReadOnlyList<string> aliases,
-            string alias)
-        {
-            for (var i = 0; i < aliases.Count; i++)
-            {
-                if (string.Equals(aliases[i], alias))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         public int Count => Items.Count;
@@ -53,18 +35,50 @@ namespace System.CommandLine.Collections
         internal virtual void Add(T item)
         {
             Items.Add(item);
+
+            foreach (var alias in GetRawAliases(item))
+            {
+                if (!_itemsByAlias.ContainsKey(alias))
+                {
+                    _itemsByAlias.Add(alias, item);
+                }
+            }
+
+            foreach (var alias in GetAliases(item))
+            {
+                if (!_itemsByAlias.ContainsKey(alias))
+                {
+                    _itemsByAlias.Add(alias, item);
+                }
+            }
         }
 
         internal void Remove(T item)
         {
             Items.Remove(item);
+
+            foreach (var alias in GetRawAliases(item))
+            {
+                if (_itemsByAlias.ContainsKey(alias))
+                {
+                    _itemsByAlias.Remove(alias);
+                }
+            }
+
+            foreach (var alias in GetAliases(item))
+            {
+                if (_itemsByAlias.ContainsKey(alias))
+                {
+                    _itemsByAlias.Remove(alias);
+                }
+            }
         }
 
-        protected abstract IReadOnlyList<string> GetAliases(T item);
+        protected abstract IReadOnlyCollection<string> GetAliases(T item);
 
-        protected abstract IReadOnlyList<string> GetRawAliases(T item);
+        protected abstract IReadOnlyCollection<string> GetRawAliases(T item);
 
-        public bool Contains(string alias) => GetByAlias(alias) != null;
+        public bool Contains(string alias) => _itemsByAlias.ContainsKey(alias);
 
         public T this[int index] => Items[index];
     }
