@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace System.CommandLine.Collections
 {
@@ -21,65 +22,51 @@ namespace System.CommandLine.Collections
             ISymbol item,
             [MaybeNullWhen(false)] out string aliasAlreadyInUse)
         {
-            var itemRawAliases = GetRawAliases(item);
-
-            for (var i = 0; i < Items.Count; i++)
+            if (item is IArgument)
             {
-                var existingItem = Items[i];
-
-                for (var j = 0; j < itemRawAliases.Count; j++)
+                // arguments don't have aliases so match based on Name
+                for (var i = 0; i < Items.Count; i++)
                 {
-                    var rawAliasToCheckFor = itemRawAliases[j];
-
-                    if (Contains(GetRawAliases(existingItem), rawAliasToCheckFor))
+                    var existing = Items[i];
+                    if (string.Equals(item.Name, existing.Name, StringComparison.Ordinal))
                     {
-                        aliasAlreadyInUse = rawAliasToCheckFor;
+                        aliasAlreadyInUse = existing.Name;
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                var itemRawAliases = item.RawAliases.ToArray();
+
+                for (var i = 0; i < itemRawAliases.Length; i++)
+                {
+                    var alias = itemRawAliases[i];
+
+                    if (_itemsByAlias.ContainsKey(alias))
+                    {
+                        aliasAlreadyInUse = alias;
                         return true;
                     }
                 }
             }
 
             aliasAlreadyInUse = null!;
-            return false;
 
-            static IReadOnlyList<string> GetRawAliases(ISymbol symbol)
-            {
-                return symbol switch
-                {
-                    IArgument arg => new[] { arg.Name },
-                    _ => symbol.RawAliases
-                };
-            }
+            return false;
         }
 
         internal void ThrowIfAnyAliasIsInUse(ISymbol item)
         {
-            string? rawAliasAlreadyInUse;
-
-            switch (item)
+            if (IsAnyAliasInUse(item, out var rawAliasAlreadyInUse))
             {
-                case IOption _:
-                case ICommand _:
-                    if (IsAnyAliasInUse(item, out rawAliasAlreadyInUse))
-                    {
-                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
-                    }
-
-                    break;
-
-                case IArgument argument:
-                    if (IsAnyAliasInUse(argument, out rawAliasAlreadyInUse))
-                    {
-                        throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
-                    }
-
-                    break;
+                throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
             }
         }
 
-        protected override IReadOnlyList<string> GetAliases(ISymbol item) =>
+        protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
             item.Aliases;
 
-        protected override IReadOnlyList<string> GetRawAliases(ISymbol item) => item.RawAliases;
+        protected override IReadOnlyCollection<string> GetRawAliases(ISymbol item) => item.RawAliases;
     }
 }

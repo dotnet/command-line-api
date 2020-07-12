@@ -27,6 +27,8 @@ namespace System.CommandLine.Parsing
 
         public SymbolResult? Parent { get; }
 
+        internal virtual RootCommandResult? Root => (Parent as CommandResult)?.Root;
+
         public ISymbol Symbol { get; }
 
         public IReadOnlyList<Token> Tokens => _tokens;

@@ -12,10 +12,10 @@ namespace System.CommandLine.Parsing
         internal SymbolResult? ResultFor(ISymbol symbol) =>
             Items.SingleOrDefault(i => i.Symbol == symbol);
 
-        protected override IReadOnlyList<string> GetAliases(SymbolResult item) =>
+        protected override IReadOnlyCollection<string> GetAliases(SymbolResult item) =>
             item.Symbol.Aliases;
 
-        protected override IReadOnlyList<string> GetRawAliases(SymbolResult item) =>
+        protected override IReadOnlyCollection<string> GetRawAliases(SymbolResult item) =>
             item.Symbol.RawAliases;
     }
 }

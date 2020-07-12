@@ -30,16 +30,15 @@ namespace System.CommandLine
         public int MaximumNumberOfValues { get; set; }
 
         internal static FailedArgumentConversionArityResult? Validate(
-            SymbolResult? symbolResult,
+            SymbolResult symbolResult,
             IArgument argument,
             int minimumNumberOfValues,
             int maximumNumberOfValues)
         {
             var argumentResult = symbolResult switch
             {
-                CommandResult commandResult => commandResult.Root?.FindResultFor(argument),
-                OptionResult optionResult => optionResult.Children.ResultFor(argument),
-                _ => symbolResult
+                ArgumentResult a => a,
+                _ => symbolResult.Root!.FindResultFor(argument)
             };
 
             var tokenCount = argumentResult?.Tokens.Count ?? 0;

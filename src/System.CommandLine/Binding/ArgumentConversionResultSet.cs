@@ -8,12 +8,12 @@ namespace System.CommandLine.Binding
 {
     internal class ArgumentConversionResultSet : AliasedSet<ArgumentConversionResult>
     {
-        protected override IReadOnlyList<string> GetAliases(ArgumentConversionResult item)
+        protected override IReadOnlyCollection<string> GetAliases(ArgumentConversionResult item)
         {
             return new[] { item.Argument.Name };
         }
 
-        protected override IReadOnlyList<string> GetRawAliases(ArgumentConversionResult item)
+        protected override IReadOnlyCollection<string> GetRawAliases(ArgumentConversionResult item)
         {
             return new[] { item.Argument.Name };
         }

@@ -355,16 +355,13 @@ namespace System.CommandLine.Tests
                 var argument = new Argument<int>(_ => 789, true);
                 argument.SetDefaultValue(123);
 
-                var result =  argument.Parse("");
+                var result = argument.Parse("");
 
-                var argumentResult = result.FindResultFor(argument);
-
-                argumentResult
-                    .GetValueOrDefault<int>()
-                    .Should()
-                    .Be(123);
+                result.ValueForArgument(argument)
+                      .Should()
+                      .Be(123);
             }
-            
+
             [Fact]
             public void Multiple_command_arguments_can_have_custom_parse_delegates()
             {
