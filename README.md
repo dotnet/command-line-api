@@ -29,7 +29,7 @@ Daily builds are available if you add this feed to your nuget.config: https://pk
 * [Parse preview](docs/Features-overview.md#parse-preview)
 * [Debugging](docs/Features-overview.md#debugging)
 * [Response files](docs/Features-overview.md#Response-files)
-* [Termination handling](docs/Process-termination-handling)
+* [Termination handling](docs/Process-termination-handling.md)
 
 #### Your first app
 * [System.CommandLine](docs/Your-first-app-with-System-CommandLine.md)
