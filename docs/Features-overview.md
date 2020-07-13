@@ -6,7 +6,7 @@ Programs written using `System.CommandLine` have built-in support for tab comple
 
 ![t-rex-suggestions](https://user-images.githubusercontent.com/547415/50387753-ef4c1280-06b8-11e9-90c8-89466d0bb406.gif)
 
-To enable it, the end user has to take a few steps once per shell, outlined [here](dotnet-suggest). Once this is done, completions will work for all apps written using `System.CommandLine`.
+To enable it, the end user has to take a few steps once per shell, outlined [here](dotnet-suggest.md). Once this is done, completions will work for all apps written using `System.CommandLine`.
 
 # Help
 
@@ -38,7 +38,7 @@ Users might be accustomed to different prefixes in different ecosystems, especia
 
 Providing a way to check the version of your app is helpful to your users.
 
-`System.CommandLine` provides this by default. In the [help](Features-overview#Help) example you might have noticed an option, `--version`, that was not explicitly configured in the sample code. When you run your program with this option, you'll see something like this:
+`System.CommandLine` provides this by default. In the [help](Features-overview.md#Help) example you might have noticed an option, `--version`, that was not explicitly configured in the sample code. When you run your program with this option, you'll see something like this:
 
 ```console
 > myapp --version
@@ -89,11 +89,11 @@ ANSI terminals support a variety of features by including ANSI escape sequences 
 
 The following are examples of output rendered by the same view code in these three different contexts.
 
-In PowerShell on Windows with ANSI mode enabled:
+In PowerShell on Windows with VT mode enabled:
 
 ![ansi](https://user-images.githubusercontent.com/547415/50388667-575b2280-06d2-11e9-91ae-36e8ffabbf8a.png)
 
-In PowerShell with ANSI mode disabled:
+In PowerShell with VT mode disabled:
 
 ![non-ansi](https://user-images.githubusercontent.com/547415/50388673-85d8fd80-06d2-11e9-844b-4690e4b4ab5a.png)
 
@@ -121,9 +121,9 @@ The raw text written to standard out in the first example is this:
 
 ```
 
- In ANSI mode, the Windows Console interprets these escape sequences into cursor movements and colors. As you can see in the first example above, ANSI mode enables the display of RGB colors and underlining that are not supported otherwise on Windows. Most Linux and macOS terminals as well as the Windows Terminal support this form of rendering by default.
+ In VT mode, the Windows Console interprets these escape sequences into cursor movements and colors. As you can see in the first example above, VT mode enables the display of RGB colors and underlining that are not supported otherwise on Windows. Most Linux and macOS terminals as well as the Windows Terminal support this form of rendering by default.
  
- The examples above build the table structure by positioning the cursor for each cell and then writing the content. In an ANSI-capable terminal, this is done using ANSI escape sequences such as `\u001b[1;1H`. The equivalent `System.Console` call, which is needed in non-ANSI terminals, looks like this: `Console.SetCursorPosition(0, 0)`. Meanwhile, the third example renders the layout using spaces and newlines, since there is no cursor when output is redirected.
+ The examples above build the table structure by positioning the cursor for each cell and then writing the content. In a VT-capable terminal, this is done using ANSI escape sequences such as `\u001b[1;1H`. The equivalent `System.Console` call, which is needed in terminals that don't render VT codes, looks like this: `Console.SetCursorPosition(0, 0)`. Meanwhile, the third example renders the layout using spaces and newlines, since there is no cursor when output is redirected.
 
  Providing a common API across these very different modes so that you don't have to write the code three times is a major goal of `System.CommandLine.Rendering`. The API is still very rough but you can explore these capabilities in the `RenderingPlayground` [sample](https://github.com/dotnet/command-line-api/tree/master/samples/RenderingPlayground).
 
