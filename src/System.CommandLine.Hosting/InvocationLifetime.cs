@@ -7,6 +7,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
+#if NETSTANDARD2_0
+using IHostEnvironment = Microsoft.Extensions.Hosting.IHostingEnvironment;
+using IHostApplicationLifetime = Microsoft.Extensions.Hosting.IApplicationLifetime;
+#endif
+
 namespace System.CommandLine.Hosting
 {
     public class InvocationLifetime : IHostLifetime
@@ -18,8 +23,8 @@ namespace System.CommandLine.Hosting
 
         public InvocationLifetime(
             IOptions<InvocationLifetimeOptions> options,
-            IHostingEnvironment environment,
-            IApplicationLifetime applicationLifetime,
+            IHostEnvironment environment,
+            IHostApplicationLifetime applicationLifetime,
             InvocationContext context = null,
             ILoggerFactory loggerFactory = null)
         {
@@ -40,8 +45,8 @@ namespace System.CommandLine.Hosting
 
         public InvocationLifetimeOptions Options { get; }
         private ILogger Logger { get; }
-        public IHostingEnvironment Environment { get; }
-        public IApplicationLifetime ApplicationLifetime { get; }
+        public IHostEnvironment Environment { get; }
+        public IHostApplicationLifetime ApplicationLifetime { get; }
 
         public Task WaitForStartAsync(CancellationToken cancellationToken)
         {

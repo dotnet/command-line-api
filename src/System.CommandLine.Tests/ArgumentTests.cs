@@ -67,13 +67,13 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void By_default_the_argument_type_is_void()
+        public void By_default_the_argument_type_is_string()
         {
             var argument = new Argument();
 
             argument.ArgumentType
-                .Should()
-                .Be(typeof(void));
+                    .Should()
+                    .Be(typeof(string));
         }
 
         public class CustomParsing
@@ -203,8 +203,7 @@ namespace System.CommandLine.Tests
                 var argument = new Argument<int>(result => int.Parse(result.Tokens.Single().Value));
 
                 argument.Parse("123")
-                        .FindResultFor(argument)
-                        .GetValueOrDefault()
+                        .ValueForArgument(argument)
                         .Should()
                         .Be(123);
             }
@@ -215,8 +214,7 @@ namespace System.CommandLine.Tests
                 var argument = new Argument<IEnumerable<int>>(result => result.Tokens.Single().Value.Split(',').Select(int.Parse));
 
                 argument.Parse("1,2,3")
-                        .FindResultFor(argument)
-                        .GetValueOrDefault()
+                        .ValueForArgument(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
             }
@@ -230,8 +228,7 @@ namespace System.CommandLine.Tests
                 });
 
                 argument.Parse("1 2 3")
-                        .FindResultFor(argument)
-                        .GetValueOrDefault()
+                        .ValueForArgument(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
             }
@@ -245,8 +242,7 @@ namespace System.CommandLine.Tests
                 };
 
                 argument.Parse("1 2 3")
-                        .FindResultFor(argument)
-                        .GetValueOrDefault()
+                        .ValueForArgument(argument)
                         .Should()
                         .Be(6);
             }

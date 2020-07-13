@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.IO;
@@ -29,9 +28,9 @@ namespace System.CommandLine.Tests
             {
                 Argument = new Argument
                     {
-                        Arity = ArgumentArity.ExactlyOne
+                        Arity = ArgumentArity.ExactlyOne,
+                        Suggestions = { "one", "two", "three" }
                     }
-                    .WithSuggestions("one", "two", "three")
             };
 
             var suggestions = option.GetSuggestions();
@@ -102,9 +101,9 @@ namespace System.CommandLine.Tests
                 new Option("--option", "option"),
                 new Argument
                     {
-                        Arity = ArgumentArity.OneOrMore
+                        Arity = ArgumentArity.OneOrMore,
+                        Suggestions = { "command-argument" }
                     }
-                    .WithSuggestions("command-argument")
             };
 
             var suggestions = command.GetSuggestions();
@@ -214,6 +213,34 @@ namespace System.CommandLine.Tests
             result.GetSuggestions()
                   .Should()
                   .NotContain(new[]{"apple", "banana", "cherry"});
+        }
+
+        [Fact]
+        public void When_a_subcommand_has_been_specified_then_its_sibling_commands_aliases_will_not_be_suggested()
+        {
+            var apple = new Command("apple")
+            {
+                new Option("--cortland")
+            };
+            apple.AddAlias("apl");
+
+            var banana = new Command("banana")
+            {
+                new Option("--cavendish")
+            };
+            banana.AddAlias("bnn");
+
+            var rootCommand = new RootCommand
+            {
+                apple,
+                banana
+            };
+
+            var result = rootCommand.Parse("banana ");
+
+            result.GetSuggestions()
+                  .Should()
+                  .NotContain(new[] { "apl", "bnn" });
         }
 
         [Fact]
@@ -505,9 +532,9 @@ namespace System.CommandLine.Tests
                     {
                         Argument = new Argument
                             {
-                                Arity = ArgumentArity.ExactlyOne
+                                Arity = ArgumentArity.ExactlyOne,
+                                Suggestions = { "vegetable", "mineral", "animal" }
                             }
-                            .WithSuggestions("vegetable", "mineral", "animal")
                     }
                 };
 
@@ -529,14 +556,9 @@ namespace System.CommandLine.Tests
                 {
                     new Argument
                         {
-                            Arity = ArgumentArity.ExactlyOne
+                            Arity = ArgumentArity.ExactlyOne,
+                            Suggestions = { _ => new[] { "vegetable", "mineral", "animal" } }
                         }
-                        .WithSuggestionSource(_ => new[]
-                        {
-                            "vegetable",
-                            "mineral",
-                            "animal"
-                        })
                 }
             };
 
@@ -551,13 +573,13 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option<string>("-x")
-                    .WithSuggestionSource(_ => new[]
+                new Option<string>("-x") 
+                {
+                    Argument = new Argument<string>()
                     {
-                        "vegetable",
-                        "mineral",
-                        "animal"
-                    })
+                        Suggestions = { _ => new[] { "vegetable", "mineral", "animal" } }
+                    }
+                }
             };
 
             var parseResult = command.Parse("the-command -x m");
@@ -996,6 +1018,49 @@ namespace System.CommandLine.Tests
             public void When_there_are_multiple_arguments_then_suggestions_are_only_offered_for_the_current_argument()
             {
                 Assert.True(false, "Test testname is not written yet.");
+            }
+
+            [Fact]
+            public void Enum_suggestions_can_be_configured_with_list_clear()
+            {
+                var argument = new Argument<DayOfWeek?>();
+                argument.Suggestions.Clear();
+                argument.Suggestions.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
+                var command = new Command("the-command")
+                {
+                    argument
+                };
+
+                var suggestions = command.Parse("the-command s")
+                                         .GetSuggestions();
+
+                suggestions.Should().BeEquivalentTo("sat", "sun","tues");
+            }
+
+            [Fact]
+            public void Enum_suggestions_can_be_configured_without_list_clear()
+            {
+                var command = new Command("the-command")
+                {
+                    new Argument<DayOfWeek?>()
+                    {
+                        Suggestions = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
+                    }
+                };
+
+                var suggestions = command.Parse("the-command s")
+                                         .GetSuggestions();
+
+                suggestions
+                    .Should()
+                    .BeEquivalentTo(
+                        "sat",
+                        nameof(DayOfWeek.Saturday),
+                        "sun", nameof(DayOfWeek.Sunday),
+                        "tues",
+                        nameof(DayOfWeek.Tuesday),
+                        nameof(DayOfWeek.Thursday),
+                        nameof(DayOfWeek.Wednesday));
             }
         }
     }

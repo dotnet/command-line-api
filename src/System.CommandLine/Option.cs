@@ -44,7 +44,7 @@ namespace System.CommandLine
 
         IArgument IOption.Argument => Argument;
 
-        public bool Required { get; set; }
+        public bool IsRequired { get; set; }
  
         string IValueDescriptor.ValueName => Name;
 
@@ -53,5 +53,10 @@ namespace System.CommandLine
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
+
+        private protected override void ChooseNameForUnnamedArgument(Argument argument)
+        {
+            argument.Name = Aliases[0].ToLower();
+        }
     }
 }

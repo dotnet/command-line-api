@@ -9,6 +9,6 @@ namespace System.CommandLine
     {
         IArgument Argument { get; }
 
-        bool Required { get; }
+        bool IsRequired { get; }
     }
 }

@@ -303,18 +303,16 @@ namespace System.CommandLine.Tests.Invocation
         {
             BindingContext boundContext = default;
 
+            var option = new Option<int>("-x");
             var command = new Command("command")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>()
-                }
+                option
             };
             command.Handler = CommandHandler.Create<BindingContext>(context => { boundContext = context; });
 
             await command.InvokeAsync("command -x 123", _console);
 
-            boundContext.ParseResult.ValueForOption("-x").Should().Be(123);
+            boundContext.ParseResult.ValueForOption(option).Should().Be(123);
         }
 
         [Fact]

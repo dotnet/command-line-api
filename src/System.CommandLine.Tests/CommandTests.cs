@@ -266,20 +266,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void It_defaults_argument_to_alias_name_when_it_is_not_provided()
-        {
-            var command = new Command("-alias")
-            {
-                new Argument
-                {
-                    Arity = ArgumentArity.ZeroOrOne
-                }
-            };
-
-            command.Arguments.Single().Name.Should().Be("alias");
-        }
-
-        [Fact]
         public void It_retains_argument_name_when_it_is_provided()
         {
             var command = new Command("-alias")
@@ -324,53 +310,6 @@ namespace System.CommandLine.Tests
             {
                 new Option("--same")
             };
-
-            command
-                .Invoking(c => c.Add(new Option("--same")))
-                .Should()
-                .Throw<ArgumentException>()
-                .And
-                .Message
-                .Should()
-                .Be("Alias '--same' is already in use.");
-        }
-
-        [Fact]
-        public void Global_options_may_be_added_with_aliases_that_conflict_with_local_options()
-        {
-            var command = new Command("the-command")
-            {
-                new Option("--same")
-            };
-
-            command
-                .Invoking(c => c.AddGlobalOption(new Option("--same")))
-                .Should()
-                .NotThrow<ArgumentException>();
-        }
-
-        [Fact]
-        public void Global_options_may_not_have_aliases_conflicting_with_other_global_option_aliases()
-        {
-            var command = new Command("the-command");
-
-            command.AddGlobalOption(new Option("--same"));
-
-            command
-                .Invoking(c => c.AddGlobalOption(new Option("--same")))
-                .Should()
-                .Throw<ArgumentException>()
-                .Which
-                .Message
-                .Should()
-                .Be("Alias '--same' is already in use.");
-        }
-
-        [Fact]
-        public void When_local_options_are_added_then_they_must_differ_from_global_options_by_name()
-        {
-            var command = new Command("the-command");
-            command.AddGlobalOption(new Option("--same"));
 
             command
                 .Invoking(c => c.Add(new Option("--same")))

@@ -7,7 +7,6 @@ using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -91,7 +90,7 @@ namespace System.CommandLine.Tests
             {
                 new Option("-x")
                 {
-                    Required = true
+                    IsRequired = true
                 }
             };
 
@@ -113,7 +112,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("-x")
             {
-                Required = true
+                IsRequired = true
             };
 
             var command = new RootCommand
@@ -137,7 +136,7 @@ namespace System.CommandLine.Tests
 
             var parent = new RootCommand
             {
-                new Option<string>("-x") { Required = true },
+                new Option<string>("-x") { IsRequired = true },
                 child
             };
             parent.Name = "parent";
@@ -281,7 +280,7 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
-                      .Contain(e => e.SymbolResult.Symbol.Name == "the-command" &&
+                      .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
                                     e.Message == $"Character not allowed in a path: {invalidCharacter}");
             }   
             
@@ -429,7 +428,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "move" &&
+                      .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
                                     e.Message == $"File or directory does not exist: {path}");
             }
 

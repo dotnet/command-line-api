@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8</LangVersion>
     <Description>This package provides support for structured command line output rendering. Write code once that renders correctly in multiple output modes, including System.Console, virtual terminal (using ANSI escape sequences), and plain text.
     </Description>
   </PropertyGroup>

@@ -8,6 +8,7 @@ namespace System.CommandLine.Parsing
 {
     public static class ArgumentResultExtensions
     {
+        [return: MaybeNull]
         public static object? GetValueOrDefault(this ArgumentResult argumentResult) =>
             argumentResult.GetValueOrDefault<object?>();
 

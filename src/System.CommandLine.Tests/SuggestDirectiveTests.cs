@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
@@ -23,10 +22,10 @@ namespace System.CommandLine.Tests
         public SuggestDirectiveTests()
         {
             _fruitOption = new Option<string>("--fruit")
-                .WithSuggestions("apple", "banana", "cherry");
+                .AddSuggestions("apple", "banana", "cherry");
 
             _vegetableOption = new Option<string>("--vegetable")
-                .WithSuggestions("asparagus", "broccoli", "carrot");
+                .AddSuggestions(_ => new[] { "asparagus", "broccoli", "carrot" });
 
             _eatCommand = new Command("eat")
             {

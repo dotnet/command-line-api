@@ -69,8 +69,6 @@ namespace System.CommandLine.Parsing
                 commandNode.Token,
                 _innermostCommandResult);
 
-            Debug.Assert(_innermostCommandResult != null);
-
             _innermostCommandResult!
                 .Children
                 .Add(commandResult);
@@ -210,7 +208,7 @@ namespace System.CommandLine.Parsing
                                    .Options)
             {
                 if (option is Option o &&
-                    o.Required && 
+                    o.IsRequired && 
                     _rootCommandResult!.FindResultFor(o) is null)
                 {
                     _errors.Add(

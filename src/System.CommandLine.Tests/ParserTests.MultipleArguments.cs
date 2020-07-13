@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -147,6 +148,33 @@ namespace System.CommandLine.Tests
                       .GetArgumentValueOrDefault("destination")
                       .Should()
                       .Be("dest.txt");
+            }
+
+            [Fact]
+            public void arity_ambiguities_can_be_differentiated_by_type_convertibility()
+            {
+                var ints = new Argument<int[]>();
+                var strings = new Argument<string[]>();
+
+                var root = new RootCommand
+                {
+                    ints,
+                    strings
+                };
+
+                var result = root.Parse("1 2 3 one", "two");
+
+                var _ = new AssertionScope();
+
+                result.ValueForArgument(ints)
+                      .Should()
+                      .BeEquivalentTo(new[] { 1, 2, 3 },
+                                      options => options.WithStrictOrdering());
+
+                result.ValueForArgument(strings)
+                      .Should()
+                      .BeEquivalentTo(new[] { "one", "two" },
+                                      options => options.WithStrictOrdering());
             }
         }
     }
