@@ -51,7 +51,7 @@ namespace System.CommandLine.Parsing
             var parentResult = Parent;
 
             if (ShouldCheckArity() &&
-                parentResult is {} &&
+                parentResult is { } &&
                 ArgumentArity.Validate(parentResult,
                                        argument,
                                        argument.Arity.MinimumNumberOfValues,

@@ -566,7 +566,7 @@ namespace System.CommandLine.Parsing
 
             for (var commandAliasIndex = 0; commandAliasIndex < command.RawAliases.Count; commandAliasIndex++)
             {
-                var commandAlias = command.RawAliases.ToArray()[commandAliasIndex];
+                var commandAlias = command.RawAliases.ElementAt(commandAliasIndex);
                 
                 tokens.Add(
                     commandAlias,
@@ -580,7 +580,7 @@ namespace System.CommandLine.Parsing
 
                     for (var childAliasIndex = 0; childAliasIndex < child.RawAliases.Count; childAliasIndex++)
                     {
-                        var childAlias = child.RawAliases.ToArray()[childAliasIndex];
+                        var childAlias = child.RawAliases.ElementAt(childAliasIndex);
 
                         tokens[childAlias] =
                             new Token(
