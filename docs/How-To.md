@@ -4,7 +4,7 @@
 
 Both commands and options support [aliases](Concepts#Aliases). You can add an alias to an option like this:
 
-```csharp
+``` csharp
 var option = new Option("--verbose");
 option.AddAlias("-v");
 ```
