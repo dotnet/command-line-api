@@ -2,7 +2,7 @@
 
 ## Add an alias to an option or command
 
-Both commands and options support [aliases](Concepts#Aliases). You can add an alias to an option like this:
+Both commands and options support [aliases](Concepts.md#Aliases). You can add an alias to an option like this:
 
 ``` csharp
 var option = new Option("--verbose");
@@ -122,7 +122,7 @@ public static void DoSomething(int anInt, string aString)
 
 ### Method-first
 
-Another approach is to let `System.CommandLine` configure the parser for you based on your method signature using the `Command.ConfigureFromMethod` extension method found in the `System.CommandLine.DragonFruit` library. (The  [DragonFruit](Your-first-app-with-System.CommandLine.DragonFruit) app model uses this approach for its strongly-typed `Main` method but it can be used with any method.)
+Another approach is to let `System.CommandLine` configure the parser for you based on your method signature using the `Command.ConfigureFromMethod` extension method found in the `System.CommandLine.DragonFruit` library. (The  [DragonFruit](Your-first-app-with-System.CommandLine.DragonFruit.md) app model uses this approach for its strongly-typed `Main` method but it can be used with any method.)
 
 
 ```csharp

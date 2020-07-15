@@ -13,16 +13,16 @@ _Give your users a great experience with your .NET console applications while le
 
 You can read more about it here:
 
-* [History](History)
-* [Functional goals](Functional-goals)
-* [Technical motivations](Technical-motivations)
+* [History](History.md)
+* [Functional goals](Functional-goals.md)
+* [Technical motivations](Technical-motivations.md)
 
 ## Try it out
 
-The simplest way to create your parser is with the experimental [DragonFruit app model](DragonFruit-overview). This works well if you have a single layer of commands (no subcommands).
+The simplest way to create your parser is with the experimental [DragonFruit app model](DragonFruit-overview.md). This works well if you have a single layer of commands (no subcommands).
 
-[Your first app with System.CommandLine.DragonFruit](Your-first-app-with-System-CommandLine-DragonFruit)
+[Your first app with System.CommandLine.DragonFruit](Your-first-app-with-System-CommandLine-DragonFruit.md)
 
 For more complex scenarios, you can use the core APIs directly.
 
-[Your first app with System.CommandLine](Your-first-app-with-System-CommandLine)
+[Your first app with System.CommandLine](Your-first-app-with-System-CommandLine.md)

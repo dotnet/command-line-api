@@ -58,6 +58,6 @@ The value for --bool-option is: False
 The value for --file-option is: null
 ```
 
-This program is equivalent to the one demonstrated in [Your first app with System.CommandLine](Your-first-app-with-System.CommandLine).
+This program is equivalent to the one demonstrated in [Your first app with System.CommandLine](Your-first-app-with-System.CommandLine.md).
 
-To explore its features, take a look at [Features: overview](Features-overview)
+To explore its features, take a look at [Features: overview](Features-overview.md)

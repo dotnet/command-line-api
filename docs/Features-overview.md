@@ -129,7 +129,7 @@ The raw text written to standard out in the first example is this:
 
  ## Rendering directives
 
-Output modes can also be specified directly. If you know that you want a specific form of output, you can bypass the mode detection of `System.CommandLine.Rendering` and use a [directive](Syntax-Concepts-and-Parser#directives).
+Output modes can also be specified directly. If you know that you want a specific form of output, you can bypass the mode detection of `System.CommandLine.Rendering` and use a [directive](Syntax-Concepts-and-Parser.md#directives).
 
 The following example will output ANSI to a text file.
 

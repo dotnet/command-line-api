@@ -87,6 +87,6 @@ The value for --bool-option is: False
 The value for --file-option is: null
 ```
 
-This program is equivalent to the one demonstrated in [Your first app with System.CommandLine.DragonFruit](Your-first-app-with-System.CommandLine.DragonFruit).
+This program is equivalent to the one demonstrated in [Your first app with System.CommandLine.DragonFruit](Your-first-app-with-System.CommandLine.DragonFruit.md).
 
-To explore its features, take a look at [Features: overview](Features-overview)
+To explore its features, take a look at [Features: overview](Features-overview.md)

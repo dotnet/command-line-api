@@ -60,7 +60,7 @@ In both POSIX and Windows command lines, it's common for some options to have al
 -v, --verbose    Show verbose output 
 ```
 
-In `System.CommandLine`, both the `Command` and `Option` classes support adding [aliases](How-To#Add-an-alias-to-an-option-or-command).
+In `System.CommandLine`, both the `Command` and `Option` classes support adding [aliases](How-To#Add-an-alias-to-an-option-or-command.md).
 
 ## Arguments and arity
 
