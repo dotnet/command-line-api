@@ -74,11 +74,11 @@ This project has adopted the code of conduct defined by the [Contributor Covenan
 
 ## Contributing
 
-See the [Contributing guide](CONTRIBUTING) for developer documentation.
+See the [Contributing guide](CONTRIBUTING.md) for developer documentation.
 
 ## License
 
-This project is licensed under the [MIT license](LICENSE.TXT).
+This project is licensed under the [MIT license](LICENSE.md).
 
 ## .NET Foundation
 
