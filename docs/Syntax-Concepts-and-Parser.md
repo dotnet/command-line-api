@@ -22,7 +22,7 @@ Some command line apps support subcommands, generally indicating that they can d
 
 When an app has subcommands, then the commands above them in the hierarchy typically do nothing by themselves. `dotnet add` is not a complete command because it has the subcommands `dotnet add package` and `dotnet add reference`.
 
-In `System.CommandLine`, subcommands also use the `Command` class, which can be added to a parent command, whether the parent is a `RootCommand` or `Command`.  
+In `System.CommandLine`, subcommands also use the `Command` class, which can be added to a parent command, whether the parent is a `RootCommand` or `Command`.
 
 ## Options
 
@@ -76,27 +76,11 @@ An argument is a value passed to an option or command.
                          command argument
 ```
 
-Arguments can have default values, expected types, and rules about how many values should be provided ("arity"). The arity of an option or command's argument refers to the number of values that can be passed if that option or command is specified. 
+Arguments can have default values, expected types, and rules about how many values should be provided ("arity"). The arity of an option or command's argument refers to the number of values that can be passed if that option or command is specified.
 
 Arity is expressed with a minimum value and a maximum value. These are the most common variants:
 
-| Min  | Max  | Examples                |                                |              
-|------|------|-------------------------|--------------------------------|
-| 0    | 1    | Valid:                  | --flag                         |
-|      |      |                         | --flag true                    |
-|      |      |                         | --flag false                   |
-|      |      | Invalid:                | --flag false false             |
-| 1    | 1    | Valid:                  | --file a.json                  |
-|      |      | Invalid:                | --file                         |
-|      |      |                         | --file a.json b.json           |
-| 0    | _n_  | Valid:                  | --file                         |
-|      |      |                         | --file a.json                  |
-|      |      |                         | --file a.json b.json           |
-| 1    | _n_  | Valid:                  | --file a.json                  |
-|      |      |                         | --file a.json b.json           |
-|      |      | Invalid:                | --file                         |
-
-### Bundling
+MinMaxExamples01Valid:--flag--flag true--flag falseInvalid:--flag false false11Valid:--file a.jsonInvalid:--file--file a.json b.json0_n_Valid:--file--file a.json--file a.json b.json1_n_Valid:--file a.json--file a.json b.jsonInvalid:--file### Bundling
 
 POSIX recommends that single-character options be allowed to be specified together after a single `-` prefix. The following command lines are equivalent:
 
@@ -131,12 +115,10 @@ Another example of a use for directives is setting the [output rendering mode](F
 
 The general goal of directives is to provide cross-cutting functionality that can be made consistent across command line apps. Because directives are syntatically distinct from the app's own parameters, an input such as `[parse]` can be made consistent across apps. An unrecognized directive will be ignored rather than causing a parsing error.
 
-A directive must conform to the following syntax rules: 
+A directive must conform to the following syntax rules:
 
 * It is a token on the command line coming after your app's name but before any subcommands or options, and
 * It is enclosed in square brackets.
 * It does not contain spaces.
 * It can include an argument, separated from the directive name by a colon.
-
-
 

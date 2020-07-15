@@ -65,7 +65,7 @@ Next, install the `dotnet try` global tool:
 Finally, launch the `dotnet try` pointing to the tutorial directory inside the cloned repository:
 
 ```console
-> dotnet try <PATH_TO_COMMAND_LINE_API_REPO>/samples/tutorial
+> dotnet try <PATH_TO_COMMAND_LINE_API_REPO>/docs
 ```
 
 ## Code of Conduct

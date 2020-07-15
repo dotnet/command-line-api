@@ -1,8 +1,8 @@
-`System.CommandLine` provides a set of default features for both people using it to develop apps and for the users of those apps. This is a quick overview of some of those features. 
+`System.CommandLine` provides a set of default features for both people using it to develop apps and for the users of those apps. This is a quick overview of some of those features.
 
 # Suggestions
 
-Programs written using `System.CommandLine` have built-in support for tab completion. 
+Programs written using `System.CommandLine` have built-in support for tab completion.
 
 ![t-rex-suggestions](https://user-images.githubusercontent.com/547415/50387753-ef4c1280-06b8-11e9-90c8-89466d0bb406.gif)
 
@@ -56,7 +56,7 @@ Both users and developers often find it useful to see how an app will interpret 
 
 The `[parse]` directive tells the parser to parse the input and return a diagram of the result. Some things worth noting in the above example:
 
-* Commands (`myapp`), their child options, and the arguments to those options are grouped using square brackets. 
+* Commands (`myapp`), their child options, and the arguments to those options are grouped using square brackets.
 * For the option result `![ --int-option <not-an-int> ]`, the `!` indicates a parsing error. `not-an-int` could not be parsed to the expected type.
 * For the option result `*[ --bool-option <False> ]`, the `*` indicates that a value was not specified on the command line, so the parser's configured default was used. `False` is the effective value for this option.
 
@@ -121,13 +121,13 @@ The raw text written to standard out in the first example is this:
 
 ```
 
- In VT mode, the Windows Console interprets these escape sequences into cursor movements and colors. As you can see in the first example above, VT mode enables the display of RGB colors and underlining that are not supported otherwise on Windows. Most Linux and macOS terminals as well as the Windows Terminal support this form of rendering by default.
- 
- The examples above build the table structure by positioning the cursor for each cell and then writing the content. In a VT-capable terminal, this is done using ANSI escape sequences such as `\u001b[1;1H`. The equivalent `System.Console` call, which is needed in terminals that don't render VT codes, looks like this: `Console.SetCursorPosition(0, 0)`. Meanwhile, the third example renders the layout using spaces and newlines, since there is no cursor when output is redirected.
+In VT mode, the Windows Console interprets these escape sequences into cursor movements and colors. As you can see in the first example above, VT mode enables the display of RGB colors and underlining that are not supported otherwise on Windows. Most Linux and macOS terminals as well as the Windows Terminal support this form of rendering by default.
 
- Providing a common API across these very different modes so that you don't have to write the code three times is a major goal of `System.CommandLine.Rendering`. The API is still very rough but you can explore these capabilities in the `RenderingPlayground` [sample](https://github.com/dotnet/command-line-api/tree/master/samples/RenderingPlayground).
+The examples above build the table structure by positioning the cursor for each cell and then writing the content. In a VT-capable terminal, this is done using ANSI escape sequences such as `\u001b[1;1H`. The equivalent `System.Console` call, which is needed in terminals that don't render VT codes, looks like this: `Console.SetCursorPosition(0, 0)`. Meanwhile, the third example renders the layout using spaces and newlines, since there is no cursor when output is redirected.
 
- ## Rendering directives
+Providing a common API across these very different modes so that you don't have to write the code three times is a major goal of `System.CommandLine.Rendering`. The API is still very rough but you can explore these capabilities in the `RenderingPlayground` [sample](https://github.com/dotnet/command-line-api/tree/master/samples/RenderingPlayground).
+
+## Rendering directives
 
 Output modes can also be specified directly. If you know that you want a specific form of output, you can bypass the mode detection of `System.CommandLine.Rendering` and use a [directive](Syntax-Concepts-and-Parser.md#directives).
 
@@ -144,3 +144,4 @@ The supported output modes are:
 * `Ansi`: Output is rendered using ANSI escape sequences. In-place re-rendering is supported.
 * `NonAnsi`: Output is rendered using `System.Console` cursor positioning. In-place re-rendering is supported.
 * `PlainText`: Output is rendered with additional whitespace so that, for example, if redirected to a text file, the layout will look correct. In-place re-rendering is not supported.
+
