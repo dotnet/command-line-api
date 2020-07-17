@@ -83,7 +83,7 @@ One or more response files can be specified in this way. Arguments and options a
 
 # Adaptive rendering
 
-ANSI terminals support a variety of features by including ANSI escape sequences in standard input and output. These sequences can control the cursor, set text attributes and colors, and more. Windows [recently joined](https://blogs.msdn.microsoft.com/commandline/2018/06/27/windows-command-line-the-evolution-of-the-windows-command-line/) Linux and Mac in supporting these features. This is a capability of the new Windows Terminal and can be enabled programmatically in the Windows 10 Console.
+Many terminals support a variety of features by including [virtual terminal (VT) escape sequences](https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences) in standard input and output. These sequences can control the cursor, set text attributes and colors, and more. Windows [recently joined](https://blogs.msdn.microsoft.com/commandline/2018/06/27/windows-command-line-the-evolution-of-the-windows-command-line/) Linux and Mac in supporting these features. This is a capability of the new Windows Terminal and can also be enabled programmatically in the Windows 10 Console.
 
 `System.Console.Rendering` adds support for detecting terminal settings and enabling the Window 10 Console's ANSI mode on demand. It also provides an API that can write output that looks correct based on those settings as well as when output is redirected, as is commonly the case on a build server or when your command line app is called by another command line app.
 
