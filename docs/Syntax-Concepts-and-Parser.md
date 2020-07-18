@@ -80,7 +80,23 @@ Arguments can have default values, expected types, and rules about how many valu
 
 Arity is expressed with a minimum value and a maximum value. These are the most common variants:
 
-MinMaxExamples01Valid:--flag--flag true--flag falseInvalid:--flag false false11Valid:--file a.jsonInvalid:--file--file a.json b.json0_n_Valid:--file--file a.json--file a.json b.json1_n_Valid:--file a.json--file a.json b.jsonInvalid:--file### Bundling
+| Min  | Max  | Examples                |                                |              
+|------|------|-------------------------|--------------------------------|
+| 0    | 1    | Valid:                  | --flag                         |
+|      |      |                         | --flag true                    |
+|      |      |                         | --flag false                   |
+|      |      | Invalid:                | --flag false false             |
+| 1    | 1    | Valid:                  | --file a.json                  |
+|      |      | Invalid:                | --file                         |
+|      |      |                         | --file a.json b.json           |
+| 0    | _n_  | Valid:                  | --file                         |
+|      |      |                         | --file a.json                  |
+|      |      |                         | --file a.json b.json           |
+| 1    | _n_  | Valid:                  | --file a.json                  |
+|      |      |                         | --file a.json b.json           |
+|      |      | Invalid:                | --file                         |
+
+### Bundling
 
 POSIX recommends that single-character options be allowed to be specified together after a single `-` prefix. The following command lines are equivalent:
 
