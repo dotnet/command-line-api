@@ -33,6 +33,11 @@ namespace System.CommandLine.IO
                 _stringBuilder.Append(value);
             }
 
+            public override void Write(string? value)
+            {
+                _stringBuilder.Append(value);
+            }
+
             public override Encoding Encoding { get; } = Encoding.Unicode;
 
             public override string ToString() => _stringBuilder.ToString();
