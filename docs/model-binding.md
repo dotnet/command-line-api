@@ -34,8 +34,8 @@ var command = new RootCommand
 command.Handler = CommandHandler.Create(
     (string aString, int anInt) =>
     {
-        Console.WriteLine($"{aString}");
-        Console.WriteLine($"{anInt}");
+        Console.WriteLine(aString);
+        Console.WriteLine(anInt);
     });
 
 await command.InvokeAsync("--an-int 123 --a-string \"Hello world!\" ");
@@ -234,4 +234,3 @@ await command.InvokeAsync("--an-int 123 --a-string \"Hello world!\" --an-enum co
 ParseResult: [ Binding [ --an-int <123> ] [ --a-string <Hello world!> ] [ --an-enum <Compressed> ] ]
 
 ```
-
