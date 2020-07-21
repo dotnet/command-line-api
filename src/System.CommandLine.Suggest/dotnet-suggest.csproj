@@ -6,7 +6,7 @@
     <PackAsTool>true</PackAsTool>
     <PackageId>dotnet-suggest</PackageId>
     <ToolCommandName>dotnet-suggest</ToolCommandName>
-    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64</PackAsToolShimRuntimeIdentifiers>
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64;linux-x64</PackAsToolShimRuntimeIdentifiers>
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
 
     <DotnetSuggestBuildNumber>.1</DotnetSuggestBuildNumber>

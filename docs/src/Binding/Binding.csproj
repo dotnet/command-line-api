@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20070.2" />
+    <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20362.5" />
   </ItemGroup>
 
 </Project>

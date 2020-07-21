@@ -76,7 +76,7 @@ Options:
 
 ## Arguments
 
-In addition to [options](Syntax-Concepts-and-Parser#Options) as shown in the examples above, DragonFruit also supports [arguments](Syntax-Concepts-and-Parser#Arguments). By convention, if you name a parameter in the `Main` method `args`, `argument`, or `arguments`, it will be exposed as an argument rather than an option. 
+In addition to [options](Syntax-Concepts-and-Parser#Options) as shown in the examples above, DragonFruit also supports [arguments](Syntax-Concepts-and-Parser#Arguments). By convention, if you name a parameter in the `Main` method `args`, `argument`, or `arguments`, it will be exposed as an argument rather than an option.
 
 ```csharp
 static void Main(int intOption = 42, string[] args = null)
@@ -106,3 +106,4 @@ Options:
 The argument follows the same conventions for arity as described in [arguments](Syntax-Concepts-and-Parser.md#Arguments-and-arity).
 
 You can try out DragonFruit by installing the latest preview [package](https://www.nuget.org/packages/System.CommandLine.DragonFruit).
+

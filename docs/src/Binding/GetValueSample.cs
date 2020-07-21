@@ -14,12 +14,9 @@ namespace Binding
         {
             #region GetValueFromOptionArgument
 
-            var option = new Option("--an-int")
-            {
-                Argument = new Argument<int>()
-            };
-            var parseResult = option.Parse("--an-int 123");
-            var value = parseResult.FindResultFor(option).GetValueOrDefault();
+            var option = new Option<int>("--an-int");
+            ParseResult parseResult = option.Parse("--an-int 123");
+            int value = parseResult.ValueForOption(option);
             Console.WriteLine(Format(value));
 
             #endregion

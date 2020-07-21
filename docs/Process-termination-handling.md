@@ -28,3 +28,4 @@ myCommand.Handler = CommandHandler.Create(async (IConsole console, CancellationT
     }
 });
 ```
+

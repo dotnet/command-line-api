@@ -21,8 +21,8 @@ namespace Binding
 
             var command = new RootCommand
             {
-                new Option("--a-string") { Argument = new Argument<string>() },
-                new Option("--an-int") { Argument = new Argument<int>() }
+                new Option<string>("--a-string"),
+                new Option<int>("--an-int")
             };
 
             command.Handler = CommandHandler.Create(
@@ -45,7 +45,7 @@ namespace Binding
 
             var command = new RootCommand
             {
-                new Option("--a-bool") { Argument = new Argument<bool>() }
+                new Option<bool>("--a-bool")
             };
 
             command.Handler = CommandHandler.Create(
@@ -67,9 +67,9 @@ namespace Binding
 
             var command = new RootCommand
             {
-                new Option("--a-string") { Argument = new Argument<string>() },
-                new Option("--an-int") { Argument = new Argument<int>() },
-                new Option("--an-enum") { Argument = new Argument<System.IO.FileAttributes>() },
+                new Option<string>("--a-string"),
+                new Option<int>("--an-int"),
+                new Option<System.IO.FileAttributes>("--an-enum"),
             };
 
             command.Handler = CommandHandler.Create(
@@ -91,7 +91,7 @@ namespace Binding
 
             var command = new RootCommand
             {
-                new Option("--an-enum") { Argument = new Argument<System.IO.FileAccess>() }
+                new Option<System.IO.FileAccess>("--an-enum")
             };
 
             command.Handler = CommandHandler.Create(
@@ -111,7 +111,7 @@ namespace Binding
 
             var command = new RootCommand
             {
-                new Option("--items") { Argument = new Argument<string[]>() }
+                new Option<string[]>("--items")
             };
 
             command.Handler = CommandHandler.Create(
@@ -138,7 +138,7 @@ namespace Binding
 
             var command = new RootCommand
             {
-                new Option("-f") { Argument = new Argument<FileInfo>().ExistingOnly() }
+                new Option<FileInfo>("-f").ExistingOnly()
             };
 
             command.Handler = CommandHandler.Create(
@@ -160,8 +160,8 @@ namespace Binding
         {
             var command = new Command("the-command")
             {
-                new Option("--an-int") { Argument = new Argument<int>() },
-                new Option("--a-string") { Argument = new Argument<string>() }
+                new Option<int>("--an-int"),
+                new Option<string>("--a-string") 
             };
 
             command.Handler = CommandHandler.Create(

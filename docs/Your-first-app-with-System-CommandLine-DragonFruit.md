@@ -13,12 +13,13 @@ Open a new console and run the following commands:
 
 ## Install the System.CommandLine.DragonFruit package
 
- [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.DragonFruit.svg)](https://nuget.org/packages/System.CommandLine.DragonFruit) 
+[![Nuget](https://img.shields.io/nuget/v/System.CommandLine.DragonFruit.svg)](https://nuget.org/packages/System.CommandLine.DragonFruit)
+
 ## Add some code
 
 Open `Program.cs`. You'll see that your `Main` method looks like this:
 
-```csharp 
+```csharp
 static void Main(string[] args)
 {
     Console.WriteLine("Hello World!");
@@ -61,3 +62,4 @@ The value for --file-option is: null
 This program is equivalent to the one demonstrated in [Your first app with System.CommandLine](Your-first-app-with-System.CommandLine.md).
 
 To explore its features, take a look at [Features: overview](Features-overview.md)
+
