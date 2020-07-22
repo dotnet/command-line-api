@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests.Help
                 },
                 new Option(aliases: new string[] {"--the-root-option-no-arg", "-trna"}) {
                     Description = "the-root-option-no-arg-description",
-                    Required = true
+                    IsRequired = true
                 },
                 new Option<string>(
                     aliases: new string[] {"--the-root-option-no-description-default-arg", "-trondda"}, 
@@ -47,7 +47,7 @@ namespace System.CommandLine.Tests.Help
                     {
                         Description = "the-root-option-arg-no-default-description"
                     },
-                    Required = true
+                    IsRequired = true
                 },
                 new Option(aliases: new string[] {"--the-root-option-default-arg", "-troda"}) {
                     Description = "the-root-option-default-arg-description",
@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests.Help
                     {
                         Description = "the-root-option-arg-description",
                     },
-                    Required = true
+                    IsRequired = true
                 }
             };
             command.Name = "the-root-command";

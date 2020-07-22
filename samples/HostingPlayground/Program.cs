@@ -30,7 +30,7 @@ namespace HostingPlayground
         {
             var root = new RootCommand(@"$ dotnet run --name 'Joe'"){
                 new Option<string>("--name"){
-                    Required = true
+                    IsRequired = true
                 }
             };
             root.Handler = CommandHandler.Create<GreeterOptions, IHost>(Run);

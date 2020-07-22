@@ -44,7 +44,7 @@ namespace System.CommandLine
 
         IArgument IOption.Argument => Argument;
 
-        public bool Required { get; set; }
+        public bool IsRequired { get; set; }
  
         string IValueDescriptor.ValueName => Name;
 
@@ -56,7 +56,7 @@ namespace System.CommandLine
 
         private protected override void ChooseNameForUnnamedArgument(Argument argument)
         {
-            argument.Name = Aliases[0].ToLower();
+            argument.Name = Name.ToLower();
         }
     }
 }

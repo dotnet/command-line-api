@@ -208,7 +208,7 @@ namespace System.CommandLine.Parsing
                                    .Options)
             {
                 if (option is Option o &&
-                    o.Required && 
+                    o.IsRequired && 
                     _rootCommandResult!.FindResultFor(o) is null)
                 {
                     _errors.Add(
@@ -325,7 +325,7 @@ namespace System.CommandLine.Parsing
             {
                 foreach (var symbol in commandResult.Command.Children)
                 {
-                    var symbolResult = _rootCommandResult!.FindResultFor(symbol);
+                    var symbolResult = _rootCommandResult!.FindResultForSymbol(symbol);
 
                     if (symbolResult is null)
                     {

@@ -234,7 +234,7 @@ namespace System.CommandLine.Parsing
                                      .Except(parentSymbol
                                              .Children
                                              .OfType<ICommand>()
-                                             .Select(c => c.Name));
+                                             .SelectMany(c => c.RawAliases));
             }
 
             if (currentSymbolResult is CommandResult commandResult)

@@ -238,12 +238,13 @@ namespace System.CommandLine.Help
         /// <returns>
         /// A table of strings whose elements are the projection of the collection with whitespace formatting removed.
         /// </returns>
-        protected virtual IEnumerable<IReadOnlyList<string>> CreateTable<T>(IEnumerable<T> collection, Func<T, IEnumerable<string>> selector)
+        protected virtual IReadOnlyList<IReadOnlyList<string>> CreateTable<T>(IEnumerable<T> collection, Func<T, IEnumerable<string>> selector)
         {
             return collection.Select(selector)
                 .Select(row => row
                     .Select(element => ShortenWhitespace(element))
-                    .ToArray());
+                    .ToList())
+                .ToList();
         }
 
         /// <summary>
@@ -499,7 +500,7 @@ namespace System.CommandLine.Help
             }
 
             if (symbol is IOption option &&
-                option.Required)
+                option.IsRequired)
             {
                 invocation += " (REQUIRED)";
             }
@@ -737,9 +738,13 @@ namespace System.CommandLine.Help
         private int GetConsoleWindowWidth(IConsole console)
         {
             if (console is SystemConsole systemConsole)
+            {
                 return systemConsole.GetConsoleWindowWidth();
+            }
             else
+            {
                 return int.MaxValue;
+            }
         }
 
         private string ShortenWhitespace(string input)

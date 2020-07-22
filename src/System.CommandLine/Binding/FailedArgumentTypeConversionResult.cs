@@ -25,7 +25,7 @@ namespace System.CommandLine.Binding
             {
                 // TODO: (FailedArgumentTypeConversionResult) localize
 
-                var firstParent = a.Parents.First();
+                var firstParent = a.Parents[0];
 
                 var symbolType =
                     firstParent switch {
@@ -34,7 +34,7 @@ namespace System.CommandLine.Binding
                         _ => null
                         };
 
-                var alias = firstParent.RawAliases[0];
+                var alias = firstParent.RawAliases.First();
 
                 return $"Cannot parse argument '{value}' for {symbolType} '{alias}' as expected type {type}.";
             }

@@ -47,7 +47,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        public ArgumentResult? FindResultFor(IArgument argument)
+        public override ArgumentResult? FindResultFor(IArgument argument)
         {
             EnsureResultMapsAreInitialized();
 
@@ -56,7 +56,7 @@ namespace System.CommandLine.Parsing
             return result;
         }
 
-        public CommandResult? FindResultFor(ICommand command)
+        public override CommandResult? FindResultFor(ICommand command)
         {
             EnsureResultMapsAreInitialized();
 
@@ -65,7 +65,7 @@ namespace System.CommandLine.Parsing
             return result;
         }
 
-        public OptionResult? FindResultFor(IOption option)
+        public override OptionResult? FindResultFor(IOption option)
         {
             EnsureResultMapsAreInitialized();
 
@@ -74,7 +74,7 @@ namespace System.CommandLine.Parsing
             return result;
         }
 
-        public SymbolResult? FindResultFor(ISymbol symbol)
+        public SymbolResult? FindResultForSymbol(ISymbol symbol)
         {
             switch (symbol)
             {

@@ -27,6 +27,14 @@ namespace System.CommandLine.Parsing
 
         public SymbolResult? Parent { get; }
 
+        internal virtual RootCommandResult? Root =>
+            Parent switch
+            {
+                CommandResult c => c.Root,
+                OptionResult o => o.Parent?.Root,
+                _ => null
+            };
+
         public ISymbol Symbol { get; }
 
         public IReadOnlyList<Token> Tokens => _tokens;
@@ -62,6 +70,15 @@ namespace System.CommandLine.Parsing
         }
 
         internal void AddToken(Token token) => _tokens.Add(token);
+
+        public virtual ArgumentResult? FindResultFor(IArgument argument) =>
+            Root?.FindResultFor(argument);
+
+        public virtual CommandResult? FindResultFor(ICommand command) =>
+            Root?.FindResultFor(command);
+
+        public virtual OptionResult? FindResultFor(IOption option) =>
+            Root?.FindResultFor(option);
 
         internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
             _defaultArgumentValues.GetOrAdd(
