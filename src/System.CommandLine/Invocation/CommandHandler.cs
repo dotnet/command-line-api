@@ -46,6 +46,22 @@ namespace System.CommandLine.Invocation
             Action<T1, T2, T3, T4, T5, T6, T7> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Action<T1, T2, T3, T4, T5, T6, T7, T8> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
         public static ICommandHandler Create(Func<int> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
