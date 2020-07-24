@@ -180,6 +180,8 @@ The value of fileOption is: null
 
 `System.CommandLine` also knows how to bind other argument types. For example, enums and file system objects such as `FileInfo` and `DirectoryInfo` can be bound. `FileInfo` and `DirectoryInfo` examples of a more general convention whereby any type that has a constructor taking a single `string` parameter can be bound without having to write any custom code. But you can also write your own binding logic for your custom types.
 
+`System.CommandLine` can also parse arbitrary custom types, which is practical for complex applications with long argument lists. See [this section in Model Binding](model-binding.md#more-complex-types) in order to know more about how to bind the complex types.
+
 ## Middleware Pipeline
 
 While each command has a handler which `System.CommandLine` will route to based on input, there is also a mechanism for short circuiting or altering the input before invoking you application logic. In between parsing and invocation, there is a chain of responsibility, which you can customize. A number of features of `System.CommandLine` make use of this. This is how the `--help` and `--version` options short circuit calls to your handler.
