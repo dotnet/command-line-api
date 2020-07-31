@@ -68,8 +68,8 @@ An argument is a value passed to an option or command.
 
 ```console
 > myapp --int-option 123
-        ^----------^
-        option argument
+                     ^-^
+                     option argument
        
 > myapp --int-option 123 "hello there"
                          ^-----------^
