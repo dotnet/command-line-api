@@ -91,15 +91,9 @@ public static void DoSomething(int anInt, string aString)
 }
 ```
 
-This is known as binding. You can learn more about it in the interactive tutorial described in the readme: [https://github.com/dotnet/command-line-api#interactive-tutorials](https://github.com/dotnet/command-line-api#interactive-tutorials)
+The process of creating these values based on command line input is known as model binding. 
 
-There are currently two models for configuring the `System.CommandLine` parser to bind these parameters.
-
-### Syntax-first
-
-One approach that you can use is to configure the parser directly by adding `Option`s to your `RootCommand`. **Note that the option names should match the names of the parameters of the `DoSomething` method.**
-
-Parameters are matched using a naming convention that converts camel-cased parameters to kebab-cased options. In this example, the option `--an-int` matches parameter `anInt` on the `DoSomething` method.
+The most common way that `System.CommandLine` performs model binding is to match option or argument names or aliases to the parameter names on a handler, or to the property names of complex objects passed to a handler. Parameters or properties are matched using a convention that matches camel-cased parameter names to kebab-cased option names. In this example, the option `--an-int` matches parameter `anInt` on the `DoSomething` method.
 
 ```csharp
 static void Main()
@@ -120,24 +114,7 @@ public static void DoSomething(int anInt, string aString)
 }
 ```
 
-### Method-first
-
-Another approach is to let `System.CommandLine` configure the parser for you based on your method signature using the `Command.ConfigureFromMethod` extension method found in the `System.CommandLine.DragonFruit` library. (The  [DragonFruit](Your-first-app-with-System.CommandLine.DragonFruit.md) app model uses this approach for its strongly-typed `Main` method but it can be used with any method.)
-
-```csharp
-static void Main()
-{
-    var rootCommand = new RootCommand();
-
-    MethodInfo method = typeof(Program).GetMethod(nameof(DoSomething));
-
-    rootCommand.ConfigureFromMethod<int, string>(method);
-
-    rootCommand.InvokeAsync(args).Wait();
-}
-```
-
-`ConfigureFromMethod` adds options to your command based on the parameters of the specified method. Options are created using a naming convention that converts camel-cased parameters to kebab-cased options. In this example, the parameter `anInt` generates an option with the alias `--an-int`;
+For more details, see: [model binding](model-binding.md).
 
 ## Argument validation and binding
 
