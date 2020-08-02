@@ -2,7 +2,7 @@
 
 ## Add an alias to an option or command
 
-Both commands and options support [aliases](Syntax-Concepts-And-Parser.md#Aliases). You can add an alias to an option like this:
+Both commands and options support [aliases](Syntax-Concepts-and-Parser.md#aliases). You can add an alias to an option like this:
 
 ```csharp
 var option = new Option("--verbose");
