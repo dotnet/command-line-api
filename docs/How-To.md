@@ -78,7 +78,7 @@ static void Main()
 }
 ```
 
-Of course, if your program is so simple that is has no inputs, you probably didn't need a command line parser and you can `/* do something */` directly in the body of `Main`. Nonetheless, this will give you some additional [features](Features-overview).
+Of course, if your program is so simple that is has no inputs, you probably didn't need a command line parser and you can `/* do something */` directly in the body of `Main`. Nonetheless, this will give you some additional [features](Features-overview.md).
 
 ## Pass parameters to a method
 
