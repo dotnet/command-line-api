@@ -65,7 +65,7 @@ var parent = new RootCommand("parent")
 The simplest case for invoking your code, if you have a program so simple that it has no inputs beyond invocation itself, would look like this:
 
 ```csharp
-static void Main()
+static void Main(string[] args)
 {
     var rootCommand = new RootCommand();
 
@@ -96,7 +96,7 @@ The process of creating these values based on command line input is known as mod
 The most common way that `System.CommandLine` performs model binding is to match option or argument names or aliases to the parameter names on a handler, or to the property names of complex objects passed to a handler. Parameters or properties are matched using a convention that matches camel-cased parameter names to kebab-cased option names. In this example, the option `--an-int` matches parameter `anInt` on the `DoSomething` method.
 
 ```csharp
-static void Main()
+static void Main(string[] args)
 {
     var rootCommand = new RootCommand();
 
