@@ -4,6 +4,7 @@
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
@@ -65,6 +66,8 @@ namespace System.CommandLine.Invocation
 
             return _cts.Token;
         }
+
+        internal ExecutionContext? ExecutionContext { get; set; }
 
         public void Dispose()
         {

@@ -252,6 +252,9 @@ namespace System.CommandLine.Builder
                     foreach (var cultureName in uicultures.Select(c => c.Trim()))
                         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
                 }
+
+                context.ExecutionContext = ExecutionContext.Capture();
+
                 await next(context);
 
                 static void ApplyCultureFromWellKnownEnvironmentVariables()

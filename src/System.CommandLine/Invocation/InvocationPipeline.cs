@@ -68,7 +68,7 @@ namespace System.CommandLine.Invocation
 
         private static int GetResultCode(InvocationContext context)
         {
-            context.InvocationResult?.Apply(context);
+            context.InvocationResult?.ApplyWithExecutionContext(context);
 
             return context.ResultCode;
         }
