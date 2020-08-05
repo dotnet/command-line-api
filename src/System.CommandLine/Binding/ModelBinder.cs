@@ -202,12 +202,7 @@ namespace System.CommandLine.Binding
                 var valueSource = GetValueSource(bindingSources, bindingContext, valueDescriptor);
 
                 BoundValue? boundValue;
-                if (valueSource is null)
-                {
-                    // If there is no source to bind from, no value can be bound.
-                    boundValue = null;
-                }
-                else if (!bindingContext.TryBindToScalarValue(
+                if (!bindingContext.TryBindToScalarValue(
                         valueDescriptor,
                         valueSource,
                         out boundValue) && valueDescriptor.HasDefaultValue)
@@ -240,7 +235,7 @@ namespace System.CommandLine.Binding
             return values;
         }
 
-        private IValueSource? GetValueSource(
+        private IValueSource GetValueSource(
             IDictionary<IValueDescriptor, IValueSource>? bindingSources,
             BindingContext bindingContext,
             IValueDescriptor valueDescriptor)
@@ -263,7 +258,7 @@ namespace System.CommandLine.Binding
                 return new ParseResultMatchingValueSource();
             }
 
-            return null;
+            return new MissingValueSource();
         }
 
         public override string ToString() =>
