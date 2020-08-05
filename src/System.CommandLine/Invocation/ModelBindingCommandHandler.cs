@@ -17,6 +17,8 @@ namespace System.CommandLine.Invocation
         private readonly ModelBinder? _invocationTargetBinder;
         private readonly MethodInfo? _handlerMethodInfo;
         private readonly IReadOnlyList<ParameterDescriptor> _parameterDescriptors;
+        private Dictionary<IValueDescriptor, IValueSource> _invokeArgumentBindingSources { get; } =
+            new Dictionary<IValueDescriptor, IValueSource>();
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
@@ -51,14 +53,22 @@ namespace System.CommandLine.Invocation
         {
             var bindingContext = context.BindingContext;
 
-            var parameterBinders = _parameterDescriptors
-                                   .Select(p => bindingContext.GetModelBinder(p))
-                                   .ToList();
+            var invocationArguments = new object?[_parameterDescriptors.Count()];
+            var length = _parameterDescriptors.Count();
 
-            var invocationArguments =
-                parameterBinders
-                    .Select(binder => binder.CreateInstance(bindingContext))
-                    .ToArray();
+            for (int i = 0; i < length; i++)
+            {
+                var paramDesc = _parameterDescriptors[i];
+                if (_invokeArgumentBindingSources.TryGetValue(paramDesc, out var valueSource))
+                {
+                    invocationArguments[i] = ValueFromValueSource(paramDesc, valueSource, bindingContext);
+                }
+                else
+                {
+                    var binder = bindingContext.GetModelBinder(paramDesc);
+                    invocationArguments[i] = binder.CreateInstance(bindingContext);
+                }
+            }
 
             var invocationTarget = _invocationTarget ??
                                    _invocationTargetBinder?.CreateInstance(bindingContext);
@@ -77,5 +87,61 @@ namespace System.CommandLine.Invocation
 
             return await CommandHandler.GetResultCodeAsync(result, context);
         }
+
+        private object? ValueFromValueSource(ParameterDescriptor paramDesc, IValueSource valueSource, BindingContext bindingContext)
+        {
+            BoundValue? boundValue;
+            if (valueSource is null)
+            {
+                // If there is no source to bind from, no value can be bound.
+                return null;
+            }
+            if (bindingContext.TryBindToScalarValue(
+                 paramDesc,
+                 valueSource,
+                 out boundValue))
+            { 
+                // boundValue has been set
+            }
+            else if ( paramDesc.HasDefaultValue)
+            {
+                boundValue = BoundValue.DefaultForValueDescriptor(paramDesc);
+            }
+            if (!(boundValue is null))
+            {
+                return boundValue.Value;
+            }
+            var parameterBinder = bindingContext.GetModelBinder(paramDesc);
+            return parameterBinder.CreateInstance(bindingContext);
+        }
+
+        public void BindParameter(ParameterInfo param, Argument argument)
+        {
+            var _ = argument ?? throw new InvalidOperationException("You must specify an argument to bind");
+            BindValueSource(param, new SpecificSymbolValueSource(argument));
+        }
+
+        public void BindParameter(ParameterInfo param, Option option)
+        {
+            var _ = option ?? throw new InvalidOperationException("You must specify an argument to bind");
+            BindValueSource(param, new SpecificSymbolValueSource(option));
+        }
+
+        private void BindValueSource(ParameterInfo param, IValueSource valueSource)
+        {
+            var paramDesc = FindParameterDescriptor(param);
+            if (paramDesc is null)
+            {
+                throw new InvalidOperationException("You must bind to a parameter on this handler");
+            }
+            _invokeArgumentBindingSources.Add(paramDesc, valueSource);
+        }
+
+        private ParameterDescriptor? FindParameterDescriptor(ParameterInfo? param)
+            => param == null
+               ? null
+               : _parameterDescriptors
+                    .FirstOrDefault(x => x.ValueName == param.Name &&
+                                            x.ValueType == param.ParameterType);
     }
 }

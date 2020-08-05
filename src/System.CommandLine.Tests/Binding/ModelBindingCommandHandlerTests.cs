@@ -458,6 +458,56 @@ namespace System.CommandLine.Tests.Binding
             c.AssertBoundValue(boundValue);
         }
 
+        [Theory]
+        [InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(ClassWithSetter<int>))]
+        [InlineData(typeof(ClassWithCtorParameter<string>))]
+        [InlineData(typeof(ClassWithSetter<string>))]
+        [InlineData(typeof(FileInfo))]
+        [InlineData(typeof(FileInfo[]))]
+        [InlineData(typeof(string[]))]
+        [InlineData(typeof(List<string>))]
+        [InlineData(typeof(int[]))]
+        [InlineData(typeof(List<int>))]
+        public async Task Handler_method_receives_command_arguments_explicitly_bound_to_the_specified_type(
+         Type type)
+        {
+            var c = _bindingCases[type];
+
+            var captureMethod = GetType()
+                                .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
+                                .MakeGenericMethod(c.ParameterType);
+            var parameter = captureMethod.GetParameters().First();
+
+            var handler = CommandHandler.Create(captureMethod);
+
+            var argument = new Argument
+            {
+                Name = "value",
+                ArgumentType = c.ParameterType
+            };
+
+            var command = new Command(
+                "command")
+            {
+                argument
+            };
+            handler.BindParameter(parameter, argument);
+            command.Handler = handler;
+
+            var parseResult = command.Parse(c.CommandLine);
+
+            var invocationContext = new InvocationContext(parseResult);
+
+            await handler.InvokeAsync(invocationContext);
+
+            var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+
+            boundValue.Should().BeOfType(c.ParameterType);
+
+            c.AssertBoundValue(boundValue);
+        }
+
         private static void CaptureMethod<T>(T value, InvocationContext invocationContext)
         {
             invocationContext.InvocationResult = new BoundValueCapturer(value);
