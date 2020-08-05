@@ -4,7 +4,6 @@
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
@@ -72,6 +71,7 @@ namespace System.CommandLine.Invocation
         public void Dispose()
         {
             (Console as IDisposable)?.Dispose();
+            ExecutionContext?.Dispose();
         }
     }
 }
