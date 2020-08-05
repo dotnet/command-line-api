@@ -1,4 +1,5 @@
 ﻿using System.CommandLine.Builder;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Globalization;
@@ -146,6 +147,36 @@ namespace System.CommandLine.Tests
                 .Build();
 
             await parser.InvokeAsync(new[] { "[invariantuiculture]" });
+
+            asserted.Should().BeTrue();
+        }
+
+        public class CultureAwareHelpBuilder : HelpBuilder
+        {
+            public CultureAwareHelpBuilder(IConsole console, Action cultureAssert) 
+                : base(console)
+            {
+                cultureAssert.Invoke();
+            }
+        }
+
+        [Fact]
+        public static async Task CurrentCulture_is_set_when_HelpBuilder_runs()
+        {
+            bool asserted = false;
+            // Make sure we're invariant to begin with
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            var parser = new CommandLineBuilder()
+                .UseCultureDirective()
+                .UseHelp()
+                .UseHelpBuilder(ctx => new CultureAwareHelpBuilder(ctx.Console, () =>
+                {
+                    asserted = true;
+                    CultureInfo.CurrentCulture.Name.Should().Be("de-DE");
+                }))
+                .Build();
+
+            await parser.InvokeAsync(new[] { "[culture:de-DE]", "--help" });
 
             asserted.Should().BeTrue();
         }
