@@ -61,13 +61,15 @@ namespace System.CommandLine.Invocation
                 var paramDesc = _parameterDescriptors[i];
                 if (_invokeArgumentBindingSources.TryGetValue(paramDesc, out var valueSource))
                 {
-                    invocationArguments[i] = ValueFromValueSource(paramDesc, valueSource, bindingContext);
+                    var boundValue = ModelBinder.GetBoundValue(valueSource, bindingContext, paramDesc);
+                    if (!(boundValue is null))
+                    {
+                        invocationArguments[i] = boundValue.Value;
+                        continue;
+                    }
                 }
-                else
-                {
-                    var binder = bindingContext.GetModelBinder(paramDesc);
-                    invocationArguments[i] = binder.CreateInstance(bindingContext);
-                }
+                var binder = bindingContext.GetModelBinder(paramDesc);
+                invocationArguments[i] = binder.CreateInstance(bindingContext);
             }
 
             var invocationTarget = _invocationTarget ??
@@ -86,33 +88,6 @@ namespace System.CommandLine.Invocation
             }
 
             return await CommandHandler.GetResultCodeAsync(result, context);
-        }
-
-        private object? ValueFromValueSource(ParameterDescriptor paramDesc, IValueSource valueSource, BindingContext bindingContext)
-        {
-            BoundValue? boundValue;
-            if (valueSource is null)
-            {
-                // If there is no source to bind from, no value can be bound.
-                return null;
-            }
-            if (bindingContext.TryBindToScalarValue(
-                 paramDesc,
-                 valueSource,
-                 out boundValue))
-            { 
-                // boundValue has been set
-            }
-            else if ( paramDesc.HasDefaultValue)
-            {
-                boundValue = BoundValue.DefaultForValueDescriptor(paramDesc);
-            }
-            if (!(boundValue is null))
-            {
-                return boundValue.Value;
-            }
-            var parameterBinder = bindingContext.GetModelBinder(paramDesc);
-            return parameterBinder.CreateInstance(bindingContext);
         }
 
         public void BindParameter(ParameterInfo param, Argument argument)

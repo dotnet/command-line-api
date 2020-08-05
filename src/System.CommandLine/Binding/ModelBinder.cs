@@ -84,13 +84,13 @@ namespace System.CommandLine.Binding
             if (ctorDesc is null)
                 throw new ArgumentException(paramName: nameof(parameter),
                     message: "Parameter is not described by any of the model constructor descriptors.");
-            
+
             var paramDesc = ctorDesc.ParameterDescriptors[parameter.Position];
             ConstructorArgumentBindingSources[paramDesc] =
                 new SpecificSymbolValueSource(valueDescriptor);
         }
 
-        public void BindMemberFromValue(PropertyInfo property, 
+        public void BindMemberFromValue(PropertyInfo property,
             IValueDescriptor valueDescriptor)
         {
             var propertyDescriptor = FindModelPropertyDescriptor(
@@ -108,9 +108,9 @@ namespace System.CommandLine.Binding
             var values = GetValues(
                 // No binding sources, as were are attempting to bind a value
                 // for the model itself, not for its ctor args or its members.
-                bindingSources: null, 
-                bindingContext: context, 
-                new[] { ValueDescriptor }, 
+                bindingSources: null,
+                bindingContext: context,
+                new[] { ValueDescriptor },
                 includeMissingValues: false);
 
             if (values.Count == 1 &&
@@ -140,7 +140,7 @@ namespace System.CommandLine.Binding
             {
                 var boundConstructorArguments = GetValues(
                     ConstructorArgumentBindingSources,
-                    context, 
+                    context,
                     constructor.ParameterDescriptors,
                     true);
 
@@ -201,14 +201,7 @@ namespace System.CommandLine.Binding
 
                 var valueSource = GetValueSource(bindingSources, bindingContext, valueDescriptor);
 
-                BoundValue? boundValue;
-                if (!bindingContext.TryBindToScalarValue(
-                        valueDescriptor,
-                        valueSource,
-                        out boundValue) && valueDescriptor.HasDefaultValue)
-                {
-                    boundValue = BoundValue.DefaultForValueDescriptor(valueDescriptor);
-                }
+                BoundValue? boundValue = GetBoundValue(valueSource, bindingContext, valueDescriptor);
 
                 if (boundValue is null)
                 {
@@ -219,13 +212,12 @@ namespace System.CommandLine.Binding
                         {
                             if (parameterDescriptor.HasDefaultValue)
                                 boundValue = BoundValue.DefaultForValueDescriptor(parameterDescriptor);
-                            else if (parameterDescriptor.AllowsNull && 
+                            else if (parameterDescriptor.AllowsNull &&
                                 ShouldPassNullToConstructor(constructorDescriptor.Parent, constructorDescriptor))
                                 boundValue = BoundValue.DefaultForType(valueDescriptor);
                         }
                     }
                 }
-
                 if (boundValue != null)
                 {
                     values.Add(boundValue);
@@ -233,6 +225,21 @@ namespace System.CommandLine.Binding
             }
 
             return values;
+        }
+
+        internal static BoundValue? GetBoundValue(IValueSource valueSource, BindingContext bindingContext,
+                                                  IValueDescriptor valueDescriptor)
+        {
+            BoundValue? boundValue;
+            if (!bindingContext.TryBindToScalarValue(
+                    valueDescriptor,
+                    valueSource,
+                    out boundValue) && valueDescriptor.HasDefaultValue)
+            {
+                boundValue = BoundValue.DefaultForValueDescriptor(valueDescriptor);
+            }
+
+            return boundValue;
         }
 
         private IValueSource GetValueSource(
@@ -264,7 +271,7 @@ namespace System.CommandLine.Binding
         public override string ToString() =>
             $"{ModelDescriptor.ModelType.Name}";
 
-        private bool ShouldPassNullToConstructor(ModelDescriptor modelDescriptor,
+        private static bool ShouldPassNullToConstructor(ModelDescriptor modelDescriptor,
             ConstructorDescriptor? ctor = null)
         {
             if (!(ctor is null))
