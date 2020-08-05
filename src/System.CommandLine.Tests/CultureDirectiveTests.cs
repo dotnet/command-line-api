@@ -3,7 +3,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Globalization;
 using System.Threading.Tasks;
-
+using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal("de-DE", CultureInfo.CurrentCulture.Name);
+                    CultureInfo.CurrentCulture.Name.Should().Be("de-DE");
                 })
             };
             var parser = new CommandLineBuilder(rootCommand)
@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { "[culture:de-DE]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal("nb-NO", CultureInfo.CurrentCulture.Name);
+                    CultureInfo.CurrentCulture.Name.Should().Be("nb-NO");
                 })
             };
             var parser = new CommandLineBuilder(rootCommand)
@@ -53,7 +53,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { "[culture:de-DE]", "[culture:nb-NO]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal("de-DE", CultureInfo.CurrentUICulture.Name);
+                    CultureInfo.CurrentUICulture.Name.Should().Be("de-DE");
                 })
             };
             var parser = new CommandLineBuilder(rootCommand)
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { "[uiculture:de-DE]" });
          
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal("nb-NO", CultureInfo.CurrentUICulture.Name);
+                    CultureInfo.CurrentUICulture.Name.Should().Be("nb-NO");
                 })
             };
             var parser = new CommandLineBuilder(rootCommand)
@@ -99,7 +99,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { "[uiculture:de-DE]", "[uiculture:nb-NO]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal(CultureInfo.InvariantCulture, CultureInfo.CurrentCulture);
+                    CultureInfo.CurrentCulture.Should().Be(CultureInfo.InvariantCulture);
                 })
             };
 
@@ -123,7 +123,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { "[invariantculture]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
 
         [Fact]
@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests
                 Handler = CommandHandler.Create(() =>
                 {
                     asserted = true;
-                    Assert.Equal(CultureInfo.InvariantCulture, CultureInfo.CurrentUICulture);
+                    CultureInfo.CurrentUICulture.Should().Be(CultureInfo.InvariantCulture);
                 })
             };
 
@@ -147,7 +147,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync(new[] { "[invariantuiculture]" });
 
-            Assert.True(asserted);
+            asserted.Should().BeTrue();
         }
     }
 }
