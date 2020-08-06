@@ -1975,6 +1975,25 @@ namespace System.CommandLine.Tests
             instance.Should().BeEquivalentTo("a", "b", "c");
         }
 
+        [Fact]
+        public void Tokens_are_not_split_if_the_part_before_the_delimiter_is_not_an_option()
+        {
+            var rootCommand = new RootCommand
+            {
+                Name = "jdbc"
+            };
+            rootCommand.Add(new Option<string>("url"));
+            var result = rootCommand.Parse("jdbc url \"jdbc:sqlserver://10.0.0.2;databaseName=main\"");
+
+            _output.WriteLine(result.ToString());
+
+            result.Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("url",
+                                  "jdbc:sqlserver://10.0.0.2;databaseName=main");
+        }
+
         [TypeConverter(typeof(CustomTypeConverter))]
         public class ClassWithCustomTypeConverter
         {
