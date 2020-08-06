@@ -239,13 +239,13 @@ namespace System.CommandLine.Builder
                 ApplyCultureFromWellKnownEnvironmentVariables();
 
                 if (directives.Contains("invariantculture"))
-                    CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                    CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
                 if (directives.Contains("invariantuiculture"))
                     CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
                 if (directives.TryGetValues("culture", out var cultures))
                 {
                     foreach (var cultureName in cultures.Select(c => c.Trim()))
-                        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+                        CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
                 }
                 if (directives.TryGetValues("uiculture", out var uicultures))
                 {
@@ -267,12 +267,12 @@ namespace System.CommandLine.Builder
                     if (GetEnvironmentVariable(invariant_name) is string invariant &&
                         ParseBooleanEnvironmentVariableValue(invariant))
                     {
-                        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                        CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
                     }
                     if (GetEnvironmentVariable(uiinvariant_name) is string uiinvariant &&
                         ParseBooleanEnvironmentVariableValue(uiinvariant))
                     {
-                        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                        CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
                     }
                     if (GetEnvironmentVariable(culture_name) is string culture)
                     {
@@ -280,7 +280,7 @@ namespace System.CommandLine.Builder
                         try { c = CultureInfo.GetCultureInfo(culture); }
                         catch (CultureNotFoundException) { }
                         if (!(c is null))
-                            CultureInfo.CurrentCulture = c;
+                            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = c;
                     }
                     if (GetEnvironmentVariable(uiculture_name) is string uiculture)
                     {
