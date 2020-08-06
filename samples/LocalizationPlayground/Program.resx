@@ -118,24 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="An integer value" xml:space="preserve">
-    <value>Et heltall</value>
+    <value>An integer value</value>
   </data>
   <data name="Count of lines to print" xml:space="preserve">
-    <value>Antall linjer som vises</value>
+    <value>Count of lines to print</value>
   </data>
   <data name="Current culture: {0}" xml:space="preserve">
-    <value>Nåværende språkinstillinger: {0}</value>
+    <value>Current language settings: {0}</value>
   </data>
   <data name="Hello {0}!" xml:space="preserve">
-    <value>Hei {0}!</value>
+    <value>Hello {0}!</value>
   </data>
   <data name="Playground for localized CommandLine" xml:space="preserve">
-    <value>Lekeplass for lokaliserte kommandolinjeverktøy</value>
+    <value>Playground for localized command-line applications</value>
   </data>
   <data name="Show help and usage information" xml:space="preserve">
-    <value>Vis hjelp og bruksanvisning</value>
+    <value>Show help and usage information</value>
   </data>
   <data name="The name to display" xml:space="preserve">
-    <value>Navn som vises</value>
+    <value>The name to display</value>
   </data>
 </root>

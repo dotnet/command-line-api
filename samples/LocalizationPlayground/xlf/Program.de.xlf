@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="de" original="../Program.resx">
+    <body>
+      <trans-unit id="An integer value">
+        <source>An integer value</source>
+        <target state="new">Eine Ganzzahl</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Count of lines to print">
+        <source>Count of lines to print</source>
+        <target state="new">Anzahl angezeigter Zeilen</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Current culture: {0}">
+        <source>Current language settings: {0}</source>
+        <target state="new">Aktuelle Spracheinstellungen: {0}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Hello {0}!">
+        <source>Hello {0}!</source>
+        <target state="new">Hallo {0}!</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Playground for localized CommandLine">
+        <source>Playground for localized command-line applications</source>
+        <target state="new">Spielplatz für lokalisierte Kommandozeilen-Programme</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Show help and usage information">
+        <source>Show help and usage information</source>
+        <target state="new">Hilfe und Gebrauchsanweisung anzeigen</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="The name to display">
+        <source>The name to display</source>
+        <target state="new">Angezeigter Name</target>
+        <note />
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

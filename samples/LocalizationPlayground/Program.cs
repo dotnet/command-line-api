@@ -22,12 +22,18 @@ namespace LocalizationPlayground
                     Handler = CommandHandler.Create((int count, string name, InvocationContext invocation, IStringLocalizerFactory localizerFactory) =>
                     {
                         var cult = CultureInfo.CurrentUICulture;
+                        var germanResourceNames = typeof(Program).Assembly
+                            .GetSatelliteAssembly(CultureInfo.GetCultureInfo("de"))
+                            .GetManifestResourceNames();
+
                         var localizer = localizerFactory.Create(typeof(Program));
                         var locCultureInfo = localizer.GetString("Current culture: {0}", cult.NativeName);
                         Console.WriteLine(locCultureInfo);
                         var locLine = localizer.GetString("Hello {0}!", name);
 
                         var availableStrings = localizer.GetAllStrings(true);
+
+                        _ = germanResourceNames;
                         _ = availableStrings;
 
                         for (int i = 0; i < count; i++)
