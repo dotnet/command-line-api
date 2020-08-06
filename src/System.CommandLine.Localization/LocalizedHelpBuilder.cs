@@ -1,19 +1,54 @@
 using System.CommandLine.Help;
 using System.Linq;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace System.CommandLine.Localization
 {
     public class LocalizedHelpBuilder : HelpBuilder
     {
         private readonly IStringLocalizer localizer;
+        private readonly IStringLocalizer helpLocalizer;
 
-        public LocalizedHelpBuilder(IStringLocalizer localizer,
-            IConsole console, int? columnGutter = null, 
+        public LocalizedHelpBuilder(IStringLocalizerFactory localizerFactory,
+            Type resourceSource, IConsole console, int? columnGutter = null,
             int? indentationSize = null, int? maxWidth = null)
             : base(console, columnGutter, indentationSize, maxWidth)
         {
-            this.localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+            localizerFactory ??= new ResourceManagerStringLocalizerFactory(
+                Options.Create(new LocalizationOptions()), NullLoggerFactory.Instance);
+
+            localizer = localizerFactory.Create(resourceSource);
+            helpLocalizer = localizerFactory.Create(GetType());
+
+            AdditionalArgumentsTitle = GetHelpBuilderLocalizedString(
+                "DefaultHelpText.AdditionalArguments.Title",
+                DefaultHelpText.AdditionalArguments.Title);
+            AdditionalArgumentsDescription = GetHelpBuilderLocalizedString(
+                "DefaultHelpText.AdditionalArguments.Description",
+                DefaultHelpText.AdditionalArguments.Description);
+            ArgumentsTitle = GetHelpBuilderLocalizedString(
+                "DefaultHelpText.Arguments.Title",
+                DefaultHelpText.Arguments.Title);
+            CommandsTitle = GetHelpBuilderLocalizedString(
+                "DefaultHelpText.Commands.Title",
+                DefaultHelpText.Commands.Title);
+            OptionsTitle = GetHelpBuilderLocalizedString(
+                "DefaultHelpText.Options.Title",
+                DefaultHelpText.Options.Title);
+            UsageAdditionalArgumentsText = GetHelpBuilderLocalizedString(
+                "DefaultHelpText.Usage.AdditionalArguments",
+                DefaultHelpText.Usage.AdditionalArguments);
+            UsageCommandText = GetHelpBuilderLocalizedString(
+                "DefaultHelpText.Usage.Command",
+                DefaultHelpText.Usage.Command);
+            UsageOptionsText = GetHelpBuilderLocalizedString(
+                "DefaultHelpText.Usage.Options",
+                DefaultHelpText.Usage.Options);
+            UsageTitle = GetHelpBuilderLocalizedString(
+                "DefaultHelpText.Usage.Title",
+                DefaultHelpText.Usage.Title);
         }
 
         public override void Write(ICommand command)
@@ -47,7 +82,8 @@ namespace System.CommandLine.Localization
             Localize(lopt, option);
 
             lopt.Name = option.Name;
-            lopt.Argument = GetLocalizedArgument(option.Argument);
+            if (!(option.Argument.Arity is { MaximumNumberOfValues: 0, MinimumNumberOfValues: 0 }))
+                lopt.Argument = GetLocalizedArgument(option.Argument);
             lopt.IsRequired = option.IsRequired;
 
             return lopt;
@@ -71,13 +107,53 @@ namespace System.CommandLine.Localization
             if (!string.IsNullOrEmpty(source.Description))
             {
                 var locDesc = localizer.GetString(source.Description);
-                symbol.Description = locDesc;
+                if (locDesc.ResourceNotFound)
+                {
+                    if (source.GetType().Name.Equals("HelpOption", StringComparison.Ordinal))
+                    {
+                        symbol.Description = GetHelpBuilderLocalizedString(
+                            "HelpOption.Description",
+                            source.Description ?? "");
+                    }
+                    else if (source.Name.Equals("version", StringComparison.OrdinalIgnoreCase))
+                    {
+                        symbol.Description = GetHelpBuilderLocalizedString(
+                            "VersionOption.Description",
+                            source.Description ?? "");
+                    }
+                }
+                else
+                    symbol.Description = locDesc;
             }
 
             foreach (var alias in source.RawAliases)
                 symbol.AddAlias(alias);
 
             symbol.IsHidden = source.IsHidden;
+        }
+
+        protected override string DefaultValueHint(IArgument argument, bool isSingleArgument = true)
+        {
+            if (argument.HasDefaultValue && isSingleArgument && ShouldShowDefaultValueHint(argument))
+            {
+                var locDefault = helpLocalizer.GetString(
+                    $"{nameof(HelpBuilder)}.{nameof(DefaultValueHint)}",
+                    argument.GetDefaultValue());
+                if (!(locDefault.ResourceNotFound || string.IsNullOrEmpty(locDefault)))
+                    return locDefault;
+            }
+
+            return base.DefaultValueHint(argument, isSingleArgument);
+        }
+
+        private string GetHelpBuilderLocalizedString(string key, string @default)
+        {
+            var localized = helpLocalizer.GetString(key);
+            string localizedValue = localized;
+            if (string.IsNullOrEmpty(localizedValue) ||
+                string.Equals(localizedValue, key, StringComparison.Ordinal))
+                return @default;
+            return localizedValue;
         }
     }
 }

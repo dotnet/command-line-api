@@ -64,6 +64,7 @@ namespace LocalizationPlayground
                 .UseEnvironmentVariableDirective()
                 .UseDebugDirective()
                 .UseHelp()
+                .UseVersionOption()
                 .UseCultureEnvironment()
                 .UseLocalization()
                 .Build();

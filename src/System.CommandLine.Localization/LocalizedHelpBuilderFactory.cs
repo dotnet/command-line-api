@@ -31,7 +31,7 @@ namespace System.CommandLine.Localization
             {
                 resourceSource = Assembly.GetEntryAssembly().EntryPoint.DeclaringType;
             }
-            return new LocalizedHelpBuilder(localizerFactory.Create(resourceSource),
+            return new LocalizedHelpBuilder(localizerFactory, resourceSource,
                 console, columnGutter, indentationSize, maxWidth);
         }
     }

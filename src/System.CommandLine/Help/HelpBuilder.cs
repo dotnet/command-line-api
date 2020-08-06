@@ -28,6 +28,25 @@ namespace System.CommandLine.Help
 
         public int MaxWidth { get; }
 
+        protected string AdditionalArgumentsTitle { get; set; } =
+            AdditionalArguments.Title;
+        protected string AdditionalArgumentsDescription { get; set; } =
+            AdditionalArguments.Description;
+        protected string ArgumentsTitle { get; set; } =
+            Arguments.Title;
+        protected string CommandsTitle { get; set; } =
+            Commands.Title;
+        protected string OptionsTitle { get; set; } =
+            Options.Title;
+        protected string UsageAdditionalArgumentsText { get; set; } =
+            Usage.AdditionalArguments;
+        protected string UsageCommandText { get; set; } =
+            Usage.Command;
+        protected string UsageOptionsText { get; set; } =
+            Usage.Options;
+        protected string UsageTitle { get; set; } =
+            Usage.Title;
+
         /// <summary>
         /// Brokers the generation and output of help text of <see cref="Symbol"/>
         /// and the <see cref="IConsole"/>
@@ -577,7 +596,7 @@ namespace System.CommandLine.Help
 
             if (hasOptionHelp)
             {
-                usage.Add(Usage.Options);
+                usage.Add(UsageOptionsText);
             }
 
             usage.Add(FormatArgumentUsage(command.Arguments.ToArray()));
@@ -588,15 +607,15 @@ namespace System.CommandLine.Help
 
             if (hasCommandHelp)
             {
-                usage.Add(Usage.Command);
+                usage.Add(UsageCommandText);
             }
 
             if (!command.TreatUnmatchedTokensAsErrors)
             {
-                usage.Add(Usage.AdditionalArguments);
+                usage.Add(UsageAdditionalArgumentsText);
             }
 
-            HelpSection.WriteHeading(this, Usage.Title, string.Join(" ", usage.Where(u => !string.IsNullOrWhiteSpace(u))));
+            HelpSection.WriteHeading(this, UsageTitle, string.Join(" ", usage.Where(u => !string.IsNullOrWhiteSpace(u))));
         }
 
         private string FormatArgumentUsage(IReadOnlyCollection<IArgument> arguments)
@@ -674,7 +693,7 @@ namespace System.CommandLine.Help
 
             HelpSection.WriteItems(
                 this,
-                Arguments.Title,
+                ArgumentsTitle,
                 commands.SelectMany(GetArgumentHelpItems).Distinct().ToArray());
         }
 
@@ -693,7 +712,7 @@ namespace System.CommandLine.Help
 
             HelpSection.WriteItems(
                 this,
-                Options.Title,
+                OptionsTitle,
                 options.SelectMany(GetOptionHelpItems).Distinct().ToArray());
         }
 
@@ -711,7 +730,7 @@ namespace System.CommandLine.Help
                               .ToArray();
 
             HelpSection.WriteItems(this,
-                              Commands.Title,
+                              CommandsTitle,
                               subcommands.SelectMany(GetOptionHelpItems).ToArray());
         }
 
@@ -722,7 +741,9 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            HelpSection.WriteHeading(this, AdditionalArguments.Title, AdditionalArguments.Description);
+            HelpSection.WriteHeading(this, 
+                AdditionalArgumentsTitle,
+                AdditionalArgumentsDescription);
         }
 
         private bool ShouldDisplayArgumentHelp(ICommand? command)
@@ -861,12 +882,12 @@ namespace System.CommandLine.Help
             }
         }
 
-        internal bool ShouldShowHelp(ISymbol symbol)
+        protected bool ShouldShowHelp(ISymbol symbol)
         {
             return !symbol.IsHidden;
         }
 
-        internal bool ShouldShowDefaultValueHint(IArgument argument)
+        protected bool ShouldShowDefaultValueHint(IArgument argument)
         {
             return argument.HasDefaultValue && ShouldShowHelp(argument);
         }

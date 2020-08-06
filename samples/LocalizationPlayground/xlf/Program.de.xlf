@@ -27,11 +27,6 @@
         <target state="new">Spielplatz für lokalisierte Kommandozeilen-Programme</target>
         <note />
       </trans-unit>
-      <trans-unit id="Show help and usage information">
-        <source>Show help and usage information</source>
-        <target state="new">Hilfe und Gebrauchsanweisung anzeigen</target>
-        <note />
-      </trans-unit>
       <trans-unit id="The name to display">
         <source>The name to display</source>
         <target state="new">Angezeigter Name</target>

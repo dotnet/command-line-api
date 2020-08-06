@@ -117,22 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="An integer value" xml:space="preserve">
-    <value>An integer value</value>
+  <data name="DefaultHelpText.AdditionalArguments.Description" xml:space="preserve">
+    <value>DefaultHelpText.AdditionalArguments.Description</value>
   </data>
-  <data name="Count of lines to print" xml:space="preserve">
-    <value>Count of lines to print</value>
+  <data name="DefaultHelpText.AdditionalArguments.Title" xml:space="preserve">
+    <value>DefaultHelpText.AdditionalArguments.Title</value>
   </data>
-  <data name="Current culture: {0}" xml:space="preserve">
-    <value>Current language settings: {0}</value>
+  <data name="DefaultHelpText.Arguments.Title" xml:space="preserve">
+    <value>DefaultHelpText.Arguments.Title</value>
   </data>
-  <data name="Hello {0}!" xml:space="preserve">
-    <value>Hello {0}!</value>
+  <data name="DefaultHelpText.Commands.Title" xml:space="preserve">
+    <value>DefaultHelpText.Commands.Title</value>
   </data>
-  <data name="Playground for localized CommandLine" xml:space="preserve">
-    <value>Playground for localized command-line applications</value>
+  <data name="DefaultHelpText.Options.Title" xml:space="preserve">
+    <value>DefaultHelpText.Options.Title</value>
   </data>
-  <data name="The name to display" xml:space="preserve">
-    <value>The name to display</value>
+  <data name="DefaultHelpText.Usage.AdditionalArguments" xml:space="preserve">
+    <value>DefaultHelpText.Usage.AdditionalArguments</value>
+  </data>
+  <data name="DefaultHelpText.Usage.Command" xml:space="preserve">
+    <value>DefaultHelpText.Usage.Command</value>
+  </data>
+  <data name="DefaultHelpText.Usage.Options" xml:space="preserve">
+    <value>DefaultHelpText.Usage.Options</value>
+  </data>
+  <data name="DefaultHelpText.Usage.Title" xml:space="preserve">
+    <value>DefaultHelpText.Usage.Title</value>
+  </data>
+  <data name="HelpBuilder.DefaultValueHint" xml:space="preserve">
+    <value>default: {0}</value>
+  </data>
+  <data name="HelpBuilder.Option.IsRequired" xml:space="preserve">
+    <value>(REQUIRED)</value>
+  </data>
+  <data name="HelpOption.Description" xml:space="preserve">
+    <value>HelpOption.Description</value>
+  </data>
+  <data name="VersionOption.Description" xml:space="preserve">
+    <value>VersionOption.Description</value>
   </data>
 </root>

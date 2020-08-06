@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="de" original="../LocalizedHelpBuilder.resx">
+    <body>
+      <trans-unit id="DefaultHelpText.AdditionalArguments.Description">
+        <source>DefaultHelpText.AdditionalArguments.Description</source>
+        <target state="new">An die Anwendung übergebende Argumente.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DefaultHelpText.AdditionalArguments.Title">
+        <source>DefaultHelpText.AdditionalArguments.Title</source>
+        <target state="new">Zusätzliche Argumente:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DefaultHelpText.Arguments.Title">
+        <source>DefaultHelpText.Arguments.Title</source>
+        <target state="new">Argumente:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DefaultHelpText.Commands.Title">
+        <source>DefaultHelpText.Commands.Title</source>
+        <target state="new">Befehle:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DefaultHelpText.Options.Title">
+        <source>DefaultHelpText.Options.Title</source>
+        <target state="new">Optionen:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DefaultHelpText.Usage.AdditionalArguments">
+        <source>DefaultHelpText.Usage.AdditionalArguments</source>
+        <target state="new">[[--] &lt;zusätzliche argumente&gt;...]]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DefaultHelpText.Usage.Command">
+        <source>DefaultHelpText.Usage.Command</source>
+        <target state="new">[befehl]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DefaultHelpText.Usage.Options">
+        <source>DefaultHelpText.Usage.Options</source>
+        <target state="new">[option]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DefaultHelpText.Usage.Title">
+        <source>DefaultHelpText.Usage.Title</source>
+        <target state="new">Befehlszeile:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpBuilder.DefaultValueHint">
+        <source>default: {0}</source>
+        <target state="new">standard: {0}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpBuilder.Option.IsRequired">
+        <source>(REQUIRED)</source>
+        <target state="new">(ERFORDERLICH)</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpOption.Description">
+        <source>HelpOption.Description</source>
+        <target state="new">Hilfe und Gebrauchsanweisung anzeigen</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="VersionOption.Description">
+        <source>VersionOption.Description</source>
+        <target state="new">Versionsinformation anzeigen</target>
+        <note />
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
