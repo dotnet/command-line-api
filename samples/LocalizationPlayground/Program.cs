@@ -19,7 +19,7 @@ namespace LocalizationPlayground
                 new RootCommand
                 {
                     Description = "Playground for localized CommandLine",
-                    Handler = CommandHandler.Create((int count, string name, IStringLocalizerFactory localizerFactory) =>
+                    Handler = CommandHandler.Create((int count, string name, InvocationContext invocation, IStringLocalizerFactory localizerFactory) =>
                     {
                         var cult = CultureInfo.CurrentUICulture;
                         var localizer = localizerFactory.Create(typeof(Program));
@@ -34,6 +34,9 @@ namespace LocalizationPlayground
                         {
                             Console.WriteLine(locLine);
                         }
+
+                        Console.WriteLine();
+                        invocation.InvocationResult = new HelpResult();
                     }),
                 })
                 .AddOption(new Option<int>(new[] { "--count", "-c" }, () => 1)
