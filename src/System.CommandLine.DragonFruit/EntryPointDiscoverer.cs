@@ -29,7 +29,7 @@ namespace System.CommandLine.DragonFruit
                 foreach (var type in assembly
                     .DefinedTypes
                     .Where(t => t.IsClass)
-                    .Where(t => t.GetCustomAttribute<CompilerGeneratedAttribute>() == null))
+                    .Where(t => !t.IsDefined(typeof(CompilerGeneratedAttribute))))
                 {
                     FindMainMethodCandidates(type, candidates);
                 }

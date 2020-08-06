@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Parsing;
+using System.CommandLine.Tests.Utility;
 using System.IO;
 using FluentAssertions;
 using Xunit;
@@ -22,9 +24,10 @@ namespace System.CommandLine.Tests
         {
             var commandLine = "one two\tthree   four ";
 
-            commandLine.SplitCommandLine()
-                       .Should()
-                       .BeEquivalentSequenceTo("one", "two", "three", "four");
+            CommandLineStringSplitter.Instance
+                                     .Split(commandLine)
+                                     .Should()
+                                     .BeEquivalentSequenceTo("one", "two", "three", "four");
         }
 
         [Fact]
@@ -32,9 +35,11 @@ namespace System.CommandLine.Tests
         {
             var commandLine = @"rm -r ""c:\temp files\""";
 
-            commandLine.SplitCommandLine()
-                       .Should()
-                       .BeEquivalentSequenceTo("rm", "-r", @"c:\temp files\");
+            CommandLineStringSplitter
+                .Instance
+                .Split(commandLine)
+                .Should()
+                .BeEquivalentSequenceTo("rm", "-r", @"c:\temp files\");
         }
 
         [Theory]
@@ -52,9 +57,11 @@ namespace System.CommandLine.Tests
 
             var commandLine = $"the-command {optionAndArgument}";
 
-            commandLine.SplitCommandLine()
-                       .Should()
-                       .BeEquivalentSequenceTo("the-command", optionAndArgument.Replace("\"", ""));
+            CommandLineStringSplitter
+                .Instance
+                .Split(commandLine)
+                .Should()
+                .BeEquivalentSequenceTo("the-command", optionAndArgument.Replace("\"", ""));
         }
 
         [Fact]
@@ -65,7 +72,7 @@ namespace System.CommandLine.Tests
 
             var commandLine = $"move --from \"{source}\" --to \"{destination}\"";
 
-            var tokenized = commandLine.SplitCommandLine();
+            var tokenized = CommandLineStringSplitter.Instance.Split(commandLine);
 
             _output.WriteLine(commandLine);
 

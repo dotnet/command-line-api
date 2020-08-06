@@ -11,7 +11,7 @@ namespace RenderingPlayground
     {
         public ProcessesView(Process[] processes)
         {
-            var formatter = new SpanFormatter();
+            var formatter = new TextSpanFormatter();
             formatter.AddFormatter<TimeSpan>(t => new ContentSpan(t.ToString(@"hh\:mm\:ss")));
 
             Add(new ContentView(""));

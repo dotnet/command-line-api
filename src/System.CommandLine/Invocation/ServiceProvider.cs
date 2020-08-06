@@ -3,41 +3,41 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Help;
+using System.CommandLine.Parsing;
 using System.Threading;
+
+#nullable enable
 
 namespace System.CommandLine.Invocation
 {
     internal class ServiceProvider : IServiceProvider
     {
-        private readonly BindingContext _bindingContext;
-
-        private readonly Dictionary<Type, Func<object>> _services;
+        private readonly Dictionary<Type, Func<IServiceProvider, object?>> _services;
 
         public ServiceProvider(BindingContext bindingContext)
         {
-            _bindingContext = bindingContext ?? throw new ArgumentNullException(nameof(bindingContext));
-
-            _services = new Dictionary<Type, Func<object>>
+            _services = new Dictionary<Type, Func<IServiceProvider, object?>>
                         {
-                            [typeof(ParseResult)] = () => _bindingContext.ParseResult,
-                            [typeof(IConsole)] = () => _bindingContext.Console,
-                            [typeof(CancellationToken)] = () => CancellationToken.None,
-                            [typeof(IHelpBuilder)] = () => _bindingContext.ParseResult.Parser.Configuration.HelpBuilderFactory(_bindingContext),
-                            [typeof(BindingContext)] = () => _bindingContext
+                            [typeof(ParseResult)] = _ => bindingContext.ParseResult,
+                            [typeof(IConsole)] = _ => bindingContext.Console,
+                            [typeof(CancellationToken)] = _ => CancellationToken.None,
+                            [typeof(IHelpBuilder)] = _ => bindingContext.ParseResult.Parser.Configuration.HelpBuilderFactory(bindingContext),
+                            [typeof(BindingContext)] = _ => bindingContext
                         };
         }
 
-        public void AddService<T>(Func<T> factory) => _services[typeof(T)] = () => factory();
+        public void AddService<T>(Func<IServiceProvider, T> factory) => _services[typeof(T)] = p => factory(p)!;
 
-        public void AddService(Type serviceType, Func<object> factory) => _services[serviceType] = factory;
+        public void AddService(Type serviceType, Func<IServiceProvider, object?> factory) => _services[serviceType] = factory;
 
         public IReadOnlyCollection<Type> AvailableServiceTypes => _services.Keys;
 
-        public object GetService(Type serviceType)
+        public object? GetService(Type serviceType)
         {
             if (_services.TryGetValue(serviceType, out var factory))
             {
-                return factory();
+                return factory(this);
             }
 
             return null;

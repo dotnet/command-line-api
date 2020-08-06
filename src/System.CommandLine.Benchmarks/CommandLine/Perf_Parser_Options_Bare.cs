@@ -2,13 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="System.CommandLine.Parser"/> when parsing options without arguments.
+    /// Measures the performance of <see cref="Parser"/> when parsing options without arguments.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Options_Bare
@@ -19,11 +20,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         private IEnumerable<Option> GenerateTestOptions(int count, IArgumentArity arity)
             => Enumerable.Range(0, count)
-                         .Select(i => new Option(
-                             $"-option{i}",
-                             $"Description for -option {i} ....",
-                             new Argument { Arity = arity }
-                         ));
+                         .Select(i =>
+                                     new Option($"-option{i}")
+                                     {
+                                         Description = $"Description for -option {i} ....",
+                                         Argument = new Argument
+                                         {
+                                             Arity = arity
+                                         }
+                                     }
+                         );
 
         /// <remarks>
         /// count=1  : cmd-root -option0

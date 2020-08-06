@@ -1,12 +1,13 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Parsing;
 using BenchmarkDotNet.Attributes;
 
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="System.CommandLine.Parser"/> for custom scenarios.
+    /// Measures the performance of <see cref="Parser"/> for custom scenarios.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_CustomScenarios
@@ -19,12 +20,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             var rootCommand = new Command("root_command");
             var nestedCommand = new Command("nested_command");
-            nestedCommand.AddOption(new Option("-opt1",
-                                               "description...",
-                                               new Argument<int>(defaultValue: 123)
-                                               {
-                                                   Arity = ArgumentArity.ExactlyOne
-                                               }));
+            var option = new Option("-opt1")
+            {
+                Argument = new Argument<int>(() => 123)
+            };
+            nestedCommand.AddOption(option);
             rootCommand.AddCommand(nestedCommand);
 
             _testParser = new Parser(rootCommand);

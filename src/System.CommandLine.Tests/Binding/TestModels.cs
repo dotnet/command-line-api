@@ -1,31 +1,10 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Tests.Binding
 {
-    public class ClassWithSingleLetterCtorParameter
-    {
-        public ClassWithSingleLetterCtorParameter(int x, string y)
-        {
-            X = x;
-            Y = y;
-        }
-
-        public int X { get; }
-
-        public string Y { get; }
-    }
-
-    public class ClassWithSingleLetterProperty
-    {
-        public int X { get; set; }
-
-        public int Y { get; set; }
-    }
-
     public class ClassWithMultiLetterCtorParameters
     {
         public ClassWithMultiLetterCtorParameters(
@@ -60,23 +39,6 @@ namespace System.CommandLine.Tests.Binding
             IntOption = i;
             StringOption = s;
             BoolOption = b;
-        }
-
-        public int IntOption { get; set; }
-        public string StringOption { get; set; }
-        public bool BoolOption { get; set; }
-    }
-
-    public class ClassWithSettersAndCtorParametersWithMatchingNames
-    {
-        public ClassWithSettersAndCtorParametersWithMatchingNames(
-            int intOption = 123,
-            string stringOption = "the default",
-            bool boolOption = false)
-        {
-            IntOption = intOption;
-            StringOption = stringOption;
-            BoolOption = boolOption;
         }
 
         public int IntOption { get; set; }
@@ -126,76 +88,18 @@ namespace System.CommandLine.Tests.Binding
         public T ReceivedValue { get; set; }
     }
 
-    public class TypeWithInvokeAndCtor
+    public class ClassWithMultipleCtor
     {
-        public TypeWithInvokeAndCtor(int intFromCtor, string stringFromCtor)
+        public ClassWithMultipleCtor()
         {
-            IntValueFromCtor = intFromCtor;
-            StringValueFromCtor = stringFromCtor;
+
         }
 
-        public int IntValueFromCtor { get; }
-
-        public string StringValueFromCtor { get; }
-
-        public int IntProperty { get; set; }
-        public string StringProperty { get; set; }
-
-        public Task<int> Invoke(string stringParam, int intParam)
+        public ClassWithMultipleCtor(int intProperty)
         {
-            return Task.FromResult(76);
-        }
-    }
-
-    public class ClassWithInvokeAndDefaultCtor
-    {
-        public int IntProperty { get; set; }
-        public string StringProperty { get; set; }
-
-        public Task<int> Invoke(string stringParam, int intParam)
-        {
-            return Task.FromResult(66);
+            IntProperty = intProperty;
         }
 
-        public Task<int> SomethingElse(int intParam, string stringParam)
-        {
-            return Task.FromResult(67);
-        }
-    }
-
-    public class ClassWithStaticsInvokeAndCtor
-    {
-        public ClassWithStaticsInvokeAndCtor(int intFromCtor, string stringFromCtor)
-        {
-            IntValueFromCtor = intFromCtor;
-            StringValueFromCtor = stringFromCtor;
-        }
-
-        public static int StaticIntProperty { get; set; } = 67;
-
-        public static string StaticStringProperty { get; set; }
-
-        public int IntValueFromCtor { get; }
-
-        public string StringValueFromCtor { get; }
-
-        public int IntProperty { get; set; }
-        public string StringProperty { get; set; }
-
-        public static Task<int> Invoke(string stringParam, int intParam)
-        {
-            return Task.FromResult(96);
-        }
-    }
-
-    public class ClassWithParameterlessInvokeAndDefaultCtor
-    {
-        public int IntProperty { get; set; }
-        public string StringProperty { get; set; }
-
-        public Task<int> Invoke()
-        {
-            return Task.FromResult(86);
-        }
+        public int IntProperty { get; }
     }
 }

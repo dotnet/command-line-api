@@ -2,37 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Runtime.InteropServices;
+using static System.CommandLine.Rendering.Interop;
 
 namespace System.CommandLine.Rendering
 {
     public sealed class VirtualTerminalMode : IDisposable
     {
-        private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
-
-        private const uint ENABLE_VIRTUAL_TERMINAL_INPUT = 0x0200;
-
-        private const uint DISABLE_NEWLINE_AUTO_RETURN = 0x0008;
-
-        private const int STD_OUTPUT_HANDLE = -11;
-
-        private const int STD_INPUT_HANDLE = -10;
-
-        [DllImport("kernel32.dll")]
-        private static extern bool GetConsoleMode(
-            IntPtr handle,
-            out uint mode);
-
-        [DllImport("kernel32.dll")]
-        private static extern uint GetLastError();
-
-        [DllImport("kernel32.dll")]
-        private static extern bool SetConsoleMode(
-            IntPtr handle,
-            uint mode);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern IntPtr GetStdHandle(int handle);
-
         private readonly IntPtr _stdOutHandle;
         private readonly IntPtr _stdInHandle;
         private readonly uint _originalOutputMode;

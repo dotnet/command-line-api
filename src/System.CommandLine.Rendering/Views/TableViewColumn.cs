@@ -9,6 +9,6 @@ namespace System.CommandLine.Rendering.Views
 
         View Header { get; }
 
-        View GetCell(T item, SpanFormatter formatter);
+        View GetCell(T item, TextSpanFormatter formatter);
     }
 }

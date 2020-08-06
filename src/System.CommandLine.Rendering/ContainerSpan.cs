@@ -3,35 +3,36 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Rendering
 {
-    public class ContainerSpan : Span, IReadOnlyList<Span>
+    public class ContainerSpan : TextSpan, IReadOnlyList<TextSpan>
     {
-        private readonly List<Span> _children;
+        private readonly List<TextSpan> _children;
 
-        public ContainerSpan(params Span[] children)
+        public ContainerSpan(params TextSpan[] children)
         {
             if (children == null)
             {
                 throw new ArgumentNullException(nameof(children));
             }
 
-            _children = new List<Span>(children);
+            _children = new List<TextSpan>(children);
 
             RecalculateChildPositions();
         }
 
         public override int ContentLength => _children.Sum(span => span.ContentLength);
 
-        public IEnumerator<Span> GetEnumerator() => _children.GetEnumerator();
+        public IEnumerator<TextSpan> GetEnumerator() => _children.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public int Count => _children.Count;
 
-        public Span this[int index] => _children[index];
+        public TextSpan this[int index] => _children[index];
 
         internal override void RecalculatePositions(ContainerSpan parent, int start)
         {
@@ -52,6 +53,36 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public override string ToString() => string.Join("", _children);
+        public override void WriteTo(TextWriter writer, OutputMode outputMode)
+        {
+            for (var i = 0; i < _children.Count; i++)
+            {
+                _children[i].WriteTo(writer, outputMode);
+            }
+        }
+
+        public void Add(TextSpan child)
+        {
+            if (child == null)
+            {
+                throw new ArgumentNullException(nameof(child));
+            }
+
+            _children.Add(child);
+
+            RecalculateChildPositions();
+        }
+
+        public void Add(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+
+            _children.Add(new ContentSpan(text));
+
+            RecalculateChildPositions();
+        }
     }
 }

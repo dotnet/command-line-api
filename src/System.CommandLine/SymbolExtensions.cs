@@ -13,18 +13,25 @@ namespace System.CommandLine
                   .Where(s => !s.IsHidden)
                   .SelectMany(s => s.RawAliases);
 
-        internal static bool ShouldShowHelp(this ISymbol symbol) =>
-            !symbol.IsHidden &&
-            (!string.IsNullOrWhiteSpace(symbol.Name) ||
-             !string.IsNullOrWhiteSpace(symbol.Description) ||
-             symbol.Argument.ShouldShowHelp());
-
-        internal static bool ShouldShowHelp(
-            this IArgument argument) =>
-            argument != null &&
-            (!string.IsNullOrWhiteSpace(argument.Name) || string.IsNullOrWhiteSpace(argument.Description)) && 
-            argument.Arity.MaximumNumberOfArguments > 0;
-
-        internal static string Token(this ISymbol symbol) => symbol.RawAliases.First(alias => alias.RemovePrefix() == symbol.Name);
+        internal static IEnumerable<IArgument> Arguments(this ISymbol symbol)
+        {
+            switch (symbol)
+            {
+                case IOption option:
+                    return new[]
+                    {
+                        option.Argument
+                    };
+                case ICommand command:
+                    return command.Arguments;
+                case IArgument argument:
+                    return new[]
+                    {
+                        argument
+                    };
+                default:
+                    throw new NotSupportedException();
+            }
+        }
     }
 }

@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
@@ -37,17 +37,20 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [GlobalSetup(Target = nameof(SuggestionsFromSymbol))]
         public void Setup_FromSymbol()
         {
-            _testSymbol = new Option(
-                "--hello",
-                "",
-                new Argument { Arity = ArgumentArity.ExactlyOne }
-                    .WithSuggestions(GenerateSuggestionsArray(TestSuggestionsCount)));
+            _testSymbol = new Option("--hello")
+            {
+                Argument = new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne,
+                        Suggestions = { GenerateSuggestionsArray(TestSuggestionsCount) }
+                }
+            };
         }
 
         [Benchmark]
         public void SuggestionsFromSymbol()
         {
-            _testSymbol.Suggest().Consume(new Consumer());
+            _testSymbol.GetSuggestions().Consume(new Consumer());
         }
 
         [GlobalSetup(Target = nameof(SuggestionsFromParseResult))]
@@ -66,7 +69,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Benchmark]
         public void SuggestionsFromParseResult()
         {
-            _testParseResult.Suggestions("--wrong".Length + 1).Consume(new Consumer());
+            _testParseResult.GetSuggestions("--wrong".Length + 1).Consume(new Consumer());
         }
     }
 }

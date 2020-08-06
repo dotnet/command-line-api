@@ -3,29 +3,31 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Collections;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine
 {
     public class CommandLineConfiguration
     {
-        private IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
-        private Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
+        private readonly IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
+        private readonly Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
         public CommandLineConfiguration(
             IReadOnlyCollection<Symbol> symbols,
-            IReadOnlyCollection<char> argumentDelimiters = null,
-            IReadOnlyCollection<string> prefixes = null,
+            IReadOnlyCollection<char>? argumentDelimiters = null,
             bool enablePosixBundling = true,
-            bool enablePositionalOptions = false,
-            ValidationMessages validationMessages = null,
+            bool enableDirectives = true,
+            ValidationMessages? validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
-            IReadOnlyCollection<InvocationMiddleware> middlewarePipeline = null,
-            Func<BindingContext, IHelpBuilder> helpBuilderFactory = null)
+            IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
+            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null)
         {
-            if (symbols == null)
+            if (symbols is null)
             {
                 throw new ArgumentNullException(nameof(symbols));
             }
@@ -35,26 +37,28 @@ namespace System.CommandLine
                 throw new ArgumentException("You must specify at least one option or command.");
             }
 
-            ArgumentDelimiters = argumentDelimiters ?? new[] { ':', '=' };
+            if (argumentDelimiters is null)
+            {
+                ArgumentDelimitersInternal = new HashSet<char>
+                {
+                    ':', 
+                    '='
+                };
+            }
+            else
+            {
+                ArgumentDelimitersInternal = new HashSet<char>(argumentDelimiters);
+            }
 
             foreach (var symbol in symbols)
             {
-                foreach (var childSymbol in symbol.Children.FlattenBreadthFirst(o => o.Children))
-                {
-                    if (childSymbol.Argument.Arity.MaximumNumberOfArguments != 0 && string.IsNullOrEmpty(childSymbol.Argument.Name))
-                    {
-                        throw new ArgumentException(
-                            ValidationMessages.RequiredArgumentNameMissing(childSymbol.Aliases.FirstOrDefault()));
-                    }
-                }
-
                 foreach (var alias in symbol.RawAliases)
                 {
                     foreach (var delimiter in ArgumentDelimiters)
                     {
                         if (alias.Contains(delimiter))
                         {
-                            throw new SymbolCannotContainDelimiterArgumentException(delimiter);
+                            throw new ArgumentException($"{symbol.GetType().Name} \"{alias}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
                         }
                     }
                 }
@@ -67,56 +71,69 @@ namespace System.CommandLine
             }
             else
             {
-                RootCommand = new RootCommand(symbols: symbols);
+                // reuse existing auto-generated root command, if one is present, to prevent repeated mutations
+                RootCommand? parentRootCommand = 
+                    symbols.SelectMany(s => s.Parents)
+                           .OfType<RootCommand>()
+                           .FirstOrDefault();
+
+                if (parentRootCommand is null)
+                {
+                    parentRootCommand = new RootCommand();
+
+                    foreach (var symbol in symbols)
+                    {
+                        parentRootCommand.Add(symbol);
+                    }
+                }
+
+                RootCommand = rootCommand = parentRootCommand;
             }
 
             _symbols.Add(RootCommand);
 
+            AddGlobalOptionsToChildren(rootCommand);
+
             EnablePosixBundling = enablePosixBundling;
-            EnablePositionalOptions = enablePositionalOptions;
+            EnableDirectives = enableDirectives;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
-            _middlewarePipeline = middlewarePipeline;
-            _helpBuilderFactory = helpBuilderFactory;
-            Prefixes = prefixes;
+            _middlewarePipeline = middlewarePipeline ?? new List<InvocationMiddleware>();
+            _helpBuilderFactory = helpBuilderFactory ?? (context => new HelpBuilder(context.Console));
+        }
 
-            if (prefixes?.Count > 0)
+        private void AddGlobalOptionsToChildren(Command parentCommand)
+        {
+            foreach (var globalOption in parentCommand.GlobalOptions)
             {
-                foreach (var symbol in symbols)
+                foreach (var child in parentCommand.Children.FlattenBreadthFirst(c => c.Children))
                 {
-                    foreach (var alias in symbol.RawAliases.ToList())
+                    if (child is Command childCommand)
                     {
-                        if (!prefixes.All(prefix => alias.StartsWith(prefix)))
+                        if (!childCommand.Children.IsAnyAliasInUse(globalOption, out _))
                         {
-                            foreach (var prefix in prefixes)
-                            {
-                                symbol.AddAlias(prefix + alias);
-                            }
+                            childCommand.AddOption(globalOption);
                         }
                     }
                 }
             }
         }
-
-        public IReadOnlyCollection<string> Prefixes { get; }
-
+        
         public ISymbolSet Symbols => _symbols;
 
-        public IReadOnlyCollection<char> ArgumentDelimiters { get; }
+        public IReadOnlyCollection<char> ArgumentDelimiters => ArgumentDelimitersInternal;
 
-        public bool EnablePositionalOptions { get; }
+        internal HashSet<char> ArgumentDelimitersInternal { get; }
+     
+        public bool EnableDirectives { get; }
 
         public bool EnablePosixBundling { get; }
 
         public ValidationMessages ValidationMessages { get; }
 
-        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory =>
-            _helpBuilderFactory ??
-            (_helpBuilderFactory = context => new HelpBuilder(context.Console));
+        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory;
 
-        internal IReadOnlyCollection<InvocationMiddleware> Middleware =>
-            _middlewarePipeline ??
-            (_middlewarePipeline = new List<InvocationMiddleware>());
+        internal IReadOnlyCollection<InvocationMiddleware> Middleware => _middlewarePipeline;
 
         public ICommand RootCommand { get; }
 

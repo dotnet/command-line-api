@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
@@ -56,6 +57,6 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]
         public async Task TypoCorrection(BdnParam<ParseResult> parseResult)
-            => await _testParser.InvokeAsync(parseResult.Value, _nullConsole);
+            => await parseResult.Value.InvokeAsync(_nullConsole);
     }
 }

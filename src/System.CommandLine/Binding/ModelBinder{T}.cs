@@ -11,31 +11,26 @@ namespace System.CommandLine.Binding
         {
         }
 
-        public void BindMemberFromOption<TValue>(
+        public void BindMemberFromValue<TValue>(
             Expression<Func<TModel, TValue>> property,
-            IOption option)
+            IValueDescriptor valueDescriptor)
         {
-            NamedValueSources.Add(
-                property.MemberTypeAndName(),
-                new SymbolValueSource(option));
-        }
-
-        public void BindMemberFromCommand<TValue>(
-            Expression<Func<TModel, TValue>> property,
-            ICommand command)
-        {
-            NamedValueSources.Add(
-                property.MemberTypeAndName(),
-                new SymbolValueSource(command));
+            var (propertyType, propertyName) = property.MemberTypeAndName();
+            var propertyDescriptor = FindModelPropertyDescriptor(
+                propertyType, propertyName);
+            MemberBindingSources[propertyDescriptor] = 
+                new SpecificSymbolValueSource(valueDescriptor);
         }
 
         public void BindMemberFromValue<TValue>(
-            Expression<Func<TModel, TValue>> member,
-            Func<BindingContext, TValue> getValue)
+            Expression<Func<TModel, TValue>> property,
+            Func<BindingContext?, TValue> getValue)
         {
-            NamedValueSources.Add(
-                member.MemberTypeAndName(),
-                new DelegateValueSource(c => getValue(c)));
+            var (propertyType, propertyName) = property.MemberTypeAndName();
+            var propertyDescriptor = FindModelPropertyDescriptor(
+                propertyType, propertyName);
+            MemberBindingSources[propertyDescriptor] =
+                new DelegateValueSource(c => getValue(c));
         }
     }
 }

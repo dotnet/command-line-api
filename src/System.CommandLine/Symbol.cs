@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
+using System.CommandLine.Collections;
+using System.CommandLine.Parsing;
+using System.CommandLine.Suggestions;
 using System.Linq;
 
 namespace System.CommandLine
@@ -12,16 +14,19 @@ namespace System.CommandLine
         private readonly HashSet<string> _aliases = new HashSet<string>();
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string _longestAlias = "";
-        private string _specifiedName;
-        private Argument _argument;
+        private string? _specifiedName;
+
+        private readonly SymbolSet _parents = new SymbolSet();
+
+        private protected Symbol()
+        {
+        }
 
         protected Symbol(
-            IReadOnlyCollection<string> aliases,
-            string description = null,
-            Argument argument = null,
-            bool isHidden = false)
+            IReadOnlyCollection<string>? aliases = null,
+            string? description = null)
         {
-            if (aliases == null)
+            if (aliases is null)
             {
                 throw new ArgumentNullException(nameof(aliases));
             }
@@ -37,33 +42,13 @@ namespace System.CommandLine
             }
 
             Description = description;
-
-            IsHidden = isHidden;
-
-            Argument = argument ?? Argument.None;
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
 
         public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
-        public Argument Argument
-        {
-            get => _argument;
-            set
-            {
-                if (value?.Arity.MaximumNumberOfArguments > 0 && 
-                    string.IsNullOrEmpty(value.Name))
-                {
-                    value.Name = _aliases.First().ToLower();
-                }
-
-                _argument = value ?? Argument.None;
-                _argument.Parent = this;
-            }
-        }
-
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public virtual string Name
         {
@@ -75,26 +60,40 @@ namespace System.CommandLine
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
                 }
 
-                if (value.Length != value.RemovePrefix().Length)
-                {
-                    throw new ArgumentException($"Property {GetType().Name}.{nameof(Name)} cannot have a prefix.");
-                }
-
                 _specifiedName = value;
             }
         }
 
-        public Command Parent { get; private protected set; }
+        public ISymbolSet Parents => _parents; 
 
-        private protected void AddSymbol(Symbol symbol)
+        internal void AddParent(Symbol symbol)
         {
-            if (this is Command command)
-            {
-                symbol.Parent = command;
-            }
+            _parents.AddWithoutAliasCollisionCheck(symbol);
+        }
 
+        private protected virtual void AddSymbol(Symbol symbol)
+        {
             Children.Add(symbol);
         }
+
+        private protected void AddArgumentInner(Argument argument)
+        {
+            if (argument is null)
+            {
+                throw new ArgumentNullException(nameof(argument));
+            }
+
+            argument.AddParent(this);
+
+            if (string.IsNullOrEmpty(argument.Name))
+            {
+                ChooseNameForUnnamedArgument(argument);
+            }
+
+            Children.Add(argument);
+        }
+
+        private protected abstract void ChooseNameForUnnamedArgument(Argument argument);
 
         public SymbolSet Children { get; } = new SymbolSet();
 
@@ -107,7 +106,7 @@ namespace System.CommandLine
                 throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            for (int i = 0; i < alias.Length; i++)
+            for (var i = 0; i < alias!.Length; i++)
             {
                 if (char.IsWhiteSpace(alias[i]))
                 {
@@ -116,9 +115,9 @@ namespace System.CommandLine
             }
 
             _rawAliases.Add(alias);
-            _aliases.Add(unprefixedAlias);
+            _aliases.Add(unprefixedAlias!);
 
-            if (unprefixedAlias.Length > Name?.Length)
+            if (unprefixedAlias!.Length > Name?.Length)
             {
                 _longestAlias = unprefixedAlias;
             }
@@ -133,36 +132,30 @@ namespace System.CommandLine
 
             return _aliases.Contains(alias.RemovePrefix());
         }
-
+  
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
 
         public bool IsHidden { get; set; }
 
-        public IEnumerable<string> Suggest(string textToMatch = null)
+        public virtual IEnumerable<string?> GetSuggestions(string? textToMatch = null)
         {
             var argumentSuggestions =
-                Argument.Suggest(textToMatch)
-                        .ToArray();
+                Children
+                    .OfType<IArgument>()
+                    .SelectMany(a => a.GetSuggestions(textToMatch))
+                    .ToArray();
 
             return this.ChildSymbolAliases()
                        .Concat(argumentSuggestions)
                        .Distinct()
-                       .OrderBy(symbol => symbol)
-                       .Containing(textToMatch);
+                       .Containing(textToMatch)
+                       .Where(symbol => symbol != null)
+                       .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
+                       .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
-        IArgument ISymbol.Argument => Argument;
-
-        ICommand ISymbol.Parent => Parent;
-
         ISymbolSet ISymbol.Children => Children;
-
-        Type IValueDescriptor.Type => Argument.ArgumentType;
-
-        bool IValueDescriptor.HasDefaultValue  => Argument.HasDefaultValue;
-
-        object IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

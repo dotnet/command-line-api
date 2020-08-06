@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine.Invocation
@@ -37,6 +39,7 @@ namespace System.CommandLine.Invocation
         {
             IEnumerable<string> possibleMatches = targetSymbol.Children
                 .Where(x => !x.IsHidden)
+                .Where(x => x.RawAliases.Count > 0)
                 .Select(symbol => 
                     symbol.RawAliases
                         .Union(symbol.Aliases)
@@ -54,7 +57,7 @@ namespace System.CommandLine.Invocation
                 .TakeWhile(tuple =>
                 {
                     var (_, distance) = tuple;
-                    if (bestDistance == null)
+                    if (bestDistance is null)
                     {
                         bestDistance = distance;
                     }
@@ -75,12 +78,12 @@ namespace System.CommandLine.Invocation
         private static int GetDistance(string first, string second)
         {
             // Validate parameters
-            if (first == null)
+            if (first is null)
             {
                 throw new ArgumentNullException(nameof(first));
             }
 
-            if (second == null)
+            if (second is null)
             {
                 throw new ArgumentNullException(nameof(second));
             }

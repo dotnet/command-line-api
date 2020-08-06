@@ -1,20 +1,20 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-
 namespace System.CommandLine.Tests.Binding
 {
     public class BindingTestCase
     {
         private readonly Action<object> _assertBoundValue;
-
-        public BindingTestCase(
+        
+        private BindingTestCase(
             string commandLine,
             Type parameterType,
-            Action<object> assertBoundValue)
+            Action<object> assertBoundValue,
+            string variationName)
         {
             _assertBoundValue = assertBoundValue;
+            VariationName = variationName;
             CommandLine = commandLine;
             ParameterType = parameterType;
         }
@@ -23,6 +23,8 @@ namespace System.CommandLine.Tests.Binding
 
         public Type ParameterType { get; }
 
+        public string VariationName { get; }
+
         public void AssertBoundValue(object value)
         {
             _assertBoundValue(value);
@@ -30,16 +32,12 @@ namespace System.CommandLine.Tests.Binding
 
         public static BindingTestCase Create<T>(
             string commandLine,
-            Action<T> assertBoundValue) =>
+            Action<T> assertBoundValue, 
+            string variationName = null) =>
             new BindingTestCase(
                 commandLine,
                 typeof(T),
-                o => assertBoundValue((T)o)
-            );
-    }
-
-    public class BindingTestSet : Dictionary<Type, BindingTestCase>
-    {
-        public void Add(BindingTestCase testCase) => Add(testCase.ParameterType, testCase);
+                o => assertBoundValue((T) o),
+                variationName);
     }
 }

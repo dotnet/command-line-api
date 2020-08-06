@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.IO;
 using static System.CommandLine.Rendering.Ansi;
 
 namespace System.CommandLine.Rendering
@@ -14,12 +15,22 @@ namespace System.CommandLine.Rendering
         {
         }
 
-        protected override void SetCursorPosition(int left, int top)
+        protected override void SetCursorPosition(int? left = null, int? top = null)
         {
-            Writer.Write(
-                Cursor.Move
-                      .ToLocation(left: left + 1, top: top + 1)
-                      .EscapeSequence);
+            if (Region == Region.Scrolling)
+            {
+                Writer.WriteLine(
+                    Cursor.Move
+                          .ToLocation(left: left + 1)
+                          .EscapeSequence);
+            }
+            else
+            {
+                Writer.Write(
+                    Cursor.Move
+                          .ToLocation(left: left + 1, top: top + 1)
+                          .EscapeSequence);
+            }
         }
 
         public override void VisitForegroundColorSpan(ForegroundColorSpan span)
@@ -57,6 +68,14 @@ namespace System.CommandLine.Rendering
         public override void VisitStyleSpan(StyleSpan span)
         {
             if (_styleControlCodeMappings.TryGetValue(span.Name, out var controlCode))
+            {
+                Writer.Write(controlCode.EscapeSequence);
+            }
+        }
+
+        public override void VisitCursorControlSpan(CursorControlSpan cursorControlSpan)
+        {
+            if (_styleControlCodeMappings.TryGetValue(cursorControlSpan.Name, out var controlCode))
             {
                 Writer.Write(controlCode.EscapeSequence);
             }
@@ -109,13 +128,14 @@ namespace System.CommandLine.Rendering
         private static readonly Dictionary<string, AnsiControlCode> _styleControlCodeMappings =
             new Dictionary<string, AnsiControlCode>
             {
+                [nameof(StyleSpan.AttributesOff)] = Ansi.Text.AttributesOff,
                 [nameof(StyleSpan.BlinkOff)] = Ansi.Text.BlinkOff,
                 [nameof(StyleSpan.BlinkOn)] = Ansi.Text.BlinkOn,
                 [nameof(StyleSpan.BoldOff)] = Ansi.Text.BoldOff,
                 [nameof(StyleSpan.BoldOn)] = Ansi.Text.BoldOn,
                 [nameof(StyleSpan.HiddenOn)] = Ansi.Text.HiddenOn,
                 [nameof(StyleSpan.ReverseOn)] = Ansi.Text.ReverseOn,
-                [nameof(StyleSpan.ReversOff)] = Ansi.Text.ReversOff,
+                [nameof(StyleSpan.ReverseOff)] = Ansi.Text.ReverseOff,
                 [nameof(StyleSpan.StandoutOff)] = Ansi.Text.StandoutOff,
                 [nameof(StyleSpan.StandoutOn)] = Ansi.Text.StandoutOn,
                 [nameof(StyleSpan.UnderlinedOff)] = Ansi.Text.UnderlinedOff,

@@ -3,9 +3,10 @@ syntax: glob
 ### VisualStudio ###
 
 # Tools directory
-/[Tt]ools/
 .dotnet/
 .packages/
+.tools/
+/[Tt]ools/
 
 # User-specific files
 *.suo
@@ -26,7 +27,7 @@ x86/ !eng/common/cross/x86/
 msbuild.log
 msbuild.err
 msbuild.wrn
-msbuild.binlog
+*.binlog
 
 # Visual Studio 2015
 .vs/
@@ -118,6 +119,7 @@ Session.vim
 
 # Visual Studio Code
 .vscode/
+.ionide/
 
 # Private test configuration and binaries.
 config.ps1
@@ -147,3 +149,9 @@ _ReSharper.*/
 buildlog.txt
 nCrunchTemp*
 TestResults/
+
+.fake
+.ionide
+
+# ApprovalTests
+*.received.txt

@@ -16,9 +16,22 @@ namespace System.CommandLine.Rendering
             Terminal = terminal ?? throw new ArgumentNullException(nameof(terminal));
         }
 
-        protected override void SetCursorPosition(int left, int top)
+        protected override void SetCursorPosition(
+            int? left = null, 
+            int? top = null)
         {
-            Terminal.SetCursorPosition(left, top);
+            if (left != null && top != null)
+            {
+                Terminal.SetCursorPosition(left.Value, top.Value);
+            }
+            else if (top != null)
+            {
+                Terminal.CursorTop = top.Value;
+            }
+            else if (left != null)
+            {
+                Terminal.CursorLeft = left.Value;
+            }
         }
 
         public override void VisitForegroundColorSpan(ForegroundColorSpan span)
@@ -48,6 +61,19 @@ namespace System.CommandLine.Rendering
                 var foregroundColor = Terminal.ForegroundColor;
                 Terminal.ResetColor();
                 Terminal.ForegroundColor = foregroundColor;
+            }
+        }
+
+        public override void VisitCursorControlSpan(CursorControlSpan cursorControlSpan)
+        {
+            switch(cursorControlSpan.Name)
+            {
+                case nameof(CursorControlSpan.Hide):
+                    Terminal.HideCursor();
+                    break;
+                case nameof(CursorControlSpan.Show):
+                    Terminal.ShowCursor();
+                    break;
             }
         }
 

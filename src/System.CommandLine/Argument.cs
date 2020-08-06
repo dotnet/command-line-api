@@ -3,38 +3,44 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Parsing;
+using System.CommandLine.Suggestions;
 using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Argument : IArgument
+    public class Argument : Symbol, IArgument
     {
-        private Func<object> _defaultValue;
-        private readonly List<string> _suggestions = new List<string>();
-        private readonly List<ISuggestionSource> _suggestionSources = new List<ISuggestionSource>();
-        private IArgumentArity _arity;
-        private HashSet<string> _validValues;
-        private ConvertArgument _convertArguments;
-        private Symbol _parent;
+        private Func<ArgumentResult, object?>? _defaultValueFactory;
+        private IArgumentArity? _arity;
+        private TryConvertArgument? _convertArguments;
+        private Type _argumentType = typeof(string);
+        private List<ISuggestionSource>? _suggestions = null;
 
-        public string Name { get; set; }
+        public Argument()
+        {
+        }
 
-        public string Description { get; set; }
+        public Argument(string name) 
+        {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                Name = name!;
+            }
+        }
+
+        internal HashSet<string>? AllowedValues { get; private set; }
 
         public IArgumentArity Arity
         {
             get
             {
-                if (_arity == null)
+                if (_arity is null)
                 {
-                    if (ArgumentType != null)
-                    {
-                        return ArgumentArity.Default(ArgumentType, Parent);
-                    }
-                    else
-                    {
-                        return ArgumentArity.Zero;
-                    }
+                    return ArgumentArity.Default(
+                        ArgumentType, 
+                        this, 
+                        Parents.FirstOrDefault());
                 }
 
                 return _arity;
@@ -42,20 +48,26 @@ namespace System.CommandLine
             set => _arity = value;
         }
 
-        internal ConvertArgument ConvertArguments
+        internal TryConvertArgument? ConvertArguments
         {
             get
             {
-                if (_convertArguments == null &&
-                    ArgumentType != null)
+                if (_convertArguments == null)
                 {
                     if (ArgumentType.CanBeBoundFromScalarValue())
                     {
-                        if (Arity.MaximumNumberOfArguments == 1 &&
+                        if (Arity.MaximumNumberOfValues == 1 &&
                             ArgumentType == typeof(bool))
                         {
-                            _convertArguments = symbol =>
-                                ArgumentConverter.Parse(typeof(bool), symbol.Arguments.SingleOrDefault() ?? bool.TrueString);
+                            _convertArguments = (ArgumentResult symbol, out object? value) =>
+                            {
+                                value = ArgumentConverter.ConvertObject(
+                                    this,
+                                    typeof(bool),
+                                    symbol.Tokens.SingleOrDefault()?.Value ?? bool.TrueString);
+
+                                return value is SuccessfulArgumentConversionResult;
+                            };
                         }
                         else
                         {
@@ -66,233 +78,127 @@ namespace System.CommandLine
 
                 return _convertArguments;
 
-                ArgumentResult DefaultConvert(SymbolResult symbol)
+                bool DefaultConvert(SymbolResult symbol, out object value)
                 {
-                    switch (Arity.MaximumNumberOfArguments)
+                    switch (Arity.MaximumNumberOfValues)
                     {
                         case 1:
-                            return ArgumentConverter.Parse(
+                            value = ArgumentConverter.ConvertObject(
+                                this,
                                 ArgumentType,
-                                symbol.Arguments.SingleOrDefault());
+                                symbol.Tokens.Select(t => t.Value).SingleOrDefault());
+                            break;
+
                         default:
-                            return ArgumentConverter.ParseMany(
-                                ArgumentType, 
-                                symbol.Arguments);
+                            value = ArgumentConverter.ConvertStrings(
+                                this,
+                                ArgumentType,
+                                symbol.Tokens.Select(t => t.Value).ToArray());
+                            break;
                     }
+
+                    return value is SuccessfulArgumentConversionResult;
                 }
             }
             set => _convertArguments = value;
         }
 
-        public Type ArgumentType { get; set; }
-
-        internal List<ValidateSymbol> SymbolValidators { get; } = new List<ValidateSymbol>();
-
-        public Symbol Parent
-        {
-            get => _parent;
-            internal set
+        public List<ISuggestionSource> Suggestions
+        { 
+            get
             {
-                if (value == null)
+                if (_suggestions is null)
                 {
-                    throw new ArgumentNullException(nameof(value));
+                    _suggestions = new List<ISuggestionSource>
+                    {
+                        SuggestionSource.ForType(ArgumentType)
+                    };
                 }
 
-                if (_parent != null)
-                {
-                    throw new InvalidOperationException($"{nameof(Parent)} is already set.");
-                }
-
-                _parent = value;
+                return _suggestions;
             }
         }
 
-        public void AddValidator(ValidateSymbol validator) => SymbolValidators.Add(validator);
-
-        public object GetDefaultValue() => _defaultValue?.Invoke();
-
-        public void SetDefaultValue(object value) => SetDefaultValue(() => value);
-
-        public void SetDefaultValue(Func<object> value) => _defaultValue = value;
-
-        public bool HasDefaultValue => _defaultValue != null;
-
-        public static Argument None => new Argument { Arity = ArgumentArity.Zero };
-
-        public void AddSuggestions(IReadOnlyCollection<string> suggestions)
+        public Type ArgumentType
         {
-            if (suggestions == null)
+            get => _argumentType;
+            set => _argumentType = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new List<ValidateSymbol<ArgumentResult>>();
+
+        public void AddValidator(ValidateSymbol<ArgumentResult> validator) => Validators.Add(validator);
+
+        public object? GetDefaultValue()
+        {
+            return GetDefaultValue(new ArgumentResult(this, null));
+        }
+
+        internal object? GetDefaultValue(ArgumentResult argumentResult)
+        {
+            if (_defaultValueFactory is null)
             {
-                throw new ArgumentNullException(nameof(suggestions));
+                throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
             }
 
-            _suggestions.AddRange(suggestions);
+            return _defaultValueFactory.Invoke(argumentResult);
         }
 
-        public void AddSuggestionSource(ISuggestionSource suggest)
+        public void SetDefaultValue(object? value)
         {
-            if (suggest == null)
+            SetDefaultValueFactory(() => value);
+        }
+
+        public void SetDefaultValueFactory(Func<object?> getDefaultValue)
+        {
+            if (getDefaultValue is null)
             {
-                throw new ArgumentNullException(nameof(suggest));
+                throw new ArgumentNullException(nameof(getDefaultValue));
             }
 
-            _suggestionSources.Add(suggest);
+            SetDefaultValueFactory(_ => getDefaultValue());
+        }
+        
+        public void SetDefaultValueFactory(Func<ArgumentResult, object?> getDefaultValue)
+        {
+            _defaultValueFactory = getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue));
         }
 
-        public void AddSuggestionSource(Suggest suggest)
+        public bool HasDefaultValue => _defaultValueFactory != null;
+
+        internal static Argument None => new Argument { Arity = ArgumentArity.Zero };
+
+        internal void AddAllowedValues(IEnumerable<string> values)
         {
-            if (suggest == null)
+            if (AllowedValues is null)
             {
-                throw new ArgumentNullException(nameof(suggest));
+                AllowedValues = new HashSet<string>();
             }
 
-            AddSuggestionSource(new AnonymousSuggestionSource(suggest));
+            AllowedValues.UnionWith(values);
         }
 
-        internal void AddValidValues(IEnumerable<string> values)
+        public override IEnumerable<string?> GetSuggestions(string? textToMatch = null)
         {
-            if (_validValues == null)
-            {
-                _validValues = new HashSet<string>();
-            }
+            var dynamicSuggestions = Suggestions
+                .SelectMany(source => source.GetSuggestions(textToMatch));
 
-            _validValues.UnionWith(values);
-        }
-
-        public IEnumerable<string> Suggest(string textToMatch)
-        {
-            var fixedSuggestions = _suggestions;
-
-            var dynamicSuggestions = _suggestionSources
-                .SelectMany(source => source.Suggest(textToMatch));
-
-            var typeSuggestions = SuggestionSource.ForType(ArgumentType)
-                                                  .Suggest(textToMatch);
-
-            return fixedSuggestions
-                   .Concat(dynamicSuggestions)
-                   .Concat(typeSuggestions)
+            return dynamicSuggestions
                    .Distinct()
-                   .OrderBy(c => c)
+                   .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
                    .Containing(textToMatch);
         }
 
-        private ArgumentResult Parse(SymbolResult symbolResult)
-        {
-            var failedResult = ArgumentArity.Validate(symbolResult,
-                                                      Arity.MinimumNumberOfArguments,
-                                                      Arity.MaximumNumberOfArguments);
-
-            if (failedResult != null)
-            {
-                return failedResult;
-            }
-
-            if (symbolResult.UseDefaultValue)
-            {
-                return ArgumentResult.Success(symbolResult.Symbol.Argument.GetDefaultValue());
-            }
-
-            if (ConvertArguments != null)
-            {
-                return ConvertArguments(symbolResult);
-            }
-
-            switch (Arity.MaximumNumberOfArguments)
-            {
-                case 0:
-                    return ArgumentResult.Success(null);
-
-                case 1:
-                    return ArgumentResult.Success(symbolResult.Arguments.SingleOrDefault());
-
-                default:
-                    return ArgumentResult.Success(symbolResult.Arguments);
-            }
-        }
-
-        internal (ArgumentResult, ParseError) Validate(SymbolResult symbolResult)
-        {
-            ArgumentResult result = null;
-
-            var error = UnrecognizedArgumentError() ??
-                        CustomError();
-
-            if (error == null)
-            {
-                result = Parse(symbolResult);
-
-                var canTokenBeRetried =
-                    symbolResult.Symbol is ICommand ||
-                    Arity.MinimumNumberOfArguments == 0;
-
-                switch (result)
-                {
-                    case FailedArgumentArityResult arityFailure:
-
-                        error = new ParseError(arityFailure.ErrorMessage,
-                                               symbolResult,
-                                               canTokenBeRetried);
-                        break;
-
-                    case FailedArgumentTypeConversionResult conversionFailure:
-
-                        error = new ParseError(conversionFailure.ErrorMessage,
-                                               symbolResult,
-                                               canTokenBeRetried);
-                        break;
-
-                    case FailedArgumentResult general:
-
-                        error = new ParseError(general.ErrorMessage,
-                                               symbolResult,
-                                               false);
-                        break;
-                }
-            }
-
-            return (result, error);
-
-            ParseError UnrecognizedArgumentError()
-            {
-                if (_validValues?.Count > 0 &&
-                    symbolResult.Arguments.Count > 0)
-                {
-                    foreach (var arg in symbolResult.Arguments)
-                    {
-                        if (!_validValues.Contains(arg))
-                        {
-                            return new ParseError(
-                                symbolResult.ValidationMessages
-                                            .UnrecognizedArgument(arg,
-                                                                  _validValues),
-                                symbolResult,
-                                canTokenBeRetried: false);
-                        }
-                    }
-                }
-
-                return null;
-            }
-
-            ParseError CustomError()
-            {
-                foreach (var symbolValidator in SymbolValidators)
-                {
-                    var errorMessage = symbolValidator(symbolResult);
-
-                    if (!string.IsNullOrWhiteSpace(errorMessage))
-                    {
-                        return new ParseError(errorMessage, symbolResult, false);
-                    }
-                }
-
-                return null;
-            }
-        }
+        public override string ToString() => $"{nameof(Argument)}: {Name}";
 
         IArgumentArity IArgument.Arity => Arity;
 
-        Type IValueDescriptor.Type => ArgumentType;
+        string IValueDescriptor.ValueName => Name;
+
+        Type IValueDescriptor.ValueType => ArgumentType;
+
+        private protected override void ChooseNameForUnnamedArgument(Argument argument)
+        {
+        }
     }
 }

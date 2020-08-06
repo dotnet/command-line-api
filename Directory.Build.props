@@ -5,9 +5,8 @@
           Condition="'$(DisableArcade)' != '1'" />
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);NU5125</NoWarn>
-    <PackageIconUrl>http://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/dotnet/command-line-api/master/LICENSE.md</PackageLicenseUrl>
+    <NoWarn>$(NoWarn);NU5125;CS0618</NoWarn>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
 </Project>

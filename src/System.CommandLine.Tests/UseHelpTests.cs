@@ -3,6 +3,10 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
+using System.CommandLine.Tests.Utility;
+using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -28,11 +32,11 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command subcommand --help");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().Contain($"{RootCommand.ExeName} command subcommand");
+            _console.Out.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand");
         }
-
+         
         [Fact]
         public async Task UseHelp_interrupts_execution_of_the_specified_command()
         {
@@ -53,21 +57,6 @@ namespace System.CommandLine.Tests
             wasCalled.Should().BeFalse();
         }
 
-        [Fact]
-        public async Task UseHelp_allows_help_for_all_configured_prefixes()
-        {
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(new Command("command"))
-                    .UseHelp()
-                    .UsePrefixes(new[] { "~" })
-                    .Build();
-
-            await parser.InvokeAsync("command ~help", _console);
-
-            _console.Out.ToString().Should().StartWith("Usage:");
-        }
-
         [Theory]
         [InlineData("-h")]
         [InlineData("--help")]
@@ -83,21 +72,7 @@ namespace System.CommandLine.Tests
 
             await parser.InvokeAsync($"command {value}", _console);
 
-            _console.Out.ToString().Should().StartWith("Usage:");
-        }
-
-        [Fact]
-        public async Task UseHelp_accepts_collection_of_help_options()
-        {
-            var parser =
-                new CommandLineBuilder()
-                    .AddCommand(new Command("command"))
-                    .UseHelp(new[] { "~cthulhu" })
-                    .Build();
-
-            await parser.InvokeAsync("command ~cthulhu", _console);
-
-            _console.Out.ToString().Should().StartWith("Usage:");
+            _console.Should().ShowHelp();
         }
 
         [Fact]
@@ -114,9 +89,128 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("command -h");
 
-            await parser.InvokeAsync(result, _console);
+            await result.InvokeAsync(_console);
 
             _console.Out.ToString().Should().BeEmpty();
+        }
+
+        [Fact]
+        public void There_are_no_parse_errors_when_help_is_invoked_on_root_command()
+        {
+            var parser = new CommandLineBuilder()
+                .UseHelp()
+                .Build();
+
+            var result = parser.Parse("-h");
+
+            result.Errors
+                  .Should()
+                  .BeEmpty();
+        }
+        
+        [Fact]
+        public void There_are_no_parse_errors_when_help_is_invoked_on_subcommand()
+        {
+            var root = new RootCommand
+            {
+                new Command("subcommand")
+            };
+
+            var parser = new CommandLineBuilder(root)
+                         .UseHelp()
+                         .Build();
+
+            var result = parser.Parse("subcommand -h");
+
+            result.Errors
+                  .Should()
+                  .BeEmpty();
+        }
+
+        [Fact]
+        public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_subcommands()
+        {
+            var root = new RootCommand
+            {
+                new Command("subcommand")
+            };
+
+            var parser = new CommandLineBuilder(root)
+                         .UseHelp()
+                         .Build();
+
+            var result = parser.Parse("-h");
+
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_required_options()
+        {
+            var command = new RootCommand
+            {
+                new Option<string>("-x")
+                {
+                    IsRequired = true
+                },
+            };
+
+            var result = new CommandLineBuilder(command)
+                         .UseHelp()
+                         .Build()
+                         .Parse("-h");
+
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Theory]
+        [InlineData("-h")]
+        [InlineData("inner -h")]
+        public void UseHelp_can_be_called_more_than_once_on_the_same_CommandLineBuilder(string commandline)
+        {
+            var root = new RootCommand
+            {
+                new Command("inner")
+            };
+
+            var parser = new CommandLineBuilder(root)
+                         .UseHelp()
+                         .UseHelp()
+                         .Build();
+
+            parser.Invoke(commandline, _console);
+
+            _console.Should().ShowHelp();
+        }
+
+        [Theory]
+        [InlineData("-h")]
+        [InlineData("inner -h")]
+        public void UseHelp_can_be_called_more_than_once_on_the_same_command_with_different_CommandLineBuilders(string commandline)
+        {
+            var root = new RootCommand
+            {
+                new Command("inner")
+            };
+
+            var parser = new CommandLineBuilder(root)
+                         .UseHelp()
+                         .Build();
+
+            var console1 = new TestConsole();
+
+            parser.Invoke(commandline, console1);
+
+            console1.Should().ShowHelp();
+
+            var parser2 = new CommandLineBuilder(root)
+                          .UseHelp()
+                          .Build();
+            var console2 = new TestConsole();
+
+            parser2.Invoke(commandline, console2);
+
+            console2.Should().ShowHelp();
         }
     }
 }

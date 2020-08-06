@@ -14,9 +14,9 @@ namespace System.CommandLine
         {
             var queue = new Queue<T>();
 
-            foreach (var option in source)
+            foreach (var item in source)
             {
-                queue.Enqueue(option);
+                queue.Enqueue(item);
             }
 
             while (queue.Count > 0)
@@ -33,10 +33,12 @@ namespace System.CommandLine
         }
 
         internal static IEnumerable<T> RecurseWhileNotNull<T>(
-            this T source,
-            Func<T, T> next)
+            this T? source,
+            Func<T, T?> next)
             where T : class
         {
+            if (source is null) yield break;
+
             yield return source;
 
             while ((source = next(source)) != null)
@@ -44,12 +46,5 @@ namespace System.CommandLine
                 yield return source;
             }
         }
-
-        internal static bool None<TSource>(this IEnumerable<TSource> source) 
-            => !source.Any();
-
-        internal static bool None<TSource>(this IEnumerable<TSource> source,
-                                         Func<TSource, bool> predicate) 
-            => !source.Any(predicate);
     }
 }

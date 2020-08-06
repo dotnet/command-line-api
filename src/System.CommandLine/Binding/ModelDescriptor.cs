@@ -17,9 +17,8 @@ namespace System.CommandLine.Binding
 
         private static readonly ConcurrentDictionary<Type, ModelDescriptor> _modelDescriptors = new ConcurrentDictionary<Type, ModelDescriptor>();
 
-        private List<PropertyDescriptor> _propertyDescriptors;
-        private List<ConstructorDescriptor> _constructorDescriptors;
-        private ConstructorDescriptor _targetConstructor;
+        private List<PropertyDescriptor>? _propertyDescriptors;
+        private List<ConstructorDescriptor>? _constructorDescriptors;
 
         protected ModelDescriptor(Type modelType)
         {
@@ -28,36 +27,17 @@ namespace System.CommandLine.Binding
         }
 
         public IReadOnlyList<ConstructorDescriptor> ConstructorDescriptors =>
-            _constructorDescriptors
-            ??
-            (_constructorDescriptors =
-                 ModelType.GetConstructors(CommonBindingFlags)
-                          .Select(i => new ConstructorDescriptor(i, this))
-                          .ToList());
-
-        public ConstructorDescriptor TargetConstructor
-        {
-            get
-            {
-                if (_targetConstructor == null && 
-                    ConstructorDescriptors.Count == 1)
-                {
-                    _targetConstructor = ConstructorDescriptors[0];
-                }
-
-
-                return _targetConstructor;
-            }
-        }
+            _constructorDescriptors ??=
+                ModelType.GetConstructors(CommonBindingFlags)
+                         .Select(i => new ConstructorDescriptor(i, this))
+                         .ToList();
 
         public IReadOnlyList<IValueDescriptor> PropertyDescriptors =>
-            _propertyDescriptors
-            ??
-            (_propertyDescriptors =
-                 ModelType.GetProperties(CommonBindingFlags)
-                          .Where(p => p.CanWrite)
-                          .Select(i => new PropertyDescriptor(i, this))
-                          .ToList());
+            _propertyDescriptors ??=
+                ModelType.GetProperties(CommonBindingFlags)
+                         .Where(p => p.CanWrite)
+                         .Select(i => new PropertyDescriptor(i, this))
+                         .ToList();
 
         public Type ModelType { get; }
 

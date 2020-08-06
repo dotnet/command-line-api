@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.IO;
 using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -36,7 +37,7 @@ namespace System.CommandLine.Rendering
 
         private void OnCharWrittenToOut(char c)
         {
-            if (IsVirtualTerminalModeEnabled)
+            if (IsAnsiTerminal)
             {
                 if (_ansiCodeBuffer.Length == 0 &&
                     c != Ansi.Esc[0])
@@ -50,7 +51,6 @@ namespace System.CommandLine.Rendering
                     if (char.IsLetter(c))
                     {
                         // terminate the in-progress ANSI sequence
-
                         var escapeSequence = _ansiCodeBuffer.ToString();
 
                         _ansiCodeBuffer.Clear();
@@ -207,7 +207,7 @@ namespace System.CommandLine.Rendering
             }
         }
 
-        public bool IsVirtualTerminalModeEnabled { get; set; } = true;
+        public bool IsAnsiTerminal { get; set; } = true;
 
         public IEnumerable<TextRendered> RenderOperations()
         {
@@ -248,7 +248,17 @@ namespace System.CommandLine.Rendering
                 yield return new TextRendered(buffer.ToString(), position);
             }
         }
-        
+
+        public void HideCursor()
+        {
+            RecordEvent(new CursorHidden());
+        }
+
+        public void ShowCursor()
+        {
+            RecordEvent(new CursorShown());
+        }
+
         public abstract class ConsoleEvent
         {
         }
@@ -309,6 +319,16 @@ namespace System.CommandLine.Rendering
             }
 
             public ConsoleColor ForegroundColor { get; }
+        }
+
+        public class CursorHidden : ConsoleEvent
+        {
+
+        }
+
+        public class CursorShown : ConsoleEvent
+        {
+
         }
     }
 

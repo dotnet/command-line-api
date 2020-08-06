@@ -6,14 +6,14 @@ namespace System.CommandLine.Binding
     public class BoundValue
     {
         internal BoundValue(
-            object value,
+            object? value,
             IValueDescriptor valueDescriptor,
             IValueSource valueSource)
         {
             if (value != null &&
-                !valueDescriptor.Type.IsInstanceOfType(value))
+                !valueDescriptor.ValueType.IsInstanceOfType(value))
             {
-                throw new ArgumentException($"Value {value} ({value.GetType()}) must be an instance of type {valueDescriptor.Type}");
+                throw new ArgumentException($"Value {value} ({value.GetType()}) must be an instance of type {valueDescriptor.ValueType}");
             }
 
             Value = value;
@@ -25,7 +25,7 @@ namespace System.CommandLine.Binding
 
         public IValueSource ValueSource { get; }
 
-        public object Value { get; }
+        public object? Value { get; }
 
         public override string ToString() => $"{ValueDescriptor}: {Value}";
 

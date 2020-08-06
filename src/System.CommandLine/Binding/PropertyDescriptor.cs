@@ -13,29 +13,27 @@ namespace System.CommandLine.Binding
             PropertyInfo propertyInfo,
             ModelDescriptor parent)
         {
-            Parent = parent;
+            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             _propertyInfo = propertyInfo;
         }
 
-        public string Name => _propertyInfo.Name;
+        public string ValueName => _propertyInfo.Name;
 
         public ModelDescriptor Parent { get; }
 
-        internal string Path => Parent != null
-                                    ? Parent + "." + Name
-                                    : Name;
+        internal string Path => Parent + "." + ValueName;
 
-        public Type Type => _propertyInfo.PropertyType;
+        public Type ValueType => _propertyInfo.PropertyType;
 
         public bool HasDefaultValue => false;
 
-        public object GetDefaultValue() => Type.GetDefaultValueForType();
+        public object? GetDefaultValue() => ValueType.GetDefaultValueForType();
 
-        public void SetValue(object instance, object value)
+        public void SetValue(object? instance, object? value)
         {
             _propertyInfo.SetValue(instance, value);
         }
 
-        public override string ToString() => $"{Type.Name} {Path}";
+        public override string ToString() => $"{ValueType.Name} {Path}";
     }
 }

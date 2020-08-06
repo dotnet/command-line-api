@@ -3,17 +3,21 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Help;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
 using System.Text;
+using FluentAssertions.Execution;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Environment;
 
 namespace System.CommandLine.Tests.Help
 {
-    public class HelpBuilderTests
+    public partial class HelpBuilderTests
     {
         private const int SmallMaxWidth = 70;
         private const int LargeMaxWidth = 200;
@@ -35,7 +39,7 @@ namespace System.CommandLine.Tests.Help
             _output = output;
             _columnPadding = new string(' ', ColumnGutterWidth);
             _indentation = new string(' ', IndentationWidth);
-            _executableName = RootCommand.ExeName;
+            _executableName = RootCommand.ExecutableName;
         }
 
         private HelpBuilder GetHelpBuilder(int maxWidth)
@@ -107,9 +111,9 @@ namespace System.CommandLine.Tests.Help
         public void Command_name_in_synopsis_can_be_specified()
         {
             var command = new RootCommand
-                          {
-                              Name = "custom-name"
-                          };
+            {
+                Name = "custom-name"
+            };
 
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
             helpBuilder.Write(command);
@@ -124,20 +128,32 @@ namespace System.CommandLine.Tests.Help
 
         #region Usage
 
-        [Fact]
-        public void Usage_section_shows_arguments_if_there_are_arguments_for_command()
+        [Theory]
+        [InlineData(1, 1, "<the-args>")]
+        [InlineData(1, 2, "<the-args>...")]
+        [InlineData(0, 2, "[<the-args>...]")]
+        public void Usage_section_shows_arguments_if_there_are_arguments_for_command_when_there_is_one_argument(
+            int minArity,
+            int maxArity,
+            string expectedDescriptor)
         {
             var argument = new Argument
-                           {
-                               Name = "the-args",
-                               Arity = ArgumentArity.ZeroOrMore
-                           };
+            {
+                Name = "the-args",
+                Arity = new ArgumentArity(minArity, maxArity)
+            };
             var command = new Command("the-command", "command help")
-                          {
-                              Argument = argument
-                          };
-            command.AddOption(new Option(new[] { "-v", "--verbosity" },
-                                         "Sets the verbosity"));
+            {
+                argument,
+                new Option(new[]
+                {
+                    "-v",
+                    "--verbosity"
+                })
+                {
+                    Description = "Sets the verbosity"
+                }
+            };
             var rootCommand = new RootCommand();
             rootCommand.AddCommand(command);
 
@@ -145,7 +161,51 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} the-command [options] <the-args>";
+                $"{_indentation}{_executableName} the-command [options] {expectedDescriptor}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Theory]
+        [InlineData(1, 1, 1, 1, "<arg1> <arg2>")]
+        [InlineData(0, 1, 0, 1, "[<arg1> [<arg2>]]")]
+        [InlineData(0, 1, 0, 2, "[<arg1> [<arg2>...]]")]
+        public void Usage_section_shows_arguments_if_there_are_arguments_for_command_when_there_is_more_than_one_argument(
+            int minArityForArg1,
+            int maxArityForArg1,
+            int minArityForArg2,
+            int maxArityForArg2,
+            string expectedDescriptor)
+        {
+            var arg1 = new Argument
+            {
+                Name = "arg1",
+                Arity = new ArgumentArity(
+                    minArityForArg1,
+                    maxArityForArg1)
+            };
+            var arg2 = new Argument
+            {
+                Name = "arg2",
+                Arity = new ArgumentArity(
+                    minArityForArg2,
+                    maxArityForArg2)
+            };
+            var command = new Command("the-command", "command help")
+            {
+                arg1,
+                arg2,
+                new Option(new[] { "-v", "--verbosity" }, "Sets the verbosity")
+            };
+
+            var rootCommand = new RootCommand();
+            rootCommand.AddCommand(command);
+
+            _helpBuilder.Write(command);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}{_executableName} the-command [options] {expectedDescriptor}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -174,30 +234,29 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_for_subcommand_shows_arguments_for_subcommand_and_parent_command()
         {
-            var inner = new Command(
-                            "inner", "command help",
-                            argument: new Argument<string[]>
-                                      {
-                                          Name = "inner-args"
-                                      })
-                        {
-                            new Option("-v", "Sets the verbosity")
-                        };
+            var inner = new Command("inner", "command help")
+            {
+                new Option("-v", "Sets the verbosity"),
+                new Argument<string[]>
+                {
+                    Name = "inner-args"
+                }
+            };
 
-            var outer = new Command("outer", "command help",
-                                    argument: new Argument<string[]>
-                                              {
-                                                  Name = "outer-args"
-                                              })
-                        {
-                            inner
-                        };
+            var outer = new Command("outer", "command help")
+            {
+                inner,
+                new Argument<string[]>
+                {
+                    Name = "outer-args"
+                }
+            };
 
             _helpBuilder.Write(inner);
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}outer <outer-args> inner [options] <inner-args>";
+                $"{_indentation}outer [<outer-args>...] inner [options] [<inner-args>...]";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -247,21 +306,21 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_removes_extra_whitespace()
         {
-            var outer = new Command("outer-command",
-                                    "command help",
-                                    argument: new Argument<string>
-                                              {
-                                                  Name = "outer  args \twith  whitespace"
-                                              })
-                        {
-                            new Command(
-                                "inner-command", "command help",
-                                argument: new Argument<string>
-                                          {
-                                              Name = "inner-args"
-                                          }
-                            )
-                        };
+            var outer = new Command("outer-command", "command help")
+            {
+                new Argument<string>
+                {
+                    Name = "outer  args \twith  whitespace"
+                },
+                new Command("inner-command", "command help")
+                {
+                    new Argument<string>
+                    {
+                        Name = "inner-args"
+                    }
+                }
+            };
+
             new RootCommand().Add(outer);
 
             _helpBuilder.Write(outer);
@@ -276,27 +335,26 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_removes_added_newlines()
         {
-            var outer = new Command(
-                            "outer-command", "command help",
-                            argument: new Argument<string[]>
-                                      {
-                                          Name = $"outer args {NewLine}with new{NewLine}lines"
-                                      })
-                        {
-                            new Command(
-                                "inner-command", "command help",
-                                argument: new Argument<string>
-                                          {
-                                              Name = "inner-args"
-                                          }
-                            )
-                        };
+            var outer = new Command("outer-command", "command help")
+            {
+                new Argument<string[]>
+                {
+                    Name = $"outer args {NewLine}with new{NewLine}lines"
+                },
+                new Command("inner-command", "command help")
+                {
+                    new Argument<string>
+                    {
+                        Name = "inner-args"
+                    }
+                }
+            };
 
             _helpBuilder.Write(outer);
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}outer-command <outer args with new lines> [command]{NewLine}{NewLine}";
+                $"{_indentation}outer-command [<outer args with new lines>...] [command]{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -306,23 +364,20 @@ namespace System.CommandLine.Tests.Help
         {
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            var outerCommand = new Command(
-                                   "outer-command",
-                                   "command help",
-                                   argument: new Argument<string[]>
-                                             {
-                                                 Name = "outer args long enough to wrap to a new line" 
-                                             }
-                               )
-                               {
-                                   new Command(
-                                       "inner-command",
-                                       "command help",
-                                       argument: new Argument<string[]>
-                                                 {
-                                                     Name = "inner-args" 
-                                                 })
-                               };
+            var outerCommand = new Command("outer-command", "command help")
+            {
+                new Argument<string[]>
+                {
+                    Name = "outer args long enough to wrap to a new line"
+                },
+                new Command("inner-command", "command help")
+                {
+                    new Argument<string[]>
+                    {
+                        Name = "inner-args"
+                    }
+                }
+            };
 
             var rootCommand = new RootCommand
                               {
@@ -331,7 +386,7 @@ namespace System.CommandLine.Tests.Help
 
             helpBuilder.Write(outerCommand);
 
-            var usageText = $"{_executableName} outer-command <outer args long enough to wrap to a new line> [command]";
+            var usageText = $"{_executableName} outer-command [<outer args long enough to wrap to a new line>...] [command]";
 
             var expectedLines = new List<string> { "Usage:" };
             var builder = new StringBuilder();
@@ -363,6 +418,34 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Usage_section_does_not_contain_hidden_argument()
+        {
+            var commandName = "the-command";
+            var visibleArgName = "visible";
+            var command = new Command(commandName, "Does things");
+            var hiddenArg = new Argument<int>
+            {
+                Name = "hidden",
+                IsHidden = true
+            };
+            var visibleArg = new Argument<int>
+            {
+                Name = visibleArgName,
+                IsHidden = false
+            };
+            command.AddArgument(hiddenArg);
+            command.AddArgument(visibleArg);
+
+            _helpBuilder.Write(command);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}{commandName} <{visibleArgName}>{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
         #endregion Usage
 
         #region Arguments
@@ -379,13 +462,10 @@ namespace System.CommandLine.Tests.Help
         public void Arguments_section_is_not_included_if_there_are_commands_but_no_arguments_configured()
         {
             var command = new Command("the-command", "command help");
-            var commandLineBuilder = new CommandLineBuilder()
-                                     .AddCommand(command)
-                                     .Command;
 
-            _helpBuilder.Write(commandLineBuilder);
+            _helpBuilder.Write(command);
             _console.Out.ToString().Should().NotContain("Arguments:");
-            
+
             _helpBuilder.Write(command);
             _console.Out.ToString().Should().NotContain("Arguments:");
         }
@@ -393,14 +473,14 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_included_if_there_are_commands_with_arguments_configured()
         {
-            var command = new Command(name: "the-command",
-                                      description: "command help",
-                                      argument: new Argument
-                                                {
-                                                    Name = "arg command name",
-                                                    Description = "test",
-                                                    Arity = ArgumentArity.ExactlyOne
-                                                });
+            var command = new Command("the-command", "command help")
+            {
+                new Argument
+                {
+                    Name = "arg command name",
+                    Description = "test"
+                }
+            };
 
             _helpBuilder.Write(command);
 
@@ -410,15 +490,13 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_not_included_if_there_are_options_with_no_arguments_configured()
         {
-            var commandLineBuilder = new CommandLineBuilder
-                                     {
-                                     }
-                                     .AddOption(
-                                         new Option(new[] { "-v", "--verbosity" },
-                                                    "Sets the verbosity."))
-                                     .Command;
+            var command = new RootCommand
+            {
+                new Option(new[] { "-v", "--verbosity" },
+                           "Sets the verbosity.")
+            };
 
-            _helpBuilder.Write(commandLineBuilder);
+            _helpBuilder.Write(command);
 
             _console.Out.ToString().Should().NotContain("Arguments:");
         }
@@ -426,16 +504,16 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_not_included_if_there_are_only_options_with_arguments_configured()
         {
-            var command = new Command("command");
-
-            command.AddOption(
-                new Option("-v",
-                           "Sets the verbosity.",
-                           new Argument
-                           {
-                               Name = "argument for options",
-                               Arity = ArgumentArity.ExactlyOne
-                           }));
+            var command = new Command("command")
+            {
+                new Option("-v", "Sets the verbosity.")
+                {
+                    Argument = new Argument
+                    {
+                        Name = "argument for options", Arity = ArgumentArity.ExactlyOne
+                    }
+                }
+            };
 
             _helpBuilder.Write(command);
 
@@ -445,22 +523,19 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_includes_configured_argument_aliases()
         {
-            var command = new Command("the-command", "command help");
-            var option = new Option(new[] { "-v", "--verbosity" },
-                                    "Sets the verbosity.",
-                                    new Argument
-                                    {
-                                        Name = "LEVEL",
-                                        Arity = ArgumentArity.ExactlyOne
-                                    });
-            command.AddOption(option);
-            var commandLineBuilder = new CommandLineBuilder()
-                                     .AddCommand(command)
-                                     .Command;
+            var command = new Command("the-command", "command help")
+            {
+                new Option(new[] { "-v", "--verbosity" })
+                {
+                    Argument = new Argument
+                    {
+                        Name = "LEVEL", Arity = ArgumentArity.ExactlyOne
+                    },
+                    Description = "Sets the verbosity."
+                }
+            };
 
-            var subcommand = commandLineBuilder
-                .Subcommand("the-command");
-            _helpBuilder.Write(subcommand);
+            _helpBuilder.Write(command);
 
             var help = _console.Out.ToString();
             help.Should().Contain("-v, --verbosity <LEVEL>");
@@ -470,14 +545,15 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_uses_description_if_provided()
         {
-            var command = new Command(
-                "the-command", "Help text from description",
-                argument: new Argument
-                          {
-                              Arity = ArgumentArity.ExactlyOne,
-                              Name = "the-arg",
-                              Description = "Help text from HelpDetail",
-                          });
+            var command = new Command("the-command", "Help text from description")
+            {
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne,
+                    Name = "the-arg",
+                    Description = "Help text from HelpDetail"
+                }
+            };
 
             var expected =
                 $"Arguments:{NewLine}" +
@@ -491,45 +567,90 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_does_not_contain_hidden_argument()
         {
-            var command = new Command("outer")
-                          {
-                              Argument = new Argument
-                                         {
-                                             Name = "test name",
-                                             Description = "test desc",
-                                         },
-                              IsHidden = true
-                          };
+            var command = new Command("the-command");
+            var hiddenArgName = "the-hidden";
+            var hiddenDesc = "the hidden desc";
+            var visibleArgName = "the-visible";
+            var visibleDesc = "the visible desc";
+            var hiddenArg = new Argument<int>
+            {
+                Name = hiddenArgName,
+                Description = hiddenDesc,
+                IsHidden = true
+            };
+            var visibleArg = new Argument<int>
+            {
+                Name = visibleArgName,
+                Description = visibleDesc,
+                IsHidden = false
+            };
+            command.AddArgument(hiddenArg);
+            command.AddArgument(visibleArg);
+
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}<{visibleArgName}>{_columnPadding}{visibleDesc}{NewLine}{NewLine}";
 
             _helpBuilder.Write(command);
+            var help = _console.Out.ToString();
+
+            help.Should().Contain(expected);
+            help.Should().NotContain(hiddenArgName);
+            help.Should().NotContain(hiddenDesc);
+        }
+
+        [Fact]
+        public void Arguments_section_does_not_repeat_arguments_that_appear_on_parent_command()
+        {
+            var reused = new Argument
+            {
+                Name = "reused",
+                Description = "This argument is valid on both outer and inner commands"
+            };
+            var inner = new Command("inner", "The inner command")
+            {
+                reused
+            };
+            var outer = new Command("outer")
+            {
+                reused,
+                inner
+            };
+
+            _helpBuilder.Write(inner);
 
             var help = _console.Out.ToString();
-            help.Should().NotContain("test name");
-            help.Should().NotContain("test desc");
+
+            help.Should()
+                .Be($"inner:{NewLine}" +
+                         $"  The inner command{NewLine}" +
+                         $"{NewLine}" +
+                         $"Usage:{NewLine}" +
+                         $"  outer [<reused>] inner [<reused>]{NewLine}" +
+                         $"{NewLine}" +
+                         $"Arguments:{NewLine}" +
+                         $"  <reused>{_columnPadding}This argument is valid on both outer and inner commands{NewLine}{NewLine}");
         }
 
         [Fact]
         public void Arguments_section_aligns_arguments_on_new_lines()
         {
-            var inner = new Command(
-                "inner",
-                "HelpDetail text for the inner command",
-                argument: new Argument<string>
-                          {
-                              Name = "the-inner-command-arg",
-                              Description = "The argument for the inner command",
-                          }
-            );
-            var outer = new Command(
-                            "outer",
-                            "HelpDetail text for the outer command",
-                            argument: new Argument<string>
-                                      {
-                                          Name = "outer-command-arg",
-                                          Description = "The argument for the outer command"
-                                      }
-                        );
-            outer.Add(inner);
+            var inner = new Command("inner", "HelpDetail text for the inner command")
+            {
+                new Argument<string>
+                {
+                    Name = "the-inner-command-arg",
+                    Description = "The argument for the inner command",
+                }
+            };
+            var outer = new Command("outer", "HelpDetail text for the outer command")
+            {
+                new Argument<string>
+                {
+                    Name = "outer-command-arg", Description = "The argument for the outer command"
+                },
+                inner
+            };
 
             var expected =
                 $"Arguments:{NewLine}" +
@@ -542,61 +663,17 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Arguments_section_is_not_included_with_only_unnamed_command_arguments()
-        {
-            var command = new Command(
-                "outer",
-                argument: new Argument<string>());
-
-            command.Argument.Name = null;
-            _helpBuilder.Write(command);
-
-            _console.Out.ToString().Should().NotContain("Arguments:");
-            _console.Out.ToString().Should().NotContain("<>");
-        }
-
-        [Fact]
-        public void Arguments_section_does_not_include_unnamed_subcommand_arguments()
-        {
-            var inner = new Command(
-                "inner", "HelpDetail text for the inner command",
-                argument: new Argument<string>
-                          {
-                              Name = "",
-                              Description = "The argument for the inner command",
-                          });
-            var outer = new Command(
-                            "outer",
-                            "HelpDetail text for the outer command",
-                            argument: new Argument<string>
-                                      {
-                                          Name = "outer-command-arg",
-                                          Description = "The argument for the outer command"
-                                      });
-            inner.Argument.Name = "";
-            outer.Add(inner);
-
-            var expected =
-                $"Arguments:{NewLine}" +
-                $"{_indentation}<outer-command-arg>{_columnPadding}The argument for the outer command{NewLine}{NewLine}";
-
-            _helpBuilder.Write(inner);
-
-            _console.Out.ToString().Should().Contain(expected);
-            _console.Out.ToString().Should().NotContain("<>");
-        }
-
-        [Fact]
         public void Arguments_section_removes_extra_whitespace()
         {
-            var outer = new Command(
-                "outer", "Help text for the outer command",
-                argument: new Argument
-                          {
-                              Arity = ArgumentArity.ExactlyOne,
-                              Name = "outer-command-arg",
-                              Description = "Argument\tfor the   inner command",
-                          });
+            var outer = new Command("outer", "Help text for the outer command")
+            {
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne,
+                    Name = "outer-command-arg",
+                    Description = "Argument\tfor the   inner command",
+                }
+            };
 
             _helpBuilder.Write(outer);
 
@@ -610,14 +687,15 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_removes_added_newlines()
         {
-            var command = new Command(
-                "outer", "Help text for the outer command",
-                argument: new Argument
-                          {
-                              Name = "outer-command-arg",
-                              Description = $"The argument{NewLine}for the{NewLine}inner command",
-                              Arity = ArgumentArity.ExactlyOne
-                          });
+            var command = new Command("outer", "Help text for the outer command")
+            {
+                new Argument
+                {
+                    Name = "outer-command-arg",
+                    Description = $"The argument{NewLine}for the{NewLine}inner command",
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
 
             _helpBuilder.Write(command);
 
@@ -636,15 +714,15 @@ namespace System.CommandLine.Tests.Help
                 $"for inner command with line breaks that is long enough to wrap to a" +
                 $"{NewLine}new line";
 
-            var command = new Command(
-                "outer", "Help text for the outer command",
-                argument: new Argument
-                          {
-                              Arity = ArgumentArity.ExactlyOne,
-                              Name = "outer-command-arg",
-                              Description = longCmdText,
-                          }
-            );
+            var command = new Command("outer", "Help text for the outer command")
+            {
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne,
+                    Name = "outer-command-arg",
+                    Description = longCmdText
+                }
+            };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
@@ -658,6 +736,34 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Arguments_section_properly_wraps()
+        {
+            var name = "argument-name-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
+            var description = "Argument description for a command with line breaks that is long enough to wrap to a new line.";
+
+            var command = new RootCommand()
+            {
+                new Argument
+                {
+                    Name = name,
+                    Description = description
+                }
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}<argument-name-for-a-command-th{_columnPadding}Argument description for a{NewLine}" +
+                $"{_indentation}at-is-long-enough-to-wrap-to-a-{_columnPadding}command with line breaks that{NewLine}" +
+                $"{_indentation}new-line>                      {_columnPadding}is long enough to wrap to a new{NewLine}" +
+                $"{_indentation}                               {_columnPadding}line.{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
         [Theory]
         [InlineData(typeof(bool))]
         [InlineData(typeof(bool?))]
@@ -665,14 +771,14 @@ namespace System.CommandLine.Tests.Help
         {
             var description = "This is the argument description";
 
-            var command = new Command(
-                "outer", "Help text for the outer command",
-                argument: new Argument
-                          {
-                              Description = description,
-                              ArgumentType = type
-                          }
-            );
+            var command = new Command("outer", "Help text for the outer command")
+            {
+                new Argument
+                {
+                    Description = description,
+                    ArgumentType = type
+                }
+            };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
@@ -692,14 +798,14 @@ namespace System.CommandLine.Tests.Help
         {
             var description = "This is the argument description";
 
-            var command = new Command(
-                "outer", "Help text for the outer command",
-                argument: new Argument
-                          {
-                              Description = description,
-                              ArgumentType = type
-                          }
-            );
+            var command = new Command("outer", "Help text for the outer command")
+            {
+                new Argument
+                {
+                    Description = description,
+                    ArgumentType = type
+                }
+            };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
@@ -735,10 +841,10 @@ namespace System.CommandLine.Tests.Help
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
             helpBuilder.Write(command);
-            
+
             _console.Out.ToString().Should().Contain($"--opt{_columnPadding}{description}");
         }
-        
+
         [Theory]
         [InlineData(typeof(FileAccess))]
         [InlineData(typeof(FileAccess?))]
@@ -763,6 +869,55 @@ namespace System.CommandLine.Tests.Help
             helpBuilder.Write(command);
 
             _console.Out.ToString().Should().Contain($"--opt <Read|ReadWrite|Write>{_columnPadding}{description}");
+        }
+
+        [Fact]
+        public void Help_describes_default_value_for_defaultable_argument()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+                Description = "Help text from HelpDetail",
+            };
+            argument.SetDefaultValue("the-arg-value");
+
+            var command = new Command("the-command",
+                "Help text from description") { argument };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[default: the-arg-value]");
+        }
+
+        [Fact]
+        public void Command_arguments_default_value_provided()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+            };
+
+            var otherArgument = new Argument
+            {
+                Name = "the-other-arg",
+            };
+            argument.SetDefaultValue("the-arg-value");
+            otherArgument.SetDefaultValue("the-other-arg-value");
+            var command = new Command("the-command",
+                "Help text from description") { argument, otherArgument };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[default: the-arg-value]")
+                .And.Contain($"[default: the-other-arg-value]");
         }
 
         #endregion Arguments
@@ -812,17 +967,17 @@ namespace System.CommandLine.Tests.Help
         public void Options_section_does_not_contain_option_with_HelpDefinition_that_IsHidden()
         {
             var command = new Command("the-command");
-            command.AddOption(new Option("-x", "Is Hidden", isHidden: true));
-            command.AddOption(new Option("-n", "Not Hidden", isHidden: false));
+            command.AddOption(new Option("-x", "Is Hidden")
+            {
+                IsHidden = true
+            });
+            command.AddOption(new Option("-n", "Not Hidden")
+            {
+                IsHidden = false
+            });
 
-            var commandLineBuilder = new CommandLineBuilder()
-                                     .AddCommand(command)
-                                     .Command;
 
-            Command subcommand = commandLineBuilder
-                .Subcommand("the-command");
-
-            _helpBuilder.Write(subcommand);
+            _helpBuilder.Write(command);
 
             var help = _console.Out.ToString();
             help.Should().Contain("-n");
@@ -911,20 +1066,17 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_removes_added_newlines()
         {
-            var commandLineBuilder = new CommandLineBuilder().AddCommand(
-                                                                 new Command(
-                                                                     "test-command",
-                                                                     "Help text for the command")
-                                                                 {
-                                                                     new Option(
-                                                                         new[] { "-a", "--aaa" },
-                                                                         $"Help{NewLine}for {NewLine} the{NewLine}option")
-                                                                 })
-                                                             .Command;
+            var command =
+                new Command(
+                    "test-command",
+                    "Help text for the command")
+                {
+                    new Option(
+                        new[] { "-a", "--aaa" },
+                        $"Help{NewLine}for {NewLine} the{NewLine}option")
+                };
 
-            Command subcommand = commandLineBuilder
-                .Subcommand("test-command");
-            _helpBuilder.Write(subcommand);
+            _helpBuilder.Write(command);
 
             var expected =
                 $"Options:{NewLine}" +
@@ -960,6 +1112,257 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Options_section_properly_wraps()
+        {
+            var alias = "--option-alias-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
+            var description = "Option description that is long enough to wrap.";
+
+            var command = new RootCommand()
+            {
+                new Option(alias, description)
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Options:{NewLine}" +
+                $"{_indentation}--option-alias-for-a-command-th{_columnPadding}Option description that is long{NewLine}" +
+                $"{_indentation}at-is-long-enough-to-wrap-to-a-{_columnPadding}enough to wrap.{NewLine}" +
+                $"{_indentation}new-line{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Options_section_does_not_contain_hidden_argument()
+        {
+            var command = new Command("the-command", "Does things.");
+            var opt1 = new Option("option1")
+            {
+                Argument = new Argument<int>
+                {
+                    Name = "the-hidden",
+                    IsHidden = true
+                }
+            };
+            var opt2 = new Option("option2")
+            {
+                Argument = new Argument<int>
+                {
+                    Name = "the-visible",
+                    IsHidden = false
+                }
+            };
+            command.AddOption(opt1);
+            command.AddOption(opt2);
+
+            _helpBuilder.Write(command);
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("the-hidden");
+            help.Should().Contain("the-visible");
+        }
+
+        [Fact]
+        public void Required_options_are_indicated()
+        {
+            var command = new RootCommand
+            {
+                new Option("--required")
+                {
+                    IsRequired = true
+                }
+            };
+
+            _helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should()
+                .Contain("--required (REQUIRED)");
+        }
+
+        [Fact]
+        public void Required_options_are_indicated_when_argument_is_named()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] {"-r", "--required" })
+                {
+                    IsRequired = true,
+                    Argument = new Argument<string>("ARG")
+                }
+            };
+
+            _helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should()
+                .Contain("-r, --required <ARG> (REQUIRED)");
+        }
+
+        [Fact]
+        public void Help_option_is_shown_in_help()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseHelp()
+                         .Build();
+
+            _helpBuilder.Write(parser.Configuration.RootCommand);
+
+            var help = _console.Out.ToString();
+
+            help.Should()
+                .Contain($"-?, -h, --help{_columnPadding}Show help and usage information");
+        }
+
+        [Fact]
+        public void Options_aliases_differing_only_by_prefix_are_deduplicated_favoring_dashed_prefixes()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] { "-x", "/x" })
+            };
+
+            _helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("/x");
+        }
+
+        [Fact]
+        public void Options_aliases_differing_only_by_prefix_are_deduplicated_favoring_double_dashed_prefixes()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] { "--long", "/long" })
+            };
+
+            _helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("/long");
+        }
+
+        [Fact]
+        public void Options_help_preserves_the_order_options_are_added_the_the_parent_command()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] { "--first", "-f" }),
+                new Option(new[] { "--second", "-s" }),
+                new Option(new[] { "--third" }),
+                new Option(new[] { "--last", "-l" })
+            };
+
+            _helpBuilder.Write(command);
+            var help = _console
+                       .Out
+                       .ToString()
+                       .Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                       .Select(l => l.Trim());
+
+            help.Should().ContainInOrder(
+                "-f, --first",
+                "-s, --second",
+                "--third",
+                "-l, --last");
+        }
+
+        [Fact]
+        public void Option_aliases_are_shown_before_long_names_regardless_of_alphabetical_order()
+        {
+            var command = new RootCommand
+            {
+                new Option(new[] { "-z", "-a", "--zzz", "--aaa" })
+            };
+
+            _helpBuilder.Write(command);
+
+            _console
+                .Out
+                .ToString().Should().Contain("-a, -z, --aaa, --zzz");
+        }
+
+        [Fact]
+        public void Help_describes_default_value_for_option_with_argument_having_default_value()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+            };
+            argument.SetDefaultValue("the-arg-value");
+
+            var command = new Command("the-command", "command help")
+            {
+                new Option(new[] { "-arg"})
+                {
+                    Argument = argument
+                }
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[default: the-arg-value]");
+        }
+
+        [Fact]
+        public void Help_should_not_contain_default_value_for_hidden_argument_defined_for_option()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+                IsHidden = true
+            };
+            argument.SetDefaultValue("the-arg-value");
+            var command = new Command("the-command", "command help")
+            {
+                new Option(new[] { "-arg"})
+                {
+                    Argument = argument
+                }
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain($"[default: the-arg-value]");
+        }
+
+        [Fact]
+        public void Option_help_can_be_requested_in_isolation()
+        {
+            var option = new Option(
+                new[] { "-z", "-a", "--zzz", "--aaa" },
+                "from a to z");
+
+            _helpBuilder.Write(option);
+
+            using var _ = new AssertionScope();
+
+            var output = _console.Out.ToString();
+
+            output
+                .Should()
+                .NotContain("Options");
+
+            output
+                .Should()
+                .Be("-a, -z, --aaa, --zzz    from a to z");
+        }
+
         #endregion Options
 
         #region Subcommands
@@ -993,22 +1396,20 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Subcommands_remove_extra_whitespace()
         {
-            var command = new Command(
-                              "outer",
-                              "outer command help",
-                              argument: new Argument<string[]>
-                                        {
-                                            Name = "outer-args"
-                                        })
-                          {
-                              new Command(
-                                  "inner",
-                                  "inner    command\t help  with whitespace",
-                                  argument: new Argument<string[]>
-                                            {
-                                                Name = "inner-args"
-                                            })
-                          };
+            var command = new Command("outer", "outer command help")
+            {
+                new Argument<string[]>
+                {
+                    Name = "outer-args"
+                },
+                new Command("inner", "inner    command\t help  with whitespace")
+                {
+                    new Argument<string[]>
+                    {
+                        Name = "inner-args"
+                    }
+                }
+            };
 
             _helpBuilder.Write(command);
 
@@ -1022,24 +1423,21 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Subcommands_remove_added_newlines()
         {
-            var command = new Command(
-                              "outer",
-                              "outer command help",
-                              argument: new Argument<string>
-                                        {
-                                            Name = "outer-args"
-                                        })
-                          {
-                              new Command(
-                                  "inner",
-                                  $"inner{NewLine}command help {NewLine} with {NewLine}newlines",
-                                  argument: new Argument<string>
+            var command = new Command("outer", "outer command help")
+                {
+                    new Argument<string>
+                    {
+                        Name = "outer-args"
+                    },
+                    new Command("inner", $"inner{NewLine}command help {NewLine} with {NewLine}newlines")
+                    {
+                        new Argument<string>
 
-                                            {
-                                                Name = "inner-args"
-                                            }
-                              )
-                          };
+                        {
+                            Name = "inner-args"
+                        }
+                    }
+                };
 
             _helpBuilder.Write(command);
 
@@ -1058,27 +1456,27 @@ namespace System.CommandLine.Tests.Help
                 $"subcommand with line breaks that is long enough to wrap to a{NewLine}" +
                 $"new line";
 
-            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            var helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            var command = new Command(
-                              "outer-command",
-                              "outer command help",
-                              argument: new Argument<string[]>
-                                        {
-                                            Name = "outer-args"
-                                        })
-                          {
-                              new Command(
-                                  "inner-command",
-                                  longSubcommandText,
-                                  argument: new Argument<string[]>
-                                            {
-                                                Name = "inner-args"
-                                            })
-                              {
-                                  new Option(new[] { "-v", "--verbosity" })
-                              }
-                          };
+            var command = new Command("outer-command", "outer command help")
+             {
+                 new Argument<string[]>
+                 {
+                     Name = "outer-args"
+                 },
+                 new Command("inner-command", longSubcommandText)
+                 {
+                     new Argument<string[]>
+                     {
+                         Name = "inner-args"
+                     },
+                     new Option(new[]
+                     {
+                         "-v",
+                         "--verbosity"
+                     })
+                 }
+             };
 
             helpBuilder.Write(command);
 
@@ -1090,6 +1488,197 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Subcommands_section_properly_wraps()
+        {
+            var name = "subcommand-name-that-is-long-enough-to-wrap-to-a-new-line";
+            var description = "Subcommand description that is really long. So long that it caused the line to wrap.";
+
+            var command = new RootCommand()
+            {
+                new Command(name, description)
+            };
+
+            var helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Commands:{NewLine}" +
+                $"{_indentation}subcommand-name-that-is-long-en{_columnPadding}Subcommand description that is{NewLine}" +
+                $"{_indentation}ough-to-wrap-to-a-new-line     {_columnPadding}really long. So long that it{NewLine}" +
+                $"{_indentation}                               {_columnPadding}caused the line to wrap.{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Subcommand_help_contains_command_with_empty_description()
+        {
+            var command = new Command("the-command", "Does things.");
+            var subCommand = new Command("the-subcommand", description: null);
+            command.AddCommand(subCommand);
+
+            _helpBuilder.Write(command);
+            var help = _console.Out.ToString();
+
+            help.Should().Contain("the-subcommand");
+        }
+
+        [Fact]
+        public void Subcommand_help_does_not_contain_hidden_command()
+        {
+            var command = new Command("the-command", "Does things.");
+            var hiddenSubCommand = new Command("the-hidden")
+            {
+                IsHidden = true
+            };
+            var visibleSubCommand = new Command("the-visible")
+            {
+                IsHidden = false
+            };
+            command.AddCommand(hiddenSubCommand);
+            command.AddCommand(visibleSubCommand);
+
+            _helpBuilder.Write(command);
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("the-hidden");
+            help.Should().Contain("the-visible");
+        }
+
+        [Fact]
+        public void Subcommand_help_does_not_contain_hidden_argument()
+        {
+            var command = new Command("the-command", "Does things.");
+            var subCommand = new Command("the-subcommand");
+            var hidden = new Argument<int>()
+            {
+                Name = "the-hidden",
+                IsHidden = true
+            };
+            var visible = new Argument<int>()
+            {
+                Name = "the-visible",
+                IsHidden = false
+            };
+            subCommand.AddArgument(hidden);
+            subCommand.AddArgument(visible);
+            command.AddCommand(subCommand);
+
+            _helpBuilder.Write(command);
+            var help = _console.Out.ToString();
+
+            help.Should().NotContain("the-hidden");
+            help.Should().Contain("the-visible");
+        }
+
         #endregion Subcommands
+
+        [Fact]
+        public void Help_text_can_be_added_after_default_text_by_inheriting_HelpBuilder()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseDefaults()
+                         .UseHelpBuilder(context => new CustomHelpBuilderThatAddsTextAfterDefaultText(context.Console, "The text to add"))
+                         .Build();
+
+            var console = new TestConsole();
+
+            parser.Invoke("-h", console);
+
+            console.Out.ToString().Should().EndWith("The text to add");
+        }
+
+        [Fact]
+        public void Help_describes_default_value_for_subcommand_with_arguments_and_only_defaultable_is_shown()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+            };
+            var otherArgumentHidden = new Argument
+            {
+                Name = "the-other-hidden-arg",
+                IsHidden = true
+            };
+            argument.SetDefaultValue("the-arg-value");
+            otherArgumentHidden.SetDefaultValue("the-other-hidden-arg-value");
+
+            var command = new Command("outer", "outer command help")
+                {
+                    new Argument<string>
+                    {
+                        Name = "outer-args"
+                    },
+                    new Command("inner", $"inner command help")
+                    {
+                        argument,
+                        otherArgumentHidden,
+                        new Argument<string>
+                        {
+                            Name = "inner-other-arg-no-default"
+                        }
+                    }
+                };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[default: the-arg-value]");
+        }
+
+        [Fact]
+        public void Help_describes_default_values_for_subcommand_with_multiple_defaultable_arguments()
+        {
+            var argument = new Argument
+            {
+                Name = "the-arg",
+            };
+            var otherArgument = new Argument
+            {
+                Name = "the-other-arg"
+            };
+            argument.SetDefaultValue("the-arg-value");
+            otherArgument.SetDefaultValue("the-other-arg-value");
+
+            var command = new Command("outer", "outer command help")
+                {
+                    new Argument<string>
+                    {
+                        Name = "outer-args"
+                    },
+                    new Command("inner", $"inner command help")
+                    {
+                        argument, otherArgument
+                    }
+                };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+
+            help.Should().Contain($"[the-arg: the-arg-value, the-other-arg: the-other-arg-value]");
+        }
+
+        private class CustomHelpBuilderThatAddsTextAfterDefaultText : HelpBuilder
+        {
+            private readonly string _theTextToAdd;
+
+            public CustomHelpBuilderThatAddsTextAfterDefaultText(IConsole console, string theTextToAdd) : base(console)
+            {
+                _theTextToAdd = theTextToAdd;
+            }
+
+            public override void Write(ICommand command)
+            {
+                base.Write(command);
+                base.Console.Out.Write(_theTextToAdd);
+            }
+        }
     }
 }

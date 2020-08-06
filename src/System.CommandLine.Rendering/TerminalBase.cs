@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.IO;
+
 namespace System.CommandLine.Rendering
 {
     public abstract class TerminalBase :
@@ -25,7 +27,7 @@ namespace System.CommandLine.Rendering
 
         public OutputMode OutputMode { get; set; } = OutputMode.Auto;
 
-        public virtual Region GetRegion() => EntireConsoleRegion.Instance;
+        public virtual Region GetRegion() => Region.EntireTerminal;
 
         public abstract ConsoleColor BackgroundColor { get; set; }
 
@@ -52,5 +54,9 @@ namespace System.CommandLine.Rendering
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        public abstract void HideCursor();
+
+        public abstract void ShowCursor();
     }
 }

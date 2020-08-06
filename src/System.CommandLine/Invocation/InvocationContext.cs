@@ -2,24 +2,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Parsing;
 using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
     public sealed class InvocationContext : IDisposable
     {
-        private CancellationTokenSource _cts;
-        private Action<CancellationTokenSource> _cancellationHandlingAddedEvent;
+        private CancellationTokenSource? _cts;
+        private Action<CancellationTokenSource>? _cancellationHandlingAddedEvent;
 
         public BindingContext BindingContext { get; }
 
         public InvocationContext(
             ParseResult parseResult,
-            IConsole console = null)
+            IConsole? console = null)
         {
             BindingContext = new BindingContext(parseResult, console);
-            BindingContext.ServiceProvider.AddService(AddCancellationHandling);
-            BindingContext.ServiceProvider.AddService(() => this);
+            BindingContext.ServiceProvider.AddService(_ => GetCancellationToken());
+            BindingContext.ServiceProvider.AddService(_ => this);
         }
 
         public IConsole Console => BindingContext.Console;
@@ -34,7 +35,7 @@ namespace System.CommandLine.Invocation
 
         public int ResultCode { get; set; }
 
-        public IInvocationResult InvocationResult { get; set; }
+        public IInvocationResult? InvocationResult { get; set; }
 
         internal event Action<CancellationTokenSource> CancellationHandlingAdded
         {
@@ -51,18 +52,17 @@ namespace System.CommandLine.Invocation
         }
 
         /// <summary>
-        /// Indicates the invocation can be cancelled.
+        /// Gets token to implement cancellation handling.
         /// </summary>
         /// <returns>Token used by the caller to implement cancellation handling.</returns>
-        internal CancellationToken AddCancellationHandling()
+        public CancellationToken GetCancellationToken()
         {
-            if (_cts != null)
+            if (_cts is null)
             {
-                throw new InvalidOperationException("Cancellation handling was already added.");
+                _cts = new CancellationTokenSource();
+                _cancellationHandlingAddedEvent?.Invoke(_cts);
             }
 
-            _cts = new CancellationTokenSource();
-            _cancellationHandlingAddedEvent?.Invoke(_cts);
             return _cts.Token;
         }
 

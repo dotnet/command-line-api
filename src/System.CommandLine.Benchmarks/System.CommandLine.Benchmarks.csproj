@@ -9,8 +9,8 @@
     <UseSharedCompilation>false</UseSharedCompilation>
 
     <!-- Supported target frameworks -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)' == '' AND '$(OS)' == 'Windows_NT'">net461;netcoreapp2.0;netcoreapp2.1;</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">netcoreapp2.0;netcoreapp2.1;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetFrameworks)' == '' AND '$(OS)' == 'Windows_NT'">net461;netcoreapp3.0;netcoreapp3.1;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">netcoreapp3.0;netcoreapp3.1;</TargetFrameworks>
 
     <!-- Use the latest C# compiler features -->
     <LangVersion>latest</LangVersion>
@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.5" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.5.0" />
   </ItemGroup>
 
   <ItemGroup>

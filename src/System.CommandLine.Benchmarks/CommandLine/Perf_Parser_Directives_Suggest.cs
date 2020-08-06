@@ -4,6 +4,7 @@
 using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 
@@ -23,13 +24,23 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             _nullConsole = new NullConsole();
 
-            var eatCommand = new Command("eat") {
-                new Option("--fruit",
-                    argument: new Argument<string>()
-                        .WithSuggestions("apple", "banana", "cherry")),
-                new Option("--vegetable",
-                    argument: new Argument<string>()
-                        .WithSuggestions("asparagus", "broccoli", "carrot")) };
+            var eatCommand = new Command("eat")
+            {
+                new Option("--fruit")
+                {
+                    Argument = new Argument<string>()
+                    {
+                        Suggestions = {"apple", "banana", "cherry" }
+                    }
+                },
+                new Option("--vegetable")
+                {
+                    Argument = new Argument<string>()
+                    {
+                        Suggestions = {"asparagus", "broccoli", "carrot" }
+                    }
+                }
+            };
 
             _testParser = new CommandLineBuilder(eatCommand)
                 .UseSuggestDirective()

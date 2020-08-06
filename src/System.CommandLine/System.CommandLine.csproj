@@ -1,18 +1,31 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <PackageId>System.CommandLine.Experimental</PackageId>
+    <PackageId>System.CommandLine</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8</LangVersion>
+    <Nullable>enable</Nullable>
+    <Description>This package includes a powerful command line parser and other tools for building command line applications, including:
+    
+    * Shell-agnostic support for command line completions
+    * Method invocation and an extensible middleware pipeline
+    * Constructor- and property-based model binding for complex types
+    * Test and debug support
+    </Description>
   </PropertyGroup>
    
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugType>portable</DebugType>
   </PropertyGroup>
+   
+  <ItemGroup>
+    <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
+    <PackageReference Include="system.memory" Version="4.5.4" />
   </ItemGroup>
 
 </Project>

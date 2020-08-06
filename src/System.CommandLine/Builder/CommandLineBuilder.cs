@@ -3,68 +3,67 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine.Builder
 {
     public class CommandLineBuilder : CommandBuilder
     {
-        private List<(InvocationMiddleware middleware, int order)> _middlewareList;
+        private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new List<(InvocationMiddleware middleware, int order)>();
 
-        public CommandLineBuilder(Command rootCommand = null)
+        public CommandLineBuilder(Command? rootCommand = null)
             : base(rootCommand ?? new RootCommand())
         {
         }
 
-        public bool EnablePositionalOptions { get; set; } = false;
+        public bool EnableDirectives { get; set; } = true;
 
         public bool EnablePosixBundling { get; set; } = true;
 
-        public IReadOnlyCollection<string> Prefixes { get; set; }
-
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
-        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; set; }
+        internal Func<BindingContext, IHelpBuilder>? HelpBuilderFactory { get; set; }
+
+        internal HelpOption? HelpOption { get; set; }
+
+        internal ValidationMessages? ValidationMessages { get; set; }
 
         public Parser Build()
         {
             var rootCommand = Command;
 
-            return new Parser(
+            var parser = new Parser(
                 new CommandLineConfiguration(
                     new[] { rootCommand },
-                    prefixes: Prefixes,
                     enablePosixBundling: EnablePosixBundling,
-                    enablePositionalOptions: EnablePositionalOptions,
-                    validationMessages: ValidationMessages.Instance,
+                    enableDirectives: EnableDirectives,
+                    validationMessages: ValidationMessages,
                     responseFileHandling: ResponseFileHandling,
-                    middlewarePipeline: _middlewareList?.OrderBy(m => m.order)
+                    middlewarePipeline: _middlewareList.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
-                                                       .ToArray(), 
+                                                       .ToArray(),
                     helpBuilderFactory: HelpBuilderFactory));
+
+            Command.ImplicitParser = parser;
+
+            return parser;
         }
 
         internal void AddMiddleware(
             InvocationMiddleware middleware,
-            int order)
+            MiddlewareOrder order)
         {
-            if (_middlewareList == null)
-            {
-                _middlewareList = new List<(InvocationMiddleware, int)>();
-            }
-
-            _middlewareList.Add((middleware, order));
+            _middlewareList.Add((middleware, (int) order));
         }
 
-        internal static class MiddlewareOrder
+        internal void AddMiddleware(
+            InvocationMiddleware middleware,
+            MiddlewareOrderInternal order)
         {
-            public const int ProcessExit = int.MinValue;
-            public const int ExceptionHandler = ProcessExit + 100;
-            public const int Configuration = ExceptionHandler + 100;
-            public const int Preprocessing = Configuration + 100;
-            public const int AfterPreprocessing = Preprocessing + 100;
-            public const int Middle = 0;
+            _middlewareList.Add((middleware, (int) order));
         }
     }
 }

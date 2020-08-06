@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Invocation;
-using System.CommandLine.Tests;
+using System.CommandLine.Tests.Utility;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -55,7 +55,7 @@ namespace System.CommandLine.Suggest.Tests
 
             _environmentVariables = new[] {
                 ("DOTNET_ROOT", _dotnetHostDir.FullName),
-                (FileSuggestionRegistration.TestDirectroyOverride, _testRoot)};
+                ("INTERNAL_TEST_DOTNET_SUGGEST_HOME", _testRoot)};
         }
 
         public void Dispose()
@@ -155,7 +155,7 @@ namespace System.CommandLine.Suggest.Tests
 
             stdOut.ToString()
                 .Should()
-                .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}");
+                .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
         }
     }
 }

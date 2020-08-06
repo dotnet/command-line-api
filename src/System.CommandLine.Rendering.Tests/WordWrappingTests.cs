@@ -104,7 +104,7 @@ namespace System.CommandLine.Rendering.Tests
                     Line(12, 14, "bro"),
                     Line(12, 15, "fox"));
 
-                testCaseName = $"{nameof(FormatSpan)} at start of {nameof(ContentSpan)}";
+                testCaseName = $"{nameof(ControlSpan)} at start of {nameof(ContentSpan)}";
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
@@ -124,7 +124,7 @@ namespace System.CommandLine.Rendering.Tests
                     Line(12, 14, $"bro"),
                     Line(12, 15, $"fox"));
 
-                testCaseName = $"{nameof(FormatSpan)} at end of {nameof(ContentSpan)}";
+                testCaseName = $"{nameof(ControlSpan)} at end of {nameof(ContentSpan)}";
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
@@ -144,7 +144,7 @@ namespace System.CommandLine.Rendering.Tests
                     Line(12, 14, $"bro"),
                     Line(12, 15, $"fox{Ansi.Color.Foreground.Default.EscapeSequence}"));
 
-                testCaseName = $"{nameof(FormatSpan)}s around a word inside a {nameof(ContentSpan)}";
+                testCaseName = $"{nameof(ControlSpan)}s around a word inside a {nameof(ContentSpan)}";
 
                 yield return new RenderingTestCase(
                     name: testCaseName,
@@ -164,7 +164,7 @@ namespace System.CommandLine.Rendering.Tests
                     Line(12, 14, $"bro{Ansi.Color.Foreground.Default.EscapeSequence}"),
                     Line(12, 15, $"fox"));
 
-                testCaseName = $"{nameof(FormatSpan)}s around a word inside a {nameof(ContentSpan)}";
+                testCaseName = $"{nameof(ControlSpan)}s around a word inside a {nameof(ContentSpan)}";
 
                 yield return new RenderingTestCase(
                     name: testCaseName,

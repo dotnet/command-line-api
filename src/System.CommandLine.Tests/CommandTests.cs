@@ -2,12 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using System.CommandLine.Parsing;
 using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class CommandTests
+    public class CommandTests : SymbolTests
     {
         private readonly Parser _parser;
 
@@ -18,11 +19,13 @@ namespace System.CommandLine.Tests
                 {
                     new Command("inner")
                     {
-                        new Option("--option",
-                                   argument: new Argument
-                                             {
-                                                 Arity = ArgumentArity.ExactlyOne
-                                             })
+                        new Option("--option")
+                        {
+                            Argument = new Argument
+                            {
+                                Arity = ArgumentArity.ExactlyOne
+                            }
+                        }
                     }
                 });
         }
@@ -34,6 +37,7 @@ namespace System.CommandLine.Tests
 
             result
                 .RootCommandResult
+                .Symbol
                 .Name
                 .Should()
                 .Be("outer");
@@ -47,6 +51,7 @@ namespace System.CommandLine.Tests
             result
                 .CommandResult
                 .Parent
+                .Symbol
                 .Name
                 .Should()
                 .Be("outer");
@@ -58,6 +63,7 @@ namespace System.CommandLine.Tests
             var result = _parser.Parse("outer inner --option argument1");
 
             result.CommandResult
+                  .Symbol
                   .Name
                   .Should()
                   .Be("inner");
@@ -71,6 +77,7 @@ namespace System.CommandLine.Tests
             result.CommandResult
                   .Children
                   .ElementAt(0)
+                  .Symbol
                   .Name
                   .Should()
                   .Be("option");
@@ -84,7 +91,8 @@ namespace System.CommandLine.Tests
             result.CommandResult
                   .Children
                   .ElementAt(0)
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("argument1");
         }
@@ -92,17 +100,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
-            var outer = new Command("outer", 
-                argument: new Argument
-                          {
-                              Arity = ArgumentArity.ExactlyOne
-                          });
+            var outer = new Command("outer")
+            {
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
             outer.AddCommand(
-                new Command("inner",
-                            argument: new Argument
-                                      {
-                                          Arity = ArgumentArity.ZeroOrMore
-                                      }));
+                new Command("inner")
+                {
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }
+                });
 
             var parser = new Parser(outer);
 
@@ -110,32 +122,47 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Parent
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("arg1");
 
             result.CommandResult
-                  .Arguments
+                  .Tokens
+                  .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("arg2", "arg3");
         }
 
         [Theory]
-        [InlineData("aa:")]
-        [InlineData("aa=")]
-        [InlineData(":aa")]
-        [InlineData("=aa")]
-        [InlineData("aa:aa")]
-        [InlineData("aa=aa")]
+        [InlineData("aa:", ":")]
+        [InlineData("aa=", "=")]
+        [InlineData(":aa", ":")]
+        [InlineData("=aa", "=")]
+        [InlineData("aa:aa", ":")]
+        [InlineData("aa=aa", "=")]
         public void When_a_command_name_contains_a_delimiter_then_an_error_is_returned(
-            string commandWithDelimiter)
+            string commandWithDelimiter,
+            string delimiter)
         {
-            Action create = () => new Parser(
-                new Command(
-                    commandWithDelimiter, "",
-                    argument: new Argument { Arity = ArgumentArity.ExactlyOne }));
+            Action create = () =>
+            {
+                new Parser(
+                    new Command(commandWithDelimiter)
+                    {
+                        new Argument
+                        {
+                            Arity = ArgumentArity.ExactlyOne
+                        }
+                    });
+            };
 
-            create.Should().Throw<SymbolCannotContainDelimiterArgumentException>();
+            create.Should()
+                  .Throw<ArgumentException>()
+                  .Which
+                  .Message
+                  .Should()
+                  .Be($"Command \"{commandWithDelimiter}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
         }
 
         [Theory]
@@ -166,14 +193,6 @@ namespace System.CommandLine.Tests
                     .Be($"Command alias cannot contain whitespace: \"{alias}\"");
         }
 
-        [Fact]
-        public void When_a_command_name_contains_a_delimiter_then_the_error_is_informative()
-        {
-            var subject = new SymbolCannotContainDelimiterArgumentException('ツ');
-            subject.Message.Should()
-                .Be(@"Symbol cannot contain delimiter: ""ツ""");
-        }
-
         [Theory]
         [InlineData("outer", "outer")]
         [InlineData("outer arg", "outer")]
@@ -188,17 +207,17 @@ namespace System.CommandLine.Tests
         public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand)
         {
             var outer = new Command("outer")
-                        {
-                            new Command("inner")
-                            {
-                                new Command("inner-er")
-                            },
-                            new Command("sibling")
-                        };
+            {
+                new Command("inner")
+                {
+                    new Command("inner-er")
+                },
+                new Command("sibling")
+            };
 
             var result = outer.Parse(input);
 
-            result.CommandResult.Name.Should().Be(expectedCommand);
+            result.CommandResult.Symbol.Name.Should().Be(expectedCommand);
         }
 
         [Fact]
@@ -220,8 +239,8 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand();
             command.AddAlias("that");
-            command.Aliases.Should().BeEquivalentTo(RootCommand.ExeName, "that");
-            command.RawAliases.Should().BeEquivalentTo(RootCommand.ExeName, "that");
+            command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
+            command.RawAliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
 
             var result = command.Parse("that");
 
@@ -236,14 +255,72 @@ namespace System.CommandLine.Tests
             subcommand.AddAlias("that");
 
             var rootCommand = new RootCommand
-                              {
-                                  subcommand
-                              };
+            {
+                subcommand
+            };
 
             var result = rootCommand.Parse("that");
 
             result.CommandResult.Command.Should().Be(subcommand);
             result.Errors.Should().BeEmpty();
         }
+
+        [Fact]
+        public void It_retains_argument_name_when_it_is_provided()
+        {
+            var command = new Command("-alias")
+            {
+                new Argument
+                {
+                    Name = "arg", Arity = ArgumentArity.ZeroOrOne
+                }
+            };
+
+            command.Arguments.Single().Name.Should().Be("arg");
+        }
+  
+        [Fact]
+        public void When_multiple_arguments_are_configured_then_they_must_differ_by_name()
+        {
+            var command = new Command("the-command")
+            {
+                new Argument<string>
+                {
+                    Name = "same"
+                }
+            };
+
+            command
+                .Invoking(c => c.Add(new Argument<string>
+                {
+                    Name = "same"
+                }))
+                .Should()
+                .Throw<ArgumentException>()
+                .And
+                .Message
+                .Should()
+                .Be("Alias 'same' is already in use.");
+        }
+
+        [Fact]
+        public void When_multiple_options_are_configured_then_they_must_differ_by_name()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("--same")
+            };
+
+            command
+                .Invoking(c => c.Add(new Option("--same")))
+                .Should()
+                .Throw<ArgumentException>()
+                .And
+                .Message
+                .Should()
+                .Be("Alias '--same' is already in use.");
+        }
+
+        protected override Symbol CreateSymbol(string name) => new Command(name);
     }
 }

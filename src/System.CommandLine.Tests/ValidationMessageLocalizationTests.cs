@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
@@ -15,12 +17,37 @@ namespace System.CommandLine.Tests
         {
             var messages = new FakeValidationMessages("the-message");
 
-            var command = new Command("the-command", "",
-                                      argument: new Argument
-                                      {
-                                          Arity = ArgumentArity.ExactlyOne
-                                      });
+            var command = new Command("the-command")
+            {
+                new Argument
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
             var parser = new Parser(new CommandLineConfiguration(new[] { command }, validationMessages: messages));
+            var result = parser.Parse("the-command");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .Contain("the-message");
+        }
+
+        [Fact]
+        public void Default_validation_messages_can_be_replaced_using_CommandLineBuilder_in_order_to_add_localization_support()
+        {
+            var messages = new FakeValidationMessages("the-message");
+
+            var parser = new CommandLineBuilder(new Command("the-command")
+                         {
+                             new Argument
+                             {
+                                 Arity = ArgumentArity.ExactlyOne
+                             }
+                         })
+                         .UseValidationMessages(messages)
+                         .Build();
+
             var result = parser.Parse("the-command");
 
             result.Errors
@@ -49,8 +76,6 @@ namespace System.CommandLine.Tests
             public override string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) => message;
 
             public override string UnrecognizedCommandOrArgument(string arg) => message;
-
-            public override string UnrecognizedOption(string unrecognizedOption, IReadOnlyCollection<string> allowedValues) => message;
         }
     }
 }

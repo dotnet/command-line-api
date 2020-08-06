@@ -7,7 +7,7 @@ namespace System.CommandLine.Binding
     {
         bool TryGetValue(
             IValueDescriptor valueDescriptor,
-            BindingContext bindingContext,
-            out object boundValue);
+            BindingContext? bindingContext,
+            out object? boundValue);
     }
 }

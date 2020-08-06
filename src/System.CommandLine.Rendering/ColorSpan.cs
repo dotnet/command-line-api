@@ -3,14 +3,17 @@
 
 namespace System.CommandLine.Rendering
 {
-    public abstract class ColorSpan : FormatSpan
+    public abstract class ColorSpan : ControlSpan
     {
-        protected ColorSpan(string name) : base(name)
+        protected ColorSpan(string name, AnsiControlCode ansiControlCode)
+            : base(name, ansiControlCode)
         {
         }
 
-        protected ColorSpan(RgbColor rgbColor) :
-            base(GetName(rgbColor) ?? throw new ArgumentNullException(nameof(rgbColor)))
+        protected ColorSpan(RgbColor rgbColor, AnsiControlCode ansiControlCode)
+            : base(
+                GetName(rgbColor) ?? throw new ArgumentNullException(nameof(rgbColor)), 
+                ansiControlCode)
         {
             RgbColor = rgbColor;
         }

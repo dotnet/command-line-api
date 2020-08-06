@@ -9,6 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using System.CommandLine.Rendering.Views;
 using System.CommandLine.Tests;
+using System.CommandLine.Tests.Utility;
 using static System.Environment;
 
 namespace System.CommandLine.Rendering.Tests

@@ -5,7 +5,7 @@ namespace System.CommandLine.Rendering.Tests
 {
     public class RenderingTestCase
     {
-        private static readonly SpanFormatter _formatter = new SpanFormatter();
+        private static readonly TextSpanFormatter _formatter = new TextSpanFormatter();
 
         public RenderingTestCase(
             string name,
@@ -31,7 +31,7 @@ namespace System.CommandLine.Rendering.Tests
 
         public string Name { get; }
 
-        public Span InputSpan { get; }
+        public TextSpan InputSpan { get; }
 
         public Region Region { get; }
 

@@ -24,7 +24,7 @@ namespace System.CommandLine.Rendering.Tests
                    .Should()
                    .Throw<ArgumentOutOfRangeException>()
                    .WithMessage(
-                       $"The value must be greater than or equal to zero and less than the console's buffer size in that dimension.{Environment.NewLine}Parameter name: left{Environment.NewLine}Actual value was -1.");
+                       $"The value must be greater than or equal to zero and less than the console's buffer size in that dimension. (Parameter 'left'){Environment.NewLine}Actual value was -1.");
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace System.CommandLine.Rendering.Tests
                    .Should()
                    .Throw<ArgumentOutOfRangeException>()
                    .WithMessage(
-                       $"The value must be greater than or equal to zero and less than the console's buffer size in that dimension.{Environment.NewLine}Parameter name: top{Environment.NewLine}Actual value was -1.");
+                       $"The value must be greater than or equal to zero and less than the console's buffer size in that dimension. (Parameter 'top'){Environment.NewLine}Actual value was -1.");
         }
 
         [Fact(Skip = "How to test?")]

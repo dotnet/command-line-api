@@ -3,6 +3,8 @@
 
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -64,7 +66,7 @@ namespace System.CommandLine.Tests
             console.Out
                    .ToString()
                    .Should()
-                   .Match("*Options:*--version*Display version information*");
+                   .Match("*Options:*--version*Show version information*");
         }
 
         [Fact]

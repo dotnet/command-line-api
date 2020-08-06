@@ -7,7 +7,7 @@ namespace System.CommandLine.Binding
 {
     public interface IMethodDescriptor
     {
-        ModelDescriptor Parent { get; }
+        ModelDescriptor? Parent { get; }
 
         IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
     }

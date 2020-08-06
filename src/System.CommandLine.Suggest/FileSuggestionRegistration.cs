@@ -10,8 +10,8 @@ namespace System.CommandLine.Suggest
 {
     public class FileSuggestionRegistration : ISuggestionRegistration
     {
-        public const string ResgistrationFileName = ".dotnet-suggest-registration.txt";
-        public const string TestDirectroyOverride = "INTERNAL_TEST_DOTNET_SUGGEST_HOME";
+        private const string RegistrationFileName = ".dotnet-suggest-registration.txt";
+        private const string TestDirectoryOverride = "INTERNAL_TEST_DOTNET_SUGGEST_HOME";
         private readonly string _registrationConfigurationFilePath;
 
         public FileSuggestionRegistration(string registrationsConfigurationFilePath = null)
@@ -22,18 +22,16 @@ namespace System.CommandLine.Suggest
                 return;
             }
 
-            var testDirectoryOverride = GetEnvironmentVariable(TestDirectroyOverride);
+            var testDirectoryOverride = GetEnvironmentVariable(TestDirectoryOverride);
             if (!string.IsNullOrWhiteSpace(testDirectoryOverride))
             {
-                _registrationConfigurationFilePath = Path.Combine(testDirectoryOverride, ResgistrationFileName);
+                _registrationConfigurationFilePath = Path.Combine(testDirectoryOverride, RegistrationFileName);
                 return;
             }
 
             var userProfile = GetFolderPath(SpecialFolder.UserProfile);
-            if (userProfile != null)
-            {
-                _registrationConfigurationFilePath = Path.Combine(userProfile, ResgistrationFileName);
-            }
+            
+            _registrationConfigurationFilePath = Path.Combine(userProfile, RegistrationFileName);
         }
 
         public Registration FindRegistration(FileInfo soughtExecutable)
@@ -43,14 +41,20 @@ namespace System.CommandLine.Suggest
                 return null;
             }
 
+            if (soughtExecutable.Exists)
+            {
+                return new Registration(soughtExecutable.FullName);
+            }
+
             if (_registrationConfigurationFilePath == null
                 || !File.Exists(_registrationConfigurationFilePath))
             {
                 return null;
             }
 
-            string completionTarget = File.ReadAllLines(_registrationConfigurationFilePath).LastOrDefault(line =>
-                line.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase));
+            var completionTarget =
+                File.ReadAllLines(_registrationConfigurationFilePath).LastOrDefault(line =>
+                                                                                        line.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase));
 
             if (completionTarget == null)
             {

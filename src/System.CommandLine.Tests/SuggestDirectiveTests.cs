@@ -2,7 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -20,15 +21,17 @@ namespace System.CommandLine.Tests
 
         public SuggestDirectiveTests()
         {
-            _fruitOption = new Option("--fruit",
-                                      argument: new Argument<string>()
-                                          .WithSuggestions("apple", "banana", "cherry"));
+            _fruitOption = new Option<string>("--fruit")
+                .AddSuggestions("apple", "banana", "cherry");
 
-            _vegetableOption = new Option("--vegetable",
-                                          argument: new Argument<string>()
-                                              .WithSuggestions("asparagus", "broccoli", "carrot"));
+            _vegetableOption = new Option<string>("--vegetable")
+                .AddSuggestions(_ => new[] { "asparagus", "broccoli", "carrot" });
 
-            _eatCommand = new Command("eat") { _fruitOption, _vegetableOption };
+            _eatCommand = new Command("eat")
+            {
+                _fruitOption,
+                _vegetableOption
+            };
         }
 
         [Fact]
@@ -47,7 +50,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -72,7 +75,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -98,7 +101,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -127,7 +130,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -151,7 +154,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -176,7 +179,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -197,7 +200,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -218,7 +221,7 @@ namespace System.CommandLine.Tests
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync(result, console);
+            await result.InvokeAsync(console);
 
             console.Out
                    .ToString()
@@ -234,8 +237,8 @@ namespace System.CommandLine.Tests
                               new Command("child"),
                               new Option("--option1"),
                               new Option("--option2"),
+                              new Argument<string>()
                           };
-            command.Argument = new Argument<string>();
 
             var console = new TestConsole();
 
@@ -250,7 +253,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_does_not_repeat_suggestion_for_already_specified_bool_option()
         {
-            var command = new RootCommand { new Option("--bool-option", argument: new Argument<bool>()), };
+            var command = new RootCommand
+            {
+                new Option("--bool-option")
+                {
+                    Argument = new Argument<bool>()
+                }
+            };
 
             var console = new TestConsole();
 

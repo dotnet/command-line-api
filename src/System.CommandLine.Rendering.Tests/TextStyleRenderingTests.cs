@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Tests;
+using System.CommandLine.Tests.Utility;
 using System.Drawing;
 using FluentAssertions;
 using Xunit;
@@ -11,13 +11,13 @@ namespace System.CommandLine.Rendering.Tests
 {
     public class TextStyleRenderingTests
     {
-        private readonly SpanFormatter _spanFormatter = new SpanFormatter();
+        private readonly TextSpanFormatter _textSpanFormatter = new TextSpanFormatter();
         private readonly TestTerminal _terminal = new TestTerminal();
 
         [Fact]
         public void BackgroundColorSpans_are_replaced_with_ANSI_codes_during_ANSI_rendering()
         {
-            var span = _spanFormatter.ParseToSpan(
+            var span = _textSpanFormatter.ParseToSpan(
                 $"{BackgroundColorSpan.Red()}red {BackgroundColorSpan.Blue()}blue {BackgroundColorSpan.Green()}green {BackgroundColorSpan.Reset()}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_terminal, OutputMode.Ansi);
@@ -34,7 +34,7 @@ namespace System.CommandLine.Rendering.Tests
         [Fact]
         public void ForegroundColorSpans_are_replaced_with_ANSI_codes_during_ANSI_rendering()
         {
-            var span = _spanFormatter.ParseToSpan(
+            var span = _textSpanFormatter.ParseToSpan(
                 $"{ForegroundColorSpan.Red()}red {ForegroundColorSpan.Blue()}blue {ForegroundColorSpan.Green()}green {ForegroundColorSpan.Reset()}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_terminal, OutputMode.Ansi);
@@ -51,7 +51,7 @@ namespace System.CommandLine.Rendering.Tests
         [Fact]
         public void BackgroundColorSpans_are_replaced_with_System_Console_calls_during_non_ANSI_rendering()
         {
-            var span = _spanFormatter.ParseToSpan(
+            var span = _textSpanFormatter.ParseToSpan(
                 $"{BackgroundColorSpan.Red()}red {BackgroundColorSpan.Blue()}blue {BackgroundColorSpan.Green()}green {BackgroundColorSpan.Reset()}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_terminal, OutputMode.NonAnsi);
@@ -80,7 +80,7 @@ namespace System.CommandLine.Rendering.Tests
         [Fact]
         public void ForegroundColorSpans_are_replaced_with_System_Console_calls_during_non_ANSI_rendering()
         {
-            var span = _spanFormatter.ParseToSpan(
+            var span = _textSpanFormatter.ParseToSpan(
                 $"{ForegroundColorSpan.Red()}red {ForegroundColorSpan.Blue()}blue {ForegroundColorSpan.Green()}green {ForegroundColorSpan.Reset()}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_terminal, OutputMode.NonAnsi);
@@ -109,7 +109,7 @@ namespace System.CommandLine.Rendering.Tests
         [Fact]
         public void BackgroundColorSpans_are_removed_during_file_rendering()
         {
-            var span = _spanFormatter.ParseToSpan(
+            var span = _textSpanFormatter.ParseToSpan(
                 $"{BackgroundColorSpan.Red()}red {BackgroundColorSpan.Blue()}blue {BackgroundColorSpan.Green()}green {BackgroundColorSpan.Reset()}or a {BackgroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_terminal, OutputMode.PlainText);
@@ -124,7 +124,7 @@ namespace System.CommandLine.Rendering.Tests
         [Fact]
         public void ForegroundColorSpans_are_removed_during_file_rendering()
         {
-            var span = _spanFormatter.ParseToSpan(
+            var span = _textSpanFormatter.ParseToSpan(
                 $"{ForegroundColorSpan.Red()}red {ForegroundColorSpan.Blue()}blue {ForegroundColorSpan.Green()}green {ForegroundColorSpan.Reset()}or a {ForegroundColorSpan.Rgb(12, 34, 56)}little of each.");
 
             var renderer = new ConsoleRenderer(_terminal, OutputMode.PlainText);

@@ -1,11 +1,12 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.IO;
 using System.Text;
 
 namespace System.CommandLine.Rendering
 {
-    internal abstract class ContentRenderingSpanVisitor : SpanVisitor
+    internal abstract class ContentRenderingSpanVisitor : TextSpanVisitor
     {
         private readonly StringBuilder _buffer = new StringBuilder();
 
@@ -28,7 +29,7 @@ namespace System.CommandLine.Rendering
 
         protected Region Region { get; }
 
-        protected override void Start(Span span)
+        protected override void Start(TextSpan span)
         {
             TrySetCursorPosition(Region.Left, Region.Top);
         }
@@ -72,7 +73,7 @@ namespace System.CommandLine.Rendering
             _lastSpanEndedWithWhitespace = text.EndsWithWhitespace();
         }
 
-        protected override void Stop(Span span)
+        protected override void Stop(TextSpan span)
         {
             if (_positionOnLine > 0 ||
                 span.ContentLength == 0)
@@ -201,7 +202,9 @@ namespace System.CommandLine.Rendering
             return true;
         }
 
-        private void TrySetCursorPosition(int left, int top)
+        private void TrySetCursorPosition(
+            int left, 
+            int? top = null)
         {
             if (left == _cursorLeft &&
                 top == _cursorTop)
@@ -210,11 +213,16 @@ namespace System.CommandLine.Rendering
             }
 
             _cursorLeft = left;
-            _cursorTop = top;
+            if (top != null)
+            {
+                _cursorTop = top.Value;
+            }
 
             SetCursorPosition(_cursorLeft, _cursorTop);
         }
 
-        protected abstract void SetCursorPosition(int left, int top);
+        protected abstract void SetCursorPosition(
+            int? left = null, 
+            int? top = null);
     }
 }

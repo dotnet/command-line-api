@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <PackageId>dotnet-suggest</PackageId>
     <ToolCommandName>dotnet-suggest</ToolCommandName>
-    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64</PackAsToolShimRuntimeIdentifiers>
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64;linux-x64</PackAsToolShimRuntimeIdentifiers>
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
 
     <DotnetSuggestBuildNumber>.1</DotnetSuggestBuildNumber>
@@ -40,8 +39,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
   <!-- Workaround https://github.com/dotnet/arcade/issues/2233 -->
   <Target Name="_InitializeAssemblyVersion" BeforeTargets="GetAssemblyVersion">

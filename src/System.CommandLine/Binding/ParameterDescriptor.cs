@@ -18,11 +18,11 @@ namespace System.CommandLine.Binding
             _parameterInfo = parameterInfo;
         }
 
-        public string Name => _parameterInfo.Name;
+        public string ValueName => _parameterInfo.Name;
 
         public IMethodDescriptor Parent { get; }
 
-        public Type Type => _parameterInfo.ParameterType;
+        public Type ValueType => _parameterInfo.ParameterType;
 
         public bool HasDefaultValue => _parameterInfo.HasDefaultValue;
 
@@ -30,9 +30,15 @@ namespace System.CommandLine.Binding
         {
             get
             {
-                if (_allowsNull == null)
+                if (_allowsNull is null)
                 {
                     if (_parameterInfo.ParameterType.IsNullable())
+                    {
+                        _allowsNull = true;
+                    }
+
+                    if (_parameterInfo.HasDefaultValue &&
+                        _parameterInfo.DefaultValue is null)
                     {
                         _allowsNull = true;
                     }
@@ -42,11 +48,11 @@ namespace System.CommandLine.Binding
             }
         }
 
-        public object GetDefaultValue() =>
+        public object? GetDefaultValue() =>
             _parameterInfo.DefaultValue is DBNull
-                ? Type.GetDefaultValueForType()
+                ? ValueType.GetDefaultValueForType()
                 : _parameterInfo.DefaultValue;
 
-        public override string ToString() => $"{Type.Name} {Name}";
+        public override string ToString() => $"{ValueType.Name} {ValueName}";
     }
 }
