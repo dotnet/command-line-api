@@ -1,4 +1,4 @@
-﻿using System.CommandLine.Help;
+using System.CommandLine.Help;
 using System.Reflection;
 using Microsoft.Extensions.Localization;
 

@@ -1,7 +1,8 @@
-﻿using System.CommandLine.Binding;
+using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Reflection;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -24,8 +25,7 @@ namespace System.CommandLine.Localization
                 {
                     ILoggerFactory? loggerFactory = null;
                     // If using Generic Host integration
-                    if (Type.GetType(@"Microsoft.Extensions.Hosting.IHost, Microsoft.Extensions.Hosting.Abstractions") is Type iHostType &&
-                    serviceProvider.GetService(iHostType) is object iHostInstance)
+                    if (GetDynamicLoadedIHostInstance(serviceProvider) is { Interface: Type iHostType, Instance: object iHostInstance })
                     {
                         const BindingFlags getProperty = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty;
                         var hostedServices = iHostType.InvokeMember(
@@ -47,6 +47,18 @@ namespace System.CommandLine.Localization
                     loggerFactory ??= serviceProvider.GetService<ILoggerFactory>() ??
                         Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance;
                     return new ResourceManagerStringLocalizerFactory(options, loggerFactory);
+
+                    static (Type? Interface, object? Instance) GetDynamicLoadedIHostInstance(IServiceProvider serviceProvider)
+                    {
+                        var hostingAbstractionAsm = Assembly.Load("Microsoft.Extensions.Hosting.Abstractions");
+                        if (hostingAbstractionAsm is null)
+                            return default;
+                        var iHostType = Type.GetType(@"Microsoft.Extensions.Hosting.IHost, Microsoft.Extensions.Hosting.Abstractions");
+                        if (iHostType is null)
+                            return default;
+                        var iHostInstance = serviceProvider.GetService(iHostType);
+                        return (iHostType, iHostInstance);
+                    }
                 });
 
                 return next(context);

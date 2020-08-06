@@ -1,4 +1,4 @@
-﻿using System.CommandLine.Help;
+using System.CommandLine.Help;
 using System.Linq;
 using Microsoft.Extensions.Localization;
 
@@ -43,7 +43,7 @@ namespace System.CommandLine.Localization
 
         private Option GetLocalizedOption(IOption option)
         {
-            var lopt = new Option(option.Aliases.First());
+            var lopt = new Option(option.RawAliases.First());
             Localize(lopt, option);
 
             lopt.Name = option.Name;
@@ -68,12 +68,13 @@ namespace System.CommandLine.Localization
 
         private void Localize(Symbol symbol, ISymbol source)
         {
-            var ldesc = string.IsNullOrEmpty(source.Description)
-                ? source.Description
-                : localizer.GetString(source.Description);
-            symbol.Description = ldesc;
+            if (!string.IsNullOrEmpty(source.Description))
+            {
+                var locDesc = localizer.GetString(source.Description);
+                symbol.Description = locDesc;
+            }
 
-            foreach (var alias in source.Aliases)
+            foreach (var alias in source.RawAliases)
                 symbol.AddAlias(alias);
 
             symbol.IsHidden = source.IsHidden;
