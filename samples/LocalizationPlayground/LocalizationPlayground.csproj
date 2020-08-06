@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="..\..\src\System.CommandLine.Localization\System.CommandLine.Localization.csproj" />
+  </ItemGroup>
+
+</Project>
