@@ -1,6 +1,7 @@
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.IO;
 using System.Reflection;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -50,7 +51,12 @@ namespace System.CommandLine.Localization
 
                     static (Type? Interface, object? Instance) GetDynamicLoadedIHostInstance(IServiceProvider serviceProvider)
                     {
-                        var hostingAbstractionAsm = Assembly.Load("Microsoft.Extensions.Hosting.Abstractions");
+                        Assembly? hostingAbstractionAsm = null;
+                        try
+                        {
+                            hostingAbstractionAsm = Assembly.Load("Microsoft.Extensions.Hosting.Abstractions");
+                        }
+                        catch (Exception) { }
                         if (hostingAbstractionAsm is null)
                             return default;
                         var iHostType = Type.GetType(@"Microsoft.Extensions.Hosting.IHost, Microsoft.Extensions.Hosting.Abstractions");
