@@ -67,9 +67,14 @@ namespace System.CommandLine.Localization
             Localize(lcmd, command);
 
             foreach (IOption option in command.Options)
+            {
                 lcmd.AddOption(GetLocalizedOption(option));
+            }
+
             foreach (IArgument argument in command.Arguments)
+            {
                 lcmd.AddArgument(GetLocalizedArgument(argument));
+            }
 
             lcmd.TreatUnmatchedTokensAsErrors = command.TreatUnmatchedTokensAsErrors;
 
@@ -83,7 +88,10 @@ namespace System.CommandLine.Localization
 
             lopt.Name = option.Name;
             if (!(option.Argument.Arity is { MaximumNumberOfValues: 0, MinimumNumberOfValues: 0 }))
+            {
                 lopt.Argument = GetLocalizedArgument(option.Argument);
+            }
+
             lopt.IsRequired = option.IsRequired;
 
             return lopt;
@@ -96,7 +104,10 @@ namespace System.CommandLine.Localization
             larg.ArgumentType = argument.ValueType;
             larg.Arity = argument.Arity;
             if (argument.HasDefaultValue)
+            {
                 larg.SetDefaultValueFactory(() => argument.GetDefaultValue());
+            }
+
             larg.AddSuggestions(txtToMatch => argument.GetSuggestions(txtToMatch)!);
 
             return larg;
@@ -123,11 +134,15 @@ namespace System.CommandLine.Localization
                     }
                 }
                 else
+                {
                     symbol.Description = locDesc;
+                }
             }
 
             foreach (var alias in source.RawAliases)
+            {
                 symbol.AddAlias(alias);
+            }
 
             symbol.IsHidden = source.IsHidden;
         }
@@ -140,7 +155,9 @@ namespace System.CommandLine.Localization
                     $"{nameof(HelpBuilder)}.{nameof(DefaultValueHint)}",
                     argument.GetDefaultValue());
                 if (!(locDefault.ResourceNotFound || string.IsNullOrEmpty(locDefault)))
+                {
                     return locDefault;
+                }
             }
 
             return base.DefaultValueHint(argument, isSingleArgument);
@@ -152,7 +169,10 @@ namespace System.CommandLine.Localization
             string localizedValue = localized;
             if (string.IsNullOrEmpty(localizedValue) ||
                 string.Equals(localizedValue, key, StringComparison.Ordinal))
+            {
                 return @default;
+            }
+
             return localizedValue;
         }
     }
