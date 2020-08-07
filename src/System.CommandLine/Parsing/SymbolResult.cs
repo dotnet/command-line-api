@@ -44,9 +44,12 @@ namespace System.CommandLine.Parsing
         private protected virtual int RemainingArgumentCapacity =>
             MaximumArgumentCapacity() - Tokens.Count;
 
-        internal int MaximumArgumentCapacity() =>
-            Symbol.Arguments()
-                  .Sum(a => a.Arity.MaximumNumberOfValues);
+        internal int MaximumArgumentCapacity()
+        {
+            var maximumArgumentCapacity = Symbol.Arguments()
+                .Sum(a => a.Arity.MaximumNumberOfValues);
+            return (int) Math.Min(maximumArgumentCapacity, int.MaxValue);
+        }
 
         protected internal ValidationMessages ValidationMessages
         {

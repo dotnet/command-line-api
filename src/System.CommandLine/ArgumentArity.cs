@@ -9,6 +9,8 @@ namespace System.CommandLine
 {
     public class ArgumentArity : IArgumentArity
     {
+        public const int MaximumArity = 100_000;
+
         public ArgumentArity(int minimumNumberOfValues, int maximumNumberOfValues)
         {
             if (minimumNumberOfValues < 0)
@@ -21,13 +23,18 @@ namespace System.CommandLine
                 throw new ArgumentException($"{nameof(maximumNumberOfValues)} must be greater than or equal to {nameof(minimumNumberOfValues)}");
             }
 
+            if (maximumNumberOfValues > MaximumArity)
+            {
+                throw new ArgumentException($"{nameof(maximumNumberOfValues)} must be less than or equal to {nameof(MaximumArity)}");
+            }
+
             MinimumNumberOfValues = minimumNumberOfValues;
             MaximumNumberOfValues = maximumNumberOfValues;
         }
 
-        public int MinimumNumberOfValues { get; set; }
+        public int MinimumNumberOfValues { get; }
 
-        public int MaximumNumberOfValues { get; set; }
+        public int MaximumNumberOfValues { get; }
 
         internal static FailedArgumentConversionArityResult? Validate(
             SymbolResult symbolResult,
@@ -71,9 +78,9 @@ namespace System.CommandLine
 
         public static IArgumentArity ExactlyOne => new ArgumentArity(1, 1);
 
-        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, int.MaxValue);
+        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, MaximumArity);
 
-        public static IArgumentArity OneOrMore => new ArgumentArity(1, int.MaxValue);
+        public static IArgumentArity OneOrMore => new ArgumentArity(1, MaximumArity);
 
         internal static IArgumentArity Default(Type type, Argument argument, ISymbol parent)
         {
