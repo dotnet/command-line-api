@@ -253,9 +253,12 @@ namespace System.CommandLine.Builder
                         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
                 }
 
-                context.ExecutionContext = ExecutionContext.Capture();
-
                 await next(context);
+
+                if (!(context.InvocationResult is null))
+                {
+                    context.ExecutionContext = ExecutionContext.Capture();
+                }
 
                 static void ApplyCultureFromWellKnownEnvironmentVariables()
                 {
