@@ -17,12 +17,13 @@ namespace LocalizationPlayground
                         !string.IsNullOrEmpty(culture))
                     CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(culture);
 
-                var execCtx = ExecutionContext.Capture();
-
                 await next(context).ConfigureAwait(false);
 
-                if (context.InvocationResult is { } innerResult)
+                if (context.InvocationResult is IInvocationResult innerResult)
+                {
+                    var execCtx = ExecutionContext.Capture();
                     context.InvocationResult = new ExecutionContextRestoringInvocationResult(execCtx, innerResult);
+                }
             }, MiddlewareOrder.ExceptionHandler);
         }
     }
