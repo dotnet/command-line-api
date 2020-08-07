@@ -8,9 +8,9 @@ using System.Reflection;
 
 namespace System.CommandLine.Binding
 {
-    public class ModelBinder
+    public class ModelBinder3
     {
-        public ModelBinder(Type modelType) : this(new AnonymousValueDescriptor(modelType))
+        public ModelBinder3(Type modelType) : this(new AnonymousValueDescriptor(modelType))
         {
             if (modelType is null)
             {
@@ -18,7 +18,7 @@ namespace System.CommandLine.Binding
             }
         }
 
-        internal ModelBinder(IValueDescriptor valueDescriptor)
+        internal ModelBinder3(IValueDescriptor valueDescriptor)
         {
             ValueDescriptor = valueDescriptor ?? throw new ArgumentNullException(nameof(valueDescriptor));
 
@@ -136,20 +136,10 @@ namespace System.CommandLine.Binding
                     .ConstructorDescriptors
                     .OrderByDescending(d => d.ParameterDescriptors.Count);
 
-            foreach (var constructor in constructorDescriptors)
+            var (constructor, boundConstructorArguments) = FindConstructor(constructorDescriptors, context);
+
+            if (!(constructor is null))
             {
-                var boundConstructorArguments = GetValues(
-                    ConstructorArgumentBindingSources,
-                    context,
-                    constructor.ParameterDescriptors,
-                    true);
-
-                if (boundConstructorArguments.Count != constructor.ParameterDescriptors.Count)
-                {
-                    continue;
-                }
-
-                // Found invokable constructor, invoke and return
                 var values = boundConstructorArguments.Select(v => v.Value).ToArray();
 
                 try
@@ -164,13 +154,30 @@ namespace System.CommandLine.Binding
                 }
                 catch
                 {
-                    instance = null;
-                    return false;
+                    // continue to failure exit
                 }
             }
-
             instance = null;
             return false;
+
+        }
+
+        private (ConstructorDescriptor?, IReadOnlyList<BoundValue>?) FindConstructor(IOrderedEnumerable<ConstructorDescriptor> constructorDescriptors, BindingContext context)
+        {
+            foreach (var constructor in constructorDescriptors)
+            {
+                var boundConstructorArguments = GetValues(
+                    ConstructorArgumentBindingSources,
+                    context,
+                    constructor.ParameterDescriptors,
+                    true);
+
+                if (boundConstructorArguments.Count == constructor.ParameterDescriptors.Count)
+                {
+                    return (constructor, boundConstructorArguments);
+                }
+            }
+            return (null, null);
         }
 
         public void UpdateInstance<T>(T instance, BindingContext bindingContext)
@@ -205,6 +212,8 @@ namespace System.CommandLine.Binding
 
                 if (boundValue is null)
                 {
+                    var binder = bindingContext.GetModelBinder(valueDescriptor);
+                    var value = binder.CreateInstance(bindingContext);
                     if (includeMissingValues)
                     {
                         if (valueDescriptor is ParameterDescriptor parameterDescriptor &&

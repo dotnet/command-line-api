@@ -79,6 +79,34 @@ namespace System.CommandLine.Tests.Binding
             valueReceivedValue.Should().Be(expectedValue);
         }
 
+        [Theory]
+        [InlineData(typeof(FileInfo), "MyFile.cs")]
+        public void Command_arguments_are_bound_by_name_to_complex_constructor_parameters(
+           Type type,
+           string commandLine)
+        {
+            var targetType = typeof(ClassWithCtorParameter<>).MakeGenericType(type);
+            var binder = new ModelBinder(targetType);
+
+            var command = new Command("the-command")
+            {
+                new Argument
+                {
+                    Name = "value",
+                    ArgumentType = type
+                }
+            };
+
+            var bindingContext = new BindingContext(command.Parse(commandLine));
+
+            var instance = binder.CreateInstance(bindingContext);
+
+            object valueReceivedValue = ((dynamic)instance).Value;
+            var expectedValue = new FileInfo(commandLine);
+
+            valueReceivedValue.Should().BeEquivalentTo(expectedValue);
+        }
+
         [Fact]
         public void Explicitly_configured_default_values_can_be_bound_by_name_to_constructor_parameters()
         {
@@ -334,7 +362,7 @@ namespace System.CommandLine.Tests.Binding
 
             instance.IntOption.Should().Be(123);
         }
-        
+
         [Fact]
         public void Default_values_from_parent_command_arguments_are_bound_by_name_by_default()
         {

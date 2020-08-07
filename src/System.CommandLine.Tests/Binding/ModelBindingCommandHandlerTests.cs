@@ -337,7 +337,7 @@ namespace System.CommandLine.Tests.Binding
             bool useDelegate,
             string variation = null)
         {
-            var testCase = _bindingCases[(type, variation)];
+            var testCase = BindingCases[(type, variation)];
 
             ICommandHandler handler;
             if (!useDelegate)
@@ -426,7 +426,7 @@ namespace System.CommandLine.Tests.Binding
         public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(
           Type type)
         {
-            var c = _bindingCases[type];
+            var c = BindingCases[type];
 
             var captureMethod = GetType()
                                 .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
@@ -472,7 +472,7 @@ namespace System.CommandLine.Tests.Binding
         public async Task Handler_method_receives_command_arguments_explicitly_bound_to_the_specified_type(
          Type type)
         {
-            var c = _bindingCases[type];
+            var c = BindingCases[type];
 
             var captureMethod = GetType()
                                 .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
@@ -535,7 +535,7 @@ namespace System.CommandLine.Tests.Binding
             }
         }
 
-        private static readonly BindingTestSet _bindingCases = new BindingTestSet
+        internal static readonly BindingTestSet BindingCases = new BindingTestSet
         {
               BindingTestCase.Create<ClassWithCtorParameter<int>>(
                  "123",
@@ -659,22 +659,22 @@ namespace System.CommandLine.Tests.Binding
                 o => o.Should().BeEquivalentTo(new List<int> { 1, 2 }))
         };
 
-        private static string NonexistentPathWithoutTrailingSlash()
+        internal static string NonexistentPathWithoutTrailingSlash()
         {
             return Path.Combine(
                 ExistingDirectory(),
                 "does-not-exist");
         }
 
-        private static string NonexistentPathWithTrailingSlash() => 
+        internal static string NonexistentPathWithTrailingSlash() => 
             NonexistentPathWithoutTrailingSlash() + Path.DirectorySeparatorChar;
-        private static string NonexistentPathWithTrailingAltSlash() => 
+        internal static string NonexistentPathWithTrailingAltSlash() => 
             NonexistentPathWithoutTrailingSlash() + Path.AltDirectorySeparatorChar;
 
-        private static string ExistingFile() =>
+        internal static string ExistingFile() =>
             Directory.GetFiles(ExistingDirectory()).FirstOrDefault() ?? 
             throw new AssertionFailedException("No files found in current directory");
 
-        private static string ExistingDirectory() => Directory.GetCurrentDirectory();
+        internal static string ExistingDirectory() => Directory.GetCurrentDirectory();
     }
 }

@@ -61,7 +61,7 @@ namespace System.CommandLine.Invocation
                 var paramDesc = _parameterDescriptors[i];
                 if (_invokeArgumentBindingSources.TryGetValue(paramDesc, out var valueSource))
                 {
-                    var boundValue = ModelBinder.GetBoundValue(valueSource, bindingContext, paramDesc);
+                    var boundValue = ModelBinder.GetBoundValue(valueSource, bindingContext, modelDescriptor: paramDesc);
                     if (!(boundValue is null))
                     {
                         invocationArguments[i] = boundValue.Value;
@@ -72,15 +72,12 @@ namespace System.CommandLine.Invocation
                 invocationArguments[i] = binder.CreateInstance(bindingContext);
             }
 
-            var invocationTarget = _invocationTarget ??
-                                   _invocationTargetBinder?.CreateInstance(bindingContext);
-
             object result;
             if (_handlerDelegate is null)
             {
-                result = _handlerMethodInfo!.Invoke(
-                    invocationTarget,
-                    invocationArguments);
+                var invocationTarget = _invocationTarget ??
+                                       _invocationTargetBinder?.CreateInstance(bindingContext);
+                result = _handlerMethodInfo!.Invoke(invocationTarget, invocationArguments);
             }
             else
             {

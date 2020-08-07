@@ -32,21 +32,15 @@ namespace System.CommandLine.Binding
             {
                 if (_allowsNull is null)
                 {
-                    if (_parameterInfo.ParameterType.IsNullable())
-                    {
-                        _allowsNull = true;
-                    }
-
-                    if (_parameterInfo.HasDefaultValue &&
-                        _parameterInfo.DefaultValue is null)
-                    {
-                        _allowsNull = true;
-                    }
+                    _allowsNull = CalculateAllowsNull(_parameterInfo);
                 }
-
                 return _allowsNull ?? false;
             }
         }
+
+        public static bool CalculateAllowsNull(ParameterInfo parameterInfo) 
+            => parameterInfo.ParameterType.IsNullable() ||
+                    (parameterInfo.HasDefaultValue && parameterInfo.DefaultValue is null);
 
         public object? GetDefaultValue() =>
             _parameterInfo.DefaultValue is DBNull

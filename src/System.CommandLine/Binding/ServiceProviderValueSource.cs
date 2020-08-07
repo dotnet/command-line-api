@@ -5,12 +5,12 @@ namespace System.CommandLine.Binding
 {
     internal class ServiceProviderValueSource : IValueSource
     {
-        public bool TryGetValue(
-            IValueDescriptor valueDescriptor,
-            BindingContext? bindingContext,
-            out object? boundValue)
+        public bool TryGetValue(IValueDescriptor valueDescriptor,
+                                BindingContext? bindingContext,
+                                out object? boundValue)
         {
             boundValue = bindingContext?.ServiceProvider.GetService(valueDescriptor.ValueType);
+            // ?? Why return true if the service isn't found?
             return true;
         }
     }
