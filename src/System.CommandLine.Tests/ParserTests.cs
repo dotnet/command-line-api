@@ -1994,6 +1994,38 @@ namespace System.CommandLine.Tests
                                   "jdbc:sqlserver://10.0.0.2;databaseName=main");
         }
 
+        [Fact]
+        public void A_subcommand_wont_overflow_when_checking_maximum_argument_capcity()
+        {
+            // Tests bug identified in https://github.com/dotnet/command-line-api/issues/997
+
+            var argument1 = new Argument("arg1")
+            {
+                Arity = ArgumentArity.ExactlyOne
+            };
+
+            var argument2 = new Argument<string[]>("arg2")
+            {
+                Arity = ArgumentArity.OneOrMore
+            };
+
+            var command = new Command("subcommand")
+            {
+                argument1,
+                argument2
+            };
+
+            var rootCommand = new RootCommand()
+            {
+                command
+            };
+
+            var parseResult = rootCommand.Parse("subcommand arg1 arg2");
+
+            Action act = () => parseResult.GetSuggestions();
+            act.Should().NotThrow();
+        }
+
         [TypeConverter(typeof(CustomTypeConverter))]
         public class ClassWithCustomTypeConverter
         {
