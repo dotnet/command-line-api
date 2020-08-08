@@ -61,7 +61,7 @@ namespace System.CommandLine.Invocation
                 var paramDesc = _parameterDescriptors[i];
                 if (_invokeArgumentBindingSources.TryGetValue(paramDesc, out var valueSource))
                 {
-                    var boundValue = ModelBinder.GetBoundValue(valueSource, bindingContext, modelDescriptor: paramDesc);
+                    var (boundValue, _) = ModelBinder.GetBoundValue(valueSource, bindingContext, paramDesc, true);
                     if (!(boundValue is null))
                     {
                         invocationArguments[i] = boundValue.Value;
