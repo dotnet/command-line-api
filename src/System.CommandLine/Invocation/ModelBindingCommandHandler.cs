@@ -16,7 +16,6 @@ namespace System.CommandLine.Invocation
         private readonly object? _invocationTarget;
         private readonly ModelBinder? _invocationTargetBinder;
         private readonly MethodInfo? _handlerMethodInfo;
-        private readonly IReadOnlyList<ParameterDescriptor> _parameterDescriptors;
         private readonly IMethodDescriptor _methodDescriptor;
         private Dictionary<IValueDescriptor, IValueSource> _invokeArgumentBindingSources { get; } =
             new Dictionary<IValueDescriptor, IValueSource>();
@@ -31,7 +30,6 @@ namespace System.CommandLine.Invocation
                                           ? null
                                           : new ModelBinder(_handlerMethodInfo.DeclaringType);
             _methodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
-            _parameterDescriptors = methodDescriptor.ParameterDescriptors ;
         }
 
         public ModelBindingCommandHandler(
@@ -59,34 +57,11 @@ namespace System.CommandLine.Invocation
                                                 _invokeArgumentBindingSources,
                                                 bindingContext,
                                                 _methodDescriptor.ParameterDescriptors,
-                                                _methodDescriptor.Parent?.ModelType ?? typeof(object),
-                                                EnforceExplicitBinding,
-                                                true);
+                                                EnforceExplicitBinding);
+
             var invocationArguments = boundValues
                                         .Select(x => x.Value)
                                         .ToArray();
-
-            //var invocationArguments = new object?[_parameterDescriptors.Count()];
-            //var length = _parameterDescriptors.Count();
-
-            //for (int i = 0; i < length; i++)
-            //{
-            //    var paramDesc = _parameterDescriptors[i];
-            //    var binder = bindingContext.GetModelBinder(paramDesc);
-            //    IValueSource? valueSource;
-            //    if (!_invokeArgumentBindingSources.TryGetValue(paramDesc, out valueSource))
-            //    {
-            //        valueSource = binder.GetValueSource(_invokeArgumentBindingSources, bindingContext, paramDesc);
-            //    }
-            //    var (boundValue, _) = ModelBinder.GetBoundValue(valueSource, bindingContext, paramDesc, true, binder.ModelDescriptor);
-            //    if (!(boundValue is null))
-            //    {
-            //        invocationArguments[i] = boundValue.Value;
-            //        continue;
-            //    }
-
-            //    invocationArguments[i] = binder.CreateInstance(bindingContext);
-            //}
 
             object result;
             if (_handlerDelegate is null)
@@ -103,13 +78,13 @@ namespace System.CommandLine.Invocation
             return await CommandHandler.GetResultCodeAsync(result, context);
         }
 
-        public void BindParameter(ParameterInfo param, Argument argument)
+        internal void BindParameter(ParameterInfo param, Argument argument)
         {
             var _ = argument ?? throw new InvalidOperationException("You must specify an argument to bind");
             BindValueSource(param, new SpecificSymbolValueSource(argument));
         }
 
-        public void BindParameter(ParameterInfo param, Option option)
+        internal void BindParameter(ParameterInfo param, Option option)
         {
             var _ = option ?? throw new InvalidOperationException("You must specify an argument to bind");
             BindValueSource(param, new SpecificSymbolValueSource(option));
@@ -128,7 +103,7 @@ namespace System.CommandLine.Invocation
         private ParameterDescriptor? FindParameterDescriptor(ParameterInfo? param)
             => param == null
                ? null
-               : _parameterDescriptors
+               : _methodDescriptor.ParameterDescriptors
                     .FirstOrDefault(x => x.ValueName == param.Name &&
                                             x.ValueType == param.ParameterType);
     }
