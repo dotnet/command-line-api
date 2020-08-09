@@ -35,7 +35,7 @@ The following command lines will be equivalent:
 Commands can have child commands, often called verbs, and these can nest as many levels as you like. You can add a subcommand like this:
 
 ```csharp
-var parent = RootCommand("parent");
+var parent = new RootCommand("parent");
 var child = new Command("child");
 parent.Add(child);
 var grandchild = new Command("grandchild");
