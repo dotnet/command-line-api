@@ -17,60 +17,76 @@ namespace System.CommandLine.Invocation
         private readonly ModelBinder? _invocationTargetBinder;
         private readonly MethodInfo? _handlerMethodInfo;
         private readonly IReadOnlyList<ParameterDescriptor> _parameterDescriptors;
+        private readonly IMethodDescriptor _methodDescriptor;
         private Dictionary<IValueDescriptor, IValueSource> _invokeArgumentBindingSources { get; } =
             new Dictionary<IValueDescriptor, IValueSource>();
+        private bool EnforceExplicitBinding = false; // Wrong formatting as hint to figure out how to set this
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
-            IReadOnlyList<ParameterDescriptor> parameterDescriptors)
+            IMethodDescriptor methodDescriptor)
         {
             _handlerMethodInfo = handlerMethodInfo ?? throw new ArgumentNullException(nameof(handlerMethodInfo));
             _invocationTargetBinder = _handlerMethodInfo.IsStatic
                                           ? null
                                           : new ModelBinder(_handlerMethodInfo.DeclaringType);
-            _parameterDescriptors = parameterDescriptors ?? throw new ArgumentNullException(nameof(parameterDescriptors));
+            _methodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
+            _parameterDescriptors = methodDescriptor.ParameterDescriptors ;
         }
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
-            IReadOnlyList<ParameterDescriptor> parameterDescriptors,
+            IMethodDescriptor methodDescriptor,
             object? invocationTarget)
+            :this(handlerMethodInfo, methodDescriptor )
         {
             _invocationTarget = invocationTarget;
-            _handlerMethodInfo = handlerMethodInfo ?? throw new ArgumentNullException(nameof(handlerMethodInfo));
-            _parameterDescriptors = parameterDescriptors ?? throw new ArgumentNullException(nameof(parameterDescriptors));
         }
 
         public ModelBindingCommandHandler(
-            Delegate handlerDelegate,
-            IReadOnlyList<ParameterDescriptor> parameterDescriptors)
+             Delegate handlerDelegate,
+             IMethodDescriptor methodDescriptor)
         {
             _handlerDelegate = handlerDelegate ?? throw new ArgumentNullException(nameof(handlerDelegate));
-            _parameterDescriptors = parameterDescriptors ?? throw new ArgumentNullException(nameof(parameterDescriptors));
+            _methodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
         }
 
         public async Task<int> InvokeAsync(InvocationContext context)
         {
             var bindingContext = context.BindingContext;
 
-            var invocationArguments = new object?[_parameterDescriptors.Count()];
-            var length = _parameterDescriptors.Count();
+            var (boundValues, _) = ModelBinder.GetBoundValues(
+                                                _invokeArgumentBindingSources,
+                                                bindingContext,
+                                                _methodDescriptor.ParameterDescriptors,
+                                                _methodDescriptor.Parent?.ModelType ?? typeof(object),
+                                                EnforceExplicitBinding,
+                                                true);
+            var invocationArguments = boundValues
+                                        .Select(x => x.Value)
+                                        .ToArray();
 
-            for (int i = 0; i < length; i++)
-            {
-                var paramDesc = _parameterDescriptors[i];
-                if (_invokeArgumentBindingSources.TryGetValue(paramDesc, out var valueSource))
-                {
-                    var (boundValue, _) = ModelBinder.GetBoundValue(valueSource, bindingContext, paramDesc, true);
-                    if (!(boundValue is null))
-                    {
-                        invocationArguments[i] = boundValue.Value;
-                        continue;
-                    }
-                }
-                var binder = bindingContext.GetModelBinder(paramDesc);
-                invocationArguments[i] = binder.CreateInstance(bindingContext);
-            }
+            //var invocationArguments = new object?[_parameterDescriptors.Count()];
+            //var length = _parameterDescriptors.Count();
+
+            //for (int i = 0; i < length; i++)
+            //{
+            //    var paramDesc = _parameterDescriptors[i];
+            //    var binder = bindingContext.GetModelBinder(paramDesc);
+            //    IValueSource? valueSource;
+            //    if (!_invokeArgumentBindingSources.TryGetValue(paramDesc, out valueSource))
+            //    {
+            //        valueSource = binder.GetValueSource(_invokeArgumentBindingSources, bindingContext, paramDesc);
+            //    }
+            //    var (boundValue, _) = ModelBinder.GetBoundValue(valueSource, bindingContext, paramDesc, true, binder.ModelDescriptor);
+            //    if (!(boundValue is null))
+            //    {
+            //        invocationArguments[i] = boundValue.Value;
+            //        continue;
+            //    }
+
+            //    invocationArguments[i] = binder.CreateInstance(bindingContext);
+            //}
 
             object result;
             if (_handlerDelegate is null)

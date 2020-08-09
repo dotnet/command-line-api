@@ -5,6 +5,7 @@ namespace System.CommandLine.Binding
 {
     public class BoundValue
     {
+        // ?? Why have an internal constructor on a public readonly class?
         internal BoundValue(
             object? value,
             IValueDescriptor valueDescriptor,
@@ -25,7 +26,7 @@ namespace System.CommandLine.Binding
 
         public IValueSource ValueSource { get; }
 
-        public object? Value { get; }
+        public virtual object? Value { get; }
 
         public override string ToString() => $"{ValueDescriptor}: {Value}";
 
@@ -53,4 +54,26 @@ namespace System.CommandLine.Binding
                 valueSource);
         }
     }
+
+    //public class LazyBoundValue : BoundValue
+    //{
+    //    private bool _valueHasBeenSet;
+    //    internal LazyBoundValue( IValueDescriptor valueDescriptor, IValueSource valueSource)
+    //        : base(null, valueDescriptor, valueSource)
+    //    {
+    //    }
+
+    //    public override object? Value
+    //    {
+    //        get
+    //        {
+    //            if (!_valueHasBeenSet )
+    //            {
+    //                object? value;
+    //               if (ValueSource.TryGetValue(ValueDescriptor, ))
+    //            }
+    //            return base.Value;
+    //        }
+    //    }
+    //}
 }
