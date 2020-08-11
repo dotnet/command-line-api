@@ -59,6 +59,7 @@ namespace System.CommandLine.Hosting
         {
             return host.ConfigureServices(services =>
             {
+                BindInvocationHandler(invocation, services);
                 services.TryAddSingleton(invocation);
                 services.AddSingleton<IHostLifetime, InvocationLifetime>();
                 if (configureOptions is Action<InvocationLifetimeOptions>)
@@ -82,7 +83,7 @@ namespace System.CommandLine.Hosting
             });
         }
 
-        public static void BindInvocationHandler(InvocationContext invocation, IHostBuilder hostBuilder)
+        public static void BindInvocationHandler(InvocationContext invocation, IServiceCollection services)
         {
             if (invocation
                 .ParseResult
@@ -92,7 +93,7 @@ namespace System.CommandLine.Hosting
                 if (command.Handler == null && command.HandlerType != null)
                 {
                     invocation.BindingContext.AddService(command.HandlerType, c => c.GetService<IHost>().Services.GetService(command.HandlerType));
-                    hostBuilder.ConfigureServices(services => services.AddTransient(command.HandlerType));
+                    services.AddTransient(command.HandlerType);
 
                     command.Handler = CommandHandler.Create(command.HandlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
                 }
