@@ -91,12 +91,12 @@ namespace System.CommandLine.Hosting
 
         public static IHostBuilder UseCommandHandler(this IHostBuilder builder, Type commandType, Type handlerType)
         {
-            if (!commandType.IsAssignableFrom(typeof(Command)))
+            if (!typeof(Command).IsAssignableFrom(commandType))
             {
                 throw new ArgumentException($"{nameof(commandType)} must be a type of {nameof(Command)}", nameof(handlerType));
             }
 
-            if (!handlerType.IsAssignableFrom(typeof(ICommandHandler)))
+            if (!typeof(ICommandHandler).IsAssignableFrom(handlerType))
             {
                 throw new ArgumentException($"{nameof(handlerType)} must implement {nameof(ICommandHandler)}", nameof(handlerType));
             }
