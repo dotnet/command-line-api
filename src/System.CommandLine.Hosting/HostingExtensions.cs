@@ -91,6 +91,16 @@ namespace System.CommandLine.Hosting
 
         public static IHostBuilder UseCommandHandler(this IHostBuilder builder, Type commandType, Type handlerType)
         {
+            if (!commandType.IsAssignableFrom(typeof(Command)))
+            {
+                throw new ArgumentException($"{nameof(commandType)} must be a type of {nameof(Command)}", nameof(handlerType));
+            }
+
+            if (!handlerType.IsAssignableFrom(typeof(ICommandHandler)))
+            {
+                throw new ArgumentException($"{nameof(handlerType)} must implement {nameof(ICommandHandler)}", nameof(handlerType));
+            }
+
             if (builder.Properties[typeof(InvocationContext)] is InvocationContext invocation 
                 && invocation.ParseResult.CommandResult.Command is Command command
                 && command.GetType() == commandType)
