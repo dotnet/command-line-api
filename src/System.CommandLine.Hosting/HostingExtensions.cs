@@ -59,7 +59,6 @@ namespace System.CommandLine.Hosting
         {
             return host.ConfigureServices(services =>
             {
-                BindInvocationHandler(invocation, services);
                 services.TryAddSingleton(invocation);
                 services.AddSingleton<IHostLifetime, InvocationLifetime>();
                 if (configureOptions is Action<InvocationLifetimeOptions>)
@@ -83,21 +82,29 @@ namespace System.CommandLine.Hosting
             });
         }
 
-        public static void BindInvocationHandler(InvocationContext invocation, IServiceCollection services)
+        public static IHostBuilder UseCommandHandler<TCommand, THandler>(this IHostBuilder builder)
+            where TCommand : Command
+            where THandler : ICommandHandler
         {
-            if (invocation
-                .ParseResult
-                .CommandResult
-                .Command is Command command)
-            {
-                if (command.Handler == null && command.HandlerType != null)
-                {
-                    invocation.BindingContext.AddService(command.HandlerType, c => c.GetService<IHost>().Services.GetService(command.HandlerType));
-                    services.AddTransient(command.HandlerType);
+            return builder.UseCommandHandler(typeof(TCommand), typeof(THandler));
+        }
 
-                    command.Handler = CommandHandler.Create(command.HandlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
-                }
+        public static IHostBuilder UseCommandHandler(this IHostBuilder builder, Type commandType, Type handlerType)
+        {
+            if (builder.Properties[typeof(InvocationContext)] is InvocationContext invocation 
+                && invocation.ParseResult.CommandResult.Command is Command command
+                && command.GetType() == commandType)
+            {
+                invocation.BindingContext.AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
+                builder.ConfigureServices(services =>
+                {
+                    services.AddTransient(handlerType);
+                });
+
+                command.Handler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
             }
+
+            return builder;
         }
     }
 }

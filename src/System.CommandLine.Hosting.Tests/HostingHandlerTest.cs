@@ -31,7 +31,8 @@ namespace System.CommandLine.Hosting.Tests
                     builder.ConfigureServices(services =>
                     {
                         services.AddTransient(x => service);
-                    });
+                    })
+                    .UseCommandHandler<MyCommand, MyCommand.MyHandler>();
                 })
                 .Build();
 
@@ -50,7 +51,8 @@ namespace System.CommandLine.Hosting.Tests
                     host.ConfigureServices(services =>
                     {
                         services.AddTransient<MyService>();
-                    });
+                    })
+                    .UseCommandHandler<MyCommand, MyCommand.MyHandler>();
                 })
                 .Build();
 
@@ -60,14 +62,42 @@ namespace System.CommandLine.Hosting.Tests
             result.Should().Be(54);
         }
 
+        [Fact]
+        public static void Can_have_diferent_handlers_based_on_command()
+        {
+            var root = new RootCommand();
+
+            root.AddCommand(new MyCommand());
+            root.AddCommand(new MyOtherCommand());
+            var parser = new CommandLineBuilder(root)
+                .UseHost(host =>
+                {
+                    host.ConfigureServices(services =>
+                    {
+                        services.AddTransient<MyService>();
+                    })
+                    .UseCommandHandler<MyCommand, MyCommand.MyHandler>()
+                    .UseCommandHandler<MyOtherCommand, MyOtherCommand.MyHandler>();
+                })
+                .Build();
+
+            var result = parser.InvokeAsync(new string[] { "mycommand", "--int-option", "54" })
+                .GetAwaiter().GetResult();
+
+            result.Should().Be(54);
+
+            result = parser.InvokeAsync(new string[] { "myothercommand", "--int-option", "54" })
+                .GetAwaiter().GetResult();
+
+            result.Should().Be(540);
+        }
+
         public class MyCommand : Command
         {
             public MyCommand() : base(name: "mycommand")
             {
                 AddOption(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
             }
-
-            public override Type HandlerType => typeof(MyHandler);
 
             public class MyHandler : ICommandHandler
             {
@@ -85,6 +115,33 @@ namespace System.CommandLine.Hosting.Tests
                 {
                     service.Value = IntOption;
                     return Task.FromResult(IntOption);
+                }
+            }
+        }
+
+        public class MyOtherCommand : Command
+        {
+            public MyOtherCommand() : base(name: "myothercommand")
+            {
+                AddOption(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+            }
+
+            public class MyHandler : ICommandHandler
+            {
+                private readonly MyService service;
+
+                public MyHandler(MyService service)
+                {
+                    this.service = service;
+                }
+
+                public int IntOption { get; set; } // bound from option
+                public IConsole Console { get; set; } // bound from DI
+
+                public Task<int> InvokeAsync(InvocationContext context)
+                {
+                    service.Value = IntOption * 10;
+                    return Task.FromResult(IntOption * 10);
                 }
             }
         }

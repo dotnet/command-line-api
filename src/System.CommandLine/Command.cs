@@ -79,8 +79,6 @@ namespace System.CommandLine
 
         public ICommandHandler? Handler { get; set; }
 
-        public virtual Type? HandlerType { get; }
-
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
