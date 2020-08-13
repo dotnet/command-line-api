@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    internal static class SymbolExtensions
+    public static class SymbolExtensions
     {
         internal static IEnumerable<string> ChildSymbolAliases(this ISymbol symbol) =>
             symbol.Children
@@ -32,6 +32,11 @@ namespace System.CommandLine
                 default:
                     throw new NotSupportedException();
             }
+        }
+
+        public static IEnumerable<string?> GetSuggestions(this ISymbol symbol, string? textToMatch = null)
+        {
+            return symbol.GetSuggestions(null, textToMatch);
         }
     }
 }
