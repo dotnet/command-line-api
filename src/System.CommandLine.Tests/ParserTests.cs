@@ -1975,6 +1975,57 @@ namespace System.CommandLine.Tests
             instance.Should().BeEquivalentTo("a", "b", "c");
         }
 
+        [Fact]
+        public void Tokens_are_not_split_if_the_part_before_the_delimiter_is_not_an_option()
+        {
+            var rootCommand = new RootCommand
+            {
+                Name = "jdbc"
+            };
+            rootCommand.Add(new Option<string>("url"));
+            var result = rootCommand.Parse("jdbc url \"jdbc:sqlserver://10.0.0.2;databaseName=main\"");
+
+            _output.WriteLine(result.ToString());
+
+            result.Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("url",
+                                  "jdbc:sqlserver://10.0.0.2;databaseName=main");
+        }
+
+        [Fact]
+        public void A_subcommand_wont_overflow_when_checking_maximum_argument_capcity()
+        {
+            // Tests bug identified in https://github.com/dotnet/command-line-api/issues/997
+
+            var argument1 = new Argument("arg1")
+            {
+                Arity = ArgumentArity.ExactlyOne
+            };
+
+            var argument2 = new Argument<string[]>("arg2")
+            {
+                Arity = ArgumentArity.OneOrMore
+            };
+
+            var command = new Command("subcommand")
+            {
+                argument1,
+                argument2
+            };
+
+            var rootCommand = new RootCommand()
+            {
+                command
+            };
+
+            var parseResult = rootCommand.Parse("subcommand arg1 arg2");
+
+            Action act = () => parseResult.GetSuggestions();
+            act.Should().NotThrow();
+        }
+
         [TypeConverter(typeof(CustomTypeConverter))]
         public class ClassWithCustomTypeConverter
         {

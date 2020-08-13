@@ -68,7 +68,7 @@ namespace System.CommandLine.Parsing
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
 
-            var argumentDelimiters = configuration.ArgumentDelimitersInternal;
+            var argumentDelimiters = configuration.ArgumentDelimitersInternal.ToArray();
 
             var knownTokens = configuration.RootCommand.ValidTokens();
 
@@ -125,7 +125,8 @@ namespace System.CommandLine.Parsing
                                               out var first, 
                                               out var rest))
                 {
-                    if (knownTokens.ContainsKey(first!))
+                    if (knownTokens.TryGetValue(first!, out var token) &&
+                        token.Type == TokenType.Option)
                     {
                         tokenList.Add(Option(first!));
 
@@ -412,13 +413,13 @@ namespace System.CommandLine.Parsing
 
         internal static bool TrySplitIntoSubtokens(
             this string arg,
-            IReadOnlyCollection<char> delimiters,
+            char[] delimiters,
             out string? first,
             out string? rest)
         {
-            var delimitersArray = delimiters.ToArray();
+            var delimitersArray = delimiters;
 
-            for (var j = 0; j < delimiters.Count; j++)
+            for (var j = 0; j < delimiters.Length; j++)
             {
                 var i = arg.IndexOfAny(delimitersArray);
 
