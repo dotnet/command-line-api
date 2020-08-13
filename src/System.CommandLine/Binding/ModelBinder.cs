@@ -1,11 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace System.CommandLine.Binding
 {
@@ -39,8 +34,10 @@ namespace System.CommandLine.Binding
             var ctorDesc = FindModelConstructorDescriptor(constructor);
 
             if (ctorDesc is null)
+            {
                 throw new ArgumentException(paramName: nameof(parameter),
                     message: "Parameter is not described by any of the model constructor descriptors.");
+            }
 
             var paramDesc = ctorDesc.ParameterDescriptors[parameter.Position];
             ConstructorArgumentBindingSources[paramDesc] = new SpecificSymbolValueSource(valueDescriptor);
@@ -51,8 +48,10 @@ namespace System.CommandLine.Binding
             var propertyDescriptor = FindModelPropertyDescriptor(property.PropertyType, property.Name);
 
             if (propertyDescriptor is null)
+            {
                 throw new ArgumentException(paramName: nameof(property),
                     message: "Property is not described by any of the model property descriptors.");
+            }
 
             MemberBindingSources[propertyDescriptor] = new SpecificSymbolValueSource(valueDescriptor);
         }
@@ -340,21 +339,6 @@ namespace System.CommandLine.Binding
                       message: message);
             }
             return constructor;
-        }
-
-        private class ConstructorDescriptorEquality : IEqualityComparer<ParameterDescriptor>
-        {
-            public bool Equals(ParameterDescriptor x, ParameterDescriptor y)
-            {
-                return x.ValueType == x.ValueType &&
-                       x.AllowsNull == x.AllowsNull &&
-                       x.HasDefaultValue == x.HasDefaultValue;
-            }
-
-            public int GetHashCode(ParameterDescriptor obj)
-            {
-                throw new NotImplementedException();
-            }
         }
 
         internal class AnonymousValueDescriptor : IValueDescriptor
