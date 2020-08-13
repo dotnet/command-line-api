@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Suggestions
 {
@@ -14,9 +15,9 @@ namespace System.CommandLine.Suggestions
             _suggest = suggest ?? throw new ArgumentNullException(nameof(suggest));
         }
 
-        public IEnumerable<string> GetSuggestions(string? textToMatch = null)
+        public IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
-            return _suggest(textToMatch);
+            return _suggest(parseResult, textToMatch);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
                 .AddSuggestions("apple", "banana", "cherry");
 
             _vegetableOption = new Option<string>("--vegetable")
-                .AddSuggestions(_ => new[] { "asparagus", "broccoli", "carrot" });
+                .AddSuggestions("asparagus", "broccoli", "carrot");
 
             _eatCommand = new Command("eat")
             {

@@ -178,10 +178,10 @@ namespace System.CommandLine
             AllowedValues.UnionWith(values);
         }
 
-        public override IEnumerable<string?> GetSuggestions(string? textToMatch = null)
+        public override IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
             var dynamicSuggestions = Suggestions
-                .SelectMany(source => source.GetSuggestions(textToMatch));
+                .SelectMany(source => source.GetSuggestions(parseResult, textToMatch));
 
             return dynamicSuggestions
                    .Distinct()

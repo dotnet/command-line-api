@@ -39,7 +39,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(suggestions));
             }
 
-            suggestionSources.Add(new AnonymousSuggestionSource(_ => suggestions));
+            suggestionSources.Add(new AnonymousSuggestionSource((_, __) => suggestions));
         }
     }
 }

@@ -137,12 +137,12 @@ namespace System.CommandLine
 
         public bool IsHidden { get; set; }
 
-        public virtual IEnumerable<string?> GetSuggestions(string? textToMatch = null)
+        public virtual IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
             var argumentSuggestions =
                 Children
                     .OfType<IArgument>()
-                    .SelectMany(a => a.GetSuggestions(textToMatch))
+                    .SelectMany(a => a.GetSuggestions(parseResult, textToMatch))
                     .ToArray();
 
             return this.ChildSymbolAliases()
