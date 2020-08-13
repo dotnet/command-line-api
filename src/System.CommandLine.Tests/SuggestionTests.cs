@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests
                 new Command("andmyothersubcommand"),
             };
 
-            var suggestions = command.GetSuggestions("my");
+            var suggestions = command.GetSuggestions(null, "my");
 
             suggestions.Should().BeEquivalentSequenceTo("mysubcommand", "andmyothersubcommand", "andmythirdsubcommand");
         }
@@ -168,6 +168,71 @@ namespace System.CommandLine.Tests
                   .BeEquivalentTo("--apple",
                                   "--banana",
                                   "--cherry");
+        }
+
+        [Fact]
+        public void Command_suggest_can_access_ParseResult()
+        {
+            var parser = new Parser(
+                new Option("--origin")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--clone")
+                {
+                    Argument = new Argument<string>()
+                    {
+                        Suggestions =
+                        {
+                            (parseResult, match) =>
+                            {
+                                var opt1Value = parseResult?.ValueForOption<string>("--origin");
+                                return opt1Value != null ? new[] { opt1Value } : Array.Empty<string>();
+                            }
+                        }
+                    }
+                });
+
+            var result = parser.Parse("--origin test --clone ");
+
+            _output.WriteLine(result.ToString());
+
+            result.GetSuggestions()
+                  .Should()
+                  .BeEquivalentTo("test");
+        }
+
+        [Fact]
+        public void Command_suggest_can_access_ParseResult_reverse_order()
+        {
+            var parser = new Parser(
+                new Option("--origin")
+                {
+                    Argument = new Argument<string>()
+                },
+                new Option("--clone")
+                {
+                    Argument = new Argument<string>()
+                    {
+                        Suggestions =
+                        {
+                            (parseResult, match) =>
+                            {
+                                var opt1Value = parseResult?.ValueForOption<string>("--origin");
+                                return opt1Value != null ? new[] { opt1Value } : Array.Empty<string>();
+                            }
+
+                        }
+                    }
+                });
+
+            var result = parser.Parse("--clone  --origin test");
+
+            _output.WriteLine(result.ToString());
+
+            result.GetSuggestions(8)
+                  .Should()
+                  .BeEquivalentTo("test");
         }
 
         [Fact]
@@ -557,7 +622,7 @@ namespace System.CommandLine.Tests
                     new Argument
                         {
                             Arity = ArgumentArity.ExactlyOne,
-                            Suggestions = { _ => new[] { "vegetable", "mineral", "animal" } }
+                            Suggestions = { "vegetable", "mineral", "animal" }
                         }
                 }
             };
@@ -577,7 +642,7 @@ namespace System.CommandLine.Tests
                 {
                     Argument = new Argument<string>()
                     {
-                        Suggestions = { _ => new[] { "vegetable", "mineral", "animal" } }
+                        Suggestions = { "vegetable", "mineral", "animal" }
                     }
                 }
             };

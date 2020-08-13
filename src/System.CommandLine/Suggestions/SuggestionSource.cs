@@ -31,18 +31,18 @@ namespace System.CommandLine.Suggestions
                 if (t.IsEnum)
                 {
                     var names = Enum.GetNames(t);
-                    return new AnonymousSuggestionSource(_ => names);
+                    return new AnonymousSuggestionSource((_,__) => names);
                 }
 
                 if (t == typeof(bool))
                 {
-                    return new AnonymousSuggestionSource(_ => _trueAndFalse);
+                    return new AnonymousSuggestionSource((_, __) => _trueAndFalse);
                 }
 
                 return Empty;
             }
         }
 
-        public static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource(_ => Array.Empty<string>());
+        public static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource((_, __) => Array.Empty<string>());
     }
 }
