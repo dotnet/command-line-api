@@ -73,11 +73,11 @@ namespace System.CommandLine.DragonFruit.Tests
         [InlineData(nameof(Method_having_string_argument), 1, 1)]
         [InlineData(nameof(Method_having_string_argument_with_null_default_value), 0, 1)]
         [InlineData(nameof(Method_having_string_argument_with_non_null_default_value), 0, 1)]
-        [InlineData(nameof(Method_having_string_array_arguments), 0, int.MaxValue)]
-        [InlineData(nameof(Method_having_string_array_arguments_with_default_value), 0, int.MaxValue)]
+        [InlineData(nameof(Method_having_string_array_arguments), 0, ArgumentArity.MaximumArity)]
+        [InlineData(nameof(Method_having_string_array_arguments_with_default_value), 0, ArgumentArity.MaximumArity)]
         [InlineData(nameof(Method_having_FileInfo_argument), 1, 1)]
         [InlineData(nameof(Method_having_FileInfo_argument_with_default_value), 0, 1)]
-        [InlineData(nameof(Method_having_FileInfo_array_args), 0, int.MaxValue)]
+        [InlineData(nameof(Method_having_FileInfo_array_args), 0, ArgumentArity.MaximumArity)]
         public void Parameters_named_arguments_generate_command_arguments_having_the_correct_arity(
             string methodName,
             int minNumberOfValues,
