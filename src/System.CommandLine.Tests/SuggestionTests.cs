@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests
                 new Command("andmyothersubcommand"),
             };
 
-            var suggestions = command.GetSuggestions(null, "my");
+            var suggestions = command.GetSuggestions("my");
 
             suggestions.Should().BeEquivalentSequenceTo("mysubcommand", "andmyothersubcommand", "andmythirdsubcommand");
         }
@@ -622,7 +622,7 @@ namespace System.CommandLine.Tests
                     new Argument
                         {
                             Arity = ArgumentArity.ExactlyOne,
-                            Suggestions = { "vegetable", "mineral", "animal" }
+                            Suggestions = { (_, __) => new[] { "vegetable", "mineral", "animal" } }
                         }
                 }
             };
@@ -642,7 +642,7 @@ namespace System.CommandLine.Tests
                 {
                     Argument = new Argument<string>()
                     {
-                        Suggestions = { "vegetable", "mineral", "animal" }
+                        Suggestions = { (_, __) => new [] { "vegetable", "mineral", "animal" } }
                     }
                 }
             };
