@@ -155,7 +155,7 @@ namespace System.CommandLine.Tests.Binding
 
             receivedHeaders.Should().BeEquivalentTo("one", "two");
         }
-      
+
         [Theory]
         [InlineData(typeof(string), "hello", "hello")]
         [InlineData(typeof(int), "123", 123)]
@@ -312,12 +312,12 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(FileInfo), true)]
         [InlineData(typeof(FileInfo[]), false)]
         [InlineData(typeof(FileInfo[]), true)]
-        
+
         [InlineData(typeof(DirectoryInfo), false)]
         [InlineData(typeof(DirectoryInfo), true)]
         [InlineData(typeof(DirectoryInfo[]), false)]
         [InlineData(typeof(DirectoryInfo[]), true)]
-        
+
         [InlineData(typeof(FileSystemInfo), true, nameof(ExistingFile))]
         [InlineData(typeof(FileSystemInfo), true, nameof(ExistingDirectory))]
         [InlineData(typeof(FileSystemInfo), true, nameof(NonexistentPathWithTrailingSlash))]
@@ -350,13 +350,13 @@ namespace System.CommandLine.Tests.Binding
             }
             else
             {
-                 var createCaptureDelegate = GetType()
-                                    .GetMethod(nameof(CaptureDelegate), BindingFlags.NonPublic | BindingFlags.Static)
-                                    .MakeGenericMethod(testCase.ParameterType);
+                var createCaptureDelegate = GetType()
+                                   .GetMethod(nameof(CaptureDelegate), BindingFlags.NonPublic | BindingFlags.Static)
+                                   .MakeGenericMethod(testCase.ParameterType);
 
-                 var @delegate = createCaptureDelegate.Invoke(null, null);
+                var @delegate = createCaptureDelegate.Invoke(null, null);
 
-                 handler = CommandHandler.Create((dynamic) @delegate);
+                handler = CommandHandler.Create((dynamic)@delegate);
             }
 
             var command = new Command("command")
@@ -383,14 +383,14 @@ namespace System.CommandLine.Tests.Binding
 
             testCase.AssertBoundValue(boundValue);
         }
-        
+
         [Fact]
         public async Task When_binding_fails_due_to_parameter_naming_mismatch_then_handler_is_called_and_no_error_is_produced()
         {
             string[] received = { "this should get overwritten" };
 
             var o = new Option(
-                new[] {  "-i" },
+                new[] { "-i" },
                 "Path to an image or directory of supported images")
             {
                 Argument = new Argument<string[]>()
@@ -459,7 +459,9 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Theory]
-        [InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(int))]
+        [InlineData(typeof(string))]
+        [InlineData(typeof(bool))]
         [InlineData(typeof(ClassWithSetter<int>))]
         [InlineData(typeof(ClassWithCtorParameter<string>))]
         [InlineData(typeof(ClassWithSetter<string>))]
@@ -470,7 +472,7 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(int[]))]
         [InlineData(typeof(List<int>))]
         public async Task Handler_method_receives_command_arguments_explicitly_bound_to_the_specified_type(
-         Type type)
+            Type type)
         {
             var c = BindingCases[type];
 
@@ -496,6 +498,62 @@ namespace System.CommandLine.Tests.Binding
             command.Handler = handler;
 
             var parseResult = command.Parse(c.CommandLine);
+
+            var invocationContext = new InvocationContext(parseResult);
+
+            await handler.InvokeAsync(invocationContext);
+
+            var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+
+            boundValue.Should().BeOfType(c.ParameterType);
+
+            c.AssertBoundValue(boundValue);
+        }
+
+        [Theory]
+        [InlineData(typeof(int))]
+        [InlineData(typeof(string))]
+        [InlineData(typeof(bool))]
+        [InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(ClassWithSetter<int>))]
+        [InlineData(typeof(ClassWithCtorParameter<string>))]
+        [InlineData(typeof(ClassWithSetter<string>))]
+        [InlineData(typeof(FileInfo))]
+        [InlineData(typeof(FileInfo[]))]
+        [InlineData(typeof(string[]))]
+        [InlineData(typeof(List<string>))]
+        [InlineData(typeof(int[]))]
+        [InlineData(typeof(List<int>))]
+        public async Task Handler_method_receives_command_options_explicitly_bound_to_the_specified_type(
+             Type type)
+        {
+            var c = BindingCases[type];
+
+            var captureMethod = GetType()
+                                .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
+                                .MakeGenericMethod(c.ParameterType);
+            var parameter = captureMethod.GetParameters().First();
+
+            var handler = CommandHandler.Create(captureMethod);
+
+            var option = new Option("--value")
+            {
+                Argument = new Argument
+                {
+                    ArgumentType = c.ParameterType
+                }
+            };
+
+            var command = new Command(
+                "command")
+            {
+                option
+            };
+            handler.BindParameter(parameter, option);
+            command.Handler = handler;
+
+            var commandLine = $"--value {c.CommandLine}";
+            var parseResult = command.Parse(commandLine);
 
             var invocationContext = new InvocationContext(parseResult);
 
@@ -537,10 +595,20 @@ namespace System.CommandLine.Tests.Binding
 
         internal static readonly BindingTestSet BindingCases = new BindingTestSet
         {
+              BindingTestCase.Create<int>(
+                 "123",
+                 o => o.Should().Be(123)),
+
+              BindingTestCase.Create<string>(
+                 "123",
+                 o => o.Should().Be("123")),
+              BindingTestCase.Create<bool>(
+                 "true",
+                 o => o.Should().BeTrue()),
               BindingTestCase.Create<ClassWithCtorParameter<int>>(
                  "123",
                  o => o.Value.Should().Be(123)),
-            
+
               BindingTestCase.Create<ClassWithSetter<int>>(
                  "123",
                  o => o.Value.Should().Be(123)),
@@ -628,7 +696,7 @@ namespace System.CommandLine.Tests.Binding
                           .Which
                           .FullName
                           .Should()
-                          .Be(NonexistentPathWithTrailingSlash(), 
+                          .Be(NonexistentPathWithTrailingSlash(),
                               "DirectoryInfo replaces Path.AltDirectorySeparatorChar with Path.DirectorySeparatorChar on Windows"),
                 variationName: nameof(NonexistentPathWithTrailingAltSlash)),
 
@@ -666,13 +734,13 @@ namespace System.CommandLine.Tests.Binding
                 "does-not-exist");
         }
 
-        internal static string NonexistentPathWithTrailingSlash() => 
+        internal static string NonexistentPathWithTrailingSlash() =>
             NonexistentPathWithoutTrailingSlash() + Path.DirectorySeparatorChar;
-        internal static string NonexistentPathWithTrailingAltSlash() => 
+        internal static string NonexistentPathWithTrailingAltSlash() =>
             NonexistentPathWithoutTrailingSlash() + Path.AltDirectorySeparatorChar;
 
         internal static string ExistingFile() =>
-            Directory.GetFiles(ExistingDirectory()).FirstOrDefault() ?? 
+            Directory.GetFiles(ExistingDirectory()).FirstOrDefault() ??
             throw new AssertionFailedException("No files found in current directory");
 
         internal static string ExistingDirectory() => Directory.GetCurrentDirectory();

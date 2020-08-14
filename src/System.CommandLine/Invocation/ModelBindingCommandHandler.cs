@@ -85,7 +85,7 @@ namespace System.CommandLine.Invocation
 
         internal void BindParameter(ParameterInfo param, Option option)
         {
-            var _ = option ?? throw new InvalidOperationException("You must specify an argument to bind");
+            var _ = option ?? throw new InvalidOperationException("You must specify an option to bind");
             BindValueSource(param, new SpecificSymbolValueSource(option));
         }
 
