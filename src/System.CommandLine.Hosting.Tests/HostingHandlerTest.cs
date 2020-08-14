@@ -92,6 +92,29 @@ namespace System.CommandLine.Hosting.Tests
             result.Should().Be(540);
         }
 
+        [Fact]
+        public static void Can_bind_to_arguments_via_injection()
+        {
+            var service = new MyService();
+            var cmd = new RootCommand();
+            cmd.AddCommand(new MyOtherCommand());
+            var parser = new CommandLineBuilder(cmd)
+                .UseHost(host =>
+                {
+                    host.ConfigureServices(services =>
+                    {
+                        services.AddSingleton<MyService>(service);
+                    })
+                    .UseCommandHandler<MyOtherCommand, MyOtherCommand.MyHandler>();
+                })
+                .Build();
+
+            var result = parser.InvokeAsync(new string[] { "myothercommand", "TEST" })
+                .GetAwaiter().GetResult();
+
+            service.StringValue.Should().Be("TEST");
+        }
+
         public class MyCommand : Command
         {
             public MyCommand() : base(name: "mycommand")
@@ -124,6 +147,7 @@ namespace System.CommandLine.Hosting.Tests
             public MyOtherCommand() : base(name: "myothercommand")
             {
                 AddOption(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+                AddArgument(new Argument<string>("One"));
             }
 
             public class MyHandler : ICommandHandler
@@ -138,9 +162,12 @@ namespace System.CommandLine.Hosting.Tests
                 public int IntOption { get; set; } // bound from option
                 public IConsole Console { get; set; } // bound from DI
 
+                public string One { get; set; }
+
                 public Task<int> InvokeAsync(InvocationContext context)
                 {
                     service.Value = IntOption * 10;
+                    service.StringValue = One;
                     return Task.FromResult(IntOption * 10);
                 }
             }
@@ -149,6 +176,8 @@ namespace System.CommandLine.Hosting.Tests
         public class MyService
         {
             public int Value { get; set; }
+
+            public string StringValue { get; set; }
         }
     }
 }
