@@ -18,7 +18,7 @@ namespace System.CommandLine.Invocation
         private readonly IMethodDescriptor _methodDescriptor;
         private Dictionary<IValueDescriptor, IValueSource> _invokeArgumentBindingSources { get; } =
             new Dictionary<IValueDescriptor, IValueSource>();
-        private bool EnforceExplicitBinding = false; // Wrong formatting as hint to figure out how to set this
+        private bool EnforceExplicitBinding = false; // ?? Wrong formatting as hint to figure out how to set this
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,

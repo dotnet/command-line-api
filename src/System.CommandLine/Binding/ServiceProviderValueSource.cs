@@ -10,7 +10,6 @@ namespace System.CommandLine.Binding
                                 out object? boundValue)
         {
             boundValue = bindingContext?.ServiceProvider.GetService(valueDescriptor.ValueType);
-            // ?? Why return true if the service isn't found?
             return true;
         }
     }

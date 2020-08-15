@@ -63,15 +63,6 @@ namespace System.CommandLine.Binding
             return new ModelBinder(valueDescriptor);
         }
 
-        internal ModelBinder GetModelBinder(Type type)
-        {
-            if (_modelBindersByValueDescriptor.TryGetValue(type, out ModelBinder binder))
-            {
-                return binder;
-            }
-            return new ModelBinder(type);
-        }
-
         public void AddService(Type serviceType, Func<IServiceProvider, object> factory)
         {
             ServiceProvider.AddService(serviceType, factory);

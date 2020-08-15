@@ -35,8 +35,8 @@ namespace System.CommandLine.Tests.Binding
         {
             var testCase = common.BindingCases[type];
             ICommandHandler handler = CommandHandler.Create(
-                                                MakeGenericType(typeof(ClassForCaptureMethod<>), testCase.ParameterType)
-                                                    .GetMethod(nameof(ClassForCaptureMethod<int>.Invoke)));
+                                                MakeGenericType(typeof(TesttCommandHandler<>), testCase.ParameterType)
+                                                    .GetMethod(nameof(TesttCommandHandler<int>.Invoke)));
             Command command = GetSingleArgumentCommand(testCase);
             command.Handler = handler;
 
@@ -60,17 +60,17 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(List<string>))]
         [InlineData(typeof(int[]))]
         [InlineData(typeof(List<int>))]
-        public async Task Constructor_receives_option_arguments_bound_to_the_specified_type(
+        public async Task Model_constructor_receives_option_arguments_bound_to_the_specified_type(
                     Type type)
         {
             var testCase = common.BindingCases[type];
-            var typeToCreate = MakeGenericType(typeof(ClassForCreate<>), testCase.ParameterType);
+            var typeToCreate = MakeGenericType(typeof(TestModel<>), testCase.ParameterType);
             Command command = GetSingleArgumentCommand(testCase);
 
             var binder = new ModelBinder(typeToCreate);
             var commandLine = $"--value {testCase.CommandLine}";
             var bindingContext = new BindingContext(command.Parse(commandLine));
-            var instance = binder.CreateInstance(bindingContext) as ClassForCreateBase;
+            var instance = binder.CreateInstance(bindingContext) as TestModelBase;
 
             instance.Value.Should().BeAssignableTo(testCase.ParameterType);
             testCase.AssertBoundValue(instance.Value);
@@ -116,9 +116,9 @@ namespace System.CommandLine.Tests.Binding
             }
         }
 
-        private class ClassForCaptureMethod<T>
+        private class TesttCommandHandler<T>
         {
-            public ClassForCaptureMethod(T value, InvocationContext invocationContext)
+            public TesttCommandHandler(T value, InvocationContext invocationContext)
             {
                 invocationContext.InvocationResult = new BoundValueCapturer(value);
             }
@@ -126,14 +126,14 @@ namespace System.CommandLine.Tests.Binding
             public void Invoke() { }
         }
 
-        private class ClassForCreateBase
+        private class TestModelBase
         {
             public object? Value { get; protected set; }
 
         }
-        private class ClassForCreate<T> : ClassForCreateBase
+        private class TestModel<T> : TestModelBase
         {
-            public ClassForCreate(T value)
+            public TestModel(T value)
             {
                 Value = value;
             }
