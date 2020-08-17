@@ -26,7 +26,6 @@ namespace System.CommandLine.Binding
 
         public bool HasDefaultValue => _parameterInfo.HasDefaultValue;
 
-        // ?? This is used in model binder to determine whether to call GetDefaultValue. This is either misnamed or there is another issue
         public bool AllowsNull
         {
             get

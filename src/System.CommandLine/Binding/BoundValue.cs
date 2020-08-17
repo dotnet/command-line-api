@@ -5,7 +5,6 @@ namespace System.CommandLine.Binding
 {
     public class BoundValue
     {
-        // ?? Why have an internal constructor on a public readonly class?
         internal BoundValue(
             object? value,
             IValueDescriptor valueDescriptor,
