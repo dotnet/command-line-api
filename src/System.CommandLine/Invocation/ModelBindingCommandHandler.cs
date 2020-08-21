@@ -16,9 +16,9 @@ namespace System.CommandLine.Invocation
         private readonly ModelBinder? _invocationTargetBinder;
         private readonly MethodInfo? _handlerMethodInfo;
         private readonly IMethodDescriptor _methodDescriptor;
-        private Dictionary<IValueDescriptor, IValueSource> _invokeArgumentBindingSources { get; } =
+        private Dictionary<IValueDescriptor, IValueSource> invokeArgumentBindingSources { get; } =
             new Dictionary<IValueDescriptor, IValueSource>();
-        private bool EnforceExplicitBinding = false; // ?? Wrong formatting as hint to figure out how to set this
+        private readonly bool EnforceExplicitBinding = false; // ?? Wrong formatting as hint to figure out how to set this
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
@@ -53,7 +53,7 @@ namespace System.CommandLine.Invocation
             var bindingContext = context.BindingContext;
 
             var (boundValues, _) = ModelBinder.GetBoundValues(
-                                                _invokeArgumentBindingSources,
+                                                invokeArgumentBindingSources,
                                                 bindingContext,
                                                 _methodDescriptor.ParameterDescriptors,
                                                 EnforceExplicitBinding);
@@ -96,7 +96,7 @@ namespace System.CommandLine.Invocation
             {
                 throw new InvalidOperationException("You must bind to a parameter on this handler");
             }
-            _invokeArgumentBindingSources.Add(paramDesc, valueSource);
+            invokeArgumentBindingSources.Add(paramDesc, valueSource);
         }
 
         private ParameterDescriptor? FindParameterDescriptor(ParameterInfo? param)

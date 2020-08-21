@@ -50,17 +50,17 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Theory]
-        //[InlineData(typeof(ClassWithCtorParameter<int>))]
-        //[InlineData(typeof(ClassWithSetter<int>))]
-        //[InlineData(typeof(ClassWithCtorParameter<string>))]
-        //[InlineData(typeof(ClassWithSetter<string>))]
+        [InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(ClassWithSetter<int>))]
+        [InlineData(typeof(ClassWithCtorParameter<string>))]
+        [InlineData(typeof(ClassWithSetter<string>))]
         [InlineData(typeof(FileInfo))]
         [InlineData(typeof(FileInfo[]))]
         [InlineData(typeof(string[]))]
         [InlineData(typeof(List<string>))]
         [InlineData(typeof(int[]))]
         [InlineData(typeof(List<int>))]
-        public async Task Model_constructor_receives_option_arguments_bound_to_the_specified_type(
+        public void Model_constructor_receives_option_arguments_bound_to_the_specified_type(
                     Type type)
         {
             var testCase = common.BindingCases[type];
@@ -128,7 +128,7 @@ namespace System.CommandLine.Tests.Binding
 
         private class TestModelBase
         {
-            public object? Value { get; protected set; }
+            public object Value { get; protected set; }
 
         }
         private class TestModel<T> : TestModelBase

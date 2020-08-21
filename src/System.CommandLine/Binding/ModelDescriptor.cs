@@ -35,7 +35,7 @@ namespace System.CommandLine.Binding
         public IReadOnlyList<IValueDescriptor> PropertyDescriptors =>
             _propertyDescriptors ??=
                 ModelType.GetProperties(CommonBindingFlags)
-                         .Where(p => p.CanWrite)
+                         .Where(p => p.CanWrite && p.SetMethod.IsPublic)
                          .Select(i => new PropertyDescriptor(i, this))
                          .ToList();
 
