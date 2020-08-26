@@ -4,13 +4,10 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Xunit;
 using common = System.CommandLine.Tests.Binding.ModelBindingCommandHandlerTests;
 
@@ -20,9 +17,9 @@ namespace System.CommandLine.Tests.Binding
     {
 
         [Theory]
-        //[InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(ClassWithCtorParameter<int>))]
         [InlineData(typeof(ClassWithSetter<int>))]
-        //[InlineData(typeof(ClassWithCtorParameter<string>))]
+        [InlineData(typeof(ClassWithCtorParameter<string>))]
         [InlineData(typeof(ClassWithSetter<string>))]
         [InlineData(typeof(FileInfo))]
         [InlineData(typeof(FileInfo[]))]

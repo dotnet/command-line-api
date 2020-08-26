@@ -107,9 +107,6 @@ namespace System.CommandLine.Tests.Binding
             valueReceivedValue.Should().BeOfType<FileInfo>();
             var fileInfoValue = valueReceivedValue as FileInfo;
             fileInfoValue.FullName.Should().Be(expectedValue.FullName);
-            // The following fails when it attempts to compare the Length of the file. I have
-            // no idea why this previously worked. 
-            //valueReceivedValue.Should().BeEquivalentTo(expectedValue);
         }
 
         [Fact]
