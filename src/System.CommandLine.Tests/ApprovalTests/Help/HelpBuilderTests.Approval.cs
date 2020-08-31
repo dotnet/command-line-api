@@ -70,6 +70,9 @@ namespace System.CommandLine.Tests.Help
                         Description = "the-root-option-arg-description",
                     },
                     IsRequired = true
+                },
+                new Option(aliases: new string[] {"--the-root-option-multi-line-description", "-tromld"}) {
+                    Description = "the-root-option\r\nmulti-line\ndescription"
                 }
             };
             command.Name = "the-root-command";
