@@ -146,16 +146,13 @@ namespace System.CommandLine.Tests.Binding
 
             string[] receivedHeaders = null;
 
-            rootCommand.Handler = CommandHandler.Create((string[] name) =>
-            {
-                receivedHeaders = name;
-            });
+            rootCommand.Handler = CommandHandler.Create((string[] name) => receivedHeaders = name);
 
             rootCommand.Invoke("-n one -n two");
 
             receivedHeaders.Should().BeEquivalentTo("one", "two");
         }
-      
+
         [Theory]
         [InlineData(typeof(string), "hello", "hello")]
         [InlineData(typeof(int), "123", 123)]
@@ -233,10 +230,7 @@ namespace System.CommandLine.Tests.Binding
         {
             bool? received = null;
 
-            var handler = CommandHandler.Create((bool x) =>
-            {
-                received = x;
-            });
+            var handler = CommandHandler.Create((bool x) => received = x);
 
             var root = new RootCommand
             {
@@ -254,10 +248,7 @@ namespace System.CommandLine.Tests.Binding
         {
             int received = 0;
 
-            var handler = CommandHandler.Create((int x) =>
-            {
-                received = x;
-            });
+            var handler = CommandHandler.Create((int x) => received = x);
 
             var root = new RootCommand
             {
@@ -312,12 +303,12 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(FileInfo), true)]
         [InlineData(typeof(FileInfo[]), false)]
         [InlineData(typeof(FileInfo[]), true)]
-        
+
         [InlineData(typeof(DirectoryInfo), false)]
         [InlineData(typeof(DirectoryInfo), true)]
         [InlineData(typeof(DirectoryInfo[]), false)]
         [InlineData(typeof(DirectoryInfo[]), true)]
-        
+
         [InlineData(typeof(FileSystemInfo), true, nameof(ExistingFile))]
         [InlineData(typeof(FileSystemInfo), true, nameof(ExistingDirectory))]
         [InlineData(typeof(FileSystemInfo), true, nameof(NonexistentPathWithTrailingSlash))]
@@ -337,7 +328,7 @@ namespace System.CommandLine.Tests.Binding
             bool useDelegate,
             string variation = null)
         {
-            var testCase = _bindingCases[(type, variation)];
+            var testCase = BindingCases[(type, variation)];
 
             ICommandHandler handler;
             if (!useDelegate)
@@ -350,13 +341,13 @@ namespace System.CommandLine.Tests.Binding
             }
             else
             {
-                 var createCaptureDelegate = GetType()
-                                    .GetMethod(nameof(CaptureDelegate), BindingFlags.NonPublic | BindingFlags.Static)
-                                    .MakeGenericMethod(testCase.ParameterType);
+                var createCaptureDelegate = GetType()
+                                   .GetMethod(nameof(CaptureDelegate), BindingFlags.NonPublic | BindingFlags.Static)
+                                   .MakeGenericMethod(testCase.ParameterType);
 
-                 var @delegate = createCaptureDelegate.Invoke(null, null);
+                var @delegate = createCaptureDelegate.Invoke(null, null);
 
-                 handler = CommandHandler.Create((dynamic) @delegate);
+                handler = CommandHandler.Create((dynamic)@delegate);
             }
 
             var command = new Command("command")
@@ -383,24 +374,21 @@ namespace System.CommandLine.Tests.Binding
 
             testCase.AssertBoundValue(boundValue);
         }
-        
+
         [Fact]
         public async Task When_binding_fails_due_to_parameter_naming_mismatch_then_handler_is_called_and_no_error_is_produced()
         {
             string[] received = { "this should get overwritten" };
 
             var o = new Option(
-                new[] {  "-i" },
+                new[] { "-i" },
                 "Path to an image or directory of supported images")
             {
                 Argument = new Argument<string[]>()
             };
 
             var command = new Command("command") { o };
-            command.Handler = CommandHandler.Create<string[], InvocationContext>((nameDoesNotMatch, c) =>
-            {
-                received = nameDoesNotMatch;
-            });
+            command.Handler = CommandHandler.Create<string[], InvocationContext>((nameDoesNotMatch, c) => received = nameDoesNotMatch);
 
             var testConsole = new TestConsole();
             var commandLine = "command -i 1 -i 2 -i 3 ";
@@ -426,7 +414,7 @@ namespace System.CommandLine.Tests.Binding
         public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(
           Type type)
         {
-            var c = _bindingCases[type];
+            var c = BindingCases[type];
 
             var captureMethod = GetType()
                                 .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
@@ -458,6 +446,122 @@ namespace System.CommandLine.Tests.Binding
             c.AssertBoundValue(boundValue);
         }
 
+        [Theory]
+        [InlineData(typeof(int))]
+        [InlineData(typeof(string))]
+        [InlineData(typeof(bool))]
+        [InlineData(typeof(ClassWithSetter<int>))]
+        [InlineData(typeof(ClassWithCtorParameter<string>))]
+        [InlineData(typeof(ClassWithSetter<string>))]
+        [InlineData(typeof(FileInfo))]
+        [InlineData(typeof(FileInfo[]))]
+        [InlineData(typeof(string[]))]
+        [InlineData(typeof(List<string>))]
+        [InlineData(typeof(int[]))]
+        [InlineData(typeof(List<int>))]
+        public async Task Handler_method_receives_command_arguments_explicitly_bound_to_the_specified_type(
+            Type type)
+        {
+            var c = BindingCases[type];
+
+            var captureMethod = GetType()
+                                .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
+                                .MakeGenericMethod(c.ParameterType);
+            var parameter = captureMethod.GetParameters().First();
+
+            var handler = CommandHandler.Create(captureMethod);
+
+            var argument = new Argument
+            {
+                Name = "value",
+                ArgumentType = c.ParameterType
+            };
+
+            var command = new Command(
+                "command")
+            {
+                argument
+            };
+            if (!(handler is ModelBindingCommandHandler bindingHandler))
+            {
+                throw new InvalidOperationException("Cannot bind to this type of handler");
+            }
+            bindingHandler.BindParameter(parameter, argument);
+            command.Handler = handler;
+
+            var parseResult = command.Parse(c.CommandLine);
+
+            var invocationContext = new InvocationContext(parseResult);
+
+            await handler.InvokeAsync(invocationContext);
+
+            var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+
+            boundValue.Should().BeOfType(c.ParameterType);
+
+            c.AssertBoundValue(boundValue);
+        }
+
+        [Theory]
+        [InlineData(typeof(int))]
+        [InlineData(typeof(string))]
+        [InlineData(typeof(bool))]
+        [InlineData(typeof(ClassWithCtorParameter<int>))]
+        [InlineData(typeof(ClassWithSetter<int>))]
+        [InlineData(typeof(ClassWithCtorParameter<string>))]
+        [InlineData(typeof(ClassWithSetter<string>))]
+        [InlineData(typeof(FileInfo))]
+        [InlineData(typeof(FileInfo[]))]
+        [InlineData(typeof(string[]))]
+        [InlineData(typeof(List<string>))]
+        [InlineData(typeof(int[]))]
+        [InlineData(typeof(List<int>))]
+        public async Task Handler_method_receive_option_arguments_explicitly_bound_to_the_specified_type(
+             Type type)
+        {
+            var c = BindingCases[type];
+
+            var captureMethod = GetType()
+                                .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
+                                .MakeGenericMethod(c.ParameterType);
+            var parameter = captureMethod.GetParameters().First();
+
+            var handler = CommandHandler.Create(captureMethod);
+
+            var option = new Option("--value")
+            {
+                Argument = new Argument
+                {
+                    ArgumentType = c.ParameterType
+                }
+            };
+
+            var command = new Command(
+                "command")
+            {
+                option
+            };
+            if (!(handler is ModelBindingCommandHandler bindingHandler))
+            {
+                throw new InvalidOperationException("Cannot bind to this type of handler");
+            }
+            bindingHandler.BindParameter(parameter, option); 
+            command.Handler = handler;
+
+            var commandLine = $"--value {c.CommandLine}";
+            var parseResult = command.Parse(commandLine);
+
+            var invocationContext = new InvocationContext(parseResult);
+
+            await handler.InvokeAsync(invocationContext);
+
+            var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+
+            boundValue.Should().BeOfType(c.ParameterType);
+
+            c.AssertBoundValue(boundValue);
+        }
+
         private static void CaptureMethod<T>(T value, InvocationContext invocationContext)
         {
             invocationContext.InvocationResult = new BoundValueCapturer(value);
@@ -465,10 +569,7 @@ namespace System.CommandLine.Tests.Binding
 
         private static Action<T, InvocationContext> CaptureDelegate<T>()
         {
-            return (value, invocationContext) =>
-            {
-                invocationContext.InvocationResult = new BoundValueCapturer(value);
-            };
+            return (value, invocationContext) => invocationContext.InvocationResult = new BoundValueCapturer(value);
         }
 
         private class BoundValueCapturer : IInvocationResult
@@ -485,12 +586,22 @@ namespace System.CommandLine.Tests.Binding
             }
         }
 
-        private static readonly BindingTestSet _bindingCases = new BindingTestSet
+        internal static readonly BindingTestSet BindingCases = new BindingTestSet
         {
+              BindingTestCase.Create<int>(
+                 "123",
+                 o => o.Should().Be(123)),
+
+              BindingTestCase.Create<string>(
+                 "123",
+                 o => o.Should().Be("123")),
+              BindingTestCase.Create<bool>(
+                 "true",
+                 o => o.Should().BeTrue()),
               BindingTestCase.Create<ClassWithCtorParameter<int>>(
                  "123",
                  o => o.Value.Should().Be(123)),
-            
+
               BindingTestCase.Create<ClassWithSetter<int>>(
                  "123",
                  o => o.Value.Should().Be(123)),
@@ -578,7 +689,7 @@ namespace System.CommandLine.Tests.Binding
                           .Which
                           .FullName
                           .Should()
-                          .Be(NonexistentPathWithTrailingSlash(), 
+                          .Be(NonexistentPathWithTrailingSlash(),
                               "DirectoryInfo replaces Path.AltDirectorySeparatorChar with Path.DirectorySeparatorChar on Windows"),
                 variationName: nameof(NonexistentPathWithTrailingAltSlash)),
 
@@ -609,22 +720,22 @@ namespace System.CommandLine.Tests.Binding
                 o => o.Should().BeEquivalentTo(new List<int> { 1, 2 }))
         };
 
-        private static string NonexistentPathWithoutTrailingSlash()
+        internal static string NonexistentPathWithoutTrailingSlash()
         {
             return Path.Combine(
                 ExistingDirectory(),
                 "does-not-exist");
         }
 
-        private static string NonexistentPathWithTrailingSlash() => 
+        internal static string NonexistentPathWithTrailingSlash() =>
             NonexistentPathWithoutTrailingSlash() + Path.DirectorySeparatorChar;
-        private static string NonexistentPathWithTrailingAltSlash() => 
+        internal static string NonexistentPathWithTrailingAltSlash() =>
             NonexistentPathWithoutTrailingSlash() + Path.AltDirectorySeparatorChar;
 
-        private static string ExistingFile() =>
-            Directory.GetFiles(ExistingDirectory()).FirstOrDefault() ?? 
+        internal static string ExistingFile() =>
+            Directory.GetFiles(ExistingDirectory()).FirstOrDefault() ??
             throw new AssertionFailedException("No files found in current directory");
 
-        private static string ExistingDirectory() => Directory.GetCurrentDirectory();
+        internal static string ExistingDirectory() => Directory.GetCurrentDirectory();
     }
 }

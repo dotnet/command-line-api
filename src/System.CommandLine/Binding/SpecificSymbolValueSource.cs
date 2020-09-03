@@ -15,8 +15,8 @@ namespace System.CommandLine.Binding
         public IValueDescriptor ValueDescriptor { get; }
 
         public bool TryGetValue(IValueDescriptor valueDescriptor,
-            BindingContext? bindingContext,
-            out object? boundValue)
+                                BindingContext? bindingContext,
+                                out object? boundValue)
         {
             var specificDescriptor = ValueDescriptor;
             switch (specificDescriptor)

@@ -1,8 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -10,25 +6,18 @@ namespace System.CommandLine.Binding
 {
     public class ModelBinder
     {
-        public ModelBinder(Type modelType) : this(new AnonymousValueDescriptor(modelType))
-        {
-            if (modelType is null)
-            {
-                throw new ArgumentNullException(nameof(modelType));
-            }
-        }
+        public ModelBinder(Type modelType)
+            : this(new AnonymousValueDescriptor(modelType))
+            => _ = modelType ?? throw new ArgumentNullException(nameof(modelType));
 
         internal ModelBinder(IValueDescriptor valueDescriptor)
         {
             ValueDescriptor = valueDescriptor ?? throw new ArgumentNullException(nameof(valueDescriptor));
-
             ModelDescriptor = ModelDescriptor.FromType(valueDescriptor.ValueType);
         }
 
-        public ModelDescriptor ModelDescriptor { get; }
-
         public IValueDescriptor ValueDescriptor { get; }
-
+        public ModelDescriptor ModelDescriptor { get; }
         public bool EnforceExplicitBinding { get; set; }
 
         internal Dictionary<IValueDescriptor, IValueSource> ConstructorArgumentBindingSources { get; } =
@@ -37,208 +26,210 @@ namespace System.CommandLine.Binding
         internal Dictionary<IValueDescriptor, IValueSource> MemberBindingSources { get; } =
             new Dictionary<IValueDescriptor, IValueSource>();
 
-        protected ConstructorDescriptor FindModelConstructorDescriptor(
-            ConstructorInfo constructorInfo)
+        // Consider deprecating in favor or BindingConfiguration/BindingContext attach validatation. Then make internal.
+        // Or at least rename to "ConfigureBinding" or similar
+        public void BindConstructorArgumentFromValue(ParameterInfo parameter, IValueDescriptor valueDescriptor)
         {
-            var cmpCtorDesc = new ConstructorDescriptor(constructorInfo,
-                // Parent does not matter for comparison and can be invalid.
-                parent: ModelDescriptor);
-            var cmpParamDescs = cmpCtorDesc.ParameterDescriptors
-                .Select(GetParameterDescriptorComparands)
-                .ToList();
-
-            return ModelDescriptor.ConstructorDescriptors
-                .FirstOrDefault(matchCtorDesc =>
-                {
-                    if (matchCtorDesc.Parent.ModelType != constructorInfo.DeclaringType)
-                        return false;
-                    return matchCtorDesc.ParameterDescriptors
-                        .Select(GetParameterDescriptorComparands)
-                        .SequenceEqual(cmpParamDescs);
-                });
-
-            // Name matching is not necessary for overload descisions.
-            static (Type paramType, bool allowNull, bool hasDefaultValue)
-                GetParameterDescriptorComparands(ParameterDescriptor desc) =>
-                (desc.ValueType, desc.AllowsNull, desc.HasDefaultValue);
-        }
-
-        protected IValueDescriptor FindModelPropertyDescriptor(
-            Type propertyType, string propertyName)
-        {
-            return ModelDescriptor.PropertyDescriptors
-                .FirstOrDefault(desc =>
-                    desc.ValueType == propertyType &&
-                    string.Equals(desc.ValueName, propertyName, StringComparison.Ordinal)
-                    );
-        }
-
-        public void BindConstructorArgumentFromValue(ParameterInfo parameter,
-            IValueDescriptor valueDescriptor)
-        {
-            if (!(parameter.Member is ConstructorInfo constructor))
-                throw new ArgumentException(paramName: nameof(parameter),
-                    message: "Parameter must be declared on a constructor.");
-
+            var constructor = FindConstructorOrThrow(parameter, "Parameter must be declared on a constructor.");
             var ctorDesc = FindModelConstructorDescriptor(constructor);
+
             if (ctorDesc is null)
+            {
                 throw new ArgumentException(paramName: nameof(parameter),
                     message: "Parameter is not described by any of the model constructor descriptors.");
-            
+            }
+
             var paramDesc = ctorDesc.ParameterDescriptors[parameter.Position];
-            ConstructorArgumentBindingSources[paramDesc] =
-                new SpecificSymbolValueSource(valueDescriptor);
+            ConstructorArgumentBindingSources[paramDesc] = new SpecificSymbolValueSource(valueDescriptor);
         }
 
-        public void BindMemberFromValue(PropertyInfo property, 
-            IValueDescriptor valueDescriptor)
+        public void BindMemberFromValue(PropertyInfo property, IValueDescriptor valueDescriptor)
         {
-            var propertyDescriptor = FindModelPropertyDescriptor(
-                property.PropertyType, property.Name);
+            var propertyDescriptor = FindModelPropertyDescriptor(property.PropertyType, property.Name);
+
             if (propertyDescriptor is null)
+            {
                 throw new ArgumentException(paramName: nameof(property),
                     message: "Property is not described by any of the model property descriptors.");
+            }
 
-            MemberBindingSources[propertyDescriptor] =
-                new SpecificSymbolValueSource(valueDescriptor);
+            MemberBindingSources[propertyDescriptor] = new SpecificSymbolValueSource(valueDescriptor);
         }
 
-        public object? CreateInstance(BindingContext context)
+        public object? CreateInstance(BindingContext bindingContext)
         {
-            var values = GetValues(
-                // No binding sources, as were are attempting to bind a value
-                // for the model itself, not for its ctor args or its members.
-                bindingSources: null, 
-                bindingContext: context, 
-                new[] { ValueDescriptor }, 
-                includeMissingValues: false);
-
-            if (values.Count == 1 &&
-                ModelDescriptor.ModelType.IsAssignableFrom(values[0].ValueDescriptor.ValueType))
-            {
-                return values[0].Value;
-            }
-
-            if (TryDefaultConstructorAndPropertiesStrategy(context, out var fromCtor))
-            {
-                return fromCtor;
-            }
-
-            return values.SingleOrDefault()?.Value;
+            var (_, newInstance, _) = CreateInstanceInternal(bindingContext);
+            return newInstance;
         }
 
-        private bool TryDefaultConstructorAndPropertiesStrategy(
-            BindingContext context,
-            [NotNullWhen(true)] out object? instance)
+        private (bool success, object? newInstance, bool anyNonDefaults) CreateInstanceInternal(
+                    BindingContext bindingContext)
         {
-            var constructorDescriptors =
-                ModelDescriptor
-                    .ConstructorDescriptors
-                    .OrderByDescending(d => d.ParameterDescriptors.Count);
-
-            foreach (var constructor in constructorDescriptors)
+            if (DisallowedBindingType())
             {
-                var boundConstructorArguments = GetValues(
-                    ConstructorArgumentBindingSources,
-                    context, 
-                    constructor.ParameterDescriptors,
-                    true);
-
-                if (boundConstructorArguments.Count != constructor.ParameterDescriptors.Count)
-                {
-                    continue;
-                }
-
-                // Found invokable constructor, invoke and return
-                var values = boundConstructorArguments.Select(v => v.Value).ToArray();
-
-                try
-                {
-                    var fromModelBinder = constructor.Invoke(values);
-
-                    UpdateInstance(fromModelBinder, context);
-
-                    instance = fromModelBinder;
-
-                    return true;
-                }
-                catch
-                {
-                    instance = null;
-                    return false;
-                }
+                throw new InvalidOperationException($"The type {ModelDescriptor.ModelType} cannot be bound");
             }
+            if (ShortCutTheBinding(bindingContext))
+            {
+                return GetSimpleModelValue(MemberBindingSources, bindingContext);
+            }
+            var constructorAndArgs = GetBestConstructorAndArgs(bindingContext);
+            var constructor = constructorAndArgs.Constructor;
+            var boundValues = constructorAndArgs.BoundValues;
+            bool nonDefaultsUsed = constructorAndArgs.NonDefaultsUsed;
+            return constructor is null
+                ? GetSimpleModelValue(ConstructorArgumentBindingSources, bindingContext)
+                : InstanceFromSpecificConstructor(bindingContext, constructor, boundValues, ref nonDefaultsUsed);
+        }
 
-            instance = null;
-            return false;
+        private bool DisallowedBindingType()
+        {
+            var disallowedTypes = new List<Type>
+            {
+                typeof(Span<>),
+                typeof(ReadOnlySpan<>)
+            };
+            var type = ModelDescriptor.ModelType;
+            return disallowedTypes
+                    .Any(x => type.IsGenericType && (type.GetGenericTypeDefinition() == x));
+        }
+
+        private bool ShortCutTheBinding(BindingContext bindingContext)
+        {
+            var explicitTypesToShortcut = new List<Type>
+            {
+                typeof(string)
+            };
+            Type modelType = ModelDescriptor.ModelType;
+            return modelType.IsPrimitive ||
+                   IsNullable(modelType) ||
+                   explicitTypesToShortcut.Contains(modelType);
+
+            static bool IsNullable(Type type)
+            {
+                return type.IsGenericType &&
+                       type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            }
+        }
+
+        private (bool success, object? newInstance, bool anyNonDefaults) GetSimpleModelValue(
+                IDictionary<IValueDescriptor, IValueSource>? bindingSources, BindingContext bindingContext)
+        {
+            var valueSource = GetValueSource(bindingSources, bindingContext, ValueDescriptor, EnforceExplicitBinding);
+            return bindingContext.TryBindToScalarValue(ValueDescriptor,
+                                                       valueSource,
+                                                       out var boundValue)
+                ? (true, boundValue?.Value, true)
+                : (false,(object?) null, false);
+        }
+
+        private (bool success, object? newInstance, bool anyNonDefaults) InstanceFromSpecificConstructor(
+                BindingContext bindingContext, ConstructorDescriptor constructor, IReadOnlyList<BoundValue>? boundValues, ref bool nonDefaultsUsed)
+        {
+            var values = boundValues.Select(x => x.Value).ToArray();
+            object? newInstance = null;
+            try
+            {
+                newInstance = constructor.Invoke(values);
+            }
+            catch
+            {
+                return (false, null, false);
+            }
+            if (!(newInstance is null))
+            {
+                nonDefaultsUsed = UpdateInstanceInternalNotifyIfNonDefaultsUsed(newInstance, bindingContext);
+            }
+            return (true, newInstance, nonDefaultsUsed);
         }
 
         public void UpdateInstance<T>(T instance, BindingContext bindingContext)
+            => UpdateInstanceInternalNotifyIfNonDefaultsUsed(instance, bindingContext);
+
+        private bool UpdateInstanceInternalNotifyIfNonDefaultsUsed<T>(T instance, BindingContext bindingContext)
         {
-            var boundValues = GetValues(
+            var (boundValues, anyNonDefaults) = GetBoundValues(
                 MemberBindingSources,
                 bindingContext,
                 ModelDescriptor.PropertyDescriptors,
+                EnforceExplicitBinding,
+                ModelDescriptor.ModelType,
                 includeMissingValues: false);
 
             foreach (var boundValue in boundValues)
             {
                 ((PropertyDescriptor)boundValue.ValueDescriptor).SetValue(instance, boundValue.Value);
             }
+
+            return anyNonDefaults;
         }
 
-        private IReadOnlyList<BoundValue> GetValues(
-            IDictionary<IValueDescriptor, IValueSource>? bindingSources,
-            BindingContext bindingContext,
-            IReadOnlyList<IValueDescriptor> valueDescriptors,
-            bool includeMissingValues)
+        private ConstructorAndArgs GetBestConstructorAndArgs(BindingContext bindingContext)
+        {
+            var constructorDescriptors =
+                  ModelDescriptor
+                      .ConstructorDescriptors
+                      .OrderByDescending(d => d.ParameterDescriptors.Count);
+            ConstructorAndArgs? bestNonMatching = null;
+            foreach (var constructor in constructorDescriptors)
+            {
+                var (boundValues, anyNonDefaults) = GetBoundValues(
+                        ConstructorArgumentBindingSources,
+                        bindingContext,
+                        constructor.ParameterDescriptors,
+                        EnforceExplicitBinding,
+                        ModelDescriptor.ModelType,
+                        true);
+
+                if (boundValues.Count == constructor.ParameterDescriptors.Count)
+                {
+                    var match = new ConstructorAndArgs(constructor, boundValues, anyNonDefaults);
+                    if (anyNonDefaults)
+                    { // based on parameter length, first usable constructor that utilizes CLI definition
+                        return match;
+                    }
+                    bestNonMatching ??= match;
+                }
+            }
+            return bestNonMatching is null
+                    ? new ConstructorAndArgs(null, null, false)
+                    : bestNonMatching;
+        }
+
+        internal static (IReadOnlyList<BoundValue> boundValues, bool anyNonDefaults) GetBoundValues(
+                IDictionary<IValueDescriptor, IValueSource>? bindingSources,
+                BindingContext bindingContext,
+                IReadOnlyList<IValueDescriptor> valueDescriptors,
+                bool enforceExplicitBinding,
+                Type? parentType = null,
+                bool includeMissingValues = true)
         {
             var values = new List<BoundValue>();
+            var anyNonDefaults = false;
 
             for (var index = 0; index < valueDescriptors.Count; index++)
             {
                 var valueDescriptor = valueDescriptors[index];
-
-                var valueSource = GetValueSource(bindingSources, bindingContext, valueDescriptor);
-
-                BoundValue? boundValue;
-                if (!bindingContext.TryBindToScalarValue(
-                        valueDescriptor,
-                        valueSource,
-                        out boundValue) && valueDescriptor.HasDefaultValue)
+                var valueSource = GetValueSource(bindingSources, bindingContext, valueDescriptor, enforceExplicitBinding);
+                var (boundValue, usedNonDefault) = 
+                    GetBoundValue(valueSource, bindingContext, valueDescriptor, includeMissingValues, parentType);
+                if (usedNonDefault && !anyNonDefaults)
                 {
-                    boundValue = BoundValue.DefaultForValueDescriptor(valueDescriptor);
+                    anyNonDefaults = true;
                 }
-
-                if (boundValue is null)
-                {
-                    if (includeMissingValues)
-                    {
-                        if (valueDescriptor is ParameterDescriptor parameterDescriptor &&
-                            parameterDescriptor.Parent is ConstructorDescriptor constructorDescriptor)
-                        {
-                            if (parameterDescriptor.HasDefaultValue)
-                                boundValue = BoundValue.DefaultForValueDescriptor(parameterDescriptor);
-                            else if (parameterDescriptor.AllowsNull && 
-                                ShouldPassNullToConstructor(constructorDescriptor.Parent, constructorDescriptor))
-                                boundValue = BoundValue.DefaultForType(valueDescriptor);
-                        }
-                    }
-                }
-
                 if (boundValue != null)
                 {
                     values.Add(boundValue);
                 }
             }
 
-            return values;
+            return (values, anyNonDefaults);
         }
 
-        private IValueSource GetValueSource(
-            IDictionary<IValueDescriptor, IValueSource>? bindingSources,
-            BindingContext bindingContext,
-            IValueDescriptor valueDescriptor)
+        internal static IValueSource GetValueSource(IDictionary<IValueDescriptor, IValueSource>? bindingSources,
+                                                    BindingContext bindingContext,
+                                                    IValueDescriptor valueDescriptor,
+                                                    bool enforceExplicitBinding)
         {
             if (!(bindingSources is null) &&
                 bindingSources.TryGetValue(valueDescriptor, out IValueSource? valueSource))
@@ -251,7 +242,7 @@ namespace System.CommandLine.Binding
                 return valueSource;
             }
 
-            if (!EnforceExplicitBinding)
+            if (!enforceExplicitBinding)
             {
                 // Return a value source that will match from the parseResult
                 // by name and type (or a possible conversion)
@@ -261,21 +252,88 @@ namespace System.CommandLine.Binding
             return new MissingValueSource();
         }
 
-        public override string ToString() =>
-            $"{ModelDescriptor.ModelType.Name}";
-
-        private bool ShouldPassNullToConstructor(ModelDescriptor modelDescriptor,
-            ConstructorDescriptor? ctor = null)
+        internal static (BoundValue? boundValue, bool usedNonDefault) GetBoundValue(
+                    IValueSource valueSource,
+                    BindingContext bindingContext,
+                    IValueDescriptor valueDescriptor,
+                    bool includeMissingValues,
+                    Type? parentType)
         {
-            if (!(ctor is null))
+            if (bindingContext.TryBindToScalarValue(
+                    valueDescriptor,
+                    valueSource,
+                    out var boundValue))
             {
-                return ctor.ParameterDescriptors.All(d => d.AllowsNull);
+                return (boundValue, true);
             }
 
-            return !modelDescriptor.ModelType.IsNullable();
+            if (valueDescriptor.HasDefaultValue)
+            {
+                return (BoundValue.DefaultForValueDescriptor(valueDescriptor), false);
+            }
+
+            if (valueDescriptor.ValueType != parentType) // Recursive models aren't allowed
+            {
+                var binder = bindingContext.GetModelBinder(valueDescriptor);
+                var (success, newInstance, usedNonDefaults) = binder.CreateInstanceInternal(bindingContext);
+                if (success)
+                {
+                    return (new BoundValue(newInstance, valueDescriptor, valueSource), usedNonDefaults);
+                }
+            }
+
+            if (includeMissingValues)
+            {
+                if (valueDescriptor is ParameterDescriptor parameterDescriptor && parameterDescriptor.AllowsNull)
+                {
+                    return (new BoundValue(parameterDescriptor.GetDefaultValue(), valueDescriptor, valueSource), false);
+                }
+                // Logic dropped here - misnamed and purpose unclear: ShouldPassNullToConstructor(constructorDescriptor.Parent, constructorDescriptor))
+                return (BoundValue.DefaultForType(valueDescriptor), false);
+            }
+            return (null, false);
         }
 
-        private class AnonymousValueDescriptor : IValueDescriptor
+
+        protected ConstructorDescriptor FindModelConstructorDescriptor(ConstructorInfo constructorInfo)
+        {
+            var constructorParameters = constructorInfo.GetParameters();
+
+            return ModelDescriptor.ConstructorDescriptors
+                .FirstOrDefault(ctorDesc
+                        => ModelDescriptor.ModelType == constructorInfo.DeclaringType &&
+                           ctorDesc.ParameterDescriptors
+                                   .Any(x => constructorParameters.Any(y => MatchParameter(x, y))));
+
+            static bool MatchParameter(ParameterDescriptor desc, ParameterInfo info)
+            {
+                return desc.ValueType == info.ParameterType &&
+                       desc.ValueName == info.Name &&
+                       desc.HasDefaultValue == info.HasDefaultValue &&
+                       desc.AllowsNull == ParameterDescriptor.CalculateAllowsNull(info);
+            }
+        }
+
+        protected IValueDescriptor FindModelPropertyDescriptor(Type propertyType, string propertyName)
+        {
+            return ModelDescriptor.PropertyDescriptors
+                .FirstOrDefault(desc =>
+                    desc.ValueType == propertyType &&
+                    string.Equals(desc.ValueName, propertyName, StringComparison.Ordinal)
+                    );
+        }
+
+        private ConstructorInfo FindConstructorOrThrow(ParameterInfo parameter, string message)
+        {
+            if (!(parameter.Member is ConstructorInfo constructor))
+            {
+                throw new ArgumentException(paramName: nameof(parameter),
+                      message: message);
+            }
+            return constructor;
+        }
+
+        internal class AnonymousValueDescriptor : IValueDescriptor
         {
             public Type ValueType { get; }
 
@@ -291,6 +349,20 @@ namespace System.CommandLine.Binding
             public object? GetDefaultValue() => null;
 
             public override string ToString() => $"{ValueType}";
+        }
+    }
+
+    internal class ConstructorAndArgs
+    {
+        public ConstructorDescriptor? Constructor { get; }
+        public IReadOnlyList<BoundValue>? BoundValues { get; }
+        public bool NonDefaultsUsed { get; }
+
+        public ConstructorAndArgs(ConstructorDescriptor? constructor, IReadOnlyList<BoundValue>? boundValues, bool nonDefaultsUsed)
+        {
+            Constructor = constructor;
+            BoundValues = boundValues;
+            NonDefaultsUsed = nonDefaultsUsed;
         }
     }
 }
