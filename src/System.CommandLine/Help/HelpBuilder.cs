@@ -2,10 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -154,8 +152,15 @@ namespace System.CommandLine.Help
         /// <param name="offset">Number of characters to pad the text</param>
         private void AppendLine(string text, int? offset = null)
         {
-            AppendPadding(offset);
-            Console.Out.WriteLine(text ?? "");
+            if (string.IsNullOrEmpty(text))
+            {
+                Console.Out.WriteLine();
+            }
+            else
+            {
+                AppendPadding(offset);
+                Console.Out.WriteLine(text);
+            }
         }
 
         /// <summary>
@@ -241,9 +246,7 @@ namespace System.CommandLine.Help
         protected virtual IReadOnlyList<IReadOnlyList<string>> CreateTable<T>(IEnumerable<T> collection, Func<T, IEnumerable<string>> selector)
         {
             return collection.Select(selector)
-                .Select(row => row
-                    .Select(element => ShortenWhitespace(element))
-                    .ToList())
+                .Select(row => row.ToList())
                 .ToList();
         }
 
@@ -388,28 +391,32 @@ namespace System.CommandLine.Help
 
             var start = 0;
             var lines = new List<string>();
-            text = ShortenWhitespace(text);
 
-            while (start < text.Length - width)
+            foreach (var line in text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
             {
-                var end = text.LastIndexOf(separator, start + width);
+                var str = ShortenWhitespace(line);
 
-                // If last word starts before width / 2 include entire width.
-                if (end - start <= width / 2)
+                while (start < str.Length - width)
                 {
-                    lines.Add(text.Substring(start, width));
-                    // Start next line directly after current line. "abcdef" => abc|def
-                    start = start + width;
+                    var end = str.LastIndexOf(separator, start + width);
+
+                    // If last word starts before width / 2 include entire width.
+                    if (end - start <= width / 2)
+                    {
+                        lines.Add(str.Substring(start, width));
+                        // Start next line directly after current line. "abcdef" => abc|def
+                        start += width;
+                    }
+                    else
+                    {
+                        lines.Add(str.Substring(start, end - start));
+                        // Move past separator for start of next line. "abc def" => abc| |def
+                        start = end + 1;
+                    }
                 }
-                else
-                {
-                    lines.Add(text.Substring(start, end - start));
-                    // Move past separator for start of next line. "abc def" => abc| |def
-                    start = end + 1;
-                }
+
+                lines.Add(str.Substring(start, str.Length - start));
             }
-
-            lines.Add(text.Substring(start, text.Length - start));
 
             return lines;
         }
@@ -749,7 +756,7 @@ namespace System.CommandLine.Help
 
         private string ShortenWhitespace(string input)
         {
-            return Regex.Replace(input, @"\s+", " ");
+            return Regex.Replace(input, @"\s+", " ").TrimEnd();
         }
 
         private string JoinNonEmpty(string separator, params string?[] values)

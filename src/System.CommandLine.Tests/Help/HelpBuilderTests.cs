@@ -72,16 +72,19 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Synopsis_section_removes_added_newlines()
+        public void Synopsis_section_keeps_added_newlines()
         {
             var command = new RootCommand(
-                $"test{NewLine}description with{NewLine}line breaks");
+                $"test{NewLine}\r\ndescription with\nline breaks");
 
             _helpBuilder.Write(command);
 
             var expected =
                 $"{_executableName}:{NewLine}" +
-                $"{_indentation}test description with line breaks{NewLine}{NewLine}";
+                $"{_indentation}test{NewLine}" +
+                $"{NewLine}" +
+                $"{_indentation}description with{NewLine}" +
+                $"{_indentation}line breaks{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -90,8 +93,8 @@ namespace System.CommandLine.Tests.Help
         public void Synopsis_section_properly_wraps_description()
         {
             var longSynopsisText =
-                $"test{NewLine}" +
-                $"description with line breaks that is long enough to wrap to a{NewLine}" +
+                $"test\t" +
+                $"description with some tabs that is long enough to wrap to a\t" +
                 $"new line";
 
             var command = new RootCommand(description: longSynopsisText);
@@ -101,7 +104,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $@"{_executableName}:{NewLine}" +
-                $"{_indentation}test description with line breaks that is long enough to wrap to a{NewLine}" +
+                $"{_indentation}test description with some tabs that is long enough to wrap to a{NewLine}" +
                 $"{_indentation}new line{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
@@ -333,13 +336,13 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Usage_section_removes_added_newlines()
+        public void Usage_section_keeps_added_newlines()
         {
             var outer = new Command("outer-command", "command help")
             {
                 new Argument<string[]>
                 {
-                    Name = $"outer args {NewLine}with new{NewLine}lines"
+                    Name = $"outer args {NewLine}\r\nwith new\nlines"
                 },
                 new Command("inner-command", "command help")
                 {
@@ -354,7 +357,10 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}outer-command [<outer args with new lines>...] [command]{NewLine}{NewLine}";
+                $"{_indentation}outer-command [<outer args{NewLine}" +
+                $"{NewLine}" +
+                $"{_indentation}with new{NewLine}" +
+                $"{_indentation}lines>...] [command]{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -685,14 +691,14 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Arguments_section_removes_added_newlines()
+        public void Arguments_section_keeps_added_newlines()
         {
             var command = new Command("outer", "Help text for the outer command")
             {
                 new Argument
                 {
                     Name = "outer-command-arg",
-                    Description = $"The argument{NewLine}for the{NewLine}inner command",
+                    Description = $"The argument\r\nfor the\ninner command",
                     Arity = ArgumentArity.ExactlyOne
                 }
             };
@@ -701,7 +707,9 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Arguments:{NewLine}" +
-                $"{_indentation}<outer-command-arg>{_columnPadding}The argument for the inner command{NewLine}{NewLine}";
+                $"{_indentation}<outer-command-arg>{_columnPadding}The argument{NewLine}" +
+                $"{_indentation}                   {_columnPadding}for the{NewLine}" +
+                $"{_indentation}                   {_columnPadding}inner command{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -710,9 +718,9 @@ namespace System.CommandLine.Tests.Help
         public void Arguments_section_properly_wraps_description()
         {
             var longCmdText =
-                $"Argument{NewLine}" +
-                $"for inner command with line breaks that is long enough to wrap to a" +
-                $"{NewLine}new line";
+                $"Argument\t" +
+                $"for inner command with some tabs that is long enough to wrap to a\t" +
+                $"new line";
 
             var command = new Command("outer", "Help text for the outer command")
             {
@@ -730,7 +738,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Arguments:{NewLine}" +
-                $"{_indentation}<outer-command-arg>{_columnPadding}Argument for inner command with line breaks{NewLine}" +
+                $"{_indentation}<outer-command-arg>{_columnPadding}Argument for inner command with some tabs{NewLine}" +
                 $"{_indentation}                   {_columnPadding}that is long enough to wrap to a new line{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
@@ -1064,7 +1072,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Options_section_removes_added_newlines()
+        public void Options_section_keeps_added_newlines()
         {
             var command =
                 new Command(
@@ -1073,14 +1081,17 @@ namespace System.CommandLine.Tests.Help
                 {
                     new Option(
                         new[] { "-a", "--aaa" },
-                        $"Help{NewLine}for {NewLine} the{NewLine}option")
+                        $"Help{NewLine}for \r\n the\noption")
                 };
 
             _helpBuilder.Write(command);
 
             var expected =
                 $"Options:{NewLine}" +
-                $"{_indentation}-a, --aaa{_columnPadding}Help for the option{NewLine}{NewLine}";
+                $"{_indentation}-a, --aaa{_columnPadding}Help{NewLine}" +
+                $"{_indentation}         {_columnPadding}for{NewLine}" +
+                $"{_indentation}         {_columnPadding} the{NewLine}" +
+                $"{_indentation}         {_columnPadding}option{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -1089,8 +1100,8 @@ namespace System.CommandLine.Tests.Help
         public void Options_section_properly_wraps_description()
         {
             var longOptionText =
-                $"The option{NewLine}" +
-                $"with line breaks that is long enough to wrap to a{NewLine}" +
+                $"The option\t" +
+                $"with some tabs that is long enough to wrap to a\t" +
                 $"new line";
 
             var command = new Command("test-command",
@@ -1106,8 +1117,8 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Options:{NewLine}" +
-                $"{_indentation}-a, --aaa{_columnPadding}The option with line breaks that is long enough to{NewLine}" +
-                $"{_indentation}         {_columnPadding}wrap to a new line{NewLine}{NewLine}";
+                $"{_indentation}-a, --aaa{_columnPadding}The option with some tabs that is long enough to wrap{NewLine}" +
+                $"{_indentation}         {_columnPadding}to a new line{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -1421,7 +1432,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Subcommands_remove_added_newlines()
+        public void Subcommands_keep_added_newlines()
         {
             var command = new Command("outer", "outer command help")
                 {
@@ -1429,7 +1440,7 @@ namespace System.CommandLine.Tests.Help
                     {
                         Name = "outer-args"
                     },
-                    new Command("inner", $"inner{NewLine}command help {NewLine} with {NewLine}newlines")
+                    new Command("inner", $"inner{NewLine}command help \r\n with \nnewlines")
                     {
                         new Argument<string>
 
@@ -1443,7 +1454,10 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Commands:{NewLine}" +
-                $"{_indentation}inner <inner-args>{_columnPadding}inner command help with newlines{NewLine}{NewLine}";
+                $"{_indentation}inner <inner-args>{_columnPadding}inner{NewLine}" +
+                $"{_indentation}                  {_columnPadding}command help{NewLine}" +
+                $"{_indentation}                  {_columnPadding} with{NewLine}" +
+                $"{_indentation}                  {_columnPadding}newlines{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -1452,8 +1466,8 @@ namespace System.CommandLine.Tests.Help
         public void Subcommands_properly_wraps_description()
         {
             var longSubcommandText =
-                $"The{NewLine}" +
-                $"subcommand with line breaks that is long enough to wrap to a{NewLine}" +
+                $"The\t" +
+                $"subcommand with some tabs that is long enough to wrap to a\t" +
                 $"new line";
 
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -1482,7 +1496,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Commands:{NewLine}" +
-                $"{_indentation}inner-command <inner-args>{_columnPadding}The subcommand with line breaks that{NewLine}" +
+                $"{_indentation}inner-command <inner-args>{_columnPadding}The subcommand with some tabs that{NewLine}" +
                 $"{_indentation}                          {_columnPadding}is long enough to wrap to a new line{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
