@@ -28,13 +28,13 @@ namespace System.CommandLine.Binding
             {
                 return new ModelBindingCommandHandler(
                     _handlerMethodInfo,
-                    ParameterDescriptors);
+                    this);
             }
             else
             {
                 return new ModelBindingCommandHandler(
                     _handlerMethodInfo,
-                    ParameterDescriptors,
+                    this,
                     _invocationTarget);
             }
         }

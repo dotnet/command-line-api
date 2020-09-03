@@ -20,7 +20,7 @@ namespace System.CommandLine.Binding
         {
             return new ModelBindingCommandHandler(
                 _handlerDelegate,
-                ParameterDescriptors);
+                this);
         }
 
         public override ModelDescriptor? Parent => null;

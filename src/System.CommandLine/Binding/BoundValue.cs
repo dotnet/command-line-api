@@ -25,7 +25,7 @@ namespace System.CommandLine.Binding
 
         public IValueSource ValueSource { get; }
 
-        public object? Value { get; }
+        public virtual object? Value { get; }
 
         public override string ToString() => $"{ValueDescriptor}: {Value}";
 
@@ -53,4 +53,5 @@ namespace System.CommandLine.Binding
                 valueSource);
         }
     }
+
 }
