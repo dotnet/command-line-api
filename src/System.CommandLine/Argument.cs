@@ -135,7 +135,7 @@ namespace System.CommandLine
                     return option.Name;
                 }
 
-                return ArgumentType.Name.ToLowerInvariant();
+                return "";
             }
         }
 
