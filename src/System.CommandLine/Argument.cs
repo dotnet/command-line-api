@@ -129,10 +129,15 @@ namespace System.CommandLine
         {
             get
             {
-                if (Parents.Count == 1 &&
-                    Parents[0] is Option option)
+                if (Parents.Count == 1)
                 {
-                    return option.Name;
+                    switch (Parents[0])
+                    {
+                        case Option option:
+                            return option.Name;
+                        case Command _:
+                            return ArgumentType.Name.ToLowerInvariant();
+                    }
                 }
 
                 return "";
