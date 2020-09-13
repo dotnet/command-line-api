@@ -125,6 +125,20 @@ namespace System.CommandLine
             set => _argumentType = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        private protected override string DefaultName
+        {
+            get
+            {
+                if (Parents.Count == 1 &&
+                    Parents[0] is Option option)
+                {
+                    return option.Name;
+                }
+
+                return ArgumentType.Name.ToLowerInvariant();
+            }
+        }
+
         internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new List<ValidateSymbol<ArgumentResult>>();
 
         public void AddValidator(ValidateSymbol<ArgumentResult> validator) => Validators.Add(validator);
@@ -196,9 +210,5 @@ namespace System.CommandLine
         string IValueDescriptor.ValueName => Name;
 
         Type IValueDescriptor.ValueType => ArgumentType;
-
-        private protected override void ChooseNameForUnnamedArgument(Argument argument)
-        {
-        }
     }
 }

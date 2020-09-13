@@ -28,17 +28,6 @@ namespace System.CommandLine.Tests
             symbol.HasAlias("original").Should().BeFalse();
         }
 
-        [Fact]
-        public void Aliases_is_aware_of_added_alias()
-        {
-            var symbol = CreateSymbol("original");
-
-            symbol.AddAlias("added");
-
-            symbol.Aliases.Should().Contain("added");
-            symbol.HasAlias("added").Should().BeTrue();
-        }
-
         protected abstract Symbol CreateSymbol(string name);
     }
 }

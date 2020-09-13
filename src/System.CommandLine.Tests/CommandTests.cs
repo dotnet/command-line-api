@@ -165,6 +165,18 @@ namespace System.CommandLine.Tests
                   .Be($"Command \"{commandWithDelimiter}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
         }
 
+        [Fact]
+        public void Aliases_is_aware_of_added_alias()
+        {
+            var command = new Command("original");
+
+            command.AddAlias("added");
+
+            command.Aliases.Should().Contain("added");
+            command.HasAlias("added").Should().BeTrue();
+        }
+
+
         [Theory]
         [InlineData("aa ")]
         [InlineData(" aa")]

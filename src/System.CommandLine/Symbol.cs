@@ -12,10 +12,9 @@ namespace System.CommandLine
     public abstract class Symbol : 
         ISymbol
     {
-        private readonly HashSet<string> _aliases = new HashSet<string>();
-        private readonly HashSet<string> _rawAliases = new HashSet<string>();
-        private string _longestAlias = "";
-        private string? _specifiedName;
+        private protected readonly HashSet<string> _aliases = new HashSet<string>();
+        private protected readonly HashSet<string> _rawAliases = new HashSet<string>();
+        private protected string? _specifiedName;
 
         private readonly SymbolSet _parents = new SymbolSet();
 
@@ -23,25 +22,14 @@ namespace System.CommandLine
         {
         }
 
-        protected Symbol(
-            IReadOnlyCollection<string>? aliases = null,
-            string? description = null)
+        protected Symbol(string? description = null)
         {
-            if (aliases is null)
-            {
-                throw new ArgumentNullException(nameof(aliases));
-            }
+            Description = description;
+        }
 
-            if (!aliases.Any())
-            {
-                throw new ArgumentException("An option must have at least one alias.");
-            }
-
-            foreach (var alias in aliases)
-            {
-                AddAlias(alias);
-            }
-
+        protected Symbol(string name, string? description = null)
+        {
+            _specifiedName = name;
             Description = description;
         }
 
@@ -53,7 +41,7 @@ namespace System.CommandLine
 
         public virtual string Name
         {
-            get => _specifiedName ?? _longestAlias;
+            get => _specifiedName ?? DefaultName;
             set
             {
                 if (string.IsNullOrWhiteSpace(value))
@@ -66,13 +54,13 @@ namespace System.CommandLine
                     _aliases.Remove(_specifiedName);
                 }
 
-                _aliases.Add(value);
-
                 _specifiedName = value;
 
                 OnNameOrAliasChanged?.Invoke(this);
             }
         }
+
+        private protected abstract string DefaultName { get; }
 
         public ISymbolSet Parents => _parents; 
 
@@ -95,45 +83,10 @@ namespace System.CommandLine
 
             argument.AddParent(this);
 
-            if (string.IsNullOrEmpty(argument.Name))
-            {
-                ChooseNameForUnnamedArgument(argument);
-            }
-
             Children.Add(argument);
         }
 
-        private protected abstract void ChooseNameForUnnamedArgument(Argument argument);
-
         public SymbolSet Children { get; } = new SymbolSet();
-
-        public void AddAlias(string alias)
-        {
-            var unprefixedAlias = alias?.RemovePrefix();
-
-            if (string.IsNullOrWhiteSpace(unprefixedAlias))
-            {
-                throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
-            }
-
-            for (var i = 0; i < alias!.Length; i++)
-            {
-                if (char.IsWhiteSpace(alias[i]))
-                {
-                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"");
-                }
-            }
-
-            _rawAliases.Add(alias);
-            _aliases.Add(unprefixedAlias!);
-
-            if (unprefixedAlias!.Length > Name?.Length)
-            {
-                _longestAlias = unprefixedAlias;
-            }
-
-            OnNameOrAliasChanged?.Invoke(this);
-        }
 
         public bool HasAlias(string alias)
         {

@@ -455,7 +455,8 @@ namespace System.CommandLine.Help
 
         protected virtual string ArgumentDescriptor(IArgument argument)
         {
-            if (argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?))
+            if (argument.ValueType == typeof(bool) || 
+                argument.ValueType == typeof(bool?))
             {
                 return "";
             }
@@ -494,8 +495,7 @@ namespace System.CommandLine.Help
             {
                 foreach (var argument in symbol.Arguments())
                 {
-                    if (ShouldShowHelp(argument) &&
-                        !string.IsNullOrWhiteSpace(argument.Name))
+                    if (ShouldShowHelp(argument))
                     {
                         var argumentDescriptor = ArgumentDescriptor(argument);
                         if (!string.IsNullOrWhiteSpace(argumentDescriptor))

@@ -12,6 +12,7 @@ namespace System.CommandLine.Parsing
         {
             if (token.Type != TokenType.Command)
             {
+                // FIX: (CommandNode) do we need these validation checks?
                 throw new ArgumentException($"Incorrect token type: {token}");
             }
 

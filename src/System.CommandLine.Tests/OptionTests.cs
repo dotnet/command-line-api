@@ -35,6 +35,29 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Aliases_is_aware_of_added_alias()
+        {
+            var option = new Option("--original");
+
+            option.AddAlias("--added");
+
+            option.Aliases.Should().Contain("added");
+            option.HasAlias("added").Should().BeTrue();
+        }
+
+        [Fact]
+        public void RawAliases_is_aware_of_added_alias()
+        {
+            var option = new Option("--original");
+
+            option.AddAlias("--added");
+
+            option.RawAliases.Should().Contain("--added");
+            option.HasRawAlias("--added").Should().BeTrue();
+        }
+
+
+        [Fact]
         public void A_prefixed_alias_can_be_added_to_an_option()
         {
             var option = new Option("--apple");

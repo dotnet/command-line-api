@@ -17,9 +17,11 @@ namespace System.CommandLine
     {
         private readonly SymbolSet _globalOptions = new SymbolSet();
 
-        public Command(string name, string? description = null) : base(new[] { name }, description)
+        public Command(string name, string? description = null) : base(description)
         {
             Name = name;
+
+            AddAlias(Name);
         }
 
         public IEnumerable<Argument> Arguments => 
@@ -63,6 +65,24 @@ namespace System.CommandLine
 
         public void Add(Argument argument) => AddArgument(argument);
 
+        public virtual void AddAlias(string alias)
+        {
+            // FIX: (AddAlias) 
+
+            for (var i = 0; i < alias!.Length; i++)
+            {
+                if (char.IsWhiteSpace(alias[i]))
+                {
+                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"");
+                }
+            }
+
+            _rawAliases.Add(alias);
+            _aliases.Add(alias);
+
+            OnNameOrAliasChanged?.Invoke(this);
+        }
+
         private protected override void AddSymbol(Symbol symbol)
         {
             if (symbol is IOption option)
@@ -74,6 +94,8 @@ namespace System.CommandLine
 
             base.AddSymbol(symbol);
         }
+
+        private protected override string DefaultName => throw new NotImplementedException();
 
         internal List<ValidateSymbol<CommandResult>> Validators { get; } = new List<ValidateSymbol<CommandResult>>();
 
@@ -92,10 +114,5 @@ namespace System.CommandLine
         IEnumerable<IOption> ICommand.Options => Options;
 
         internal Parser? ImplicitParser { get; set; }
-
-        private protected override void ChooseNameForUnnamedArgument(Argument argument)
-        {
-            argument.Name = argument.ArgumentType.Name.ToLower();
-        }
     }
 }
