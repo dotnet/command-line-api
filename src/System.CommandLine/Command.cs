@@ -13,13 +13,13 @@ namespace System.CommandLine
     public class Command : 
         Symbol, 
         ICommand, 
-        IEnumerable<Symbol>, 
-        INotifyNamedChanged
+        IEnumerable<Symbol>
     {
         private readonly SymbolSet _globalOptions = new SymbolSet();
 
         public Command(string name, string? description = null) : base(new[] { name }, description)
         {
+            Name = name;
         }
 
         public IEnumerable<Argument> Arguments => 

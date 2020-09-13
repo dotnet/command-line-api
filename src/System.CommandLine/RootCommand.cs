@@ -25,6 +25,7 @@ namespace System.CommandLine
         /// </summary>
         public override string Name
         {
+            // FIX: (Name) devirtualize
             get => base.Name;
             set
             {

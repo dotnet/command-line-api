@@ -14,6 +14,26 @@ namespace System.CommandLine.Collections
             ThrowIfAnyAliasIsInUse(item);
 
             base.Add(item);
+
+            if (item is Symbol symbol)
+            {
+                symbol.OnNameOrAliasChanged += Resync;
+            }
+        }
+
+        internal override void Remove(ISymbol item)
+        {
+            base.Remove(item);
+
+            if (item is Symbol symbol)
+            {
+                symbol.OnNameOrAliasChanged -= Resync;
+            }
+        }
+
+        private void Resync(ISymbol symbol)
+        {
+            DirtyItems.Add(symbol);
         }
 
         internal void AddWithoutAliasCollisionCheck(ISymbol item) => base.Add(item);
@@ -22,6 +42,8 @@ namespace System.CommandLine.Collections
             ISymbol item,
             [MaybeNullWhen(false)] out string aliasAlreadyInUse)
         {
+            EnsureAliasIndexIsCurrent();
+
             if (item is IArgument)
             {
                 // arguments don't have aliases so match based on Name

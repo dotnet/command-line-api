@@ -10,8 +10,7 @@ using System.Linq;
 namespace System.CommandLine
 {
     public abstract class Symbol : 
-        ISymbol,
-        INotifyNamedChanged
+        ISymbol
     {
         private readonly HashSet<string> _aliases = new HashSet<string>();
         private readonly HashSet<string> _rawAliases = new HashSet<string>();
@@ -62,17 +61,16 @@ namespace System.CommandLine
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
                 }
 
-                // FIX: (Name) 
-
-                // if (_specifiedName is { } &&
-                //     !string.Equals(_specifiedName, value, StringComparison.Ordinal))
+                if (_specifiedName is { })
                 {
-                    _onNameChanged?.Invoke(this, (_specifiedName, value));
                     _aliases.Remove(_specifiedName);
-                    _aliases.Add(value);
                 }
 
+                _aliases.Add(value);
+
                 _specifiedName = value;
+
+                OnNameOrAliasChanged?.Invoke(this);
             }
         }
 
@@ -133,6 +131,8 @@ namespace System.CommandLine
             {
                 _longestAlias = unprefixedAlias;
             }
+
+            OnNameOrAliasChanged?.Invoke(this);
         }
 
         public bool HasAlias(string alias)
@@ -172,18 +172,6 @@ namespace System.CommandLine
 
         ISymbolSet ISymbol.Children => Children;
 
-        private event EventHandler<(string oldName, string newName)> _onNameChanged;
-
-        event EventHandler<(string oldName, string newName)> INotifyNamedChanged.OnNameChanged
-        {
-            add
-            {
-                _onNameChanged += value;
-            }
-            remove
-            {
-                _onNameChanged -= value;
-            }
-        }
+        internal Action<ISymbol>? OnNameOrAliasChanged;
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine
@@ -33,5 +34,14 @@ namespace System.CommandLine
         {
             return symbol.GetSuggestions(null, textToMatch);
         }
+
+        public static ParseResult Parse(this ISymbol symbol, string commandLine) =>
+            symbol switch
+            {
+                Argument argument => argument.Parse(commandLine),
+                Command command => command.Parse(commandLine),
+                Option option => option.Parse(commandLine),
+                _ => throw new ArgumentOutOfRangeException(nameof(symbol))
+            };
     }
 }

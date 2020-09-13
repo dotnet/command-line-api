@@ -3,21 +3,26 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace System.CommandLine.Collections
 {
     public abstract class AliasedSet<T> : IReadOnlyList<T>
         where T : class
     {
-        private protected Dictionary<string, T> _itemsByAlias = new Dictionary<string, T>();
+        private protected readonly Dictionary<string, T> _itemsByAlias = new Dictionary<string, T>();
 
-        protected IList<T> Items { get; } = new List<T>();
+        private protected List<T> Items { get; } = new List<T>();
+
+        private protected HashSet<T> DirtyItems { get; } = new HashSet<T>();
 
         public T? this[string alias] => GetByAlias(alias);
 
         public T? GetByAlias(string alias)
         {
-            if (_itemsByAlias.TryGetValue(alias, out var value) && 
+            EnsureAliasIndexIsCurrent();
+
+            if (_itemsByAlias.TryGetValue(alias, out var value) &&
                 value is { })
             {
                 return value;
@@ -36,51 +41,19 @@ namespace System.CommandLine.Collections
         {
             Items.Add(item);
 
-            foreach (var alias in GetRawAliases(item))
+            foreach (var alias in GetAllAliases(item))
             {
-                if (!_itemsByAlias.ContainsKey(alias))
-                {
-                    _itemsByAlias.Add(alias, item);
-                }
-            }
-
-            foreach (var alias in GetAliases(item))
-            {
-                if (!_itemsByAlias.ContainsKey(alias))
-                {
-                    _itemsByAlias.Add(alias, item);
-                }
-            }
-
-            if (item is INotifyNamedChanged notify)
-            {
-                notify.OnNameChanged += OnNameChanged;
+                _itemsByAlias.TryAdd(alias, item);
             }
         }
 
-        internal void Remove(T item)
+        internal virtual void Remove(T item)
         {
             Items.Remove(item);
 
-            foreach (var alias in GetRawAliases(item))
+            foreach (var alias in GetAllAliases(item))
             {
-                if (_itemsByAlias.ContainsKey(alias))
-                {
-                    _itemsByAlias.Remove(alias);
-                }
-            }
-
-            foreach (var alias in GetAliases(item))
-            {
-                if (_itemsByAlias.ContainsKey(alias))
-                {
-                    _itemsByAlias.Remove(alias);
-                }
-            }
-            
-            if (item is INotifyNamedChanged notify)
-            {
-                notify.OnNameChanged -= OnNameChanged;
+                _itemsByAlias.TryRemove(alias);
             }
         }
 
@@ -88,13 +61,42 @@ namespace System.CommandLine.Collections
 
         protected abstract IReadOnlyCollection<string> GetRawAliases(T item);
 
-        public bool Contains(string alias) => _itemsByAlias.ContainsKey(alias);
+        public bool Contains(string alias)
+        {
+            EnsureAliasIndexIsCurrent();
+
+            return _itemsByAlias.ContainsKey(alias);
+        }
+
+        private IReadOnlyCollection<string> GetAllAliases(T item) =>
+            GetAliases(item).Concat(GetRawAliases(item)).ToArray();
 
         public T this[int index] => Items[index];
 
-        private void OnNameChanged(object sender, (string oldName, string newName) e)
+        private protected void EnsureAliasIndexIsCurrent()
         {
-            // FIX-JOSEQU: do something 
+            foreach (var dirtyItem in DirtyItems.ToArray())
+            {
+                var aliases = GetAllAliases(dirtyItem).ToList();
+
+                foreach (var pair in _itemsByAlias.Where(p => p.Value.Equals(dirtyItem)).ToArray())
+                {
+                    _itemsByAlias.Remove(pair.Key);
+                }
+
+                var wasRemoved = !Items.Contains(dirtyItem);
+
+                if (!wasRemoved)
+                {
+                    for (var i = 0; i < aliases.Count; i++)
+                    {
+                        var alias = aliases[i];
+                        _itemsByAlias.TryAdd(alias, dirtyItem);
+                    }
+                }
+
+                DirtyItems.Remove(dirtyItem);
+            }
         }
     }
 }
