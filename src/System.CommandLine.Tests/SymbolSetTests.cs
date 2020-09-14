@@ -30,18 +30,6 @@ namespace System.CommandLine.Tests
 
             set.GetByAlias("x").Should().NotBeNull();
         }
-        
-        [Fact]
-        public void GetByAlias_returns_expected_item_when_command_name_has_been_changed()
-        {
-            var command = new Command("old");
-
-            var set = CreateSet(command);
-
-            command.Name = "new";
-
-            set.GetByAlias("new").Should().NotBeNull();
-        }
 
         [Fact]
         public void GetByAlias_returns_null_when_option_alias_is_not_found()
@@ -59,34 +47,6 @@ namespace System.CommandLine.Tests
             var set = CreateSet(option);
 
             set.GetByAlias("-x")
-               .Should()
-               .NotBeNull();
-        }
-
-        [Fact]
-        public void GetByAlias_returns_expected_item_when_option_name_has_been_changed()
-        {
-            var option = new Option<string>("--old");
-
-            var set = CreateSet(option);
-
-            option.Name = "--new";
-
-            set.GetByAlias("--new")
-               .Should()
-               .NotBeNull();
-        }
-
-        [Fact]
-        public void GetByAlias_returns_expected_item_when_option_alias_has_been_added()
-        {
-            var option = new Option<string>("--old");
-
-            var set = CreateSet(option);
-
-            option.AddAlias( "--new");
-
-            set.GetByAlias("--new")
                .Should()
                .NotBeNull();
         }
@@ -183,6 +143,46 @@ namespace System.CommandLine.Tests
                    .GetByAlias("added")
                    .Should()
                    .BeSameAs(symbol);
+        }
+
+        [Fact]
+        public void GetByAlias_returns_expected_item_when_command_name_has_been_changed()
+        {
+            var command = new Command("old");
+
+            var set = CreateSet(command);
+
+            command.Name = "new";
+
+            set.GetByAlias("new").Should().NotBeNull();
+        }
+
+        [Fact]
+        public void GetByAlias_returns_expected_item_when_option_name_has_been_changed()
+        {
+            var option = new Option<string>("--old");
+
+            var set = CreateSet(option);
+
+            option.Name = "--new";
+
+            set.GetByAlias("--new")
+               .Should()
+               .NotBeNull();
+        }
+
+        [Fact]
+        public void GetByAlias_returns_expected_item_when_option_alias_has_been_added()
+        {
+            var option = new Option<string>("--old");
+
+            var set = CreateSet(option);
+
+            option.AddAlias("--new");
+
+            set.GetByAlias("--new")
+               .Should()
+               .NotBeNull();
         }
 
         public override SymbolSet CreateSet(Symbol symbol)

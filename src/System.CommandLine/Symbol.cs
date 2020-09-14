@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
 using System.CommandLine.Suggestions;
+using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine
@@ -14,7 +15,7 @@ namespace System.CommandLine
     {
         private protected readonly HashSet<string> _aliases = new HashSet<string>();
         private protected readonly HashSet<string> _rawAliases = new HashSet<string>();
-        private protected string? _specifiedName;
+        private string? _specifiedName;
 
         private readonly SymbolSet _parents = new SymbolSet();
 
@@ -53,8 +54,13 @@ namespace System.CommandLine
 
                 _specifiedName = value;
 
-                OnNameOrAliasChanged?.Invoke(this);
+                AddAliasInner(value);
             }
+        }
+
+        private protected virtual void AddAliasInner(string alias)
+        {
+            OnNameOrAliasChanged?.Invoke(this);
         }
 
         private protected virtual void RemoveAlias(string? alias)
@@ -94,14 +100,14 @@ namespace System.CommandLine
 
         public SymbolSet Children { get; } = new SymbolSet();
 
-        public bool HasAlias(string alias)
+        public virtual bool HasAlias(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            return _aliases.Contains(alias.RemovePrefix());
+            return _aliases.Contains(alias);
         }
   
         public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
@@ -133,6 +139,7 @@ namespace System.CommandLine
 
         internal Action<ISymbol>? OnNameOrAliasChanged;
 
+        [DebuggerStepThrough]
         private protected void ThrowIfAliasIsInvalid(string alias)
         {
             if (string.IsNullOrWhiteSpace(alias))

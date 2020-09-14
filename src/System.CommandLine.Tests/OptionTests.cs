@@ -349,7 +349,21 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo(new[] { "ERR" });
         }
-   
+
+
+        [Fact]
+        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
+        {
+            var option = new Option("--name");
+
+            option.Name = "name";
+
+            option.HasAlias("name").Should().BeTrue();
+            option.HasAlias("--name").Should().BeTrue();
+            option.RawAliases.Should().Contain("--name");
+            option.Aliases.Should().Contain("name");
+        }
+
         protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }

@@ -333,6 +333,19 @@ namespace System.CommandLine.Tests
                 .Be("Alias '--same' is already in use.");
         }
 
+
+        [Fact]
+        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
+        {
+            var command = new Command("name");
+
+            command.Name = "name";
+
+            command.HasAlias("name").Should().BeTrue();
+            command.RawAliases.Should().Contain("name");
+            command.Aliases.Should().Contain("name");
+        }
+
         protected override Symbol CreateSymbol(string name) => new Command(name);
     }
 }

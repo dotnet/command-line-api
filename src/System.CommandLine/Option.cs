@@ -8,10 +8,12 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Option : 
+    public class Option :
         Symbol,
         IOption
     {
+        private string? _implicitName;
+
         public Option(string alias, string? description = null)
             : this(new[] { alias }, description)
         {
@@ -58,6 +60,13 @@ namespace System.CommandLine
             set
             {
                 base.Name = value;
+
+                if (!HasAlias(value))
+                {
+                    _implicitName = null;
+                    RemoveAlias(DefaultName);
+                }
+
                 AddAlias(Name);
             }
         }
@@ -78,10 +87,12 @@ namespace System.CommandLine
 
         public void AddValidator(ValidateSymbol<OptionResult> validate) => Validators.Add(validate);
 
+        public override bool HasAlias(string alias) => base.HasAlias(alias.RemovePrefix());
+
         IArgument IOption.Argument => Argument;
 
         public bool IsRequired { get; set; }
- 
+
         string IValueDescriptor.ValueName => Name;
 
         Type IValueDescriptor.ValueType => Argument.ArgumentType;
@@ -91,9 +102,9 @@ namespace System.CommandLine
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
         private protected override string DefaultName =>
-            _rawAliases
-                .OrderBy(a => a.Length)
-                .Last()
-                .RemovePrefix();
+            _implicitName ??= _rawAliases
+                              .OrderBy(a => a.Length)
+                              .Last()
+                              .RemovePrefix();
     }
 }
