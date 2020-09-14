@@ -17,11 +17,8 @@ namespace System.CommandLine
     {
         private readonly SymbolSet _globalOptions = new SymbolSet();
 
-        public Command(string name, string? description = null) : base(description)
+        public Command(string name, string? description = null) : base(name, description)
         {
-            Name = name;
-
-            AddAlias(Name);
         }
 
         public override string Name

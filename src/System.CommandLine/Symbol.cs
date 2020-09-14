@@ -30,7 +30,7 @@ namespace System.CommandLine
 
         protected Symbol(string name, string? description = null)
         {
-            _specifiedName = name;
+            Name = name;
             Description = description;
         }
 
