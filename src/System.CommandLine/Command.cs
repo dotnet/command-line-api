@@ -24,6 +24,16 @@ namespace System.CommandLine
             AddAlias(Name);
         }
 
+        public override string Name
+        {
+            get => base.Name;
+            set
+            {
+                base.Name = value;
+                AddAlias(Name);
+            }
+        }
+
         public IEnumerable<Argument> Arguments => 
             Children.OfType<Argument>();
 

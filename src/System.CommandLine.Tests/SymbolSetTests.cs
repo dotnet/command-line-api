@@ -22,13 +22,25 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void GetByAlias_returns_expected_item_when_command_alias_is_found()
+        public void GetByAlias_returns_expected_item_when_command_name_is_found()
         {
             var command = new Command("x");
 
             var set = CreateSet(command);
 
             set.GetByAlias("x").Should().NotBeNull();
+        }
+        
+        [Fact]
+        public void GetByAlias_returns_expected_item_when_command_name_has_been_changed()
+        {
+            var command = new Command("old");
+
+            var set = CreateSet(command);
+
+            command.Name = "new";
+
+            set.GetByAlias("new").Should().NotBeNull();
         }
 
         [Fact]
@@ -47,6 +59,34 @@ namespace System.CommandLine.Tests
             var set = CreateSet(option);
 
             set.GetByAlias("-x")
+               .Should()
+               .NotBeNull();
+        }
+
+        [Fact]
+        public void GetByAlias_returns_expected_item_when_option_name_has_been_changed()
+        {
+            var option = new Option<string>("--old");
+
+            var set = CreateSet(option);
+
+            option.Name = "--new";
+
+            set.GetByAlias("--new")
+               .Should()
+               .NotBeNull();
+        }
+
+        [Fact]
+        public void GetByAlias_returns_expected_item_when_option_alias_has_been_added()
+        {
+            var option = new Option<string>("--old");
+
+            var set = CreateSet(option);
+
+            option.AddAlias( "--new");
+
+            set.GetByAlias("--new")
                .Should()
                .NotBeNull();
         }
@@ -72,7 +112,6 @@ namespace System.CommandLine.Tests
 
     public class SymbolSetTests : AliasedSetTests<ISymbol, SymbolSet>
     {
-
         [Fact]
         public void When_Name_is_changed_then_Contains_returns_true_for_new_name()
         {

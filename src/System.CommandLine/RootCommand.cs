@@ -20,20 +20,6 @@ namespace System.CommandLine
         {
         }
 
-        /// <summary>
-        /// The name of the command. Defaults to the executable name.
-        /// </summary>
-        public override string Name
-        {
-            // FIX: (Name) devirtualize
-            get => base.Name;
-            set
-            {
-                base.Name = value;
-                AddAlias(Name);
-            }
-        }
-
         private static readonly Lazy<string> _executablePath = new Lazy<string>(() =>
         {
             return GetAssembly().Location;

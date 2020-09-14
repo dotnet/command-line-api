@@ -49,11 +49,6 @@ namespace System.CommandLine
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
                 }
 
-                if (_specifiedName is { })
-                {
-                    _aliases.Remove(_specifiedName);
-                }
-
                 _specifiedName = value;
 
                 OnNameOrAliasChanged?.Invoke(this);

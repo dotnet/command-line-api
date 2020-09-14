@@ -52,6 +52,16 @@ namespace System.CommandLine
 
         private IEnumerable<Argument> Arguments => Children.OfType<Argument>();
 
+        public override string Name
+        {
+            get => base.Name;
+            set
+            {
+                base.Name = value;
+                AddAlias(Name);
+            }
+        }
+
         internal List<ValidateSymbol<OptionResult>> Validators { get; } = new List<ValidateSymbol<OptionResult>>();
 
         public void AddAlias(string alias)
