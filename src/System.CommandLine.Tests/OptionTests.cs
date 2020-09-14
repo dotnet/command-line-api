@@ -350,7 +350,6 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo(new[] { "ERR" });
         }
 
-
         [Fact]
         public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
         {

@@ -59,21 +59,24 @@ namespace System.CommandLine
             get => base.Name;
             set
             {
-                base.Name = value;
-
                 if (!HasAlias(value))
                 {
                     _implicitName = null;
                     RemoveAlias(DefaultName);
                 }
 
-                AddAlias(Name);
+                base.Name = value;
             }
         }
 
         internal List<ValidateSymbol<OptionResult>> Validators { get; } = new List<ValidateSymbol<OptionResult>>();
 
         public void AddAlias(string alias)
+        {
+            AddAliasInner(alias);
+        }
+
+        private protected override void AddAliasInner(string alias)
         {
             ThrowIfAliasIsInvalid(alias);
 
@@ -82,7 +85,7 @@ namespace System.CommandLine
             _rawAliases.Add(alias);
             _aliases.Add(unprefixedAlias!);
 
-            OnNameOrAliasChanged?.Invoke(this);
+            base.AddAliasInner(alias);
         }
 
         public void AddValidator(ValidateSymbol<OptionResult> validate) => Validators.Add(validate);

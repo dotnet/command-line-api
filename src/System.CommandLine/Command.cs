@@ -21,17 +21,6 @@ namespace System.CommandLine
         {
         }
 
-        public override string Name
-        {
-            // FIX: (Name) 
-            get => base.Name;
-            set
-            {
-                base.Name = value;
-                AddAlias(Name);
-            }
-        }
-
         public IEnumerable<Argument> Arguments => 
             Children.OfType<Argument>();
 
@@ -75,12 +64,17 @@ namespace System.CommandLine
 
         public virtual void AddAlias(string alias)
         {
+            AddAliasInner(alias);
+        }
+
+        private protected override void AddAliasInner(string alias)
+        {
             ThrowIfAliasIsInvalid(alias);
 
             _rawAliases.Add(alias);
             _aliases.Add(alias);
 
-            OnNameOrAliasChanged?.Invoke(this);
+            base.AddAliasInner(alias);
         }
 
         private protected override void AddSymbol(Symbol symbol)
