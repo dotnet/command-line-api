@@ -26,6 +26,7 @@ namespace System.CommandLine
 
         public override string Name
         {
+            // FIX: (Name) 
             get => base.Name;
             set
             {
@@ -77,15 +78,7 @@ namespace System.CommandLine
 
         public virtual void AddAlias(string alias)
         {
-            // FIX: (AddAlias) 
-
-            for (var i = 0; i < alias!.Length; i++)
-            {
-                if (char.IsWhiteSpace(alias[i]))
-                {
-                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"");
-                }
-            }
+            ThrowIfAliasIsInvalid(alias);
 
             _rawAliases.Add(alias);
             _aliases.Add(alias);

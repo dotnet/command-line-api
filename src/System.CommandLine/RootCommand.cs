@@ -48,5 +48,13 @@ namespace System.CommandLine
         /// The path to the currently running executable.
         /// </summary>
         public static string ExecutablePath => _executablePath.Value;
+
+        private protected override void RemoveAlias(string? alias)
+        {
+            if (!string.Equals(alias, ExecutableName, StringComparison.OrdinalIgnoreCase))
+            {
+                base.RemoveAlias(alias);
+            }
+        }
     }
 }

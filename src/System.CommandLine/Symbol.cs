@@ -49,9 +49,20 @@ namespace System.CommandLine
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
                 }
 
+                RemoveAlias(_specifiedName);
+
                 _specifiedName = value;
 
                 OnNameOrAliasChanged?.Invoke(this);
+            }
+        }
+
+        private protected virtual void RemoveAlias(string? alias)
+        {
+            if (alias != null)
+            {
+                _aliases.Remove(alias);
+                _rawAliases.Remove(alias);
             }
         }
 
@@ -121,5 +132,21 @@ namespace System.CommandLine
         ISymbolSet ISymbol.Children => Children;
 
         internal Action<ISymbol>? OnNameOrAliasChanged;
+
+        private protected void ThrowIfAliasIsInvalid(string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
+            }
+
+            for (var i = 0; i < alias!.Length; i++)
+            {
+                if (char.IsWhiteSpace(alias[i]))
+                {
+                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"");
+                }
+            }
+        }
     }
 }
