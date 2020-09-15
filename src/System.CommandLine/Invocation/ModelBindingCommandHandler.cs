@@ -67,7 +67,7 @@ namespace System.CommandLine.Invocation
             {
                 var invocationTarget = _invocationTarget ?? 
                     bindingContext.ServiceProvider.GetService(_handlerMethodInfo!.DeclaringType);
-                if(!(invocationTarget is null))
+                if(invocationTarget is { })
                 {
                     _invocationTargetBinder?.UpdateInstance(invocationTarget, bindingContext);
                 }
