@@ -147,11 +147,11 @@ namespace System.CommandLine
                 throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            for (var i = 0; i < alias!.Length; i++)
+            for (var i = 0; i < alias.Length; i++)
             {
                 if (char.IsWhiteSpace(alias[i]))
                 {
-                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"");
+                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"", nameof(alias));
                 }
             }
         }

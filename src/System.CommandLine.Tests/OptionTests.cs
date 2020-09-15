@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("An option must have at least one alias.");
+                  .Be("An option must have at least one alias. (Parameter 'aliases')");
         }
 
         [Fact]
@@ -202,7 +202,7 @@ namespace System.CommandLine.Tests
             Action create = () => new Option(alias);
 
             create.Should().Throw<ArgumentException>().Which.Message.Should()
-                  .Be($"Option alias cannot contain whitespace: \"{alias}\"");
+                  .Be($"Option alias cannot contain whitespace: \"{alias}\" (Parameter 'alias')");
         }
 
         [Theory]
@@ -217,7 +217,7 @@ namespace System.CommandLine.Tests
             Action addAlias = () => option.AddAlias(alias);
 
             addAlias.Should().Throw<ArgumentException>().Which.Message.Should()
-                  .Be($"Option alias cannot contain whitespace: \"{alias}\"");
+                  .Be($"Option alias cannot contain whitespace: \"{alias}\" (Parameter 'alias')");
         }
 
         [Theory]

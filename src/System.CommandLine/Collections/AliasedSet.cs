@@ -53,7 +53,7 @@ namespace System.CommandLine.Collections
 
             foreach (var alias in GetAllAliases(item))
             {
-                _itemsByAlias.TryRemove(alias);
+                _itemsByAlias.Remove(alias);
             }
         }
 

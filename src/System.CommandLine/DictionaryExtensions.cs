@@ -38,20 +38,5 @@ namespace System.CommandLine
                 return true;
             }
         }
-
-        public static bool TryRemove<TKey, TValue>(
-            this IDictionary<TKey, TValue> source,
-            TKey key)
-        {
-            if (source.ContainsKey(key))
-            {
-                source.Remove(key);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
     }
 }
