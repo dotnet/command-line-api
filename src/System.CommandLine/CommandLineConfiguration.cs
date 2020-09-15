@@ -104,21 +104,23 @@ namespace System.CommandLine
 
         private void AddGlobalOptionsToChildren(Command parentCommand)
         {
-            foreach (var globalOption in parentCommand.GlobalOptions)
+            foreach (var child in parentCommand.Children.FlattenBreadthFirst(c => c.Children))
             {
-                foreach (var child in parentCommand.Children.FlattenBreadthFirst(c => c.Children))
+                if (child is Command childCommand)
                 {
-                    if (child is Command childCommand)
+                    foreach (var globalOption in parentCommand.GlobalOptions)
                     {
                         if (!childCommand.Children.IsAnyAliasInUse(globalOption, out _))
                         {
                             childCommand.AddOption(globalOption);
                         }
                     }
+
+                    AddGlobalOptionsToChildren(childCommand);
                 }
             }
         }
-        
+
         public ISymbolSet Symbols => _symbols;
 
         public IReadOnlyCollection<char> ArgumentDelimiters => ArgumentDelimitersInternal;
