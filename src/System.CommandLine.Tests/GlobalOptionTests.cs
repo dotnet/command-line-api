@@ -108,5 +108,29 @@ namespace System.CommandLine.Tests
 
             child.Parse("--global 123").ValueForOption(option).Should().Be(123);
         }
+
+        [Fact]
+        public void Subcommands_with_global_option_should_propagate_option_to_children()
+        {
+            var root = new Command("parent");
+            
+            var firstChild = new Command("first");
+            
+            root.AddCommand(firstChild);
+            
+            var option = new Option<int>("--global");
+            
+            firstChild.AddGlobalOption(option);
+            
+            var secondChild = new Command("second");
+            
+            firstChild.AddCommand(secondChild);
+            
+            root.Parse("first second --global 123").ValueForOption(option).Should().Be(123);
+            
+            firstChild.Parse("second --global 123").ValueForOption(option).Should().Be(123);
+            
+            secondChild.Parse("--global 123").ValueForOption(option).Should().Be(123);
+        }
     }
 }
