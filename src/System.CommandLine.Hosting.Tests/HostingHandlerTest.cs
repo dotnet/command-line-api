@@ -72,7 +72,10 @@ namespace System.CommandLine.Hosting.Tests
                 {
                     host.ConfigureServices(services =>
                     {
-                        services.AddTransient<MyService>();
+                        services.AddTransient<MyService>(_ => new MyService()
+                        {
+                            Action = () => 100
+                        });
                     })
                     .UseCommandHandler<MyCommand, MyCommand.MyHandler>()
                     .UseCommandHandler<MyOtherCommand, MyOtherCommand.MyHandler>();
@@ -85,7 +88,7 @@ namespace System.CommandLine.Hosting.Tests
 
             result = await parser.InvokeAsync(new string[] { "myothercommand", "--int-option", "54" });
 
-            result.Should().Be(540);
+            result.Should().Be(100);
         }
 
         [Fact]
@@ -161,15 +164,17 @@ namespace System.CommandLine.Hosting.Tests
 
                 public Task<int> InvokeAsync(InvocationContext context)
                 {
-                    service.Value = IntOption * 10;
+                    service.Value = IntOption;
                     service.StringValue = One;
-                    return Task.FromResult(IntOption * 10);
+                    return Task.FromResult(service.Action?.Invoke() ?? 0);
                 }
             }
         }
 
         public class MyService
         {
+            public Func<int> Action { get; set; }
+
             public int Value { get; set; }
 
             public string StringValue { get; set; }
