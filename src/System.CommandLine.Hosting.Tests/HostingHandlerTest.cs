@@ -20,7 +20,7 @@ namespace System.CommandLine.Hosting.Tests
     {
 
         [Fact]
-        public static void Constructor_Injection_Injects_Service()
+        public static async Task Constructor_Injection_Injects_Service()
         {
             var service = new MyService();
 
@@ -36,14 +36,13 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            var result = parser.InvokeAsync(new string[] { "--int-option", "54"})
-                .GetAwaiter().GetResult();
+            var result = await parser.InvokeAsync(new string[] { "--int-option", "54"});
 
             service.Value.Should().Be(54);
         }
 
         [Fact]
-        public static void Parameter_is_available_in_property()
+        public static async Task Parameter_is_available_in_property()
         {
             var parser = new CommandLineBuilder(new MyCommand())
                 .UseHost(host =>
@@ -56,14 +55,13 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            var result = parser.InvokeAsync(new string[] { "--int-option", "54"})
-                .GetAwaiter().GetResult();
+            var result = await parser.InvokeAsync(new string[] { "--int-option", "54"});
 
             result.Should().Be(54);
         }
 
         [Fact]
-        public static void Can_have_diferent_handlers_based_on_command()
+        public static async Task Can_have_diferent_handlers_based_on_command()
         {
             var root = new RootCommand();
 
@@ -81,19 +79,17 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            var result = parser.InvokeAsync(new string[] { "mycommand", "--int-option", "54" })
-                .GetAwaiter().GetResult();
+            var result = await parser.InvokeAsync(new string[] { "mycommand", "--int-option", "54" });
 
             result.Should().Be(54);
 
-            result = parser.InvokeAsync(new string[] { "myothercommand", "--int-option", "54" })
-                .GetAwaiter().GetResult();
+            result = await parser.InvokeAsync(new string[] { "myothercommand", "--int-option", "54" });
 
             result.Should().Be(540);
         }
 
         [Fact]
-        public static void Can_bind_to_arguments_via_injection()
+        public static async Task Can_bind_to_arguments_via_injection()
         {
             var service = new MyService();
             var cmd = new RootCommand();
@@ -109,8 +105,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            var result = parser.InvokeAsync(new string[] { "myothercommand", "TEST" })
-                .GetAwaiter().GetResult();
+            var result = await parser.InvokeAsync(new string[] { "myothercommand", "TEST" });
 
             service.StringValue.Should().Be("TEST");
         }
