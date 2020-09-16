@@ -186,8 +186,12 @@ namespace System.CommandLine.Tests
         {
             Action create = () => new Command(alias);
 
-            create.Should().Throw<ArgumentException>().Which.Message.Should()
-                  .Be($"Command alias cannot contain whitespace: \"{alias}\" (Parameter 'alias')");
+            create.Should()
+                  .Throw<ArgumentException>()
+                  .Which
+                  .Message
+                  .Should()
+                  .Contain($"Command alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -201,8 +205,13 @@ namespace System.CommandLine.Tests
 
             Action addAlias = () => command.AddAlias(alias);
 
-            addAlias.Should().Throw<ArgumentException>().Which.Message.Should()
-                    .Be($"Command alias cannot contain whitespace: \"{alias}\" (Parameter 'alias')");
+            addAlias
+                .Should()
+                .Throw<ArgumentException>()
+                .Which
+                .Message
+                .Should()
+                .Contain($"Command alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
