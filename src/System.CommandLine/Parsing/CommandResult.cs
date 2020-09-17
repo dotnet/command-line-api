@@ -35,57 +35,6 @@ namespace System.CommandLine.Parsing
 
         public Token Token { get; }
 
-        internal bool TryGetValueForArgument(
-            IValueDescriptor valueDescriptor,
-            out object? value)
-        {
-            if (valueDescriptor.ValueName is { } valueName)
-            {
-                foreach (var argument in Command.Arguments)
-                {
-                    if (valueName.IsMatch(argument.Name))
-                    {
-                        value = ArgumentConversionResults[argument.Name]?.GetValueOrDefault();
-                        return true;
-                    }
-                }
-            }
-
-            value = null;
-            return false;
-        }
-
-        public object? ValueForOption(string alias)
-        {
-            if (Children[alias] is OptionResult optionResult)
-            {
-                if (optionResult.Option.Argument.Arity.MaximumNumberOfValues > 1)
-                {
-                    return optionResult.GetValueOrDefault<IEnumerable<string>>();
-                }
-            }
-
-            return ValueForOption<object?>(alias);
-        }
-
-        [return: MaybeNull]
-        public T ValueForOption<T>(string alias)
-        {
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
-            }
-
-            if (Children[alias] is OptionResult optionResult)
-            {
-                return optionResult.GetValueOrDefault<T>();
-            }
-            else
-            {
-                return default!;
-            }
-        }
-
         internal ArgumentConversionResultSet ArgumentConversionResults
         {
             get

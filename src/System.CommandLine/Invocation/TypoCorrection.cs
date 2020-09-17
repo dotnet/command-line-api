@@ -39,9 +39,9 @@ namespace System.CommandLine.Invocation
         {
             IEnumerable<string> possibleMatches = targetSymbol.Children
                 .Where(x => !x.IsHidden)
-                .Where(x => x.RawAliases.Count > 0)
+                .Where(x => x.Aliases.Count > 0)
                 .Select(symbol => 
-                    symbol.RawAliases
+                    symbol.Aliases
                         .Union(symbol.Aliases)
                         .OrderBy(x => GetDistance(token, x))
                         .ThenByDescending(x => GetStartsWithDistance(token, x))

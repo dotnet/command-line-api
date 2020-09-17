@@ -10,11 +10,6 @@ namespace System.CommandLine.Parsing
             IOption option,
             CommandNode parent) : base(token, parent)
         {
-            if (token.Type != TokenType.Option)
-            {
-                throw new ArgumentException($"Incorrect token type: {token}");
-            }
-
             Option = option;
         }
 

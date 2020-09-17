@@ -165,6 +165,18 @@ namespace System.CommandLine.Tests
                   .Be($"Command \"{commandWithDelimiter}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
         }
 
+        [Fact]
+        public void Aliases_is_aware_of_added_alias()
+        {
+            var command = new Command("original");
+
+            command.AddAlias("added");
+
+            command.Aliases.Should().Contain("added");
+            command.HasAlias("added").Should().BeTrue();
+        }
+
+
         [Theory]
         [InlineData("aa ")]
         [InlineData(" aa")]
@@ -174,8 +186,12 @@ namespace System.CommandLine.Tests
         {
             Action create = () => new Command(alias);
 
-            create.Should().Throw<ArgumentException>().Which.Message.Should()
-                  .Be($"Command alias cannot contain whitespace: \"{alias}\"");
+            create.Should()
+                  .Throw<ArgumentException>()
+                  .Which
+                  .Message
+                  .Should()
+                  .Contain($"Command alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -189,8 +205,13 @@ namespace System.CommandLine.Tests
 
             Action addAlias = () => command.AddAlias(alias);
 
-            addAlias.Should().Throw<ArgumentException>().Which.Message.Should()
-                    .Be($"Command alias cannot contain whitespace: \"{alias}\"");
+            addAlias
+                .Should()
+                .Throw<ArgumentException>()
+                .Which
+                .Message
+                .Should()
+                .Contain($"Command alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -226,7 +247,7 @@ namespace System.CommandLine.Tests
             var command = new Command("this");
             command.AddAlias("that");
             command.Aliases.Should().BeEquivalentTo("this", "that");
-            command.RawAliases.Should().BeEquivalentTo("this", "that");
+            command.Aliases.Should().BeEquivalentTo("this", "that");
 
             var result = command.Parse("that");
 
@@ -240,7 +261,7 @@ namespace System.CommandLine.Tests
             var command = new RootCommand();
             command.AddAlias("that");
             command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
-            command.RawAliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
+            command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
 
             var result = command.Parse("that");
 
@@ -319,6 +340,19 @@ namespace System.CommandLine.Tests
                 .Message
                 .Should()
                 .Be("Alias '--same' is already in use.");
+        }
+
+
+        [Fact]
+        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
+        {
+            var command = new Command("name");
+
+            command.Name = "name";
+
+            command.HasAlias("name").Should().BeTrue();
+            command.Aliases.Should().Contain("name");
+            command.Aliases.Should().Contain("name");
         }
 
         protected override Symbol CreateSymbol(string name) => new Command(name);

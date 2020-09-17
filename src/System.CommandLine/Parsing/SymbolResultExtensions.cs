@@ -39,7 +39,7 @@ namespace System.CommandLine.Parsing
             {
                 var optionName = option.Name;
 
-                var defaultAlias = option.RawAliases.First(alias => alias.RemovePrefix() == optionName);
+                var defaultAlias = option.Aliases.First(alias => alias.RemovePrefix() == optionName);
 
                 return new ImplicitToken(defaultAlias, TokenType.Option);
             }

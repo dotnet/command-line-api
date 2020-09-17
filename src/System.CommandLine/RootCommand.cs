@@ -20,19 +20,6 @@ namespace System.CommandLine
         {
         }
 
-        /// <summary>
-        /// The name of the command. Defaults to the executable name.
-        /// </summary>
-        public override string Name
-        {
-            get => base.Name;
-            set
-            {
-                base.Name = value;
-                AddAlias(Name);
-            }
-        }
-
         private static readonly Lazy<string> _executablePath = new Lazy<string>(() =>
         {
             return GetAssembly().Location;
@@ -61,5 +48,13 @@ namespace System.CommandLine
         /// The path to the currently running executable.
         /// </summary>
         public static string ExecutablePath => _executablePath.Value;
+
+        private protected override void RemoveAlias(string? alias)
+        {
+            if (!string.Equals(alias, ExecutableName, StringComparison.OrdinalIgnoreCase))
+            {
+                base.RemoveAlias(alias);
+            }
+        }
     }
 }

@@ -154,12 +154,12 @@ namespace System.CommandLine.Binding
                       .GetInterfaces()
                       .FirstOrDefault(IsEnumerable);
 
-            if (enumerableInterface is null)
+            if (enumerableInterface is {})
             {
-                return null;
+                return enumerableInterface.GenericTypeArguments[0];
             }
 
-            return enumerableInterface.GenericTypeArguments[0];
+            return null;
         }
 
         internal static bool IsEnumerable(this Type type)
@@ -178,7 +178,7 @@ namespace System.CommandLine.Binding
 
         private static bool HasStringTypeConverter(this Type type)
         {
-            return TypeDescriptor.GetConverter(type) is TypeConverter typeConverter
+            return TypeDescriptor.GetConverter(type) is { } typeConverter
                 && typeConverter.CanConvertFrom(typeof(string));
         }
 
@@ -203,7 +203,7 @@ namespace System.CommandLine.Binding
                 return true;
             }
 
-            if (TypeDescriptor.GetConverter(type) is TypeConverter typeConverter &&
+            if (TypeDescriptor.GetConverter(type) is { } typeConverter &&
                 typeConverter.CanConvertFrom(typeof(string)))
             {
                 return true;
@@ -214,7 +214,7 @@ namespace System.CommandLine.Binding
                 return true;
             }
 
-            if (GetItemTypeIfEnumerable(type) is Type itemType)
+            if (GetItemTypeIfEnumerable(type) is { } itemType)
             {
                 return itemType.CanBeBoundFromScalarValue();
             }
@@ -248,7 +248,7 @@ namespace System.CommandLine.Binding
         internal static ArgumentConversionResult ConvertIfNeeded(
             this ArgumentConversionResult conversionResult,
             SymbolResult symbolResult,
-            Type type)
+            Type toType)
         {
             if (conversionResult is null)
             {
@@ -257,13 +257,21 @@ namespace System.CommandLine.Binding
 
             switch (conversionResult)
             {
-                case SuccessfulArgumentConversionResult successful when !type.IsInstanceOfType(successful.Value):
+                case SuccessfulArgumentConversionResult successful when !toType.IsInstanceOfType(successful.Value):
                     return ConvertObject(
                         conversionResult.Argument,
-                        type,
+                        toType,
                         successful.Value);
 
-                case NoArgumentConversionResult _ when type == typeof(bool):
+                case SuccessfulArgumentConversionResult successful
+                    when toType == typeof(object) && conversionResult.Argument.Arity.MaximumNumberOfValues > 1 &&
+                         successful.Value is string:
+                    return ConvertObject(
+                        conversionResult.Argument,
+                        typeof(IEnumerable<string>),
+                        successful.Value);
+
+                case NoArgumentConversionResult _ when toType == typeof(bool):
                     return Success(conversionResult.Argument, true);
 
                 case NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0:
@@ -271,10 +279,9 @@ namespace System.CommandLine.Binding
                         conversionResult.Argument,
                         ValidationMessages.Instance.RequiredArgumentMissing(symbolResult));
 
-                case NoArgumentConversionResult _ when type.IsEnumerable():
-                    return ConvertObject(
+                case NoArgumentConversionResult _ when conversionResult.Argument.Arity.MaximumNumberOfValues > 1:
+                    return Success(
                         conversionResult.Argument,
-                        type,
                         Array.Empty<string>());
 
                 default:

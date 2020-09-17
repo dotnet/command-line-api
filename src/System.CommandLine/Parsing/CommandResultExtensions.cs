@@ -27,6 +27,27 @@ namespace System.CommandLine.Parsing
             return conversionResult.GetValueOrDefault<T>();
         }
 
+        internal static bool TryGetValueForArgument(
+            this CommandResult commandResult,
+            IValueDescriptor valueDescriptor,
+            out object? value)
+        {
+            if (valueDescriptor.ValueName is { } valueName)
+            {
+                foreach (var argument in commandResult.Command.Arguments)
+                {
+                    if (valueName.IsMatch(argument.Name))
+                    {
+                        value = commandResult.ArgumentConversionResults[argument.Name]?.GetValueOrDefault();
+                        return true;
+                    }
+                }
+            }
+
+            value = null;
+            return false;
+        }
+
         internal static bool TryGetValueForOption(
             this CommandResult commandResult,
             IValueDescriptor valueDescriptor,

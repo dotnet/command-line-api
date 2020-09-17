@@ -10,27 +10,15 @@ namespace System.CommandLine.Parsing
     {
         internal static ArgumentConversionResult ConvertIfNeeded(
             this OptionResult optionResult,
-            Type type)
-        {
-            if (optionResult is null)
-            {
-                throw new ArgumentNullException(nameof(optionResult));
-            }
+            Type type) =>
+            optionResult.ArgumentConversionResult
+                        .ConvertIfNeeded(optionResult, type);
 
-            return optionResult.ArgumentConversionResult
-                               .ConvertIfNeeded(optionResult, type);
-        }
-
-        public static object? GetValueOrDefault(this OptionResult optionResult)
-        {
-            return optionResult.GetValueOrDefault<object?>();
-        }
+        public static object? GetValueOrDefault(this OptionResult optionResult) => optionResult.GetValueOrDefault<object?>();
 
         [return: MaybeNull]
-        public static T GetValueOrDefault<T>(this OptionResult optionResult)
-        {
-            return optionResult.ConvertIfNeeded(typeof(T))
-                               .GetValueOrDefault<T>();
-        }
+        public static T GetValueOrDefault<T>(this OptionResult optionResult) =>
+            optionResult.ConvertIfNeeded(typeof(T))
+                        .GetValueOrDefault<T>();
     }
 }

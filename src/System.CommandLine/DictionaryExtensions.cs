@@ -22,5 +22,21 @@ namespace System.CommandLine
                 return value;
             }
         }
+
+        public static bool TryAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> source,
+            TKey key,
+            TValue value)
+        {
+            if (source.ContainsKey(key))
+            {
+                return false;
+            }
+            else
+            {
+                source.Add(key, value);
+                return true;
+            }
+        }
     }
 }

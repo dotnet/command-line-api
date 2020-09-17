@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests
             rootCommand.Name = "custom";
 
             rootCommand.Aliases.Should().BeEquivalentTo("custom", RootCommand.ExecutableName);
-            rootCommand.RawAliases.Should().BeEquivalentTo("custom", RootCommand.ExecutableName);
+            rootCommand.Aliases.Should().BeEquivalentTo("custom", RootCommand.ExecutableName);
         }
     }
 }

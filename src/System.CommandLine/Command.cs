@@ -10,11 +10,14 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class Command : Symbol, ICommand, IEnumerable<Symbol>
+    public class Command : 
+        Symbol, 
+        ICommand, 
+        IEnumerable<Symbol>
     {
         private readonly SymbolSet _globalOptions = new SymbolSet();
 
-        public Command(string name, string? description = null) : base(new[] { name }, description)
+        public Command(string name, string? description = null) : base(name, description)
         {
         }
 
@@ -59,6 +62,15 @@ namespace System.CommandLine
 
         public void Add(Argument argument) => AddArgument(argument);
 
+        public virtual void AddAlias(string alias) => AddAliasInner(alias);
+
+        private protected override void AddAliasInner(string alias)
+        {
+            ThrowIfAliasIsInvalid(alias);
+
+            base.AddAliasInner(alias);
+        }
+
         private protected override void AddSymbol(Symbol symbol)
         {
             if (symbol is IOption option)
@@ -70,6 +82,8 @@ namespace System.CommandLine
 
             base.AddSymbol(symbol);
         }
+
+        private protected override string DefaultName => throw new NotImplementedException();
 
         internal List<ValidateSymbol<CommandResult>> Validators { get; } = new List<ValidateSymbol<CommandResult>>();
 
@@ -88,10 +102,5 @@ namespace System.CommandLine
         IEnumerable<IOption> ICommand.Options => Options;
 
         internal Parser? ImplicitParser { get; set; }
-
-        private protected override void ChooseNameForUnnamedArgument(Argument argument)
-        {
-            argument.Name = argument.ArgumentType.Name.ToLower();
-        }
     }
 }

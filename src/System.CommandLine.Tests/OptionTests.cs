@@ -35,14 +35,37 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Aliases_is_aware_of_added_alias()
+        {
+            var option = new Option("--original");
+
+            option.AddAlias("--added");
+
+            option.Aliases.Should().Contain("--added");
+            option.HasAlias("--added").Should().BeTrue();
+        }
+
+        [Fact]
+        public void RawAliases_is_aware_of_added_alias()
+        {
+            var option = new Option("--original");
+
+            option.AddAlias("--added");
+
+            option.Aliases.Should().Contain("--added");
+            option.HasAlias("--added").Should().BeTrue();
+        }
+
+
+        [Fact]
         public void A_prefixed_alias_can_be_added_to_an_option()
         {
             var option = new Option("--apple");
 
             option.AddAlias("-a");
 
-            option.HasAlias("a").Should().BeTrue();
-            option.HasRawAlias("-a").Should().BeTrue();
+            option.HasAliasIgnorePrefix("a").Should().BeTrue();
+            option.HasAlias("-a").Should().BeTrue();
         }
 
         [Fact]
@@ -62,11 +85,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasAlias_accepts_unprefixed_short_value()
+        public void HasAliasIgnorePrefix_accepts_unprefixed_short_value()
         {
             var option = new Option(new[] { "-o", "--option" });
 
-            option.HasAlias("o").Should().BeTrue();
+            option.HasAliasIgnorePrefix("o").Should().BeTrue();
         }
 
         [Fact]
@@ -78,11 +101,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasAlias_accepts_unprefixed_long_value()
+        public void HasAliasIgnorePrefix_accepts_unprefixed_long_value()
         {
             var option = new Option(new[] { "-o", "--option" });
 
-            option.HasAlias("option").Should().BeTrue();
+            option.HasAliasIgnorePrefix("option").Should().BeTrue();
         }
 
         [Fact]
@@ -91,7 +114,6 @@ namespace System.CommandLine.Tests
             var option = new Option(new[] { "o" });
 
             option.HasAlias("o").Should().BeTrue();
-            option.HasAlias("-o").Should().BeTrue();
         }
 
         [Fact]
@@ -104,7 +126,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("An option must have at least one alias.");
+                  .Contain("An option must have at least one alias");
         }
 
         [Fact]
@@ -138,7 +160,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option(new[] { "-h", "--help", "/?" });
 
-            option.RawAliases
+            option.Aliases
                   .Should()
                   .BeEquivalentTo("-h", "--help", "/?");
         }
@@ -178,8 +200,12 @@ namespace System.CommandLine.Tests
         {
             Action create = () => new Option(alias);
 
-            create.Should().Throw<ArgumentException>().Which.Message.Should()
-                  .Be($"Option alias cannot contain whitespace: \"{alias}\"");
+            create.Should()
+                  .Throw<ArgumentException>()
+                  .Which
+                  .Message
+                  .Should()
+                  .Contain($"Option alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -193,8 +219,12 @@ namespace System.CommandLine.Tests
 
             Action addAlias = () => option.AddAlias(alias);
 
-            addAlias.Should().Throw<ArgumentException>().Which.Message.Should()
-                  .Be($"Option alias cannot contain whitespace: \"{alias}\"");
+            addAlias.Should()
+                    .Throw<ArgumentException>()
+                    .Which
+                    .Message
+                    .Should()
+                    .Contain($"Option alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -326,7 +356,20 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo(new[] { "ERR" });
         }
-   
+
+        [Fact]
+        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
+        {
+            var option = new Option("--name");
+
+            option.Name = "name";
+
+            option.HasAlias("name").Should().BeTrue();
+            option.HasAlias("--name").Should().BeTrue();
+            option.Aliases.Should().Contain("--name");
+            option.Aliases.Should().Contain("name");
+        }
+
         protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }

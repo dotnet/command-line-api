@@ -14,6 +14,26 @@ namespace System.CommandLine.Collections
             ThrowIfAnyAliasIsInUse(item);
 
             base.Add(item);
+
+            if (item is Symbol symbol)
+            {
+                symbol.OnNameOrAliasChanged += Resync;
+            }
+        }
+
+        internal override void Remove(ISymbol item)
+        {
+            base.Remove(item);
+
+            if (item is Symbol symbol)
+            {
+                symbol.OnNameOrAliasChanged -= Resync;
+            }
+        }
+
+        private void Resync(ISymbol symbol)
+        {
+            DirtyItems.Add(symbol);
         }
 
         internal void AddWithoutAliasCollisionCheck(ISymbol item) => base.Add(item);
@@ -22,6 +42,8 @@ namespace System.CommandLine.Collections
             ISymbol item,
             [MaybeNullWhen(false)] out string aliasAlreadyInUse)
         {
+            EnsureAliasIndexIsCurrent();
+
             if (item is IArgument)
             {
                 // arguments don't have aliases so match based on Name
@@ -37,13 +59,13 @@ namespace System.CommandLine.Collections
             }
             else
             {
-                var itemRawAliases = item.RawAliases.ToArray();
+                var itemRawAliases = item.Aliases.ToArray();
 
                 for (var i = 0; i < itemRawAliases.Length; i++)
                 {
                     var alias = itemRawAliases[i];
 
-                    if (_itemsByAlias.ContainsKey(alias))
+                    if (ItemsByAlias.ContainsKey(alias))
                     {
                         aliasAlreadyInUse = alias;
                         return true;
@@ -66,7 +88,5 @@ namespace System.CommandLine.Collections
 
         protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
             item.Aliases;
-
-        protected override IReadOnlyCollection<string> GetRawAliases(ISymbol item) => item.RawAliases;
     }
 }

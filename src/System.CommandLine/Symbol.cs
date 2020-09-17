@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
 using System.CommandLine.Suggestions;
+using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine
@@ -12,8 +13,6 @@ namespace System.CommandLine
     public abstract class Symbol : ISymbol
     {
         private readonly HashSet<string> _aliases = new HashSet<string>();
-        private readonly HashSet<string> _rawAliases = new HashSet<string>();
-        private string _longestAlias = "";
         private string? _specifiedName;
 
         private readonly SymbolSet _parents = new SymbolSet();
@@ -22,37 +21,24 @@ namespace System.CommandLine
         {
         }
 
-        protected Symbol(
-            IReadOnlyCollection<string>? aliases = null,
-            string? description = null)
+        protected Symbol(string? description = null)
         {
-            if (aliases is null)
-            {
-                throw new ArgumentNullException(nameof(aliases));
-            }
+            Description = description;
+        }
 
-            if (!aliases.Any())
-            {
-                throw new ArgumentException("An option must have at least one alias.");
-            }
-
-            foreach (var alias in aliases)
-            {
-                AddAlias(alias);
-            }
-
+        protected Symbol(string name, string? description = null)
+        {
+            Name = name;
             Description = description;
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
 
-        public IReadOnlyCollection<string> RawAliases => _rawAliases;
-
         public string? Description { get; set; }
 
         public virtual string Name
         {
-            get => _specifiedName ?? _longestAlias;
+            get => _specifiedName ?? DefaultName;
             set
             {
                 if (string.IsNullOrWhiteSpace(value))
@@ -60,9 +46,30 @@ namespace System.CommandLine
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
                 }
 
+                RemoveAlias(_specifiedName);
+
                 _specifiedName = value;
+
+                AddAliasInner(value);
             }
         }
+
+        private protected virtual void AddAliasInner(string alias)
+        {
+            _aliases.Add(alias);
+
+            OnNameOrAliasChanged?.Invoke(this);
+        }
+
+        private protected virtual void RemoveAlias(string? alias)
+        {
+            if (alias != null)
+            {
+                _aliases.Remove(alias);
+            }
+        }
+
+        private protected abstract string DefaultName { get; }
 
         public ISymbolSet Parents => _parents; 
 
@@ -85,55 +92,12 @@ namespace System.CommandLine
 
             argument.AddParent(this);
 
-            if (string.IsNullOrEmpty(argument.Name))
-            {
-                ChooseNameForUnnamedArgument(argument);
-            }
-
             Children.Add(argument);
         }
 
-        private protected abstract void ChooseNameForUnnamedArgument(Argument argument);
-
         public SymbolSet Children { get; } = new SymbolSet();
 
-        public void AddAlias(string alias)
-        {
-            var unprefixedAlias = alias?.RemovePrefix();
-
-            if (string.IsNullOrWhiteSpace(unprefixedAlias))
-            {
-                throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
-            }
-
-            for (var i = 0; i < alias!.Length; i++)
-            {
-                if (char.IsWhiteSpace(alias[i]))
-                {
-                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"");
-                }
-            }
-
-            _rawAliases.Add(alias);
-            _aliases.Add(unprefixedAlias!);
-
-            if (unprefixedAlias!.Length > Name?.Length)
-            {
-                _longestAlias = unprefixedAlias;
-            }
-        }
-
-        public bool HasAlias(string alias)
-        {
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
-            }
-
-            return _aliases.Contains(alias.RemovePrefix());
-        }
-  
-        public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
+        public virtual bool HasAlias(string alias) => _aliases.Contains(alias);
 
         public bool IsHidden { get; set; }
 
@@ -145,17 +109,38 @@ namespace System.CommandLine
                     .SelectMany(a => a.GetSuggestions(parseResult, textToMatch))
                     .ToArray();
 
-            return this.ChildSymbolAliases()
-                       .Concat(argumentSuggestions)
-                       .Distinct()
-                       .Containing(textToMatch)
-                       .Where(symbol => symbol != null)
-                       .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
-                       .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
+            return Children
+                   .Where(s => !s.IsHidden)
+                   .SelectMany(s => s.Aliases)
+                   .Concat(argumentSuggestions)
+                   .Distinct()
+                   .Containing(textToMatch)
+                   .Where(symbol => symbol != null)
+                   .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
+                   .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
         ISymbolSet ISymbol.Children => Children;
+
+        internal Action<ISymbol>? OnNameOrAliasChanged;
+
+        [DebuggerStepThrough]
+        private protected void ThrowIfAliasIsInvalid(string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
+            }
+
+            for (var i = 0; i < alias.Length; i++)
+            {
+                if (char.IsWhiteSpace(alias[i]))
+                {
+                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"", nameof(alias));
+                }
+            }
+        }
     }
 }

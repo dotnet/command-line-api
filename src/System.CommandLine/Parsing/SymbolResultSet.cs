@@ -10,12 +10,9 @@ namespace System.CommandLine.Parsing
     public class SymbolResultSet : AliasedSet<SymbolResult>
     {
         internal SymbolResult? ResultFor(ISymbol symbol) =>
-            Items.SingleOrDefault(i => i.Symbol == symbol);
+            Items.FirstOrDefault(i => Equals(i.Symbol, symbol));
 
         protected override IReadOnlyCollection<string> GetAliases(SymbolResult item) =>
             item.Symbol.Aliases;
-
-        protected override IReadOnlyCollection<string> GetRawAliases(SymbolResult item) =>
-            item.Symbol.RawAliases;
     }
 }
