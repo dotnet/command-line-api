@@ -215,7 +215,7 @@ namespace System.CommandLine.DragonFruit
                     {
                         var kebabCasedParameterName = parameterDescription.Key.ToKebabCase();
 
-                        var option = options.FirstOrDefault(o => o.HasAlias(kebabCasedParameterName));
+                        var option = options.FirstOrDefault(o => o.HasAliasIgnorePrefix(kebabCasedParameterName));
 
                         if (option != null)
                         {

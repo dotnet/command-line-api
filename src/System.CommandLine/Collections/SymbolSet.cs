@@ -59,7 +59,7 @@ namespace System.CommandLine.Collections
             }
             else
             {
-                var itemRawAliases = item.RawAliases.ToArray();
+                var itemRawAliases = item.Aliases.ToArray();
 
                 for (var i = 0; i < itemRawAliases.Length; i++)
                 {
@@ -89,6 +89,6 @@ namespace System.CommandLine.Collections
         protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
             item.Aliases;
 
-        protected override IReadOnlyCollection<string> GetRawAliases(ISymbol item) => item.RawAliases;
+        protected override IReadOnlyCollection<string> GetRawAliases(ISymbol item) => item.Aliases;
     }
 }

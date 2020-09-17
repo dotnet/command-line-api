@@ -15,11 +15,7 @@ namespace System.CommandLine
 
         IReadOnlyCollection<string> Aliases { get; }
 
-        IReadOnlyCollection<string> RawAliases { get; }
-
         bool HasAlias(string alias);
-
-        bool HasRawAlias(string alias);
 
         bool IsHidden { get; }
 

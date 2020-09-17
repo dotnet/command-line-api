@@ -128,7 +128,7 @@ namespace System.CommandLine.Rendering.Tests
         {
             Items = options.ToList();
 
-            AddColumn(o => string.Join(", ", o.RawAliases), "Option");
+            AddColumn(o => string.Join(", ", o.Aliases), "Option");
             AddColumn(o => o.Description, "");
         }
     }

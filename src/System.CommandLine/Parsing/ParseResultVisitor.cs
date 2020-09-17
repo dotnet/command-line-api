@@ -212,7 +212,7 @@ namespace System.CommandLine.Parsing
                     _rootCommandResult!.FindResultFor(o) is null)
                 {
                     _errors.Add(
-                        new ParseError($"Option '{o.RawAliases.First()}' is required.",
+                        new ParseError($"Option '{o.Aliases.First()}' is required.",
                                        _innermostCommandResult));
                 }
             }

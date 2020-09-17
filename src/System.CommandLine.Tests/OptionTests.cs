@@ -41,8 +41,8 @@ namespace System.CommandLine.Tests
 
             option.AddAlias("--added");
 
-            option.Aliases.Should().Contain("added");
-            option.HasAlias("added").Should().BeTrue();
+            option.Aliases.Should().Contain("--added");
+            option.HasAlias("--added").Should().BeTrue();
         }
 
         [Fact]
@@ -52,8 +52,8 @@ namespace System.CommandLine.Tests
 
             option.AddAlias("--added");
 
-            option.RawAliases.Should().Contain("--added");
-            option.HasRawAlias("--added").Should().BeTrue();
+            option.Aliases.Should().Contain("--added");
+            option.HasAlias("--added").Should().BeTrue();
         }
 
 
@@ -64,8 +64,8 @@ namespace System.CommandLine.Tests
 
             option.AddAlias("-a");
 
-            option.HasAlias("a").Should().BeTrue();
-            option.HasRawAlias("-a").Should().BeTrue();
+            option.HasAliasIgnorePrefix("a").Should().BeTrue();
+            option.HasAlias("-a").Should().BeTrue();
         }
 
         [Fact]
@@ -85,11 +85,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasAlias_accepts_unprefixed_short_value()
+        public void HasAliasIgnorePrefix_accepts_unprefixed_short_value()
         {
             var option = new Option(new[] { "-o", "--option" });
 
-            option.HasAlias("o").Should().BeTrue();
+            option.HasAliasIgnorePrefix("o").Should().BeTrue();
         }
 
         [Fact]
@@ -101,11 +101,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasAlias_accepts_unprefixed_long_value()
+        public void HasAliasIgnorePrefix_accepts_unprefixed_long_value()
         {
             var option = new Option(new[] { "-o", "--option" });
 
-            option.HasAlias("option").Should().BeTrue();
+            option.HasAliasIgnorePrefix("option").Should().BeTrue();
         }
 
         [Fact]
@@ -114,7 +114,6 @@ namespace System.CommandLine.Tests
             var option = new Option(new[] { "o" });
 
             option.HasAlias("o").Should().BeTrue();
-            option.HasAlias("-o").Should().BeTrue();
         }
 
         [Fact]
@@ -161,7 +160,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option(new[] { "-h", "--help", "/?" });
 
-            option.RawAliases
+            option.Aliases
                   .Should()
                   .BeEquivalentTo("-h", "--help", "/?");
         }
@@ -367,7 +366,7 @@ namespace System.CommandLine.Tests
 
             option.HasAlias("name").Should().BeTrue();
             option.HasAlias("--name").Should().BeTrue();
-            option.RawAliases.Should().Contain("--name");
+            option.Aliases.Should().Contain("--name");
             option.Aliases.Should().Contain("name");
         }
 

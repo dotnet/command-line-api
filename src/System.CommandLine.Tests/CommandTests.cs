@@ -247,7 +247,7 @@ namespace System.CommandLine.Tests
             var command = new Command("this");
             command.AddAlias("that");
             command.Aliases.Should().BeEquivalentTo("this", "that");
-            command.RawAliases.Should().BeEquivalentTo("this", "that");
+            command.Aliases.Should().BeEquivalentTo("this", "that");
 
             var result = command.Parse("that");
 
@@ -261,7 +261,7 @@ namespace System.CommandLine.Tests
             var command = new RootCommand();
             command.AddAlias("that");
             command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
-            command.RawAliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
+            command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
 
             var result = command.Parse("that");
 
@@ -351,7 +351,7 @@ namespace System.CommandLine.Tests
             command.Name = "name";
 
             command.HasAlias("name").Should().BeTrue();
-            command.RawAliases.Should().Contain("name");
+            command.Aliases.Should().Contain("name");
             command.Aliases.Should().Contain("name");
         }
 

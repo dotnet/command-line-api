@@ -157,7 +157,7 @@ namespace System.CommandLine.Suggest
                 suggestionRegistration = _suggestionRegistration.FindRegistration(commandPath);
             }
 
-            var position = parseResult.CommandResult["position"]?.GetValueOrDefault<int>() ?? short.MaxValue;
+            var position = parseResult.CommandResult["--position"]?.GetValueOrDefault<int>() ?? short.MaxValue;
 
             if (suggestionRegistration == null)
             {

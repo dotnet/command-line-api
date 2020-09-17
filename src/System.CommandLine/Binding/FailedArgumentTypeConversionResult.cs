@@ -34,7 +34,7 @@ namespace System.CommandLine.Binding
                         _ => null
                         };
 
-                var alias = firstParent.RawAliases.First();
+                var alias = firstParent.Aliases.First();
 
                 return $"Cannot parse argument '{value}' for {symbolType} '{alias}' as expected type {type}.";
             }

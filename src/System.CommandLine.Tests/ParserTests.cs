@@ -56,7 +56,7 @@ namespace System.CommandLine.Tests
                     new Option("--flag"))
                 .Parse("--flag");
 
-            result.HasOption("flag").Should().BeTrue();
+            result.HasOption("--flag").Should().BeTrue();
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests
                     new Option(new[] { "-o", "--one" }))
                 .Parse("-o");
 
-            result.HasOption("o").Should().BeTrue();
+            result.HasOption("-o").Should().BeTrue();
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
                     new Option(new[] { "-o", "--one" }))
                 .Parse("--one");
 
-            result.HasOption("o").Should().BeTrue();
+            result.HasOption("-o").Should().BeTrue();
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace System.CommandLine.Tests
                     new Option(new[] { "-o", "--one" }))
                 .Parse("-o");
 
-            result.HasOption("one").Should().BeTrue();
+            result.HasOption("--one").Should().BeTrue();
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace System.CommandLine.Tests
                     new Option(new[] { "-o", "--one" }))
                 .Parse("--one");
 
-            result.HasOption("one").Should().BeTrue();
+            result.HasOption("--one").Should().BeTrue();
         }
 
         [Fact]
@@ -110,10 +110,10 @@ namespace System.CommandLine.Tests
                 )
                 .Parse("-o -t");
 
-            result.HasOption("o").Should().BeTrue();
-            result.HasOption("one").Should().BeTrue();
-            result.HasOption("t").Should().BeTrue();
-            result.HasOption("two").Should().BeTrue();
+            result.HasOption("-o").Should().BeTrue();
+            result.HasOption("--one").Should().BeTrue();
+            result.HasOption("-t").Should().BeTrue();
+            result.HasOption("--two").Should().BeTrue();
         }
 
         [Fact]
@@ -131,8 +131,8 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("-o args_for_one -t args_for_two");
 
-            result["one"].Tokens.Single().Value.Should().Be("args_for_one");
-            result["two"].Tokens.Single().Value.Should().Be("args_for_two");
+            result["--one"].Tokens.Single().Value.Should().Be("args_for_one");
+            result["--two"].Tokens.Single().Value.Should().Be("args_for_two");
         }
 
         [Fact]
@@ -186,7 +186,7 @@ namespace System.CommandLine.Tests
             var result = new Parser(new Option(new[] { "-o", "--one" }))
                 .Parse("-o \"some stuff\" -- -x -y -z -o:foo");
 
-            result.HasOption("o")
+            result.HasOption("-o")
                   .Should()
                   .BeTrue();
 
@@ -224,7 +224,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result["x"].Tokens.Should().ContainSingle(a => a.Value == "some-value");
+            result["-x"].Tokens.Should().ContainSingle(a => a.Value == "some-value");
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result["hello"].Tokens.Should().ContainSingle(a => a.Value == "there");
+            result["--hello"].Tokens.Should().ContainSingle(a => a.Value == "there");
         }
 
         [Fact]
@@ -262,7 +262,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result["x"].Tokens.Should().ContainSingle(a => a.Value == "some-value");
+            result["-x"].Tokens.Should().ContainSingle(a => a.Value == "some-value");
         }
 
         [Fact]
@@ -280,7 +280,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result["hello"].Tokens.Should().ContainSingle(a => a.Value == "there");
+            result["--hello"].Tokens.Should().ContainSingle(a => a.Value == "there");
         }
 
         [Fact]
@@ -590,13 +590,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("-a cat -v carrot -a dog");
 
-            result["animals"]
+            result["--animals"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
-            result["vegetables"]
+            result["--vegetables"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -628,13 +628,13 @@ namespace System.CommandLine.Tests
 
             var command = result.CommandResult;
 
-            command["animals"]
+            command["--animals"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
-            command["vegetables"]
+            command["--vegetables"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -662,13 +662,13 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("-a cat dog -v carrot");
 
-            result["animals"]
+            result["--animals"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo(new[] { "cat", "dog" });
 
-            result["vegetables"]
+            result["--vegetables"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -701,13 +701,13 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("-a cat some-arg -v carrot");
 
-            result["animals"]
+            result["--animals"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat");
 
-            result["vegetables"]
+            result["--vegetables"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -749,13 +749,13 @@ namespace System.CommandLine.Tests
 
             var command = result.CommandResult;
 
-            command["animals"]
+            command["--animals"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
-            command["vegetables"]
+            command["--vegetables"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -796,13 +796,13 @@ namespace System.CommandLine.Tests
 
             var command = result.CommandResult;
 
-            command["animals"]
+            command["--animals"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat");
 
-            command["vegetables"]
+            command["--vegetables"]
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -1027,7 +1027,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            result.CommandResult["x"].Tokens.Should().BeEmpty();
+            result.CommandResult["-x"].Tokens.Should().BeEmpty();
             result.CommandResult.Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
         }
 
@@ -1044,7 +1044,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
-            result.CommandResult["x"].Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
+            result.CommandResult["-x"].Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
             result.CommandResult.Tokens.Should().BeEmpty();
         }
 
@@ -1361,10 +1361,10 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("command");
 
-            result.HasOption("o").Should().BeTrue();
-            result.HasOption("option").Should().BeTrue();
-            result.ValueForOption<string>("o").Should().Be("the-default");
-            result.CommandResult.ValueForOption("o").Should().Be("the-default");
+            result.HasOption("-o").Should().BeTrue();
+            result.HasOption("--option").Should().BeTrue();
+            result.ValueForOption<string>("-o").Should().Be("the-default");
+            result.CommandResult.ValueForOption("-o").Should().Be("the-default");
         }
 
         [Fact]
@@ -1381,7 +1381,7 @@ namespace System.CommandLine.Tests
             var result = command.Parse("command");
 
             result.CommandResult
-                  .OptionResult("o")
+                  .OptionResult("-o")
                   .IsImplicit
                   .Should()
                   .BeTrue();
@@ -1519,7 +1519,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("the-command --one one");
 
-            result.CommandResult["one"]
+            result.CommandResult["--one"]
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
@@ -1612,7 +1612,7 @@ namespace System.CommandLine.Tests
                     })
                 .Parse(input);
 
-            parseResult["x"].Tokens
+            parseResult["-x"].Tokens
                             .Select(t => t.Value)
                             .Should()
                             .BeEquivalentTo(new[] { expected });
@@ -1705,7 +1705,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            result.ValueForOption("v").Should().Be(true);
+            result.ValueForOption("-v").Should().Be(true);
         }
 
         [Fact]

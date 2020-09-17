@@ -202,7 +202,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.CommandResult.Children.Any(s => s.Symbol == option);
+            return parseResult.CommandResult.Children.Any(s => Equals(s.Symbol, option));
         }
 
         public static bool HasOption(
@@ -245,7 +245,7 @@ namespace System.CommandLine.Parsing
                                      .Except(parentSymbol
                                              .Children
                                              .OfType<ICommand>()
-                                             .SelectMany(c => c.RawAliases));
+                                             .SelectMany(c => c.Aliases));
             }
 
             if (currentSymbolResult is CommandResult commandResult)
@@ -269,8 +269,8 @@ namespace System.CommandLine.Parsing
                         .Where(c => c.IsArgumentLimitReached);
 
                 var exclude = optionsWithArgLimitReached
-                              .SelectMany(c => c.Symbol.RawAliases)
-                              .Concat(commandResult.Symbol.RawAliases)
+                              .SelectMany(c => c.Symbol.Aliases)
+                              .Concat(commandResult.Symbol.Aliases)
                               .ToArray();
 
                 return exclude;

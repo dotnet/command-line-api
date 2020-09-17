@@ -100,7 +100,7 @@ namespace System.CommandLine.Parsing
                         continue;
                     }
 
-                    if (!configuration.RootCommand.HasRawAlias(arg))
+                    if (!configuration.RootCommand.HasAlias(arg))
                     {
                         foundEndOfDirectives = true;
                     }
@@ -141,7 +141,7 @@ namespace System.CommandLine.Parsing
                 }
                 else if (!knownTokens.ContainsKey(arg) ||
                          // if token matches the current command name, consider it an argument
-                         currentCommand?.HasRawAlias(arg) == true)
+                         currentCommand?.HasAlias(arg) == true)
                 {
                     tokenList.Add(Argument(arg));
                 }
@@ -360,7 +360,7 @@ namespace System.CommandLine.Parsing
                 }
 
                 if (potentialRootCommand != null &&
-                    commandLineConfiguration.RootCommand.HasRawAlias(potentialRootCommand))
+                    commandLineConfiguration.RootCommand.HasAlias(potentialRootCommand))
                 {
                     list.AddRange(args);
                     return list;
@@ -565,9 +565,9 @@ namespace System.CommandLine.Parsing
         {
             var tokens = new Dictionary<string, Token>();
 
-            for (var commandAliasIndex = 0; commandAliasIndex < command.RawAliases.Count; commandAliasIndex++)
+            for (var commandAliasIndex = 0; commandAliasIndex < command.Aliases.Count; commandAliasIndex++)
             {
-                var commandAlias = command.RawAliases.ElementAt(commandAliasIndex);
+                var commandAlias = command.Aliases.ElementAt(commandAliasIndex);
                 
                 tokens.Add(
                     commandAlias,
@@ -579,9 +579,9 @@ namespace System.CommandLine.Parsing
                 {
                     var child = command.Children[childIndex];
 
-                    for (var childAliasIndex = 0; childAliasIndex < child.RawAliases.Count; childAliasIndex++)
+                    for (var childAliasIndex = 0; childAliasIndex < child.Aliases.Count; childAliasIndex++)
                     {
-                        var childAlias = child.RawAliases.ElementAt(childAliasIndex);
+                        var childAlias = child.Aliases.ElementAt(childAliasIndex);
 
                         tokens[childAlias] =
                             new Token(

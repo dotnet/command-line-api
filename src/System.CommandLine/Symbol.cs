@@ -10,11 +10,9 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public abstract class Symbol : 
-        ISymbol
+    public abstract class Symbol : ISymbol
     {
         private protected readonly HashSet<string> _aliases = new HashSet<string>();
-        private protected readonly HashSet<string> _rawAliases = new HashSet<string>();
         private string? _specifiedName;
 
         private readonly SymbolSet _parents = new SymbolSet();
@@ -35,8 +33,6 @@ namespace System.CommandLine
         }
 
         public IReadOnlyCollection<string> Aliases => _aliases;
-
-        public IReadOnlyCollection<string> RawAliases => _rawAliases;
 
         public string? Description { get; set; }
 
@@ -68,7 +64,6 @@ namespace System.CommandLine
             if (alias != null)
             {
                 _aliases.Remove(alias);
-                _rawAliases.Remove(alias);
             }
         }
 
@@ -100,17 +95,7 @@ namespace System.CommandLine
 
         public SymbolSet Children { get; } = new SymbolSet();
 
-        public virtual bool HasAlias(string alias)
-        {
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
-            }
-
-            return _aliases.Contains(alias);
-        }
-  
-        public bool HasRawAlias(string alias) => _rawAliases.Contains(alias);
+        public virtual bool HasAlias(string alias) => _aliases.Contains(alias);
 
         public bool IsHidden { get; set; }
 
@@ -124,7 +109,7 @@ namespace System.CommandLine
 
             return Children
                    .Where(s => !s.IsHidden)
-                   .SelectMany(s => s.RawAliases)
+                   .SelectMany(s => s.Aliases)
                    .Concat(argumentSuggestions)
                    .Distinct()
                    .Containing(textToMatch)

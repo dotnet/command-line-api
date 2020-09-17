@@ -206,7 +206,7 @@ namespace System.CommandLine.Tests
             var commandLine = symbol switch
             {
                 Command command => command.Name,
-                Option option => option.RawAliases.First() + "  " + "argument-value",
+                Option option => option.Aliases.First() + "  " + "argument-value",
                 Argument argument => "argument-value", _ => throw new ArgumentOutOfRangeException()
             };
 

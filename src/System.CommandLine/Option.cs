@@ -13,6 +13,7 @@ namespace System.CommandLine
         IOption
     {
         private string? _implicitName;
+        private protected readonly HashSet<string> _unprefixedAliases = new HashSet<string>();
 
         public Option(string alias, string? description = null)
             : this(new[] { alias }, description)
@@ -82,15 +83,21 @@ namespace System.CommandLine
 
             var unprefixedAlias = alias.RemovePrefix();
 
-            _rawAliases.Add(alias);
-            _aliases.Add(unprefixedAlias!);
+            _aliases.Add(alias);
+            _unprefixedAliases.Add(unprefixedAlias!);
 
             base.AddAliasInner(alias);
         }
 
         public void AddValidator(ValidateSymbol<OptionResult> validate) => Validators.Add(validate);
 
-        public override bool HasAlias(string alias) => base.HasAlias(alias.RemovePrefix());
+        public bool HasAliasIgnorePrefix(string alias) => _unprefixedAliases.Contains(alias.RemovePrefix());
+
+        private protected override void RemoveAlias(string? alias)
+        {
+            _unprefixedAliases.Remove(alias!);
+            base.RemoveAlias(alias);
+        }
 
         IArgument IOption.Argument => Argument;
 
@@ -105,7 +112,7 @@ namespace System.CommandLine
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
         private protected override string DefaultName =>
-            _implicitName ??= _rawAliases
+            _implicitName ??= _aliases
                               .OrderBy(a => a.Length)
                               .Last()
                               .RemovePrefix();

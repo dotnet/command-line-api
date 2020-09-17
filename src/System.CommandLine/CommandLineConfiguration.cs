@@ -52,7 +52,7 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
-                foreach (var alias in symbol.RawAliases)
+                foreach (var alias in symbol.Aliases)
                 {
                     foreach (var delimiter in ArgumentDelimiters)
                     {

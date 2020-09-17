@@ -36,7 +36,7 @@ namespace System.CommandLine.Parsing
         public Token Token { get; }
 
         internal bool TryGetValueForArgument(
-            IValueDescriptor valueDescriptor,
+            IValueDescriptor valueDescriptor, 
             out object? value)
         {
             if (valueDescriptor.ValueName is { } valueName)
@@ -69,7 +69,7 @@ namespace System.CommandLine.Parsing
         }
 
         [return: MaybeNull]
-        public T ValueForOption<T>(string alias)
+        public T ValueForOption<T>(string alias) // FIX: (ValueForOption) add an IOption overload
         {
             if (string.IsNullOrWhiteSpace(alias))
             {

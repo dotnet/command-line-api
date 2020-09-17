@@ -71,7 +71,6 @@ namespace System.CommandLine
         {
             ThrowIfAliasIsInvalid(alias);
 
-            _rawAliases.Add(alias);
             _aliases.Add(alias);
 
             base.AddAliasInner(alias);

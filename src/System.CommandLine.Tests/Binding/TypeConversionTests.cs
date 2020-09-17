@@ -153,7 +153,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["x"];
+            var option = result.CommandResult["-x"];
 
             option.GetValueOrDefault().Should().Be(123);
         }
@@ -171,7 +171,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("something -x 456");
 
-            var option = result.CommandResult["x"];
+            var option = result.CommandResult["-x"];
 
             option.GetValueOrDefault().Should().Be(456);
         }
@@ -193,7 +193,7 @@ namespace System.CommandLine.Tests.Binding
 
             command
                 .Parse(commandLine)
-                .CommandResult["x"]
+                .CommandResult["-x"]
                 .GetValueOrDefault()
                 .Should()
                 .Be(true);
@@ -216,7 +216,7 @@ namespace System.CommandLine.Tests.Binding
             var result = command.Parse("the-command -x the-argument");
 
             result.CommandResult
-                  .ValueForOption("x")
+                  .ValueForOption("-x")
                   .Should()
                   .Be("the-argument");
         }
@@ -238,7 +238,7 @@ namespace System.CommandLine.Tests.Binding
             var result = command.Parse("the-command -x the-argument");
 
             result.CommandResult
-                  .ValueForOption("x")
+                  .ValueForOption("-x")
                   .Should()
                   .Be("the-argument");
         }
@@ -259,7 +259,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("the-command -x");
 
-            Action getValue = () => result.CommandResult.ValueForOption("x");
+            Action getValue = () => result.CommandResult.ValueForOption("-x");
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -286,7 +286,7 @@ namespace System.CommandLine.Tests.Binding
             var result = command.Parse("the-command -x");
 
             result.CommandResult
-                  .ValueForOption("x")
+                  .ValueForOption("-x")
                   .Should()
                   .BeAssignableTo<IReadOnlyCollection<string>>()
                   .Which
@@ -327,7 +327,7 @@ namespace System.CommandLine.Tests.Binding
             var result = command.Parse("the-command");
 
             result.CommandResult
-                  .ValueForOption("x")
+                  .ValueForOption("-x")
                   .Should()
                   .BeAssignableTo<IReadOnlyCollection<string>>()
                   .Which
@@ -351,7 +351,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("the-command -x");
 
-            Action getValue = () => result.CommandResult.ValueForOption("x");
+            Action getValue = () => result.CommandResult.ValueForOption("-x");
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -377,7 +377,7 @@ namespace System.CommandLine.Tests.Binding
 
             command.Parse("the-command -x arg1 -x arg2")
                    .CommandResult
-                   .ValueForOption("x")
+                   .ValueForOption("-x")
                    .Should()
                    .BeEquivalentTo(new[] { "arg1", "arg2" });
         }
@@ -397,7 +397,7 @@ namespace System.CommandLine.Tests.Binding
             };
 
             command.Parse("the-command -x arg1").CommandResult
-                   .ValueForOption("x")
+                   .ValueForOption("-x")
                    .Should()
                    .BeEquivalentTo(new[] { "arg1" });
         }
@@ -459,7 +459,7 @@ namespace System.CommandLine.Tests.Binding
             var result = command.Parse("something");
 
             result.CommandResult
-                  .ValueForOption<bool>("x")
+                  .ValueForOption<bool>("-x")
                   .Should()
                   .BeFalse();
         }
@@ -477,7 +477,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["x"];
+            var option = result.CommandResult["-x"];
 
             option.GetValueOrDefault()
                   .Should()
@@ -497,7 +497,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["x"];
+            var option = result.CommandResult["-x"];
 
             option.GetValueOrDefault()
                   .Should()
@@ -519,7 +519,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["x"];
+            var option = result.CommandResult["-x"];
 
             option.GetValueOrDefault<DirectoryInfo>().Should().Be(directoryInfo);
         }
@@ -576,7 +576,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("something -x 456");
 
-            var value = result.CommandResult.ValueForOption<int>("x");
+            var value = result.CommandResult.ValueForOption<int>("-x");
 
             value.Should().Be(456);
         }
@@ -608,7 +608,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("").ValueForOption<int?>("x");
+            var value = option.Parse("").ValueForOption<int?>("-x");
 
             value.Should().BeNull();
         }
@@ -624,7 +624,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 123").ValueForOption<int?>("x");
+            var value = option.Parse("-x 123").ValueForOption<int?>("-x");
 
             value.Should().Be(123);
         }
@@ -640,7 +640,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 123.456").ValueForOption<decimal>("x");
+            var value = option.Parse("-x 123.456").ValueForOption<decimal>("-x");
 
             value.Should().Be(123.456m);
         }
@@ -656,7 +656,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 123.456").ValueForOption<double>("x");
+            var value = option.Parse("-x 123.456").ValueForOption<double>("-x");
 
             value.Should().Be(123.456d);
         }
@@ -672,7 +672,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 123.456").ValueForOption<float>("x");
+            var value = option.Parse("-x 123.456").ValueForOption<float>("-x");
 
             value.Should().Be(123.456f);
         }
@@ -688,7 +688,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            option.Parse("-x").ValueForOption<bool>("x").Should().BeTrue();
+            option.Parse("-x").ValueForOption<bool>("-x").Should().BeTrue();
         }
 
         [Fact]
@@ -702,8 +702,8 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            option.Parse("-x false").ValueForOption<bool>("x").Should().BeFalse();
-            option.Parse("-x true").ValueForOption<bool>("x").Should().BeTrue();
+            option.Parse("-x false").ValueForOption<bool>("-x").Should().BeFalse();
+            option.Parse("-x true").ValueForOption<bool>("-x").Should().BeTrue();
         }
 
         [Fact]
@@ -717,7 +717,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<int[]>("x");
+            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<int[]>("-x");
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
@@ -782,7 +782,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<List<int>>("x");
+            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<List<int>>("-x");
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
@@ -798,7 +798,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<IEnumerable<int>>("x");
+            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<IEnumerable<int>>("-x");
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
@@ -813,7 +813,7 @@ namespace System.CommandLine.Tests.Binding
 
             var parseResult = option.Parse("-x Monday");
 
-            var value = parseResult.ValueForOption<DayOfWeek>("x");
+            var value = parseResult.ValueForOption<DayOfWeek>("-x");
 
             value.Should().Be(DayOfWeek.Monday);
         }
@@ -847,7 +847,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = option.Parse("-x not-an-int");
 
-            Action getValue = () => result.ValueForOption<int>("x");
+            Action getValue = () => result.ValueForOption<int>("-x");
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -870,7 +870,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = option.Parse("-x not-an-int -x 2");
 
-            Action getValue = () => result.ValueForOption<int[]>("x");
+            Action getValue = () => result.ValueForOption<int[]>("-x");
 
             getValue.Should()
                     .Throw<InvalidOperationException>()

@@ -36,7 +36,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -h");
 
-            result.HasOption("help").Should().BeTrue();
+            result.HasOption("--help").Should().BeTrue();
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command");
 
-            result.HasOption("count").Should().BeTrue();
+            result.HasOption("--count").Should().BeTrue();
         }
 
         [Fact]

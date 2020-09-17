@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
             symbol.Name = "changed";
 
             symbol.HasAlias("original").Should().BeFalse();
-            symbol.RawAliases.Should().NotContain("original");
+            symbol.Aliases.Should().NotContain("original");
             symbol.Aliases.Should().NotContain("original");
         }
 

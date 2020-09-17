@@ -481,7 +481,7 @@ namespace System.CommandLine.Help
         private IEnumerable<HelpItem> GetOptionHelpItems(ISymbol symbol)
         {
             var rawAliases = symbol
-                             .RawAliases
+                             .Aliases
                              .Select(r => r.SplitPrefix())
                              .OrderBy(r => r.prefix, StringComparer.OrdinalIgnoreCase)
                              .ThenBy(r => r.alias, StringComparer.OrdinalIgnoreCase)
