@@ -66,24 +66,9 @@ namespace System.CommandLine.Parsing
 
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);
-
-        [return: MaybeNull]
-        public T ValueForOption<T>(string alias)
-        {
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
-            }
-
-            if (this[alias] is OptionResult optionResult)
-            {
-                return optionResult.GetValueOrDefault<T>();
-            }
-            else
-            {
-                return default!;
-            }
-        }
+        
+        public object? ValueForArgument(string alias) =>
+            ValueForArgument<object?>(alias);
 
         [return: MaybeNull]
         public T ValueForArgument<T>(Argument<T> argument)
@@ -106,7 +91,25 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return default!;
+            return default;
+        }
+
+        [return: MaybeNull]
+        public T ValueForArgument<T>(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
+            }
+
+            if (this[name] is ArgumentResult argumentResult)
+            {
+                return argumentResult.GetValueOrDefault<T>();
+            }
+            else
+            {
+                return default;
+            }
         }
 
         [return: MaybeNull]
@@ -118,7 +121,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return default!;
+            return default;
         }
 
         [return: MaybeNull]
@@ -130,7 +133,25 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return default!;
+            return default;
+        }
+
+        [return: MaybeNull]
+        public T ValueForOption<T>(string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
+            }
+
+            if (this[alias] is OptionResult optionResult)
+            {
+                return optionResult.GetValueOrDefault<T>();
+            }
+            else
+            {
+                return default;
+            }
         }
 
         public SymbolResult? this[string alias] => CommandResult.Children[alias];

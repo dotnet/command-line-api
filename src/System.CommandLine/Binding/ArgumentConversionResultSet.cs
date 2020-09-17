@@ -12,10 +12,5 @@ namespace System.CommandLine.Binding
         {
             return new[] { item.Argument.Name };
         }
-
-        protected override IReadOnlyCollection<string> GetRawAliases(ArgumentConversionResult item)
-        {
-            return new[] { item.Argument.Name };
-        }
     }
 }

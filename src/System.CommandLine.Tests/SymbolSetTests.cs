@@ -64,7 +64,7 @@ namespace System.CommandLine.Tests
         {
             var set = CreateSet(new Argument<string>("x"));
 
-            set.GetByAlias("x").Should().BeNull();
+            set.GetByAlias("x").Should().NotBeNull();
         }
 
         public abstract TSet CreateSet(Symbol symbol);

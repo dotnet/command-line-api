@@ -95,31 +95,30 @@ namespace System.CommandLine.Tests
                     new Option("--verbose")
                     {
                         Argument = new Argument<bool>()
-                    }  
+                    }
                 };
 
                 var parseResult = command.Parse(commandLine);
 
-                var commandResult = parseResult.CommandResult;
-
-                commandResult
-                    .GetArgumentValueOrDefault<string>("first")
+                parseResult
+                    .ValueForArgument("first")
                     .Should()
                     .Be("one");
 
-                commandResult
-                    .GetArgumentValueOrDefault<string>("second")
+                parseResult
+                    .ValueForArgument<string>("second")
                     .Should()
                     .Be("two");
 
-                commandResult
-                    .GetArgumentValueOrDefault<string[]>("third")
+                parseResult
+                    .ValueForArgument<string[]>("third")
                     .Should()
                     .BeEquivalentSequenceTo("three", "four", "five");
 
-                commandResult.ValueForOption<bool>("--verbose")
-                             .Should()
-                             .BeTrue();
+                parseResult
+                    .ValueForOption<bool>("--verbose")
+                    .Should()
+                    .BeTrue();
             }
 
             [Fact]

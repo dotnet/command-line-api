@@ -807,8 +807,8 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("");
 
             result.Errors.Should().BeEmpty();
-            result.RootCommandResult.ValueForOption("-x").Should().Be(123);
-            result.RootCommandResult.ValueForOption("-y").Should().Be(456);
+            result.ValueForOption("-x").Should().Be(123);
+            result.ValueForOption("-y").Should().Be(456);
         }
     }
 }

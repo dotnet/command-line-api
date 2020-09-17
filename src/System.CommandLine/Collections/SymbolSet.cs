@@ -65,7 +65,7 @@ namespace System.CommandLine.Collections
                 {
                     var alias = itemRawAliases[i];
 
-                    if (_itemsByAlias.ContainsKey(alias))
+                    if (ItemsByAlias.ContainsKey(alias))
                     {
                         aliasAlreadyInUse = alias;
                         return true;
@@ -88,7 +88,5 @@ namespace System.CommandLine.Collections
 
         protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
             item.Aliases;
-
-        protected override IReadOnlyCollection<string> GetRawAliases(ISymbol item) => item.Aliases;
     }
 }

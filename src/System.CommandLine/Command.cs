@@ -62,16 +62,11 @@ namespace System.CommandLine
 
         public void Add(Argument argument) => AddArgument(argument);
 
-        public virtual void AddAlias(string alias)
-        {
-            AddAliasInner(alias);
-        }
+        public virtual void AddAlias(string alias) => AddAliasInner(alias);
 
         private protected override void AddAliasInner(string alias)
         {
             ThrowIfAliasIsInvalid(alias);
-
-            _aliases.Add(alias);
 
             base.AddAliasInner(alias);
         }

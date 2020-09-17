@@ -10,12 +10,6 @@ namespace System.CommandLine.Parsing
             ICommand command,
             CommandNode? parent) : base(token, parent)
         {
-            if (token.Type != TokenType.Command)
-            {
-                // FIX: (CommandNode) do we need these validation checks?
-                throw new ArgumentException($"Incorrect token type: {token}");
-            }
-
             Command = command;
         }
 

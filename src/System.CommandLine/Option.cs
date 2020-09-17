@@ -72,21 +72,17 @@ namespace System.CommandLine
 
         internal List<ValidateSymbol<OptionResult>> Validators { get; } = new List<ValidateSymbol<OptionResult>>();
 
-        public void AddAlias(string alias)
-        {
-            AddAliasInner(alias);
-        }
+        public void AddAlias(string alias) => AddAliasInner(alias);
 
         private protected override void AddAliasInner(string alias)
         {
             ThrowIfAliasIsInvalid(alias);
 
+            base.AddAliasInner(alias);
+
             var unprefixedAlias = alias.RemovePrefix();
 
-            _aliases.Add(alias);
             _unprefixedAliases.Add(unprefixedAlias!);
-
-            base.AddAliasInner(alias);
         }
 
         public void AddValidator(ValidateSymbol<OptionResult> validate) => Validators.Add(validate);
@@ -96,6 +92,7 @@ namespace System.CommandLine
         private protected override void RemoveAlias(string? alias)
         {
             _unprefixedAliases.Remove(alias!);
+
             base.RemoveAlias(alias);
         }
 
@@ -112,7 +109,7 @@ namespace System.CommandLine
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
         private protected override string DefaultName =>
-            _implicitName ??= _aliases
+            _implicitName ??= Aliases
                               .OrderBy(a => a.Length)
                               .Last()
                               .RemovePrefix();

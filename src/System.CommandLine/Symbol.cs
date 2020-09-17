@@ -12,7 +12,7 @@ namespace System.CommandLine
 {
     public abstract class Symbol : ISymbol
     {
-        private protected readonly HashSet<string> _aliases = new HashSet<string>();
+        private readonly HashSet<string> _aliases = new HashSet<string>();
         private string? _specifiedName;
 
         private readonly SymbolSet _parents = new SymbolSet();
@@ -56,6 +56,8 @@ namespace System.CommandLine
 
         private protected virtual void AddAliasInner(string alias)
         {
+            _aliases.Add(alias);
+
             OnNameOrAliasChanged?.Invoke(this);
         }
 

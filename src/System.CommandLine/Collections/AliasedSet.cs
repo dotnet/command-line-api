@@ -10,7 +10,7 @@ namespace System.CommandLine.Collections
     public abstract class AliasedSet<T> : IReadOnlyList<T>
         where T : class
     {
-        private protected readonly Dictionary<string, T> _itemsByAlias = new Dictionary<string, T>();
+        private protected readonly Dictionary<string, T> ItemsByAlias = new Dictionary<string, T>();
 
         private protected List<T> Items { get; } = new List<T>();
 
@@ -22,7 +22,7 @@ namespace System.CommandLine.Collections
         {
             EnsureAliasIndexIsCurrent();
 
-            if (_itemsByAlias.TryGetValue(alias, out var value) &&
+            if (ItemsByAlias.TryGetValue(alias, out var value) &&
                 value is { })
             {
                 return value;
@@ -41,9 +41,9 @@ namespace System.CommandLine.Collections
         {
             Items.Add(item);
 
-            foreach (var alias in GetAllAliases(item))
+            foreach (var alias in GetAliases(item))
             {
-                _itemsByAlias.TryAdd(alias, item);
+                ItemsByAlias.TryAdd(alias, item);
             }
         }
 
@@ -51,25 +51,20 @@ namespace System.CommandLine.Collections
         {
             Items.Remove(item);
 
-            foreach (var alias in GetAllAliases(item))
+            foreach (var alias in GetAliases(item))
             {
-                _itemsByAlias.Remove(alias);
+                ItemsByAlias.Remove(alias);
             }
         }
 
         protected abstract IReadOnlyCollection<string> GetAliases(T item);
 
-        protected abstract IReadOnlyCollection<string> GetRawAliases(T item);
-
         public bool Contains(string alias)
         {
             EnsureAliasIndexIsCurrent();
 
-            return _itemsByAlias.ContainsKey(alias);
+            return ItemsByAlias.ContainsKey(alias);
         }
-
-        private IReadOnlyCollection<string> GetAllAliases(T item) =>
-            GetAliases(item).Concat(GetRawAliases(item)).ToArray();
 
         public T this[int index] => Items[index];
 
@@ -77,11 +72,11 @@ namespace System.CommandLine.Collections
         {
             foreach (var dirtyItem in DirtyItems.ToArray())
             {
-                var aliases = GetAllAliases(dirtyItem).ToList();
+                var aliases = GetAliases(dirtyItem).ToList();
 
-                foreach (var pair in _itemsByAlias.Where(p => p.Value.Equals(dirtyItem)).ToArray())
+                foreach (var pair in ItemsByAlias.Where(p => p.Value.Equals(dirtyItem)).ToArray())
                 {
-                    _itemsByAlias.Remove(pair.Key);
+                    ItemsByAlias.Remove(pair.Key);
                 }
 
                 var wasRemoved = !Items.Contains(dirtyItem);
@@ -91,7 +86,7 @@ namespace System.CommandLine.Collections
                     for (var i = 0; i < aliases.Count; i++)
                     {
                         var alias = aliases[i];
-                        _itemsByAlias.TryAdd(alias, dirtyItem);
+                        ItemsByAlias.TryAdd(alias, dirtyItem);
                     }
                 }
 
