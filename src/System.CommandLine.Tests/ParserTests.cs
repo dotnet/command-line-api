@@ -1681,6 +1681,24 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Argument_name_is_not_matched_as_a_token()
+        {
+            var nameArg = new Argument<string>("name");
+            var columnsArg = new Argument<IEnumerable<string>>("columns");
+
+            var command = new Command("add", "Adds a new series")
+            {
+                nameArg,
+                columnsArg
+            };
+
+            var result = command.Parse("name one two three");
+
+            result.ValueForArgument(nameArg).Should().Be("name");
+            result.ValueForArgument(columnsArg).Should().BeEquivalentTo("one", "two", "three");
+        }
+
+        [Fact]
         public void Option_aliases_do_not_need_to_be_prefixed()
         {
             var option = new Option("noprefix");
