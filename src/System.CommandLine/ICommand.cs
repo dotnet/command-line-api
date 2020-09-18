@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public interface ICommand : ISymbol
+    public interface ICommand : INamedSymbol
     {
         bool TreatUnmatchedTokensAsErrors { get; }
 

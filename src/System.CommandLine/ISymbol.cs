@@ -23,4 +23,9 @@ namespace System.CommandLine
 
         ISymbolSet Parents { get; }
     }
+
+    public interface INamedSymbol : ISymbol
+    {
+
+    }
 }
