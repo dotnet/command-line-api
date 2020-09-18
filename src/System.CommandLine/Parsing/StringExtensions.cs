@@ -568,7 +568,7 @@ namespace System.CommandLine.Parsing
             for (var commandAliasIndex = 0; commandAliasIndex < command.Aliases.Count; commandAliasIndex++)
             {
                 var commandAlias = command.Aliases.ElementAt(commandAliasIndex);
-                
+
                 tokens.Add(
                     commandAlias,
                     new Token(
@@ -583,12 +583,16 @@ namespace System.CommandLine.Parsing
                     {
                         var childAlias = child.Aliases.ElementAt(childAliasIndex);
 
-                        tokens[childAlias] =
-                            new Token(
-                                childAlias,
-                                child is ICommand
-                                    ? TokenType.Command
-                                    : TokenType.Option);
+                        switch (child)
+                        {
+                            case ICommand _:
+                                tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Command));
+                                break;
+
+                            case IOption _:
+                                tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Option));
+                                break;
+                        }
                     }
                 }
             }
