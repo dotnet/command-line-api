@@ -44,9 +44,8 @@ namespace System.CommandLine.Collections
         {
             EnsureAliasIndexIsCurrent();
 
-            if (item is IArgument)
+            if (!(item is INamedSymbol optionOrCommand))
             {
-                // arguments don't have aliases so match based on Name
                 for (var i = 0; i < Items.Count; i++)
                 {
                     var existing = Items[i];
@@ -59,7 +58,7 @@ namespace System.CommandLine.Collections
             }
             else
             {
-                var itemRawAliases = item.Aliases.ToArray();
+                var itemRawAliases = optionOrCommand.Aliases.ToArray();
 
                 for (var i = 0; i < itemRawAliases.Length; i++)
                 {
@@ -87,6 +86,10 @@ namespace System.CommandLine.Collections
         }
 
         protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
-            item.Aliases;
+            item switch
+            {
+                INamedSymbol named => named.Aliases,
+                _ => new[] { item.Name }
+            };
     }
 }

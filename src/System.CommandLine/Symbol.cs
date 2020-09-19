@@ -12,66 +12,24 @@ namespace System.CommandLine
 {
     public abstract class Symbol : ISymbol
     {
-        private readonly HashSet<string> _aliases = new HashSet<string>();
-        private string? _specifiedName;
-
+        private string _name;
         private readonly SymbolSet _parents = new SymbolSet();
 
         private protected Symbol()
         {
         }
 
-        protected Symbol(string? description = null)
-        {
-            Description = description;
-        }
-
-        protected Symbol(string name, string? description = null)
-        {
-            Name = name;
-            Description = description;
-        }
-
-        public IReadOnlyCollection<string> Aliases => _aliases;
-
         public string? Description { get; set; }
 
         public virtual string Name
         {
-            get => _specifiedName ?? DefaultName;
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
-                }
-
-                RemoveAlias(_specifiedName);
-
-                _specifiedName = value;
-
-                AddAliasInner(value);
-            }
-        }
-
-        private protected virtual void AddAliasInner(string alias)
-        {
-            _aliases.Add(alias);
-
-            OnNameOrAliasChanged?.Invoke(this);
-        }
-
-        private protected virtual void RemoveAlias(string? alias)
-        {
-            if (alias != null)
-            {
-                _aliases.Remove(alias);
-            }
+            get => _name ??= DefaultName;
+            set => _name = value;
         }
 
         private protected abstract string DefaultName { get; }
 
-        public ISymbolSet Parents => _parents; 
+        public ISymbolSet Parents => _parents;
 
         internal void AddParent(Symbol symbol)
         {
@@ -97,8 +55,6 @@ namespace System.CommandLine
 
         public SymbolSet Children { get; } = new SymbolSet();
 
-        public virtual bool HasAlias(string alias) => _aliases.Contains(alias);
-
         public bool IsHidden { get; set; }
 
         public virtual IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
@@ -111,6 +67,7 @@ namespace System.CommandLine
 
             return Children
                    .Where(s => !s.IsHidden)
+                   .OfType<INamedSymbol>()
                    .SelectMany(s => s.Aliases)
                    .Concat(argumentSuggestions)
                    .Distinct()

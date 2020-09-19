@@ -19,7 +19,7 @@ namespace System.CommandLine
 
         public CommandLineConfiguration(
             IReadOnlyCollection<Symbol> symbols,
-            IReadOnlyCollection<char>? argumentDelimiters = null,
+            IReadOnlyList<char>? argumentDelimiters = null,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
             ValidationMessages? validationMessages = null,
@@ -39,26 +39,30 @@ namespace System.CommandLine
 
             if (argumentDelimiters is null)
             {
-                ArgumentDelimitersInternal = new HashSet<char>
+                ArgumentDelimitersInternal = new []
                 {
-                    ':', 
+                    ':',
                     '='
                 };
             }
             else
             {
-                ArgumentDelimitersInternal = new HashSet<char>(argumentDelimiters);
+                ArgumentDelimitersInternal = argumentDelimiters;
             }
 
             foreach (var symbol in symbols)
             {
-                foreach (var alias in symbol.Aliases)
+                if (symbol is INamedSymbol optionOrCommand)
                 {
-                    foreach (var delimiter in ArgumentDelimiters)
+                    foreach (var alias in optionOrCommand.Aliases)
                     {
-                        if (alias.Contains(delimiter))
+                        for (var i = 0; i < ArgumentDelimiters.Count; i++)
                         {
-                            throw new ArgumentException($"{symbol.GetType().Name} \"{alias}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
+                            var delimiter = ArgumentDelimiters[i];
+                            if (alias.Contains(delimiter))
+                            {
+                                throw new ArgumentException($"{symbol.GetType().Name} \"{alias}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
+                            }
                         }
                     }
                 }
@@ -123,9 +127,9 @@ namespace System.CommandLine
 
         public ISymbolSet Symbols => _symbols;
 
-        public IReadOnlyCollection<char> ArgumentDelimiters => ArgumentDelimitersInternal;
+        public IReadOnlyList<char> ArgumentDelimiters => ArgumentDelimitersInternal;
 
-        internal HashSet<char> ArgumentDelimitersInternal { get; }
+        internal IReadOnlyList<char> ArgumentDelimitersInternal { get; }
      
         public bool EnableDirectives { get; }
 

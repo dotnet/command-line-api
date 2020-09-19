@@ -12,7 +12,11 @@ namespace System.CommandLine.Parsing
         internal SymbolResult? ResultFor(ISymbol symbol) =>
             Items.FirstOrDefault(i => Equals(i.Symbol, symbol));
 
-        protected override IReadOnlyCollection<string> GetAliases(SymbolResult item) =>
-            item.Symbol.Aliases;
+        protected override IReadOnlyCollection<string> GetAliases(SymbolResult result) =>
+            result.Symbol switch
+            {
+                INamedSymbol named => named.Aliases,
+                _ => new[] { result.Symbol.Name }
+            };
     }
 }

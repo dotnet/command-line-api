@@ -13,7 +13,7 @@ namespace System.CommandLine.Binding
                           parameterName,
                           StringComparison.OrdinalIgnoreCase);
 
-        internal static bool IsMatch(this string parameterName, ISymbol symbol) =>
+        internal static bool IsMatch(this string parameterName, IOption symbol) =>
             parameterName.IsMatch(symbol.Name) || 
             symbol.HasAlias(parameterName);
 

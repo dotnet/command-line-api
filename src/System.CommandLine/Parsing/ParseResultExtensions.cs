@@ -269,8 +269,11 @@ namespace System.CommandLine.Parsing
                         .Where(c => c.IsArgumentLimitReached);
 
                 var exclude = optionsWithArgLimitReached
-                              .SelectMany(c => c.Symbol.Aliases)
-                              .Concat(commandResult.Symbol.Aliases)
+                              .OfType<OptionResult>()
+                              .Select(o => o.Symbol)
+                              .OfType<INamedSymbol>()
+                              .SelectMany(c => c.Aliases)
+                              .Concat(commandResult.Command.Aliases)
                               .ToArray();
 
                 return exclude;

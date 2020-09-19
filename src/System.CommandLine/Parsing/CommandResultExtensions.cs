@@ -55,7 +55,8 @@ namespace System.CommandLine.Parsing
         {
             var children = commandResult
                            .Children
-                           .Where(o => valueDescriptor.ValueName?.IsMatch(o.Symbol) == true)
+                           .OfType<OptionResult>()
+                           .Where(o => valueDescriptor.ValueName?.IsMatch(o.Option) == true)
                            .ToArray();
 
             SymbolResult? symbolResult = null;

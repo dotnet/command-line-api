@@ -9,7 +9,7 @@ using System.Linq;
 namespace System.CommandLine
 {
     public class Option :
-        Symbol,
+        NamedSymbol,
         IOption
     {
         private string? _implicitName;
