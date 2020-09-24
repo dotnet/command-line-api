@@ -232,5 +232,30 @@ namespace System.CommandLine.Hosting.Tests
         {
             public int MyArgument { get; set; }
         }
+
+        private class MyService
+        {
+            public int SomeValue { get; set; }
+        }
+
+        private class CommandExecuter
+        {
+            public CommandExecuter(MyService service)
+            {
+                Service = service;
+            }
+
+            public MyService Service { get; }
+
+            public void Execute(int myArgument)
+            {
+                Service.SomeValue = myArgument;
+            }
+
+            public void SubCommand(int myArgument)
+            {
+                Service.SomeValue = myArgument;
+            }
+        }
     }
 }

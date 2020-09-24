@@ -65,8 +65,14 @@ namespace System.CommandLine.Invocation
             object result;
             if (_handlerDelegate is null)
             {
-                var invocationTarget = _invocationTarget ??
-                                       _invocationTargetBinder?.CreateInstance(bindingContext);
+                var invocationTarget = _invocationTarget ?? 
+                    bindingContext.ServiceProvider.GetService(_handlerMethodInfo!.DeclaringType);
+                if(invocationTarget is { })
+                {
+                    _invocationTargetBinder?.UpdateInstance(invocationTarget, bindingContext);
+                }
+
+                invocationTarget ??= _invocationTargetBinder?.CreateInstance(bindingContext);
                 result = _handlerMethodInfo!.Invoke(invocationTarget, invocationArguments);
             }
             else
