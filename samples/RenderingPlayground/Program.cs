@@ -169,7 +169,9 @@ namespace RenderingPlayground
                             "Use direction arrows to move the cursor.\n" +
                             "CTRL + UP to scroll up.\n" +
                             "CTRL + DOWN to scroll down.\n" +
-                            "S saves the cursor position, R restores it.");
+                            "S saves the cursor position, R restores it.\n" +
+                            "ENTER navigates to the start of the next line.\n" +
+                            "L moves to location (10, 9).");
                         gridView.SetChild(content, 0, 0);
                         gridView.SetChild(new ColorsView("#"), 0, 1);
 
@@ -178,7 +180,6 @@ namespace RenderingPlayground
                         console.GetTerminal().ShowCursor();
 
                         Console.Write(Ansi.Cursor.Move.ToUpperLeftCorner);
-
                         var key = Console.ReadKey(true);
                         while (key.Key != ConsoleKey.Escape)
                         {
@@ -215,12 +216,20 @@ namespace RenderingPlayground
                                     Console.Write(Ansi.Cursor.Move.Left());
                                     break;
 
+                                case ConsoleKey.Enter:
+                                    Console.Write(Ansi.Cursor.Move.NextLine());
+                                    break;
+
                                 case ConsoleKey.S:
                                     Console.Write(Ansi.Cursor.SavePosition);
                                     break;
 
                                 case ConsoleKey.R:
                                     Console.Write(Ansi.Cursor.RestorePosition);
+                                    break;
+
+                                case ConsoleKey.L:
+                                    Console.Write(Ansi.Cursor.Move.ToLocation(10, 9));
                                     break;
                             }
                         }
@@ -259,6 +268,11 @@ namespace RenderingPlayground
             {
                 Console.ReadKey();
             }
+        }
+
+        private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }
