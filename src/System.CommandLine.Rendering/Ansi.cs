@@ -80,6 +80,7 @@ namespace System.CommandLine.Rendering
             }
         }
 
+        // see: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
         [DebuggerStepThrough]
         public static class Cursor
         {
@@ -98,9 +99,9 @@ namespace System.CommandLine.Rendering
             [DebuggerStepThrough]
             public class Scroll
             {
-                public static AnsiControlCode UpOne { get; } = $"{Esc}D";
+                public static AnsiControlCode UpOne { get; } = $"{Esc}[S";
 
-                public static AnsiControlCode DownOne { get; } = $"{Esc}M";
+                public static AnsiControlCode DownOne { get; } = $"{Esc}[T";
             }
 
             public static AnsiControlCode Hide { get; } = $"{Esc}[?25l";
