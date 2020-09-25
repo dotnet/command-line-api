@@ -336,5 +336,46 @@ namespace System.CommandLine.Tests
             result.FindResultFor(option3).GetValueOrDefault().Should().Be(3);
             result.Errors.Should().BeEmpty();
         }
+
+        [Fact]
+        public void When_response_file_options_or_arguments_contain_trailing_spaces_they_are_ignored()
+        {
+            var responseFile = ResponseFile("--option1 ", "value1 ", "--option2\t", "2\t");
+
+            var option1 = new Option("--option1") { Argument = new Argument<string>() };
+            var option2 = new Option("--option2") { Argument = new Argument<int>() };
+
+            var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
+            result.ValueForOption("--option1").Should().Be("value1");
+            result.ValueForOption("--option2").Should().Be(2);
+        }
+
+        [Fact]
+        public void When_response_file_options_or_arguments_contain_leading_spaces_they_are_ignored()
+        {
+            var responseFile = ResponseFile(" --option1", " value1", "\t--option2", "\t2");
+
+            var option1 = new Option("--option1") { Argument = new Argument<string>() };
+            var option2 = new Option("--option2") { Argument = new Argument<int>() };
+
+            var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
+            result.ValueForOption("--option1").Should().Be("value1");
+            result.ValueForOption("--option2").Should().Be(2);
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void When_response_file_options_or_arguments_contain_trailing_and_leading_spaces_they_are_ignored()
+        {
+            var responseFile = ResponseFile(" --option1 ", " value1 ", "\t--option2\t", "\t2\t");
+
+            var option1 = new Option("--option1") { Argument = new Argument<string>() };
+            var option2 = new Option("--option2") { Argument = new Argument<int>() };
+
+            var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
+            result.ValueForOption("--option1").Should().Be("value1");
+            result.ValueForOption("--option2").Should().Be(2);
+            result.Errors.Should().BeEmpty();
+        }
     }
 }
