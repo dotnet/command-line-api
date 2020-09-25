@@ -340,27 +340,42 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_options_or_arguments_contain_trailing_spaces_they_are_ignored()
         {
-            var responseFile1 = ResponseFile("--option1 ", "value1 ", "--option2 ", "2 ");
-            var responseFile2 = ResponseFile(" --option1", " value1", " --option2", " 2");
-            var responseFile3 = ResponseFile(" --option1 ", " value1 ", " --option2 ", " 2 ");
+            var responseFile = ResponseFile("--option1 ", "value1 ", "--option2\t", "2\t");
 
             var option1 = new Option("--option1") { Argument = new Argument<string>() };
             var option2 = new Option("--option2") { Argument = new Argument<int>() };
 
-            var result1 = new RootCommand { option1, option2 }.Parse($"@{responseFile1}");
-            result1.ValueForOption("--option1").Should().Be("value1");
-            result1.ValueForOption("--option2").Should().Be(2);
-            result1.Errors.Should().BeEmpty();
+            var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
+            result.ValueForOption("--option1").Should().Be("value1");
+            result.ValueForOption("--option2").Should().Be(2);
+        }
 
-            var result2 = new RootCommand { option1, option2 }.Parse($"@{responseFile2}");
-            result2.ValueForOption("--option1").Should().Be("value1");
-            result2.ValueForOption("--option2").Should().Be(2);
-            result2.Errors.Should().BeEmpty();
+        [Fact]
+        public void When_response_file_options_or_arguments_contain_leading_spaces_they_are_ignored()
+        {
+            var responseFile = ResponseFile(" --option1", " value1", "\t--option2", "\t2");
 
-            var result3 = new RootCommand { option1, option2 }.Parse($"@{responseFile3}");
-            result3.ValueForOption("--option1").Should().Be("value1");
-            result3.ValueForOption("--option2").Should().Be(2);
-            result3.Errors.Should().BeEmpty();
+            var option1 = new Option("--option1") { Argument = new Argument<string>() };
+            var option2 = new Option("--option2") { Argument = new Argument<int>() };
+
+            var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
+            result.ValueForOption("--option1").Should().Be("value1");
+            result.ValueForOption("--option2").Should().Be(2);
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void When_response_file_options_or_arguments_contain_trailing_and_leading_spaces_they_are_ignored()
+        {
+            var responseFile = ResponseFile(" --option1 ", " value1 ", "\t--option2\t", "\t2\t");
+
+            var option1 = new Option("--option1") { Argument = new Argument<string>() };
+            var option2 = new Option("--option2") { Argument = new Argument<int>() };
+
+            var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
+            result.ValueForOption("--option1").Should().Be("value1");
+            result.ValueForOption("--option2").Should().Be(2);
+            result.Errors.Should().BeEmpty();
         }
     }
 }
