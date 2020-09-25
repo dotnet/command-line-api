@@ -28,7 +28,7 @@ namespace RenderingPlayground
         public static void Main(
 #pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
             InvocationContext invocationContext,
-            SampleName sample = SampleName.Dir,
+            SampleName sample = SampleName.Cursor,
             int? height = null,
             int? width = null,
             int top = 0,
@@ -154,6 +154,81 @@ namespace RenderingPlayground
                     screen.Render();
                 }
                     break;
+
+                case SampleName.Cursor:
+                    {
+                        var screen = new ScreenView(renderer: consoleRenderer, console);
+                        var gridView = new GridView();
+                        gridView.SetColumns(ColumnDefinition.SizeToContent());
+                        gridView.SetRows(
+                            RowDefinition.SizeToContent(),
+                            RowDefinition.Star(1)
+                        );
+
+                        var content = new ContentView("Instructions:\n" +
+                            "Use direction arrows to move the cursor.\n" +
+                            "CTRL + UP to scroll up.\n" +
+                            "CTRL + DOWN to scroll down.\n" +
+                            "S saves the cursor position, R restores it.");
+                        gridView.SetChild(content, 0, 0);
+                        gridView.SetChild(new ColorsView("#"), 0, 1);
+
+                        screen.Child = gridView;
+                        screen.Render(region);
+                        console.GetTerminal().ShowCursor();
+
+                        Console.Write(Ansi.Cursor.Move.ToUpperLeftCorner);
+
+                        var key = Console.ReadKey(true);
+                        while (key.Key != ConsoleKey.Escape)
+                        {
+                            key = Console.ReadKey(true);
+                            switch (key.Key) {
+                                case ConsoleKey.DownArrow:
+                                    if (key.Modifiers.HasFlag(ConsoleModifiers.Control))
+                                    {
+                                        Console.Write(Ansi.Cursor.Scroll.DownOne);
+                                    }
+                                    else
+                                    {
+                                        Console.Write(Ansi.Cursor.Move.Down());
+                                    }
+                                    
+                                    break;
+
+                                case ConsoleKey.UpArrow:
+                                    if (key.Modifiers.HasFlag(ConsoleModifiers.Control))
+                                    {
+                                        Console.Write(Ansi.Cursor.Scroll.UpOne);
+                                    }
+                                    else
+                                    {
+                                        Console.Write(Ansi.Cursor.Move.Up());
+                                    }
+                                    break;
+
+                                case ConsoleKey.RightArrow:
+                                    Console.Write(Ansi.Cursor.Move.Right());
+                                    break;
+
+                                case ConsoleKey.LeftArrow:
+                                    Console.Write(Ansi.Cursor.Move.Left());
+                                    break;
+
+                                case ConsoleKey.S:
+                                    Console.Write(Ansi.Cursor.SavePosition);
+                                    break;
+
+                                case ConsoleKey.R:
+                                    Console.Write(Ansi.Cursor.RestorePosition);
+                                    break;
+                            }
+                        }
+                    }
+
+                    Console.Write(Ansi.Clear.EntireScreen);
+
+                    return;
 
                 default:
                     if (!string.IsNullOrWhiteSpace(text))
