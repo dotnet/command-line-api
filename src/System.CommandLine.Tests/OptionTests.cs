@@ -46,18 +46,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void RawAliases_is_aware_of_added_alias()
-        {
-            var option = new Option("--original");
-
-            option.AddAlias("--added");
-
-            option.Aliases.Should().Contain("--added");
-            option.HasAlias("--added").Should().BeTrue();
-        }
-
-
-        [Fact]
         public void A_prefixed_alias_can_be_added_to_an_option()
         {
             var option = new Option("--apple");
@@ -156,7 +144,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Raw_aliases_are_exposed_by_an_option()
+        public void Aliases_are_exposed_by_an_option()
         {
             var option = new Option(new[] { "-h", "--help", "/?" });
 
@@ -368,6 +356,30 @@ namespace System.CommandLine.Tests
             option.HasAlias("--name").Should().BeTrue();
             option.Aliases.Should().Contain("--name");
             option.Aliases.Should().Contain("name");
+        }
+
+        [Fact]
+        public void When_Name_is_set_to_different_value_then_it_is_not_removed_from_aliases()
+        {
+            var option = new Option(new string[] {"-n","--name"});
+            option.Name.Should().Be("name");    // Name defaults to longest alias
+
+            // Explicitly set Name to shorter value
+            option.Name = "nom";
+            // Verify the explicit value in Name and as alias
+            option.Name.Should().Be("nom");
+            option.HasAlias("nom").Should().BeTrue();
+            option.Aliases.Should().Contain("nom");
+
+            // Original aliases should still exist
+            option.HasAlias("--name").Should().BeTrue();
+            option.Aliases.Should().Contain("--name");
+            option.HasAlias("-n").Should().BeTrue();
+            option.Aliases.Should().Contain("-n");
+
+            // But, implied Name should no longer be an alias
+            option.HasAlias("name").Should().BeFalse();
+            option.Aliases.Should().NotContain("name");
         }
 
         protected override Symbol CreateSymbol(string name) => new Option(name);
