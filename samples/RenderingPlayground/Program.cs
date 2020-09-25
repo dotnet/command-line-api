@@ -164,14 +164,14 @@ namespace RenderingPlayground
                             RowDefinition.SizeToContent(),
                             RowDefinition.Star(1)
                         );
-
                         var content = new ContentView("Instructions:\n" +
-                            "Use direction arrows to move the cursor.\n" +
-                            "CTRL + UP to scroll up.\n" +
-                            "CTRL + DOWN to scroll down.\n" +
+                            $"DIRECTION ARROWS move the cursor.\n" +
+                            "CTRL + UP scrolls up.\n" +
+                            "CTRL + DOWN scrolls down.\n" +
                             "S saves the cursor position, R restores it.\n" +
                             "ENTER navigates to the start of the next line.\n" +
-                            "L moves to location (10, 9).");
+                            "L moves to location (10, 9).\n" +
+                            "ESC quits.");
                         gridView.SetChild(content, 0, 0);
                         gridView.SetChild(new ColorsView("#"), 0, 1);
 
@@ -179,7 +179,9 @@ namespace RenderingPlayground
                         screen.Render(region);
                         console.GetTerminal().ShowCursor();
 
+                        // move the cursor back to the home position.
                         Console.Write(Ansi.Cursor.Move.ToUpperLeftCorner);
+
                         var key = Console.ReadKey(true);
                         while (key.Key != ConsoleKey.Escape)
                         {
@@ -235,7 +237,9 @@ namespace RenderingPlayground
                         }
                     }
 
+                    // reset the screen and cursor.
                     Console.Write(Ansi.Clear.EntireScreen);
+                    Console.Write(Ansi.Cursor.Move.ToUpperLeftCorner);
 
                     return;
 
