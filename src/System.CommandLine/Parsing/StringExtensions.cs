@@ -546,7 +546,7 @@ namespace System.CommandLine.Parsing
                 {
                     case ResponseFileHandling.ParseArgsAsLineSeparated:
 
-                        yield return line;
+                        yield return arg;
 
                         break;
                     case ResponseFileHandling.ParseArgsAsSpaceSeparated:
