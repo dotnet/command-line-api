@@ -37,12 +37,13 @@ namespace RenderingPlayground
             bool overwrite = true)
 #pragma warning restore CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
         {
+            // Should this have a concrete reference to Console?
             var region = new Region(left,
                                     top,
                                     width ?? Console.WindowWidth,
                                     height ?? Console.WindowHeight,
                                     overwrite);
-
+            
             var console = invocationContext.Console;
 
             if (overwrite && 
@@ -157,7 +158,6 @@ namespace RenderingPlayground
 
                 case SampleName.Cursor:
                     {
-                        var screen = new ScreenView(renderer: consoleRenderer, console);
                         var gridView = new GridView();
                         gridView.SetColumns(ColumnDefinition.SizeToContent());
                         gridView.SetRows(
@@ -165,81 +165,92 @@ namespace RenderingPlayground
                             RowDefinition.Star(1)
                         );
                         var content = new ContentView("Instructions:\n" +
-                            $"DIRECTION ARROWS move the cursor.\n" +
-                            "CTRL + UP scrolls up.\n" +
-                            "CTRL + DOWN scrolls down.\n" +
+                            $"DIRECTION ARROWS move the cursor; CTRL moves 2 instead of 1.\n" +
+                            "PAGE UP/DOWN scrolls up/down.\n" +
                             "S saves the cursor position, R restores it.\n" +
-                            "ENTER navigates to the start of the next line.\n" +
-                            "L moves to location (10, 9).\n" +
+                            "ENTER navigates to the start of the next line; CTRL moves 2 instead of 1.\n" +
+                            "L moves to location (3, 9).\n" +
                             "ESC quits.");
                         gridView.SetChild(content, 0, 0);
                         gridView.SetChild(new ColorsView("#"), 0, 1);
 
-                        screen.Child = gridView;
+                        var screen = new ScreenView(renderer: consoleRenderer, console)
+                        {
+                            Child = gridView
+                        };
                         screen.Render(region);
-                        console.GetTerminal().ShowCursor();
 
-                        // move the cursor back to the home position.
-                        Console.Write(Ansi.Cursor.Move.ToUpperLeftCorner);
+                        // move the cursor to the home position.
+                        console.Out.Write($"{Ansi.Cursor.Move.ToUpperLeftCorner}");
+                        console.Out.Write($"{Ansi.Cursor.Show}");
 
+                        // input seems not to be supported by the interfaces; how can this be got without using Console?
                         var key = Console.ReadKey(true);
+
+                        // This appears to be necessary to get the application to listen for *any* modifier key.
+                        Console.TreatControlCAsInput = true;
                         while (key.Key != ConsoleKey.Escape)
                         {
-                            key = Console.ReadKey(true);
-                            switch (key.Key) {
+                            var lines = !key.Modifiers.HasFlag(ConsoleModifiers.Control) ? default : 2;
+                            switch (key.Key)
+                            {
                                 case ConsoleKey.DownArrow:
-                                    if (key.Modifiers.HasFlag(ConsoleModifiers.Control))
-                                    {
-                                        Console.Write(Ansi.Cursor.Scroll.DownOne);
-                                    }
-                                    else
-                                    {
-                                        Console.Write(Ansi.Cursor.Move.Down());
-                                    }
-                                    
+                                    console.Out.Write($"{Ansi.Cursor.Move.Down(lines)}");
                                     break;
 
                                 case ConsoleKey.UpArrow:
-                                    if (key.Modifiers.HasFlag(ConsoleModifiers.Control))
-                                    {
-                                        Console.Write(Ansi.Cursor.Scroll.UpOne);
-                                    }
-                                    else
-                                    {
-                                        Console.Write(Ansi.Cursor.Move.Up());
-                                    }
+                                    console.Out.Write($"{Ansi.Cursor.Move.Up(lines)}");
                                     break;
 
                                 case ConsoleKey.RightArrow:
-                                    Console.Write(Ansi.Cursor.Move.Right());
+                                    console.Out.Write($"{Ansi.Cursor.Move.Right(lines)}");
                                     break;
 
                                 case ConsoleKey.LeftArrow:
-                                    Console.Write(Ansi.Cursor.Move.Left());
+                                    console.Out.Write($"{Ansi.Cursor.Move.Left(lines)}");
+                                    break;
+
+                                case ConsoleKey.PageUp:
+                                    console.Out.Write($"{Ansi.Cursor.Scroll.DownOne}");
+                                    break;
+
+                                case ConsoleKey.PageDown:
+                                    console.Out.Write($"{Ansi.Cursor.Scroll.UpOne}");
                                     break;
 
                                 case ConsoleKey.Enter:
-                                    Console.Write(Ansi.Cursor.Move.NextLine());
+                                    console.Out.Write($"{Ansi.Cursor.Move.NextLine(lines)}");
                                     break;
 
                                 case ConsoleKey.S:
-                                    Console.Write(Ansi.Cursor.SavePosition);
+                                    console.Out.Write($"{Ansi.Cursor.SavePosition}");
                                     break;
 
                                 case ConsoleKey.R:
-                                    Console.Write(Ansi.Cursor.RestorePosition);
+                                    console.Out.Write($"{Ansi.Cursor.RestorePosition}");
                                     break;
 
                                 case ConsoleKey.L:
-                                    Console.Write(Ansi.Cursor.Move.ToLocation(10, 9));
+                                    console.Out.Write($"{Ansi.Cursor.Move.ToLocation(3, 9)}");
+                                    break;
+
+                                case ConsoleKey.C:
+                                    if (key.Modifiers.HasFlag(ConsoleModifiers.Control))
+                                    {
+                                        // mimic the standard CTRL+C behaviour.
+                                        Environment.Exit(1);
+                                    }
+
                                     break;
                             }
+
+                            key = Console.ReadKey(true);
                         }
                     }
 
                     // reset the screen and cursor.
-                    Console.Write(Ansi.Clear.EntireScreen);
-                    Console.Write(Ansi.Cursor.Move.ToUpperLeftCorner);
+                    console.GetTerminal().Clear();
+                    console.Out.Write($"{Ansi.Cursor.Move.ToUpperLeftCorner}");
 
                     return;
 

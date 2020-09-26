@@ -29,7 +29,7 @@ namespace System.CommandLine.Rendering
         public static class Color
         {
             [DebuggerStepThrough]
-            public class Background
+            public static class Background
             {
                 public static AnsiControlCode Default { get; } = $"{Esc}[49m";
 
@@ -93,11 +93,11 @@ namespace System.CommandLine.Rendering
                 public static AnsiControlCode Left(int columns = 1) => $"{Esc}[{columns}D";
                 public static AnsiControlCode NextLine(int line = 1) => $"{Esc}[{line}E";
                 public static AnsiControlCode ToUpperLeftCorner { get; } = $"{Esc}[H";
-                public static AnsiControlCode ToLocation(int? left = null, int? top = null) => $"{Esc}[{top};{left}H";
+                public static AnsiControlCode ToLocation(int? left = null, int? top = null) => $"{Esc}[{top ?? 1};{left ?? 1}H";
             }
 
             [DebuggerStepThrough]
-            public class Scroll
+            public static class Scroll
             {
                 public static AnsiControlCode UpOne { get; } = $"{Esc}[S";
 
