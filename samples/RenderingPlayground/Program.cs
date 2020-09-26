@@ -28,7 +28,7 @@ namespace RenderingPlayground
         public static void Main(
 #pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
             InvocationContext invocationContext,
-            SampleName sample = SampleName.Cursor,
+            SampleName sample = SampleName.Dir,
             int? height = null,
             int? width = null,
             int top = 0,
