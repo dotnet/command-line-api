@@ -37,12 +37,13 @@ namespace RenderingPlayground
             bool overwrite = true)
 #pragma warning restore CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
         {
+            // Should this have a concrete reference to Console?
             var region = new Region(left,
                                     top,
                                     width ?? Console.WindowWidth,
                                     height ?? Console.WindowHeight,
                                     overwrite);
-
+            
             var console = invocationContext.Console;
 
             if (overwrite && 
@@ -155,6 +156,104 @@ namespace RenderingPlayground
                 }
                     break;
 
+                case SampleName.Cursor:
+                    {
+                        var gridView = new GridView();
+                        gridView.SetColumns(ColumnDefinition.SizeToContent());
+                        gridView.SetRows(
+                            RowDefinition.SizeToContent(),
+                            RowDefinition.Star(1)
+                        );
+                        var content = new ContentView("Instructions:\n" +
+                            $"DIRECTION ARROWS move the cursor; CTRL moves 2 instead of 1.\n" +
+                            "PAGE UP/DOWN scrolls up/down.\n" +
+                            "S saves the cursor position, R restores it.\n" +
+                            "ENTER navigates to the start of the next line; CTRL moves 2 instead of 1.\n" +
+                            "L moves to location (3, 9).\n" +
+                            "ESC quits.");
+                        gridView.SetChild(content, 0, 0);
+                        gridView.SetChild(new ColorsView("#"), 0, 1);
+
+                        var screen = new ScreenView(renderer: consoleRenderer, console)
+                        {
+                            Child = gridView
+                        };
+                        screen.Render(region);
+
+                        // move the cursor to the home position.
+                        console.Out.Write($"{Ansi.Cursor.Move.ToUpperLeftCorner}");
+                        console.Out.Write($"{Ansi.Cursor.Show}");
+
+                        // input seems not to be supported by the interfaces; how can this be got without using Console?
+                        var key = Console.ReadKey(true);
+
+                        // This appears to be necessary to get the application to listen for *any* modifier key.
+                        Console.TreatControlCAsInput = true;
+                        while (key.Key != ConsoleKey.Escape)
+                        {
+                            var lines = !key.Modifiers.HasFlag(ConsoleModifiers.Control) ? default : 2;
+                            switch (key.Key)
+                            {
+                                case ConsoleKey.DownArrow:
+                                    console.Out.Write($"{Ansi.Cursor.Move.Down(lines)}");
+                                    break;
+
+                                case ConsoleKey.UpArrow:
+                                    console.Out.Write($"{Ansi.Cursor.Move.Up(lines)}");
+                                    break;
+
+                                case ConsoleKey.RightArrow:
+                                    console.Out.Write($"{Ansi.Cursor.Move.Right(lines)}");
+                                    break;
+
+                                case ConsoleKey.LeftArrow:
+                                    console.Out.Write($"{Ansi.Cursor.Move.Left(lines)}");
+                                    break;
+
+                                case ConsoleKey.PageUp:
+                                    console.Out.Write($"{Ansi.Cursor.Scroll.DownOne}");
+                                    break;
+
+                                case ConsoleKey.PageDown:
+                                    console.Out.Write($"{Ansi.Cursor.Scroll.UpOne}");
+                                    break;
+
+                                case ConsoleKey.Enter:
+                                    console.Out.Write($"{Ansi.Cursor.Move.NextLine(lines)}");
+                                    break;
+
+                                case ConsoleKey.S:
+                                    console.Out.Write($"{Ansi.Cursor.SavePosition}");
+                                    break;
+
+                                case ConsoleKey.R:
+                                    console.Out.Write($"{Ansi.Cursor.RestorePosition}");
+                                    break;
+
+                                case ConsoleKey.L:
+                                    console.Out.Write($"{Ansi.Cursor.Move.ToLocation(3, 9)}");
+                                    break;
+
+                                case ConsoleKey.C:
+                                    if (key.Modifiers.HasFlag(ConsoleModifiers.Control))
+                                    {
+                                        // mimic the standard CTRL+C behaviour.
+                                        Environment.Exit(1);
+                                    }
+
+                                    break;
+                            }
+
+                            key = Console.ReadKey(true);
+                        }
+                    }
+
+                    // reset the screen and cursor.
+                    console.GetTerminal().Clear();
+                    console.Out.Write($"{Ansi.Cursor.Move.ToUpperLeftCorner}");
+
+                    return;
+
                 default:
                     if (!string.IsNullOrWhiteSpace(text))
                     {
@@ -184,6 +283,11 @@ namespace RenderingPlayground
             {
                 Console.ReadKey();
             }
+        }
+
+        private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

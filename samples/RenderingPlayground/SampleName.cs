@@ -9,5 +9,6 @@
         TableView,
         Clock,
         GridLayout,
+        Cursor,
     }
 }

@@ -29,7 +29,7 @@ namespace System.CommandLine.Rendering
         public static class Color
         {
             [DebuggerStepThrough]
-            public class Background
+            public static class Background
             {
                 public static AnsiControlCode Default { get; } = $"{Esc}[49m";
 
@@ -80,6 +80,7 @@ namespace System.CommandLine.Rendering
             }
         }
 
+        // see: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
         [DebuggerStepThrough]
         public static class Cursor
         {
@@ -90,17 +91,17 @@ namespace System.CommandLine.Rendering
                 public static AnsiControlCode Down(int lines = 1) => $"{Esc}[{lines}B";
                 public static AnsiControlCode Right(int columns = 1) => $"{Esc}[{columns}C";
                 public static AnsiControlCode Left(int columns = 1) => $"{Esc}[{columns}D";
-                public static AnsiControlCode NextLine(int line = 1) => $"{Esc}{line}E";
+                public static AnsiControlCode NextLine(int line = 1) => $"{Esc}[{line}E";
                 public static AnsiControlCode ToUpperLeftCorner { get; } = $"{Esc}[H";
-                public static AnsiControlCode ToLocation(int? left = null, int? top = null) => $"{Esc}[{top};{left}H";
+                public static AnsiControlCode ToLocation(int? left = null, int? top = null) => $"{Esc}[{top ?? 1};{left ?? 1}H";
             }
 
             [DebuggerStepThrough]
-            public class Scroll
+            public static class Scroll
             {
-                public static AnsiControlCode UpOne { get; } = $"{Esc}D";
+                public static AnsiControlCode UpOne { get; } = $"{Esc}[S";
 
-                public static AnsiControlCode DownOne { get; } = $"{Esc}M";
+                public static AnsiControlCode DownOne { get; } = $"{Esc}[T";
             }
 
             public static AnsiControlCode Hide { get; } = $"{Esc}[?25l";
