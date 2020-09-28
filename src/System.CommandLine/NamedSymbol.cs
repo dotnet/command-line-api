@@ -23,7 +23,7 @@ namespace System.CommandLine
 
         public IReadOnlyCollection<string> Aliases => _aliases;
 
-        public virtual string Name
+        public override string Name
         {
             get => _specifiedName ?? DefaultName;
             set
