@@ -12,7 +12,7 @@ namespace System.CommandLine
 {
     public abstract class Symbol : ISymbol
     {
-        private string _name;
+        private string? _name;
         private readonly SymbolSet _parents = new SymbolSet();
 
         private protected Symbol()
