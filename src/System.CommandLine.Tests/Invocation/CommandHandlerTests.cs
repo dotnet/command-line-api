@@ -415,5 +415,96 @@ namespace System.CommandLine.Tests.Invocation
             testClass.boundName.Should().Be("Gandalf");
             testClass.boundAge.Should().Be(425);
         }
+
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_method_are_bound_to_matching_argument_names()
+        {
+            string boundName = default;
+            int boundAge = default;
+
+            void Execute(string name, int age)
+            {
+                boundName = name;
+                boundAge = age;
+            }
+
+            var command = new Command("command");
+            command.AddArgument(new Argument<int>("age"));
+            command.AddArgument(new Argument<string>("name"));
+            command.Handler = CommandHandler.Create<string, int>(Execute);
+
+            await command.InvokeAsync("command 425 Gandalf", _console);
+
+            boundName.Should().Be("Gandalf");
+            boundAge.Should().Be(425);
+        }
+
+
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_hyphenated_argument_names()
+        {
+            string boundFirstName = default;
+
+            void Execute(string firstName)
+            {
+                boundFirstName = firstName;
+            }
+
+            var command = new Command("command")
+            {
+                new Argument<string>("first-name")
+            };
+            command.Handler = CommandHandler.Create<string>(Execute);
+
+            await command.InvokeAsync("command Gandalf", _console);
+
+            boundFirstName.Should().Be("Gandalf");
+        }
+
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_argument_names_case_insensitively()
+        {
+            string boundName = default;
+            int boundAge = default;
+
+            void Execute(string name, int AGE)
+            {
+                boundName = name;
+                boundAge = AGE;
+            }
+
+            var command = new Command("command");
+            command.AddArgument(new Argument<int>("AGE"));
+            command.AddArgument(new Argument<string>("Name"));
+            command.Handler = CommandHandler.Create<string, int>(Execute);
+
+            await command.InvokeAsync("command 425 Gandalf", _console);
+
+            boundName.Should().Be("Gandalf");
+            boundAge.Should().Be(425);
+        }
+
+        [Fact]
+        public async Task Method_parameters_on_the_invoked_method_are_bound_to_matching_argument_names_with_pipe_in()
+        {
+            string boundName = default;
+            int boundAge = default;
+
+            void Execute(string fullnameOrNickname, int age)
+            {
+                boundName = fullnameOrNickname;
+                boundAge = age;
+            }
+
+            var command = new Command("command");
+            command.AddArgument(new Argument<int>("age"));
+            command.AddArgument(new Argument<string>("fullname|nickname"));
+            command.Handler = CommandHandler.Create<string, int>(Execute);
+
+            await command.InvokeAsync("command 425 Gandalf", _console);
+
+            boundName.Should().Be("Gandalf");
+            boundAge.Should().Be(425);
+        }
     }
 }
