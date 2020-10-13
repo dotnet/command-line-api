@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Help;
-using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -84,7 +83,7 @@ namespace System.CommandLine.Parsing
             var argumentResult =
                 commandResult!.Children
                              .OfType<ArgumentResult>()
-                             .SingleOrDefault(r => r.Symbol == argumentNode.Argument);
+                             .SingleOrDefault(r => Equals(r.Symbol, argumentNode.Argument));
 
             if (argumentResult is null)
             {
@@ -168,22 +167,14 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            foreach (var result in _innermostCommandResult!.Children.ToArray())
+            foreach (var argumentResult in _rootCommandResult!.AllArgumentResults.Where(a => a.Parent is CommandResult))
             {
-                switch (result)
-                {
-                    case ArgumentResult argumentResult:
+                ValidateArgumentResult(argumentResult);
+            }
 
-                        ValidateArgumentResult(argumentResult);
-
-                        break;
-
-                    case OptionResult optionResult:
-
-                        ValidateOptionResult(optionResult);
-
-                        break;
-                }
+            foreach (var optionResult in _rootCommandResult!.AllOptionResults)
+            {
+                ValidateOptionResult(optionResult);
             }
         }
 
@@ -191,8 +182,9 @@ namespace System.CommandLine.Parsing
         {
             if (_innermostCommandResult!.Command is Command command)
             {
-                foreach (var validator in command.Validators)
+                for (var i = 0; i < command.Validators.Count; i++)
                 {
+                    var validator = command.Validators[i];
                     var errorMessage = validator(_innermostCommandResult);
 
                     if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -273,8 +265,9 @@ namespace System.CommandLine.Parsing
 
             if (optionResult.Option is Option option)
             {
-                foreach (var validate in option.Validators)
+                for (var i = 0; i < option.Validators.Count; i++)
                 {
+                    var validate = option.Validators[i];
                     var message = validate(optionResult);
 
                     if (!string.IsNullOrWhiteSpace(message))
@@ -284,11 +277,13 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            foreach (var argumentResult in optionResult
-                                           .Children
-                                           .OfType<ArgumentResult>())
+            for (var i = 0; i < optionResult.Children.Count; i++)
             {
-                ValidateArgumentResult(argumentResult);
+                var result = optionResult.Children[i];
+                if (result is ArgumentResult argumentResult)
+                {
+                    ValidateArgumentResult(argumentResult);
+                }
             }
         }
 
