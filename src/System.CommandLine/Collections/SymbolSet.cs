@@ -44,7 +44,22 @@ namespace System.CommandLine.Collections
         {
             EnsureAliasIndexIsCurrent();
 
-            if (!(item is IIdentifierSymbol optionOrCommand))
+            if (item is IIdentifierSymbol identifier)
+            {
+                var aliases = identifier.Aliases.ToArray();
+
+                for (var i = 0; i < aliases.Length; i++)
+                {
+                    var alias = aliases[i];
+
+                    if (ItemsByAlias.ContainsKey(alias))
+                    {
+                        aliasAlreadyInUse = alias;
+                        return true;
+                    }
+                }
+            }
+            else
             {
                 for (var i = 0; i < Items.Count; i++)
                 {
@@ -52,21 +67,6 @@ namespace System.CommandLine.Collections
                     if (string.Equals(item.Name, existing.Name, StringComparison.Ordinal))
                     {
                         aliasAlreadyInUse = existing.Name;
-                        return true;
-                    }
-                }
-            }
-            else
-            {
-                var itemRawAliases = optionOrCommand.Aliases.ToArray();
-
-                for (var i = 0; i < itemRawAliases.Length; i++)
-                {
-                    var alias = itemRawAliases[i];
-
-                    if (ItemsByAlias.ContainsKey(alias))
-                    {
-                        aliasAlreadyInUse = alias;
                         return true;
                     }
                 }

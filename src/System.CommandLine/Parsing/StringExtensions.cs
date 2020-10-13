@@ -577,14 +577,11 @@ namespace System.CommandLine.Parsing
 
                 for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
                 {
-                    if (command.Children[childIndex] is IIdentifierSymbol optionOrCommand)
-
+                    if (command.Children[childIndex] is IIdentifierSymbol identifier)
                     {
-                        for (var childAliasIndex = 0; childAliasIndex < optionOrCommand.Aliases.Count; childAliasIndex++)
+                        foreach (var childAlias in identifier.Aliases)
                         {
-                            var childAlias = optionOrCommand.Aliases.ElementAt(childAliasIndex);
-
-                            switch (optionOrCommand)
+                            switch (identifier)
                             {
                                 case ICommand _:
                                     tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Command));

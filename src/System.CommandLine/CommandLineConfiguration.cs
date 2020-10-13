@@ -47,14 +47,14 @@ namespace System.CommandLine
             }
             else
             {
-                ArgumentDelimitersInternal = argumentDelimiters;
+                ArgumentDelimitersInternal = argumentDelimiters.Distinct().ToArray();
             }
 
             foreach (var symbol in symbols)
             {
-                if (symbol is IIdentifierSymbol optionOrCommand)
+                if (symbol is IIdentifierSymbol identifier)
                 {
-                    foreach (var alias in optionOrCommand.Aliases)
+                    foreach (var alias in identifier.Aliases)
                     {
                         for (var i = 0; i < ArgumentDelimiters.Count; i++)
                         {
