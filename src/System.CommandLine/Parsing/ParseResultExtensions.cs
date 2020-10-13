@@ -271,7 +271,7 @@ namespace System.CommandLine.Parsing
                 var exclude = optionsWithArgLimitReached
                               .OfType<OptionResult>()
                               .Select(o => o.Symbol)
-                              .OfType<INamedSymbol>()
+                              .OfType<IIdentifierSymbol>()
                               .SelectMany(c => c.Aliases)
                               .Concat(commandResult.Command.Aliases)
                               .ToArray();

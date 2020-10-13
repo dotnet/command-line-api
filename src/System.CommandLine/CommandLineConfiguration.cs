@@ -52,7 +52,7 @@ namespace System.CommandLine
 
             foreach (var symbol in symbols)
             {
-                if (symbol is INamedSymbol optionOrCommand)
+                if (symbol is IIdentifierSymbol optionOrCommand)
                 {
                     foreach (var alias in optionOrCommand.Aliases)
                     {

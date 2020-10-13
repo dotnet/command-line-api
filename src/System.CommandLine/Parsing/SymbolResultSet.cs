@@ -15,7 +15,7 @@ namespace System.CommandLine.Parsing
         protected override IReadOnlyCollection<string> GetAliases(SymbolResult result) =>
             result.Symbol switch
             {
-                INamedSymbol named => named.Aliases,
+                IIdentifierSymbol named => named.Aliases,
                 _ => new[] { result.Symbol.Name }
             };
     }

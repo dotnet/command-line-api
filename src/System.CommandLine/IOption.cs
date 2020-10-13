@@ -5,7 +5,7 @@ using System.CommandLine.Binding;
 
 namespace System.CommandLine
 {
-    public interface IOption : INamedSymbol, IValueDescriptor
+    public interface IOption : IIdentifierSymbol, IValueDescriptor
     {
         IArgument Argument { get; }
 

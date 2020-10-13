@@ -39,7 +39,7 @@ namespace System.CommandLine.Invocation
         {
             IEnumerable<string> possibleMatches = targetSymbol
                 .Children
-                .OfType<INamedSymbol>()
+                .OfType<IIdentifierSymbol>()
                 .Where(x => !x.IsHidden)
                 .Where(x => x.Aliases.Count > 0)
                 .Select(symbol => 

@@ -67,7 +67,7 @@ namespace System.CommandLine
 
             return Children
                    .Where(s => !s.IsHidden)
-                   .OfType<INamedSymbol>()
+                   .OfType<IIdentifierSymbol>()
                    .SelectMany(s => s.Aliases)
                    .Concat(argumentSuggestions)
                    .Distinct()

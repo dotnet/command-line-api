@@ -44,7 +44,7 @@ namespace System.CommandLine.Collections
         {
             EnsureAliasIndexIsCurrent();
 
-            if (!(item is INamedSymbol optionOrCommand))
+            if (!(item is IIdentifierSymbol optionOrCommand))
             {
                 for (var i = 0; i < Items.Count; i++)
                 {
@@ -88,7 +88,7 @@ namespace System.CommandLine.Collections
         protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
             item switch
             {
-                INamedSymbol named => named.Aliases,
+                IIdentifierSymbol named => named.Aliases,
                 _ => new[] { item.Name }
             };
     }

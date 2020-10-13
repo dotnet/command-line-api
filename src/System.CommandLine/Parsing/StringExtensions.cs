@@ -577,7 +577,7 @@ namespace System.CommandLine.Parsing
 
                 for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
                 {
-                    if (command.Children[childIndex] is INamedSymbol optionOrCommand)
+                    if (command.Children[childIndex] is IIdentifierSymbol optionOrCommand)
 
                     {
                         for (var childAliasIndex = 0; childAliasIndex < optionOrCommand.Aliases.Count; childAliasIndex++)
