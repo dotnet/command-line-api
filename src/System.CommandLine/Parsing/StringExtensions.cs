@@ -577,21 +577,20 @@ namespace System.CommandLine.Parsing
 
                 for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
                 {
-                    var child = command.Children[childIndex];
-
-                    for (var childAliasIndex = 0; childAliasIndex < child.Aliases.Count; childAliasIndex++)
+                    if (command.Children[childIndex] is IIdentifierSymbol identifier)
                     {
-                        var childAlias = child.Aliases.ElementAt(childAliasIndex);
-
-                        switch (child)
+                        foreach (var childAlias in identifier.Aliases)
                         {
-                            case ICommand _:
-                                tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Command));
-                                break;
+                            switch (identifier)
+                            {
+                                case ICommand _:
+                                    tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Command));
+                                    break;
 
-                            case IOption _:
-                                tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Option));
-                                break;
+                                case IOption _:
+                                    tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Option));
+                                    break;
+                            }
                         }
                     }
                 }

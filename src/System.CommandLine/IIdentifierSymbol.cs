@@ -1,14 +1,14 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Binding;
+using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public interface IOption : IIdentifierSymbol, IValueDescriptor
+    public interface IIdentifierSymbol : ISymbol
     {
-        IArgument Argument { get; }
+        IReadOnlyCollection<string> Aliases { get; }
 
-        bool IsRequired { get; }
+        bool HasAlias(string alias);
     }
 }

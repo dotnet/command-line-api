@@ -44,30 +44,29 @@ namespace System.CommandLine.Collections
         {
             EnsureAliasIndexIsCurrent();
 
-            if (item is IArgument)
+            if (item is IIdentifierSymbol identifier)
             {
-                // arguments don't have aliases so match based on Name
-                for (var i = 0; i < Items.Count; i++)
+                var aliases = identifier.Aliases.ToArray();
+
+                for (var i = 0; i < aliases.Length; i++)
                 {
-                    var existing = Items[i];
-                    if (string.Equals(item.Name, existing.Name, StringComparison.Ordinal))
+                    var alias = aliases[i];
+
+                    if (ItemsByAlias.ContainsKey(alias))
                     {
-                        aliasAlreadyInUse = existing.Name;
+                        aliasAlreadyInUse = alias;
                         return true;
                     }
                 }
             }
             else
             {
-                var itemRawAliases = item.Aliases.ToArray();
-
-                for (var i = 0; i < itemRawAliases.Length; i++)
+                for (var i = 0; i < Items.Count; i++)
                 {
-                    var alias = itemRawAliases[i];
-
-                    if (ItemsByAlias.ContainsKey(alias))
+                    var existing = Items[i];
+                    if (string.Equals(item.Name, existing.Name, StringComparison.Ordinal))
                     {
-                        aliasAlreadyInUse = alias;
+                        aliasAlreadyInUse = existing.Name;
                         return true;
                     }
                 }
@@ -87,6 +86,10 @@ namespace System.CommandLine.Collections
         }
 
         protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
-            item.Aliases;
+            item switch
+            {
+                IIdentifierSymbol named => named.Aliases,
+                _ => new[] { item.Name }
+            };
     }
 }

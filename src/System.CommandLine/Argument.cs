@@ -27,8 +27,6 @@ namespace System.CommandLine
             {
                 Name = name!;
             }
-
-            AddAliasInner(name);
         }
 
         internal HashSet<string>? AllowedValues { get; private set; }

@@ -25,7 +25,7 @@ namespace System.CommandLine.Binding
             {
                 // TODO: (FailedArgumentTypeConversionResult) localize
 
-                var firstParent = a.Parents[0];
+                var firstParent = (IIdentifierSymbol) a.Parents[0];
 
                 var symbolType =
                     firstParent switch {

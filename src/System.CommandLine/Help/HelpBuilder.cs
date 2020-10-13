@@ -478,7 +478,7 @@ namespace System.CommandLine.Help
                 _ => ""
             };
 
-        private IEnumerable<HelpItem> GetOptionHelpItems(ISymbol symbol)
+        private IEnumerable<HelpItem> GetOptionHelpItems(IIdentifierSymbol symbol)
         {
             var rawAliases = symbol
                              .Aliases

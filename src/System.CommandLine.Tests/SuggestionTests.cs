@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_Suggest_returns_argument_suggestions_if_configured()
+        public void Option_GetSuggestions_returns_argument_suggestions_if_configured()
         {
             var option = new Option("--hello")
             {
@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_Suggest_returns_available_option_aliases()
+        public void Command_GetSuggestions_returns_available_option_aliases()
         {
             IReadOnlyCollection<Symbol> symbols = new[] {
                 new Option("--one", "option one"),
@@ -64,7 +64,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_Suggest_returns_available_subcommands()
+        public void Command_GetSuggestions_returns_available_subcommands()
         {
             var command = new Command("command")
             {
@@ -79,7 +79,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_Suggest_returns_available_subcommands_and_option_aliases()
+        public void Command_GetSuggestions_returns_available_subcommands_and_option_aliases()
         {
             var command = new Command("command")
             {
@@ -93,17 +93,17 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_Suggest_returns_available_subcommands_and_option_aliases_and_configured_arguments()
+        public void Command_GetSuggestions_returns_available_subcommands_and_option_aliases_and_configured_arguments()
         {
             var command = new Command("command")
             {
                 new Command("subcommand", "subcommand"),
                 new Option("--option", "option"),
                 new Argument
-                    {
-                        Arity = ArgumentArity.OneOrMore,
-                        Suggestions = { "command-argument" }
-                    }
+                {
+                    Arity = ArgumentArity.OneOrMore,
+                    Suggestions = { "command-argument" }
+                }
             };
 
             var suggestions = command.GetSuggestions();
@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_Suggest_without_text_to_match_orders_alphabetically()
+        public void Command_GetSuggestions_without_text_to_match_orders_alphabetically()
         {
             var command = new Command("command")
             {
@@ -128,7 +128,20 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_Suggest_with_text_to_match_orders_by_match_position_then_alphabetically()
+        public void Command_GetSuggestions_does_not_return_argument_names()
+        {
+            var command = new Command("command")
+            {
+                new Argument("the-argument")
+            };
+
+            var suggestions = command.GetSuggestions();
+
+            suggestions.Should().NotContain("the-argument");
+        }
+
+        [Fact]
+        public void Command_GetSuggestions_with_text_to_match_orders_by_match_position_then_alphabetically()
         {
             var command = new Command("command")
             {
@@ -171,7 +184,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_suggest_can_access_ParseResult()
+        public void Command_Getsuggestions_can_access_ParseResult()
         {
             var parser = new Parser(
                 new Option("--origin")
@@ -203,7 +216,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_suggest_can_access_ParseResult_reverse_order()
+        public void Command_Getsuggestions_can_access_ParseResult_reverse_order()
         {
             var parser = new Parser(
                 new Option("--origin")
@@ -510,7 +523,7 @@ namespace System.CommandLine.Tests
         [Theory(Skip = "Needs discussion, Issue #19")]
         [InlineData("outer ")]
         [InlineData("outer -")]
-        public void Option_suggestions_are_not_provided_without_matching_prefix(string input)
+        public void Option_Getsuggestionsions_are_not_provided_without_matching_prefix(string input)
         {
             var command = new Command("outer")
             {
@@ -526,7 +539,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_suggestions_can_be_based_on_the_proximate_option()
+        public void Option_Getsuggestionsions_can_be_based_on_the_proximate_option()
         {
             var parser = new Parser(
                 new Command("outer")
@@ -573,7 +586,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_suggestions_can_be_based_on_the_proximate_option_and_partial_input()
+        public void Option_Getsuggestionsions_can_be_based_on_the_proximate_option_and_partial_input()
         {
             var parser = new Parser(
                 new Command("outer")

@@ -37,7 +37,9 @@ namespace System.CommandLine.Invocation
 
         private IEnumerable<string> GetPossibleTokens(ISymbol targetSymbol, string token)
         {
-            IEnumerable<string> possibleMatches = targetSymbol.Children
+            IEnumerable<string> possibleMatches = targetSymbol
+                .Children
+                .OfType<IIdentifierSymbol>()
                 .Where(x => !x.IsHidden)
                 .Where(x => x.Aliases.Count > 0)
                 .Select(symbol => 

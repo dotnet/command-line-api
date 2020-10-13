@@ -11,7 +11,7 @@ using System.Linq;
 namespace System.CommandLine
 {
     public class Command : 
-        Symbol, 
+        NamedSymbol, 
         ICommand, 
         IEnumerable<Symbol>
     {
