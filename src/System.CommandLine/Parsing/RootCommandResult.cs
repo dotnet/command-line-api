@@ -109,5 +109,25 @@ namespace System.CommandLine.Parsing
                     throw new ArgumentException($"Unsupported {nameof(SymbolResult)} type: {result.GetType()}");
             }
         }
+
+        internal IReadOnlyCollection<ArgumentResult> AllArgumentResults
+        {
+            get
+            {
+                EnsureResultMapsAreInitialized();
+
+                return _allArgumentResults!.Values;
+            }
+        }
+        
+        internal IReadOnlyCollection<OptionResult> AllOptionResults
+        {
+            get
+            {
+                EnsureResultMapsAreInitialized();
+
+                return _allOptionResults!.Values;
+            }
+        }
     }
 }

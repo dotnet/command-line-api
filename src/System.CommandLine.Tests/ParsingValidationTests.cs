@@ -7,6 +7,7 @@ using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -243,6 +244,43 @@ namespace System.CommandLine.Tests
                   .Message
                   .Should()
                   .Be("Argument x cannot be set to 123");
+        }
+
+        [Theory]
+        [InlineData("--value 123")]
+        [InlineData("--value=123 child")]
+        [InlineData("--value=123 child grandchild")]
+        [InlineData("child --value=123")]
+        [InlineData("child --value=123 grandchild")]
+        [InlineData("child grandchild --value=123 ")]
+        public async Task A_custom_validator_added_to_a_global_option_is_checked(string commandLine)
+        {
+            var handlerWasCalled = false;
+
+            var globalOption = new Option<int>("--value");
+            globalOption.AddValidator(option => "oops!");
+
+            var grandchildCommand = new Command("grandchild");
+
+            var childCommand = new Command("child")
+            {
+                grandchildCommand
+            };
+            var rootCommand = new RootCommand
+            {
+                childCommand
+            };
+
+            rootCommand.AddGlobalOption(globalOption);
+
+            rootCommand.Handler = CommandHandler.Create((int value) => handlerWasCalled = true);
+            childCommand.Handler = CommandHandler.Create((int value) => handlerWasCalled = true);
+            grandchildCommand.Handler = CommandHandler.Create((int value) => handlerWasCalled = true);
+
+            var result = await rootCommand.InvokeAsync(commandLine);
+
+            result.Should().Be(1);
+            handlerWasCalled.Should().BeFalse();
         }
 
         [Fact]
