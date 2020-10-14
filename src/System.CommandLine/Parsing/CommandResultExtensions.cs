@@ -36,7 +36,7 @@ namespace System.CommandLine.Parsing
             {
                 foreach (var argument in commandResult.Command.Arguments)
                 {
-                    if (valueName.IsMatch(argument.Name) || valueName.IsMatch(argument.Name.Replace("|","or")))
+                    if (valueName.IsMatch(argument.Name))
                     {
                         value = commandResult.ArgumentConversionResults[argument.Name]?.GetValueOrDefault();
                         return true;

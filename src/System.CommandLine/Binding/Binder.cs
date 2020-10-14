@@ -9,7 +9,8 @@ namespace System.CommandLine.Binding
     {
         internal static bool IsMatch(this string parameterName, string alias) =>
             string.Equals(alias?.RemovePrefix()
-                              .Replace("-", ""),
+                              .Replace("-", "")
+                              .Replace("|", "or"),
                           parameterName,
                           StringComparison.OrdinalIgnoreCase);
 
