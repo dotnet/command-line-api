@@ -77,6 +77,8 @@ namespace System.CommandLine
 
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
+        public string[] PrefixesToIgnore { get; set; } = Array.Empty<string>();
+
         public ICommandHandler? Handler { get; set; }
 
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();

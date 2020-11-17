@@ -150,6 +150,11 @@ namespace System.CommandLine.Parsing
                 return null;
             }
 
+            if (commandNode.Command.PrefixesToIgnore.Any(prefix => CurrentToken.Value.StartsWith(prefix)))
+            {
+                return null;
+            }
+
             var argumentNode = new CommandArgumentNode(
                 CurrentToken,
                 argument,

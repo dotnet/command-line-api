@@ -9,6 +9,8 @@ namespace System.CommandLine
     {
         bool TreatUnmatchedTokensAsErrors { get; }
 
+        string[] PrefixesToIgnore { get; }
+
         IEnumerable<IArgument> Arguments { get; }
         
         IEnumerable<IOption> Options { get; }

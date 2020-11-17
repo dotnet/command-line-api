@@ -433,6 +433,35 @@ namespace System.CommandLine.Tests
                       .Contain("UH UH");
             }
 
+            [Theory]
+            [InlineData("1 2 prefix", new[] { "1", "2" }, new[] { "prefix" })]
+            [InlineData("1 2 prefix:blah", new[] { "1", "2" }, new[] { "prefix:blah" })]
+            [InlineData("1 2 prefixblah pre", new[] { "1", "2", "pre" }, new[] { "prefixblah" })]
+            [InlineData("1 2 prefix:blah pre escape:blah", new[] { "1", "2", "pre" }, new[] { "prefix:blah", "escape:blah" })]
+            public void Command_arguments_ignore_specified_prefixes(string parseArg, string[] expectedArgs, string[] expectedUnmatched)
+            {
+                var arg = new Argument<string[]>()
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                };
+
+                var root = new RootCommand()
+                {
+                    PrefixesToIgnore = new[] { "prefix", "escape" }
+                };
+                root.AddArgument(arg);
+
+                var result = root.Parse(parseArg);
+
+                result.ValueForArgument(arg)
+                    .Should()
+                    .BeEquivalentTo(expectedArgs);
+
+                result.UnmatchedTokens
+                    .Should()
+                    .BeEquivalentTo(expectedUnmatched);
+            }
+
             [Fact]
             public void When_custom_conversion_fails_then_an_option_does_not_accept_further_arguments()
             {
