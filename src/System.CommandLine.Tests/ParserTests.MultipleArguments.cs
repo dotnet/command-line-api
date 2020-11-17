@@ -175,6 +175,36 @@ namespace System.CommandLine.Tests
                       .BeEquivalentTo(new[] { "one", "two" },
                                       options => options.WithStrictOrdering());
             }
+
+            [Theory]
+            [InlineData(true)]
+            [InlineData(false)]
+            public void Multiple_arguments_can_be_specified_after_option(bool allowMultipleArguments)
+            {
+                var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerOptionFlag = allowMultipleArguments };
+                var command = new Command("the-command") { option };
+
+                var result = command.Parse("--option 1 2");
+
+                var optionResult = result.ValueForOption(option);
+
+                optionResult.Should().BeEquivalentTo(allowMultipleArguments ? new[] { "1" , "2"} : new[] { "1" });
+            }
+
+            [Theory]
+            [InlineData(true)]
+            [InlineData(false)]
+            public void Multiple_arguments_can_be_specified_after_multiple_options(bool allowMultipleArguments)
+            {
+                var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerOptionFlag = allowMultipleArguments };
+                var command = new Command("the-command") { option };
+
+                var result = command.Parse("--option 1 --option 2");
+
+                var optionResult = result.ValueForOption(option);
+
+                optionResult.Should().BeEquivalentTo(new[] { "1", "2" });
+            }
         }
     }
 }
