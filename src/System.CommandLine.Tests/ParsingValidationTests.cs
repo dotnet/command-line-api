@@ -744,7 +744,7 @@ namespace System.CommandLine.Tests
             
             private string ExistingFile()
             {
-                return new DirectoryInfo(Directory.GetCurrentDirectory()).GetFiles().First().FullName;
+                return new DirectoryInfo(Directory.GetCurrentDirectory()).GetFiles()[0].FullName;
             }
         }
 

@@ -174,13 +174,13 @@ namespace System.CommandLine.Builder
 
                 await feature.EnsureRegistered(async () =>
                 {
+                    var stdOut = StringBuilderPool.Default.Rent();
+                    var stdErr = StringBuilderPool.Default.Rent();
+
                     try
                     {
                         var currentProcessFullPath = Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
                         var currentProcessFileNameWithoutExtension = Path.GetFileNameWithoutExtension(currentProcessFullPath);
-
-                        var stdOut = new StringBuilder();
-                        var stdErr = new StringBuilder();
 
                         var dotnetSuggestProcess = Process.StartProcess(
                             command: "dotnet-suggest",
@@ -195,6 +195,11 @@ namespace System.CommandLine.Builder
                     catch (Exception exception)
                     {
                         return $"Exception during registration:{NewLine}{exception}";
+                    }
+                    finally
+                    {
+                        StringBuilderPool.Default.Return(stdOut);
+                        StringBuilderPool.Default.Return(stdErr);
                     }
                 });
 
@@ -464,7 +469,7 @@ namespace System.CommandLine.Builder
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.UnmatchedTokens.Any() &&
+                if ((context.ParseResult.UnmatchedTokens.Count > 0) &&
                     context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors)
                 {
                     var typoCorrection = new TypoCorrection(maxLevenshteinDistance);

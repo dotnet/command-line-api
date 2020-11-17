@@ -76,22 +76,36 @@ namespace System.CommandLine
         /// <inheritdoc />
         public virtual IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
-            var argumentSuggestions =
-                Children
-                    .OfType<IArgument>()
-                    .SelectMany(a => a.GetSuggestions(parseResult, textToMatch))
-                    .ToArray();
+            var suggestions = new HashSet<string>();
 
-            return Children
-                   .Where(s => !s.IsHidden)
-                   .OfType<IIdentifierSymbol>()
-                   .SelectMany(s => s.Aliases)
-                   .Concat(argumentSuggestions)
-                   .Distinct()
-                   .Containing(textToMatch)
-                   .Where(symbol => symbol != null)
-                   .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
-                   .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
+            foreach (var child in Children)
+            {
+                switch (child)
+                {
+                    case IIdentifierSymbol identifier when !child.IsHidden:
+                        foreach (var alias in identifier.Aliases)
+                        {
+                            if (alias is string s && s.ContainsCaseInsensitive(textToMatch))
+                            {
+                                suggestions.Add(s);
+                            }
+                        }
+                        break;
+                    case IArgument argument:
+                        foreach (var suggestion in argument.GetSuggestions(parseResult, textToMatch))
+                        {
+                            if (suggestion is string s && s.ContainsCaseInsensitive(textToMatch))
+                            {
+                                suggestions.Add(s);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            return suggestions
+                .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
+                .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";

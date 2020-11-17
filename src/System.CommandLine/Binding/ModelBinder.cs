@@ -84,32 +84,17 @@ namespace System.CommandLine.Binding
 
         private bool DisallowedBindingType()
         {
-            var disallowedTypes = new List<Type>
-            {
-                typeof(Span<>),
-                typeof(ReadOnlySpan<>)
-            };
-            var type = ModelDescriptor.ModelType;
-            return disallowedTypes
-                    .Any(x => type.IsGenericType && (type.GetGenericTypeDefinition() == x));
+            var modelType = ModelDescriptor.ModelType;
+            return modelType.IsConstructedGenericTypeOf(typeof(Span<>)) || 
+                modelType.IsConstructedGenericTypeOf(typeof(ReadOnlySpan<>));
         }
 
         private bool ShortCutTheBinding(BindingContext bindingContext)
         {
-            var explicitTypesToShortcut = new List<Type>
-            {
-                typeof(string)
-            };
-            Type modelType = ModelDescriptor.ModelType;
+            var modelType = ModelDescriptor.ModelType;
             return modelType.IsPrimitive ||
-                   IsNullable(modelType) ||
-                   explicitTypesToShortcut.Contains(modelType);
-
-            static bool IsNullable(Type type)
-            {
-                return type.IsGenericType &&
-                       type.GetGenericTypeDefinition() == typeof(Nullable<>);
-            }
+                   modelType.IsNullableValueType() ||
+                   modelType == typeof(string);
         }
 
         private (bool success, object? newInstance, bool anyNonDefaults) GetSimpleModelValue(
@@ -204,7 +189,7 @@ namespace System.CommandLine.Binding
                 Type? parentType = null,
                 bool includeMissingValues = true)
         {
-            var values = new List<BoundValue>();
+            var values = new List<BoundValue>(valueDescriptors.Count);
             var anyNonDefaults = false;
 
             for (var index = 0; index < valueDescriptors.Count; index++)

@@ -467,7 +467,7 @@ namespace System.CommandLine.Tests.Binding
             var captureMethod = GetType()
                                 .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
                                 .MakeGenericMethod(c.ParameterType);
-            var parameter = captureMethod.GetParameters().First();
+            var parameter = captureMethod.GetParameters()[0];
 
             var handler = CommandHandler.Create(captureMethod);
 
@@ -524,7 +524,7 @@ namespace System.CommandLine.Tests.Binding
             var captureMethod = GetType()
                                 .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
                                 .MakeGenericMethod(c.ParameterType);
-            var parameter = captureMethod.GetParameters().First();
+            var parameter = captureMethod.GetParameters()[0];
 
             var handler = CommandHandler.Create(captureMethod);
 

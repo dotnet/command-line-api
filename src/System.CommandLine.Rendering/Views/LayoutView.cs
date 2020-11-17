@@ -29,7 +29,7 @@ namespace System.CommandLine.Rendering.Views
 
         public virtual void Clear()
         {
-            while (Children.Any())
+            while (_children.Count != 0)
             {
                 Remove(Children[0]);
             }

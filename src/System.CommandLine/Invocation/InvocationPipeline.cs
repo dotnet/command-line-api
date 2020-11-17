@@ -41,7 +41,8 @@ namespace System.CommandLine.Invocation
 
         private static InvocationMiddleware BuildInvocationChain(InvocationContext context)
         {
-            var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware);
+            var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware.Count + 1);
+            invocations.AddRange(context.Parser.Configuration.Middleware);
 
             invocations.Add(async (invocationContext, next) =>
             {
