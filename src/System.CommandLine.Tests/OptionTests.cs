@@ -370,6 +370,33 @@ namespace System.CommandLine.Tests
             option.Aliases.Should().Contain("name");
         }
 
+        [Fact]
+        public void Single_option_arg_is_matched_when_disallowing_multiple_args_per_option_flag()
+        {
+            var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerOptionFlag = false };
+            var command = new Command("the-command") { option };
+
+            var result = command.Parse("--option 1 2");
+
+            var optionResult = result.ValueForOption(option);
+
+            optionResult.Should().BeEquivalentTo(new[] { "1" });
+            result.UnmatchedTokens.Should().BeEquivalentTo(new[] { "2" });
+        }
+
+        [Fact]
+        public void Multiple_option_args_are_matched_with_multiple_option_flags_when_disallowing_multiple_args_per_option_flag()
+        {
+            var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerOptionFlag = false };
+            var command = new Command("the-command") { option };
+
+            var result = command.Parse("--option 1 --option 2");
+
+            var optionResult = result.ValueForOption(option);
+
+            optionResult.Should().BeEquivalentTo(new[] { "1", "2" });
+        }
+
         protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }
