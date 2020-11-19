@@ -358,20 +358,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
-        {
-            var option = new Option("--name");
-
-            option.Name = "name";
-
-            option.HasAlias("name").Should().BeTrue();
-            option.HasAlias("--name").Should().BeTrue();
-            option.Aliases.Should().Contain("--name");
-            option.Aliases.Should().Contain("name");
-        }
-
-        [Fact]
-        public void Single_option_arg_is_matched_when_disallowing_multiple_args_per_option_flag()
+        public void Single_option_arg_is_matched_when_disallowing_multiple_args_per_option_token()
         {
             var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerOptionFlag = false };
             var command = new Command("the-command") { option };
@@ -385,7 +372,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Multiple_option_args_are_matched_with_multiple_option_flags_when_disallowing_multiple_args_per_option_flag()
+        public void Multiple_option_args_are_matched_with_multiple_option_tokens_when_disallowing_multiple_args_per_option_token()
         {
             var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerOptionFlag = false };
             var command = new Command("the-command") { option };
@@ -395,6 +382,19 @@ namespace System.CommandLine.Tests
             var optionResult = result.ValueForOption(option);
 
             optionResult.Should().BeEquivalentTo(new[] { "1", "2" });
+        }
+
+        [Fact]
+        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
+        {
+            var option = new Option("--name");
+
+            option.Name = "name";
+
+            option.HasAlias("name").Should().BeTrue();
+            option.HasAlias("--name").Should().BeTrue();
+            option.Aliases.Should().Contain("--name");
+            option.Aliases.Should().Contain("name");
         }
 
         protected override Symbol CreateSymbol(string name) => new Option(name);
