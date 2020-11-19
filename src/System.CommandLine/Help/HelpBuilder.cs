@@ -380,45 +380,123 @@ namespace System.CommandLine.Help
         protected virtual IReadOnlyList<string> SplitText(string text, int width)
         {
             if (text is null)
+            {
                 throw new ArgumentNullException(nameof(text), $"{nameof(text)} cannot be null.");
+            }
+
             if (width < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(width), $"{nameof(width)} must be non-negative.");
+            }
 
-            if (width == 0)
-                return Array.Empty<string>();
-
-            var separator = ' ';
+            var helpLines = new List<string>();
 
             var start = 0;
-            var lines = new List<string>();
 
-            foreach (var line in text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
+            var splitLines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None)
+                                 .SelectMany(line => SplitLongLines(line, width));
+
+
+            foreach (var rawLines in splitLines)
             {
-                var str = ShortenWhitespace(line);
+                var helpLine = ShortenWhitespace(rawLines);
 
-                while (start < str.Length - width)
+                while (start < helpLine.Length - width)
                 {
-                    var end = str.LastIndexOf(separator, start + width);
+                    var end = helpLine.LastIndexOf(' ', start + width);
 
                     // If last word starts before width / 2 include entire width.
                     if (end - start <= width / 2)
                     {
-                        lines.Add(str.Substring(start, width));
+                        helpLines.Add(helpLine.Substring(start, width));
                         // Start next line directly after current line. "abcdef" => abc|def
                         start += width;
                     }
                     else
                     {
-                        lines.Add(str.Substring(start, end - start));
+                        helpLines.Add(helpLine.Substring(start, end - start));
                         // Move past separator for start of next line. "abc def" => abc| |def
                         start = end + 1;
                     }
                 }
 
-                lines.Add(str.Substring(start, str.Length - start));
+                var strLength = helpLine.Length - start;
+
+                string truncated = "";
+
+                if (helpLine.Length < start)
+                {
+                    truncated = helpLine;
+                }
+                else
+                {
+                    truncated = helpLine.Substring(start, strLength);
+                }
+
+                helpLines.Add(truncated);
             }
 
-            return lines;
+            return helpLines;
+        }
+
+        private static IEnumerable<string> SplitLongLines(string line, int width)
+        {
+            if (line.Length <= width)
+            {
+                yield return line;
+                yield break;
+            }
+
+            var currentLine = "";
+
+            var words = line.Split(' ', '\t');
+
+            for (var i = 0; i < words.Length; i++)
+            {
+                var currentWord = words[i];
+
+                var nextWord = i < words.Length - 1
+                                   ? words[i + 1]
+                                   : "";
+
+                var currentNeededWidth = currentLine.Length + currentWord.Length;
+                var neededWidthIncludingNextWord = currentNeededWidth + 1 + nextWord.Length;
+
+                if (neededWidthIncludingNextWord <= width)
+                {
+                    if (currentLine.Length > 1)
+                    {
+                        currentLine += ' ';
+                    }
+
+                    currentLine += currentWord;
+                }
+                else
+                {
+                    if (nextWord != "")
+                    {
+                        if (currentNeededWidth < width)
+                        {
+                            yield return (currentLine + ' ' + currentWord).Trim();
+                            currentLine = "";
+                        }
+                        else
+                        {
+                            yield return currentLine;
+                            currentLine = currentWord;
+                        }
+                    }
+                    else
+                    {
+                        yield return currentWord;
+                    }
+                }
+            }
+
+            if (currentLine.Length > 1)
+            {
+                yield return currentLine;
+            }
         }
 
         /// <summary>

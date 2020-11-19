@@ -715,6 +715,40 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        public void Arguments_section_keeps_added_newlines_when_width_is_very_small()
+        {
+            var command = new Command("outer", "Help text for the outer command")
+            {
+                new Argument
+                {
+                    Name = "outer-command-arg",
+                    Description = $"The argument\r\nfor the\ninner command",
+                    Arity = ArgumentArity.ExactlyOne
+                }
+            };
+
+            var helpBuilder = GetHelpBuilder(25);
+
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}<outer-command-arg>{_columnPadding}The argument{NewLine}" +
+                $"{_indentation}                   {_columnPadding}for the{NewLine}" +
+                $"{_indentation}                   {_columnPadding}inner command{NewLine}{NewLine}";
+
+            expected = @"
+Arguments:
+  <outer-c    The
+  ommand-a    argument
+  rg>         for the
+              inner
+              command";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
         public void Arguments_section_properly_wraps_description()
         {
             var longCmdText =
@@ -1129,7 +1163,7 @@ namespace System.CommandLine.Tests.Help
             var alias = "--option-alias-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
             var description = "Option description that is long enough to wrap.";
 
-            var command = new RootCommand()
+            var command = new RootCommand
             {
                 new Option(alias, description)
             };
@@ -1508,7 +1542,7 @@ namespace System.CommandLine.Tests.Help
             var name = "subcommand-name-that-is-long-enough-to-wrap-to-a-new-line";
             var description = "Subcommand description that is really long. So long that it caused the line to wrap.";
 
-            var command = new RootCommand()
+            var command = new RootCommand
             {
                 new Command(name, description)
             };
