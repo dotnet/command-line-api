@@ -22,13 +22,9 @@ namespace System.CommandLine.Collections
         {
             EnsureAliasIndexIsCurrent();
 
-            if (ItemsByAlias.TryGetValue(alias, out var value) &&
-                value is { })
-            {
-                return value;
-            }
+            ItemsByAlias.TryGetValue(alias, out var value);
 
-            return null;
+            return value;
         }
 
         public int Count => Items.Count;

@@ -113,13 +113,15 @@ namespace System.CommandLine
             this TArgument argument)
             where TArgument : Argument
         {
+            var invalidPathChars = Path.GetInvalidPathChars();
+            
             argument.AddValidator(symbol =>
             {
                 foreach (var token in symbol.Tokens)
                 {
                     // File class no longer check invalid character
                     // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
-                    var invalidCharactersIndex = token.Value.IndexOfAny(Path.GetInvalidPathChars());
+                    var invalidCharactersIndex = token.Value.IndexOfAny(invalidPathChars);
 
                     if (invalidCharactersIndex >= 0)
                     {
