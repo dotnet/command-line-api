@@ -41,11 +41,6 @@ namespace System.CommandLine.Suggest
                 return null;
             }
 
-            if (soughtExecutable.Exists)
-            {
-                return new Registration(soughtExecutable.FullName);
-            }
-
             if (_registrationConfigurationFilePath == null
                 || !File.Exists(_registrationConfigurationFilePath))
             {
