@@ -168,7 +168,14 @@ Each call in the pipeline can take action based on the `ParseResult` and return 
 You can add a call to this pipeline by calling `CommandLineBuilder.UseMiddleware.` Here's an example that enables a custom directive:
 
 ```csharp
-commandLineBuilder.UseMiddleware(async (context, next) => {
+
+var rootCommand = new RootCommand();
+
+/* Add your options/arguments/handler to rootCommand */
+
+var commandLineBuilder = new CommandLineBuilder(rootCommand);
+commandLineBuilder.UseMiddleware(async (context, next) => 
+{
     if (context.ParseResult.Directives.Contains("just-say-hi"))
     {
         context.Console.Out.WriteLine("Hi!");
@@ -178,6 +185,10 @@ commandLineBuilder.UseMiddleware(async (context, next) => {
         await next(context);
     }
 });
+
+commandLineBuilder.UseDefaults();
+var parser = commandLineBuilder.Build();
+await parser.InvokeAsync(args);
 ```
 
 ```console
