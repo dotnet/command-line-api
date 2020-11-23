@@ -30,5 +30,5 @@ _dotnet_bash_register_complete()
     complete -F _dotnet_bash_complete `dotnet-suggest list`
 }
 _dotnet_bash_register_complete
-export DOTNET_SUGGEST_SCRIPT_VERSION="1.0.0"
+export DOTNET_SUGGEST_SCRIPT_VERSION="1.0.1"
 # dotnet suggest shell complete script end
