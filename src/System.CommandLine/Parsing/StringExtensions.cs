@@ -196,6 +196,12 @@ namespace System.CommandLine.Parsing
                     return false;
                 }
 
+                // don't unbundle if this is a known token
+                if (knownTokens.Keys.Contains(arg))
+                {
+                    return false;
+                }
+
                 var (prefix, alias) = arg.SplitPrefix();
 
                 return prefix == "-" && 
