@@ -360,7 +360,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Single_option_arg_is_matched_when_disallowing_multiple_args_per_option_token()
         {
-            var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerOptionFlag = false };
+            var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
             var command = new Command("the-command") { option };
 
             var result = command.Parse("--option 1 2");
@@ -374,7 +374,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Multiple_option_args_are_matched_with_multiple_option_tokens_when_disallowing_multiple_args_per_option_token()
         {
-            var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerOptionFlag = false };
+            var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
             var command = new Command("the-command") { option };
 
             var result = command.Parse("--option 1 --option 2");

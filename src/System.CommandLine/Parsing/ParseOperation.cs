@@ -232,7 +232,7 @@ namespace System.CommandLine.Parsing
 
                 Advance();
 
-                continueProcessing = optionNode.Option.AllowMultipleArgumentsPerOptionFlag;
+                continueProcessing = optionNode.Option.AllowMultipleArgumentsPerToken;
             }
         }
 

@@ -11,6 +11,6 @@ namespace System.CommandLine
 
         bool IsRequired { get; }
 
-        bool AllowMultipleArgumentsPerOptionFlag { get; }
+        bool AllowMultipleArgumentsPerToken { get; }
     }
 }
