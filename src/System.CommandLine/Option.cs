@@ -98,7 +98,7 @@ namespace System.CommandLine
 
         IArgument IOption.Argument => Argument;
 
-        public bool AllowMultipleArgumentsPerOptionFlag { get; set; } = true;
+        public bool AllowMultipleArgumentsPerToken { get; set; } = true;
 
         public bool IsRequired { get; set; }
 
