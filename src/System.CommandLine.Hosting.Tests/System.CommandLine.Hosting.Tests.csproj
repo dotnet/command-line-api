@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net5.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <IsPackable>false</IsPackable>
@@ -17,7 +17,7 @@
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'!='netcoreapp3.1'">
+  <ItemGroup Condition="'$(TargetFramework)'!='net5.0'">
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.2.0" />
   </ItemGroup>
 
