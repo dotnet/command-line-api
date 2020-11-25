@@ -60,9 +60,10 @@ namespace System.CommandLine
         public void AddArgument(Argument argument) => AddArgumentInner(argument);
 
         /// <summary>
-        /// Adds a subcommand to the command. Commands can be nested to an arbitrary depth.
+        /// Adds a subcommand to the command.
         /// </summary>
         /// <param name="command">The subcommand to add to the command.</param>
+        /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
         public void AddCommand(Command command) => AddSymbol(command);
 
         /// <summary>
@@ -72,9 +73,11 @@ namespace System.CommandLine
         public void AddOption(Option option) => AddSymbol(option);
 
         /// <summary>
-        /// Adds a global <see cref="Option"/> to the command. Global options are applied to all commands.
+        /// Adds a global <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The global option to add to the command.</param>
+        /// <remarks>Global options are applied to the command and recursively to subcommands. They do not apply to
+        /// parent commands.</remarks>
         public void AddGlobalOption(Option option)
         {
             _globalOptions.Add(option);
@@ -82,11 +85,13 @@ namespace System.CommandLine
         }
         
         /// <summary>
-        /// Adds a global <see cref="Option"/> to the command. Global options are applied to all commands. A
-        /// return value indicates whether the option alias is already in use.
+        /// Adds a global <see cref="Option"/> to the command. A return value indicates whether the option alias is
+        /// already in use.
         /// </summary>
         /// <param name="option">The global option to add to the command.</param>
         /// <returns><c>true</c> if the option was added;<c>false</c> if it was already in use.</returns>
+        /// <remarks>Global options are applied to the command and recursively to subcommands. They do not apply to
+        /// parent commands.</remarks>
         public bool TryAddGlobalOption(Option option)
         {
             if (!_globalOptions.IsAnyAliasInUse(option, out _))
