@@ -15,7 +15,7 @@ namespace System.CommandLine
     /// </summary>
     /// <remarks>
     /// Use the Command object for actions that correspond to a specific string (the command name). See
-    /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</>
+    /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
     public class Command : 
@@ -35,13 +35,13 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Represents all the arguments associated with the command.
+        /// Represents all of the arguments associated with the command.
         /// </summary>
         public IEnumerable<Argument> Arguments => 
             Children.OfType<Argument>();
 
         /// <summary>
-        /// Represents all the options associated with the command, including global options.
+        /// Represents all of the options associated with the command, including global options.
         /// </summary>
         public IEnumerable<Option> Options =>
             Children.OfType<Option>()
@@ -49,7 +49,7 @@ namespace System.CommandLine
                             .OfType<Command>()
                             .SelectMany(c => c.GlobalOptions));
         /// <summary>
-        /// Represents all the global options associated with the command
+        /// Represents all of the global options associated with the command
         /// </summary>
         public IEnumerable<Option> GlobalOptions => _globalOptions.OfType<Option>();
 
@@ -83,7 +83,7 @@ namespace System.CommandLine
         
         /// <summary>
         /// Adds a global <see cref="Option"/> to the command. Global options are applied to all commands. A
-        /// return value indicates if the option alias is already in use.
+        /// return value indicates whether the option alias is already in use.
         /// </summary>
         /// <param name="option">The global option to add to the command.</param>
         /// <returns><c>true</c> if the option was added;<c>false</c> if it was already in use.</returns>
@@ -163,7 +163,7 @@ namespace System.CommandLine
         public ICommandHandler? Handler { get; set; }
 
         /// <summary>
-        /// Represents all the symbols associated with the command.
+        /// Represents all of the symbols associated with the command.
         /// </summary>
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
