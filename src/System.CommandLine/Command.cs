@@ -15,7 +15,7 @@ namespace System.CommandLine
     /// </summary>
     /// <remarks>
     /// Use the Command object for actions that correspond to a specific string (the command name). See
-    /// <see cref="RootCommand"/> for simple applications that do only have one action. For example, <c>dotnet run</>
+    /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</>
     /// uses <c>run</c> as the command.
     /// </remarks>
     public class Command : 
