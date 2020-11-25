@@ -358,6 +358,33 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Single_option_arg_is_matched_when_disallowing_multiple_args_per_option_token()
+        {
+            var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
+            var command = new Command("the-command") { option };
+
+            var result = command.Parse("--option 1 2");
+
+            var optionResult = result.ValueForOption(option);
+
+            optionResult.Should().BeEquivalentTo(new[] { "1" });
+            result.UnmatchedTokens.Should().BeEquivalentTo(new[] { "2" });
+        }
+
+        [Fact]
+        public void Multiple_option_args_are_matched_with_multiple_option_tokens_when_disallowing_multiple_args_per_option_token()
+        {
+            var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
+            var command = new Command("the-command") { option };
+
+            var result = command.Parse("--option 1 --option 2");
+
+            var optionResult = result.ValueForOption(option);
+
+            optionResult.Should().BeEquivalentTo(new[] { "1", "2" });
+        }
+
+        [Fact]
         public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
         {
             var option = new Option("--name");

@@ -10,5 +10,7 @@ namespace System.CommandLine
         IArgument Argument { get; }
 
         bool IsRequired { get; }
+
+        bool AllowMultipleArgumentsPerToken { get; }
     }
 }

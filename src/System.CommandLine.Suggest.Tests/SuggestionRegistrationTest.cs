@@ -35,6 +35,55 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [Fact]
+        public void Missing_suggestion_can_not_be_found()
+        {
+            ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
+            
+            var path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            try
+            {
+                Directory.CreateDirectory(path);
+                var unregisteredFile = Path.Combine(path, "im-not-registered");
+                File.WriteAllText(unregisteredFile, "");
+                
+                var foundRegistration = suggestionProvider.FindRegistration(new FileInfo(unregisteredFile));
+
+                foundRegistration
+                    .Should()
+                    .BeNull();
+            }
+            finally
+            {
+                Directory.Delete(path, true);
+            }
+        }     
+        
+        [Fact]
+        public void Added_suggestion_can_be_found()
+        {
+            ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();
+            
+            var path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            try
+            {
+                Directory.CreateDirectory(path);
+                var registeredFile = Path.Combine(path, "im-registered");
+                File.WriteAllText(registeredFile, "");
+                
+                suggestionProvider.AddSuggestionRegistration(new Registration(registeredFile));
+                var foundRegistration = suggestionProvider.FindRegistration(new FileInfo(registeredFile));
+
+                foundRegistration
+                    .Should()
+                    .NotBeNull();
+            }
+            finally
+            {
+                Directory.Delete(path, true);
+            }
+        }   
+
+        [Fact]
         public void Suggestion_command_path_is_not_case_sensitive()
         {
             ISuggestionRegistration suggestionProvider = GetSuggestionRegistration();

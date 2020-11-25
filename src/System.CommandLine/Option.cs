@@ -98,6 +98,8 @@ namespace System.CommandLine
 
         IArgument IOption.Argument => Argument;
 
+        public bool AllowMultipleArgumentsPerToken { get; set; } = true;
+
         public bool IsRequired { get; set; }
 
         string IValueDescriptor.ValueName => Name;
