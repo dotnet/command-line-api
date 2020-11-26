@@ -9,6 +9,9 @@ using System.Linq;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Represents a value passed to an <see cref="Option"/> or <see cref="Command"/>.
+    /// </summary>
     public class Argument : Symbol, IArgument
     {
         private Func<ArgumentResult, object?>? _defaultValueFactory;
@@ -17,10 +20,17 @@ namespace System.CommandLine
         private Type _argumentType = typeof(string);
         private List<ISuggestionSource>? _suggestions = null;
 
+        /// <summary>
+        /// Initializes a new instance of the Argument class.
+        /// </summary>
         public Argument()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the Argument class.
+        /// </summary>
+        /// <param name="name">The name of the argument.</param>
         public Argument(string name) 
         {
             if (!string.IsNullOrWhiteSpace(name))
@@ -31,6 +41,10 @@ namespace System.CommandLine
 
         internal HashSet<string>? AllowedValues { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the arity of the argument. The arity defines the number of values that can be passed to the
+        /// argument.
+        /// </summary>
         public IArgumentArity Arity
         {
             get
@@ -103,6 +117,9 @@ namespace System.CommandLine
             set => _convertArguments = value;
         }
 
+        /// <summary>
+        /// Gets the list of suggestion sources for the argument.
+        /// </summary>
         public List<ISuggestionSource> Suggestions
         { 
             get
@@ -119,6 +136,9 @@ namespace System.CommandLine
             }
         }
 
+        /// <summary>
+        /// Gets or sets the type of the argument.
+        /// </summary>
         public Type ArgumentType
         {
             get => _argumentType;
@@ -146,8 +166,17 @@ namespace System.CommandLine
 
         internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new List<ValidateSymbol<ArgumentResult>>();
 
+        /// <summary>
+        /// Adds a custom <see cref="ValidateSymbol{T}(ArgumentResult)"/> to the argument. Validators can be used
+        /// to create custom validation logic.
+        /// </summary>
+        /// <param name="validate">The delegate to validate the symbols during parsing.</param>
         public void AddValidator(ValidateSymbol<ArgumentResult> validator) => Validators.Add(validator);
 
+        /// <summary>
+        /// Gets the default value for the argument.
+        /// </summary>
+        /// <returns>Returns the default value for the argument, if defined. Null otherwise.</returns>
         public object? GetDefaultValue()
         {
             return GetDefaultValue(new ArgumentResult(this, null));
@@ -163,11 +192,20 @@ namespace System.CommandLine
             return _defaultValueFactory.Invoke(argumentResult);
         }
 
+        /// <summary>
+        /// Sets the default value for the argument.
+        /// </summary>
+        /// <param name="value">The default value for the argument.</param>
         public void SetDefaultValue(object? value)
         {
             SetDefaultValueFactory(() => value);
         }
 
+        /// <summary>
+        /// Sets a delegate to invoke when the default value for the argument is required.
+        /// </summary>
+        /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
         public void SetDefaultValueFactory(Func<object?> getDefaultValue)
         {
             if (getDefaultValue is null)
@@ -178,11 +216,19 @@ namespace System.CommandLine
             SetDefaultValueFactory(_ => getDefaultValue());
         }
         
+        /// <summary>
+        /// Sets a delegate to invoke when the default value for the argument is required.
+        /// </summary>
+        /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
+        /// <remarks>In this overload, the <see cref="ArgumentResult"/> is provided to the delegate.</remarks>
         public void SetDefaultValueFactory(Func<ArgumentResult, object?> getDefaultValue)
         {
             _defaultValueFactory = getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue));
         }
 
+        /// <summary>
+        /// Specifies if a default value is defined for the argument.
+        /// </summary>
         public bool HasDefaultValue => _defaultValueFactory != null;
 
         internal static Argument None => new Argument { Arity = ArgumentArity.Zero };
@@ -197,6 +243,12 @@ namespace System.CommandLine
             AllowedValues.UnionWith(values);
         }
 
+        /// <summary>
+        /// Gets the suggestions for the given parse result and input text. Used to provide help to the user.
+        /// </summary>
+        /// <param name="parseResult">The result provided by the parser.</param>
+        /// <param name="textToMatch">The input text to match on.</param>
+        /// <returns></returns>
         public override IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
             var dynamicSuggestions = Suggestions

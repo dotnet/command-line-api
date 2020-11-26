@@ -8,14 +8,19 @@ using System.Reflection;
 namespace System.CommandLine
 {
     /// <summary>
-    /// A command representing an application entry point.
+    /// Represents the main action that the application performs.
     /// </summary>
+    /// <remarks>
+    /// Use the RootCommand object without any subcommands for applications that perform one action. Add subcommands 
+    /// to the root for applications that require actions identified by specific strings. For example, `dir` does not 
+    /// use any subcommands. See <see cref="Command"/> for applications with multiple actions.
+    /// </remarks>
     public class RootCommand : Command
     {
         /// <summary>
-        /// Create a new instance of RootCommand
+        /// Initializes a new instance of the RootCommand class.
         /// </summary>
-        /// <param name="description">The description of the command shown in help.</param>
+        /// <param name="description">The description of the command, shown in help.</param>
         public RootCommand(string description = "") : base(ExecutableName, description)
         {
         }
