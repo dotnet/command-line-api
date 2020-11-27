@@ -7,10 +7,23 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Represents the arity of an argument.
+    /// </summary>
     public class ArgumentArity : IArgumentArity
     {
+        /// <summary>
+        /// The overall maximum number of values that can be provided to an argument.
+        /// </summary>
         public const int MaximumArity = 100_000;
 
+        /// <summary>
+        /// Initializes a new instance of the ArgumentArity class.
+        /// </summary>
+        /// <param name="minimumNumberOfValues">The minimum number of values required for the argument.</param>
+        /// <param name="maximumNumberOfValues">The maximum number of values allowed for the argument.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="minimumNumberOfValues"/> is negative.</exception>
+        /// <exception cref="ArgumentException">Thrown when the maximum number is less than the minimum number or the maximum number is greater than MaximumArity.</exception>
         public ArgumentArity(int minimumNumberOfValues, int maximumNumberOfValues)
         {
             if (minimumNumberOfValues < 0)
@@ -32,8 +45,14 @@ namespace System.CommandLine
             MaximumNumberOfValues = maximumNumberOfValues;
         }
 
+        /// <summary>
+        /// Gets the minimum number of values required for the argument.
+        /// </summary>
         public int MinimumNumberOfValues { get; }
 
+        /// <summary>
+        /// Gets the maximum number of values allowed for the argument.
+        /// </summary>
         public int MaximumNumberOfValues { get; }
 
         internal static FailedArgumentConversionArityResult? Validate(
@@ -72,14 +91,29 @@ namespace System.CommandLine
             return null;
         }
 
+        /// <summary>
+        /// Exactly 0 arguments.
+        /// </summary>
         public static IArgumentArity Zero => new ArgumentArity(0, 0);
 
+        /// <summary>
+        /// 0 or 1 argument.
+        /// </summary>
         public static IArgumentArity ZeroOrOne => new ArgumentArity(0, 1);
 
+        /// <summary>
+        /// Exactly 1 argument.
+        /// </summary>
         public static IArgumentArity ExactlyOne => new ArgumentArity(1, 1);
 
+        /// <summary>
+        /// 0 or more arguments.
+        /// </summary>
         public static IArgumentArity ZeroOrMore => new ArgumentArity(0, MaximumArity);
 
+        /// <summary>
+        /// 1 or more arguments.
+        /// </summary>
         public static IArgumentArity OneOrMore => new ArgumentArity(1, MaximumArity);
 
         internal static IArgumentArity Default(Type type, Argument argument, ISymbol parent)
