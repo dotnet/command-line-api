@@ -41,10 +41,7 @@ namespace System.CommandLine
 
         internal HashSet<string>? AllowedValues { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the arity of the argument. The arity defines the number of values that can be passed to the
-        /// argument.
-        /// </summary>
+        /// <inheritdoc />
         public IArgumentArity Arity
         {
             get
