@@ -7,9 +7,7 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
-    /// <summary>
-    /// Represents the arity of an argument.
-    /// </summary>
+    /// <inheritdoc />
     public class ArgumentArity : IArgumentArity
     {
         /// <summary>
@@ -45,14 +43,10 @@ namespace System.CommandLine
             MaximumNumberOfValues = maximumNumberOfValues;
         }
 
-        /// <summary>
-        /// Gets the minimum number of values required for the argument.
-        /// </summary>
+        /// <inheritdoc />
         public int MinimumNumberOfValues { get; }
 
-        /// <summary>
-        /// Gets the maximum number of values allowed for the argument.
-        /// </summary>
+        /// <inheritdoc />
         public int MaximumNumberOfValues { get; }
 
         internal static FailedArgumentConversionArityResult? Validate(
