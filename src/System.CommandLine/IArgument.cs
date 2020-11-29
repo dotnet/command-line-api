@@ -15,7 +15,7 @@ namespace System.CommandLine
         IValueDescriptor
     {
         /// <summary>
-        /// Gets or sets the arity of the argument.
+        /// Gets the arity of the argument.
         /// </summary>
         IArgumentArity Arity { get; }
     }
