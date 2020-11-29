@@ -19,7 +19,7 @@ namespace System.CommandLine
         /// Determines whether the alias has already been defined.
         /// </summary>
         /// <param name="alias">The alias to search for.</param>
-        /// <returns><c>true</c> if alias has already been defined; otherwise <c>false</c>.</returns>
+        /// <returns><c>true</c> if the alias has already been defined; otherwise <c>false</c>.</returns>
         bool HasAlias(string alias);
     }
 }
