@@ -35,13 +35,13 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Represents all of the arguments associated with the command.
+        /// Represents all of the arguments for the command.
         /// </summary>
         public IEnumerable<Argument> Arguments => 
             Children.OfType<Argument>();
 
         /// <summary>
-        /// Represents all of the options associated with the command, including global options.
+        /// Represents all of the options for the command, including global options.
         /// </summary>
         public IEnumerable<Option> Options =>
             Children.OfType<Option>()
@@ -49,7 +49,7 @@ namespace System.CommandLine
                             .OfType<Command>()
                             .SelectMany(c => c.GlobalOptions));
         /// <summary>
-        /// Represents all of the global options associated with the command
+        /// Represents all of the global options for the command
         /// </summary>
         public IEnumerable<Option> GlobalOptions => _globalOptions.OfType<Option>();
 
@@ -168,14 +168,17 @@ namespace System.CommandLine
         public ICommandHandler? Handler { get; set; }
 
         /// <summary>
-        /// Represents all of the symbols associated with the command.
+        /// Represents all of the symbols for the command.
         /// </summary>
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
+        /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        /// <inheritdoc />
         IEnumerable<IArgument> ICommand.Arguments => Arguments;
 
+        /// <inheritdoc />
         IEnumerable<IOption> ICommand.Options => Options;
 
         internal Parser? ImplicitParser { get; set; }
