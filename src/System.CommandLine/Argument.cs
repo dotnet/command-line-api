@@ -242,12 +242,7 @@ namespace System.CommandLine
             AllowedValues.UnionWith(values);
         }
 
-        /// <summary>
-        /// Gets the suggestions for the given parse result and input text. Used to provide help to the user.
-        /// </summary>
-        /// <param name="parseResult">The result provided by the parser.</param>
-        /// <param name="textToMatch">The input text to match on.</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public override IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
             var dynamicSuggestions = Suggestions
@@ -261,6 +256,7 @@ namespace System.CommandLine
 
         public override string ToString() => $"{nameof(Argument)}: {Name}";
 
+        /// <inheritdoc />
         IArgumentArity IArgument.Arity => Arity;
 
         string IValueDescriptor.ValueName => Name;
