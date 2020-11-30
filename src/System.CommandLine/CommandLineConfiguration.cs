@@ -11,12 +11,28 @@ using System.Linq;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Represents the configuration used by the <see cref="Parser"/>.
+    /// </summary>
     public class CommandLineConfiguration
     {
         private readonly IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
         private readonly Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
+        /// <summary>
+        /// Initializes a new instance of the CommandLineConfiguration class.
+        /// </summary>
+        /// <param name="symbols">The symbols to parse.</param>
+        /// <param name="argumentDelimiters">The characters used to delimit arguments.</param>
+        /// <param name="enablePosixBundling"><c>true</c> to enable POSIX bundling; otherwise, <c>false</c>.</param>
+        /// <param name="enableDirectives"><c>true</c> to enable directive parsing; otherwise, <c>false</c>.</param>
+        /// <param name="validationMessages">Provide custom validation messages.</param>
+        /// <param name="responseFileHandling">One of the enumeration values that specifies how response files (.rsp) are handled.</param>
+        /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
+        /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="symbols"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="symbols"/> does not contain at least one option or command.</exception>
         public CommandLineConfiguration(
             IReadOnlyCollection<Symbol> symbols,
             IReadOnlyList<char>? argumentDelimiters = null,
@@ -75,7 +91,7 @@ namespace System.CommandLine
             }
             else
             {
-                // reuse existing auto-generated root command, if one is present, to prevent repeated mutations
+                // Reuse existing auto-generated root command, if one is present, to prevent repeated mutations
                 RootCommand? parentRootCommand = 
                     symbols.SelectMany(s => s.Parents)
                            .OfType<RootCommand>()
@@ -125,22 +141,43 @@ namespace System.CommandLine
             }
         }
 
+        /// <summary>
+        /// Represents all of the symbols to parse.
+        /// </summary>
         public ISymbolSet Symbols => _symbols;
 
+        /// <summary>
+        /// Represents all of the argument delimiters.
+        /// </summary>
         public IReadOnlyList<char> ArgumentDelimiters => ArgumentDelimitersInternal;
 
         internal IReadOnlyList<char> ArgumentDelimitersInternal { get; }
      
+        /// <summary>
+        /// Gets whether directives are enabled.
+        /// </summary>
         public bool EnableDirectives { get; }
 
+        /// <summary>
+        /// Gets whether POSIX bundling are enabled.
+        /// </summary>
+        /// <remarks>
+        /// POSIX recommends that single-character options be allowed to be specified together after a single <c>-</c> prefix.
+        /// </remarks>
         public bool EnablePosixBundling { get; }
 
+        /// <summary>
+        /// Gets the validation messages.
+        /// </summary>
         public ValidationMessages ValidationMessages { get; }
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory;
 
         internal IReadOnlyCollection<InvocationMiddleware> Middleware => _middlewarePipeline;
 
+        /// <summary>
+        /// Gets the root command.
+        /// </summary>
         public ICommand RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
