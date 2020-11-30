@@ -7,7 +7,7 @@ using System.CommandLine.Suggestions;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Represents a value passed to an <see cref="IOption"/> or <see cref="ICommand"/>.
+    /// Defines a symbol with an arity.
     /// </summary>
     public interface IArgument : 
         ISymbol,
