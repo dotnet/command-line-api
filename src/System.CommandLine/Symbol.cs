@@ -10,6 +10,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
+    /// <inheritdoc />
     public abstract class Symbol : ISymbol
     {
         private string? _name;
@@ -19,8 +20,14 @@ namespace System.CommandLine
         {
         }
 
+        /// <summary>
+        /// Gets or sets the description of the symbol.
+        /// </summary>
         public string? Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the symbol.
+        /// </summary>
         public virtual string Name
         {
             get => _name ??= DefaultName;
@@ -29,6 +36,9 @@ namespace System.CommandLine
 
         private protected abstract string DefaultName { get; }
 
+        /// <summary>
+        /// Represents the parent symbols.
+        /// </summary>
         public ISymbolSet Parents => _parents;
 
         internal void AddParent(Symbol symbol)
@@ -53,10 +63,17 @@ namespace System.CommandLine
             Children.Add(argument);
         }
 
+        /// <summary>
+        /// Gets the child symbols.
+        /// </summary>
         public SymbolSet Children { get; } = new SymbolSet();
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the symbol is hidden.
+        /// </summary>
         public bool IsHidden { get; set; }
 
+        /// <inheritdoc />
         public virtual IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
             var argumentSuggestions =
@@ -79,6 +96,7 @@ namespace System.CommandLine
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
+        /// <inheritdoc />
         ISymbolSet ISymbol.Children => Children;
 
         internal Action<ISymbol>? OnNameOrAliasChanged;
