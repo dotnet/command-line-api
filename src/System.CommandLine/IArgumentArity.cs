@@ -4,7 +4,7 @@
 namespace System.CommandLine
 {
     /// <summary>
-    /// Represents the arity of an argument.
+    /// Defines the arity of an argument.
     /// </summary>
     public interface IArgumentArity
     {
