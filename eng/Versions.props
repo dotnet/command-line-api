@@ -20,9 +20,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="$(UseGlobalToolVersion) == 'true'">
     <VersionPrefix>1.1</VersionPrefix>
-    <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
-    <PreReleaseVersionLabel>
-    </PreReleaseVersionLabel>
+    <AutoGenerateAssemblyVersion>true</AutoGenerateAssemblyVersion>
+    <PreReleaseVersionLabel />
   </PropertyGroup>
   <PropertyGroup>
     <UsingToolSourceLink>true</UsingToolSourceLink>
