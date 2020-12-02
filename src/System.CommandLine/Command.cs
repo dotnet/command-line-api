@@ -165,6 +165,10 @@ namespace System.CommandLine
         /// Gets or sets the <see cref="ICommandHandler"/> for the command. The handler represents the action
         /// that will be performed when the command is invoked.
         /// </summary>
+        /// <remarks>
+        /// <para>Use one of the convenient <c>CommandHandler.Create</c> overloads to construct a handler.</para>
+        /// <para>If the handler is not specified, parser errors will be generated for command line input that
+        /// invokes this command.</para></remarks>
         public ICommandHandler? Handler { get; set; }
 
         /// <summary>
