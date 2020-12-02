@@ -136,7 +136,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets or sets the type of the argument.
+        /// Gets or sets the <see cref="System.Type" /> that the argument will be converted to.
         /// </summary>
         public Type ArgumentType
         {
