@@ -167,7 +167,7 @@ namespace System.CommandLine
 
         /// <summary>
         /// Adds a custom <see cref="ValidateSymbol{T}(ArgumentResult)"/> to the argument. Validators can be used
-        /// to create custom validation logic.
+        /// to provide custom errors based on user input.
         /// </summary>
         /// <param name="validate">The delegate to validate the symbols during parsing.</param>
         public void AddValidator(ValidateSymbol<ArgumentResult> validator) => Validators.Add(validator);
