@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public abstract class IdentifierSymbol : Symbol
+    public abstract class IdentifierSymbol : Symbol, IIdentifierSymbol
     {
         private readonly HashSet<string> _aliases = new HashSet<string>();
         private string? _specifiedName;
