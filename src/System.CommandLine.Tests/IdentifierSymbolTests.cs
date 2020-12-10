@@ -7,12 +7,12 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public abstract class NamedSymbolTests : SymbolTests
+    public abstract class IdentifierSymbolTests : SymbolTests
     {
         [Fact]
         public void When_Name_is_changed_then_old_name_is_not_among_aliases()
         {
-            var symbol = (NamedSymbol) CreateSymbol("original");
+            var symbol = (IdentifierSymbol) CreateSymbol("original");
 
             symbol.Name = "changed";
 
