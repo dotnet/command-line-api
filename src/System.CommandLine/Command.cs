@@ -122,7 +122,7 @@ namespace System.CommandLine
         /// Adds an alias to the command. Multiple aliases can be added to a command, most often used to provide a
         /// shorthand alternative.
         /// </summary>
-        /// <param name="alias">A string representing the alias to add to the command.</param>
+        /// <param name="alias">The alias to add to the command.</param>
         public virtual void AddAlias(string alias) => AddAliasInner(alias);
 
         private protected override void AddAliasInner(string alias)
@@ -138,7 +138,7 @@ namespace System.CommandLine
             {
                 _globalOptions.ThrowIfAnyAliasIsInUse(option);
             }
-
+            
             symbol.AddParent(this);
 
             base.AddSymbol(symbol);
@@ -149,7 +149,7 @@ namespace System.CommandLine
         internal List<ValidateSymbol<CommandResult>> Validators { get; } = new List<ValidateSymbol<CommandResult>>();
 
         /// <summary>
-        /// Adds a custom <see cref="ValidateSymbol{T}(CommandResult)"/> to the command. Validators can be used
+        /// Adds a custom validator to the command. Validators can be used
         /// to create custom validation logic.
         /// </summary>
         /// <param name="validate">The delegate to validate the symbols during parsing.</param>
@@ -166,7 +166,7 @@ namespace System.CommandLine
         /// that will be performed when the command is invoked.
         /// </summary>
         /// <remarks>
-        /// <para>Use one of the convenient <c>CommandHandler.Create</c> overloads to construct a handler.</para>
+        /// <para>Use one of the <see cref="CommandHandler.Create(Action)" /> overloads to construct a handler.</para>
         /// <para>If the handler is not specified, parser errors will be generated for command line input that
         /// invokes this command.</para></remarks>
         public ICommandHandler? Handler { get; set; }
