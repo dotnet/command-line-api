@@ -32,7 +32,7 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        /// <param name="name">The name of the Argument.</param>
+        /// <param name="name">The name of the argument.</param>
         /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
         /// <param name="description">The description of the argument, shown in help.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
@@ -71,7 +71,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the argument.</param>
         /// <param name="parse">A custom argument parser.</param>
-        /// <param name="isDefault"><c>true</c> to use parser result as default value.</param>
+        /// <param name="isDefault"><c>true</c> to use the <paramref name="parse"/> result as default value.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="parse"/> is null.</exception>
         public Argument(
             string? name,
@@ -114,7 +114,7 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="parse">A custom argument parser.</param>
-        /// <param name="isDefault"><c>true</c> to use parser result as default value.</param>
+        /// <param name="isDefault"><c>true</c> to use the <paramref name="parse"/> result as default value.</param>
         public Argument(ParseArgument<T> parse, bool isDefault = false) : this(null, parse, isDefault)
         {
         }
