@@ -21,7 +21,7 @@ namespace System.CommandLine.Parsing
 
         private void EnsureResultMapsAreInitialized()
         {
-            if (_allArgumentResults != null)
+            if (_allArgumentResults is { })
             {
                 return;
             }

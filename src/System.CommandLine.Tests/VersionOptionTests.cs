@@ -5,6 +5,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -67,6 +68,68 @@ namespace System.CommandLine.Tests
                    .ToString()
                    .Should()
                    .Match("*Options:*--version*Show version information*");
+        }
+
+        [Theory]
+        [InlineData("--version -x")]
+        [InlineData("--version subcommand")]
+        public void Version_is_not_valid_with_other_tokens(string commandLine)
+        {
+            var rootCommand = new RootCommand
+            {
+                new Command("subcommand")
+                {
+                    Handler = CommandHandler.Create(() => { })
+                },
+                new Option("-x")
+            };
+            rootCommand.Handler = CommandHandler.Create(() => { });
+
+            var parser = new CommandLineBuilder(rootCommand)
+                .UseVersionOption()
+                .Build();
+
+            var console = new TestConsole();
+
+            var result = parser.Invoke(commandLine, console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .NotContain(version);
+
+            console.Error
+                   .ToString()
+                   .Should()
+                   .Contain("--version option cannot be combined with other arguments.");
+
+            result.Should().NotBe(0);
+        }
+
+        [Fact]
+        public void Version_option_is_not_added_to_subcommands()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Command("subcommand")
+                {
+                    Handler = CommandHandler.Create(() => { })
+                },
+            };
+            rootCommand.Handler = CommandHandler.Create(() => { });
+
+            var parser = new CommandLineBuilder(rootCommand)
+                         .UseVersionOption()
+                         .Build();
+
+            parser.Configuration
+                  .RootCommand
+                  .Children
+                  .GetByAlias("subcommand")
+                  .As<Command>()
+                  .Options
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]

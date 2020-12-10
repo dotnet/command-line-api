@@ -458,20 +458,41 @@ namespace System.CommandLine.Builder
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder)
         {
-            if (builder.Command.Children.GetByAlias("--version") != null)
+            var command = builder.Command;
+
+            if (command.Children.GetByAlias("--version") != null)
             {
                 return builder;
             }
 
-            var versionOption = new Option("--version", "Show version information");
+            var versionOption = new Option<bool>(
+                "--version",
+                description: "Show version information",
+                parseArgument: result =>
+                {
+                    if (result.FindResultFor(command)?.Children.Count > 1)
+                    {
+                        result.ErrorMessage = "--version option cannot be combined with other arguments.";
+                        return false;
+                    }
 
-            builder.AddOption(versionOption);
+                    return true;
+                });
+
+            command.AddOption(versionOption);
 
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.HasOption(versionOption))
+                if (context.ParseResult.FindResultFor(versionOption) is { } result)
                 {
-                    context.Console.Out.WriteLine(_assemblyVersion.Value);
+                    if (result.ArgumentConversionResult.ErrorMessage is { })
+                    {
+                        context.InvocationResult = new ParseErrorResult();
+                    }
+                    else
+                    {
+                        context.Console.Out.WriteLine(_assemblyVersion.Value);
+                    }
                 }
                 else
                 {
