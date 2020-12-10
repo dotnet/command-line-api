@@ -10,10 +10,7 @@ namespace System.CommandLine
     /// <inheritdoc />
     public class ArgumentArity : IArgumentArity
     {
-        /// <summary>
-        /// The overall maximum number of values that can be provided to any argument.
-        /// </summary>
-        public const int MaximumArity = 100_000;
+        private const int MaximumArity = 100_000;
 
         /// <summary>
         /// Initializes a new instance of the ArgumentArity class.
@@ -86,27 +83,27 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Must not have any arguments.
+        /// An arity that does not allow any values.
         /// </summary>
         public static IArgumentArity Zero => new ArgumentArity(0, 0);
 
         /// <summary>
-        /// May have one argument, but no more than one.
+        /// An arity that may have one value, but no more than one.
         /// </summary>
         public static IArgumentArity ZeroOrOne => new ArgumentArity(0, 1);
 
         /// <summary>
-        /// Must have exactly one argument.
+        /// An arity that must have exactly one value.
         /// </summary>
         public static IArgumentArity ExactlyOne => new ArgumentArity(1, 1);
 
         /// <summary>
-        /// May have multiple arguments.
+        /// An arity that may have multiple values.
         /// </summary>
         public static IArgumentArity ZeroOrMore => new ArgumentArity(0, MaximumArity);
 
         /// <summary>
-        /// Must have at least one argument.
+        /// An arity that must have at least one value.
         /// </summary>
         public static IArgumentArity OneOrMore => new ArgumentArity(1, MaximumArity);
 
