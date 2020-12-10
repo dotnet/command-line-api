@@ -6,7 +6,6 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
-using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
