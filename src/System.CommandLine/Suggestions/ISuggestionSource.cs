@@ -7,7 +7,7 @@ using System.CommandLine.Parsing;
 namespace System.CommandLine.Suggestions
 {
     /// <summary>
-    /// Defines the functionality to suggest values.
+    /// Provides suggestions for tab completion and example values for help.
     /// </summary>
     public interface ISuggestionSource
     {
