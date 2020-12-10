@@ -19,7 +19,7 @@ namespace System.CommandLine
     /// uses <c>run</c> as the command.
     /// </remarks>
     public class Command : 
-        NamedSymbol, 
+        IdentifierSymbol, 
         ICommand, 
         IEnumerable<Symbol>
     {

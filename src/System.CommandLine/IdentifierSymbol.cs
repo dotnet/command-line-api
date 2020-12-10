@@ -5,17 +5,17 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
-    public abstract class NamedSymbol : Symbol
+    public abstract class IdentifierSymbol : Symbol
     {
         private readonly HashSet<string> _aliases = new HashSet<string>();
         private string? _specifiedName;
 
-        protected NamedSymbol(string? description = null)
+        protected IdentifierSymbol(string? description = null)
         {
             Description = description;
         }
 
-        protected NamedSymbol(string name, string? description = null)
+        protected IdentifierSymbol(string name, string? description = null)
         {
             Name = name;
             Description = description;
