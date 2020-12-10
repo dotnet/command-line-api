@@ -93,6 +93,22 @@ namespace System.CommandLine.Invocation
             Func<T1, T2, T3, T4, T5, T6, T7, int> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, int> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, int> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, int> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, int> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
         public static ICommandHandler Create(Func<Task> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
@@ -124,6 +140,22 @@ namespace System.CommandLine.Invocation
             Func<T1, T2, T3, T4, T5, T6, T7, Task> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, Task> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
         public static ICommandHandler Create(Func<Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
@@ -153,6 +185,22 @@ namespace System.CommandLine.Invocation
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
             Func<T1, T2, T3, T4, T5, T6, T7, Task<int>> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<int>> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<int>> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<int>> action) =>
+            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+
+        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         internal static async Task<int> GetResultCodeAsync(object value, InvocationContext context)
