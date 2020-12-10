@@ -24,7 +24,8 @@ namespace System.CommandLine
         /// Initializes a new instance of the CommandLineConfiguration class.
         /// </summary>
         /// <param name="symbols">The symbols to parse.</param>
-        /// <param name="argumentDelimiters">The characters used to delimit arguments.</param>
+        /// <param name="argumentDelimiters">The characters used to delimit an option from its argument. In addition to
+        /// one or more spaces, the default delimiters include <c>:</c> and <c>=</c>.</param>
         /// <param name="enablePosixBundling"><c>true</c> to enable POSIX bundling; otherwise, <c>false</c>.</param>
         /// <param name="enableDirectives"><c>true</c> to enable directive parsing; otherwise, <c>false</c>.</param>
         /// <param name="validationMessages">Provide custom validation messages.</param>
