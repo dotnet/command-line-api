@@ -154,12 +154,7 @@ namespace System.CommandLine.Binding
                       .GetInterfaces()
                       .FirstOrDefault(IsEnumerable);
 
-            if (enumerableInterface is {})
-            {
-                return enumerableInterface.GenericTypeArguments[0];
-            }
-
-            return null;
+            return enumerableInterface?.GenericTypeArguments[0];
         }
 
         internal static bool IsEnumerable(this Type type)
@@ -227,7 +222,7 @@ namespace System.CommandLine.Binding
             Type parameterType,
             [NotNullWhen(true)] out ConstructorInfo? ctor)
         {
-            var (x, y) = type.GetConstructors()
+            var (x, _) = type.GetConstructors()
                              .Select(c => (ctor: c, parameters: c.GetParameters()))
                              .SingleOrDefault(tuple => tuple.ctor.IsPublic &&
                                                        tuple.parameters.Length == 1 &&

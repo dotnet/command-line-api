@@ -53,7 +53,7 @@ namespace System.CommandLine
                     return ArgumentArity.Default(
                         ArgumentType, 
                         this, 
-                        Parents.FirstOrDefault());
+                        Parents);
                 }
 
                 return _arity;
