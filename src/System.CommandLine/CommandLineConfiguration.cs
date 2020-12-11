@@ -160,7 +160,7 @@ namespace System.CommandLine
         public bool EnableDirectives { get; }
 
         /// <summary>
-        /// Gets whether POSIX bundling are enabled.
+        /// Gets whether POSIX bundling is enabled.
         /// </summary>
         /// <remarks>
         /// POSIX recommends that single-character options be allowed to be specified together after a single <c>-</c> prefix.
