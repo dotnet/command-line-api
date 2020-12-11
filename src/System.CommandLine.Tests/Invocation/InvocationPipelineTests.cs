@@ -256,7 +256,6 @@ namespace System.CommandLine.Tests.Invocation
             handlerWasCalled.Should().BeFalse();
         }
 
-
         [Fact]
         public async Task When_no_help_builder_is_specified_it_uses_default_implementation()
         {

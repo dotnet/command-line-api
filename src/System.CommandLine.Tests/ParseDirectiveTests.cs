@@ -82,5 +82,25 @@ namespace System.CommandLine.Tests
 
             exitCode.Should().Be(1);
         }
+
+        [Fact]
+        public async Task When_there_are_errors_then_parse_directive_sets_exit_code_to_custom_value()
+        {
+            var command = new RootCommand
+            {
+                new Option("-x")
+                {
+                    Argument = new Argument<int>()
+                }
+            };
+
+            int exitCode = await new CommandLineBuilder()
+                .AddCommand(command)
+                .UseParseDirective(errorResultCode: 42)
+                .Build()
+                .InvokeAsync("[parse] -x not-an-int");
+
+            exitCode.Should().Be(42);
+        }
     }
 }

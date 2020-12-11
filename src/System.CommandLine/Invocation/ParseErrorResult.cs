@@ -7,6 +7,13 @@ namespace System.CommandLine.Invocation
 {
     public class ParseErrorResult : IInvocationResult
     {
+        private readonly int? _errorResultCode;
+
+        public ParseErrorResult(int? errorResultCode)
+        {
+            _errorResultCode = errorResultCode;
+        }
+
         public void Apply(InvocationContext context)
         {
             context.Console.ResetTerminalForegroundColor();
@@ -19,7 +26,7 @@ namespace System.CommandLine.Invocation
 
             context.Console.Error.WriteLine();
 
-            context.ResultCode = 1;
+            context.ResultCode = _errorResultCode ?? 1;
 
             context.Console.ResetTerminalForegroundColor();
 

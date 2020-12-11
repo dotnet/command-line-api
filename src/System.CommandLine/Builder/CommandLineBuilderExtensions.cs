@@ -272,7 +272,8 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder,
-            Action<Exception, InvocationContext>? onException = null)
+            Action<Exception, InvocationContext>? onException = null,
+            int? errorResultCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
@@ -300,7 +301,7 @@ namespace System.CommandLine.Builder
 
                     context.Console.ResetTerminalForegroundColor();
                 }
-                context.ResultCode = 1;
+                context.ResultCode = errorResultCode ?? 1;
             }
         }
 
@@ -368,13 +369,14 @@ namespace System.CommandLine.Builder
         }
 
         public static CommandLineBuilder UseParseDirective(
-            this CommandLineBuilder builder)
+            this CommandLineBuilder builder,
+            int? errorResultCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Directives.Contains("parse"))
                 {
-                    context.InvocationResult = new ParseDirectiveResult();
+                    context.InvocationResult = new ParseDirectiveResult(errorResultCode);
                 }
                 else
                 {
@@ -386,13 +388,14 @@ namespace System.CommandLine.Builder
         }
 
         public static CommandLineBuilder UseParseErrorReporting(
-            this CommandLineBuilder builder)
+            this CommandLineBuilder builder,
+            int? errorResultCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Errors.Count > 0)
                 {
-                    context.InvocationResult = new ParseErrorResult();
+                    context.InvocationResult = new ParseErrorResult(errorResultCode);
                 }
                 else
                 {
@@ -458,7 +461,8 @@ namespace System.CommandLine.Builder
         }
 
         public static CommandLineBuilder UseVersionOption(
-            this CommandLineBuilder builder)
+            this CommandLineBuilder builder,
+            int? errorResultCode = null)
         {
             var command = builder.Command;
 
@@ -489,7 +493,7 @@ namespace System.CommandLine.Builder
                 {
                     if (result.ArgumentConversionResult.ErrorMessage is { })
                     {
-                        context.InvocationResult = new ParseErrorResult();
+                        context.InvocationResult = new ParseErrorResult(errorResultCode);
                     }
                     else
                     {

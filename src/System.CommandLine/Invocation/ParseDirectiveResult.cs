@@ -9,13 +9,20 @@ namespace System.CommandLine.Invocation
 {
     internal class ParseDirectiveResult : IInvocationResult
     {
+        private readonly int? _errorResultCode;
+
+        public ParseDirectiveResult(int? errorResultCode)
+        {
+            _errorResultCode = errorResultCode;
+        }
+
         public void Apply(InvocationContext context)
         {
             var parseResult = context.ParseResult;
             context.Console.Out.WriteLine(parseResult.Diagram());
             context.ResultCode = parseResult.Errors.Count == 0
                                      ? 0
-                                     : 1;
+                                     : _errorResultCode ?? 1;
         }
     }
 }

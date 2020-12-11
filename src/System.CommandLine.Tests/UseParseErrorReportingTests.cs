@@ -34,5 +34,22 @@ namespace System.CommandLine.Tests
 
             result.Should().Be(1);
         }
+
+        [Fact]
+        public void Parse_error_uses_custom_error_result_code()
+        {
+            var root = new RootCommand
+            {
+                new Command("inner")
+            };
+
+            var parser = new CommandLineBuilder(root)
+                         .UseParseErrorReporting(errorResultCode: 42)
+                         .Build();
+
+            int result = parser.Invoke("");
+
+            result.Should().Be(42);
+        }
     }
 }
