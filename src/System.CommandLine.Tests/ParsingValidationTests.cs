@@ -83,7 +83,6 @@ namespace System.CommandLine.Tests
                   .Contain(e => e.Message == "Required argument missing for option: -x");
         }
 
-        
         [Fact]
         public void When_a_required_option_is_not_supplied_then_an_error_is_returned()
         {
@@ -146,7 +145,6 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
         }
-
 
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
@@ -244,6 +242,35 @@ namespace System.CommandLine.Tests
                   .Message
                   .Should()
                   .Be("Argument x cannot be set to 123");
+        }
+
+        [Theory]
+        [InlineData("--file \"Foo\" subcommand")]
+        [InlineData("subcommand --file \"Foo\"")]
+        public void Validators_on_global_options_are_executed_when_invoking_a_subcommand(string commandLine)
+        {
+            var option = new Option<FileInfo>("--file");
+            option.Argument.AddValidator(r =>
+            {
+                return "Invoked validator";
+            });
+
+            var subCommand = new Command("subcommand");
+            var rootCommand = new RootCommand 
+            {
+                subCommand
+            };
+            rootCommand.AddGlobalOption(option);
+
+            var result = rootCommand.Parse(commandLine);
+
+            result.Errors
+                  .Should()
+                  .ContainSingle(e => e.SymbolResult.Symbol == option.Argument)
+                  .Which
+                  .Message
+                  .Should()
+                  .Be("Invoked validator");
         }
 
         [Theory]
