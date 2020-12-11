@@ -110,6 +110,20 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public async Task When_thrown_exception_is_from_cancelation_no_output_is_generated()
+        {
+            int resultCode = await new CommandLineBuilder()
+                .AddCommand(new Command("the-command"))
+                .UseExceptionHandler()
+                .UseMiddleware(_ => throw new OperationCanceledException())
+                .Build()
+                .InvokeAsync("the-command", _console);
+
+            _console.Out.ToString().Should().BeEmpty();
+            resultCode.Should().NotBe(0);
+        }
+
+        [Fact]
         public async Task UseExceptionHandler_output_can_be_customized()
         {
             await new CommandLineBuilder()

@@ -290,14 +290,16 @@ namespace System.CommandLine.Builder
 
             void Default(Exception exception, InvocationContext context)
             {
-                context.Console.ResetTerminalForegroundColor();
-                context.Console.SetTerminalForegroundRed();
+                if (exception is not OperationCanceledException)
+                {
+                    context.Console.ResetTerminalForegroundColor();
+                    context.Console.SetTerminalForegroundRed();
 
-                context.Console.Error.Write("Unhandled exception: ");
-                context.Console.Error.WriteLine(exception.ToString());
+                    context.Console.Error.Write("Unhandled exception: ");
+                    context.Console.Error.WriteLine(exception.ToString());
 
-                context.Console.ResetTerminalForegroundColor();
-
+                    context.Console.ResetTerminalForegroundColor();
+                }
                 context.ResultCode = 1;
             }
         }
