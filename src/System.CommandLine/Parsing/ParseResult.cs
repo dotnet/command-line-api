@@ -166,5 +166,14 @@ namespace System.CommandLine.Parsing
 
         public OptionResult? FindResultFor(IOption option) =>
             _rootCommandResult.FindResultFor(option);
+
+        public SymbolResult? FindResultFor(ISymbol symbol) =>
+            symbol switch
+            {
+                IArgument argument => FindResultFor(argument),
+                ICommand command => FindResultFor(command),
+                IOption option => FindResultFor(option),
+                _ => throw new ArgumentOutOfRangeException(nameof(symbol))
+            };
     }
 }
