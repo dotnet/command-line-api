@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LocalizationPlayground": {
+      "commandName": "Project",
+      "commandLineArgs": "[env:DOTNET_SYSTEM_GLOBALIZATION_CULTURE=de-DE] -c 3 .NET"
+    }
+  }
+}
