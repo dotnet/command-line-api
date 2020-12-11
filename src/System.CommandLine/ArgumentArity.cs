@@ -3,7 +3,9 @@
 
 using System.Collections;
 using System.CommandLine.Binding;
+using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -107,8 +109,20 @@ namespace System.CommandLine
         /// </summary>
         public static IArgumentArity OneOrMore => new ArgumentArity(1, MaximumArity);
 
-        internal static IArgumentArity Default(Type type, Argument argument, ISymbol parent)
+        internal static IArgumentArity Default(Type type, Argument argument, ISymbolSet parents)
         {
+            if (type == typeof(bool))
+            {
+                return ZeroOrOne;
+            }
+
+            if (type == typeof(void))
+            {
+                return Zero;
+            }
+
+            var parent = parents.FirstOrDefault();
+
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
                 type != typeof(string))
             {
@@ -117,21 +131,11 @@ namespace System.CommandLine
                            : OneOrMore;
             }
 
-            if (type == typeof(bool))
-            {
-                return ZeroOrOne;
-            }
-
             if (parent is ICommand &&
                 (argument.HasDefaultValue ||
                  type.IsNullable()))
             {
                 return ZeroOrOne;
-            }
-
-            if (type == typeof(void))
-            {
-                return Zero;
             }
 
             return ExactlyOne;

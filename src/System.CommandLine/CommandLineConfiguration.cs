@@ -16,8 +16,6 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineConfiguration
     {
-        private readonly IReadOnlyCollection<InvocationMiddleware> _middlewarePipeline;
-        private readonly Func<BindingContext, IHelpBuilder> _helpBuilderFactory;
         private readonly SymbolSet _symbols = new SymbolSet();
 
         /// <summary>
@@ -56,7 +54,7 @@ namespace System.CommandLine
 
             if (argumentDelimiters is null)
             {
-                ArgumentDelimitersInternal = new []
+                ArgumentDelimiters = new []
                 {
                     ':',
                     '='
@@ -64,7 +62,7 @@ namespace System.CommandLine
             }
             else
             {
-                ArgumentDelimitersInternal = argumentDelimiters.Distinct().ToArray();
+                ArgumentDelimiters = argumentDelimiters.Distinct().ToArray();
             }
 
             foreach (var symbol in symbols)
@@ -119,8 +117,8 @@ namespace System.CommandLine
             EnableDirectives = enableDirectives;
             ValidationMessages = validationMessages ?? ValidationMessages.Instance;
             ResponseFileHandling = responseFileHandling;
-            _middlewarePipeline = middlewarePipeline ?? new List<InvocationMiddleware>();
-            _helpBuilderFactory = helpBuilderFactory ?? (context => new HelpBuilder(context.Console));
+            Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
+            HelpBuilderFactory = helpBuilderFactory ?? (context => new HelpBuilder(context.Console));
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)
@@ -150,10 +148,8 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the argument delimiters.
         /// </summary>
-        public IReadOnlyList<char> ArgumentDelimiters => ArgumentDelimitersInternal;
+        public IReadOnlyList<char> ArgumentDelimiters { get; }
 
-        internal IReadOnlyList<char> ArgumentDelimitersInternal { get; }
-     
         /// <summary>
         /// Gets whether directives are enabled.
         /// </summary>
@@ -172,9 +168,9 @@ namespace System.CommandLine
         /// </summary>
         public ValidationMessages ValidationMessages { get; }
 
-        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory;
+        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; }
 
-        internal IReadOnlyCollection<InvocationMiddleware> Middleware => _middlewarePipeline;
+        internal IReadOnlyCollection<InvocationMiddleware> Middleware { get; }
 
         /// <summary>
         /// Gets the root command.

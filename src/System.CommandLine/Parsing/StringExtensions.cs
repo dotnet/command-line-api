@@ -68,7 +68,7 @@ namespace System.CommandLine.Parsing
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
 
-            var argumentDelimiters = configuration.ArgumentDelimitersInternal.ToArray();
+            var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
             var knownTokens = configuration.RootCommand.ValidTokens();
 
@@ -417,11 +417,9 @@ namespace System.CommandLine.Parsing
             out string? first,
             out string? rest)
         {
-            var delimitersArray = delimiters;
-
             for (var j = 0; j < delimiters.Length; j++)
             {
-                var i = arg.IndexOfAny(delimitersArray);
+                var i = arg.IndexOfAny(delimiters);
 
                 if (i >= 0)
                 {
@@ -513,8 +511,12 @@ namespace System.CommandLine.Parsing
             string filePath,
             ResponseFileHandling responseFileHandling)
         {
-            foreach (var line in File.ReadAllLines(filePath))
+            var lines = File.ReadAllLines(filePath);
+
+            for (var i = 0; i < lines.Length; i++)
             {
+                var line = lines[i];
+
                 foreach (var p in SplitLine(line))
                 {
                     if (p.GetResponseFileReference() is { } path)
