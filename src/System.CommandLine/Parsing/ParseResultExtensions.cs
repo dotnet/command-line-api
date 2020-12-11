@@ -159,7 +159,6 @@ namespace System.CommandLine.Parsing
                         builder.Append(">");
 
                         break;
-
                 }
 
                 if (includeArgumentName)
@@ -181,17 +180,6 @@ namespace System.CommandLine.Parsing
                 builder.Append(" ]");
             }
         }
-
-        public static SymbolResult? FindResultFor(
-            this ParseResult parseResult,
-            ISymbol symbol) =>
-            symbol switch
-            {
-                IArgument argument => parseResult.FindResultFor(argument),
-                ICommand command => parseResult.FindResultFor(command),
-                IOption option => parseResult.FindResultFor(option),
-                _ => throw new ArgumentOutOfRangeException(nameof(symbol))
-            };
 
         public static bool HasOption(
             this ParseResult parseResult,
