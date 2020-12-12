@@ -588,7 +588,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 123").ValueForOption<int?>("-x");
+            var value = option.Parse("-x 123").ValueForOption<int?>(option);
 
             value.Should().Be(123);
         }
@@ -604,7 +604,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 123.456").ValueForOption<decimal>("-x");
+            var value = option.Parse("-x 123.456").ValueForOption<decimal>(option);
 
             value.Should().Be(123.456m);
         }
