@@ -16,8 +16,6 @@ namespace System.CommandLine.Collections
 
         private protected HashSet<T> DirtyItems { get; } = new HashSet<T>();
 
-        public T? this[string alias] => GetByAlias(alias);
-
         public T? GetByAlias(string alias)
         {
             EnsureAliasIndexIsCurrent();

@@ -1164,19 +1164,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_only_apply_to_the_nearest_command()
         {
+            var outerOption = new Option<string>("-x");
+            var innerOption = new Option<string>("-x");
+
             var outer = new Command("outer")
                         {
                             new Command("inner")
                             {
-                                new Option("-x")
-                                {
-                                    Argument = new Argument<string>()
-                                }
+                                innerOption
                             },
-                            new Option("-x")
-                            {
-                                Argument = new Argument<string>()
-                            }
+                            outerOption
                         };
 
             var result = outer.Parse("outer inner -x one -x two");
@@ -1184,7 +1181,7 @@ namespace System.CommandLine.Tests
             _output.WriteLine(result.ToString());
 
             result.RootCommandResult
-                  .OptionResult("-x")
+                  .FindResultFor(outerOption)
                   .Should()
                   .BeNull();
         }
@@ -1370,18 +1367,19 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_with_a_default_value_is_not_matched_then_the_option_result_is_implicit()
         {
+            var option = new Option(new[]{ "-o", "--option" })
+            {
+                Argument = new Argument<string>(() => "the-default")
+            };
+
             var command = new Command("command")
             {
-                new Option(new[]{ "-o", "--option" })
-                {
-                    Argument = new Argument<string>(() => "the-default")
-                }
+                option
             };
 
             var result = command.Parse("command");
 
-            result.CommandResult
-                  .OptionResult("-o")
+            result.FindResultFor(option)
                   .IsImplicit
                   .Should()
                   .BeTrue();
@@ -1861,20 +1859,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_argument_arity_can_be_a_fixed_value_greater_than_1()
         {
-            var command = new Command("the-command")
+            var option = new Option("-x")
             {
-                new Option("-x")
+                Argument = new Argument
                 {
-                    Argument = new Argument
-                    {
-                        Arity = new ArgumentArity(3, 3)
-                    }
+                    Arity = new ArgumentArity(3, 3)
                 }
             };
 
+            var command = new Command("the-command")
+            {
+                option
+            };
+
             command.Parse("-x 1 2 3")
-                   .CommandResult
-                   .OptionResult("-x")
+                   .FindResultFor(option)
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
@@ -1886,20 +1885,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_argument_arity_can_be_a_range_with_a_lower_bound_greater_than_1()
         {
-            var command = new Command("the-command")
+            var option = new Option("-x")
             {
-                new Option("-x")
+                Argument = new Argument
                 {
-                    Argument = new Argument
-                    {
-                        Arity = new ArgumentArity(3, 5)
-                    }
+                    Arity = new ArgumentArity(3, 5)
                 }
             };
 
+            var command = new Command("the-command")
+            {
+                option
+            };
+
             command.Parse("-x 1 2 3")
-                   .CommandResult
-                   .OptionResult("-x")
+                   .FindResultFor(option)
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
@@ -1907,8 +1907,7 @@ namespace System.CommandLine.Tests
                        new Token("2", TokenType.Argument),
                        new Token("3", TokenType.Argument));
             command.Parse("-x 1 2 3 4 5")
-                   .CommandResult
-                   .OptionResult("-x")
+                   .FindResultFor(option)
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
@@ -1922,15 +1921,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
+            var option = new Option("-x")
+            {
+                Argument = new Argument
+                {
+                    Arity = new ArgumentArity(2, 3)
+                }
+            };
+
             var command = new Command("the-command")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = new ArgumentArity(2, 3)
-                    }
-                }
+                option
             };
 
             var result = command.Parse("-x 1");
@@ -1938,7 +1939,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(ValidationMessages.Instance.RequiredArgumentMissing(result.CommandResult.OptionResult("-x")));
+                  .Contain(ValidationMessages.Instance.RequiredArgumentMissing(result.CommandResult.FindResultFor(option)));
         }
 
         [Fact]

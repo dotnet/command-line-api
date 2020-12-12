@@ -154,7 +154,8 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        public SymbolResult? this[string alias] => CommandResult.Children[alias];
+        // FIX: (ParseResult) remove indexer
+        public SymbolResult? this[string alias] => CommandResult.Children.GetByAlias(alias);
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
 
