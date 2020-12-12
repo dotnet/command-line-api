@@ -290,7 +290,7 @@ namespace System.CommandLine.Builder
 
             void Default(Exception exception, InvocationContext context)
             {
-                if (exception is not OperationCanceledException)
+                if (!(exception is OperationCanceledException))
                 {
                     context.Console.ResetTerminalForegroundColor();
                     context.Console.SetTerminalForegroundRed();
