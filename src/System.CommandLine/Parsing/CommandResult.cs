@@ -24,9 +24,6 @@ namespace System.CommandLine.Parsing
 
         public ICommand Command { get; }
 
-        // FIX: (CommandResult) remove indexer
-        public OptionResult? this[string alias] => Children.GetByAlias(alias) as OptionResult;
-
         public Token Token { get; }
 
         internal ArgumentConversionResultSet ArgumentConversionResults

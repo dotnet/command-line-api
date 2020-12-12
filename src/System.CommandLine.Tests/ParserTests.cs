@@ -735,49 +735,49 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_considered_as_value()
         {
+            var animalsOption = new Option(new[] { "-a", "--animals" })
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }
+            };
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" })
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }
+            };
             var parser = new Parser(
                 new Command("the-command")
                 {
-                    new Option(new[] { "-a", "--animals" })
-                    {
-                        Argument = new Argument
-                        {
-                            Arity = ArgumentArity.ZeroOrMore
-                        }
-                    },
-                    new Option(new[] { "-v", "--vegetables" })
-                    {
-                        Argument = new Argument
-                        {
-                            Arity = ArgumentArity.ZeroOrMore
-                        }
-                    }
+                    animalsOption,
+                    vegetablesOption
                 },
                 new Argument
                 {
                     Arity = ArgumentArity.ZeroOrMore
                 });
 
-            ParseResult result = parser.Parse("the-command -a cat dog -v carrot");
+            var result = parser.Parse("the-command -a cat dog -v carrot");
 
-            var command = result.CommandResult;
+            result.FindResultFor(animalsOption)
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("cat", "dog");
 
-            command["--animals"]
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("cat", "dog");
+            result.FindResultFor(vegetablesOption)
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("carrot");
 
-            command["--vegetables"]
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("carrot");
-
-            command
-                .Tokens
-                .Should()
-                .BeNullOrEmpty();
+            result.CommandResult
+                  .Tokens
+                  .Should()
+                  .BeNullOrEmpty();
         }
 
         [Fact]
@@ -1032,9 +1032,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_child_option_will_not_accept_arg_then_parent_can()
         {
+            var option = new Option("-x");
             var command = new Command("the-command")
                          {
-                             new Option("-x"),
+                             option,
                              new Argument<string>()
                          };
 
@@ -1042,24 +1043,25 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            result.CommandResult["-x"].Tokens.Should().BeEmpty();
+            result.FindResultFor(option).Tokens.Should().BeEmpty();
             result.CommandResult.Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
         }
 
         [Fact]
         public void When_parent_option_will_not_accept_arg_then_child_can()
         {
+            var option = new Option("-x")
+            {
+                Argument = new Argument<string>()
+            };
             var command = new Command("the-command")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<string>()
-                }
+                option
             };
 
             var result = command.Parse("the-command -x the-argument");
 
-            result.CommandResult["-x"].Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
+            result.FindResultFor(option).Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
             result.CommandResult.Tokens.Should().BeEmpty();
         }
 
