@@ -606,69 +606,74 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
+            var animalsOption = new Option(new[] { "-a", "--animals" })
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }.FromAmong("dog", "cat", "sheep"), Description = ""
+            };
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" })
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }, Description = ""
+            };
             var parser = new Parser(
                 new Command("the-command") {
-                    new Option(new[] { "-a", "--animals" })
-                    {
-                        Argument = new Argument
-                        {
-                            Arity = ArgumentArity.ZeroOrMore
-                        }.FromAmong("dog", "cat", "sheep"), Description = ""
-                    },
-                    new Option(new[] { "-v", "--vegetables" })
-                    {
-                        Argument = new Argument
-                        {
-                            Arity = ArgumentArity.ZeroOrMore
-                        }, Description = ""
-                    }
+                    animalsOption,
+                    vegetablesOption
                 });
 
             var result = parser.Parse("the-command -a cat -v carrot -a dog");
 
-            var command = result.CommandResult;
+            result.FindResultFor(animalsOption)
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("cat", "dog");
 
-            command["--animals"]
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("cat", "dog");
-
-            command["--vegetables"]
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("carrot");
+            result.FindResultFor(vegetablesOption)
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("carrot");
         }
 
         [Fact]
         public void When_a_Parser_root_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_used_as_value()
         {
+            var animalsOption = new Option(new[] { "-a", "--animals" })
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }, Description = ""
+            };
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" })
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }, Description = ""
+            };
+
             var parser = new Parser(
-                new Option(new[] { "-a", "--animals" })
-                {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }, Description = ""
-                },
-                new Option(new[] { "-v", "--vegetables" })
-                {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }, Description = ""
-                });
+                animalsOption,
+                vegetablesOption);
 
-            ParseResult result = parser.Parse("-a cat dog -v carrot");
+            var result = parser.Parse("-a cat dog -v carrot");
 
-            result["--animals"]
+            result
+                .FindResultFor(animalsOption)
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo(new[] { "cat", "dog" });
 
-            result["--vegetables"]
+            result
+                .FindResultFor(vegetablesOption)
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -770,49 +775,51 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
         {
+            var animalsOption = new Option(new[] { "-a", "--animals" })
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
+            };
+
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" })
+            {
+                Argument = new Argument
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                }
+            };
+            
             var parser = new Parser(
                 new Command("the-command")
                 {
-                    new Option(new[] { "-a", "--animals" })
-                    {
-                        Argument = new Argument
-                        {
-                            Arity = ArgumentArity.ZeroOrOne
-                        }
-                    },
-                    new Option(new[] { "-v", "--vegetables" })
-                    {
-                        Argument = new Argument
-                        {
-                            Arity = ArgumentArity.ZeroOrMore
-                        }
-                    },
+                    animalsOption,
+                    vegetablesOption,
                     new Argument
                     {
                         Arity = ArgumentArity.ZeroOrMore
                     }});
 
-            ParseResult result = parser.Parse("the-command -a cat some-arg -v carrot");
+            var result = parser.Parse("the-command -a cat some-arg -v carrot");
 
-            var command = result.CommandResult;
+            result.FindResultFor(animalsOption)
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("cat");
 
-            command["--animals"]
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("cat");
+            result.FindResultFor(vegetablesOption)
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("carrot");
 
-            command["--vegetables"]
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("carrot");
-
-            command
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("some-arg");
+            result.CommandResult
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("some-arg");
         }
 
         [Fact]
@@ -1493,38 +1500,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Argument_names_can_collide_with_option_names()
-        {
-            IReadOnlyCollection<Symbol> symbols = new[] {
-                new Option("--one")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                }};
-            var command1 = new Command(
-                "the-command",
-                ""
-            );
-
-            foreach (var symbol in symbols)
-            {
-                command1.Add(symbol);
-            }
-
-            var command = command1;
-
-            ParseResult result = command.Parse("the-command --one one");
-
-            result.CommandResult["--one"]
-                  .Tokens
-                  .Select(t => t.Value)
-                  .Should()
-                  .BeEquivalentTo("one");
-        }
-
-        [Fact]
         public void Option_and_Command_can_have_the_same_alias()
         {
             var innerCommand = new Command("inner")
@@ -1549,22 +1524,26 @@ namespace System.CommandLine.Tests
 
             var parser = new Parser(outerCommand);
 
-            parser.Parse("outer inner").CommandResult
+            parser.Parse("outer inner")
+                  .CommandResult
                   .Command
                   .Should()
                   .Be(innerCommand);
 
-            parser.Parse("outer --inner").CommandResult
+            parser.Parse("outer --inner")
+                  .CommandResult
                   .Command
                   .Should()
                   .Be(outerCommand);
 
-            parser.Parse("outer --inner inner").CommandResult
+            parser.Parse("outer --inner inner")
+                  .CommandResult
                   .Command
                   .Should()
                   .Be(innerCommand);
 
-            parser.Parse("outer --inner inner").CommandResult
+            parser.Parse("outer --inner inner")
+                  .CommandResult
                   .Parent
                   .Children
                   .Should()

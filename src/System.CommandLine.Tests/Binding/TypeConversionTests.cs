@@ -143,37 +143,31 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_parses_as_the_default_value_when_the_option_has_not_been_applied()
         {
+            var option = new Option<int>("-x", () => 123);
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>(() => 123)
-                }
+                option
             };
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault().Should().Be(123);
+            result.ValueForOption(option).Should().Be(123);
         }
 
         [Fact]
         public void Argument_does_not_parse_as_the_default_value_when_the_option_has_been_applied()
         {
+            var option = new Option<int>("-x", () => 123);
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>(() => 123)
-                }
+                option
             };
 
             var result = command.Parse("something -x 456");
 
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault().Should().Be(456);
+            result.ValueForOption(option).Should().Be(456);
         }
 
         [Theory]
@@ -183,18 +177,16 @@ namespace System.CommandLine.Tests.Binding
         [InlineData("the-command -x=true")]
         public void Bool_does_not_parse_as_the_default_value_when_the_option_has_been_applied(string commandLine)
         {
+            var option = new Option<bool>("-x");
+
             var command = new Command("the-command")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<bool>(() => false)
-                }
+                option
             };
 
             command
                 .Parse(commandLine)
-                .CommandResult["-x"]
-                .GetValueOrDefault()
+                .ValueForOption(option)
                 .Should()
                 .Be(true);
         }
@@ -449,19 +441,16 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void An_option_with_a_default_value_parses_as_the_default_value_when_the_option_has_not_been_applied()
         {
+            var option = new Option<string>("-x", () => "123");
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<string>(() => "123")
-                }
+                option
             };
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault()
+            result.ValueForOption(option)
                   .Should()
                   .Be("123");
         }
@@ -469,21 +458,17 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void A_default_value_of_a_non_string_type_can_be_specified()
         {
+            var option = new Option<int>("-x", () => 123);
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>(() => 123)
-                }
+                option
             };
 
-            var result = command.Parse("something");
-
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault()
-                  .Should()
-                  .Be(123);
+            command.Parse("something")
+                   .ValueForOption(option)
+                   .Should()
+                   .Be(123);
         }
 
         [Fact]
@@ -491,19 +476,16 @@ namespace System.CommandLine.Tests.Binding
         {
             var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
 
+            var option = new Option<DirectoryInfo>("-x", () => directoryInfo);
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<DirectoryInfo>(() => directoryInfo)
-                }
+                option
             };
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault<DirectoryInfo>().Should().Be(directoryInfo);
+            result.ValueForOption(option).Should().Be(directoryInfo);
         }
 
         [Fact]
