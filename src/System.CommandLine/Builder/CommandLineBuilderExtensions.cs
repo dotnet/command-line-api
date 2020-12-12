@@ -103,7 +103,7 @@ namespace System.CommandLine.Builder
                         // because Main will not finish executing.
                         // Wait for the invocation to finish.
                         blockProcessExit.Wait();
-                        Environment.ExitCode = context.ResultCode;
+                        Environment.ExitCode = context.ExitCode;
                     };
                     Console.CancelKeyPress += consoleHandler;
                     AppDomain.CurrentDomain.ProcessExit += processExitHandler;
@@ -273,7 +273,7 @@ namespace System.CommandLine.Builder
         public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder,
             Action<Exception, InvocationContext>? onException = null,
-            int? errorResultCode = null)
+            int? errorExitCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
@@ -301,7 +301,7 @@ namespace System.CommandLine.Builder
 
                     context.Console.ResetTerminalForegroundColor();
                 }
-                context.ResultCode = errorResultCode ?? 1;
+                context.ExitCode = errorExitCode ?? 1;
             }
         }
 
@@ -370,13 +370,13 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseParseDirective(
             this CommandLineBuilder builder,
-            int? errorResultCode = null)
+            int? errorExitCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Directives.Contains("parse"))
                 {
-                    context.InvocationResult = new ParseDirectiveResult(errorResultCode);
+                    context.InvocationResult = new ParseDirectiveResult(errorExitCode);
                 }
                 else
                 {
@@ -389,13 +389,13 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseParseErrorReporting(
             this CommandLineBuilder builder,
-            int? errorResultCode = null)
+            int? errorExitCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Errors.Count > 0)
                 {
-                    context.InvocationResult = new ParseErrorResult(errorResultCode);
+                    context.InvocationResult = new ParseErrorResult(errorExitCode);
                 }
                 else
                 {
@@ -462,7 +462,7 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder,
-            int? errorResultCode = null)
+            int? errorExitCode = null)
         {
             var command = builder.Command;
 
@@ -493,7 +493,7 @@ namespace System.CommandLine.Builder
                 {
                     if (result.ArgumentConversionResult.ErrorMessage is { })
                     {
-                        context.InvocationResult = new ParseErrorResult(errorResultCode);
+                        context.InvocationResult = new ParseErrorResult(errorExitCode);
                     }
                     else
                     {

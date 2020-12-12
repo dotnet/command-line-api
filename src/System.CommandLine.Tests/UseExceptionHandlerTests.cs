@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests
                   .UseExceptionHandler((exception, context) =>
                   {
                       context.Console.Out.Write("Well that's awkward.");
-                      context.ResultCode = 22;
+                      context.ExitCode = 22;
                   })
                   .UseMiddleware(_ => throw new Exception("oops!"))
                   .Build()
@@ -146,7 +146,7 @@ namespace System.CommandLine.Tests
         {
             int resultCode = await new CommandLineBuilder()
                   .AddCommand(new Command("the-command"))
-                  .UseExceptionHandler(errorResultCode: 42)
+                  .UseExceptionHandler(errorExitCode: 42)
                   .UseMiddleware(_ => throw new Exception("oops!"))
                   .Build()
                   .InvokeAsync("the-command", _console);

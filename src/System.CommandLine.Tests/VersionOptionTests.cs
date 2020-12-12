@@ -119,7 +119,7 @@ namespace System.CommandLine.Tests
             };
             
             var parser = new CommandLineBuilder(rootCommand)
-                .UseVersionOption(errorResultCode: 42)
+                .UseVersionOption(errorExitCode: 42)
                 .Build();
 
             int result = parser.Invoke("--version -x");

@@ -96,7 +96,7 @@ namespace System.CommandLine.Tests
 
             int exitCode = await new CommandLineBuilder()
                 .AddCommand(command)
-                .UseParseDirective(errorResultCode: 42)
+                .UseParseDirective(errorExitCode: 42)
                 .Build()
                 .InvokeAsync("[parse] -x not-an-int");
 

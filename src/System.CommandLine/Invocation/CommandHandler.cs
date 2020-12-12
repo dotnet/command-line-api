@@ -203,19 +203,19 @@ namespace System.CommandLine.Invocation
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
-        internal static async Task<int> GetResultCodeAsync(object value, InvocationContext context)
+        internal static async Task<int> GetExitCodeAsync(object value, InvocationContext context)
         {
             switch (value)
             {
-                case Task<int> resultCodeTask:
-                    return await resultCodeTask;
+                case Task<int> exitCodeTask:
+                    return await exitCodeTask;
                 case Task task:
                     await task;
-                    return context.ResultCode;
-                case int resultCode:
-                    return resultCode;
+                    return context.ExitCode;
+                case int exitCode:
+                    return exitCode;
                 case null:
-                    return context.ResultCode;
+                    return context.ExitCode;
                 default:
                     throw new NotSupportedException();
             }

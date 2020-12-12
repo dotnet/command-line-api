@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests
             };
 
             var parser = new CommandLineBuilder(root)
-                         .UseParseErrorReporting(errorResultCode: 42)
+                         .UseParseErrorReporting(errorExitCode: 42)
                          .Build();
 
             int result = parser.Invoke("");

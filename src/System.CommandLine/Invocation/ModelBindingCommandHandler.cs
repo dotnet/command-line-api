@@ -80,7 +80,7 @@ namespace System.CommandLine.Invocation
                 result = _handlerDelegate.DynamicInvoke(invocationArguments);
             }
 
-            return await CommandHandler.GetResultCodeAsync(result, context);
+            return await CommandHandler.GetExitCodeAsync(result, context);
         }
 
         public void BindParameter(ParameterInfo param, Argument argument)
