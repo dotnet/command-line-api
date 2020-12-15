@@ -9,15 +9,15 @@ namespace System.CommandLine.Binding
     {
         internal FailedArgumentTypeConversionResult(
             IArgument argument,
-            Type type,
+            Type expectedType,
             string value) :
-            base(argument, FormatErrorMessage(argument, type, value))
+            base(argument, FormatErrorMessage(argument, expectedType, value))
         {
         }
 
         private static string FormatErrorMessage(
             IArgument argument,
-            Type type,
+            Type expectedType,
             string value)
         {
             if (argument is Argument a &&
@@ -36,10 +36,10 @@ namespace System.CommandLine.Binding
 
                 var alias = firstParent.Aliases.First();
 
-                return $"Cannot parse argument '{value}' for {symbolType} '{alias}' as expected type {type}.";
+                return $"Cannot parse argument '{value}' for {symbolType} '{alias}' as expected type {expectedType}.";
             }
 
-            return $"Cannot parse argument '{value}' as expected type {type}.";
+            return $"Cannot parse argument '{value}' as expected type {expectedType}.";
         }
     }
 }
