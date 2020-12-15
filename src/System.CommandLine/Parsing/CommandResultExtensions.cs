@@ -38,7 +38,7 @@ namespace System.CommandLine.Parsing
                 {
                     if (valueName.IsMatch(argument.Name))
                     {
-                        value = commandResult.ArgumentConversionResults[argument.Name]?.GetValueOrDefault();
+                        value = commandResult.ArgumentConversionResults.GetByAlias(argument.Name)?.GetValueOrDefault();
                         return true;
                     }
                 }

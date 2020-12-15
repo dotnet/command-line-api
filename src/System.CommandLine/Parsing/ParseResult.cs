@@ -67,8 +67,14 @@ namespace System.CommandLine.Parsing
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);
         
+        public object? ValueForOption(Option option) =>
+            ValueForOption<object?>(option);
+
         public object? ValueForArgument(string alias) =>
             ValueForArgument<object?>(alias);
+
+         public object? ValueForArgument(Argument argument) =>
+            ValueForArgument<object?>(argument);
 
         [return: MaybeNull]
         public T ValueForArgument<T>(Argument<T> argument)
@@ -102,7 +108,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            if (this[name] is ArgumentResult argumentResult)
+            if (CommandResult.Children.GetByAlias(name) is ArgumentResult argumentResult)
             {
                 return argumentResult.GetValueOrDefault<T>();
             }
@@ -144,7 +150,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            if (this[alias] is OptionResult optionResult)
+            if (CommandResult.Children.GetByAlias(alias) is OptionResult optionResult)
             {
                 return optionResult.GetValueOrDefault<T>();
             }
@@ -153,8 +159,6 @@ namespace System.CommandLine.Parsing
                 return default;
             }
         }
-
-        public SymbolResult? this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
 

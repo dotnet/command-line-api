@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -25,13 +23,6 @@ namespace System.CommandLine.Parsing
         }
 
         public ICommand Command { get; }
-
-        public OptionResult? this[string alias] => OptionResult(alias);
-
-        public OptionResult? OptionResult(string alias)
-        {
-            return Children[alias] as OptionResult;
-        }
 
         public Token Token { get; }
 
