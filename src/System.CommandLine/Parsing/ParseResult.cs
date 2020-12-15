@@ -64,14 +64,12 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyCollection<string> UnparsedTokens { get; }
 
-        // FIX: (ParseResult) remove
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);
         
         public object? ValueForOption(Option option) =>
             ValueForOption<object?>(option);
 
-        // FIX: (ParseResult) remove
         public object? ValueForArgument(string alias) =>
             ValueForArgument<object?>(alias);
 
