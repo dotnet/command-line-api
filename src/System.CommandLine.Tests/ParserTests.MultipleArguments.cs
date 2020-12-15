@@ -161,7 +161,7 @@ namespace System.CommandLine.Tests
                     strings
                 };
 
-                var result = root.Parse("1 2 3 one", "two");
+                var result = root.Parse("1 2 3 one two");
 
                 var _ = new AssertionScope();
 
