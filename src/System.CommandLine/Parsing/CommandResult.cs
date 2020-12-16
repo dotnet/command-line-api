@@ -47,5 +47,13 @@ namespace System.CommandLine.Parsing
                 return _results;
             }
         }
+
+        internal override bool UseDefaultValueFor(IArgument argument) =>
+            Children.ResultFor(argument) switch
+            {
+                ArgumentResult arg => arg.Argument.HasDefaultValue && 
+                                      arg.Tokens.Count == 0,
+                _ => false
+            };
     }
 }

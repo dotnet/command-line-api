@@ -59,5 +59,7 @@ namespace System.CommandLine.Parsing
                 return _argumentConversionResult;
             }
         }
+
+        internal override bool UseDefaultValueFor(IArgument argument) => IsImplicit;
     }
 }
