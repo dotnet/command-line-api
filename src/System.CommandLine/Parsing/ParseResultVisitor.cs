@@ -167,14 +167,24 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            foreach (var argumentResult in _rootCommandResult!.AllArgumentResults.Where(a => a.Parent is CommandResult))
+            var argumentResults = _rootCommandResult!
+                                  .AllArgumentResults
+                                  .Where(a => a.Parent is CommandResult)
+                                  .ToArray();
+
+            foreach (var argumentResult in argumentResults)
             {
-                ValidateArgumentResult(argumentResult);
+                ValidateAndConvertCommandArgumentResult(argumentResult);
+
+                if (argumentResult.PassedOnTokensCount > 0)
+                {
+                    
+                }
             }
 
             foreach (var optionResult in _rootCommandResult!.AllOptionResults)
             {
-                ValidateOptionResult(optionResult);
+                ValidateAndConvertOptionResult(optionResult);
             }
         }
 
@@ -247,7 +257,7 @@ namespace System.CommandLine.Parsing
                     _innermostCommandResult));
         }
 
-        private void ValidateOptionResult(OptionResult optionResult)
+        private void ValidateAndConvertOptionResult(OptionResult optionResult)
         {
             var argument = optionResult.Option.Argument;
 
@@ -282,12 +292,12 @@ namespace System.CommandLine.Parsing
                 var result = optionResult.Children[i];
                 if (result is ArgumentResult argumentResult)
                 {
-                    ValidateArgumentResult(argumentResult);
+                    ValidateAndConvertCommandArgumentResult(argumentResult);
                 }
             }
         }
 
-        private void ValidateArgumentResult(ArgumentResult argumentResult)
+        private void ValidateAndConvertCommandArgumentResult(ArgumentResult argumentResult)
         {
             if (argumentResult.Argument is Argument argument)
             {

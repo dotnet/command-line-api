@@ -5,10 +5,23 @@ namespace System.CommandLine.Binding
 {
     internal class SuccessfulArgumentConversionResult : ArgumentConversionResult
     {
-        internal SuccessfulArgumentConversionResult(IArgument argument, object? value) : base(argument)
+        internal SuccessfulArgumentConversionResult(
+            IArgument argument, 
+            object? value) : base(argument)
         {
             Value = value;
         }
+        
+        internal SuccessfulArgumentConversionResult(
+            IArgument argument, 
+            int skippedTokensFromEnd,
+            object? value) : base(argument)
+        {
+            SkippedTokensFromEnd = skippedTokensFromEnd;
+            Value = value;
+        }
+
+        public int SkippedTokensFromEnd { get; }
 
         public object? Value { get; }
     }

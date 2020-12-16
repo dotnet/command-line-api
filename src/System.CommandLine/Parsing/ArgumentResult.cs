@@ -19,8 +19,25 @@ namespace System.CommandLine.Parsing
 
         public IArgument Argument { get; }
 
+        internal int NumberOfTokensConsumed { get; private set; }
+
+        internal int PassedOnTokensCount { get; private set; }
+
         internal ArgumentConversionResult GetArgumentConversionResult() => 
             _conversionResult ??= Convert(Argument);
+
+        public void OnlyTake(int numberOfTokens)
+        {
+            if (numberOfTokens <= 0)
+            {
+                return;
+            }
+
+            NumberOfTokensConsumed = numberOfTokens;
+            PassedOnTokensCount = _tokens.Count - NumberOfTokensConsumed;
+
+            _tokens.RemoveRange(numberOfTokens, PassedOnTokensCount);
+        }
 
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
@@ -45,7 +62,7 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-        internal virtual ArgumentConversionResult Convert(
+        private ArgumentConversionResult Convert(
             IArgument argument)
         {
             var parentResult = Parent;
@@ -71,13 +88,13 @@ namespace System.CommandLine.Parsing
                     if (string.IsNullOrEmpty(argumentResult.ErrorMessage))
                     {
                         return ArgumentConversionResult.Success(
-                            argument,
+                            arg,
                             defaultValue);
                     }
                     else
                     {
                         return ArgumentConversionResult.Failure(
-                            argument,
+                            arg,
                             argumentResult.ErrorMessage!);
                     }
                 }
@@ -98,7 +115,11 @@ namespace System.CommandLine.Parsing
 
                     if (success)
                     {
-                        return ArgumentConversionResult.Success(argument, value);
+                        // FIX: (Convert) account for not all tokens being accepted
+                        return ArgumentConversionResult.Success(
+                            arg, 
+                            NumberOfTokensConsumed, 
+                            value);
                     }
 
                     return ArgumentConversionResult.Failure(

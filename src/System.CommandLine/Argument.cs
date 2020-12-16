@@ -170,7 +170,7 @@ namespace System.CommandLine
         /// to provide custom errors based on user input.
         /// </summary>
         /// <param name="validate">The delegate to validate the parsed argument.</param>
-        public void AddValidator(ValidateSymbol<ArgumentResult> validator) => Validators.Add(validator);
+        public void AddValidator(ValidateSymbol<ArgumentResult> validate) => Validators.Add(validate);
 
         /// <summary>
         /// Gets the default value for the argument.

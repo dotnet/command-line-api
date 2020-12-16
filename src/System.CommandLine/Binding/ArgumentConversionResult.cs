@@ -18,6 +18,9 @@ namespace System.CommandLine.Binding
 
         public static SuccessfulArgumentConversionResult Success(IArgument argument, object? value) => new SuccessfulArgumentConversionResult(argument, value);
 
+        public static SuccessfulArgumentConversionResult Success(IArgument argument, int skippedTokensFromEnd, object? value) =>
+            new SuccessfulArgumentConversionResult(argument, skippedTokensFromEnd, value);
+
         internal static NoArgumentConversionResult None(IArgument argument) => new NoArgumentConversionResult(argument);
     }
 }

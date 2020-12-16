@@ -34,7 +34,7 @@ namespace System.CommandLine.Parsing
                 {
                     var results = Children
                                   .OfType<ArgumentResult>()
-                                  .Select(r => r.Convert(r.Argument));
+                                  .Select(r => r.GetArgumentConversionResult());
 
                     _results = new ArgumentConversionResultSet();
 
