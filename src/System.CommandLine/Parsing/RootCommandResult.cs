@@ -74,7 +74,7 @@ namespace System.CommandLine.Parsing
             return result;
         }
 
-        public SymbolResult? FindResultForSymbol(ISymbol symbol)
+        internal SymbolResult? FindResultForSymbol(ISymbol symbol)
         {
             switch (symbol)
             {

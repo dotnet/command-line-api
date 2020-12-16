@@ -170,15 +170,46 @@ namespace System.CommandLine.Parsing
             var argumentResults = _rootCommandResult!
                                   .AllArgumentResults
                                   .Where(a => a.Parent is CommandResult)
-                                  .ToArray();
+                                  .ToList();
 
-            foreach (var argumentResult in argumentResults)
+            if (argumentResults.Count > 0)
             {
-                ValidateAndConvertCommandArgumentResult(argumentResult);
+                var arguments = _innermostCommandResult!.Command.Arguments.ToArray();
 
-                if (argumentResult.PassedOnTokensCount > 0)
+                for (var i = 0; i < arguments.Length; i++)
                 {
-                    
+                    if (argumentResults.Count == i)
+                    {
+                        var nextArgument = arguments[i];
+                        var nextArgumentResult = new ArgumentResult(
+                            nextArgument,
+                            _innermostCommandResult);
+
+                        var previousArgumentResult = argumentResults[i - 1];
+
+                        var passedOnTokens = _innermostCommandResult.Tokens.Skip(previousArgumentResult.Tokens.Count);
+                        
+                        foreach (var token in passedOnTokens)
+                        {
+                            nextArgumentResult.AddToken(token);
+                        }
+
+                        argumentResults.Add(nextArgumentResult);
+
+                        previousArgumentResult.Parent!.Children.Add(nextArgumentResult);
+
+                        _rootCommandResult.AddToSymbolMap(nextArgumentResult);
+                    }
+
+                    var argumentResult = argumentResults[i];
+
+                    ValidateAndConvertCommandArgumentResult(argumentResult);
+
+                    if (argumentResult.PassedOnTokensCount > 0 && 
+                        i == argumentResults.Count - 1)
+                    {
+                       _unparsedTokens.AddRange(_innermostCommandResult.Tokens.Skip(argumentResult.Tokens.Count).Select(t =>t.Value));
+                    }
                 }
             }
 

@@ -525,7 +525,7 @@ namespace System.CommandLine.Tests
                     });
                 var argument2 = new Argument<int[]>(
                     "two",
-                    result => result.Tokens.Select(t => t.Value).Skip(3).Select(int.Parse).ToArray());
+                    result => result.Tokens.Select(t => t.Value).Select(int.Parse).ToArray());
                 var command = new RootCommand
                 {
                     argument1,
@@ -596,7 +596,7 @@ namespace System.CommandLine.Tests
                     });
                 var argument2 = new Argument<int[]>(
                     "two",
-                    result => result.Tokens.Select(t => t.Value).Skip(3).Select(int.Parse).ToArray());
+                    result => result.Tokens.Select(t => t.Value).Select(int.Parse).ToArray());
                 var command = new RootCommand
                 {
                     argument1,

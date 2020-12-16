@@ -115,7 +115,6 @@ namespace System.CommandLine.Parsing
 
                     if (success)
                     {
-                        // FIX: (Convert) account for not all tokens being accepted
                         return ArgumentConversionResult.Success(
                             arg, 
                             NumberOfTokensConsumed, 
