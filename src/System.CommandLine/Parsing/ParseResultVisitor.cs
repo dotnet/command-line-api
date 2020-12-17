@@ -206,7 +206,7 @@ namespace System.CommandLine.Parsing
                     ValidateAndConvertCommandArgumentResult(argumentResult);
 
                     if (argumentResult.PassedOnTokensCount > 0 && 
-                        i == argumentResults.Count - 1)
+                        i == arguments.Length - 1)
                     {
                        _unparsedTokens.AddRange(_innermostCommandResult.Tokens.Skip(argumentResult.Tokens.Count).Select(t =>t.Value));
                     }

@@ -619,6 +619,49 @@ namespace System.CommandLine.Tests
                            .BeEquivalentTo(new[] { "4", "5", "6", "7", "8" },
                                            options => options.WithStrictOrdering());
             }
+
+            [Fact]
+            public void OnlyTake_throws_when_called_with_a_negative_value()
+            {
+                 var argument = new Argument<int[]>(
+                    "one",
+                    result =>
+                    {
+                        result.OnlyTake(-1);
+
+                        return null;
+                    });
+
+                 argument.Invoking(a => a.Parse("1 2 3"))
+                         .Should()
+                         .Throw<ArgumentOutOfRangeException>()
+                         .Which
+                         .Message
+                         .Should()
+                         .ContainAll("Value must be at least 1.", "(Parameter 'numberOfTokens')", "Actual value was -1.");
+            }
+
+            [Fact]
+            public void OnlyTake_throws_when_called_twice()
+            {
+                 var argument = new Argument<int[]>(
+                    "one",
+                    result =>
+                    {
+                        result.OnlyTake(1);
+                        result.OnlyTake(1);
+
+                        return null;
+                    });
+
+                 argument.Invoking(a => a.Parse("1 2 3"))
+                         .Should()
+                         .Throw<InvalidOperationException>()
+                         .Which
+                         .Message
+                         .Should()
+                         .Be("OnlyTake can only be called once.");
+            }
         }
 
         protected override Symbol CreateSymbol(string name)

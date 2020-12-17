@@ -175,6 +175,39 @@ namespace System.CommandLine.Tests
                       .BeEquivalentTo(new[] { "one", "two" },
                                       options => options.WithStrictOrdering());
             }
+
+            [Fact]
+            public void arity_ambiguities_can_be_differentiated_by_type_convertibility_2()
+            {
+                // FIX: (arity_ambiguities_can_be_differentiated_by_type_convertibility_2) rename
+                var ints = new Argument<int[]>();
+                var strings = new Argument<string>();
+
+                var root = new RootCommand
+                {
+                    ints,
+                    strings
+                };
+
+                var result = root.Parse("1 2 3 one two");
+
+                var _ = new AssertionScope();
+
+                result.ValueForArgument(ints)
+                      .Should()
+                      .BeEquivalentTo(new[] { 1, 2, 3 },
+                                      options => options.WithStrictOrdering());
+
+                result.ValueForArgument(strings)
+                      .Should()
+                      .Be("one");
+
+                result.UnparsedTokens.Should()
+                      .ContainSingle()
+                      .Which
+                      .Should()
+                      .Be("two");
+            }
         }
     }
 }

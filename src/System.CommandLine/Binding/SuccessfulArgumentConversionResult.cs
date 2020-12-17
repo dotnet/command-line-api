@@ -11,18 +11,7 @@ namespace System.CommandLine.Binding
         {
             Value = value;
         }
-        
-        internal SuccessfulArgumentConversionResult(
-            IArgument argument, 
-            int skippedTokensFromEnd,
-            object? value) : base(argument)
-        {
-            SkippedTokensFromEnd = skippedTokensFromEnd;
-            Value = value;
-        }
-
-        public int SkippedTokensFromEnd { get; }
-
+      
         public object? Value { get; }
     }
 }
