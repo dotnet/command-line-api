@@ -106,7 +106,8 @@ namespace System.CommandLine.Binding
         public static ArgumentConversionResult ConvertStrings(
             IArgument argument,
             Type type,
-            IReadOnlyCollection<string> tokens)
+            IReadOnlyCollection<string> tokens,
+            ArgumentResult argumentResult = null)
         {
             if (type is null)
             {
@@ -136,6 +137,15 @@ namespace System.CommandLine.Binding
                 {
                     case FailedArgumentTypeConversionResult _:
                     case FailedArgumentConversionResult _:
+                        if (argumentResult is { })
+                        {
+                            argumentResult.OnlyTake(i);
+                        
+                            // exit the for loop
+                            i = parseResults.Length;
+                            break;
+                        }
+
                         return result;
                
                     case SuccessfulArgumentConversionResult success:

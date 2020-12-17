@@ -91,7 +91,7 @@ namespace System.CommandLine
 
                 return _convertArguments;
 
-                bool DefaultConvert(SymbolResult symbol, out object value)
+                bool DefaultConvert(ArgumentResult argumentResult, out object value)
                 {
                     switch (Arity.MaximumNumberOfValues)
                     {
@@ -99,14 +99,15 @@ namespace System.CommandLine
                             value = ArgumentConverter.ConvertObject(
                                 this,
                                 ArgumentType,
-                                symbol.Tokens.Select(t => t.Value).SingleOrDefault());
+                                argumentResult.Tokens.Select(t => t.Value).SingleOrDefault());
                             break;
 
                         default:
                             value = ArgumentConverter.ConvertStrings(
                                 this,
                                 ArgumentType,
-                                symbol.Tokens.Select(t => t.Value).ToArray());
+                                argumentResult.Tokens.Select(t => t.Value).ToArray(),
+                                argumentResult);
                             break;
                     }
 
