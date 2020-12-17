@@ -844,33 +844,6 @@ namespace System.CommandLine.Tests.Binding
                     .Be("Option '-x' expects a single argument but 2 were provided.");
         }
 
-        [Fact]
-        public void When_one_item_in_a_list_is_not_convertible_then_an_error_is_returned()
-        {
-            var root = new RootCommand("dotnet");
-
-            root.AddArgument(new Argument<string>());
-
-            var arg = new Argument<IEnumerable<int>>("a");
-
-            var build = new Command("build")
-            {
-                arg
-            };
-
-            root.Add(build);
-
-            var result = root.Parse(@"build 3 /p:blah");
-
-            result.Errors
-                  .Should()
-                  .ContainSingle()
-                  .Which
-                  .Message
-                  .Should()
-                  .Be("Cannot parse argument '/p:blah' for command 'build' as expected type System.Int32.");
-        }
-
         public class MyCustomType
         {
             private readonly List<string> values = new List<string>();
