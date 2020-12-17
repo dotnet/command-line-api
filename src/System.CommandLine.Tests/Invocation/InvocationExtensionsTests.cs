@@ -126,7 +126,7 @@ namespace System.CommandLine.Tests.Invocation
 
             rootCommand.Handler = CommandHandler.Create<InvocationContext>(context =>
             {
-                context.ResultCode = 123;
+                context.ExitCode = 123;
             });
 
             var resultCode = await rootCommand.InvokeAsync("");
@@ -141,7 +141,7 @@ namespace System.CommandLine.Tests.Invocation
 
             rootCommand.Handler = CommandHandler.Create<InvocationContext>(context =>
             {
-                context.ResultCode = 123;
+                context.ExitCode = 123;
             });
 
             int resultCode = rootCommand.Invoke("");

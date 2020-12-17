@@ -1,12 +1,11 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using FluentAssertions;
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,10 +26,7 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand();
             var subcommand = new Command("subcommand");
             rootCommand.AddCommand(subcommand);
-            var option = new Option(new[] { "-c", "--count" })
-            {
-                Argument = new Argument<int>()
-            };
+            var option = new Option<int>(new[] { "-c", "--count" });
             subcommand.AddOption(option);
 
             var parser = new CommandLineBuilder(rootCommand)
@@ -56,10 +52,7 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<int>("-x")
             };
 
             var exitCode = await command.InvokeAsync("[parse] -x 123");
@@ -72,15 +65,29 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<int>("-x")
             };
 
             var exitCode = await command.InvokeAsync("[parse] -x not-an-int");
 
             exitCode.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task When_there_are_errors_then_parse_directive_sets_exit_code_to_custom_value()
+        {
+            var command = new RootCommand
+            {
+                new Option<int>("-x")
+            };
+
+            int exitCode = await new CommandLineBuilder()
+                .AddCommand(command)
+                .UseParseDirective(errorExitCode: 42)
+                .Build()
+                .InvokeAsync("[parse] -x not-an-int");
+
+            exitCode.Should().Be(42);
         }
     }
 }

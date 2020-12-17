@@ -107,6 +107,27 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_the_version_is_not_valid_it_returns_a_custom_result_code()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Command("subcommand")
+                {
+                    Handler = CommandHandler.Create(() => { })
+                },
+                new Option("-x")
+            };
+            
+            var parser = new CommandLineBuilder(rootCommand)
+                .UseVersionOption(errorExitCode: 42)
+                .Build();
+
+            int result = parser.Invoke("--version -x");
+
+            result.Should().Be(42);
+        }
+
+        [Fact]
         public void Version_option_is_not_added_to_subcommands()
         {
             var rootCommand = new RootCommand

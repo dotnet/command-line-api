@@ -33,7 +33,7 @@ namespace System.CommandLine.Invocation
             set => BindingContext.ParseResult = value;
         }
 
-        public int ResultCode { get; set; }
+        public int ExitCode { get; set; }
 
         public IInvocationResult? InvocationResult { get; set; }
 
