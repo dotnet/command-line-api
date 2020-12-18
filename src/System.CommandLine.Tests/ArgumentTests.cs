@@ -638,7 +638,7 @@ namespace System.CommandLine.Tests
                          .Which
                          .Message
                          .Should()
-                         .ContainAll("Value must be at least 1.", "(Parameter 'numberOfTokens')", "Actual value was -1.");
+                         .ContainAll("Value must be at least 1.", "Actual value was -1.");
             }
 
             [Fact]
