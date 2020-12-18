@@ -21,7 +21,8 @@ namespace System.CommandLine.Builder
     public static class CommandLineBuilderExtensions
     {
         private static readonly Lazy<string> _assemblyVersion =
-            new Lazy<string>(() => {
+            new Lazy<string>(() =>
+            {
                 var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
                 if (assemblyVersionAttribute is null)
@@ -65,7 +66,7 @@ namespace System.CommandLine.Builder
         }
 
         public static TBuilder AddGlobalOption<TBuilder>(
-            this TBuilder builder, 
+            this TBuilder builder,
             Option option)
             where TBuilder : CommandBuilder
         {
@@ -205,20 +206,47 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseDebugDirective(
             this CommandLineBuilder builder)
+            => builder.UseDebugDirective(TimeSpan.Zero);
+
+        public static CommandLineBuilder UseDebugDirective(
+            this CommandLineBuilder builder,
+            TimeSpan debuggerAttachTimeout)
         {
             builder.AddMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Directives.Contains("debug"))
                 {
-                    var process = Diagnostics.Process.GetCurrentProcess();
+                    const string environmentVariableName = "SYSTEM_COMMANDLINE_DEBUG_PROCESSES";
 
-                    var processId = process.Id;
-
-                    context.Console.Out.WriteLine($"Attach your debugger to process {processId} ({process.ProcessName}).");
-
-                    while (!Debugger.IsAttached)
+                    string debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
+                    if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
-                        await Task.Delay(500);
+                        context.Console.Error.WriteLine("Debug directive specified, but no process names are listed as allowed for debug.");
+                        context.Console.Error.WriteLine($"Add your process name to the '{environmentVariableName}' environment variable.");
+                    }
+                    else
+                    {
+                        string[] processNames = debuggableProcessNames.Split(';');
+
+                        var process = Diagnostics.Process.GetCurrentProcess();
+                        if (processNames.Contains(process.ProcessName, StringComparer.Ordinal))
+                        {
+                            var processId = process.Id;
+
+                            context.Console.Out.WriteLine($"Attach your debugger to process {processId} ({process.ProcessName}).");
+                            var startTime = DateTime.Now;
+                            while (!Debugger.IsAttached && !ShouldTimeout())
+                            {
+                                await Task.Delay(500);
+                            }
+
+                            bool ShouldTimeout()
+                                => debuggerAttachTimeout != TimeSpan.Zero && DateTime.Now - startTime > debuggerAttachTimeout;
+                        }
+                        else
+                        {
+                            context.Console.Error.WriteLine($"Process name '{process.ProcessName}' is not included in the list of debuggable process names in the {environmentVariableName} environment variable ('{debuggableProcessNames}')");
+                        }
                     }
                 }
 
@@ -250,7 +278,7 @@ namespace System.CommandLine.Builder
 
                 return next(context);
             }, MiddlewareOrderInternal.EnvironmentVariableDirective);
-            
+
             return builder;
         }
 
@@ -316,7 +344,7 @@ namespace System.CommandLine.Builder
         {
             if (builder.HelpOption is null)
             {
-                builder.HelpOption = helpOption; 
+                builder.HelpOption = helpOption;
                 builder.Command.TryAddGlobalOption(helpOption);
 
                 builder.AddMiddleware(async (context, next) =>
@@ -443,7 +471,7 @@ namespace System.CommandLine.Builder
                     context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors)
                 {
                     var typoCorrection = new TypoCorrection(maxLevenshteinDistance);
-                    
+
                     typoCorrection.ProvideSuggestions(context.ParseResult, context.Console);
                 }
                 await next(context);
