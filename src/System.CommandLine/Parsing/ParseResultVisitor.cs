@@ -167,8 +167,6 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            IReadOnlyList<Token> passedOnOptionTokens = null;
-
             foreach (var optionResult in _rootCommandResult!.AllOptionResults)
             {
                 ValidateAndConvertOptionResult(optionResult);
