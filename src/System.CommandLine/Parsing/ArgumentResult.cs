@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.Linq;
 
@@ -19,7 +20,7 @@ namespace System.CommandLine.Parsing
 
         public IArgument Argument { get; }
 
-        internal int PassedOnTokensCount { get; private set; }
+        internal IReadOnlyList<Token>? PassedOnTokens { get; private set; }
 
         internal ArgumentConversionResult GetArgumentConversionResult() => 
             _conversionResult ??= Convert(Argument);
@@ -31,7 +32,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentOutOfRangeException(nameof(numberOfTokens), numberOfTokens, "Value must be at least 1.");
             }
 
-            if (PassedOnTokensCount != 0)
+            if (PassedOnTokens is {})
             {
                 throw new InvalidOperationException($"{nameof(OnlyTake)} can only be called once.");
             }
@@ -41,9 +42,11 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            PassedOnTokensCount = _tokens.Count - numberOfTokens;
+            var passedOnTokensCount = _tokens.Count - numberOfTokens;
 
-            _tokens.RemoveRange(numberOfTokens, PassedOnTokensCount);
+            PassedOnTokens = new List<Token>(_tokens.GetRange(numberOfTokens, passedOnTokensCount));
+
+            _tokens.RemoveRange(numberOfTokens, passedOnTokensCount);
         }
 
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";

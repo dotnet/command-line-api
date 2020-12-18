@@ -167,6 +167,8 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
+            IReadOnlyList<Token> passedOnOptionTokens = null;
+
             foreach (var optionResult in _rootCommandResult!.AllOptionResults)
             {
                 ValidateAndConvertOptionResult(optionResult);
@@ -213,15 +215,13 @@ namespace System.CommandLine.Parsing
 
                     ValidateAndConvertArgumentResult(argumentResult);
 
-                    if (argumentResult.PassedOnTokensCount > 0 && 
+                    if (argumentResult.PassedOnTokens is {} && 
                         i == arguments.Length - 1)
                     {
-                       _unparsedTokens.AddRange(_innermostCommandResult.Tokens.Skip(argumentResult.Tokens.Count).Select(t =>t.Value));
+                       _unparsedTokens.AddRange(argumentResult.PassedOnTokens.Select(t => t.Value));
                     }
                 }
             }
-
-           
         }
 
         private void ValidateCommandResult()
