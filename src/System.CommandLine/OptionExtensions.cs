@@ -62,7 +62,7 @@ namespace System.CommandLine
                     a.Tokens
                      .Select(t => t.Value)
                      .Where(filePath => !Directory.Exists(filePath))
-                     .Select(a.ValidationMessages.DirectoryDoesNotExist)
+                     .Select(x => (string?)a.ValidationMessages.DirectoryDoesNotExist(x))
                      .FirstOrDefault());
 
             return option;

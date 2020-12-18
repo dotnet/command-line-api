@@ -59,7 +59,7 @@ namespace System.CommandLine
                                       symbol.Tokens
                                             .Select(t => t.Value)
                                             .Where(filePath => !Directory.Exists(filePath))
-                                            .Select(symbol.ValidationMessages.DirectoryDoesNotExist)
+                                            .Select(x => (string?)symbol.ValidationMessages.DirectoryDoesNotExist(x))
                                             .FirstOrDefault());
             return argument;
         }
@@ -93,7 +93,7 @@ namespace System.CommandLine
                     a => a.Tokens
                           .Select(t => t.Value)
                           .Where(filePath => !Directory.Exists(filePath))
-                          .Select(a.ValidationMessages.DirectoryDoesNotExist)
+                          .Select(x => (string?)a.ValidationMessages.DirectoryDoesNotExist(x))
                           .FirstOrDefault());
             }
             else

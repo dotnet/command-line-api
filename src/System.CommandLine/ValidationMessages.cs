@@ -1,10 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -38,8 +36,12 @@ namespace System.CommandLine
                 ? $"Command '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided."
                 : $"Option '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided.";
 
-        public virtual string DirectoryDoesNotExist(string path) =>
-            GetResourceString(Properties.Resources.DirectoryDoesNotExist, path);
+        public virtual LocalizableResourceString DirectoryDoesNotExist(string path) =>
+            new LocalizableResourceString(
+                nameof(Properties.Resources.DirectoryDoesNotExist), 
+                Properties.Resources.ResourceManager, 
+                typeof(ValidationMessages), 
+                path);
 
         public virtual string FileDoesNotExist(string filePath) =>
             $"File does not exist: {filePath}";
