@@ -107,7 +107,7 @@ namespace System.CommandLine.Binding
             IArgument argument,
             Type type,
             IReadOnlyCollection<string> tokens,
-            ArgumentResult argumentResult = null)
+            ArgumentResult? argumentResult = null)
         {
             if (type is null)
             {
