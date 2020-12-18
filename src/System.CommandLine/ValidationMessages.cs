@@ -71,18 +71,5 @@ namespace System.CommandLine
 
         public virtual string ErrorReadingResponseFile(string filePath, IOException e) =>
             $"Error reading response file '{filePath}': {e.Message}";
-
-        protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
-        {
-            if (resourceString is null)
-            {
-                return string.Empty;
-            }
-            if (formatArguments.Length > 0)
-            {
-                return string.Format(resourceString, formatArguments);
-            }
-            return resourceString;
-        }
     }
 }
