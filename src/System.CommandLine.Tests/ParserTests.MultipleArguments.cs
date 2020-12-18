@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void arity_ambiguities_can_be_differentiated_by_type_convertibility()
+            public void tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_multiple_arity_argument()
             {
                 var ints = new Argument<int[]>();
                 var strings = new Argument<string[]>();
@@ -177,9 +177,8 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void arity_ambiguities_can_be_differentiated_by_type_convertibility_2()
+            public void tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_single_arity_argument()
             {
-                // FIX: (arity_ambiguities_can_be_differentiated_by_type_convertibility_2) rename
                 var ints = new Argument<int[]>();
                 var strings = new Argument<string>();
 
@@ -208,6 +207,33 @@ namespace System.CommandLine.Tests
                       .Should()
                       .Be("two");
             }
+
+            [Fact]
+            public void tokens_that_cannot_be_converted_by_multiple_arity_option_flow_to_next_single_arity_argument()
+            {
+                var option = new Option<int[]>("-i");
+                var argument = new Argument<string>("arg");
+
+                var command = new RootCommand
+                {
+                    option,
+                    argument
+                };
+
+                var result = command.Parse("-i 1 2 3 four");
+
+                result.FindResultFor(option)
+                      .GetValueOrDefault()
+                      .Should()
+                      .BeEquivalentTo(new[] { 1, 2, 3 }, options => options.WithStrictOrdering());
+
+                result.FindResultFor(argument)
+                      .Should()
+                      .Be("four");
+            }
+
+            // FIX: (MultipleArguments) test arguments at multiple positions (root command and subcommand)
+
         }
     }
 }

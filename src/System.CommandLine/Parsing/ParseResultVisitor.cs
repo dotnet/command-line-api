@@ -167,9 +167,13 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
+            foreach (var optionResult in _rootCommandResult!.AllOptionResults)
+            {
+                ValidateAndConvertOptionResult(optionResult);
+            }
+
             var argumentResults = _rootCommandResult!
                                   .AllArgumentResults
-                                  .Where(a => a.Parent is CommandResult)
                                   .ToList();
 
             if (argumentResults.Count > 0)
@@ -191,6 +195,10 @@ namespace System.CommandLine.Parsing
                         
                         foreach (var token in passedOnTokens)
                         {
+                            if (nextArgumentResult.IsArgumentLimitReached)
+                            {
+                                break;
+                            }
                             nextArgumentResult.AddToken(token);
                         }
 
@@ -203,7 +211,7 @@ namespace System.CommandLine.Parsing
 
                     var argumentResult = argumentResults[i];
 
-                    ValidateAndConvertCommandArgumentResult(argumentResult);
+                    ValidateAndConvertArgumentResult(argumentResult);
 
                     if (argumentResult.PassedOnTokensCount > 0 && 
                         i == arguments.Length - 1)
@@ -213,10 +221,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            foreach (var optionResult in _rootCommandResult!.AllOptionResults)
-            {
-                ValidateAndConvertOptionResult(optionResult);
-            }
+           
         }
 
         private void ValidateCommandResult()
@@ -323,12 +328,12 @@ namespace System.CommandLine.Parsing
                 var result = optionResult.Children[i];
                 if (result is ArgumentResult argumentResult)
                 {
-                    ValidateAndConvertCommandArgumentResult(argumentResult);
+                    ValidateAndConvertArgumentResult(argumentResult);
                 }
             }
         }
 
-        private void ValidateAndConvertCommandArgumentResult(ArgumentResult argumentResult)
+        private void ValidateAndConvertArgumentResult(ArgumentResult argumentResult)
         {
             if (argumentResult.Argument is Argument argument)
             {
