@@ -196,6 +196,19 @@ namespace System.CommandLine.Parsing
                         tokenList.Add(Command(arg));
                     }
                 }
+
+                Token Argument(string value) => new Token(value, TokenType.Argument, i);
+
+                Token Command(string value) => new Token(value, TokenType.Command, i);
+
+                Token Option(string value) => new Token(value, TokenType.Option, i);
+
+                Token EndOfArguments() => new Token("--", TokenType.EndOfArguments, i);
+
+                Token Operand(string value) => new Token(value, TokenType.Operand, i);
+
+                Token Directive(string value) => new Token(value, TokenType.Directive, i);
+
             }
 
             return new TokenizeResult(tokenList, errorList);
@@ -518,18 +531,6 @@ namespace System.CommandLine.Parsing
             return StringBuilderPool.Default.GetStringAndReturn(sb);
         }
 
-        private static Token Argument(string value) => new Token(value, TokenType.Argument);
-
-        private static Token Command(string value) => new Token(value, TokenType.Command);
-
-        private static Token Option(string value) => new Token(value, TokenType.Option);
-
-        private static Token EndOfArguments() => new Token("--", TokenType.EndOfArguments);
-
-        private static Token Operand(string value) => new Token(value, TokenType.Operand);
-
-        private static Token Directive(string value) => new Token(value, TokenType.Directive);
-
         private static IEnumerable<string> ExpandResponseFile(
             string filePath,
             ResponseFileHandling responseFileHandling)
@@ -598,7 +599,8 @@ namespace System.CommandLine.Parsing
                     commandAlias,
                     new Token(
                         commandAlias,
-                        TokenType.Command));
+                        TokenType.Command, 
+                        -1));
 
                 for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
                 {
@@ -609,11 +611,11 @@ namespace System.CommandLine.Parsing
                             switch (identifier)
                             {
                                 case ICommand _:
-                                    tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Command));
+                                    tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Command, -1));
                                     break;
 
                                 case IOption _:
-                                    tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Option));
+                                    tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Option, -1));
                                     break;
                             }
                         }
