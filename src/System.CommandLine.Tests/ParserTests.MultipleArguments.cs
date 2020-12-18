@@ -188,7 +188,7 @@ namespace System.CommandLine.Tests
                     strings
                 };
 
-                var result = root.Parse("1 2 3 one two");
+                var result = root.Parse("1 2 3 four five");
 
                 var _ = new AssertionScope();
 
@@ -199,16 +199,16 @@ namespace System.CommandLine.Tests
 
                 result.ValueForArgument(strings)
                       .Should()
-                      .Be("one");
+                      .Be("four");
 
                 result.UnparsedTokens.Should()
                       .ContainSingle()
                       .Which
                       .Should()
-                      .Be("two");
+                      .Be("five");
             }
 
-            [Fact]
+            [Fact(Skip = "https://github.com/dotnet/command-line-api/issues/1143")]
             public void tokens_that_cannot_be_converted_by_multiple_arity_option_flow_to_next_single_arity_argument()
             {
                 var option = new Option<int[]>("-i");
@@ -231,9 +231,6 @@ namespace System.CommandLine.Tests
                       .Should()
                       .Be("four");
             }
-
-            // FIX: (MultipleArguments) test arguments at multiple positions (root command and subcommand)
-
         }
     }
 }
