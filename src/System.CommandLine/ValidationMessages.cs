@@ -36,7 +36,7 @@ namespace System.CommandLine
                 ? $"Command '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided."
                 : $"Option '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided.";
 
-        public virtual LocalizableResourceString DirectoryDoesNotExist(string path) =>
+        public virtual LocalizableString DirectoryDoesNotExist(string path) =>
             new LocalizableResourceString(
                 nameof(Properties.Resources.DirectoryDoesNotExist), 
                 Properties.Resources.ResourceManager, 
