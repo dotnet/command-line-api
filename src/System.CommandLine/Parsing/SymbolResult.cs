@@ -39,7 +39,7 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyList<Token> Tokens => _tokens;
 
-        internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
+        internal bool IsArgumentLimitReached => RemainingArgumentCapacity == 0;
 
         private protected virtual int RemainingArgumentCapacity =>
             MaximumArgumentCapacity() - Tokens.Count;
