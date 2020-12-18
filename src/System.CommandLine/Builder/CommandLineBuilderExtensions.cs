@@ -205,12 +205,8 @@ namespace System.CommandLine.Builder
         }
 
         public static CommandLineBuilder UseDebugDirective(
-            this CommandLineBuilder builder)
-            => builder.UseDebugDirective(TimeSpan.Zero);
-
-        public static CommandLineBuilder UseDebugDirective(
             this CommandLineBuilder builder,
-            TimeSpan debuggerAttachTimeout)
+            int? errorExitCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
@@ -223,6 +219,8 @@ namespace System.CommandLine.Builder
                     {
                         context.Console.Error.WriteLine("Debug directive specified, but no process names are listed as allowed for debug.");
                         context.Console.Error.WriteLine($"Add your process name to the '{environmentVariableName}' environment variable.");
+                        context.ExitCode = errorExitCode ?? 1;
+                        return;
                     }
                     else
                     {
@@ -235,17 +233,16 @@ namespace System.CommandLine.Builder
 
                             context.Console.Out.WriteLine($"Attach your debugger to process {processId} ({process.ProcessName}).");
                             var startTime = DateTime.Now;
-                            while (!Debugger.IsAttached && !ShouldTimeout())
+                            while (!Debugger.IsAttached)
                             {
                                 await Task.Delay(500);
                             }
-
-                            bool ShouldTimeout()
-                                => debuggerAttachTimeout != TimeSpan.Zero && DateTime.Now - startTime > debuggerAttachTimeout;
                         }
                         else
                         {
                             context.Console.Error.WriteLine($"Process name '{process.ProcessName}' is not included in the list of debuggable process names in the {environmentVariableName} environment variable ('{debuggableProcessNames}')");
+                            context.ExitCode = errorExitCode ?? 1;
+                            return;
                         }
                     }
                 }
