@@ -109,16 +109,6 @@ namespace System.CommandLine.Binding
             IReadOnlyCollection<string> tokens,
             ArgumentResult? argumentResult = null)
         {
-            if (type is null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            if (tokens is null)
-            {
-                throw new ArgumentNullException(nameof(tokens));
-            }
-
             var itemType = type == typeof(string)
                                ? typeof(string)
                                : GetItemTypeIfEnumerable(type);
@@ -188,8 +178,7 @@ namespace System.CommandLine.Binding
             return 
                 type.IsArray 
                 ||
-                (type.IsGenericType &&
-                 type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                typeof(IEnumerable).IsAssignableFrom(type);
         }
 
         private static bool HasStringTypeConverter(this Type type)

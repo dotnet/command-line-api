@@ -208,7 +208,6 @@ namespace System.CommandLine.Parsing
                 Token Operand(string value) => new Token(value, TokenType.Operand, i);
 
                 Token Directive(string value) => new Token(value, TokenType.Directive, i);
-
             }
 
             return new TokenizeResult(tokenList, errorList);

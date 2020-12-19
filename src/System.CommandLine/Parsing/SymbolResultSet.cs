@@ -3,14 +3,24 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Collections;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
     public class SymbolResultSet : AliasedSet<SymbolResult>
     {
-        internal SymbolResult? ResultFor(ISymbol symbol) =>
-            Items.FirstOrDefault(i => Equals(i.Symbol, symbol));
+        internal SymbolResult? ResultFor(ISymbol symbol)
+        {
+            for (var i = 0; i < Items.Count; i++)
+            {
+                var item = Items[i];
+                if (Equals(item.Symbol, symbol))
+                {
+                    return item;
+                }
+            }
+
+            return default;
+        }
 
         protected override IReadOnlyCollection<string> GetAliases(SymbolResult result) =>
             result.Symbol switch

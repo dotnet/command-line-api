@@ -94,9 +94,7 @@ namespace System.CommandLine.Parsing
             var commandResult = _innermostCommandResult;
 
             var argumentResult =
-                commandResult!.Children
-                             .OfType<ArgumentResult>()
-                             .SingleOrDefault(r => Equals(r.Symbol, argumentNode.Argument));
+                commandResult!.Children.ResultFor(argumentNode.Argument);
 
             if (argumentResult is null)
             {
