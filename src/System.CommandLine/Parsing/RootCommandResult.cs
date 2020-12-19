@@ -26,25 +26,13 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            _allArgumentResults = new Dictionary<IArgument, ArgumentResult>();
-            _allCommandResults = new Dictionary<ICommand, CommandResult>();
-            _allOptionResults = new Dictionary<IOption, OptionResult>();
+            var visitor = new SymbolResultCollatorVisitor();
 
-            foreach (var symbolResult in this.AllSymbolResults())
-            {
-                switch (symbolResult)
-                {
-                    case ArgumentResult argumentResult:
-                        _allArgumentResults.Add(argumentResult.Argument, argumentResult);
-                        break;
-                    case CommandResult commandResult:
-                        _allCommandResults.Add(commandResult.Command, commandResult);
-                        break;
-                    case OptionResult optionResult:
-                        _allOptionResults.Add(optionResult.Option, optionResult);
-                        break;
-                }
-            }
+            visitor.Visit(this);
+
+            _allArgumentResults = visitor.ArgumentResults;
+            _allCommandResults = visitor.CommandResults;
+            _allOptionResults = visitor.OptionResults;
         }
 
         public override ArgumentResult? FindResultFor(IArgument argument)

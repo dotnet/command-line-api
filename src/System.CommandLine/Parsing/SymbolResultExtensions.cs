@@ -24,22 +24,6 @@ namespace System.CommandLine.Parsing
                 yield return item;
             }
         }
-        
-        internal static IEnumerable<SymbolResult> AllSymbolResults2(this SymbolResult symbolResult)
-        {
-            var tokenPositions = symbolResult.AllSymbolResults()
-                                                   .Select(r => r switch
-                                                   {
-                                                       CommandResult c => (symbol:r, pos: c.Token.Position),
-                                                       OptionResult o => (symbol: r, pos: o.Token?.Position),
-                                                       ArgumentResult a => (symbol: r, pos: a.Tokens.FirstOrDefault()?.Position ?? -1),
-                                                       _ => (r, -1)
-                                                   })
-                                                   .OrderBy(x => x.pos)
-                                                   .Select(x => x.symbol);
-
-            return tokenPositions;
-        }
 
         internal static Token Token(this SymbolResult symbolResult)
         {

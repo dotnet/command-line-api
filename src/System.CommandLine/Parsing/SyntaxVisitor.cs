@@ -28,8 +28,7 @@ namespace System.CommandLine.Parsing
 
                     for (var i = 0; i < rootCommandNode.Children.Count; i++)
                     {
-                        var child = rootCommandNode.Children[i];
-                        VisitInternal(child);
+                        VisitInternal(rootCommandNode.Children[i]);
                     }
 
                     break;
@@ -39,8 +38,7 @@ namespace System.CommandLine.Parsing
 
                     for (var i = 0; i < commandNode.Children.Count; i++)
                     {
-                        var child = commandNode.Children[i];
-                        VisitInternal(child);
+                        VisitInternal(commandNode.Children[i]);
                     }
 
                     break;
@@ -50,8 +48,7 @@ namespace System.CommandLine.Parsing
 
                     for (var i = 0; i < optionNode.Children.Count; i++)
                     {
-                        var child = optionNode.Children[i];
-                        VisitInternal(child);
+                        VisitInternal(optionNode.Children[i]);
                     }
 
                     break;
