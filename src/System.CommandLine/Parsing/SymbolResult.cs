@@ -39,7 +39,7 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyList<Token> Tokens => _tokens;
 
-        internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
+        internal bool IsArgumentLimitReached => RemainingArgumentCapacity == 0;
 
         private protected virtual int RemainingArgumentCapacity =>
             MaximumArgumentCapacity() - Tokens.Count;
@@ -90,22 +90,7 @@ namespace System.CommandLine.Parsing
                     argument,
                     this));
 
-        internal bool UseDefaultValueFor(IArgument argument)
-        {
-            switch (this)
-            {
-                case OptionResult optionResult
-                    when optionResult.IsImplicit:
-                    return true;
-
-                case CommandResult _
-                    when Children.ResultFor(argument)?.Tokens.Count == 0:
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
+        internal virtual bool UseDefaultValueFor(IArgument argument) => false;
 
         public override string ToString() => $"{GetType().Name}: {this.Token()}";
 

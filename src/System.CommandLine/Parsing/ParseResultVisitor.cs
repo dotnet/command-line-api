@@ -167,14 +167,58 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            foreach (var argumentResult in _rootCommandResult!.AllArgumentResults.Where(a => a.Parent is CommandResult))
-            {
-                ValidateArgumentResult(argumentResult);
-            }
-
             foreach (var optionResult in _rootCommandResult!.AllOptionResults)
             {
-                ValidateOptionResult(optionResult);
+                ValidateAndConvertOptionResult(optionResult);
+            }
+
+            var argumentResults = _rootCommandResult!
+                                  .AllArgumentResults
+                                  .ToList();
+
+            if (argumentResults.Count > 0)
+            {
+                var arguments = _innermostCommandResult!.Command.Arguments.ToArray();
+
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    if (argumentResults.Count == i)
+                    {
+                        var nextArgument = arguments[i];
+                        var nextArgumentResult = new ArgumentResult(
+                            nextArgument,
+                            _innermostCommandResult);
+
+                        var previousArgumentResult = argumentResults[i - 1];
+
+                        var passedOnTokens = _innermostCommandResult.Tokens.Skip(previousArgumentResult.Tokens.Count);
+                        
+                        foreach (var token in passedOnTokens)
+                        {
+                            if (nextArgumentResult.IsArgumentLimitReached)
+                            {
+                                break;
+                            }
+                            nextArgumentResult.AddToken(token);
+                        }
+
+                        argumentResults.Add(nextArgumentResult);
+
+                        previousArgumentResult.Parent!.Children.Add(nextArgumentResult);
+
+                        _rootCommandResult.AddToSymbolMap(nextArgumentResult);
+                    }
+
+                    var argumentResult = argumentResults[i];
+
+                    ValidateAndConvertArgumentResult(argumentResult);
+
+                    if (argumentResult.PassedOnTokens is {} && 
+                        i == arguments.Length - 1)
+                    {
+                       _unparsedTokens.AddRange(argumentResult.PassedOnTokens.Select(t => t.Value));
+                    }
+                }
             }
         }
 
@@ -247,7 +291,7 @@ namespace System.CommandLine.Parsing
                     _innermostCommandResult));
         }
 
-        private void ValidateOptionResult(OptionResult optionResult)
+        private void ValidateAndConvertOptionResult(OptionResult optionResult)
         {
             var argument = optionResult.Option.Argument;
 
@@ -282,12 +326,12 @@ namespace System.CommandLine.Parsing
                 var result = optionResult.Children[i];
                 if (result is ArgumentResult argumentResult)
                 {
-                    ValidateArgumentResult(argumentResult);
+                    ValidateAndConvertArgumentResult(argumentResult);
                 }
             }
         }
 
-        private void ValidateArgumentResult(ArgumentResult argumentResult)
+        private void ValidateAndConvertArgumentResult(ArgumentResult argumentResult)
         {
             if (argumentResult.Argument is Argument argument)
             {

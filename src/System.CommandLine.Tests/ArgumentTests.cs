@@ -506,6 +506,162 @@ namespace System.CommandLine.Tests
 
                 i.Should().Be(2);
             }
+
+            [Fact]
+            public void Custom_parser_can_pass_on_remaining_tokens()
+            {
+                var argument1 = new Argument<int[]>(
+                    "one",
+                    result =>
+                    {
+                        result.OnlyTake(3);
+
+                        return new[]
+                        {
+                            int.Parse(result.Tokens[0].Value),
+                            int.Parse(result.Tokens[1].Value),
+                            int.Parse(result.Tokens[2].Value)
+                        };
+                    });
+                var argument2 = new Argument<int[]>(
+                    "two",
+                    result => result.Tokens.Select(t => t.Value).Select(int.Parse).ToArray());
+                var command = new RootCommand
+                {
+                    argument1,
+                    argument2
+                };
+
+                var parseResult = command.Parse("1 2 3 4 5 6 7 8");
+
+                parseResult.FindResultFor(argument1)
+                           .GetValueOrDefault()
+                           .Should()
+                           .BeEquivalentTo(new[] { 1, 2, 3 },
+                                                    options => options.WithStrictOrdering());
+
+                parseResult.FindResultFor(argument2)
+                           .GetValueOrDefault()
+                           .Should()
+                           .BeEquivalentTo(new[] { 4, 5, 6, 7, 8 },
+                                                    options => options.WithStrictOrdering());
+            }
+
+            [Fact]
+            public void When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unparsed_tokens()
+            {
+
+                var argument1 = new Argument<int[]>(
+                    "one",
+                    result =>
+                    {
+                        result.OnlyTake(3);
+
+                        return new[]
+                        {
+                            int.Parse(result.Tokens[0].Value),
+                            int.Parse(result.Tokens[1].Value),
+                            int.Parse(result.Tokens[2].Value)
+                        };
+                    });
+             
+                var command = new RootCommand
+                {
+                    argument1
+                };
+
+                var parseResult = command.Parse("1 2 3 4 5 6 7 8");
+
+                parseResult.UnparsedTokens
+                           .Should()
+                           .BeEquivalentTo(new[] { "4", "5", "6", "7", "8" },
+                                           options => options.WithStrictOrdering());
+            }
+
+            [Fact]
+            public void When_custom_parser_passes_on_tokens_the_argument_result_tokens_reflect_the_change()
+            {
+                var argument1 = new Argument<int[]>(
+                    "one",
+                    result =>
+                    {
+                        result.OnlyTake(3);
+
+                        return new[]
+                        {
+                            int.Parse(result.Tokens[0].Value),
+                            int.Parse(result.Tokens[1].Value),
+                            int.Parse(result.Tokens[2].Value)
+                        };
+                    });
+                var argument2 = new Argument<int[]>(
+                    "two",
+                    result => result.Tokens.Select(t => t.Value).Select(int.Parse).ToArray());
+                var command = new RootCommand
+                {
+                    argument1,
+                    argument2
+                };
+
+                var parseResult = command.Parse("1 2 3 4 5 6 7 8");
+
+                parseResult.FindResultFor(argument1)
+                           .Tokens
+                           .Select(t => t.Value)
+                           .Should()
+                           .BeEquivalentTo(new[] { "1", "2", "3" },
+                                           options => options.WithStrictOrdering());
+
+                parseResult.FindResultFor(argument2)
+                           .Tokens
+                           .Select(t => t.Value)
+                           .Should()
+                           .BeEquivalentTo(new[] { "4", "5", "6", "7", "8" },
+                                           options => options.WithStrictOrdering());
+            }
+
+            [Fact]
+            public void OnlyTake_throws_when_called_with_a_negative_value()
+            {
+                 var argument = new Argument<int[]>(
+                    "one",
+                    result =>
+                    {
+                        result.OnlyTake(-1);
+
+                        return null;
+                    });
+
+                 argument.Invoking(a => a.Parse("1 2 3"))
+                         .Should()
+                         .Throw<ArgumentOutOfRangeException>()
+                         .Which
+                         .Message
+                         .Should()
+                         .ContainAll("Value must be at least 1.", "Actual value was -1.");
+            }
+
+            [Fact]
+            public void OnlyTake_throws_when_called_twice()
+            {
+                 var argument = new Argument<int[]>(
+                    "one",
+                    result =>
+                    {
+                        result.OnlyTake(1);
+                        result.OnlyTake(1);
+
+                        return null;
+                    });
+
+                 argument.Invoking(a => a.Parse("1 2 3"))
+                         .Should()
+                         .Throw<InvalidOperationException>()
+                         .Which
+                         .Message
+                         .Should()
+                         .Be("OnlyTake can only be called once.");
+            }
         }
 
         protected override Symbol CreateSymbol(string name)

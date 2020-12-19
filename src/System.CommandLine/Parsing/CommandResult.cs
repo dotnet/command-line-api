@@ -34,7 +34,7 @@ namespace System.CommandLine.Parsing
                 {
                     var results = Children
                                   .OfType<ArgumentResult>()
-                                  .Select(r => r.Convert(r.Argument));
+                                  .Select(r => r.GetArgumentConversionResult());
 
                     _results = new ArgumentConversionResultSet();
 
@@ -47,5 +47,13 @@ namespace System.CommandLine.Parsing
                 return _results;
             }
         }
+
+        internal override bool UseDefaultValueFor(IArgument argument) =>
+            Children.ResultFor(argument) switch
+            {
+                ArgumentResult arg => arg.Argument.HasDefaultValue && 
+                                      arg.Tokens.Count == 0,
+                _ => false
+            };
     }
 }

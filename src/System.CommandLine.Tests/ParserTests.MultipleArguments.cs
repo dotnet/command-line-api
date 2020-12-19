@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void arity_ambiguities_can_be_differentiated_by_type_convertibility()
+            public void tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_multiple_arity_argument()
             {
                 var ints = new Argument<int[]>();
                 var strings = new Argument<string[]>();
@@ -161,7 +161,7 @@ namespace System.CommandLine.Tests
                     strings
                 };
 
-                var result = root.Parse("1 2 3 one", "two");
+                var result = root.Parse("1 2 3 one two");
 
                 var _ = new AssertionScope();
 
@@ -174,6 +174,62 @@ namespace System.CommandLine.Tests
                       .Should()
                       .BeEquivalentTo(new[] { "one", "two" },
                                       options => options.WithStrictOrdering());
+            }
+
+            [Fact]
+            public void tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_single_arity_argument()
+            {
+                var ints = new Argument<int[]>();
+                var strings = new Argument<string>();
+
+                var root = new RootCommand
+                {
+                    ints,
+                    strings
+                };
+
+                var result = root.Parse("1 2 3 four five");
+
+                var _ = new AssertionScope();
+
+                result.ValueForArgument(ints)
+                      .Should()
+                      .BeEquivalentTo(new[] { 1, 2, 3 },
+                                      options => options.WithStrictOrdering());
+
+                result.ValueForArgument(strings)
+                      .Should()
+                      .Be("four");
+
+                result.UnparsedTokens.Should()
+                      .ContainSingle()
+                      .Which
+                      .Should()
+                      .Be("five");
+            }
+
+            [Fact(Skip = "https://github.com/dotnet/command-line-api/issues/1143")]
+            public void tokens_that_cannot_be_converted_by_multiple_arity_option_flow_to_next_single_arity_argument()
+            {
+                var option = new Option<int[]>("-i");
+                var argument = new Argument<string>("arg");
+
+                var command = new RootCommand
+                {
+                    option,
+                    argument
+                };
+
+                var result = command.Parse("-i 1 2 3 four");
+
+                result.FindResultFor(option)
+                      .GetValueOrDefault()
+                      .Should()
+                      .BeEquivalentTo(new[] { 1, 2, 3 }, options => options.WithStrictOrdering());
+
+                result.FindResultFor(argument)
+                      .Should()
+                      .Be("four");
             }
         }
     }

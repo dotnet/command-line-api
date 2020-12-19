@@ -106,31 +106,52 @@ namespace System.CommandLine.Binding
         public static ArgumentConversionResult ConvertStrings(
             IArgument argument,
             Type type,
-            IReadOnlyCollection<string> arguments)
+            IReadOnlyCollection<string> tokens,
+            ArgumentResult? argumentResult = null)
         {
             if (type is null)
             {
                 throw new ArgumentNullException(nameof(type));
             }
 
-            if (arguments is null)
+            if (tokens is null)
             {
-                throw new ArgumentNullException(nameof(arguments));
+                throw new ArgumentNullException(nameof(tokens));
             }
 
             var itemType = type == typeof(string)
                                ? typeof(string)
                                : GetItemTypeIfEnumerable(type);
 
-            var successfulParseResults = arguments
-                                         .Select(arg => ConvertString(argument, itemType, arg))
-                                         .OfType<SuccessfulArgumentConversionResult>();
+            var parseResults = tokens
+                               .Select(arg => ConvertString(argument, itemType, arg))
+                               .ToArray();
 
             var list = (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
 
-            foreach (var parseResult in successfulParseResults)
+            for (var i = 0; i < parseResults.Length; i++)
             {
-                list.Add(parseResult.Value);
+                var result = parseResults[i];
+
+                switch (result)
+                {
+                    case FailedArgumentTypeConversionResult _:
+                    case FailedArgumentConversionResult _:
+                        if (argumentResult is { })
+                        {
+                            argumentResult.OnlyTake(i);
+                        
+                            // exit the for loop
+                            i = parseResults.Length;
+                            break;
+                        }
+
+                        return result;
+               
+                    case SuccessfulArgumentConversionResult success:
+                        list.Add(success.Value);
+                        break;
+                }
             }
 
             var value = type.IsArray
@@ -179,10 +200,10 @@ namespace System.CommandLine.Binding
 
         private static FailedArgumentConversionResult Failure(
             IArgument argument,
-            Type type,
+            Type expectedType,
             string value)
         {
-            return new FailedArgumentTypeConversionResult(argument, type, value);
+            return new FailedArgumentTypeConversionResult(argument, expectedType, value);
         }
 
         public static bool CanBeBoundFromScalarValue(this Type type)
