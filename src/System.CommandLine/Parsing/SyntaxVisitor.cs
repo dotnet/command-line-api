@@ -26,8 +26,9 @@ namespace System.CommandLine.Parsing
                 case RootCommandNode rootCommandNode:
                     VisitRootCommandNode(rootCommandNode);
 
-                    foreach (var child in rootCommandNode.Children)
+                    for (var i = 0; i < rootCommandNode.Children.Count; i++)
                     {
+                        var child = rootCommandNode.Children[i];
                         VisitInternal(child);
                     }
 
@@ -36,8 +37,9 @@ namespace System.CommandLine.Parsing
                 case CommandNode commandNode:
                     VisitCommandNode(commandNode);
 
-                    foreach (var child in commandNode.Children)
+                    for (var i = 0; i < commandNode.Children.Count; i++)
                     {
+                        var child = commandNode.Children[i];
                         VisitInternal(child);
                     }
 
@@ -46,8 +48,9 @@ namespace System.CommandLine.Parsing
                 case OptionNode optionNode:
                     VisitOptionNode(optionNode);
 
-                    foreach (var child in optionNode.Children)
+                    for (var i = 0; i < optionNode.Children.Count; i++)
                     {
+                        var child = optionNode.Children[i];
                         VisitInternal(child);
                     }
 
