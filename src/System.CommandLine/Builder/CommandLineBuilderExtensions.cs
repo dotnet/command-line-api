@@ -212,21 +212,21 @@ namespace System.CommandLine.Builder
             {
                 if (context.ParseResult.Directives.Contains("debug"))
                 {
-                    const string environmentVariableName = "SYSTEM_COMMANDLINE_DEBUG_PROCESSES";
+                    const string environmentVariableName = "DOTNET_COMMANDLINE_DEBUG_PROCESSES";
 
+                    var process = Diagnostics.Process.GetCurrentProcess();
                     string debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
                     if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
                         context.Console.Error.WriteLine("Debug directive specified, but no process names are listed as allowed for debug.");
                         context.Console.Error.WriteLine($"Add your process name to the '{environmentVariableName}' environment variable.");
+                        context.Console.Error.WriteLine($"The value of the variable should be the name of the processes, separated by a semi-colon ';', for example '{environmentVariableName}={process.ProcessName}'");
                         context.ExitCode = errorExitCode ?? 1;
                         return;
                     }
                     else
                     {
                         string[] processNames = debuggableProcessNames.Split(';');
-
-                        var process = Diagnostics.Process.GetCurrentProcess();
                         if (processNames.Contains(process.ProcessName, StringComparer.Ordinal))
                         {
                             var processId = process.Id;
