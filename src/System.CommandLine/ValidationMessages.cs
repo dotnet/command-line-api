@@ -1,10 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -18,57 +16,55 @@ namespace System.CommandLine
         {
         }
 
-        public virtual string ExpectsOneArgument(SymbolResult symbolResult)
-        {
-            return symbolResult is CommandResult
-                       ? $"Command '{symbolResult.Token().Value}' expects a single argument but {symbolResult.Tokens.Count} were provided."
-                       : $"Option '{symbolResult.Token().Value}' expects a single argument but {symbolResult.Tokens.Count} were provided.";
-        }
+        public virtual string ExpectsOneArgument(SymbolResult symbolResult) => 
+            symbolResult is CommandResult
+                    ? GetResourceString(Properties.Resources.CommandExpectsOneArgument, symbolResult.Token().Value, symbolResult.Tokens.Count)
+                    : GetResourceString(Properties.Resources.OptionExpectsOneArgument, symbolResult.Token().Value, symbolResult.Tokens.Count);
 
         public virtual string NoArgumentProvided(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"No argument was provided for Command '{symbolResult.Token().Value}'."
-                : $"No argument was provided for Option '{symbolResult.Token().Value}'.";
+                ? GetResourceString(Properties.Resources.CommandNoArgumentProvided, symbolResult.Token().Value)
+                : GetResourceString(Properties.Resources.OptionNoArgumentProvided, symbolResult.Token().Value);
 
         public virtual string ExpectsFewerArguments(
             Token token,
             int providedNumberOfValues,
             int maximumNumberOfValues) =>
             token.Type == TokenType.Command
-                ? $"Command '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided."
-                : $"Option '{token}' expects no more than {maximumNumberOfValues} arguments, but {providedNumberOfValues} were provided.";
-
+                ? GetResourceString(Properties.Resources.CommandExpectsFewerArguments, token, maximumNumberOfValues, providedNumberOfValues)
+                : GetResourceString(Properties.Resources.OptionExpectsFewerArguments, token, maximumNumberOfValues, providedNumberOfValues);
+                
         public virtual string DirectoryDoesNotExist(string path) =>
             GetResourceString(Properties.Resources.DirectoryDoesNotExist, path);
 
         public virtual string FileDoesNotExist(string filePath) =>
-            $"File does not exist: {filePath}";
+            GetResourceString(Properties.Resources.FileDoesNotExist, filePath);
 
         public virtual string FileOrDirectoryDoesNotExist(string path) =>
-            $"File or directory does not exist: {path}";
+            GetResourceString(Properties.Resources.FileOrDirectoryDoesNotExist, path);
 
         public virtual string InvalidCharactersInPath(char invalidChar) =>
-            $"Character not allowed in a path: {invalidChar}";
+            GetResourceString(Properties.Resources.InvalidCharactersInPath, invalidChar);
 
         public virtual string RequiredArgumentMissing(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? $"Required argument missing for command: {symbolResult.Token().Value}"
-                : $"Required argument missing for option: {symbolResult.Token().Value}";
+                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, symbolResult.Token().Value)
+                : GetResourceString(Properties.Resources.OptionRequiredArgumentMissing, symbolResult.Token().Value);
 
         public virtual string RequiredCommandWasNotProvided() =>
-            "Required command was not provided.";
+            GetResourceString(Properties.Resources.RequiredCommandWasNotProvided);
 
         public virtual string UnrecognizedArgument(string unrecognizedArg, IReadOnlyCollection<string> allowedValues) =>
-            $"Argument '{unrecognizedArg}' not recognized. Must be one of:\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}";
+            GetResourceString(Properties.Resources.UnrecognizedArgument, unrecognizedArg,$"\n\t{string.Join("\n\t", allowedValues.Select(v => $"'{v}'"))}");
 
         public virtual string UnrecognizedCommandOrArgument(string arg) =>
-            $"Unrecognized command or argument '{arg}'";
+            GetResourceString(Properties.Resources.UnrecognizedCommandOrArgument, arg);
 
         public virtual string ResponseFileNotFound(string filePath) =>
-            $"Response file not found '{filePath}'";
+            GetResourceString(Properties.Resources.ResponseFileNotFound, filePath);
 
         public virtual string ErrorReadingResponseFile(string filePath, IOException e) =>
-            $"Error reading response file '{filePath}': {e.Message}";
+            GetResourceString(Properties.Resources.ErrorReadingResponseFile, filePath, e.Message);
 
         protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
         {
