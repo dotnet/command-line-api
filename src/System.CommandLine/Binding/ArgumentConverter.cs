@@ -330,17 +330,32 @@ namespace System.CommandLine.Binding
         [return: MaybeNull]
         internal static T GetValueOrDefault<T>(this ArgumentConversionResult result)
         {
-            switch (result)
+            return result switch
             {
-                case SuccessfulArgumentConversionResult successful:
-                    return (T)successful.Value!;
-                case FailedArgumentConversionResult failed:
-                    throw new InvalidOperationException(failed.ErrorMessage);
-                case NoArgumentConversionResult _:
-                    return default!;
-                default:
-                    return default!;
+                SuccessfulArgumentConversionResult successful => (T)successful.Value!,
+                FailedArgumentConversionResult failed => throw new InvalidOperationException(failed.ErrorMessage),
+                NoArgumentConversionResult _ => default!,
+                _ => default!,
+            };
+        }
+
+        [return: MaybeNull]
+        internal static T GetDefaultValue<T>()
+        {
+            var type = typeof(T);
+            if (GetItemTypeIfEnumerable(type) is Type itemType)
+            {
+                return (T)GetEmpty(itemType);
             }
+            return default!;
+        }
+
+        private static MethodInfo EnumerableEmptyMethod { get; }
+            = typeof(Enumerable).GetMethod(nameof(Enumerable.Empty));
+        internal static IEnumerable GetEmpty(Type type)
+        {
+            var genericMethod = EnumerableEmptyMethod.MakeGenericMethod(type);
+            return (IEnumerable)genericMethod.Invoke(null, new object[0]);
         }
 
         public static bool TryConvertBoolArgument(ArgumentResult argumentResult, out object? value)
