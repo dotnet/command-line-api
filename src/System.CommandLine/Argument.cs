@@ -65,54 +65,25 @@ namespace System.CommandLine
         {
             get
             {
-                if (_convertArguments == null)
+                if (_convertArguments is null)
                 {
                     if (ArgumentType.CanBeBoundFromScalarValue())
                     {
                         if (Arity.MaximumNumberOfValues == 1 &&
                             ArgumentType == typeof(bool))
                         {
-                            _convertArguments = (ArgumentResult symbol, out object? value) =>
-                            {
-                                value = ArgumentConverter.ConvertObject(
-                                    this,
-                                    typeof(bool),
-                                    symbol.Tokens.SingleOrDefault()?.Value ?? bool.TrueString);
-
-                                return value is SuccessfulArgumentConversionResult;
-                            };
+                            _convertArguments = ArgumentConverter.TryConvertBoolArgument;
                         }
                         else
                         {
-                            _convertArguments = DefaultConvert;
+                            _convertArguments = ArgumentConverter.TryConvertArgument;
                         }
                     }
                 }
 
                 return _convertArguments;
 
-                bool DefaultConvert(ArgumentResult argumentResult, out object value)
-                {
-                    switch (Arity.MaximumNumberOfValues)
-                    {
-                        case 1:
-                            value = ArgumentConverter.ConvertObject(
-                                this,
-                                ArgumentType,
-                                argumentResult.Tokens.Select(t => t.Value).SingleOrDefault());
-                            break;
-
-                        default:
-                            value = ArgumentConverter.ConvertStrings(
-                                this,
-                                ArgumentType,
-                                argumentResult.Tokens.Select(t => t.Value).ToArray(),
-                                argumentResult);
-                            break;
-                    }
-
-                    return value is SuccessfulArgumentConversionResult;
-                }
+          
             }
             set => _convertArguments = value;
         }

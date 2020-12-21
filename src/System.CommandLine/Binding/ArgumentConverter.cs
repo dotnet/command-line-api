@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.ComponentModel;
+using System.ComponentModel;    
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -117,7 +117,7 @@ namespace System.CommandLine.Binding
                                .Select(arg => ConvertString(argument, itemType, arg))
                                .ToArray();
 
-            var list = (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+            var list = CreateList();
 
             for (var i = 0; i < parseResults.Length; i++)
             {
@@ -149,6 +149,22 @@ namespace System.CommandLine.Binding
                             : list;
 
             return Success(argument, value);
+
+            IList CreateList()
+            {
+                if (itemType == typeof(string))
+                {
+                    return new List<string>();
+                }
+                else if (itemType == typeof(int))
+                {
+                    return new List<int>();
+                }
+                else
+                {
+                    return (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+                }
+            }
         }
 
         private static Type? GetItemTypeIfEnumerable(Type type)
@@ -311,6 +327,46 @@ namespace System.CommandLine.Binding
                 default:
                     return default!;
             }
+        }
+
+        public static bool TryConvertBoolArgument(ArgumentResult argumentResult, out object? value)
+        {
+            if (argumentResult.Tokens.Count == 0)
+            {
+                value = true;
+                return true;
+            }
+            else
+            {
+                var success = bool.TryParse(argumentResult.Tokens[0].Value, out var parsed);
+                value = parsed;
+                return success;
+            }
+        }
+
+        public static bool TryConvertArgument(ArgumentResult argumentResult, out object? value)
+        {
+            var argument = argumentResult.Argument;
+
+            switch (argument.Arity.MaximumNumberOfValues)
+            {
+                case 1:
+                    value = ConvertObject(
+                        argument,
+                        argument.ValueType,
+                        argumentResult.Tokens[0].Value);
+                    break;
+
+                default:
+                    value = ConvertStrings(
+                        argument,
+                        argument.ValueType,
+                        argumentResult.Tokens.Select(t => t.Value).ToArray(),
+                        argumentResult);
+                    break;
+            }
+
+            return value is SuccessfulArgumentConversionResult;
         }
     }
 }
