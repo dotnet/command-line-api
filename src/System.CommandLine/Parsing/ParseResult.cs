@@ -147,7 +147,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return ArgumentConverter.GetDefaultValue<T>();
+            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ArgumentType);
         }
 
         [return: MaybeNull]
@@ -159,7 +159,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return default!;
+            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ArgumentType);
         }
 
         [return: MaybeNull]

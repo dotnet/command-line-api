@@ -332,6 +332,23 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Option_of_IEnumerable_T_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option("-x")
+            {
+                Argument = new Argument
+                {
+                    ArgumentType = typeof(IEnumerable<string>)
+                }
+            };
+
+            var result = option.Parse("");
+            result.ValueForOption(option)
+                .Should()
+                .BeEquivalentTo(Enumerable.Empty<string>());
+        }
+
+        [Fact]
         public void Option_T_of_IEnumerable_T_defaults_to_empty_when_not_specified()
         {
             var option = new Option<IEnumerable<string>>("-x");

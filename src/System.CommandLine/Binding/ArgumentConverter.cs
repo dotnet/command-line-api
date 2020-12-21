@@ -350,6 +350,15 @@ namespace System.CommandLine.Binding
             return default!;
         }
 
+        internal static object? GetDefaultValue(Type type)
+        {
+            if (GetItemTypeIfEnumerable(type) is Type itemType)
+            {
+                return GetEmpty(itemType);
+            }
+            return null;
+        }
+
         private static MethodInfo EnumerableEmptyMethod { get; }
             = typeof(Enumerable).GetMethod(nameof(Enumerable.Empty));
         internal static IEnumerable GetEmpty(Type type)
