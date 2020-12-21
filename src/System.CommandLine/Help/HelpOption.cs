@@ -16,10 +16,10 @@ namespace System.CommandLine.Help
         {
         }
 
-        public override Argument Argument
+        internal override Argument Argument
         {
             get => Argument.None;
-            set => throw new NotSupportedException();
+            set { }
         }
 
         protected bool Equals(HelpOption other)

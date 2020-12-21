@@ -29,13 +29,7 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("the-command")
                           {
-                              new Option("--value")
-                              {
-                                  Argument = new Argument
-                                             {
-                                                 ArgumentType = type
-                                             }
-                              }
+                              new Option("--value", argumentType: type)
                           };
 
             var bindingContext = new BindingContext(command.Parse(commandLine));
@@ -111,10 +105,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Explicitly_configured_default_values_can_be_bound_by_name_to_constructor_parameters()
         {
-            var option = new Option("--string-option")
-            {
-                Argument = new Argument<string>(() => "the default")
-            };
+            var option = new Option<string>("--string-option", () => "the default");
 
             var command = new Command("the-command");
             command.AddOption(option);
@@ -143,13 +134,7 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("the-command")
                           {
-                              new Option("--value")
-                              {
-                                  Argument = new Argument
-                                             {
-                                                 ArgumentType = type
-                                             }
-                              }
+                              new Option("--value", argumentType: type)
                           };
             var parser = new Parser(command);
 
@@ -199,10 +184,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var tempPath = Path.GetTempPath();
 
-            var option = new Option("--value")
-            {
-                Argument = new Argument<DirectoryInfo>()
-            };
+            var option = new Option<DirectoryInfo>("--value");
 
             var command = new Command("the-command");
             command.AddOption(option);
@@ -217,12 +199,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Explicitly_configured_default_values_can_be_bound_by_name_to_property_setters()
         {
-            var argument = new Argument<string>(() => "the default");
-
-            var option = new Option("--value")
-            {
-                Argument = argument
-            };
+            var option = new Option<string>("--value", () => "the default");
 
             var command = new Command("the-command");
             command.AddOption(option);
@@ -241,10 +218,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var command = new Command("the-command")
                           {
-                              new Option("--string-option")
-                              {
-                                  Argument = new Argument<string>()
-                              }
+                              new Option<string>("--string-option")
                           };
 
             var binder = new ModelBinder(typeof(ClassWithSettersAndCtorParametersWithDifferentNames));
@@ -263,10 +237,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var parser = new Parser(new Command("the-command")
                                     {
-                                        new Option("--int-option")
-                                        {
-                                            Argument = new Argument<int>()
-                                        }
+                                        new Option<int>("--int-option")
                                     });
             var bindingContext = new BindingContext(parser.Parse("the-command --int-option 123"));
             var binder = new ModelBinder(typeof(ClassWithMultiLetterSetters));
@@ -281,10 +252,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var parser = new Parser(new Command("the-command")
                                     {
-                                        new Option("--int-option")
-                                        {
-                                            Argument = new Argument<int>()
-                                        }
+                                        new Option<int>("--int-option")
                                     });
             var instance = new ClassWithMultiLetterSetters();
             var bindingContext = new BindingContext(parser.Parse("the-command --int-option 123"));
@@ -300,10 +268,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var parentCommand = new Command("parent-command")
                                 {
-                                    new Option("--int-option")
-                                    {
-                                        Argument = new Argument<int>()
-                                    },
+                                    new Option<int>("--int-option"),
                                     new Command("child-command")
                                 };
 
@@ -323,10 +288,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var parentCommand = new Command("parent-command")
                                 {
-                                    new Option("--int-option")
-                                    {
-                                        Argument = new Argument<int>(() => 123)
-                                    },
+                                    new Option<int>("--int-option", () => 123),
                                     new Command("child-command")
                                 };
 
@@ -391,10 +353,7 @@ namespace System.CommandLine.Tests.Binding
         public void Values_from_options_on_parent_commands_can_be_bound_regardless_of_naming()
         {
             var childCommand = new Command("child-command");
-            var option = new Option("-x")
-            {
-                Argument = new Argument<int>()
-            };
+            var option = new Option<int>("-x");
             var parentCommand = new Command("parent-command")
                                 {
                                     option,
@@ -436,10 +395,7 @@ namespace System.CommandLine.Tests.Binding
         public void PropertyInfo_can_be_bound_to_option()
         {
             var command = new Command("the-command");
-            var option = new Option("--fred")
-            {
-                Argument = new Argument<int>()
-            };
+            var option = new Option<int>("--fred");
             command.Add(option);
 
             var type = typeof(ClassWithMultiLetterSetters);
@@ -481,7 +437,7 @@ namespace System.CommandLine.Tests.Binding
         public void PropertyExpression_can_be_bound_to_option()
         {
             var command = new Command("the-command");
-            var option = new Option("--fred") { Argument = new Argument<int>() };
+            var option = new Option<int>("--fred");
             command.AddOption(option);
 
             var binder = new ModelBinder<ClassWithMultiLetterSetters>();
@@ -520,7 +476,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Option_argument_is_bound_to_longest_constructor()
         {
-            var option = new Option("--int-property") { Argument = new Argument<int>() };
+            var option = new Option<int>("--int-property");
             var parser = new Parser(option);
 
             var bindingContext = new BindingContext(parser.Parse("--int-property 42"));
@@ -549,8 +505,8 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Explicit_model_binder_binds_only_to_configured_properties()
         {
-            var intOption = new Option("--int-property") { Argument = new Argument<int>() };
-            var stringOption = new Option("--string-property") { Argument = new Argument<string>() };
+            var intOption = new Option<int>("--int-property");
+            var stringOption = new Option<string>("--string-property");
             var parser = new Parser(intOption, stringOption);
 
             var bindingContext = new BindingContext(parser.Parse("--int-property 42 --string-property Hello"));
@@ -569,8 +525,8 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Explicit_model_binder_binds_only_to_configured_ctor_parameters()
         {
-            var intOption = new Option("-a") { Argument = new Argument<int>() };
-            var stringOption = new Option("-b") { Argument = new Argument<string>() };
+            var intOption = new Option<int>("-a");
+            var stringOption = new Option<string>("-b");
             var parser = new Parser(intOption, stringOption);
             var ctor = typeof(ClassWithMultiLetterCtorParameters)
                 .GetConstructors(BindingFlags.Public | BindingFlags.Instance)[0];

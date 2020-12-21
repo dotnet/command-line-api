@@ -36,13 +36,9 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("the-command")
                           {
-                              new Option("--value")
+                              new Option("--value", argumentType: type)
                               {
-                                  Argument = new Argument
-                                             {
-                                                 Name = "value",
-                                                 ArgumentType = type
-                                             }
+                                  ArgumentName = "value"
                               }
                           };
 
@@ -75,13 +71,9 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("the-command")
                           {
-                              new Option("--value")
+                              new Option("--value", argumentType: type)
                               {
-                                  Argument = new Argument
-                                             {
-                                                 Name = "value",
-                                                 ArgumentType = type
-                                             }
+                                  ArgumentName = "value"
                               }
                           };
 
@@ -114,13 +106,9 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("the-command")
                           {
-                              new Option("--value")
+                              new Option("--value", argumentType: type)
                               {
-                                  Argument = new Argument
-                                             {
-                                                 Name = "value",
-                                                 ArgumentType = type
-                                             }
+                                  ArgumentName = "value"
                               }
                           };
 
@@ -137,10 +125,9 @@ namespace System.CommandLine.Tests.Binding
         {
             var rootCommand = new RootCommand
             {
-                new Option("-n")
+                new Option<string[]>("-n")
                 {
-                    Argument = new Argument<string[]>("header"),
-                    Name = "name"
+                    ArgumentName = "name"
                 }
             };
 
@@ -202,13 +189,9 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("command")
                           {
-                              new Option("-x")
+                              new Option("-x", argumentType: parameterType)
                               {
-                                  Argument = new Argument
-                                  {
-                                      Name = "value",
-                                      ArgumentType = parameterType
-                                  }
+                                  ArgumentName = "value"
                               }
                           };
 
@@ -252,13 +235,7 @@ namespace System.CommandLine.Tests.Binding
 
             var root = new RootCommand
             {
-                new Option("-x")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = new ArgumentArity(1, 1)
-                    }
-                }
+                new Option("-x", arity: new ArgumentArity(1, 1))
             };
             root.Handler = handler;
 
@@ -352,13 +329,7 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("command")
                           {
-                              new Option("--value")
-                              {
-                                  Argument = new Argument
-                                             {
-                                                 ArgumentType = testCase.ParameterType
-                                             }
-                              }
+                              new Option("--value", argumentType: testCase.ParameterType)
                           };
             command.Handler = handler;
 
@@ -380,12 +351,9 @@ namespace System.CommandLine.Tests.Binding
         {
             string[] received = { "this should get overwritten" };
 
-            var o = new Option(
+            var o = new Option<string[]>(
                 new[] { "-i" },
-                "Path to an image or directory of supported images")
-            {
-                Argument = new Argument<string[]>()
-            };
+                "Path to an image or directory of supported images");
 
             var command = new Command("command") { o };
             command.Handler = CommandHandler.Create<string[], InvocationContext>((nameDoesNotMatch, c) => received = nameDoesNotMatch);
@@ -528,16 +496,9 @@ namespace System.CommandLine.Tests.Binding
 
             var handler = CommandHandler.Create(captureMethod);
 
-            var option = new Option("--value")
-            {
-                Argument = new Argument
-                {
-                    ArgumentType = c.ParameterType
-                }
-            };
+            var option = new Option("--value", argumentType: c.ParameterType);
 
-            var command = new Command(
-                "command")
+            var command = new Command("command")
             {
                 option
             };
@@ -545,7 +506,7 @@ namespace System.CommandLine.Tests.Binding
             {
                 throw new InvalidOperationException("Cannot bind to this type of handler");
             }
-            bindingHandler.BindParameter(parameter, option); 
+            bindingHandler.BindParameter(parameter, option);
             command.Handler = handler;
 
             var commandLine = $"--value {c.CommandLine}";

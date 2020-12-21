@@ -209,15 +209,9 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
                               {
-                                  new Option(prefix + "a")
-                                  {
-                                      Argument = new Argument<string>()
-                                  },
+                                  new Option<string>(prefix + "a"),
                                   new Option(prefix + "b"),
-                                  new Option(prefix + "c")
-                                  {
-                                      Argument = new Argument<string>()
-                                  }
+                                  new Option<string>(prefix + "c")
                               };
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
@@ -239,56 +233,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_takes_option_alias_as_its_name_when_it_is_not_provided()
         {
-            var command = new Option("--alias")
-            {
-                Argument = new Argument
-                {
-                    Arity = ArgumentArity.ZeroOrOne
-                }
-            };
+            var command = new Option("--alias", arity: ArgumentArity.ZeroOrOne);
 
-            command.Argument.Name.Should().Be("alias");
+            command.ArgumentName.Should().Be("alias");
         }
 
         [Fact]
         public void Argument_retains_name_when_it_is_provided()
         {
-            var option = new Option("-alias")
+            var option = new Option("-alias", arity: ArgumentArity.ZeroOrOne)
             {
-                Argument = new Argument
-                {
-                    Name = "arg",
-                    Arity = ArgumentArity.ZeroOrOne
-                }
+                ArgumentName = "arg"
             };
 
-            option.Argument.Name.Should().Be("arg");
-        }
-
-        [Fact]
-        public void Option_T_Argument_returns_an_Argument_T_when_not_explicitly_initialized()
-        {
-            var option = new Option<int>("-i");
-
-            option.Argument.Should().BeOfType<Argument<int>>();
-        }
-
-        [Theory]
-        [InlineData(typeof(Argument))]
-        [InlineData(typeof(Argument<string>))]
-        public void Option_T_Argument_cannot_be_set_to_Argument_of_incorrect_type(Type argumentType)
-        {
-            var option = new Option<int>("i");
-
-            var argument = Activator.CreateInstance(argumentType);
-
-            option.Invoking(o => o.Argument = (Argument) argument)
-                  .Should()
-                  .Throw<ArgumentException>()
-                  .Which
-                  .Message
-                  .Should()
-                  .Be($"Argument must be of type {typeof(Argument<int>)} but was {argument.GetType()}");
+            option.ArgumentName.Should().Be("arg");
         }
 
         [Fact]
@@ -310,18 +268,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_T_default_value_is_validated()
         {
-            var arg = new Argument<int>(() => 123);
-            arg.AddValidator( symbol =>
+            var option = new Option<int>("-x", () => 123);
+            option.AddValidator( symbol =>
                     symbol.Tokens
                     .Select(t => t.Value)
                     .Where(v => v == "123")
                     .Select(x => "ERR")
                     .FirstOrDefault());
 
-            var option = new Option("-x")
-            { 
-                Argument = arg
-            };
 
             option
                 .Parse("-x 123")

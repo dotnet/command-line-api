@@ -20,10 +20,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             var rootCommand = new Command("root_command");
             var nestedCommand = new Command("nested_command");
-            var option = new Option("-opt1")
-            {
-                Argument = new Argument<int>(() => 123)
-            };
+            var option = new Option<int>("-opt1", () => 123);
             nestedCommand.AddOption(option);
             rootCommand.AddCommand(nestedCommand);
 

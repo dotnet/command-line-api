@@ -40,34 +40,29 @@ namespace System.CommandLine.Tests.Help
                     parseArgument: _ => "the-root-option--no-description-default-arg-value",
                     isDefault: true
                 ),
-                new Option(aliases: new string[] {"--the-root-option-no-default-arg", "-tronda"}) {
+                new Option<string>(aliases: new string[] {"--the-root-option-no-default-arg", "-tronda"}) {
                     Description = "the-root-option-no-default-description",
-                    Argument = new Argument<string>("the-root-option-arg-no-default-arg")
-                    {
-                        Description = "the-root-option-arg-no-default-description"
-                    },
+                    ArgumentName = "the-root-option-arg-no-default-arg",
+                    ArgumentDescription = "the-root-option-arg-no-default-description",
                     IsRequired = true
                 },
-                new Option(aliases: new string[] {"--the-root-option-default-arg", "-troda"}) {
+                new Option<string>(aliases: new string[] {"--the-root-option-default-arg", "-troda"}, () => "the-root-option-arg-value") 
+                {
                     Description = "the-root-option-default-arg-description",
-                    Argument = new Argument<string>("the-root-option-arg", () => "the-root-option-arg-value")
-                    {
-                        Description = "the-root-option-arg-description"
-                    },
+                    ArgumentName = "the-root-option-arg",
+                    ArgumentDescription = "the-root-option-arg-description"
                 },
-                new Option(aliases: new string[] {"--the-root-option-enum-arg", "-troea"}) {
+                new Option<FileAccess>(aliases: new string[] {"--the-root-option-enum-arg", "-troea"}, () => FileAccess.Read) 
+                {
                     Description = "the-root-option-description",
-                    Argument = new Argument<FileAccess>("the-root-option-arg", () => FileAccess.Read)
-                    {
-                        Description = "the-root-option-arg-description",
-                    }
+                    ArgumentName = "the-root-option-arg",
+                    ArgumentDescription = "the-root-option-arg-description"
                 },
-                new Option(aliases: new string[] {"--the-root-option-required-enum-arg", "-trorea"}) {
+                new Option<FileAccess>(aliases: new string[] {"--the-root-option-required-enum-arg", "-trorea"}, () => FileAccess.Read) 
+                {
                     Description = "the-root-option-description",
-                    Argument = new Argument<FileAccess>("the-root-option-arg", () => FileAccess.Read)
-                    {
-                        Description = "the-root-option-arg-description",
-                    },
+                    ArgumentName = "the-root-option-arg",
+                    ArgumentDescription = "the-root-option-arg-description",
                     IsRequired = true
                 },
                 new Option(aliases: new string[] {"--the-root-option-multi-line-description", "-tromld"}) {

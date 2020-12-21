@@ -255,10 +255,7 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Option("--bool-option")
-                {
-                    Argument = new Argument<bool>()
-                }
+                new Option<bool>("--bool-option")
             };
 
             var console = new TestConsole();

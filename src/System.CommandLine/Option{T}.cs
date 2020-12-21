@@ -8,79 +8,62 @@ namespace System.CommandLine
     public class Option<T> : Option
     {
         public Option(
-            string alias, 
-            string? description = null) : base(alias, description)
-        {
-            Argument = new Argument<T>();
-        }
+            string alias,
+            string? description = null,
+            IArgumentArity? arity = null) 
+            : base(new[] { alias }, description, new Argument<T> { Arity = arity })
+        { }
 
         public Option(
-            string[] aliases, 
-            string? description = null) : base(aliases, description)
-        {
-            Argument = new Argument<T>();
-        }
+            string[] aliases,
+            string? description = null) 
+            : base(aliases, description, new Argument<T>())
+        { }
 
         public Option(
             string alias,
             ParseArgument<T> parseArgument,
             bool isDefault = false,
-            string? description = null) : base(alias, description)
-        {
-            if (parseArgument is null)
-            {
-                throw new ArgumentNullException(nameof(parseArgument));
-            }
-
-            Argument = new Argument<T>(parseArgument, isDefault);
-        }
+            string? description = null) 
+            : base(new[] { alias }, description, 
+                  new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
+        { }
 
         public Option(
             string[] aliases,
             ParseArgument<T> parseArgument,
             bool isDefault = false,
-            string? description = null) : base(aliases, description)
-        {
-            if (parseArgument is null)
-            {
-                throw new ArgumentNullException(nameof(parseArgument));
-            }
-
-            Argument = new Argument<T>(parseArgument, isDefault);
-        }
+            string? description = null) 
+            : base(aliases, description, new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
+        { }
 
         public Option(
             string alias,
             Func<T> getDefaultValue,
-            string? description = null) : base(alias, description)
-        {
-            if (getDefaultValue is null)
-            {
-                throw new ArgumentNullException(nameof(getDefaultValue));
-            }
-
-            Argument = new Argument<T>(getDefaultValue);
-        }
+            string? description = null) 
+            : base(new[] { alias }, description, 
+                  new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
+        { }
 
         public Option(
             string[] aliases,
             Func<T> getDefaultValue,
-            string? description = null) : base(aliases, description)
-        {
-            if (getDefaultValue is null)
-            {
-                throw new ArgumentNullException(nameof(getDefaultValue));
-            }
+            string? description = null) 
+            : base(aliases, description, new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
+        { }
 
-            Argument = new Argument<T>(getDefaultValue);
+        private protected override Argument GetDefaultArgument()
+        {
+            return new Argument<T> { Arity = ArgumentArity.Zero };
         }
 
-        public override Argument Argument
+        internal override Argument Argument
         {
             set
             {
                 if (!(value is Argument<T>))
                 {
+
                     throw new ArgumentException($"{nameof(Argument)} must be of type {typeof(Argument<T>)} but was {value?.GetType().ToString() ?? "null"}");
                 }
 
