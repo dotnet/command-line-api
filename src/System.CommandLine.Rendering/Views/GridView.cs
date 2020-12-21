@@ -36,11 +36,11 @@ namespace System.CommandLine.Rendering.Views
 
         public void SetColumns(params ColumnDefinition[] columns)
         {
-            if (Children.Any())
+            if (Children.Count > 0)
             {
                 throw new InvalidOperationException("Cannot change columns once children are added");
             }
-            if (columns?.Any() != true)
+            if ((columns is null) || (columns.Length == 0))
             {
                 throw new ArgumentException("Must specify at least one column", nameof(columns));
             }
@@ -51,11 +51,11 @@ namespace System.CommandLine.Rendering.Views
 
         public void SetRows(params RowDefinition[] rows)
         {
-            if (Children.Any())
+            if (Children.Count > 0)
             {
                 throw new InvalidOperationException("Cannot change rows once children are added");
             }
-            if (rows?.Any() != true)
+            if ((rows is null) || (rows.Length == 0))
             {
                 throw new ArgumentException("Must specify at least one row", nameof(rows));
             }

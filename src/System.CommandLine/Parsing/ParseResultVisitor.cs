@@ -34,20 +34,33 @@ namespace System.CommandLine.Parsing
             _tokenizeResult = tokenizeResult;
             _rawInput = rawInput;
 
-            _unparsedTokens = new List<string>();
-            if (unparsedTokens?.Count > 0)
+            var unparsedTokensCount = unparsedTokens?.Count ?? 0;
+            _unparsedTokens = unparsedTokensCount == 0 ? new List<string>() : new List<string>(unparsedTokensCount);
+            if (unparsedTokensCount > 0)
             {
-                _unparsedTokens.AddRange(unparsedTokens.Select(t => t.Value));
+                foreach (var unparsedToken in unparsedTokens!)
+                {
+                    _unparsedTokens.Add(unparsedToken.Value);
+                }
             }
 
-            _unmatchedTokens = new List<string>();
-            if (unmatchedTokens?.Count > 0)
+            var unmatchedTokensCount = unmatchedTokens?.Count ?? 0;
+            _unmatchedTokens = unmatchedTokensCount == 0 ? new List<string>() : new List<string>(unmatchedTokensCount);
+            if (unmatchedTokensCount > 0)
             {
-                _unmatchedTokens.AddRange(unmatchedTokens.Select(t => t.Value));
+                foreach (var unmatchedToken in unmatchedTokens!)
+                {
+                    _unmatchedTokens.Add(unmatchedToken.Value);
+                }
             }
 
-            _errors = new List<ParseError>();
-            _errors.AddRange(_tokenizeResult.Errors.Select(t => new ParseError(t.Message)));
+            _errors = new List<ParseError>(_tokenizeResult.Errors.Count + parseErrors.Count);
+
+            foreach(var error in _tokenizeResult.Errors)
+            {
+                _errors.Add(new ParseError(error.Message));
+            }
+
             _errors.AddRange(parseErrors);
         }
 
@@ -279,7 +292,7 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            if (!cmd.Children.OfType<ICommand>().Any())
+            if (!cmd.Children.HasAnyOfType<ICommand>())
             {
                 return;
             }

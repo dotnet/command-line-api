@@ -47,7 +47,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(symbols));
             }
 
-            if (!symbols.Any())
+            if (symbols.Count == 0)
             {
                 throw new ArgumentException("You must specify at least one option or command.");
             }

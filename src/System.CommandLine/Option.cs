@@ -27,7 +27,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(aliases));
             }
 
-            if (!aliases.Any())
+            if (aliases.Length == 0)
             {
                 throw new ArgumentException("An option must have at least one alias.", nameof(aliases));
             }

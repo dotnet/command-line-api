@@ -51,6 +51,7 @@ namespace System.CommandLine.DragonFruit
             commandHelpMetadata = null;
 
             var sb = new StringBuilder();
+
             sb.Append("M:");
             AppendTypeName(sb, info.DeclaringType);
             sb.Append(".")

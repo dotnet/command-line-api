@@ -42,6 +42,29 @@ namespace System.CommandLine.Parsing
             return rawAlias;
         }
 
+        internal static int AdvancePrefix(this string rawAlias)
+        {
+            if (rawAlias.Length > 0)
+            {
+                if (rawAlias[0] == '/')
+                {
+                    return 1;
+                }
+
+                if (rawAlias[0] == '-')
+                {
+                    if (rawAlias.Length > 1 && rawAlias[1] == '-')
+                    {
+                        return 2;
+                    }
+
+                    return 1;
+                }
+            }
+
+            return 0;
+        }
+
         internal static (string? prefix, string alias) SplitPrefix(this string rawAlias)
         {
             for (var i = 0; i < _optionPrefixStrings.Length; i++)
@@ -91,9 +114,9 @@ namespace System.CommandLine.Parsing
 
                 if (!foundEndOfDirectives)
                 {
-                    if (arg.StartsWith("[") && 
-                        arg.EndsWith("]") && 
-                        arg[1] != ']' && 
+                    if (arg.StartsWith("[") &&
+                        arg.EndsWith("]") &&
+                        arg[1] != ']' &&
                         arg[1] != ':')
                     {
                         tokenList.Add(Directive(arg));
@@ -113,7 +136,7 @@ namespace System.CommandLine.Parsing
                     continue;
                 }
 
-                if (configuration.EnablePosixBundling && 
+                if (configuration.EnablePosixBundling &&
                     CanBeUnbundled(arg, out IReadOnlyCollection<string>? replacement))
                 {
                     argList.InsertRange(i + 1, replacement);
@@ -121,8 +144,8 @@ namespace System.CommandLine.Parsing
                     arg = argList[i];
                 }
 
-                if (arg.TrySplitIntoSubtokens(argumentDelimiters, 
-                                              out var first, 
+                if (arg.TrySplitIntoSubtokens(argumentDelimiters,
+                                              out var first,
                                               out var rest))
                 {
                     if (knownTokens.TryGetValue(first!, out var token) &&
@@ -166,7 +189,7 @@ namespace System.CommandLine.Parsing
                             symbolSet = configuration.Symbols;
                         }
 
-                        currentCommand = (ICommand) symbolSet.GetByAlias(arg)!;
+                        currentCommand = (ICommand)symbolSet.GetByAlias(arg)!;
 
                         knownTokens = currentCommand.ValidTokens();
 
@@ -190,7 +213,7 @@ namespace System.CommandLine.Parsing
                 // don't unbundle if the last token is an option expecting an argument
                 if (tokenList[tokenList.Count - 1] is { } lastToken &&
                     lastToken.Type == TokenType.Option &&
-                    currentCommand?.Children.GetByAlias(lastToken.Value) is IOption option && 
+                    currentCommand?.Children.GetByAlias(lastToken.Value) is IOption option &&
                     option.Argument.Arity.MinimumNumberOfValues > 0)
                 {
                     return false;
@@ -198,7 +221,7 @@ namespace System.CommandLine.Parsing
 
                 var (prefix, alias) = arg.SplitPrefix();
 
-                return prefix == "-" && 
+                return prefix == "-" &&
                        TryUnbundle(out replacement);
 
                 Token? TokenForOptionAlias(char c)
@@ -207,16 +230,16 @@ namespace System.CommandLine.Parsing
                     {
                         return null;
                     }
-                
+
                     foreach (var token in knownTokens.Values)
                     {
-                        if (token.Type == TokenType.Option && 
+                        if (token.Type == TokenType.Option &&
                             token.UnprefixedValue == c.ToString())
                         {
                             return token;
                         }
                     }
-                
+
                     return null;
                 }
 
@@ -231,7 +254,7 @@ namespace System.CommandLine.Parsing
                         list.Add(rest);
                     }
                 }
-                
+
                 bool TryUnbundle(out IReadOnlyCollection<string>? replacement)
                 {
                     if (alias == string.Empty)
@@ -336,7 +359,7 @@ namespace System.CommandLine.Parsing
         }
 
         private static List<string> NormalizeRootCommand(
-            CommandLineConfiguration commandLineConfiguration, 
+            CommandLineConfiguration commandLineConfiguration,
             IReadOnlyList<string>? args)
         {
             if (args is null)
@@ -384,7 +407,7 @@ namespace System.CommandLine.Parsing
             }
 
             return list;
-            
+
             bool FirstArgMatchesRootCommand()
             {
                 if (potentialRootCommand is null)
@@ -449,7 +472,7 @@ namespace System.CommandLine.Parsing
                 return value;
             }
 
-            var sb = new StringBuilder();
+            var sb = StringBuilderPool.Default.Rent();
             int i = 0;
             bool addDash = false;
 
@@ -492,7 +515,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            return sb.ToString();
+            return StringBuilderPool.Default.GetStringAndReturn(sb);
         }
 
         private static Token Argument(string value) => new Token(value, TokenType.Argument);

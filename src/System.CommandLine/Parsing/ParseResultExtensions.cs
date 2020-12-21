@@ -56,13 +56,13 @@ namespace System.CommandLine.Parsing
 
             if (string.IsNullOrWhiteSpace(rawInput))
             {
-                if (source.UnmatchedTokens.Any() ||
-                    lastToken?.Type == TokenType.Argument)
+                if ((source.UnmatchedTokens.Count > 0) ||
+                    (lastToken?.Type == TokenType.Argument))
                 {
                     return textToMatch ?? "";
                 }
             }
-            else 
+            else
             {
                 var textBeforeCursor = rawInput!.Substring(0, position!.Value);
 
@@ -77,22 +77,29 @@ namespace System.CommandLine.Parsing
 
         public static string Diagram(this ParseResult result)
         {
-            var builder = new StringBuilder();
+            var builder = StringBuilderPool.Default.Rent();
 
-            builder.Diagram(result.RootCommandResult, result);
-
-            if (result.UnmatchedTokens.Any())
+            try
             {
-                builder.Append("   ???-->");
+                builder.Diagram(result.RootCommandResult, result);
 
-                foreach (var error in result.UnmatchedTokens)
+                if (result.UnmatchedTokens.Count > 0)
                 {
-                    builder.Append(" ");
-                    builder.Append(error);
-                }
-            }
+                    builder.Append("   ???-->");
 
-            return builder.ToString();
+                    foreach (var error in result.UnmatchedTokens)
+                    {
+                        builder.Append(" ");
+                        builder.Append(error);
+                    }
+                }
+
+                return builder.ToString();
+            }
+            finally
+            {
+                StringBuilderPool.Default.Return(builder);
+            }
         }
 
         private static void Diagram(
@@ -104,8 +111,8 @@ namespace System.CommandLine.Parsing
             {
                 builder.Append("!");
             }
-            
-            if (symbolResult is OptionResult optionResult && 
+
+            if (symbolResult is OptionResult optionResult &&
                 optionResult.IsImplicit)
             {
                 builder.Append("*");

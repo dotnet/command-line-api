@@ -7,15 +7,45 @@ namespace System.CommandLine.Binding
 {
     internal static class Binder
     {
-        internal static bool IsMatch(this string parameterName, string alias) =>
-            string.Equals(alias?.RemovePrefix()
-                              .Replace("-", "")
-                              .Replace("|", "or"),
-                          parameterName,
-                          StringComparison.OrdinalIgnoreCase);
+        internal static bool IsMatch(this string parameterName, string alias)
+        {
+            var parameterIndex = 0;
+            for (var aliasIndex = alias.AdvancePrefix(); aliasIndex < alias.Length; aliasIndex++)
+            {
+                var aliasChar = alias[aliasIndex];
+
+                if (aliasChar == '-')
+                {
+                    continue;
+                }
+
+                var parameterNameChar = parameterName[parameterIndex];
+
+                if (aliasChar == '|')
+                {
+                    if ((parameterName.Length < parameterIndex + 2) || ((parameterNameChar | 32) != 'o') || ((parameterName[parameterIndex + 1] | 32) != 'r'))
+                    {
+                        return false;
+                    }
+
+                    parameterIndex += 2;
+
+                    continue;
+                }
+
+                if (parameterNameChar != aliasChar && char.ToUpperInvariant(parameterNameChar) != char.ToUpperInvariant(aliasChar))
+                {
+                    return false;
+                }
+
+                parameterIndex++;
+            }
+
+            return true;
+        }
 
         internal static bool IsMatch(this string parameterName, IOption symbol) =>
-            parameterName.IsMatch(symbol.Name) || 
+            parameterName.IsMatch(symbol.Name) ||
             symbol.HasAlias(parameterName);
 
         internal static bool IsNullable(this Type t)

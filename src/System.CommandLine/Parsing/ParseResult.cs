@@ -36,13 +36,14 @@ namespace System.CommandLine.Parsing
 
             RawInput = rawInput;
 
-            _errors = errors ?? new List<ParseError>();
+            _errors = errors ?? ((parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors) ? new List<ParseError>(unmatchedTokens.Count) : new List<ParseError>());
 
             if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
-                _errors.AddRange(
-                    unmatchedTokens.Select(token =>
-                                               new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
+                foreach (var token in unmatchedTokens)
+                {
+                    _errors.Add(new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token)));
+                }
             }
         }
 
@@ -79,8 +80,8 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForArgument<T>(Argument<T> argument)
         {
-            if (FindResultFor(argument) is {} result &&
-                result.GetValueOrDefault<T>() is {} t)
+            if (FindResultFor(argument) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
             {
                 return t;
             }
@@ -91,8 +92,8 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForArgument<T>(Argument argument)
         {
-            if (FindResultFor(argument) is {} result &&
-                result.GetValueOrDefault<T>() is {} t)
+            if (FindResultFor(argument) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
             {
                 return t;
             }
@@ -121,8 +122,8 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForOption<T>(Option<T> option)
         {
-            if (FindResultFor(option) is {} result &&
-                result.GetValueOrDefault<T>() is {} t)
+            if (FindResultFor(option) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
             {
                 return t;
             }
@@ -133,8 +134,8 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForOption<T>(Option option)
         {
-            if (FindResultFor(option) is {} result &&
-                result.GetValueOrDefault<T>() is {} t)
+            if (FindResultFor(option) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
             {
                 return t;
             }

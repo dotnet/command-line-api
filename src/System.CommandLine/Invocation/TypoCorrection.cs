@@ -28,7 +28,7 @@ namespace System.CommandLine.Invocation
             {
                 string suggestions = string.Join(", or ", GetPossibleTokens(result.CommandResult.Command, token).Select(x => $"'{x}'"));
 
-                if (suggestions.Any())
+                if (suggestions.Length > 0)
                 {
                     console.Out.WriteLine($"'{token}' was not matched. Did you mean {suggestions}?");
                 }
@@ -39,8 +39,8 @@ namespace System.CommandLine.Invocation
         {
             IEnumerable<string> possibleMatches = targetSymbol
                 .Children
-                .OfType<IIdentifierSymbol>()
                 .Where(x => !x.IsHidden)
+                .OfType<IIdentifierSymbol>()
                 .Where(x => x.Aliases.Count > 0)
                 .Select(symbol => 
                     symbol.Aliases
