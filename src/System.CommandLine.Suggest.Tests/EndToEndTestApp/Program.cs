@@ -13,22 +13,10 @@ namespace EndToEndTestApp
         {
             var rootCommand = new RootCommand
             {
-                new Option("--apple" )
-                {
-                    Argument = new Argument<string>()
-                },
-                new Option("--banana")
-                {
-                    Argument = new Argument<string>()
-                },
-                new Option("--cherry")
-                {
-                    Argument = new Argument<string>()
-                },
-                new Option("--durian")
-                {
-                    Argument = new Argument<string>()
-                }
+                new Option<string>("--apple" ),
+                new Option<string>("--banana"),
+                new Option<string>("--cherry"),
+                new Option<string>("--durian")
             };
 
             rootCommand.Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)));
