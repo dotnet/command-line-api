@@ -338,11 +338,15 @@ namespace System.CommandLine.Tests
             {
                 Argument = new Argument
                 {
-                    ArgumentType = typeof(IEnumerable<string>)
+                    ArgumentType = typeof(IEnumerable<string>),
+                    Arity = ArgumentArity.ZeroOrMore
                 }
             };
 
             var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
             result.ValueForOption(option)
                 .Should()
                 .BeEquivalentTo(Enumerable.Empty<string>());
@@ -354,6 +358,9 @@ namespace System.CommandLine.Tests
             var option = new Option<IEnumerable<string>>("-x");
 
             var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse(); 
             result.ValueForOption(option)
                 .Should()
                 .BeEmpty();
