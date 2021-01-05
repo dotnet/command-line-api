@@ -28,4 +28,7 @@
     <PackageReference Include="system.memory" Version="4.5.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx" GenerateSource="true" />
+  </ItemGroup>
 </Project>
