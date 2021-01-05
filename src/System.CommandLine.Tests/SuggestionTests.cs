@@ -987,7 +987,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<DayOfWeek?>()
+                    new Argument<DayOfWeek?>
                     {
                         Suggestions = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
                     }

@@ -19,7 +19,7 @@ namespace System.CommandLine
         private IArgumentArity? _arity;
         private TryConvertArgument? _convertArguments;
         private Type _argumentType = typeof(string);
-        private List<ISuggestionSource>? _suggestions = null;
+        private SuggestionSourceList? _suggestions = null;
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
@@ -93,13 +93,13 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the list of suggestion sources for the argument.
         /// </summary>
-        public List<ISuggestionSource> Suggestions
+        public SuggestionSourceList Suggestions
         { 
             get
             {
                 if (_suggestions is null)
                 {
-                    _suggestions = new List<ISuggestionSource>
+                    _suggestions = new SuggestionSourceList
                     {
                         SuggestionSource.ForType(ArgumentType)
                     };
