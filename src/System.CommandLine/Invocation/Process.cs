@@ -54,7 +54,8 @@ namespace System.CommandLine.Invocation
                     FileName = command,
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
-                    RedirectStandardInput = true
+                    RedirectStandardInput = true,
+                    UseShellExecute = false
                 }
             };
 
