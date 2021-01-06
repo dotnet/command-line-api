@@ -51,7 +51,7 @@ namespace System.CommandLine.Binding
                         return ConvertString(argument, type, singleValue);
                     }
 
-                case IReadOnlyCollection<string> manyValues:
+                case IReadOnlyList<string> manyValues:
                     return ConvertStrings(argument, type, manyValues);
             }
 
@@ -106,57 +106,54 @@ namespace System.CommandLine.Binding
         public static ArgumentConversionResult ConvertStrings(
             IArgument argument,
             Type type,
-            IReadOnlyCollection<string> tokens,
+            IReadOnlyList<string> tokens,
             ArgumentResult? argumentResult = null)
         {
             var itemType = type == typeof(string)
                                ? typeof(string)
                                : GetItemTypeIfEnumerable(type);
 
-            var parseResults = tokens
-                               .Select(arg => ConvertString(argument, itemType, arg))
-                               .ToArray();
+            var (values, isArray) = type.IsArray
+                             ? (CreateArray(itemType!, tokens.Count), true)
+                             : (CreateList(itemType!, tokens.Count), false);
 
-            var list = CreateList(itemType, parseResults.Length);
-
-            for (var i = 0; i < parseResults.Length; i++)
+            for (var i = 0; i < tokens.Count; i++)
             {
-                var result = parseResults[i];
+                var token = tokens[i];
+
+                var result = ConvertString(argument, itemType, token);
 
                 switch (result)
                 {
                     case FailedArgumentTypeConversionResult _:
                     case FailedArgumentConversionResult _:
                         if (argumentResult is { })
-                        {
+                        { 
                             argumentResult.OnlyTake(i);
-                        
+
                             // exit the for loop
-                            i = parseResults.Length;
+                            i = tokens.Count;
                             break;
                         }
 
                         return result;
-               
+
                     case SuccessfulArgumentConversionResult success:
-                        list.Add(success.Value);
+                        if (isArray)
+                        {
+                            values[i] = success.Value;
+                        }
+                        else
+                        {
+                            values.Add(success.Value);
+                        }
+
                         break;
                 }
             }
 
-            object value;
+            return Success(argument, values);
 
-            if (type.IsArray)
-            {
-                value = (object) Enumerable.ToArray((dynamic) list);
-            }
-            else
-            {
-                value = list;
-            }
-
-            return Success(argument, value);
-            
             static IList CreateList(Type itemType, int capacity)
             {
                 if (itemType == typeof(string))
@@ -172,6 +169,22 @@ namespace System.CommandLine.Binding
                     return (IList) Activator.CreateInstance(
                         typeof(List<>).MakeGenericType(itemType),
                         capacity);
+                }
+            }
+
+            static IList CreateArray(Type itemType, int capacity)
+            {
+                if (itemType == typeof(string))
+                {
+                    return new string[capacity];
+                }
+                else if (itemType == typeof(int))
+                {
+                    return new int[capacity];
+                }
+                else
+                {
+                    return Array.CreateInstance(itemType, capacity);
                 }
             }
         }
