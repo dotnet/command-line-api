@@ -117,7 +117,7 @@ namespace System.CommandLine.Binding
                                .Select(arg => ConvertString(argument, itemType, arg))
                                .ToArray();
 
-            var list = CreateList();
+            var list = CreateList(itemType);
 
             for (var i = 0; i < parseResults.Length; i++)
             {
@@ -144,13 +144,20 @@ namespace System.CommandLine.Binding
                 }
             }
 
-            var value = type.IsArray
-                            ? (object) Enumerable.ToArray((dynamic) list)
-                            : list;
+            object value;
+
+            if (type.IsArray)
+            {
+                value = (object) Enumerable.ToArray((dynamic) list);
+            }
+            else
+            {
+                value = list;
+            }
 
             return Success(argument, value);
 
-            IList CreateList()
+            static IList CreateList(Type itemType)
             {
                 if (itemType == typeof(string))
                 {
