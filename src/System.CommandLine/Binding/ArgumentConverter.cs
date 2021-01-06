@@ -117,7 +117,7 @@ namespace System.CommandLine.Binding
                                .Select(arg => ConvertString(argument, itemType, arg))
                                .ToArray();
 
-            var list = CreateList(itemType);
+            var list = CreateList(itemType, parseResults.Length);
 
             for (var i = 0; i < parseResults.Length; i++)
             {
@@ -156,20 +156,22 @@ namespace System.CommandLine.Binding
             }
 
             return Success(argument, value);
-
-            static IList CreateList(Type itemType)
+            
+            static IList CreateList(Type itemType, int capacity)
             {
                 if (itemType == typeof(string))
                 {
-                    return new List<string>();
+                    return new List<string>(capacity);
                 }
                 else if (itemType == typeof(int))
                 {
-                    return new List<int>();
+                    return new List<int>(capacity);
                 }
                 else
                 {
-                    return (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+                    return (IList) Activator.CreateInstance(
+                        typeof(List<>).MakeGenericType(itemType),
+                        capacity);
                 }
             }
         }
