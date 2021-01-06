@@ -42,28 +42,6 @@ namespace System.CommandLine.Parsing
             return rawAlias;
         }
 
-        internal static int AdvancePrefix(this string rawAlias)
-        {
-            if (rawAlias.Length > 0)
-            {
-                if (rawAlias[0] == '/')
-                {
-                    return 1;
-                }
-
-                if (rawAlias[0] == '-')
-                {
-                    if (rawAlias.Length > 1 && rawAlias[1] == '-')
-                    {
-                        return 2;
-                    }
-
-                    return 1;
-                }
-            }
-
-            return 0;
-        }
 
         internal static (string? prefix, string alias) SplitPrefix(this string rawAlias)
         {
