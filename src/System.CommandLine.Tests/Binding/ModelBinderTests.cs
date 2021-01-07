@@ -7,7 +7,6 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
-using System.Linq;
 using Xunit;
 using System.Reflection;
 

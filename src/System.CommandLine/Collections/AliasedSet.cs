@@ -64,22 +64,33 @@ namespace System.CommandLine.Collections
 
         private protected void EnsureAliasIndexIsCurrent()
         {
-            foreach (var dirtyItem in DirtyItems.ToArray())
+            if (DirtyItems.Count == 0)
             {
-                var aliases = GetAliases(dirtyItem).ToList();
+                return;
+            }
+
+            var array = DirtyItems.ToArray();
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                var dirtyItem = array[i];
+                var aliases = GetAliases(dirtyItem).ToArray();
 
                 foreach (var pair in ItemsByAlias.Where(p => p.Value.Equals(dirtyItem)).ToArray())
                 {
-                    ItemsByAlias.Remove(pair.Key);
+                    if (pair.Value.Equals(dirtyItem))
+                    {
+                        ItemsByAlias.Remove(pair.Key);
+                    }
                 }
 
                 var wasRemoved = !Items.Contains(dirtyItem);
 
                 if (!wasRemoved)
                 {
-                    for (var i = 0; i < aliases.Count; i++)
+                    for (var j = 0; j < aliases.Length; j++)
                     {
-                        var alias = aliases[i];
+                        var alias = aliases[j];
                         ItemsByAlias.TryAdd(alias, dirtyItem);
                     }
                 }

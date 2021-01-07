@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.IO;
@@ -12,7 +11,6 @@ using FluentAssertions.Equivalency;
 using System.Linq;
 using FluentAssertions.Common;
 using Xunit;
-using Xunit.Abstractions;
 using System.ComponentModel;
 using System.Globalization;
 
@@ -20,13 +18,6 @@ namespace System.CommandLine.Tests
 {
     public partial class ParserTests
     {
-        private readonly ITestOutputHelper _output;
-
-        public ParserTests(ITestOutputHelper output)
-        {
-            _output = output;
-        }
-
         [Fact]
         public void An_option_without_a_long_form_can_be_checked_for_using_a_prefix()
         {
@@ -1041,8 +1032,6 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
-            _output.WriteLine(result.ToString());
-
             result.FindResultFor(option).Tokens.Should().BeEmpty();
             result.CommandResult.Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
         }
@@ -1194,8 +1183,6 @@ namespace System.CommandLine.Tests
                         };
 
             var result = outer.Parse("outer inner -x one -x two");
-
-            _output.WriteLine(result.ToString());
 
             result.RootCommandResult
                   .FindResultFor(outerOption)
@@ -1451,11 +1438,8 @@ namespace System.CommandLine.Tests
                     Name = "the-arg"
                 }
             };
-            command.Handler = CommandHandler.Create<DirectoryInfo>(arg => { } );
 
             var result = command.Parse("the-directory");
-
-            _output.WriteLine(result.ToString());
 
             result.CommandResult
                   .GetArgumentValueOrDefault<DirectoryInfo>("the-arg")
@@ -1709,8 +1693,6 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-v an-argument");
-
-            _output.WriteLine(result.ToString());
 
             result.ValueForOption("-v").Should().Be(true);
         }
@@ -1995,8 +1977,6 @@ namespace System.CommandLine.Tests
             rootCommand.Add(new Option<string>("url"));
             var result = rootCommand.Parse("jdbc url \"jdbc:sqlserver://10.0.0.2;databaseName=main\"");
 
-            _output.WriteLine(result.ToString());
-
             result.Tokens
                   .Select(t => t.Value)
                   .Should()
@@ -2025,7 +2005,7 @@ namespace System.CommandLine.Tests
                 argument2
             };
 
-            var rootCommand = new RootCommand()
+            var rootCommand = new RootCommand
             {
                 command
             };
