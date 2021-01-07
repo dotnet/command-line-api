@@ -51,7 +51,7 @@ namespace System.CommandLine.Binding
             {
                 if (alias.Length > 0)
                 {
-                    if (alias[0] == '-' && (alias.Length > 1 && alias[1] == '-'))
+                    if (alias[0] == '-' && alias.Length > 1 && alias[1] == '-')
                     {
                         return 2;
                     }

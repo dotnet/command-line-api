@@ -21,10 +21,7 @@ namespace System.CommandLine.Parsing
 
             Parent = parent;
 
-            if (parent?.Root is {} root)
-            {
-                _root = root;
-            }
+            _root = parent?.Root;
         }
 
         public string? ErrorMessage { get; set; }
