@@ -9,11 +9,16 @@ namespace System.CommandLine.Collections
 {
     public class SymbolSet : AliasedSet<ISymbol>, ISymbolSet
     {
+        private List<Argument>? _arguments;
+        private List<Option>? _options;
+
         internal override void Add(ISymbol item)
         {
             ThrowIfAnyAliasIsInUse(item);
 
             base.Add(item);
+
+            ResetIndex(item);
 
             if (item is Symbol symbol)
             {
@@ -25,9 +30,24 @@ namespace System.CommandLine.Collections
         {
             base.Remove(item);
 
+            ResetIndex(item);
+
             if (item is Symbol symbol)
             {
                 symbol.OnNameOrAliasChanged -= Resync;
+            }
+        }
+
+        private void ResetIndex(ISymbol item)
+        {
+            switch (item)
+            {
+                case Argument _:
+                    _arguments = null;
+                    break;
+                case Option _:
+                    _options = null;
+                    break;
             }
         }
 
@@ -91,5 +111,51 @@ namespace System.CommandLine.Collections
                 IIdentifierSymbol named => named.Aliases,
                 _ => new[] { item.Name }
             };
+
+        internal IReadOnlyList<Argument> Arguments
+        {
+            get
+            {
+                return _arguments ??= BuildArgumentsList();
+
+                List<Argument> BuildArgumentsList()
+                {
+                    var arguments = new List<Argument>(Count);
+
+                    for (var i = 0; i < Count; i++)
+                    {
+                        if (this[i] is Argument argument)
+                        {
+                            arguments.Add(argument);
+                        }
+                    }
+
+                    return arguments;
+                }
+            }
+        }
+        
+        internal IReadOnlyList<Option> Options
+        {
+            get
+            {
+                return _options ??= BuildOptionsList();
+
+                List<Option> BuildOptionsList()
+                {
+                    var options = new List<Option>(Count);
+
+                    for (var i = 0; i < Count; i++)
+                    {
+                        if (this[i] is Option Option)
+                        {
+                            options.Add(Option);
+                        }
+                    }
+
+                    return options;
+                }
+            }
+        }
     }
 }

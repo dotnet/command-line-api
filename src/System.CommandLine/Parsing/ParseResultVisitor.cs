@@ -162,14 +162,12 @@ namespace System.CommandLine.Parsing
 
         protected override void Stop(SyntaxNode node)
         {
-            var helpWasRequested =
-                _innermostCommandResult
-                    ?.Children
-                    .Any(o => o.Symbol is HelpOption) == true;
-
-            if (helpWasRequested)
+            for (var i = 0; i < _innermostCommandResult!.Children.Count; i++)
             {
-                return;
+                if (_innermostCommandResult!.Children[i].Symbol is HelpOption)
+                {
+                    return;
+                }
             }
 
             ValidateCommandHandler();
@@ -189,9 +187,9 @@ namespace System.CommandLine.Parsing
 
             if (argumentResults.Count > 0)
             {
-                var arguments = _innermostCommandResult!.Command.Arguments.ToArray();
+                var arguments = _innermostCommandResult!.Command.Arguments;
 
-                for (var i = 0; i < arguments.Length; i++)
+                for (var i = 0; i < arguments.Count; i++)
                 {
                     if (argumentResults.Count == i)
                     {
@@ -203,13 +201,14 @@ namespace System.CommandLine.Parsing
                         var previousArgumentResult = argumentResults[i - 1];
 
                         var passedOnTokens = _innermostCommandResult.Tokens.Skip(previousArgumentResult.Tokens.Count);
-                        
+
                         foreach (var token in passedOnTokens)
                         {
                             if (nextArgumentResult.IsArgumentLimitReached)
                             {
                                 break;
                             }
+
                             nextArgumentResult.AddToken(token);
                         }
 
@@ -224,10 +223,10 @@ namespace System.CommandLine.Parsing
 
                     ValidateAndConvertArgumentResult(argumentResult);
 
-                    if (argumentResult.PassedOnTokens is {} && 
-                        i == arguments.Length - 1)
+                    if (argumentResult.PassedOnTokens is {} &&
+                        i == arguments.Count - 1)
                     {
-                       _unparsedTokens.AddRange(argumentResult.PassedOnTokens.Select(t => t.Value));
+                        _unparsedTokens.AddRange(argumentResult.PassedOnTokens.Select(t => t.Value));
                     }
                 }
             }

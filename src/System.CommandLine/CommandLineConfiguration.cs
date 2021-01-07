@@ -123,16 +123,17 @@ namespace System.CommandLine
 
         private void AddGlobalOptionsToChildren(Command parentCommand)
         {
-            foreach (var child in parentCommand.Children.FlattenBreadthFirst(c => c.Children))
+            for (var childIndex = 0; childIndex < parentCommand.Children.Count; childIndex++)
             {
+                var child = parentCommand.Children[childIndex];
+
                 if (child is Command childCommand)
                 {
-                    foreach (var globalOption in parentCommand.GlobalOptions)
+                    var globalOptions = parentCommand.GlobalOptions;
+
+                    for (var globalOptionIndex = 0; globalOptionIndex < globalOptions.Count; globalOptionIndex++)
                     {
-                        if (!childCommand.Children.IsAnyAliasInUse(globalOption, out _))
-                        {
-                            childCommand.AddOption(globalOption);
-                        }
+                        childCommand.TryAddGlobalOption(globalOptions[globalOptionIndex]);
                     }
 
                     AddGlobalOptionsToChildren(childCommand);

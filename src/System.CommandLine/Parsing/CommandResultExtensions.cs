@@ -1,46 +1,24 @@
 ﻿// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
     public static class CommandResultExtensions
     {
-        public static object? GetArgumentValueOrDefault(
-            this CommandResult commandResult,
-            string argumentName)
-        {
-            return commandResult.GetArgumentValueOrDefault<object?>(argumentName);
-        }
-
-        [return: MaybeNull]
-        public static T GetArgumentValueOrDefault<T>(
-            this CommandResult commandResult,
-            string argumentName)
-        {
-            var conversionResult =
-                commandResult.ArgumentConversionResults
-                             .SingleOrDefault(r => r.Argument.Name == argumentName);
-
-            return conversionResult.GetValueOrDefault<T>();
-        }
-
         internal static bool TryGetValueForArgument(
             this CommandResult commandResult,
             IValueDescriptor valueDescriptor,
             out object? value)
         {
-            if (valueDescriptor.ValueName is { } valueName)
+            for (var i = 0; i < commandResult.Command.Arguments.Count; i++)
             {
-                foreach (var argument in commandResult.Command.Arguments)
+                var argument = commandResult.Command.Arguments[i];
+
+                if (valueDescriptor.ValueName.IsMatch(argument.Name))
                 {
-                    if (valueName.IsMatch(argument.Name))
-                    {
-                        value = commandResult.ArgumentConversionResults.GetByAlias(argument.Name)?.GetValueOrDefault();
-                        return true;
-                    }
+                    value = commandResult.FindResultFor(argument)?.GetValueOrDefault();
+                    return true;
                 }
             }
 
@@ -53,31 +31,19 @@ namespace System.CommandLine.Parsing
             IValueDescriptor valueDescriptor,
             out object? value)
         {
-            var children = commandResult
-                           .Children
-                           .OfType<OptionResult>()
-                           .Where(o => valueDescriptor.ValueName?.IsMatch(o.Option) == true)
-                           .ToArray();
-
-            SymbolResult? symbolResult = null;
-
-            if (children.Length > 1)
+            for (var i = 0; i < commandResult.Command.Options.Count; i++)
             {
-                throw new ArgumentException(
-                    $"Ambiguous match while trying to bind parameter {valueDescriptor.ValueName} among: {string.Join(",", children.Select(o => o.Symbol.Name))}");
-            }
+                var option = commandResult.Command.Options[i];
 
-            if (children.Length == 1)
-            {
-                symbolResult = children[0];
-            }
-
-            if (symbolResult is OptionResult optionResult)
-            {
-                if (optionResult.ConvertIfNeeded(valueDescriptor.ValueType) is SuccessfulArgumentConversionResult successful)
+                if (valueDescriptor.ValueName.IsMatch(option))
                 {
-                    value = successful.Value;
-                    return true;
+                    var optionResult = commandResult.FindResultFor(option);
+
+                    if (optionResult?.ConvertIfNeeded(valueDescriptor.ValueType) is SuccessfulArgumentConversionResult successful)
+                    {
+                        value = successful.Value;
+                        return true;
+                    }
                 }
             }
 

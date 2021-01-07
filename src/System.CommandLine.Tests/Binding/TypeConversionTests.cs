@@ -493,16 +493,18 @@ namespace System.CommandLine.Tests.Binding
         {
             var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
 
+            var argument = new Argument<DirectoryInfo>("the-arg", () => directoryInfo);
+
             var command = new Command("something")
             {
-                new Argument<DirectoryInfo>("the-arg", () => directoryInfo)
+                argument
             };
 
             var result = command.Parse("something");
 
             result.Errors.Should().BeEmpty();
 
-            var value = result.CommandResult.GetArgumentValueOrDefault("the-arg");
+            var value = result.ValueForArgument("the-arg");
 
             value.Should().Be(directoryInfo);
         }

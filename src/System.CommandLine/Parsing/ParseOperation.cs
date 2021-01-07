@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -141,9 +140,17 @@ namespace System.CommandLine.Parsing
                 return null;
             }
 
-            var argument = commandNode.Command
-                                      .Arguments
-                                      .FirstOrDefault(a => !IsFull(a));
+            IArgument? argument = default;
+
+            for (var i = 0; i < commandNode.Command.Arguments.Count; i++)
+            {
+                if (commandNode.Command.Arguments[i] is {} arg &&
+                    !IsFull(arg))
+                {
+                    argument = arg;
+                    break;
+                }
+            }
 
             if (argument is null)
             {

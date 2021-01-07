@@ -50,29 +50,21 @@ namespace System.CommandLine.Parsing
 
         internal int MaximumArgumentCapacity()
         {
-            var maximumArgumentCapacity = Symbol.Arguments()
-                .Sum(a => a.Arity.MaximumNumberOfValues);
-            return (int) Math.Min(maximumArgumentCapacity, int.MaxValue);
+            var value = 0;
+
+            var arguments = Symbol.Arguments();
+            
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                value += arguments[i].Arity.MaximumNumberOfValues;
+            }
+
+            return value;
         }
 
         protected internal ValidationMessages ValidationMessages
         {
-            get
-            {
-                if (_validationMessages is null)
-                {
-                    if (Parent is null)
-                    {
-                        _validationMessages = ValidationMessages.Instance;
-                    }
-                    else
-                    {
-                        _validationMessages = Parent.ValidationMessages;
-                    }
-                }
-
-                return _validationMessages;
-            }
+            get => _validationMessages ??= Parent?.ValidationMessages ?? ValidationMessages.Instance;
             set => _validationMessages = value;
         }
 
