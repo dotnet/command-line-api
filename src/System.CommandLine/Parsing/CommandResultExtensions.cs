@@ -11,9 +11,11 @@ namespace System.CommandLine.Parsing
             IValueDescriptor valueDescriptor,
             out object? value)
         {
-            for (var i = 0; i < commandResult.Command.Arguments.Count; i++)
+            var arguments = commandResult.Command.Arguments;
+
+            for (var i = 0; i < arguments.Count; i++)
             {
-                var argument = commandResult.Command.Arguments[i];
+                var argument = arguments[i];
 
                 if (valueDescriptor.ValueName.IsMatch(argument.Name))
                 {
@@ -31,9 +33,11 @@ namespace System.CommandLine.Parsing
             IValueDescriptor valueDescriptor,
             out object? value)
         {
-            for (var i = 0; i < commandResult.Command.Options.Count; i++)
+            var options = commandResult.Command.Options;
+
+            for (var i = 0; i < options.Count; i++)
             {
-                var option = commandResult.Command.Options[i];
+                var option = options[i];
 
                 if (valueDescriptor.ValueName.IsMatch(option))
                 {

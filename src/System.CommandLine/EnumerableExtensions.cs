@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Collections;
 
 namespace System.CommandLine
 {
@@ -57,16 +58,11 @@ namespace System.CommandLine
         /// <param name="source">The <see cref="IEnumerable"/> whose elements to filter.</param>
         /// <returns><see langword="true" /> if the source sequence contains any elements of type <typeparamref name="T"/>; otherwise, <see langword="false" />.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
-        public static bool HasAnyOfType<T>(this IEnumerable source)
+        public static bool HasAnyOfType<T>(this ISymbolSet source)
         {
-            if (source is null)
+            for (var i = 0; i < source.Count; i++)
             {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            foreach (var obj in source)
-            {
-                if (obj is T)
+                if (source[i] is T)
                 {
                     return true;
                 }
@@ -83,23 +79,18 @@ namespace System.CommandLine
         /// <returnsThe first <typeparamref name="T"/> element of <paramref name="source"/>, if one exists; otherwise,the default value of <typeparamref name="T"/> <see cref="default{t}"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
 #nullable disable
-// requires C# 9.0
-        public static T FirstOrDefaultOfType<T>(this IEnumerable source)
+        // requires C# 9.0
+        public static T FirstOrDefaultOfType<T>(this ISymbolSet source)
         {
-            if (source is null)
+            for (var i = 0; i < source.Count; i++)
             {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            foreach (var obj in source)
-            {
-                if (obj is T result)
+                if (source[i] is T result)
                 {
                     return result;
                 }
             }
 
-            return default(T);
+            return default;
         }
 #nullable restore
     }

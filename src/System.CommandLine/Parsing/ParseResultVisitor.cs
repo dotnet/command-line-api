@@ -249,12 +249,16 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            foreach (var option in _innermostCommandResult
-                                   .Command
-                                   .Options)
+            var options = _innermostCommandResult.Command.Options;
+
+            for (var i = 0;
+                i < options.Count;
+                i++)
             {
+                var option = options[i];
+
                 if (option is Option o &&
-                    o.IsRequired && 
+                    o.IsRequired &&
                     _rootCommandResult!.FindResultFor(o) is null)
                 {
                     _errors.Add(
@@ -263,10 +267,14 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            foreach (var symbol in _innermostCommandResult
-                                   .Command
-                                   .Arguments)
+            var arguments = _innermostCommandResult.Command.Arguments;
+
+            for (var i = 0;
+                i < arguments.Count;
+                i++)
             {
+                var symbol = arguments[i];
+
                 var arityFailure = ArgumentArity.Validate(
                     _innermostCommandResult,
                     symbol,
