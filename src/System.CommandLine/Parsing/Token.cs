@@ -12,7 +12,18 @@ namespace System.CommandLine.Parsing
             Value = value ?? "";
             UnprefixedValue = Value.RemovePrefix();
             Type = type;
+            Position = -1;
         }
+        
+        internal Token(string? value, TokenType type, int position)
+        {
+            Value = value ?? "";
+            UnprefixedValue = Value.RemovePrefix();
+            Type = type;
+            Position = position;
+        }
+
+        internal int Position { get; }
 
         public string Value { get; }
 

@@ -11,6 +11,7 @@ namespace System.CommandLine.Parsing
         private protected readonly List<Token> _tokens = new List<Token>();
         private ValidationMessages? _validationMessages;
         private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new Dictionary<IArgument, ArgumentResult>();
+        private RootCommandResult? _root;
 
         private protected SymbolResult(
             ISymbol symbol, 
@@ -19,6 +20,8 @@ namespace System.CommandLine.Parsing
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
             Parent = parent;
+
+            _root = parent?.Root;
         }
 
         public string? ErrorMessage { get; set; }
@@ -28,6 +31,7 @@ namespace System.CommandLine.Parsing
         public SymbolResult? Parent { get; }
 
         internal virtual RootCommandResult? Root =>
+            _root ??=
             Parent switch
             {
                 CommandResult c => c.Root,
