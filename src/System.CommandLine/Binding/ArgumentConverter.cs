@@ -160,10 +160,6 @@ namespace System.CommandLine.Binding
                 {
                     return new List<string>(capacity);
                 }
-                else if (itemType == typeof(int))
-                {
-                    return new List<int>(capacity);
-                }
                 else
                 {
                     return (IList) Activator.CreateInstance(
@@ -177,10 +173,6 @@ namespace System.CommandLine.Binding
                 if (itemType == typeof(string))
                 {
                     return new string[capacity];
-                }
-                else if (itemType == typeof(int))
-                {
-                    return new int[capacity];
                 }
                 else
                 {
