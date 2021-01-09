@@ -469,7 +469,7 @@ namespace System.CommandLine.Builder
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if ((context.ParseResult.UnmatchedTokens.Count > 0) &&
+                if (context.ParseResult.UnmatchedTokens.Count > 0 &&
                     context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors)
                 {
                     var typoCorrection = new TypoCorrection(maxLevenshteinDistance);

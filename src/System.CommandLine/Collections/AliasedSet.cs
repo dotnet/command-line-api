@@ -69,14 +69,11 @@ namespace System.CommandLine.Collections
                 return;
             }
 
-            var array = DirtyItems.ToArray();
-
-            for (var i = 0; i < array.Length; i++)
+            foreach (var dirtyItem in DirtyItems)
             {
-                var dirtyItem = array[i];
                 var aliases = GetAliases(dirtyItem).ToArray();
 
-                foreach (var pair in ItemsByAlias.Where(p => p.Value.Equals(dirtyItem)).ToArray())
+                foreach (var pair in ItemsByAlias)
                 {
                     if (pair.Value.Equals(dirtyItem))
                     {
@@ -84,9 +81,7 @@ namespace System.CommandLine.Collections
                     }
                 }
 
-                var wasRemoved = !Items.Contains(dirtyItem);
-
-                if (!wasRemoved)
+                if (Items.Contains(dirtyItem))
                 {
                     for (var j = 0; j < aliases.Length; j++)
                     {
@@ -94,9 +89,9 @@ namespace System.CommandLine.Collections
                         ItemsByAlias.TryAdd(alias, dirtyItem);
                     }
                 }
-
-                DirtyItems.Remove(dirtyItem);
             }
+
+            DirtyItems.Clear();
         }
     }
 }

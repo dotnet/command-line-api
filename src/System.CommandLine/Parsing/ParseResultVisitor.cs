@@ -15,8 +15,8 @@ namespace System.CommandLine.Parsing
         private readonly string? _rawInput;
 
         private readonly DirectiveCollection _directives = new DirectiveCollection();
-        private readonly List<string> _unparsedTokens;
-        private readonly List<string> _unmatchedTokens;
+        private readonly List<Token> _unparsedTokens;
+        private readonly List<Token> _unmatchedTokens;
         private readonly List<ParseError> _errors;
 
         private RootCommandResult? _rootCommandResult;
@@ -25,34 +25,16 @@ namespace System.CommandLine.Parsing
         public ParseResultVisitor(
             Parser parser,
             TokenizeResult tokenizeResult,
-            IReadOnlyCollection<Token> unparsedTokens,
-            IReadOnlyCollection<Token> unmatchedTokens,
+            List<Token> unparsedTokens,
+            List<Token> unmatchedTokens,
             IReadOnlyCollection<ParseError> parseErrors,
             string? rawInput)
         {
             _parser = parser;
             _tokenizeResult = tokenizeResult;
+            _unparsedTokens = unparsedTokens;
+            _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
-
-            var unparsedTokensCount = unparsedTokens?.Count ?? 0;
-            _unparsedTokens = unparsedTokensCount == 0 ? new List<string>() : new List<string>(unparsedTokensCount);
-            if (unparsedTokensCount > 0)
-            {
-                foreach (var unparsedToken in unparsedTokens!)
-                {
-                    _unparsedTokens.Add(unparsedToken.Value);
-                }
-            }
-
-            var unmatchedTokensCount = unmatchedTokens?.Count ?? 0;
-            _unmatchedTokens = unmatchedTokensCount == 0 ? new List<string>() : new List<string>(unmatchedTokensCount);
-            if (unmatchedTokensCount > 0)
-            {
-                foreach (var unmatchedToken in unmatchedTokens!)
-                {
-                    _unmatchedTokens.Add(unmatchedToken.Value);
-                }
-            }
 
             _errors = new List<ParseError>(_tokenizeResult.Errors.Count + parseErrors.Count);
 
@@ -157,7 +139,7 @@ namespace System.CommandLine.Parsing
 
         protected override void VisitUnknownNode(SyntaxNode node)
         {
-            _unmatchedTokens.Add(node.Token.Value);
+            _unmatchedTokens.Add(node.Token);
         }
 
         protected override void Stop(SyntaxNode node)
@@ -226,7 +208,7 @@ namespace System.CommandLine.Parsing
                     if (argumentResult.PassedOnTokens is {} &&
                         i == arguments.Count - 1)
                     {
-                        _unparsedTokens.AddRange(argumentResult.PassedOnTokens.Select(t => t.Value));
+                        _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
                     }
                 }
             }
@@ -375,13 +357,13 @@ namespace System.CommandLine.Parsing
 
         private void PopulateDefaultValues()
         {
-            var commandResults = _innermostCommandResult!
-                .RecurseWhileNotNull(c => c.Parent as CommandResult);
+            CommandResult? commandResult = _innermostCommandResult;
 
-            foreach (var commandResult in commandResults)
+            while (commandResult != null)
             {
-                foreach (var symbol in commandResult.Command.Children)
+                for (var symbolIndex = 0; symbolIndex < commandResult.Command.Children.Count; symbolIndex++)
                 {
+                    var symbol = commandResult.Command.Children[symbolIndex];
                     var symbolResult = _rootCommandResult!.FindResultForSymbol(symbol);
 
                     if (symbolResult is null)
@@ -425,6 +407,8 @@ namespace System.CommandLine.Parsing
                                 o));
                     }
                 }
+
+                commandResult = commandResult.Parent as CommandResult;
             }
         }
 
@@ -436,7 +420,7 @@ namespace System.CommandLine.Parsing
                 _directives,
                 _tokenizeResult,
                 _unparsedTokens,
-                _unmatchedTokens,
+                _unmatchedTokens.ToArray(),
                 _errors,
                 _rawInput);
     }

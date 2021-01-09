@@ -6,7 +6,6 @@ using System.CommandLine.Collections;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace System.CommandLine.Parsing
 {
@@ -41,7 +40,6 @@ namespace System.CommandLine.Parsing
 
             return rawAlias;
         }
-
 
         internal static (string? prefix, string alias) SplitPrefix(this string rawAlias)
         {
@@ -309,14 +307,6 @@ namespace System.CommandLine.Parsing
 
             void ReadResponseFile(string filePath, int i)
             {
-                if (string.IsNullOrWhiteSpace(filePath))
-                {
-                    errorList.Add(
-                        new TokenizeError(
-                            $"Invalid response file token: {filePath}"));
-                    return;
-                }
-
                 try
                 {
                     var next = i + 1;

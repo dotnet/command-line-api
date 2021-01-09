@@ -11,6 +11,8 @@ namespace System.CommandLine.Parsing
     {
         private readonly List<ParseError> _errors;
         private readonly RootCommandResult _rootCommandResult;
+        private readonly IReadOnlyList<Token> _unparsedTokens;
+        private readonly IReadOnlyList<Token> _unmatchedTokens;
 
         internal ParseResult(
             Parser parser,
@@ -18,8 +20,8 @@ namespace System.CommandLine.Parsing
             CommandResult commandResult,
             IDirectiveCollection directives,
             TokenizeResult tokenizeResult,
-            IReadOnlyCollection<string> unparsedTokens,
-            IReadOnlyCollection<string> unmatchedTokens,
+            IReadOnlyList<Token> unparsedTokens,
+            IReadOnlyList<Token> unmatchedTokens,
             List<ParseError>? errors = null,
             string? rawInput = null)
         {
@@ -28,21 +30,37 @@ namespace System.CommandLine.Parsing
             CommandResult = commandResult;
             Directives = directives;
 
-            // skip the root command
-            Tokens = tokenizeResult.Tokens.Skip(1).ToArray();
+            // skip the root command when populating Tokens property
+            if (tokenizeResult.Tokens.Count > 1)
+            {
+                var tokens = new Token[tokenizeResult.Tokens.Count - 1];
+                for (var i = 0; i < tokenizeResult.Tokens.Count - 1; i++)
+                {
+                    var token = tokenizeResult.Tokens[i + 1];
+                    tokens[i] = token;
+                }
+                Tokens = tokens;
+            }
+            else
+            {
+                Tokens = Array.Empty<Token>();
+            }
 
-            UnparsedTokens = unparsedTokens;
-            UnmatchedTokens = unmatchedTokens;
+            _unparsedTokens = unparsedTokens;
+            _unmatchedTokens = unmatchedTokens;
 
             RawInput = rawInput;
 
-            _errors = errors ?? ((parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors) ? new List<ParseError>(unmatchedTokens.Count) : new List<ParseError>());
+            _errors = errors ?? (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors 
+                                     ? new List<ParseError>(unmatchedTokens.Count) 
+                                     : new List<ParseError>());
 
             if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
-                foreach (var token in unmatchedTokens)
+                for (var i = 0; i < unmatchedTokens.Count; i++)
                 {
-                    _errors.Add(new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token)));
+                    var token = unmatchedTokens[i];
+                    _errors.Add(new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value)));
                 }
             }
         }
@@ -59,11 +77,11 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyList<Token> Tokens { get; }
 
-        public IReadOnlyCollection<string> UnmatchedTokens { get; }
-
         internal string? RawInput { get; }
 
-        public IReadOnlyCollection<string> UnparsedTokens { get; }
+        public IReadOnlyCollection<string> UnmatchedTokens => _unmatchedTokens.Select(t => t.Value).ToArray();
+
+        public IReadOnlyCollection<string> UnparsedTokens => _unparsedTokens.Select(t => t.Value).ToArray();
 
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);

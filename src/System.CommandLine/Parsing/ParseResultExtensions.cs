@@ -56,8 +56,8 @@ namespace System.CommandLine.Parsing
 
             if (string.IsNullOrWhiteSpace(rawInput))
             {
-                if ((source.UnmatchedTokens.Count > 0) ||
-                    (lastToken?.Type == TokenType.Argument))
+                if (source.UnmatchedTokens.Count > 0 ||
+                    lastToken?.Type == TokenType.Argument)
                 {
                     return textToMatch ?? "";
                 }
