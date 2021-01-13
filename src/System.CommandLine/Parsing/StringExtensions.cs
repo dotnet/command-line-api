@@ -192,9 +192,8 @@ namespace System.CommandLine.Parsing
             {
                 replacement = null;
 
-                if (tokenList.Count == 0)
+                if (arg.Length > 0 && arg[0] != '-')
                 {
-                    replacement = null;
                     return false;
                 }
 

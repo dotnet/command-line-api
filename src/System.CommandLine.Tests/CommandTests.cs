@@ -147,14 +147,13 @@ namespace System.CommandLine.Tests
         {
             Action create = () =>
             {
-                new Parser(
-                    new Command(commandWithDelimiter)
+                var c = new Command(commandWithDelimiter)
+                {
+                    new Argument
                     {
-                        new Argument
-                        {
-                            Arity = ArgumentArity.ExactlyOne
-                        }
-                    });
+                        Arity = ArgumentArity.ExactlyOne
+                    }
+                };
             };
 
             create.Should()

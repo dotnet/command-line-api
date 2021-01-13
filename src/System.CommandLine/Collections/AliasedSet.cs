@@ -12,9 +12,18 @@ namespace System.CommandLine.Collections
     {
         private protected readonly Dictionary<string, T> ItemsByAlias = new Dictionary<string, T>();
 
+        public int Count => Items.Count;
+
         private protected List<T> Items { get; } = new List<T>();
 
         private protected HashSet<T> DirtyItems { get; } = new HashSet<T>();
+
+        public bool Contains(string alias)
+        {
+            EnsureAliasIndexIsCurrent();
+
+            return ItemsByAlias.ContainsKey(alias);
+        }
 
         public T? GetByAlias(string alias)
         {
@@ -24,8 +33,6 @@ namespace System.CommandLine.Collections
 
             return value;
         }
-
-        public int Count => Items.Count;
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -53,17 +60,11 @@ namespace System.CommandLine.Collections
 
         protected abstract IReadOnlyCollection<string> GetAliases(T item);
 
-        public bool Contains(string alias)
-        {
-            EnsureAliasIndexIsCurrent();
-
-            return ItemsByAlias.ContainsKey(alias);
-        }
-
         public T this[int index] => Items[index];
 
         private protected void EnsureAliasIndexIsCurrent()
         {
+            // FIX: (EnsureAliasIndexIsCurrent) 
             if (DirtyItems.Count == 0)
             {
                 return;

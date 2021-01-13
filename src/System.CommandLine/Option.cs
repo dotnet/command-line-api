@@ -44,6 +44,7 @@ namespace System.CommandLine
             get => Arguments.FirstOrDefault() ?? Argument.None;
             set
             {
+                // FIX: (Argument) 
                 foreach (var argument in Arguments.ToArray())
                 {
                     Children.Remove(argument);

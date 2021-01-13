@@ -33,7 +33,7 @@ namespace System.CommandLine
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="symbols"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="symbols"/> does not contain at least one option or command.</exception>
         public CommandLineConfiguration(
-            IReadOnlyCollection<Symbol> symbols,
+            IReadOnlyList<Symbol> symbols,
             IReadOnlyList<char>? argumentDelimiters = null,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
@@ -65,31 +65,31 @@ namespace System.CommandLine
                 ArgumentDelimiters = argumentDelimiters.Distinct().ToArray();
             }
 
-            foreach (var symbol in symbols)
-            {
-                if (symbol is IIdentifierSymbol identifier)
-                {
-                    foreach (var alias in identifier.Aliases)
-                    {
-                        for (var i = 0; i < ArgumentDelimiters.Count; i++)
-                        {
-                            var delimiter = ArgumentDelimiters[i];
-                            if (alias.Contains(delimiter))
-                            {
-                                throw new ArgumentException($"{symbol.GetType().Name} \"{alias}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
-                            }
-                        }
-                    }
-                }
-            }
-
             if (symbols.Count == 1 &&
-                symbols.Single() is Command rootCommand)
+                symbols[0] is Command rootCommand)
             {
                 RootCommand = rootCommand;
             }
             else
             {
+                for (var symbolIndex = 0; symbolIndex < symbols.Count; symbolIndex++)
+                {
+                    var symbol = symbols[symbolIndex];
+                    if (symbol is IIdentifierSymbol identifier)
+                    {
+                        foreach (var alias in identifier.Aliases)
+                        {
+                            for (var delimiterIndex = 0; delimiterIndex < ArgumentDelimiters.Count; delimiterIndex++)
+                            {
+                                var delimiter = ArgumentDelimiters[delimiterIndex];
+                                if (alias.Contains(delimiter))
+                                {
+                                    throw new ArgumentException($"{symbol.GetType().Name} \"{alias}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
+                                }
+                            }
+                        }
+                    }
+                }
                 // Reuse existing auto-generated root command, if one is present, to prevent repeated mutations
                 RootCommand? parentRootCommand = 
                     symbols.SelectMany(s => s.Parents)
