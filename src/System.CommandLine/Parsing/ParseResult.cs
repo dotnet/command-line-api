@@ -79,9 +79,9 @@ namespace System.CommandLine.Parsing
 
         internal string? RawInput { get; }
 
-        public IReadOnlyCollection<string> UnmatchedTokens => _unmatchedTokens.Select(t => t.Value).ToArray();
+        public IReadOnlyList<string> UnmatchedTokens => _unmatchedTokens.Select(t => t.Value).ToArray();
 
-        public IReadOnlyCollection<string> UnparsedTokens => _unparsedTokens.Select(t => t.Value).ToArray();
+        public IReadOnlyList<string> UnparsedTokens => _unparsedTokens.Select(t => t.Value).ToArray();
 
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);

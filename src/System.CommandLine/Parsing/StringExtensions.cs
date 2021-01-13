@@ -12,15 +12,16 @@ namespace System.CommandLine.Parsing
     public static class StringExtensions
     {
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
+        private static readonly char[] _argumentDelimiters = {  ':', '=' };
 
         internal static bool ContainsCaseInsensitive(
             this string source,
-            string? value) =>
+            string value) =>
             source.IndexOfCaseInsensitive(value) >= 0;
 
         internal static int IndexOfCaseInsensitive(
             this string source,
-            string? value) =>
+            string value) =>
             CultureInfo.InvariantCulture
                        .CompareInfo
                        .IndexOf(source,
@@ -66,8 +67,6 @@ namespace System.CommandLine.Parsing
             var foundEndOfArguments = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
-
-            var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
             var knownTokens = configuration.RootCommand.ValidTokens();
 
@@ -120,8 +119,7 @@ namespace System.CommandLine.Parsing
                     arg = argList[i];
                 }
 
-                if (arg.TrySplitIntoSubtokens(argumentDelimiters,
-                                              out var first,
+                if (arg.TrySplitIntoSubtokens(out var first,
                                               out var rest))
                 {
                     if (knownTokens.TryGetValue(first!, out var token) &&
@@ -213,7 +211,7 @@ namespace System.CommandLine.Parsing
 
                 Token? TokenForOptionAlias(char c)
                 {
-                    if (argumentDelimiters.Contains(c))
+                    if (_argumentDelimiters.Contains(c))
                     {
                         return null;
                     }
@@ -232,7 +230,7 @@ namespace System.CommandLine.Parsing
 
                 void AddRestValue(List<string> list, string rest)
                 {
-                    if (argumentDelimiters.Contains(rest[0]))
+                    if (_argumentDelimiters.Contains(rest[0]))
                     {
                         list[list.Count - 1] += rest;
                     }
@@ -415,28 +413,25 @@ namespace System.CommandLine.Parsing
 
         internal static bool TrySplitIntoSubtokens(
             this string arg,
-            char[] delimiters,
             out string? first,
             out string? rest)
         {
-            for (var j = 0; j < delimiters.Length; j++)
+            var i = arg.IndexOfAny(_argumentDelimiters);
+
+            if (i >= 0)
             {
-                var i = arg.IndexOfAny(delimiters);
+                first = arg.Substring(0, i);
 
-                if (i >= 0)
+                if (arg.Length > i)
                 {
-                    first = arg.Substring(0, i);
-
-                    if (arg.Length > i)
-                    {
-                        rest = arg.Substring(i + 1, arg.Length - 1 - i);
-                    }
-                    else
-                    {
-                        rest = null;
-                    }
-                    return true;
+                    rest = arg.Substring(i + 1, arg.Length - 1 - i);
                 }
+                else
+                {
+                    rest = null;
+                }
+
+                return true;
             }
 
             first = null;

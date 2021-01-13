@@ -134,36 +134,6 @@ namespace System.CommandLine.Tests
                   .BeEquivalentTo("arg2", "arg3");
         }
 
-        [Theory]
-        [InlineData("aa:", ":")]
-        [InlineData("aa=", "=")]
-        [InlineData(":aa", ":")]
-        [InlineData("=aa", "=")]
-        [InlineData("aa:aa", ":")]
-        [InlineData("aa=aa", "=")]
-        public void When_a_command_name_contains_a_delimiter_then_an_error_is_returned(
-            string commandWithDelimiter,
-            string delimiter)
-        {
-            Action create = () =>
-            {
-                var c = new Command(commandWithDelimiter)
-                {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                };
-            };
-
-            create.Should()
-                  .Throw<ArgumentException>()
-                  .Which
-                  .Message
-                  .Should()
-                  .Be($"Command \"{commandWithDelimiter}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
-        }
-
         [Fact]
         public void Aliases_is_aware_of_added_alias()
         {

@@ -117,8 +117,10 @@ namespace System.CommandLine
             
             argument.AddValidator(symbol =>
             {
-                foreach (var token in symbol.Tokens)
+                for (var i = 0; i < symbol.Tokens.Count; i++)
                 {
+                    var token = symbol.Tokens[i];
+
                     // File class no longer check invalid character
                     // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
                     var invalidCharactersIndex = token.Value.IndexOfAny(invalidPathChars);

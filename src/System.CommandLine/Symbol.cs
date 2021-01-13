@@ -52,11 +52,6 @@ namespace System.CommandLine
 
         private protected void AddArgumentInner(Argument argument)
         {
-            if (argument is null)
-            {
-                throw new ArgumentNullException(nameof(argument));
-            }
-
             argument.AddParent(this);
 
             Children.Add(argument);
@@ -77,34 +72,40 @@ namespace System.CommandLine
         {
             var suggestions = new HashSet<string>();
 
-            foreach (var child in Children)
+            textToMatch ??= "";
+
+            for (var i = 0; i < Children.Count; i++)
             {
+                var child = Children[i];
+
                 switch (child)
                 {
                     case IIdentifierSymbol identifier when !child.IsHidden:
                         foreach (var alias in identifier.Aliases)
                         {
-                            if (alias is string s && s.ContainsCaseInsensitive(textToMatch))
+                            if (alias is { } s && s.ContainsCaseInsensitive(textToMatch))
                             {
                                 suggestions.Add(s);
                             }
                         }
+
                         break;
                     case IArgument argument:
                         foreach (var suggestion in argument.GetSuggestions(parseResult, textToMatch))
                         {
-                            if (suggestion is string s && s.ContainsCaseInsensitive(textToMatch))
+                            if (suggestion is { } s && s.ContainsCaseInsensitive(textToMatch))
                             {
                                 suggestions.Add(s);
                             }
                         }
+
                         break;
                 }
             }
 
             return suggestions
-                .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
-                .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
+                   .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
+                   .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";

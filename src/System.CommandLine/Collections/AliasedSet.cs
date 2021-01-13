@@ -74,7 +74,7 @@ namespace System.CommandLine.Collections
             {
                 var aliases = GetAliases(dirtyItem).ToArray();
 
-                foreach (var pair in ItemsByAlias)
+                foreach (var pair in ItemsByAlias.ToArray())
                 {
                     if (pair.Value.Equals(dirtyItem))
                     {

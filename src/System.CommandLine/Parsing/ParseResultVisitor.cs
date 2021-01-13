@@ -38,8 +38,9 @@ namespace System.CommandLine.Parsing
 
             _errors = new List<ParseError>(_tokenizeResult.Errors.Count + parseErrors.Count);
 
-            foreach(var error in _tokenizeResult.Errors)
+            for (var i = 0; i < _tokenizeResult.Errors.Count; i++)
             {
+                var error = _tokenizeResult.Errors[i];
                 _errors.Add(new ParseError(error.Message));
             }
 
@@ -182,10 +183,12 @@ namespace System.CommandLine.Parsing
 
                         var previousArgumentResult = argumentResults[i - 1];
 
-                        var passedOnTokens = _innermostCommandResult.Tokens.Skip(previousArgumentResult.Tokens.Count);
+                        var passedOnTokensCount = _innermostCommandResult.Tokens.Count;
 
-                        foreach (var token in passedOnTokens)
+                        for (var j = previousArgumentResult.Tokens.Count; j < passedOnTokensCount; j++)
                         {
+                            var token = _innermostCommandResult.Tokens[j];
+
                             if (nextArgumentResult.IsArgumentLimitReached)
                             {
                                 break;

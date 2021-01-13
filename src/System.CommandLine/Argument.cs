@@ -223,7 +223,7 @@ namespace System.CommandLine
             return dynamicSuggestions
                    .Distinct()
                    .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
-                   .Containing(textToMatch);
+                   .Containing(textToMatch ?? "");
         }
 
         public override string ToString() => $"{nameof(Argument)}: {Name}";

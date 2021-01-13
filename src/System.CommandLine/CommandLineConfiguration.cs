@@ -22,8 +22,6 @@ namespace System.CommandLine
         /// Initializes a new instance of the CommandLineConfiguration class.
         /// </summary>
         /// <param name="symbols">The symbols to parse.</param>
-        /// <param name="argumentDelimiters">The characters used to delimit an option from its argument. In addition to
-        /// one or more spaces, the default delimiters include <c>:</c> and <c>=</c>.</param>
         /// <param name="enablePosixBundling"><c>true</c> to enable POSIX bundling; otherwise, <c>false</c>.</param>
         /// <param name="enableDirectives"><c>true</c> to enable directive parsing; otherwise, <c>false</c>.</param>
         /// <param name="validationMessages">Provide custom validation messages.</param>
@@ -34,7 +32,6 @@ namespace System.CommandLine
         /// <exception cref="ArgumentException">Thrown when <paramref name="symbols"/> does not contain at least one option or command.</exception>
         public CommandLineConfiguration(
             IReadOnlyList<Symbol> symbols,
-            IReadOnlyList<char>? argumentDelimiters = null,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
             ValidationMessages? validationMessages = null,
@@ -51,20 +48,7 @@ namespace System.CommandLine
             {
                 throw new ArgumentException("You must specify at least one option or command.");
             }
-
-            if (argumentDelimiters is null)
-            {
-                ArgumentDelimiters = new []
-                {
-                    ':',
-                    '='
-                };
-            }
-            else
-            {
-                ArgumentDelimiters = argumentDelimiters.Distinct().ToArray();
-            }
-
+          
             if (symbols.Count == 1 &&
                 symbols[0] is Command rootCommand)
             {
@@ -72,24 +56,6 @@ namespace System.CommandLine
             }
             else
             {
-                for (var symbolIndex = 0; symbolIndex < symbols.Count; symbolIndex++)
-                {
-                    var symbol = symbols[symbolIndex];
-                    if (symbol is IIdentifierSymbol identifier)
-                    {
-                        foreach (var alias in identifier.Aliases)
-                        {
-                            for (var delimiterIndex = 0; delimiterIndex < ArgumentDelimiters.Count; delimiterIndex++)
-                            {
-                                var delimiter = ArgumentDelimiters[delimiterIndex];
-                                if (alias.Contains(delimiter))
-                                {
-                                    throw new ArgumentException($"{symbol.GetType().Name} \"{alias}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
-                                }
-                            }
-                        }
-                    }
-                }
                 // Reuse existing auto-generated root command, if one is present, to prevent repeated mutations
                 RootCommand? parentRootCommand = 
                     symbols.SelectMany(s => s.Parents)
@@ -145,11 +111,6 @@ namespace System.CommandLine
         /// Represents all of the symbols to parse.
         /// </summary>
         public ISymbolSet Symbols => _symbols;
-
-        /// <summary>
-        /// Represents all of the argument delimiters.
-        /// </summary>
-        public IReadOnlyList<char> ArgumentDelimiters { get; }
 
         /// <summary>
         /// Gets whether directives are enabled.

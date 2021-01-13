@@ -87,8 +87,9 @@ namespace System.CommandLine.Parsing
                 {
                     builder.Append("   ???-->");
 
-                    foreach (var error in result.UnmatchedTokens)
+                    for (var i = 0; i < result.UnmatchedTokens.Count; i++)
                     {
+                        var error = result.UnmatchedTokens[i];
                         builder.Append(" ");
                         builder.Append(error);
                     }
@@ -178,8 +179,9 @@ namespace System.CommandLine.Parsing
                 builder.Append("[ ");
                 builder.Append(symbolResult.Token().Value);
 
-                foreach (var child in symbolResult.Children)
+                for (var i = 0; i < symbolResult.Children.Count; i++)
                 {
+                    var child = symbolResult.Children[i];
                     builder.Append(" ");
                     builder.Diagram(child, parseResult);
                 }
