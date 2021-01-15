@@ -311,9 +311,26 @@ namespace System.CommandLine.DragonFruit
 
         private static string GetDefaultXmlDocsFileLocation(Assembly assembly)
         {
-            return Path.Combine(
-                Path.GetDirectoryName(assembly.Location),
-                Path.GetFileNameWithoutExtension(assembly.Location) + ".xml");
+            if (!string.IsNullOrEmpty(assembly.Location))
+            {
+                return Path.Combine(
+                    Path.GetDirectoryName(assembly.Location),
+                    Path.GetFileNameWithoutExtension(assembly.Location) + ".xml");
+            }
+
+            // Assembly.Location is empty for bundled (i.e, single-file) assemblies, but we can't be confident
+            // that whenever Assembly.Location is empty the corresponding assembly is bundled.
+            //
+            // Provisionally assume that the entry-assembly is bundled. If this query is for something other
+            // than the entry-assembly, then return nothing. 
+            if (assembly == Assembly.GetEntryAssembly())
+            {
+                return Path.Combine(
+                    AppContext.BaseDirectory,
+                    assembly.GetName().Name + ".xml");
+            }
+
+            return string.Empty;
         }
     }
 }
