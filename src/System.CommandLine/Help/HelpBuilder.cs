@@ -455,7 +455,7 @@ namespace System.CommandLine.Help
             }
             finally
             {
-                StringBuilderPool.Default.Return(lineBuilder);
+                StringBuilderPool.Default.ReturnToPool(lineBuilder);
             }
 
             void appendLine()
@@ -726,7 +726,7 @@ namespace System.CommandLine.Help
             }
             finally
             {
-                StringBuilderPool.Default.Return(sb);
+                StringBuilderPool.Default.ReturnToPool(sb);
             }
 
             bool IsMultiParented(IArgument argument) =>

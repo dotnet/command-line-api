@@ -12,11 +12,11 @@ namespace System.CommandLine.Collections
     {
         private protected readonly Dictionary<string, T> ItemsByAlias = new Dictionary<string, T>();
 
-        public int Count => Items.Count;
-
         private protected List<T> Items { get; } = new List<T>();
 
         private protected HashSet<T> DirtyItems { get; } = new HashSet<T>();
+        
+        public int Count => Items.Count;
 
         public bool Contains(string alias)
         {
@@ -64,7 +64,6 @@ namespace System.CommandLine.Collections
 
         private protected void EnsureAliasIndexIsCurrent()
         {
-            // FIX: (EnsureAliasIndexIsCurrent) 
             if (DirtyItems.Count == 0)
             {
                 return;

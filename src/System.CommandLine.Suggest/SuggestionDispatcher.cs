@@ -179,7 +179,7 @@ namespace System.CommandLine.Suggest
 
                     yield return fileNameWithoutExtension;
 
-                    if (fileNameWithoutExtension.StartsWith("dotnet-", StringComparison.Ordinal))
+                    if (fileNameWithoutExtension?.StartsWith("dotnet-", StringComparison.Ordinal) == true)
                     {
                         yield return "dotnet " + fileNameWithoutExtension.Substring("dotnet-".Length);
                     }

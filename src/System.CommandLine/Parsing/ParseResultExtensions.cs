@@ -99,7 +99,7 @@ namespace System.CommandLine.Parsing
             }
             finally
             {
-                StringBuilderPool.Default.Return(builder);
+                StringBuilderPool.Default.ReturnToPool(builder);
             }
         }
 

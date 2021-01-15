@@ -198,8 +198,8 @@ namespace System.CommandLine.Builder
                     }
                     finally
                     {
-                        StringBuilderPool.Default.Return(stdOut);
-                        StringBuilderPool.Default.Return(stdErr);
+                        StringBuilderPool.Default.ReturnToPool(stdOut);
+                        StringBuilderPool.Default.ReturnToPool(stdErr);
                     }
                 });
 

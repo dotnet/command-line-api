@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Linq;
 
 namespace System.CommandLine.Suggestions
 {
@@ -11,7 +10,16 @@ namespace System.CommandLine.Suggestions
     {
         public static IEnumerable<string?> Containing(
             this IEnumerable<string?> candidates,
-            string textToMatch) =>
-            candidates.Where(c => c?.ContainsCaseInsensitive(textToMatch) == true);
+            string textToMatch)
+        {
+            foreach (var candidate in candidates)
+            {
+                if (candidate is { } && 
+                    candidate.ContainsCaseInsensitive(textToMatch))
+                {
+                    yield return candidate;
+                }
+            }
+        }
     }
 }

@@ -83,9 +83,10 @@ namespace System.CommandLine
                     case IIdentifierSymbol identifier when !child.IsHidden:
                         foreach (var alias in identifier.Aliases)
                         {
-                            if (alias is { } s && s.ContainsCaseInsensitive(textToMatch))
+                            if (alias is { } suggestion && 
+                                suggestion.ContainsCaseInsensitive(textToMatch))
                             {
-                                suggestions.Add(s);
+                                suggestions.Add(suggestion);
                             }
                         }
 
@@ -93,9 +94,10 @@ namespace System.CommandLine
                     case IArgument argument:
                         foreach (var suggestion in argument.GetSuggestions(parseResult, textToMatch))
                         {
-                            if (suggestion is { } s && s.ContainsCaseInsensitive(textToMatch))
+                            if (suggestion is { } && 
+                                suggestion.ContainsCaseInsensitive(textToMatch))
                             {
-                                suggestions.Add(s);
+                                suggestions.Add(suggestion);
                             }
                         }
 

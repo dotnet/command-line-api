@@ -25,7 +25,7 @@ namespace System.CommandLine.Parsing
             CultureInfo.InvariantCulture
                        .CompareInfo
                        .IndexOf(source,
-                                value ?? "",
+                                value,
                                 CompareOptions.OrdinalIgnoreCase);
 
         internal static string RemovePrefix(this string rawAlias)
@@ -33,7 +33,7 @@ namespace System.CommandLine.Parsing
             for (var i = 0; i < _optionPrefixStrings.Length; i++)
             {
                 var prefix = _optionPrefixStrings[i];
-                if (rawAlias.StartsWith(prefix))
+                if (rawAlias.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     return rawAlias.Substring(prefix.Length);
                 }
@@ -47,7 +47,7 @@ namespace System.CommandLine.Parsing
             for (var i = 0; i < _optionPrefixStrings.Length; i++)
             {
                 var prefix = _optionPrefixStrings[i];
-                if (rawAlias.StartsWith(prefix))
+                if (rawAlias.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     return (prefix, rawAlias.Substring(prefix.Length));
                 }
@@ -89,8 +89,8 @@ namespace System.CommandLine.Parsing
 
                 if (!foundEndOfDirectives)
                 {
-                    if (arg.StartsWith("[") &&
-                        arg.EndsWith("]") &&
+                    if (arg.StartsWith("[", StringComparison.OrdinalIgnoreCase) &&
+                        arg.EndsWith("]", StringComparison.OrdinalIgnoreCase) &&
                         arg[1] != ']' &&
                         arg[1] != ':')
                     {
@@ -104,8 +104,8 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
-                    arg.GetResponseFileReference() is { } filePath)
+                if (arg.GetResponseFileReference() is { } filePath &&
+                    configuration.ResponseFileHandling != ResponseFileHandling.Disabled)
                 {
                     ReadResponseFile(filePath, i);
                     continue;
@@ -407,7 +407,7 @@ namespace System.CommandLine.Parsing
         }
 
         private static string? GetResponseFileReference(this string arg) =>
-            arg.StartsWith("@") && arg.Length > 1
+            arg.Length > 1 && arg[0] == '@'
                 ? arg.Substring(1)
                 : null;
 
@@ -421,16 +421,7 @@ namespace System.CommandLine.Parsing
             if (i >= 0)
             {
                 first = arg.Substring(0, i);
-
-                if (arg.Length > i)
-                {
-                    rest = arg.Substring(i + 1, arg.Length - 1 - i);
-                }
-                else
-                {
-                    rest = null;
-                }
-
+                rest = arg.Substring(i + 1, arg.Length - 1 - i);
                 return true;
             }
 
@@ -524,7 +515,7 @@ namespace System.CommandLine.Parsing
             {
                 var arg = line.Trim();
 
-                if (arg.Length == 0 || arg.StartsWith("#"))
+                if (arg.Length == 0 || arg[0] == '#')
                 {
                     yield break;
                 }

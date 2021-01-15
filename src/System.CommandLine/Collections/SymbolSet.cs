@@ -21,7 +21,7 @@ namespace System.CommandLine.Collections
             ResetIndex(item);
 
             if (item is Symbol symbol)
-            {
+            {   
                 symbol.OnNameOrAliasChanged += Resync;
             }
         }
