@@ -1,15 +1,10 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Binding;
-using System.Linq;
-
 namespace System.CommandLine.Parsing
 {
     public class CommandResult : SymbolResult
     {
-        private ArgumentConversionResultSet? _results;
-
         internal CommandResult(
             ICommand command,
             Token token,
@@ -25,28 +20,6 @@ namespace System.CommandLine.Parsing
         public ICommand Command { get; }
 
         public Token Token { get; }
-
-        internal ArgumentConversionResultSet ArgumentConversionResults
-        {
-            get
-            {
-                if (_results is null)
-                {
-                    var results = Children
-                                  .OfType<ArgumentResult>()
-                                  .Select(r => r.GetArgumentConversionResult());
-
-                    _results = new ArgumentConversionResultSet();
-
-                    foreach (var result in results)
-                    {
-                        _results.Add(result);
-                    }
-                }
-
-                return _results;
-            }
-        }
 
         internal override bool UseDefaultValueFor(IArgument argument) =>
             Children.ResultFor(argument) switch

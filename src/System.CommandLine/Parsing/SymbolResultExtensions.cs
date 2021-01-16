@@ -10,11 +10,6 @@ namespace System.CommandLine.Parsing
     {
         internal static IEnumerable<SymbolResult> AllSymbolResults(this SymbolResult symbolResult)
         {
-            if (symbolResult is null)
-            {
-                throw new ArgumentNullException(nameof(symbolResult));
-            }
-
             yield return symbolResult;
 
             foreach (var item in symbolResult

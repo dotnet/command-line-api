@@ -76,22 +76,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Global_options_appear_in_child_command_options_list()
-        {
-            var root = new Command("parent");
-
-            var option = new Option<int>("--global");
-
-            root.AddGlobalOption(option);
-
-            var child = new Command("child");
-
-            root.AddCommand(child);
-
-            child.Options.Should().Contain(option);
-        }
-
-        [Fact]
         public void Subcommands_added_after_a_global_option_is_added_to_parent_will_recognize_the_global_option()
         {
             var root = new Command("parent");

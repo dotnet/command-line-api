@@ -46,7 +46,10 @@ namespace System.CommandLine.Suggest
 
         public Registration FindRegistration(FileInfo soughtExecutable)
         {
-            if (soughtExecutable == null) throw new ArgumentNullException(nameof(soughtExecutable));
+            if (soughtExecutable == null)
+            {
+                throw new ArgumentNullException(nameof(soughtExecutable));
+            }
 
             if (_nullableToolsShimPath == null)
             {

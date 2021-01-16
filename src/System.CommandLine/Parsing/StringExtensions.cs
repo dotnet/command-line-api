@@ -6,26 +6,26 @@ using System.CommandLine.Collections;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace System.CommandLine.Parsing
 {
     public static class StringExtensions
     {
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
+        private static readonly char[] _argumentDelimiters = {  ':', '=' };
 
         internal static bool ContainsCaseInsensitive(
             this string source,
-            string? value) =>
+            string value) =>
             source.IndexOfCaseInsensitive(value) >= 0;
 
         internal static int IndexOfCaseInsensitive(
             this string source,
-            string? value) =>
+            string value) =>
             CultureInfo.InvariantCulture
                        .CompareInfo
                        .IndexOf(source,
-                                value ?? "",
+                                value,
                                 CompareOptions.OrdinalIgnoreCase);
 
         internal static string RemovePrefix(this string rawAlias)
@@ -33,7 +33,7 @@ namespace System.CommandLine.Parsing
             for (var i = 0; i < _optionPrefixStrings.Length; i++)
             {
                 var prefix = _optionPrefixStrings[i];
-                if (rawAlias.StartsWith(prefix))
+                if (rawAlias.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     return rawAlias.Substring(prefix.Length);
                 }
@@ -42,13 +42,12 @@ namespace System.CommandLine.Parsing
             return rawAlias;
         }
 
-
         internal static (string? prefix, string alias) SplitPrefix(this string rawAlias)
         {
             for (var i = 0; i < _optionPrefixStrings.Length; i++)
             {
                 var prefix = _optionPrefixStrings[i];
-                if (rawAlias.StartsWith(prefix))
+                if (rawAlias.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     return (prefix, rawAlias.Substring(prefix.Length));
                 }
@@ -68,8 +67,6 @@ namespace System.CommandLine.Parsing
             var foundEndOfArguments = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
-
-            var argumentDelimiters = configuration.ArgumentDelimiters.ToArray();
 
             var knownTokens = configuration.RootCommand.ValidTokens();
 
@@ -92,8 +89,8 @@ namespace System.CommandLine.Parsing
 
                 if (!foundEndOfDirectives)
                 {
-                    if (arg.StartsWith("[") &&
-                        arg.EndsWith("]") &&
+                    if (arg.StartsWith("[", StringComparison.Ordinal) &&
+                        arg.EndsWith("]", StringComparison.Ordinal) &&
                         arg[1] != ']' &&
                         arg[1] != ':')
                     {
@@ -107,23 +104,22 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
-                    arg.GetResponseFileReference() is { } filePath)
+                if (arg.GetResponseFileReference() is { } filePath &&
+                    configuration.ResponseFileHandling != ResponseFileHandling.Disabled)
                 {
                     ReadResponseFile(filePath, i);
                     continue;
                 }
 
                 if (configuration.EnablePosixBundling &&
-                    CanBeUnbundled(arg, out IReadOnlyCollection<string>? replacement))
+                    CanBeUnbundled(arg, out var replacement))
                 {
                     argList.InsertRange(i + 1, replacement);
                     argList.RemoveAt(i);
                     arg = argList[i];
                 }
 
-                if (arg.TrySplitIntoSubtokens(argumentDelimiters,
-                                              out var first,
+                if (arg.TrySplitIntoSubtokens(out var first,
                                               out var rest))
                 {
                     if (knownTokens.TryGetValue(first!, out var token) &&
@@ -190,13 +186,12 @@ namespace System.CommandLine.Parsing
 
             return new TokenizeResult(tokenList, errorList);
 
-            bool CanBeUnbundled(string arg, out IReadOnlyCollection<string>? replacement)
+            bool CanBeUnbundled(string arg, out IReadOnlyList<string>? replacement)
             {
                 replacement = null;
 
-                if (tokenList.Count == 0)
+                if (arg.Length > 0 && arg[0] != '-')
                 {
-                    replacement = null;
                     return false;
                 }
 
@@ -216,7 +211,7 @@ namespace System.CommandLine.Parsing
 
                 Token? TokenForOptionAlias(char c)
                 {
-                    if (argumentDelimiters.Contains(c))
+                    if (_argumentDelimiters.Contains(c))
                     {
                         return null;
                     }
@@ -235,7 +230,7 @@ namespace System.CommandLine.Parsing
 
                 void AddRestValue(List<string> list, string rest)
                 {
-                    if (argumentDelimiters.Contains(rest[0]))
+                    if (_argumentDelimiters.Contains(rest[0]))
                     {
                         list[list.Count - 1] += rest;
                     }
@@ -245,7 +240,7 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                bool TryUnbundle(out IReadOnlyCollection<string>? replacement)
+                bool TryUnbundle(out IReadOnlyList<string>? replacement)
                 {
                     if (alias == string.Empty)
                     {
@@ -309,14 +304,6 @@ namespace System.CommandLine.Parsing
 
             void ReadResponseFile(string filePath, int i)
             {
-                if (string.IsNullOrWhiteSpace(filePath))
-                {
-                    errorList.Add(
-                        new TokenizeError(
-                            $"Invalid response file token: {filePath}"));
-                    return;
-                }
-
                 try
                 {
                     var next = i + 1;
@@ -420,34 +407,22 @@ namespace System.CommandLine.Parsing
         }
 
         private static string? GetResponseFileReference(this string arg) =>
-            arg.StartsWith("@") && arg.Length > 1
+            arg.Length > 1 && arg[0] == '@'
                 ? arg.Substring(1)
                 : null;
 
         internal static bool TrySplitIntoSubtokens(
             this string arg,
-            char[] delimiters,
             out string? first,
             out string? rest)
         {
-            for (var j = 0; j < delimiters.Length; j++)
+            var i = arg.IndexOfAny(_argumentDelimiters);
+
+            if (i >= 0)
             {
-                var i = arg.IndexOfAny(delimiters);
-
-                if (i >= 0)
-                {
-                    first = arg.Substring(0, i);
-
-                    if (arg.Length > i)
-                    {
-                        rest = arg.Substring(i + 1, arg.Length - 1 - i);
-                    }
-                    else
-                    {
-                        rest = null;
-                    }
-                    return true;
-                }
+                first = arg.Substring(0, i);
+                rest = arg.Substring(i + 1, arg.Length - 1 - i);
+                return true;
             }
 
             first = null;
@@ -540,7 +515,7 @@ namespace System.CommandLine.Parsing
             {
                 var arg = line.Trim();
 
-                if (arg.Length == 0 || arg.StartsWith("#"))
+                if (arg.Length == 0 || arg[0] == '#')
                 {
                     yield break;
                 }

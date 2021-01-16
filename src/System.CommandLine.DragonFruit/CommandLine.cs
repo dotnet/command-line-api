@@ -223,12 +223,13 @@ namespace System.CommandLine.DragonFruit
                         }
                         else
                         {
-                            foreach (var argument in builder.Command.Arguments)
+                            for (var i = 0; i < builder.Command.Arguments.Count; i++)
                             {
+                                var argument = builder.Command.Arguments[i];
                                 if (string.Equals(
-                                        argument.Name,
-                                        kebabCasedParameterName, 
-                                        StringComparison.OrdinalIgnoreCase))
+                                    argument.Name,
+                                    kebabCasedParameterName,
+                                    StringComparison.OrdinalIgnoreCase))
                                 {
                                     argument.Description = parameterDescription.Value;
                                 }

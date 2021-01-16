@@ -1344,8 +1344,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("command");
 
-            result.CommandResult
-                  .GetArgumentValueOrDefault("the-arg")
+            result.ValueForArgument("the-arg")
                   .Should()
                   .Be("default");
         }
@@ -1441,8 +1440,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-directory");
 
-            result.CommandResult
-                  .GetArgumentValueOrDefault<DirectoryInfo>("the-arg")
+            result.ValueForArgument<DirectoryInfo>("the-arg")
                   .Name
                   .Should()
                   .Be("the-directory");

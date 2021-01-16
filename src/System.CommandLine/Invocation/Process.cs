@@ -66,8 +66,9 @@ namespace System.CommandLine.Invocation
 
             if (environmentVariables?.Length > 0)
             {
-                foreach (var tuple in environmentVariables)
+                for (var i = 0; i < environmentVariables.Length; i++)
                 {
+                    var tuple = environmentVariables[i];
                     process.StartInfo.Environment.Add(tuple.key, tuple.value);
                 }
             }

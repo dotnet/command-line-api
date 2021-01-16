@@ -41,19 +41,19 @@ namespace System.CommandLine
 
         public virtual Argument Argument
         {
-            get => Arguments.FirstOrDefault() ?? Argument.None;
+            get => Children.Arguments.Count > 0
+                       ? Children.Arguments[0]
+                       : Argument.None;
             set
             {
-                foreach (var argument in Arguments.ToArray())
+                for (var i = 0; i < Children.Arguments.Count; i++)
                 {
-                    Children.Remove(argument);
+                    Children.Remove(Children.Arguments[i]);
                 }
 
                 AddArgumentInner(value);
             }
         }
-
-        private IEnumerable<Argument> Arguments => Children.OfType<Argument>();
 
         public override string Name
         {
@@ -89,9 +89,9 @@ namespace System.CommandLine
 
         public bool HasAliasIgnorePrefix(string alias) => _unprefixedAliases.Contains(alias.RemovePrefix());
 
-        private protected override void RemoveAlias(string? alias)
+        private protected override void RemoveAlias(string alias)
         {
-            _unprefixedAliases.Remove(alias!);
+            _unprefixedAliases.Remove(alias);
 
             base.RemoveAlias(alias);
         }

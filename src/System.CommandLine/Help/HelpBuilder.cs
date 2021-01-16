@@ -455,7 +455,7 @@ namespace System.CommandLine.Help
             }
             finally
             {
-                StringBuilderPool.Default.Return(lineBuilder);
+                StringBuilderPool.Default.ReturnToPool(lineBuilder);
             }
 
             void appendLine()
@@ -496,20 +496,23 @@ namespace System.CommandLine.Help
         /// <returns>A new <see cref="HelpItem"/></returns>
         private IEnumerable<HelpItem> GetArgumentHelpItems(ISymbol symbol)
         {
-            foreach (var argument in symbol.Arguments())
+            var arguments = symbol.Arguments();
+
+            for (var i = 0; i < arguments.Count; i++)
             {
+                var argument = arguments[i];
                 if (ShouldShowHelp(argument))
                 {
                     var argumentDescriptor = ArgumentDescriptor(argument);
 
                     var invocation = string.IsNullOrWhiteSpace(argumentDescriptor)
-                                        ? ""
-                                        : $"<{argumentDescriptor}>";
+                                         ? ""
+                                         : $"<{argumentDescriptor}>";
 
                     var argumentDescription = argument?.Description ?? "";
                     var defaultValueHint = argument != null
-                        ? BuildDefaultValueHint(argument)
-                        : null;
+                                               ? BuildDefaultValueHint(argument)
+                                               : null;
                     yield return new HelpItem(invocation, argumentDescription, defaultValueHint);
                 }
             }
@@ -640,20 +643,18 @@ namespace System.CommandLine.Help
 
                 if (subcommand != command)
                 {
-                    usage.Add(FormatArgumentUsage(subcommand.Arguments.ToArray()));
+                    usage.Add(FormatArgumentUsage(subcommand.Arguments));
                 }
             }
 
-            var hasOptionHelp = command.Children
-                .OfType<IOption>()
-                .Any(ShouldShowHelp);
+            var hasOptionHelp = command.Options.Any(ShouldShowHelp);
 
             if (hasOptionHelp)
             {
                 usage.Add(Usage.Options);
             }
 
-            usage.Add(FormatArgumentUsage(command.Arguments.ToArray()));
+            usage.Add(FormatArgumentUsage(command.Arguments));
 
             var hasCommandHelp = command.Children
                 .OfType<ICommand>()
@@ -672,7 +673,7 @@ namespace System.CommandLine.Help
             HelpSection.WriteHeading(this, Usage.Title, string.Join(" ", usage.Where(u => !string.IsNullOrWhiteSpace(u))));
         }
 
-        private string FormatArgumentUsage(IReadOnlyCollection<IArgument> arguments)
+        private string FormatArgumentUsage(IReadOnlyList<IArgument> arguments)
         {
             var sb = StringBuilderPool.Default.Rent();
 
@@ -680,8 +681,9 @@ namespace System.CommandLine.Help
             {
                 var end = default(Stack<char>);
 
-                foreach (var argument in arguments)
+                for (var i = 0; i < arguments.Count; i++)
                 {
+                    var argument = arguments[i];
                     if (!ShouldShowHelp(argument))
                     {
                         continue;
@@ -711,7 +713,7 @@ namespace System.CommandLine.Help
                 {
                     sb.Length--;
 
-                    if (end is Stack<char>)
+                    if (end is { })
                     {
                         while (end.Count > 0)
                         {
@@ -724,7 +726,7 @@ namespace System.CommandLine.Help
             }
             finally
             {
-                StringBuilderPool.Default.Return(sb);
+                StringBuilderPool.Default.ReturnToPool(sb);
             }
 
             bool IsMultiParented(IArgument argument) =>
@@ -748,12 +750,12 @@ namespace System.CommandLine.Help
                 cmd.Parents.FirstOrDefault() is ICommand parent &&
                 ShouldDisplayArgumentHelp(parent))
             {
-                addHelpItems(helpItems, parent);
+                AddHelpItemsFor(parent);
             }
 
             if (ShouldDisplayArgumentHelp(command))
             {
-                addHelpItems(helpItems, command);
+                AddHelpItemsFor(command);
             }
 
             HelpSection.WriteItems(
@@ -761,7 +763,7 @@ namespace System.CommandLine.Help
                 Arguments.Title,
                 helpItems);
 
-            void addHelpItems(HashSet<HelpItem> helpItems, ICommand command)
+            void AddHelpItemsFor(ICommand command)
             {
                 foreach (var helpItem in GetArgumentHelpItems(command))
                 {
@@ -778,8 +780,7 @@ namespace System.CommandLine.Help
         protected virtual void AddOptions(ICommand command)
         {
             var options = command
-                          .Children
-                          .OfType<IOption>()
+                          .Options
                           .Where(ShouldShowHelp)
                           .ToArray();
 

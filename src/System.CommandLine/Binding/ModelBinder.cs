@@ -141,9 +141,10 @@ namespace System.CommandLine.Binding
                 ModelDescriptor.ModelType,
                 includeMissingValues: false);
 
-            foreach (var boundValue in boundValues)
+            for (var i = 0; i < boundValues.Count; i++)
             {
-                ((PropertyDescriptor)boundValue.ValueDescriptor).SetValue(instance, boundValue.Value);
+                var boundValue = boundValues[i];
+                ((PropertyDescriptor) boundValue.ValueDescriptor).SetValue(instance, boundValue.Value);
             }
 
             return anyNonDefaults;

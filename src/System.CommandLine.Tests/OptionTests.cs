@@ -166,32 +166,6 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData(":", "-x{0}")]
-        [InlineData("=", "-x{0}")]
-        [InlineData(":", "{0}-x")]
-        [InlineData("=", "{0}-x")]
-        [InlineData(":", "--aa{0}aa")]
-        [InlineData("=", "--aa{0}aa")]
-        public void When_an_option_alias_contains_a_delimiter_then_an_informative_error_is_returned(
-            string delimiter,
-            string template)
-        {
-            var alias = string.Format(template, delimiter);
-
-            Action create = () =>
-            {
-                new Parser(new Option(alias));
-            };
-
-            create.Should()
-                  .Throw<ArgumentException>()
-                  .Which
-                  .Message
-                  .Should()
-                  .Be($"Option \"{alias}\" is not allowed to contain a delimiter but it contains \"{delimiter}\"");
-        }
-
-        [Theory]
         [InlineData("-x ")]
         [InlineData(" -x")]
         [InlineData("--aa aa")]
