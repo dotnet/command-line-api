@@ -33,7 +33,7 @@ namespace System.CommandLine.Parsing
             for (var i = 0; i < _optionPrefixStrings.Length; i++)
             {
                 var prefix = _optionPrefixStrings[i];
-                if (rawAlias.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                if (rawAlias.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     return rawAlias.Substring(prefix.Length);
                 }
@@ -47,7 +47,7 @@ namespace System.CommandLine.Parsing
             for (var i = 0; i < _optionPrefixStrings.Length; i++)
             {
                 var prefix = _optionPrefixStrings[i];
-                if (rawAlias.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                if (rawAlias.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     return (prefix, rawAlias.Substring(prefix.Length));
                 }
@@ -89,8 +89,8 @@ namespace System.CommandLine.Parsing
 
                 if (!foundEndOfDirectives)
                 {
-                    if (arg.StartsWith("[", StringComparison.OrdinalIgnoreCase) &&
-                        arg.EndsWith("]", StringComparison.OrdinalIgnoreCase) &&
+                    if (arg.StartsWith("[", StringComparison.Ordinal) &&
+                        arg.EndsWith("]", StringComparison.Ordinal) &&
                         arg[1] != ']' &&
                         arg[1] != ':')
                     {
@@ -112,7 +112,7 @@ namespace System.CommandLine.Parsing
                 }
 
                 if (configuration.EnablePosixBundling &&
-                    CanBeUnbundled(arg, out IReadOnlyCollection<string>? replacement))
+                    CanBeUnbundled(arg, out var replacement))
                 {
                     argList.InsertRange(i + 1, replacement);
                     argList.RemoveAt(i);
@@ -186,7 +186,7 @@ namespace System.CommandLine.Parsing
 
             return new TokenizeResult(tokenList, errorList);
 
-            bool CanBeUnbundled(string arg, out IReadOnlyCollection<string>? replacement)
+            bool CanBeUnbundled(string arg, out IReadOnlyList<string>? replacement)
             {
                 replacement = null;
 
@@ -240,7 +240,7 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                bool TryUnbundle(out IReadOnlyCollection<string>? replacement)
+                bool TryUnbundle(out IReadOnlyList<string>? replacement)
                 {
                     if (alias == string.Empty)
                     {

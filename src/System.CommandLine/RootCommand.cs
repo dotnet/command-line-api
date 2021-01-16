@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace System.CommandLine
@@ -35,7 +34,12 @@ namespace System.CommandLine
             var location = _executablePath.Value;
             if (string.IsNullOrEmpty(location))
             {
-                location = Environment.GetCommandLineArgs().FirstOrDefault();
+                var commandLineArgs = Environment.GetCommandLineArgs();
+
+                if (commandLineArgs.Length > 0)
+                {
+                    location = commandLineArgs[0];
+                }
             }
             return Path.GetFileNameWithoutExtension(location).Replace(" ", "");
         });
@@ -54,9 +58,9 @@ namespace System.CommandLine
         /// </summary>
         public static string ExecutablePath => _executablePath.Value;
 
-        private protected override void RemoveAlias(string? alias)
+        private protected override void RemoveAlias(string alias)
         {
-            if (!string.Equals(alias, ExecutableName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(alias, ExecutableName, StringComparison.Ordinal))
             {
                 base.RemoveAlias(alias);
             }
