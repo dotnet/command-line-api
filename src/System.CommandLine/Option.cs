@@ -89,9 +89,9 @@ namespace System.CommandLine
 
         public bool HasAliasIgnorePrefix(string alias) => _unprefixedAliases.Contains(alias.RemovePrefix());
 
-        private protected override void RemoveAlias(string? alias)
+        private protected override void RemoveAlias(string alias)
         {
-            _unprefixedAliases.Remove(alias!);
+            _unprefixedAliases.Remove(alias);
 
             base.RemoveAlias(alias);
         }
