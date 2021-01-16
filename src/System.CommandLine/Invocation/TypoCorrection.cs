@@ -24,8 +24,9 @@ namespace System.CommandLine.Invocation
 
         public void ProvideSuggestions(ParseResult result, IConsole console)
         {
-            foreach (var token in result.UnmatchedTokens)
+            for (var i = 0; i < result.UnmatchedTokens.Count; i++)
             {
+                var token = result.UnmatchedTokens[i];
                 string suggestions = string.Join(", or ", GetPossibleTokens(result.CommandResult.Command, token).Select(x => $"'{x}'"));
 
                 if (suggestions.Length > 0)

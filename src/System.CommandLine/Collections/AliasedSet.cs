@@ -15,6 +15,15 @@ namespace System.CommandLine.Collections
         private protected List<T> Items { get; } = new List<T>();
 
         private protected HashSet<T> DirtyItems { get; } = new HashSet<T>();
+        
+        public int Count => Items.Count;
+
+        public bool Contains(string alias)
+        {
+            EnsureAliasIndexIsCurrent();
+
+            return ItemsByAlias.ContainsKey(alias);
+        }
 
         public T? GetByAlias(string alias)
         {
@@ -24,8 +33,6 @@ namespace System.CommandLine.Collections
 
             return value;
         }
-
-        public int Count => Items.Count;
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -53,13 +60,6 @@ namespace System.CommandLine.Collections
 
         protected abstract IReadOnlyCollection<string> GetAliases(T item);
 
-        public bool Contains(string alias)
-        {
-            EnsureAliasIndexIsCurrent();
-
-            return ItemsByAlias.ContainsKey(alias);
-        }
-
         public T this[int index] => Items[index];
 
         private protected void EnsureAliasIndexIsCurrent()
@@ -69,14 +69,11 @@ namespace System.CommandLine.Collections
                 return;
             }
 
-            var array = DirtyItems.ToArray();
-
-            for (var i = 0; i < array.Length; i++)
+            foreach (var dirtyItem in DirtyItems)
             {
-                var dirtyItem = array[i];
                 var aliases = GetAliases(dirtyItem).ToArray();
 
-                foreach (var pair in ItemsByAlias.Where(p => p.Value.Equals(dirtyItem)).ToArray())
+                foreach (var pair in ItemsByAlias.ToArray())
                 {
                     if (pair.Value.Equals(dirtyItem))
                     {
@@ -84,9 +81,7 @@ namespace System.CommandLine.Collections
                     }
                 }
 
-                var wasRemoved = !Items.Contains(dirtyItem);
-
-                if (!wasRemoved)
+                if (Items.Contains(dirtyItem))
                 {
                     for (var j = 0; j < aliases.Length; j++)
                     {
@@ -94,9 +89,9 @@ namespace System.CommandLine.Collections
                         ItemsByAlias.TryAdd(alias, dirtyItem);
                     }
                 }
-
-                DirtyItems.Remove(dirtyItem);
             }
+
+            DirtyItems.Clear();
         }
     }
 }

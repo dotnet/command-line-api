@@ -9,8 +9,8 @@ namespace System.CommandLine
     {
         bool TreatUnmatchedTokensAsErrors { get; }
 
-        IEnumerable<IArgument> Arguments { get; }
-        
-        IEnumerable<IOption> Options { get; }
+        IReadOnlyList<IArgument> Arguments { get; }
+
+        IReadOnlyList<IOption> Options { get; }
     }
 }

@@ -24,8 +24,8 @@ namespace System.CommandLine.Binding
                     return new DirectoryInfo(value);
                 }
 
-                if (value.EndsWith(Path.DirectorySeparatorChar.ToString()) ||
-                    value.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
+                if (value.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
+                    value.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal))
                 {
                     return new DirectoryInfo(value);
                 }

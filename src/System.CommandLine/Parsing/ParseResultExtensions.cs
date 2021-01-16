@@ -56,8 +56,8 @@ namespace System.CommandLine.Parsing
 
             if (string.IsNullOrWhiteSpace(rawInput))
             {
-                if ((source.UnmatchedTokens.Count > 0) ||
-                    (lastToken?.Type == TokenType.Argument))
+                if (source.UnmatchedTokens.Count > 0 ||
+                    lastToken?.Type == TokenType.Argument)
                 {
                     return textToMatch ?? "";
                 }
@@ -87,8 +87,9 @@ namespace System.CommandLine.Parsing
                 {
                     builder.Append("   ???-->");
 
-                    foreach (var error in result.UnmatchedTokens)
+                    for (var i = 0; i < result.UnmatchedTokens.Count; i++)
                     {
+                        var error = result.UnmatchedTokens[i];
                         builder.Append(" ");
                         builder.Append(error);
                     }
@@ -98,7 +99,7 @@ namespace System.CommandLine.Parsing
             }
             finally
             {
-                StringBuilderPool.Default.Return(builder);
+                StringBuilderPool.Default.ReturnToPool(builder);
             }
         }
 
@@ -123,7 +124,7 @@ namespace System.CommandLine.Parsing
                 var includeArgumentName =
                     argumentResult.Argument is Argument argument &&
                     argument.Parents[0] is ICommand command &&
-                    command.Arguments.Count() > 1;
+                    command.Arguments.Count > 1;
 
                 if (includeArgumentName)
                 {
@@ -178,8 +179,9 @@ namespace System.CommandLine.Parsing
                 builder.Append("[ ");
                 builder.Append(symbolResult.Token().Value);
 
-                foreach (var child in symbolResult.Children)
+                for (var i = 0; i < symbolResult.Children.Count; i++)
                 {
+                    var child = symbolResult.Children[i];
                     builder.Append(" ");
                     builder.Diagram(child, parseResult);
                 }

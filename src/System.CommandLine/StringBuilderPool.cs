@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
@@ -48,8 +48,8 @@ namespace System.CommandLine
         {
             for (var i = _pool.Length; --i >= 0;)
             {
-                if (Interlocked.Exchange(ref _pool[i], null) is WeakReference<StringBuilder> builderReference
-                    && builderReference.TryGetTarget(out var builder))
+                if (Interlocked.Exchange(ref _pool[i], null) is { } builderReference && 
+                    builderReference.TryGetTarget(out var builder))
                 {
                     return builder.Clear();
                 }
@@ -63,7 +63,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="stringBuilder">The <see cref="StringBuilderPool"/> to add to the pool.</param>
         /// <remarks>The <see cref="StringBuilderPool"/> doesn't need to be one returned from <see cref="Rent()"/>.</remarks>
-        public void Return(StringBuilder stringBuilder)
+        public void ReturnToPool(StringBuilder stringBuilder)
         {
             var reference = new WeakReference<StringBuilder>(stringBuilder);
 
@@ -86,24 +86,7 @@ namespace System.CommandLine
         {
             var text = stringBuilder.ToString();
 
-            Return(stringBuilder);
-
-            return text;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="string"/> from a subtring of the <paramref name="stringBuilder"/> and returns it to the pool.
-        /// </summary>
-        /// <param name="stringBuilder">The <see cref="StringBuilderPool"/> to add to the pool.</param>
-        /// <param name="startIndex">The index to start in the <paramref name="stringBuilder"/>.</param>
-        /// <param name="length">The number of characters to read in the <paramref name="stringBuilder"/>.</param>
-        /// <returns>The <see cref="string"/> created from the <paramref name="stringBuilder"/>.</returns>
-        /// <remarks>The <see cref="StringBuilderPool"/> doesn't need to be one returned from <see cref="Rent()"/>.</remarks>
-        public string GetStringAndReturn(StringBuilder stringBuilder, int startIndex, int lengh)
-        {
-            var text = stringBuilder.ToString(startIndex, lengh);
-
-            Return(stringBuilder);
+            ReturnToPool(stringBuilder);
 
             return text;
         }

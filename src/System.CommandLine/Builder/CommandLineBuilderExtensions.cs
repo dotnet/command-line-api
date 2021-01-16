@@ -198,8 +198,8 @@ namespace System.CommandLine.Builder
                     }
                     finally
                     {
-                        StringBuilderPool.Default.Return(stdOut);
-                        StringBuilderPool.Default.Return(stdErr);
+                        StringBuilderPool.Default.ReturnToPool(stdOut);
+                        StringBuilderPool.Default.ReturnToPool(stdErr);
                     }
                 });
 
@@ -469,7 +469,7 @@ namespace System.CommandLine.Builder
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if ((context.ParseResult.UnmatchedTokens.Count > 0) &&
+                if (context.ParseResult.UnmatchedTokens.Count > 0 &&
                     context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors)
                 {
                     var typoCorrection = new TypoCorrection(maxLevenshteinDistance);

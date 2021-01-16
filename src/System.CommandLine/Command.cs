@@ -37,21 +37,17 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the arguments for the command.
         /// </summary>
-        public IEnumerable<Argument> Arguments => 
-            Children.OfType<Argument>();
+        public IReadOnlyList<Argument> Arguments => Children.Arguments;
 
         /// <summary>
         /// Represents all of the options for the command, including global options.
         /// </summary>
-        public IEnumerable<Option> Options =>
-            Children.OfType<Option>()
-                    .Concat(Parents
-                            .OfType<Command>()
-                            .SelectMany(c => c.GlobalOptions));
+        public IReadOnlyList<Option> Options => Children.Options;
+
         /// <summary>
         /// Represents all of the global options for the command
         /// </summary>
-        public IEnumerable<Option> GlobalOptions => _globalOptions.OfType<Option>();
+        public IReadOnlyList<Option> GlobalOptions => _globalOptions.Options;
 
         /// <summary>
         /// Adds an <see cref="Argument"/> to the command.
@@ -92,7 +88,7 @@ namespace System.CommandLine
         /// <returns><c>true</c> if the option was added;<c>false</c> if it was already in use.</returns>
         /// <remarks>Global options are applied to the command and recursively to subcommands. They do not apply to
         /// parent commands.</remarks>
-        public bool TryAddGlobalOption(Option option)
+        internal bool TryAddGlobalOption(Option option)
         {
             if (!_globalOptions.IsAnyAliasInUse(option, out _))
             {
@@ -180,10 +176,10 @@ namespace System.CommandLine
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <inheritdoc />
-        IEnumerable<IArgument> ICommand.Arguments => Arguments;
+        IReadOnlyList<IArgument> ICommand.Arguments => Arguments;
 
         /// <inheritdoc />
-        IEnumerable<IOption> ICommand.Options => Options;
+        IReadOnlyList<IOption> ICommand.Options => Options;
 
         internal Parser? ImplicitParser { get; set; }
     }

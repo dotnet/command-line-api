@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -91,22 +90,18 @@ namespace System.CommandLine.Parsing
                 return null;
             }
 
-            var command = parentNode.Command
-                                    .Children
-                                    .GetByAlias(CurrentToken.Value) as ICommand;
-
-            if (command is null)
+            if (parentNode.Command.Children.GetByAlias(CurrentToken.Value) is ICommand command)
             {
-                return null;
+                var commandNode = new CommandNode(CurrentToken, command, parentNode);
+
+                Advance();
+
+                ParseCommandChildren(commandNode);
+
+                return commandNode;
             }
 
-            var commandNode = new CommandNode(CurrentToken, command, parentNode);
-
-            Advance();
-
-            ParseCommandChildren(commandNode);
-
-            return commandNode;
+            return null;
         }
 
         private void ParseCommandChildren(CommandNode parent)
@@ -141,9 +136,17 @@ namespace System.CommandLine.Parsing
                 return null;
             }
 
-            var argument = commandNode.Command
-                                      .Arguments
-                                      .FirstOrDefault(a => !IsFull(a));
+            IArgument? argument = default;
+
+            for (var i = 0; i < commandNode.Command.Arguments.Count; i++)
+            {
+                if (commandNode.Command.Arguments[i] is {} arg &&
+                    !IsFull(arg))
+                {
+                    argument = arg;
+                    break;
+                }
+            }
 
             if (argument is null)
             {
@@ -279,10 +282,6 @@ namespace System.CommandLine.Parsing
                 else if (foundEndOfArguments)
                 {
                     UnparsedTokens.Add(CurrentToken);
-                }
-                else
-                {
-                    UnmatchedTokens.Add(CurrentToken);
                 }
 
                 Advance();

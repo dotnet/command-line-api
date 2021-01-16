@@ -138,8 +138,7 @@ namespace System.CommandLine.DragonFruit.Tests
                                              "args"
                                          };
 
-            rootCommand.Children
-                       .OfType<IOption>()
+            rootCommand.Options
                        .Should()
                        .NotContain(o => argumentParameterNames.Contains(o.Name));
         }

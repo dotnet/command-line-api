@@ -33,7 +33,10 @@ namespace System.CommandLine
                     throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
                 }
 
-                RemoveAlias(_specifiedName);
+                if (_specifiedName is { })
+                {
+                    RemoveAlias(_specifiedName);
+                }
 
                 _specifiedName = value;
 
@@ -48,12 +51,9 @@ namespace System.CommandLine
             OnNameOrAliasChanged?.Invoke(this);
         }
 
-        private protected virtual void RemoveAlias(string? alias)
+        private protected virtual void RemoveAlias(string alias)
         {
-            if (alias != null)
-            {
-                _aliases.Remove(alias);
-            }
+            _aliases.Remove(alias);
         }
 
         public virtual bool HasAlias(string alias) => _aliases.Contains(alias);
