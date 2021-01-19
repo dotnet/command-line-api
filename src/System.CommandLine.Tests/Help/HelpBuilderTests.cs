@@ -828,7 +828,7 @@ Arguments:
 
             var expected =
                 $"Arguments:{NewLine}" +
-                $"{_indentation}<False|True>{_columnPadding}{description}";
+                $"{_indentation}<{bool.FalseString}|{bool.TrueString}>{_columnPadding}{description}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
