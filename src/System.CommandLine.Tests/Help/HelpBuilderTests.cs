@@ -809,7 +809,7 @@ Arguments:
         [Theory]
         [InlineData(typeof(bool))]
         [InlineData(typeof(bool?))]
-        public void Command_argument_descriptor_is_empty_for_boolean_values(Type type)
+        public void Command_argument_descriptor_includes_suggestions_for_boolean_values(Type type)
         {
             var description = "This is the argument description";
 
@@ -828,7 +828,7 @@ Arguments:
 
             var expected =
                 $"Arguments:{NewLine}" +
-                $"{_indentation}{_columnPadding}{description}";
+                $"{_indentation}<False|True>{_columnPadding}{description}";
 
             _console.Out.ToString().Should().Contain(expected);
         }

@@ -526,8 +526,8 @@ namespace System.CommandLine.Help
 
         protected virtual string ArgumentDescriptor(IArgument argument)
         {
-            if (argument.ValueType == typeof(bool) ||
-                argument.ValueType == typeof(bool?))
+            if (argument.Parents.OfType<IOption>().Any()
+                && (argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?)))
             {
                 return "";
             }
