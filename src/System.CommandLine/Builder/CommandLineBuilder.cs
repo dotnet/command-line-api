@@ -29,7 +29,7 @@ namespace System.CommandLine.Builder
 
         internal HelpOption? HelpOption { get; set; }
 
-        internal ValidationMessages? ValidationMessages { get; set; }
+        internal Resources? ValidationMessages { get; set; }
 
         public Parser Build()
         {
