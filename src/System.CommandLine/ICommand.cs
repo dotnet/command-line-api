@@ -20,7 +20,7 @@ namespace System.CommandLine
         /// </summary>
         IEnumerable<IArgument> Arguments { get; }
         
-        /// <summary>      `
+        /// <summary>
         /// Gets the options for the command.
         /// </summary>
         IEnumerable<IOption> Options { get; }
