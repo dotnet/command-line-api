@@ -24,5 +24,9 @@ namespace System.CommandLine
         /// Gets the options for the command.
         /// </summary>
         IEnumerable<IOption> Options { get; }
+
+        IReadOnlyList<IArgument> Arguments { get; }
+
+        IReadOnlyList<IOption> Options { get; }
     }
 }

@@ -50,7 +50,7 @@ namespace System.CommandLine.Parsing
                 {
                     var results = Children
                                   .OfType<ArgumentResult>()
-                                  .Select(r => r.Convert(r.Argument));
+                                  .Select(r => r.GetArgumentConversionResult());
 
                     _argumentConversionResult = results.SingleOrDefault() ??
                                                 ArgumentConversionResult.None(Option.Argument);
@@ -59,5 +59,7 @@ namespace System.CommandLine.Parsing
                 return _argumentConversionResult;
             }
         }
+
+        internal override bool UseDefaultValueFor(IArgument argument) => IsImplicit;
     }
 }

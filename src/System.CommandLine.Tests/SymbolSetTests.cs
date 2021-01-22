@@ -127,6 +127,7 @@ namespace System.CommandLine.Tests
                    .Should()
                    .BeSameAs(symbol);
         }
+
         [Fact]
         public void When_command_alias_is_changed_then_GetByAlias_returns_true_for_the_new_alias()
         {

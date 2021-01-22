@@ -20,101 +20,74 @@ namespace System.CommandLine.Suggest
         public SuggestionDispatcher(ISuggestionRegistration suggestionRegistration, ISuggestionStore suggestionStore = null)
         {
             _suggestionRegistration = suggestionRegistration ?? throw new ArgumentNullException(nameof(suggestionRegistration));
+
             _suggestionStore = suggestionStore ?? new SuggestionStore();
 
-            Parser = new CommandLineBuilder()
-                      .UseVersionOption()
-                      .UseHelp()
-                      .UseParseDirective()
-                      .UseDebugDirective()
-                      .UseSuggestDirective()
-                      .UseParseErrorReporting()
-                      .UseExceptionHandler()
-
-                      .AddCommand(ListCommand())
-                      .AddCommand(GetCommand())
-                      .AddCommand(RegisterCommand())
-                      .AddCommand(CompleteScriptCommand())
-                   
-                      .Build();
-
-            Command GetCommand()
+            CompleteScriptCommand = new Command("script", "Print complete script for specific shell")
             {
-                var command = new Command("get")
+                new Argument<ShellType>
                 {
-                    ExecutableOption(),
-                    PositionOption()
-                };
-                command.Description = "Gets suggestions from the specified executable";
-                command.Handler = CommandHandler.Create<ParseResult, IConsole>(Get);
-                return command;
-            }
+                    Name = nameof(ShellType)
+                }
+            };
+            CompleteScriptCommand.Handler = CommandHandler.Create<IConsole, ShellType>(SuggestionShellScriptHandler.Handle);
 
-            Option ExecutableOption() =>
-                new Option(new[] { "-e", "--executable" })
-                {
-                    Argument = new Argument<string>().LegalFilePathsOnly(), Description = "The executable to call for suggestions"
-                };
-
-            Option PositionOption() =>
-                new Option(new[] { "-p", "--position" })
-                {
-                    Argument = new Argument<int>(),
-                    Description = "The current character position on the command line"
-                };
-
-            Command ListCommand() =>
-                new Command("list")
-                {
-                    Description = "Lists apps registered for suggestions",
-                    Handler = CommandHandler.Create<IConsole>(
-                        c => c.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration)))
-                };
-
-            Command CompleteScriptCommand()
+            ListCommand = new Command("list")
             {
-                var command = new Command("script")
-                {
-                    new Argument<ShellType>
-                    {
-                        Name = nameof(ShellType)
-                    }
-                };
-                
-                command.Handler = CommandHandler.Create<IConsole, ShellType>(SuggestionShellScriptHandler.Handle);
-                command.Description = "Print complete script for specific shell";
-                
-                return command;
-            }
+                Description = "Lists apps registered for suggestions",
+                Handler = CommandHandler.Create<IConsole>(
+                    c => c.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration)))
+            };
 
-            Command RegisterCommand()
+            GetCommand = new Command("get", "Gets suggestions from the specified executable")
             {
-                var description = "Registers an app for suggestions";
+                ExecutableOption,
+                PositionOption
+            };
+            GetCommand.Handler = CommandHandler.Create<ParseResult, IConsole>(Get);
 
-                var command = new Command("register")
-                {
-                    Description = description,
-                    Handler = CommandHandler.Create<string, string, IConsole>(Register)
-                };
-                command.Add(CommandPathOption());
-                command.Add(SuggestionCommandOption());
-                return command;
-            }
+            RegisterCommand = new Command("register", "Registers an app for suggestions")
+            {
+                new Option<string>("--command-path", "The path to the command for which to register suggestions"),
+                new Option<string>("--suggestion-command", "The command to invoke to retrieve suggestions")
+            };
 
-            Option CommandPathOption() =>
-                new Option("--command-path")
-                {
-                    Argument = new Argument<string>(),
-                    Description = "The path to the command for which to register suggestions"
-                };
+            RegisterCommand.Handler = CommandHandler.Create<string, string, IConsole>(Register);
 
-            Option SuggestionCommandOption() =>
-                new Option("--suggestion-command")
-                {
-                    Argument = new Argument<string>(),
-                    Description = "The command to invoke to retrieve suggestions"
-                };
+            var root = new RootCommand
+            {
+                ListCommand,
+                GetCommand,
+                RegisterCommand,
+                CompleteScriptCommand
+            };
+
+            Parser = new CommandLineBuilder(root)
+                     .UseVersionOption()
+                     .UseHelp()
+                     .UseParseDirective()
+                     .UseDebugDirective()
+                     .UseSuggestDirective()
+                     .UseParseErrorReporting()
+                     .UseExceptionHandler()
+                     .Build();
         }
+
+        private Command CompleteScriptCommand { get; }
+
+        private Command GetCommand { get; }
+
+        private Option<FileInfo> ExecutableOption { get; } =
+            new Option<FileInfo>(new[] { "-e", "--executable" }, "The executable to call for suggestions")
+                .LegalFilePathsOnly();
+
+        private Command ListCommand { get; }
+
+        private Option<int> PositionOption { get; } = new Option<int>(new[] { "-p", "--position" },
+                                                                      description: "The current character position on the command line",
+                                                                      getDefaultValue: () => short.MaxValue);
+
+        private Command RegisterCommand { get; }
 
         public Parser Parser { get; }
 
@@ -145,7 +118,7 @@ namespace System.CommandLine.Suggest
 
         private void Get(ParseResult parseResult, IConsole console)
         {
-            var commandPath = parseResult.ValueForOption<FileInfo>("-e");
+            var commandPath = parseResult.ValueForOption(ExecutableOption);
 
             Registration suggestionRegistration;
             if (commandPath.FullName == DotnetMuxer.Path.FullName)
@@ -157,7 +130,7 @@ namespace System.CommandLine.Suggest
                 suggestionRegistration = _suggestionRegistration.FindRegistration(commandPath);
             }
 
-            var position = parseResult.CommandResult["--position"]?.GetValueOrDefault<int>() ?? short.MaxValue;
+            var position = parseResult.ValueForOption(PositionOption);
 
             if (suggestionRegistration == null)
             {
@@ -200,14 +173,13 @@ namespace System.CommandLine.Suggest
 
             IEnumerable<string> Prefixes()
             {
-
                 foreach (var r in registrations)
                 {
-                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension (r.ExecutablePath);
+                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(r.ExecutablePath);
 
                     yield return fileNameWithoutExtension;
 
-                    if (fileNameWithoutExtension.StartsWith("dotnet-", StringComparison.Ordinal))
+                    if (fileNameWithoutExtension?.StartsWith("dotnet-", StringComparison.Ordinal) == true)
                     {
                         yield return "dotnet " + fileNameWithoutExtension.Substring("dotnet-".Length);
                     }

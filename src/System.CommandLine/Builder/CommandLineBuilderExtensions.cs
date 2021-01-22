@@ -21,7 +21,8 @@ namespace System.CommandLine.Builder
     public static class CommandLineBuilderExtensions
     {
         private static readonly Lazy<string> _assemblyVersion =
-            new Lazy<string>(() => {
+            new Lazy<string>(() =>
+            {
                 var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
                 if (assemblyVersionAttribute is null)
@@ -65,7 +66,7 @@ namespace System.CommandLine.Builder
         }
 
         public static TBuilder AddGlobalOption<TBuilder>(
-            this TBuilder builder, 
+            this TBuilder builder,
             Option option)
             where TBuilder : CommandBuilder
         {
@@ -103,7 +104,7 @@ namespace System.CommandLine.Builder
                         // because Main will not finish executing.
                         // Wait for the invocation to finish.
                         blockProcessExit.Wait();
-                        Environment.ExitCode = context.ResultCode;
+                        Environment.ExitCode = context.ExitCode;
                     };
                     Console.CancelKeyPress += consoleHandler;
                     AppDomain.CurrentDomain.ProcessExit += processExitHandler;
@@ -173,13 +174,13 @@ namespace System.CommandLine.Builder
 
                 await feature.EnsureRegistered(async () =>
                 {
+                    var stdOut = StringBuilderPool.Default.Rent();
+                    var stdErr = StringBuilderPool.Default.Rent();
+
                     try
                     {
                         var currentProcessFullPath = Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
                         var currentProcessFileNameWithoutExtension = Path.GetFileNameWithoutExtension(currentProcessFullPath);
-
-                        var stdOut = new StringBuilder();
-                        var stdErr = new StringBuilder();
 
                         var dotnetSuggestProcess = Process.StartProcess(
                             command: "dotnet-suggest",
@@ -195,6 +196,11 @@ namespace System.CommandLine.Builder
                     {
                         return $"Exception during registration:{NewLine}{exception}";
                     }
+                    finally
+                    {
+                        StringBuilderPool.Default.ReturnToPool(stdOut);
+                        StringBuilderPool.Default.ReturnToPool(stdErr);
+                    }
                 });
 
                 await next(context);
@@ -204,21 +210,45 @@ namespace System.CommandLine.Builder
         }
 
         public static CommandLineBuilder UseDebugDirective(
-            this CommandLineBuilder builder)
+            this CommandLineBuilder builder,
+            int? errorExitCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Directives.Contains("debug"))
                 {
+                    const string environmentVariableName = "DOTNET_COMMANDLINE_DEBUG_PROCESSES";
+
                     var process = Diagnostics.Process.GetCurrentProcess();
-
-                    var processId = process.Id;
-
-                    context.Console.Out.WriteLine($"Attach your debugger to process {processId} ({process.ProcessName}).");
-
-                    while (!Debugger.IsAttached)
+                    string debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
+                    if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
-                        await Task.Delay(500);
+                        context.Console.Error.WriteLine("Debug directive specified, but no process names are listed as allowed for debug.");
+                        context.Console.Error.WriteLine($"Add your process name to the '{environmentVariableName}' environment variable.");
+                        context.Console.Error.WriteLine($"The value of the variable should be the name of the processes, separated by a semi-colon ';', for example '{environmentVariableName}={process.ProcessName}'");
+                        context.ExitCode = errorExitCode ?? 1;
+                        return;
+                    }
+                    else
+                    {
+                        string[] processNames = debuggableProcessNames.Split(';');
+                        if (processNames.Contains(process.ProcessName, StringComparer.Ordinal))
+                        {
+                            var processId = process.Id;
+
+                            context.Console.Out.WriteLine($"Attach your debugger to process {processId} ({process.ProcessName}).");
+                            var startTime = DateTime.Now;
+                            while (!Debugger.IsAttached)
+                            {
+                                await Task.Delay(500);
+                            }
+                        }
+                        else
+                        {
+                            context.Console.Error.WriteLine($"Process name '{process.ProcessName}' is not included in the list of debuggable process names in the {environmentVariableName} environment variable ('{debuggableProcessNames}')");
+                            context.ExitCode = errorExitCode ?? 1;
+                            return;
+                        }
                     }
                 }
 
@@ -250,7 +280,7 @@ namespace System.CommandLine.Builder
 
                 return next(context);
             }, MiddlewareOrderInternal.EnvironmentVariableDirective);
-            
+
             return builder;
         }
 
@@ -272,7 +302,8 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder,
-            Action<Exception, InvocationContext>? onException = null)
+            Action<Exception, InvocationContext>? onException = null,
+            int? errorExitCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
@@ -290,15 +321,17 @@ namespace System.CommandLine.Builder
 
             void Default(Exception exception, InvocationContext context)
             {
-                context.Console.ResetTerminalForegroundColor();
-                context.Console.SetTerminalForegroundRed();
+                if (!(exception is OperationCanceledException))
+                {
+                    context.Console.ResetTerminalForegroundColor();
+                    context.Console.SetTerminalForegroundRed();
 
-                context.Console.Error.Write("Unhandled exception: ");
-                context.Console.Error.WriteLine(exception.ToString());
+                    context.Console.Error.Write("Unhandled exception: ");
+                    context.Console.Error.WriteLine(exception.ToString());
 
-                context.Console.ResetTerminalForegroundColor();
-
-                context.ResultCode = 1;
+                    context.Console.ResetTerminalForegroundColor();
+                }
+                context.ExitCode = errorExitCode ?? 1;
             }
         }
 
@@ -313,7 +346,7 @@ namespace System.CommandLine.Builder
         {
             if (builder.HelpOption is null)
             {
-                builder.HelpOption = helpOption; 
+                builder.HelpOption = helpOption;
                 builder.Command.TryAddGlobalOption(helpOption);
 
                 builder.AddMiddleware(async (context, next) =>
@@ -366,13 +399,14 @@ namespace System.CommandLine.Builder
         }
 
         public static CommandLineBuilder UseParseDirective(
-            this CommandLineBuilder builder)
+            this CommandLineBuilder builder,
+            int? errorExitCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Directives.Contains("parse"))
                 {
-                    context.InvocationResult = new ParseDirectiveResult();
+                    context.InvocationResult = new ParseDirectiveResult(errorExitCode);
                 }
                 else
                 {
@@ -384,13 +418,14 @@ namespace System.CommandLine.Builder
         }
 
         public static CommandLineBuilder UseParseErrorReporting(
-            this CommandLineBuilder builder)
+            this CommandLineBuilder builder,
+            int? errorExitCode = null)
         {
             builder.AddMiddleware(async (context, next) =>
             {
                 if (context.ParseResult.Errors.Count > 0)
                 {
-                    context.InvocationResult = new ParseErrorResult();
+                    context.InvocationResult = new ParseErrorResult(errorExitCode);
                 }
                 else
                 {
@@ -434,11 +469,11 @@ namespace System.CommandLine.Builder
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.UnmatchedTokens.Any() &&
+                if (context.ParseResult.UnmatchedTokens.Count > 0 &&
                     context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors)
                 {
                     var typoCorrection = new TypoCorrection(maxLevenshteinDistance);
-                    
+
                     typoCorrection.ProvideSuggestions(context.ParseResult, context.Console);
                 }
                 await next(context);
@@ -456,22 +491,44 @@ namespace System.CommandLine.Builder
         }
 
         public static CommandLineBuilder UseVersionOption(
-            this CommandLineBuilder builder)
+            this CommandLineBuilder builder,
+            int? errorExitCode = null)
         {
-            if (builder.Command.Children.GetByAlias("--version") != null)
+            var command = builder.Command;
+
+            if (command.Children.GetByAlias("--version") != null)
             {
                 return builder;
             }
 
-            var versionOption = new Option("--version", "Show version information");
+            var versionOption = new Option<bool>(
+                "--version",
+                description: "Show version information",
+                parseArgument: result =>
+                {
+                    if (result.FindResultFor(command)?.Children.Count > 1)
+                    {
+                        result.ErrorMessage = "--version option cannot be combined with other arguments.";
+                        return false;
+                    }
 
-            builder.AddOption(versionOption);
+                    return true;
+                });
+
+            command.AddOption(versionOption);
 
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.HasOption(versionOption))
+                if (context.ParseResult.FindResultFor(versionOption) is { } result)
                 {
-                    context.Console.Out.WriteLine(_assemblyVersion.Value);
+                    if (result.ArgumentConversionResult.ErrorMessage is { })
+                    {
+                        context.InvocationResult = new ParseErrorResult(errorExitCode);
+                    }
+                    else
+                    {
+                        context.Console.Out.WriteLine(_assemblyVersion.Value);
+                    }
                 }
                 else
                 {

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using static System.Environment;
 
 namespace System.CommandLine.Suggest
@@ -30,7 +31,7 @@ namespace System.CommandLine.Suggest
             }
 
             var userProfile = GetFolderPath(SpecialFolder.UserProfile);
-            
+
             _registrationConfigurationFilePath = Path.Combine(userProfile, RegistrationFileName);
         }
 
@@ -47,11 +48,19 @@ namespace System.CommandLine.Suggest
                 return null;
             }
 
-            var completionTarget =
-                File.ReadAllLines(_registrationConfigurationFilePath).LastOrDefault(line =>
-                                                                                        line.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase));
+            string completionTarget = null;
+            using (var sr = new StreamReader(_registrationConfigurationFilePath, Encoding.UTF8))
+            {
+                while (sr.ReadLine() is string line)
+                {
+                    if (line.StartsWith(soughtExecutable.FullName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        completionTarget = line;
+                    }
+                }
+            }
 
-            if (completionTarget == null)
+            if (completionTarget is null)
             {
                 // Completion provider not found!
                 return null;
@@ -66,13 +75,17 @@ namespace System.CommandLine.Suggest
 
             if (_registrationConfigurationFilePath != null && File.Exists(_registrationConfigurationFilePath))
             {
-                allRegistration
-                    .AddRange(File
-                        .ReadAllLines(_registrationConfigurationFilePath)
-                        .Select(l => l.Trim())
-                        .Where(l => l.Any())
-                        .Select(item => new Registration(item))
-                    );
+                using (var sr = new StreamReader(_registrationConfigurationFilePath, Encoding.UTF8))
+                {
+                    string line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(line))
+                        {
+                            allRegistration.Add(new Registration(line.Trim()));
+                        }
+                    }
+                }
             }
 
             return allRegistration;

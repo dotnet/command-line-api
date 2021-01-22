@@ -2,20 +2,24 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace System.CommandLine
 {
     /// <summary>
-    /// A command representing an application entry point.
+    /// Represents the main action that the application performs.
     /// </summary>
+    /// <remarks>
+    /// Use the RootCommand object without any subcommands for applications that perform one action. Add subcommands 
+    /// to the root for applications that require actions identified by specific strings. For example, `dir` does not 
+    /// use any subcommands. See <see cref="Command"/> for applications with multiple actions.
+    /// </remarks>
     public class RootCommand : Command
     {
         /// <summary>
-        /// Create a new instance of RootCommand
+        /// Initializes a new instance of the RootCommand class.
         /// </summary>
-        /// <param name="description">The description of the command shown in help.</param>
+        /// <param name="description">The description of the command, shown in help.</param>
         public RootCommand(string description = "") : base(ExecutableName, description)
         {
         }
@@ -30,7 +34,12 @@ namespace System.CommandLine
             var location = _executablePath.Value;
             if (string.IsNullOrEmpty(location))
             {
-                location = Environment.GetCommandLineArgs().FirstOrDefault();
+                var commandLineArgs = Environment.GetCommandLineArgs();
+
+                if (commandLineArgs.Length > 0)
+                {
+                    location = commandLineArgs[0];
+                }
             }
             return Path.GetFileNameWithoutExtension(location).Replace(" ", "");
         });
@@ -49,9 +58,9 @@ namespace System.CommandLine
         /// </summary>
         public static string ExecutablePath => _executablePath.Value;
 
-        private protected override void RemoveAlias(string? alias)
+        private protected override void RemoveAlias(string alias)
         {
-            if (!string.Equals(alias, ExecutableName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(alias, ExecutableName, StringComparison.Ordinal))
             {
                 base.RemoveAlias(alias);
             }

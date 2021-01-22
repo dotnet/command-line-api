@@ -4,12 +4,12 @@
 using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
-using System.CommandLine.Suggestions;
 using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine
 {
+    /// <inheritdoc />
     public abstract class Symbol : ISymbol
     {
         private string? _name;
@@ -19,8 +19,14 @@ namespace System.CommandLine
         {
         }
 
+        /// <summary>
+        /// Gets or sets the description of the symbol.
+        /// </summary>
         public string? Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the symbol.
+        /// </summary>
         public virtual string Name
         {
             get => _name ??= DefaultName;
@@ -29,6 +35,9 @@ namespace System.CommandLine
 
         private protected abstract string DefaultName { get; }
 
+        /// <summary>
+        /// Represents the parent symbols.
+        /// </summary>
         public ISymbolSet Parents => _parents;
 
         internal void AddParent(Symbol symbol)
@@ -43,42 +52,67 @@ namespace System.CommandLine
 
         private protected void AddArgumentInner(Argument argument)
         {
-            if (argument is null)
-            {
-                throw new ArgumentNullException(nameof(argument));
-            }
-
             argument.AddParent(this);
 
             Children.Add(argument);
         }
 
+        /// <summary>
+        /// Gets the child symbols.
+        /// </summary>
         public SymbolSet Children { get; } = new SymbolSet();
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the symbol is hidden.
+        /// </summary>
         public bool IsHidden { get; set; }
 
+        /// <inheritdoc />
         public virtual IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
-            var argumentSuggestions =
-                Children
-                    .OfType<IArgument>()
-                    .SelectMany(a => a.GetSuggestions(parseResult, textToMatch))
-                    .ToArray();
+            var suggestions = new HashSet<string>();
 
-            return Children
-                   .Where(s => !s.IsHidden)
-                   .OfType<IIdentifierSymbol>()
-                   .SelectMany(s => s.Aliases)
-                   .Concat(argumentSuggestions)
-                   .Distinct()
-                   .Containing(textToMatch)
-                   .Where(symbol => symbol != null)
+            textToMatch ??= "";
+
+            for (var i = 0; i < Children.Count; i++)
+            {
+                var child = Children[i];
+
+                switch (child)
+                {
+                    case IIdentifierSymbol identifier when !child.IsHidden:
+                        foreach (var alias in identifier.Aliases)
+                        {
+                            if (alias is { } suggestion && 
+                                suggestion.ContainsCaseInsensitive(textToMatch))
+                            {
+                                suggestions.Add(suggestion);
+                            }
+                        }
+
+                        break;
+                    case IArgument argument:
+                        foreach (var suggestion in argument.GetSuggestions(parseResult, textToMatch))
+                        {
+                            if (suggestion is { } && 
+                                suggestion.ContainsCaseInsensitive(textToMatch))
+                            {
+                                suggestions.Add(suggestion);
+                            }
+                        }
+
+                        break;
+                }
+            }
+
+            return suggestions
                    .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
                    .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
         public override string ToString() => $"{GetType().Name}: {Name}";
 
+        /// <inheritdoc />
         ISymbolSet ISymbol.Children => Children;
 
         internal Action<ISymbol>? OnNameOrAliasChanged;

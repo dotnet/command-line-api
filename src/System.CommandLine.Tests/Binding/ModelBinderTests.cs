@@ -7,7 +7,6 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
-using System.Linq;
 using Xunit;
 using System.Reflection;
 
@@ -445,7 +444,7 @@ namespace System.CommandLine.Tests.Binding
 
             var type = typeof(ClassWithMultiLetterSetters);
             var binder = new ModelBinder(type);
-            var propertyInfo = type.GetProperties().First();
+            var propertyInfo = type.GetProperties()[0];
 
             binder.BindMemberFromValue(
                 propertyInfo,
@@ -574,9 +573,8 @@ namespace System.CommandLine.Tests.Binding
             var stringOption = new Option("-b") { Argument = new Argument<string>() };
             var parser = new Parser(intOption, stringOption);
             var ctor = typeof(ClassWithMultiLetterCtorParameters)
-                .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
-                .First();
-            var paramInfo = ctor.GetParameters().First();
+                .GetConstructors(BindingFlags.Public | BindingFlags.Instance)[0];
+            var paramInfo = ctor.GetParameters()[0];
 
             var bindingContext = new BindingContext(parser.Parse("-a 42 -b Hello"));
             var binder = new ModelBinder<ClassWithMultiLetterCtorParameters>

@@ -56,13 +56,13 @@ namespace System.CommandLine.Parsing
 
             if (string.IsNullOrWhiteSpace(rawInput))
             {
-                if (source.UnmatchedTokens.Any() ||
+                if (source.UnmatchedTokens.Count > 0 ||
                     lastToken?.Type == TokenType.Argument)
                 {
                     return textToMatch ?? "";
                 }
             }
-            else 
+            else
             {
                 var textBeforeCursor = rawInput!.Substring(0, position!.Value);
 
@@ -77,22 +77,30 @@ namespace System.CommandLine.Parsing
 
         public static string Diagram(this ParseResult result)
         {
-            var builder = new StringBuilder();
+            var builder = StringBuilderPool.Default.Rent();
 
-            builder.Diagram(result.RootCommandResult, result);
-
-            if (result.UnmatchedTokens.Any())
+            try
             {
-                builder.Append("   ???-->");
+                builder.Diagram(result.RootCommandResult, result);
 
-                foreach (var error in result.UnmatchedTokens)
+                if (result.UnmatchedTokens.Count > 0)
                 {
-                    builder.Append(" ");
-                    builder.Append(error);
-                }
-            }
+                    builder.Append("   ???-->");
 
-            return builder.ToString();
+                    for (var i = 0; i < result.UnmatchedTokens.Count; i++)
+                    {
+                        var error = result.UnmatchedTokens[i];
+                        builder.Append(" ");
+                        builder.Append(error);
+                    }
+                }
+
+                return builder.ToString();
+            }
+            finally
+            {
+                StringBuilderPool.Default.ReturnToPool(builder);
+            }
         }
 
         private static void Diagram(
@@ -104,8 +112,8 @@ namespace System.CommandLine.Parsing
             {
                 builder.Append("!");
             }
-            
-            if (symbolResult is OptionResult optionResult && 
+
+            if (symbolResult is OptionResult optionResult &&
                 optionResult.IsImplicit)
             {
                 builder.Append("*");
@@ -116,7 +124,7 @@ namespace System.CommandLine.Parsing
                 var includeArgumentName =
                     argumentResult.Argument is Argument argument &&
                     argument.Parents[0] is ICommand command &&
-                    command.Arguments.Count() > 1;
+                    command.Arguments.Count > 1;
 
                 if (includeArgumentName)
                 {
@@ -159,7 +167,6 @@ namespace System.CommandLine.Parsing
                         builder.Append(">");
 
                         break;
-
                 }
 
                 if (includeArgumentName)
@@ -172,8 +179,9 @@ namespace System.CommandLine.Parsing
                 builder.Append("[ ");
                 builder.Append(symbolResult.Token().Value);
 
-                foreach (var child in symbolResult.Children)
+                for (var i = 0; i < symbolResult.Children.Count; i++)
                 {
+                    var child = symbolResult.Children[i];
                     builder.Append(" ");
                     builder.Diagram(child, parseResult);
                 }
@@ -181,17 +189,6 @@ namespace System.CommandLine.Parsing
                 builder.Append(" ]");
             }
         }
-
-        public static SymbolResult? FindResultFor(
-            this ParseResult parseResult,
-            ISymbol symbol) =>
-            symbol switch
-            {
-                IArgument argument => parseResult.FindResultFor(argument),
-                ICommand command => parseResult.FindResultFor(command),
-                IOption option => parseResult.FindResultFor(option),
-                _ => throw new ArgumentOutOfRangeException(nameof(symbol))
-            };
 
         public static bool HasOption(
             this ParseResult parseResult,
@@ -202,7 +199,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.CommandResult.Children.Any(s => Equals(s.Symbol, option));
+            return parseResult.FindResultFor(option) is { };
         }
 
         public static bool HasOption(

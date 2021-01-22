@@ -25,7 +25,7 @@ namespace System.CommandLine.Invocation
 
             await invocationChain(context, invocationContext => Task.CompletedTask);
 
-            return GetResultCode(context);
+            return GetExitCode(context);
         }
 
         public int Invoke(IConsole? console = null)
@@ -36,12 +36,13 @@ namespace System.CommandLine.Invocation
 
             Task.Run(() => invocationChain(context, invocationContext => Task.CompletedTask)).GetAwaiter().GetResult();
 
-            return GetResultCode(context);
+            return GetExitCode(context);
         }
 
         private static InvocationMiddleware BuildInvocationChain(InvocationContext context)
         {
-            var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware);
+            var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware.Count + 1);
+            invocations.AddRange(context.Parser.Configuration.Middleware);
 
             invocations.Add(async (invocationContext, next) =>
             {
@@ -54,7 +55,7 @@ namespace System.CommandLine.Invocation
 
                     if (handler != null)
                     {
-                        context.ResultCode = await handler.InvokeAsync(invocationContext);
+                        context.ExitCode = await handler.InvokeAsync(invocationContext);
                     }
                 }
             });
@@ -66,11 +67,11 @@ namespace System.CommandLine.Invocation
                             c => second(c, next)));
         }
 
-        private static int GetResultCode(InvocationContext context)
+        private static int GetExitCode(InvocationContext context)
         {
             context.InvocationResult?.Apply(context);
 
-            return context.ResultCode;
+            return context.ExitCode;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace System.CommandLine.Builder
 
         public Command Command { get; }
 
-        public IEnumerable<Option> Options => Command.Children.OfType<Option>();
+        public IEnumerable<Option> Options => Command.Options;
 
         internal void AddCommand(Command command) => Command.AddCommand(command);
 

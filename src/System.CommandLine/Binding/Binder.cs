@@ -1,21 +1,76 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Parsing;
-
 namespace System.CommandLine.Binding
 {
     internal static class Binder
     {
-        internal static bool IsMatch(this string parameterName, string alias) =>
-            string.Equals(alias?.RemovePrefix()
-                              .Replace("-", "")
-                              .Replace("|", "or"),
-                          parameterName,
-                          StringComparison.OrdinalIgnoreCase);
+        internal static bool IsMatch(this string parameterName, string alias)
+        {
+            var parameterNameIndex = 0;
+
+            for (var aliasIndex = IndexAfterPrefix(alias); 
+                aliasIndex < alias.Length && parameterNameIndex < parameterName.Length;
+                aliasIndex++)
+            {
+                var aliasChar = alias[aliasIndex];
+
+                if (aliasChar == '-')
+                {
+                    continue;
+                }
+
+                var parameterNameChar = parameterName[parameterNameIndex];
+
+                if (aliasChar == '|')
+                {
+                    if (parameterName.Length < parameterNameIndex + 2 || 
+                        (parameterNameChar | 32) != 'o' || 
+                        (parameterName[parameterNameIndex + 1] | 32) != 'r')
+                    {
+                        return false;
+                    }
+
+                    parameterNameIndex += 2;
+
+                    continue;
+                }
+
+                if (parameterNameChar != aliasChar && 
+                    char.ToUpperInvariant(parameterNameChar) != char.ToUpperInvariant(aliasChar))
+                {
+                    return false;
+                }
+
+                parameterNameIndex++;
+            }
+
+            return true;
+
+            static int IndexAfterPrefix(string alias)
+            {
+                if (alias.Length > 0)
+                {
+                    if (alias[0] == '-' && alias.Length > 1 && alias[1] == '-')
+                    {
+                        return 2;
+                    }
+                    else if (alias[0] == '-')
+                    {
+                        return 1;
+                    }
+                    else if (alias[0] == '/')
+                    {
+                        return 1;
+                    }
+                }
+
+                return 0;
+            }
+        }
 
         internal static bool IsMatch(this string parameterName, IOption symbol) =>
-            parameterName.IsMatch(symbol.Name) || 
+            parameterName.IsMatch(symbol.Name) ||
             symbol.HasAlias(parameterName);
 
         internal static bool IsNullable(this Type t)

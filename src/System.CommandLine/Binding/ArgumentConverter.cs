@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.ComponentModel;
+using System.ComponentModel;    
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -24,8 +24,8 @@ namespace System.CommandLine.Binding
                     return new DirectoryInfo(value);
                 }
 
-                if (value.EndsWith(Path.DirectorySeparatorChar.ToString()) ||
-                    value.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
+                if (value.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
+                    value.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal))
                 {
                     return new DirectoryInfo(value);
                 }
@@ -51,7 +51,7 @@ namespace System.CommandLine.Binding
                         return ConvertString(argument, type, singleValue);
                     }
 
-                case IReadOnlyCollection<string> manyValues:
+                case IReadOnlyList<string> manyValues:
                     return ConvertStrings(argument, type, manyValues);
             }
 
@@ -106,38 +106,79 @@ namespace System.CommandLine.Binding
         public static ArgumentConversionResult ConvertStrings(
             IArgument argument,
             Type type,
-            IReadOnlyCollection<string> arguments)
+            IReadOnlyList<string> tokens,
+            ArgumentResult? argumentResult = null)
         {
-            if (type is null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            if (arguments is null)
-            {
-                throw new ArgumentNullException(nameof(arguments));
-            }
-
             var itemType = type == typeof(string)
                                ? typeof(string)
                                : GetItemTypeIfEnumerable(type);
 
-            var successfulParseResults = arguments
-                                         .Select(arg => ConvertString(argument, itemType, arg))
-                                         .OfType<SuccessfulArgumentConversionResult>();
+            var (values, isArray) = type.IsArray
+                             ? (CreateArray(itemType!, tokens.Count), true)
+                             : (CreateList(itemType!, tokens.Count), false);
 
-            var list = (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
-
-            foreach (var parseResult in successfulParseResults)
+            for (var i = 0; i < tokens.Count; i++)
             {
-                list.Add(parseResult.Value);
+                var token = tokens[i];
+
+                var result = ConvertString(argument, itemType, token);
+
+                switch (result)
+                {
+                    case FailedArgumentTypeConversionResult _:
+                    case FailedArgumentConversionResult _:
+                        if (argumentResult is { })
+                        { 
+                            argumentResult.OnlyTake(i);
+
+                            // exit the for loop
+                            i = tokens.Count;
+                            break;
+                        }
+
+                        return result;
+
+                    case SuccessfulArgumentConversionResult success:
+                        if (isArray)
+                        {
+                            values[i] = success.Value;
+                        }
+                        else
+                        {
+                            values.Add(success.Value);
+                        }
+
+                        break;
+                }
             }
 
-            var value = type.IsArray
-                            ? (object) Enumerable.ToArray((dynamic) list)
-                            : list;
+            return Success(argument, values);
 
-            return Success(argument, value);
+            static IList CreateList(Type itemType, int capacity)
+            {
+                if (itemType == typeof(string))
+                {
+                    return new List<string>(capacity);
+                }
+                else
+                {
+                    return (IList) Activator.CreateInstance(
+                        typeof(List<>).MakeGenericType(itemType),
+                        capacity);
+                }
+            }
+
+            static IList CreateArray(Type itemType, int capacity)
+            {
+                if (itemType == typeof(string))
+                {
+                    return new string[capacity];
+                }
+                else
+                {
+                    return Array.CreateInstance(itemType, capacity);
+                }
+            }
         }
 
         private static Type? GetItemTypeIfEnumerable(Type type)
@@ -154,12 +195,7 @@ namespace System.CommandLine.Binding
                       .GetInterfaces()
                       .FirstOrDefault(IsEnumerable);
 
-            if (enumerableInterface is {})
-            {
-                return enumerableInterface.GenericTypeArguments[0];
-            }
-
-            return null;
+            return enumerableInterface?.GenericTypeArguments[0];
         }
 
         internal static bool IsEnumerable(this Type type)
@@ -172,8 +208,7 @@ namespace System.CommandLine.Binding
             return 
                 type.IsArray 
                 ||
-                (type.IsGenericType &&
-                 type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                typeof(IEnumerable).IsAssignableFrom(type);
         }
 
         private static bool HasStringTypeConverter(this Type type)
@@ -184,10 +219,10 @@ namespace System.CommandLine.Binding
 
         private static FailedArgumentConversionResult Failure(
             IArgument argument,
-            Type type,
+            Type expectedType,
             string value)
         {
-            return new FailedArgumentTypeConversionResult(argument, type, value);
+            return new FailedArgumentTypeConversionResult(argument, expectedType, value);
         }
 
         public static bool CanBeBoundFromScalarValue(this Type type)
@@ -227,7 +262,7 @@ namespace System.CommandLine.Binding
             Type parameterType,
             [NotNullWhen(true)] out ConstructorInfo? ctor)
         {
-            var (x, y) = type.GetConstructors()
+            var (x, _) = type.GetConstructors()
                              .Select(c => (ctor: c, parameters: c.GetParameters()))
                              .SingleOrDefault(tuple => tuple.ctor.IsPublic &&
                                                        tuple.parameters.Length == 1 &&
@@ -306,6 +341,46 @@ namespace System.CommandLine.Binding
                 default:
                     return default!;
             }
+        }
+
+        public static bool TryConvertBoolArgument(ArgumentResult argumentResult, out object? value)
+        {
+            if (argumentResult.Tokens.Count == 0)
+            {
+                value = true;
+                return true;
+            }
+            else
+            {
+                var success = bool.TryParse(argumentResult.Tokens[0].Value, out var parsed);
+                value = parsed;
+                return success;
+            }
+        }
+
+        public static bool TryConvertArgument(ArgumentResult argumentResult, out object? value)
+        {
+            var argument = argumentResult.Argument;
+
+            switch (argument.Arity.MaximumNumberOfValues)
+            {
+                case 1:
+                    value = ConvertObject(
+                        argument,
+                        argument.ValueType,
+                        argumentResult.Tokens[0].Value);
+                    break;
+
+                default:
+                    value = ConvertStrings(
+                        argument,
+                        argument.ValueType,
+                        argumentResult.Tokens.Select(t => t.Value).ToArray(),
+                        argumentResult);
+                    break;
+            }
+
+            return value is SuccessfulArgumentConversionResult;
         }
     }
 }

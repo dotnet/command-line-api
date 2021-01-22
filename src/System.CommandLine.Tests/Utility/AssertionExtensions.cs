@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests.Utility
             {
                 foreach (var tuple in actualValues
                                       .Zip(expectedValues, (actual, expected) => (actual, expected))
-                                      .Where(t => t.expected == null || t.expected.GetType().GetProperties().Any()))
+                                      .Where(t => (t.expected == null) || (t.expected.GetType().GetProperties().Length > 0)))
 
                 {
                     tuple.actual

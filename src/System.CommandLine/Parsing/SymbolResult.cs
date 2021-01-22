@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -19,6 +18,8 @@ namespace System.CommandLine.Parsing
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
             Parent = parent;
+
+            Root = parent?.Root;
         }
 
         public string? ErrorMessage { get; set; }
@@ -27,48 +28,34 @@ namespace System.CommandLine.Parsing
 
         public SymbolResult? Parent { get; }
 
-        internal virtual RootCommandResult? Root =>
-            Parent switch
-            {
-                CommandResult c => c.Root,
-                OptionResult o => o.Parent?.Root,
-                _ => null
-            };
+        internal virtual RootCommandResult? Root { get; }
 
         public ISymbol Symbol { get; }
 
         public IReadOnlyList<Token> Tokens => _tokens;
 
-        internal bool IsArgumentLimitReached => RemainingArgumentCapacity <= 0;
+        internal bool IsArgumentLimitReached => RemainingArgumentCapacity == 0;
 
         private protected virtual int RemainingArgumentCapacity =>
             MaximumArgumentCapacity() - Tokens.Count;
 
         internal int MaximumArgumentCapacity()
         {
-            var maximumArgumentCapacity = Symbol.Arguments()
-                .Sum(a => a.Arity.MaximumNumberOfValues);
-            return (int) Math.Min(maximumArgumentCapacity, int.MaxValue);
+            var value = 0;
+
+            var arguments = Symbol.Arguments();
+            
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                value += arguments[i].Arity.MaximumNumberOfValues;
+            }
+
+            return value;
         }
 
         protected internal ValidationMessages ValidationMessages
         {
-            get
-            {
-                if (_validationMessages is null)
-                {
-                    if (Parent is null)
-                    {
-                        _validationMessages = ValidationMessages.Instance;
-                    }
-                    else
-                    {
-                        _validationMessages = Parent.ValidationMessages;
-                    }
-                }
-
-                return _validationMessages;
-            }
+            get => _validationMessages ??= Parent?.ValidationMessages ?? ValidationMessages.Instance;
             set => _validationMessages = value;
         }
 
@@ -90,22 +77,7 @@ namespace System.CommandLine.Parsing
                     argument,
                     this));
 
-        internal bool UseDefaultValueFor(IArgument argument)
-        {
-            switch (this)
-            {
-                case OptionResult optionResult
-                    when optionResult.IsImplicit:
-                    return true;
-
-                case CommandResult _
-                    when Children.ResultFor(argument)?.Tokens.Count == 0:
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
+        internal virtual bool UseDefaultValueFor(IArgument argument) => false;
 
         public override string ToString() => $"{GetType().Name}: {this.Token()}";
 

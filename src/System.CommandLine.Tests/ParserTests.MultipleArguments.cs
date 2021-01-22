@@ -33,11 +33,9 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2 3 4");
 
-                var several = result.CommandResult
-                                    .GetArgumentValueOrDefault<IEnumerable<string>>("several");
+                var several = result.ValueForArgument<IEnumerable<string>>("several");
 
-                var one = result.CommandResult
-                                .GetArgumentValueOrDefault<IEnumerable<string>>("one");
+                var one = result.ValueForArgument<IEnumerable<string>>("one");
 
                 several.Should()
                        .BeEquivalentSequenceTo("1", "2", "3");
@@ -62,11 +60,9 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2");
 
-                var theString = result.CommandResult
-                                    .GetArgumentValueOrDefault<string>("the-string");
+                var theString = result.ValueForArgument<string>("the-string");
 
-                var theInt = result.CommandResult
-                                .GetArgumentValueOrDefault<int>("the-int");
+                var theInt = result.ValueForArgument<int>("the-int");
 
                 theString.Should().Be("1");
                 theInt.Should().Be(2);
@@ -124,33 +120,35 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Multiple_arguments_of_unspecified_type_are_parsed_correctly()
             {
+                var sourceArg = new Argument("source")
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                };
+                var destinationArg = new Argument("destination")
+                {
+                    Arity = ArgumentArity.ExactlyOne
+                };
                 var root = new RootCommand
                 {
-                    new Argument("source")
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    },
-                    new Argument("destination")
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
+                    sourceArg,
+                    destinationArg
                 };
 
                 var result = root.Parse("src.txt dest.txt");
 
-                result.RootCommandResult
-                      .GetArgumentValueOrDefault("source")
+                result.FindResultFor(sourceArg)
+                      .GetValueOrDefault()
                       .Should()
                       .Be("src.txt");
                 
-                result.RootCommandResult
-                      .GetArgumentValueOrDefault("destination")
+                result.FindResultFor(destinationArg)
+                      .GetValueOrDefault()
                       .Should()
                       .Be("dest.txt");
             }
 
             [Fact]
-            public void arity_ambiguities_can_be_differentiated_by_type_convertibility()
+            public void tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_multiple_arity_argument()
             {
                 var ints = new Argument<int[]>();
                 var strings = new Argument<string[]>();
@@ -161,7 +159,7 @@ namespace System.CommandLine.Tests
                     strings
                 };
 
-                var result = root.Parse("1 2 3 one", "two");
+                var result = root.Parse("1 2 3 one two");
 
                 var _ = new AssertionScope();
 
@@ -174,6 +172,62 @@ namespace System.CommandLine.Tests
                       .Should()
                       .BeEquivalentTo(new[] { "one", "two" },
                                       options => options.WithStrictOrdering());
+            }
+
+            [Fact]
+            public void tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_single_arity_argument()
+            {
+                var ints = new Argument<int[]>();
+                var strings = new Argument<string>();
+
+                var root = new RootCommand
+                {
+                    ints,
+                    strings
+                };
+
+                var result = root.Parse("1 2 3 four five");
+
+                var _ = new AssertionScope();
+
+                result.ValueForArgument(ints)
+                      .Should()
+                      .BeEquivalentTo(new[] { 1, 2, 3 },
+                                      options => options.WithStrictOrdering());
+
+                result.ValueForArgument(strings)
+                      .Should()
+                      .Be("four");
+
+                result.UnparsedTokens.Should()
+                      .ContainSingle()
+                      .Which
+                      .Should()
+                      .Be("five");
+            }
+
+            [Fact(Skip = "https://github.com/dotnet/command-line-api/issues/1143")]
+            public void tokens_that_cannot_be_converted_by_multiple_arity_option_flow_to_next_single_arity_argument()
+            {
+                var option = new Option<int[]>("-i");
+                var argument = new Argument<string>("arg");
+
+                var command = new RootCommand
+                {
+                    option,
+                    argument
+                };
+
+                var result = command.Parse("-i 1 2 3 four");
+
+                result.FindResultFor(option)
+                      .GetValueOrDefault()
+                      .Should()
+                      .BeEquivalentTo(new[] { 1, 2, 3 }, options => options.WithStrictOrdering());
+
+                result.FindResultFor(argument)
+                      .Should()
+                      .Be("four");
             }
         }
     }

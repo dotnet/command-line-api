@@ -14,7 +14,10 @@ namespace System.CommandLine.Benchmarks
 {
     public static class RecommendedConfig
     {
+#pragma warning disable CA1801 // Review unused parameters
         public static IConfig Create(DirectoryInfo artifactsPath, ImmutableHashSet<string> mandatoryCategories)
+#pragma warning restore CA1801 // Review unused parameters
+#pragma warning disable CA1062 // Validate arguments of public methods
             => DefaultConfig.Instance
                 .With(Job.Default
                     .WithWarmupCount(1)
@@ -26,5 +29,6 @@ namespace System.CommandLine.Benchmarks
                 .With(MemoryDiagnoser.Default)
                 .With(JsonExporter.Full)
                 .With(StatisticColumn.Median, StatisticColumn.Min, StatisticColumn.Max);
+#pragma warning restore CA1062 // Validate arguments of public methods
     }
 }

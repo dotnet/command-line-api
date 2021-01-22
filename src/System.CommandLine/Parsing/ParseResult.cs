@@ -11,6 +11,8 @@ namespace System.CommandLine.Parsing
     {
         private readonly List<ParseError> _errors;
         private readonly RootCommandResult _rootCommandResult;
+        private readonly IReadOnlyList<Token> _unparsedTokens;
+        private readonly IReadOnlyList<Token> _unmatchedTokens;
 
         internal ParseResult(
             Parser parser,
@@ -18,8 +20,8 @@ namespace System.CommandLine.Parsing
             CommandResult commandResult,
             IDirectiveCollection directives,
             TokenizeResult tokenizeResult,
-            IReadOnlyCollection<string> unparsedTokens,
-            IReadOnlyCollection<string> unmatchedTokens,
+            IReadOnlyList<Token> unparsedTokens,
+            IReadOnlyList<Token> unmatchedTokens,
             List<ParseError>? errors = null,
             string? rawInput = null)
         {
@@ -28,21 +30,38 @@ namespace System.CommandLine.Parsing
             CommandResult = commandResult;
             Directives = directives;
 
-            // skip the root command
-            Tokens = tokenizeResult.Tokens.Skip(1).ToArray();
+            // skip the root command when populating Tokens property
+            if (tokenizeResult.Tokens.Count > 1)
+            {
+                var tokens = new Token[tokenizeResult.Tokens.Count - 1];
+                for (var i = 0; i < tokenizeResult.Tokens.Count - 1; i++)
+                {
+                    var token = tokenizeResult.Tokens[i + 1];
+                    tokens[i] = token;
+                }
+                Tokens = tokens;
+            }
+            else
+            {
+                Tokens = Array.Empty<Token>();
+            }
 
-            UnparsedTokens = unparsedTokens;
-            UnmatchedTokens = unmatchedTokens;
+            _unparsedTokens = unparsedTokens;
+            _unmatchedTokens = unmatchedTokens;
 
             RawInput = rawInput;
 
-            _errors = errors ?? new List<ParseError>();
+            _errors = errors ?? (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors 
+                                     ? new List<ParseError>(unmatchedTokens.Count) 
+                                     : new List<ParseError>());
 
             if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
             {
-                _errors.AddRange(
-                    unmatchedTokens.Select(token =>
-                                               new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token))));
+                for (var i = 0; i < unmatchedTokens.Count; i++)
+                {
+                    var token = unmatchedTokens[i];
+                    _errors.Add(new ParseError(parser.Configuration.ValidationMessages.UnrecognizedCommandOrArgument(token.Value)));
+                }
             }
         }
 
@@ -58,23 +77,29 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyList<Token> Tokens { get; }
 
-        public IReadOnlyCollection<string> UnmatchedTokens { get; }
-
         internal string? RawInput { get; }
 
-        public IReadOnlyCollection<string> UnparsedTokens { get; }
+        public IReadOnlyList<string> UnmatchedTokens => _unmatchedTokens.Select(t => t.Value).ToArray();
+
+        public IReadOnlyList<string> UnparsedTokens => _unparsedTokens.Select(t => t.Value).ToArray();
 
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);
         
+        public object? ValueForOption(Option option) =>
+            ValueForOption<object?>(option);
+
         public object? ValueForArgument(string alias) =>
             ValueForArgument<object?>(alias);
+
+         public object? ValueForArgument(Argument argument) =>
+            ValueForArgument<object?>(argument);
 
         [return: MaybeNull]
         public T ValueForArgument<T>(Argument<T> argument)
         {
-            if (FindResultFor(argument) is {} result &&
-                result.GetValueOrDefault<T>() is {} t)
+            if (FindResultFor(argument) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
             {
                 return t;
             }
@@ -85,8 +110,8 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForArgument<T>(Argument argument)
         {
-            if (FindResultFor(argument) is {} result &&
-                result.GetValueOrDefault<T>() is {} t)
+            if (FindResultFor(argument) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
             {
                 return t;
             }
@@ -102,7 +127,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            if (this[name] is ArgumentResult argumentResult)
+            if (CommandResult.Children.GetByAlias(name) is ArgumentResult argumentResult)
             {
                 return argumentResult.GetValueOrDefault<T>();
             }
@@ -115,8 +140,8 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForOption<T>(Option<T> option)
         {
-            if (FindResultFor(option) is {} result &&
-                result.GetValueOrDefault<T>() is {} t)
+            if (FindResultFor(option) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
             {
                 return t;
             }
@@ -127,8 +152,8 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForOption<T>(Option option)
         {
-            if (FindResultFor(option) is {} result &&
-                result.GetValueOrDefault<T>() is {} t)
+            if (FindResultFor(option) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
             {
                 return t;
             }
@@ -144,7 +169,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            if (this[alias] is OptionResult optionResult)
+            if (CommandResult.Children.GetByAlias(alias) is OptionResult optionResult)
             {
                 return optionResult.GetValueOrDefault<T>();
             }
@@ -153,8 +178,6 @@ namespace System.CommandLine.Parsing
                 return default;
             }
         }
-
-        public SymbolResult? this[string alias] => CommandResult.Children[alias];
 
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
 
@@ -166,5 +189,14 @@ namespace System.CommandLine.Parsing
 
         public OptionResult? FindResultFor(IOption option) =>
             _rootCommandResult.FindResultFor(option);
+
+        public SymbolResult? FindResultFor(ISymbol symbol) =>
+            symbol switch
+            {
+                IArgument argument => FindResultFor(argument),
+                ICommand command => FindResultFor(command),
+                IOption option => FindResultFor(option),
+                _ => throw new ArgumentOutOfRangeException(nameof(symbol))
+            };
     }
 }

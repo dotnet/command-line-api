@@ -161,14 +161,21 @@ The value of fileOption is: null
 
 ## Middleware Pipeline
 
-While each command has a handler which `System.CommandLine` will route to based on input, there is also a mechanism for short circuiting or altering the input before invoking you application logic. In between parsing and invocation, there is a chain of responsibility, which you can customize. A number of features of `System.CommandLine` make use of this. This is how the `--help` and `--version` options short circuit calls to your handler.
+While each command has a handler which `System.CommandLine` will route to based on input, there is also a mechanism for short circuiting or altering the input before invoking your application logic. In between parsing and invocation, there is a chain of responsibility, which you can customize. A number of features of `System.CommandLine` make use of this. This is how the `--help` and `--version` options short circuit calls to your handler.
 
 Each call in the pipeline can take action based on the `ParseResult` and return early, or choose to call the next item in the pipeline. The `ParseResult` can even be replaced during this phase. The last call in the chain is the handler for the specified command.
 
 You can add a call to this pipeline by calling `CommandLineBuilder.UseMiddleware.` Here's an example that enables a custom directive:
 
 ```csharp
-commandLineBuilder.UseMiddleware(async (context, next) => {
+
+var rootCommand = new RootCommand();
+
+/* Add your options/arguments/handler to rootCommand */
+
+var commandLineBuilder = new CommandLineBuilder(rootCommand);
+commandLineBuilder.UseMiddleware(async (context, next) => 
+{
     if (context.ParseResult.Directives.Contains("just-say-hi"))
     {
         context.Console.Out.WriteLine("Hi!");
@@ -178,6 +185,10 @@ commandLineBuilder.UseMiddleware(async (context, next) => {
         await next(context);
     }
 });
+
+commandLineBuilder.UseDefaults();
+var parser = commandLineBuilder.Build();
+await parser.InvokeAsync(args);
 ```
 
 ```console

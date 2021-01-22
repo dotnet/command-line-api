@@ -56,9 +56,9 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
             // Choose only one path from the commands tree for the test arguments string
             ISymbol currentCmd = rootCommand;
-            while (currentCmd.Children.Any())
+            while (currentCmd.Children.Count > 0)
             {
-                currentCmd = currentCmd.Children.First();
+                currentCmd = currentCmd.Children[0];
                 _testSymbolsAsString = string.Join(" ", _testSymbolsAsString, currentCmd.Name);
             }
 

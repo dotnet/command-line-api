@@ -5,11 +5,13 @@ namespace System.CommandLine.Binding
 {
     internal class SuccessfulArgumentConversionResult : ArgumentConversionResult
     {
-        internal SuccessfulArgumentConversionResult(IArgument argument, object? value) : base(argument)
+        internal SuccessfulArgumentConversionResult(
+            IArgument argument, 
+            object? value) : base(argument)
         {
             Value = value;
         }
-
+      
         public object? Value { get; }
     }
 }

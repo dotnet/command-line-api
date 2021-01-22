@@ -6,23 +6,23 @@
   </PropertyGroup>
   <!-- Repo Version Information -->
   <PropertyGroup>
-    <!-- Default version number. -->
+    <!-- Default version number to global tool. -->
     <VersionPrefix>0.1.0</VersionPrefix>
-    <PreReleaseVersionLabel>beta</PreReleaseVersionLabel>
+    <AutoGenerateAssemblyVersion>true</AutoGenerateAssemblyVersion>
+    <PreReleaseVersionLabel></PreReleaseVersionLabel>
   </PropertyGroup>
-  <PropertyGroup Condition="$(UseBetaVersion) == 'true'">
+  <PropertyGroup Condition="'$(UseGlobalToolVersion)' == 'true'">
+    <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(UseBetaVersion)' == 'true'">
     <VersionPrefix>2.0.0</VersionPrefix>
     <PreReleaseVersionLabel>beta1</PreReleaseVersionLabel>
+    <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="$(UseAlphaVersion) == 'true'">
+  <PropertyGroup Condition="'$(UseAlphaVersion)' == 'true'">
     <VersionPrefix>0.3.0</VersionPrefix>
     <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(UseGlobalToolVersion) == 'true'">
-    <VersionPrefix>1.1</VersionPrefix>
     <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
-    <PreReleaseVersionLabel>
-    </PreReleaseVersionLabel>
   </PropertyGroup>
   <PropertyGroup>
     <UsingToolSourceLink>true</UsingToolSourceLink>

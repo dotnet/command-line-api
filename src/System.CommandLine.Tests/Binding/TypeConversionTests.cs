@@ -143,37 +143,31 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_parses_as_the_default_value_when_the_option_has_not_been_applied()
         {
+            var option = new Option<int>("-x", () => 123);
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>(() => 123)
-                }
+                option
             };
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault().Should().Be(123);
+            result.ValueForOption(option).Should().Be(123);
         }
 
         [Fact]
         public void Argument_does_not_parse_as_the_default_value_when_the_option_has_been_applied()
         {
+            var option = new Option<int>("-x", () => 123);
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>(() => 123)
-                }
+                option
             };
 
             var result = command.Parse("something -x 456");
 
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault().Should().Be(456);
+            result.ValueForOption(option).Should().Be(456);
         }
 
         [Theory]
@@ -183,18 +177,16 @@ namespace System.CommandLine.Tests.Binding
         [InlineData("the-command -x=true")]
         public void Bool_does_not_parse_as_the_default_value_when_the_option_has_been_applied(string commandLine)
         {
+            var option = new Option<bool>("-x");
+
             var command = new Command("the-command")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<bool>(() => false)
-                }
+                option
             };
 
             command
                 .Parse(commandLine)
-                .CommandResult["-x"]
-                .GetValueOrDefault()
+                .ValueForOption(option)
                 .Should()
                 .Be(true);
         }
@@ -449,19 +441,16 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void An_option_with_a_default_value_parses_as_the_default_value_when_the_option_has_not_been_applied()
         {
+            var option = new Option<string>("-x", () => "123");
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<string>(() => "123")
-                }
+                option
             };
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault()
+            result.ValueForOption(option)
                   .Should()
                   .Be("123");
         }
@@ -469,21 +458,17 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void A_default_value_of_a_non_string_type_can_be_specified()
         {
+            var option = new Option<int>("-x", () => 123);
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>(() => 123)
-                }
+                option
             };
 
-            var result = command.Parse("something");
-
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault()
-                  .Should()
-                  .Be(123);
+            command.Parse("something")
+                   .ValueForOption(option)
+                   .Should()
+                   .Be(123);
         }
 
         [Fact]
@@ -491,19 +476,16 @@ namespace System.CommandLine.Tests.Binding
         {
             var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
 
+            var option = new Option<DirectoryInfo>("-x", () => directoryInfo);
+
             var command = new Command("something")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<DirectoryInfo>(() => directoryInfo)
-                }
+                option
             };
 
             var result = command.Parse("something");
 
-            var option = result.CommandResult["-x"];
-
-            option.GetValueOrDefault<DirectoryInfo>().Should().Be(directoryInfo);
+            result.ValueForOption(option).Should().Be(directoryInfo);
         }
 
         [Fact]
@@ -511,16 +493,18 @@ namespace System.CommandLine.Tests.Binding
         {
             var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
 
+            var argument = new Argument<DirectoryInfo>("the-arg", () => directoryInfo);
+
             var command = new Command("something")
             {
-                new Argument<DirectoryInfo>("the-arg", () => directoryInfo)
+                argument
             };
 
             var result = command.Parse("something");
 
             result.Errors.Should().BeEmpty();
 
-            var value = result.CommandResult.GetArgumentValueOrDefault("the-arg");
+            var value = result.ValueForArgument("the-arg");
 
             value.Should().Be(directoryInfo);
         }
@@ -606,7 +590,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 123").ValueForOption<int?>("-x");
+            var value = option.Parse("-x 123").ValueForOption<int?>(option);
 
             value.Should().Be(123);
         }
@@ -622,7 +606,7 @@ namespace System.CommandLine.Tests.Binding
                 }
             };
 
-            var value = option.Parse("-x 123.456").ValueForOption<decimal>("-x");
+            var value = option.Parse("-x 123.456").ValueForOption<decimal>(option);
 
             value.Should().Be(123.456m);
         }
@@ -705,26 +689,26 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Theory]
-        [InlineData(0, ArgumentArity.MaximumArity, typeof(string[]))]
+        [InlineData(0, 100_000, typeof(string[]))]
         [InlineData(0, 3, typeof(string[]))]
-        [InlineData(0, ArgumentArity.MaximumArity, typeof(IEnumerable<string>))]
+        [InlineData(0, 100_000, typeof(IEnumerable<string>))]
         [InlineData(0, 3, typeof(IEnumerable<string>))]
-        [InlineData(0, ArgumentArity.MaximumArity, typeof(List<string>))]
+        [InlineData(0, 100_000, typeof(List<string>))]
         [InlineData(0, 3, typeof(List<string>))]
-        [InlineData(0, ArgumentArity.MaximumArity, typeof(IList<string>))]
+        [InlineData(0, 100_000, typeof(IList<string>))]
         [InlineData(0, 3, typeof(IList<string>))]
-        [InlineData(0, ArgumentArity.MaximumArity, typeof(ICollection<string>))]
+        [InlineData(0, 100_000, typeof(ICollection<string>))]
         [InlineData(0, 3, typeof(ICollection<string>))]
         
-        [InlineData(1, ArgumentArity.MaximumArity, typeof(string[]))]
+        [InlineData(1, 100_000, typeof(string[]))]
         [InlineData(1, 3, typeof(string[]))]
-        [InlineData(1, ArgumentArity.MaximumArity, typeof(IEnumerable<string>))]
+        [InlineData(1, 100_000, typeof(IEnumerable<string>))]
         [InlineData(1, 3, typeof(IEnumerable<string>))]
-        [InlineData(1, ArgumentArity.MaximumArity, typeof(List<string>))]
+        [InlineData(1, 100_000, typeof(List<string>))]
         [InlineData(1, 3, typeof(List<string>))]
-        [InlineData(1, ArgumentArity.MaximumArity, typeof(IList<string>))]
+        [InlineData(1, 100_000, typeof(IList<string>))]
         [InlineData(1, 3, typeof(IList<string>))]
-        [InlineData(1, ArgumentArity.MaximumArity, typeof(ICollection<string>))]
+        [InlineData(1, 100_000, typeof(ICollection<string>))]
         [InlineData(1, 3, typeof(ICollection<string>))]
         public void Max_arity_greater_than_1_converts_to_enumerable_types(
             int minArity,

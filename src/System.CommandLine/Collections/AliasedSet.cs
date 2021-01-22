@@ -15,8 +15,15 @@ namespace System.CommandLine.Collections
         private protected List<T> Items { get; } = new List<T>();
 
         private protected HashSet<T> DirtyItems { get; } = new HashSet<T>();
+        
+        public int Count => Items.Count;
 
-        public T? this[string alias] => GetByAlias(alias);
+        public bool Contains(string alias)
+        {
+            EnsureAliasIndexIsCurrent();
+
+            return ItemsByAlias.ContainsKey(alias);
+        }
 
         public T? GetByAlias(string alias)
         {
@@ -26,8 +33,6 @@ namespace System.CommandLine.Collections
 
             return value;
         }
-
-        public int Count => Items.Count;
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -55,39 +60,38 @@ namespace System.CommandLine.Collections
 
         protected abstract IReadOnlyCollection<string> GetAliases(T item);
 
-        public bool Contains(string alias)
-        {
-            EnsureAliasIndexIsCurrent();
-
-            return ItemsByAlias.ContainsKey(alias);
-        }
-
         public T this[int index] => Items[index];
 
         private protected void EnsureAliasIndexIsCurrent()
         {
-            foreach (var dirtyItem in DirtyItems.ToArray())
+            if (DirtyItems.Count == 0)
             {
-                var aliases = GetAliases(dirtyItem).ToList();
+                return;
+            }
 
-                foreach (var pair in ItemsByAlias.Where(p => p.Value.Equals(dirtyItem)).ToArray())
+            foreach (var dirtyItem in DirtyItems)
+            {
+                var aliases = GetAliases(dirtyItem).ToArray();
+
+                foreach (var pair in ItemsByAlias.ToArray())
                 {
-                    ItemsByAlias.Remove(pair.Key);
-                }
-
-                var wasRemoved = !Items.Contains(dirtyItem);
-
-                if (!wasRemoved)
-                {
-                    for (var i = 0; i < aliases.Count; i++)
+                    if (pair.Value.Equals(dirtyItem))
                     {
-                        var alias = aliases[i];
-                        ItemsByAlias.TryAdd(alias, dirtyItem);
+                        ItemsByAlias.Remove(pair.Key);
                     }
                 }
 
-                DirtyItems.Remove(dirtyItem);
+                if (Items.Contains(dirtyItem))
+                {
+                    for (var j = 0; j < aliases.Length; j++)
+                    {
+                        var alias = aliases[j];
+                        ItemsByAlias.TryAdd(alias, dirtyItem);
+                    }
+                }
             }
+
+            DirtyItems.Clear();
         }
     }
 }

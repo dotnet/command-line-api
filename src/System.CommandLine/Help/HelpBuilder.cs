@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using static System.CommandLine.Help.DefaultHelpText;
 
@@ -255,22 +254,22 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="table">The table of values to determine column widths for.</param>
         /// <returns>A collection of column widths.</returns>
-        private IReadOnlyList<int> ColumnWidths(IEnumerable<IReadOnlyList<string>> table)
+        private IReadOnlyList<int> ColumnWidths(IReadOnlyList<IReadOnlyList<string>> table)
         {
-            if (!table.Any())
+            if (table.Count == 0)
             {
                 return Array.Empty<int>();
             }
 
-            var columns = table.First().Count;
+            var columns = table[0].Count;
             var unsetWidth = -1;
             var widths = new int[columns];
-            for (int i = 0; i < columns; ++i)
+            for (var i = 0; i < columns; ++i)
             {
                 widths[i] = unsetWidth;
             }
             var maxWidths = new int[columns];
-            for (int i = 0; i < columns; ++i)
+            for (var i = 0; i < columns; ++i)
             {
                 maxWidths[i] = table.Max(row => row[i].Length);
             }
@@ -297,7 +296,7 @@ namespace System.CommandLine.Help
                 var equal = (available - widths.Where(width => width > 0).Sum()) / unset;
                 // Allocate remaining space equally if no other columns fit on a single line. Or if loop limit has been reached.
                 var allocateRemaining = unset == previousUnset || loopLimit <= 1;
-                for (int i = 0; i < columns; ++i)
+                for (var i = 0; i < columns; ++i)
                 {
                     // If width has not been set.
                     if (widths[i] == unsetWidth)
@@ -342,13 +341,13 @@ namespace System.CommandLine.Help
         {
             var split = row.Select((element, index) => SplitText(element, columnWidths[index])).ToArray();
             var longest = split.Max(lines => lines.Count);
-            for (int line = 0; line < longest; ++line)
+            for (var line = 0; line < longest; ++line)
             {
                 var columnStart = 0;
                 var appended = 0;
                 AppendPadding(CurrentIndentation);
 
-                for (int column = 0; column < split.Length; ++column)
+                for (var column = 0; column < split.Length; ++column)
                 {
                     var lines = split[column];
                     if (line < lines.Count)
@@ -377,6 +376,7 @@ namespace System.CommandLine.Help
         /// Collection of lines of at most <paramref name="width"/> characters
         /// generated from the supplied <paramref name="text"/>.
         /// </returns>
+        // TODO: Consider making this an extensions string instead of an instance virtual method.
         protected virtual IReadOnlyList<string> SplitText(string text, int width)
         {
             if (text is null)
@@ -389,113 +389,103 @@ namespace System.CommandLine.Help
                 throw new ArgumentOutOfRangeException(nameof(width), $"{nameof(width)} must be non-negative.");
             }
 
-            var helpLines = new List<string>();
 
-            var start = 0;
-
-            var splitLines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None)
-                                 .SelectMany(line => SplitLongLines(line, width));
-
-
-            foreach (var rawLines in splitLines)
+            if (width == 0)
             {
-                var helpLine = ShortenWhitespace(rawLines);
-
-                while (start < helpLine.Length - width)
-                {
-                    var end = helpLine.LastIndexOf(' ', start + width);
-
-                    // If last word starts before width / 2 include entire width.
-                    if (end - start <= width / 2)
-                    {
-                        helpLines.Add(helpLine.Substring(start, width));
-                        // Start next line directly after current line. "abcdef" => abc|def
-                        start += width;
-                    }
-                    else
-                    {
-                        helpLines.Add(helpLine.Substring(start, end - start));
-                        // Move past separator for start of next line. "abc def" => abc| |def
-                        start = end + 1;
-                    }
-                }
-
-                var strLength = helpLine.Length - start;
-
-                string truncated = "";
-
-                if (helpLine.Length < start)
-                {
-                    truncated = helpLine;
-                }
-                else
-                {
-                    truncated = helpLine.Substring(start, strLength);
-                }
-
-                helpLines.Add(truncated);
+                return Array.Empty<string>();
             }
 
-            return helpLines;
-        }
+            const char separator = ' ';
 
-        private static IEnumerable<string> SplitLongLines(string line, int width)
-        {
-            if (line.Length <= width)
+            var lines = new List<string>();
+            var isWhiteSpace = false;
+            var lastWordIndex = -1;
+            var lineBuilderOffset = 0;
+
+            var lineBuilder = StringBuilderPool.Default.Rent();
+
+            try
             {
-                yield return line;
-                yield break;
-            }
-
-            var currentLine = "";
-
-            var words = line.Split(' ', '\t');
-
-            for (var i = 0; i < words.Length; i++)
-            {
-                var currentWord = words[i];
-
-                var nextWord = i < words.Length - 1
-                                   ? words[i + 1]
-                                   : "";
-
-                var currentNeededWidth = currentLine.Length + currentWord.Length;
-                var neededWidthIncludingNextWord = currentNeededWidth + 1 + nextWord.Length;
-
-                if (neededWidthIncludingNextWord <= width)
+                foreach (var c in text)
                 {
-                    if (currentLine.Length > 1)
+                    if (c == '\n')
                     {
-                        currentLine += ' ';
+                        truncateLineAndAppendIfNeeded();
+                        appendLine();
+                        lineBuilder.Clear();
+                        isWhiteSpace = false;
+                        lastWordIndex = -1;
+                        lineBuilderOffset = 0;
+                        continue;
                     }
 
-                    currentLine += currentWord;
-                }
-                else
-                {
-                    if (nextWord != "")
+                    if (c == '\r')
                     {
-                        if (currentNeededWidth < width)
+                        continue;
+                    }
+
+                    if (char.IsWhiteSpace(c))
+                    {
+                        if (!isWhiteSpace)
                         {
-                            yield return (currentLine + ' ' + currentWord).Trim();
-                            currentLine = "";
+                            isWhiteSpace = true;
+
+                            truncateLineAndAppendIfNeeded();
+
+                            lastWordIndex = lineBuilder.Length - 1;
+
+                            lineBuilder.Append(separator);
                         }
-                        else
-                        {
-                            yield return currentLine;
-                            currentLine = currentWord;
-                        }
+
+                        lastWordIndex++;
+
+                        continue;
                     }
-                    else
-                    {
-                        yield return currentWord;
-                    }
+
+                    isWhiteSpace = false;
+
+                    lineBuilder.Append(c);
                 }
+
+                truncateLineAndAppendIfNeeded();
+
+                appendLine();
+
+                return lines;
+            }
+            finally
+            {
+                StringBuilderPool.Default.ReturnToPool(lineBuilder);
             }
 
-            if (currentLine.Length > 1)
+            void appendLine()
             {
-                yield return currentLine;
+                lines.Add(lineBuilder.ToString(lineBuilderOffset, (isWhiteSpace ? lineBuilder.Length - 1 : lineBuilder.Length) - lineBuilderOffset));
+            }
+
+            void truncateLineAndAppendIfNeeded()
+            {
+                // If last word starts before width / 2 include entire width.
+                while (lineBuilder.Length - lineBuilderOffset > width)
+                {
+                    var length = (lastWordIndex > lineBuilderOffset) ? lastWordIndex - lineBuilderOffset : width;
+
+                    lines.Add(lineBuilder.ToString(lineBuilderOffset, length));
+
+                    lineBuilderOffset += length;
+
+                    while (lineBuilderOffset < lineBuilder.Length && lineBuilder[lineBuilderOffset] == separator)
+                    {
+                        lineBuilderOffset++;
+                    }
+
+                    isWhiteSpace = false;
+
+                    if (lastWordIndex < lineBuilderOffset)
+                    {
+                        lastWordIndex = lineBuilderOffset - 1;
+                    }
+                }
             }
         }
 
@@ -506,20 +496,23 @@ namespace System.CommandLine.Help
         /// <returns>A new <see cref="HelpItem"/></returns>
         private IEnumerable<HelpItem> GetArgumentHelpItems(ISymbol symbol)
         {
-            foreach (var argument in symbol.Arguments())
+            var arguments = symbol.Arguments();
+
+            for (var i = 0; i < arguments.Count; i++)
             {
+                var argument = arguments[i];
                 if (ShouldShowHelp(argument))
                 {
                     var argumentDescriptor = ArgumentDescriptor(argument);
 
                     var invocation = string.IsNullOrWhiteSpace(argumentDescriptor)
-                                        ? ""
-                                        : $"<{argumentDescriptor}>";
+                                         ? ""
+                                         : $"<{argumentDescriptor}>";
 
                     var argumentDescription = argument?.Description ?? "";
                     var defaultValueHint = argument != null
-                        ? BuildDefaultValueHint(argument)
-                        : null;
+                                               ? BuildDefaultValueHint(argument)
+                                               : null;
                     yield return new HelpItem(invocation, argumentDescription, defaultValueHint);
                 }
             }
@@ -533,7 +526,7 @@ namespace System.CommandLine.Help
 
         protected virtual string ArgumentDescriptor(IArgument argument)
         {
-            if (argument.ValueType == typeof(bool) || 
+            if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
             {
                 return "";
@@ -596,9 +589,9 @@ namespace System.CommandLine.Help
 
             string? BuildDefaultValueHint(IEnumerable<IArgument> arguments)
             {
-                int defaultableArgumentCount = arguments
+                var defaultableArgumentCount = arguments
                     .Count(ShouldShowDefaultValueHint);
-                bool isSingleDefault = defaultableArgumentCount == 1;
+                var isSingleDefault = defaultableArgumentCount == 1;
                 var argumentDefaultValues = arguments
                     .Where(ShouldShowDefaultValueHint)
                     .Select(argument => DefaultValueHint(argument, isSingleDefault));
@@ -636,10 +629,8 @@ namespace System.CommandLine.Help
             if (command is Command cmd)
             {
                 subcommands = cmd
-                              .RecurseWhileNotNull(c => c.Parents
-                                                         .OfType<Command>()
-                                                         .FirstOrDefault())
-                              .Reverse();
+                    .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<Command>())
+                    .Reverse();
             }
             else
             {
@@ -652,20 +643,18 @@ namespace System.CommandLine.Help
 
                 if (subcommand != command)
                 {
-                    usage.Add(FormatArgumentUsage(subcommand.Arguments.ToArray()));
+                    usage.Add(FormatArgumentUsage(subcommand.Arguments));
                 }
             }
 
-            var hasOptionHelp = command.Children
-                .OfType<IOption>()
-                .Any(ShouldShowHelp);
+            var hasOptionHelp = command.Options.Any(ShouldShowHelp);
 
             if (hasOptionHelp)
             {
                 usage.Add(Usage.Options);
             }
 
-            usage.Add(FormatArgumentUsage(command.Arguments.ToArray()));
+            usage.Add(FormatArgumentUsage(command.Arguments));
 
             var hasCommandHelp = command.Children
                 .OfType<ICommand>()
@@ -684,49 +673,61 @@ namespace System.CommandLine.Help
             HelpSection.WriteHeading(this, Usage.Title, string.Join(" ", usage.Where(u => !string.IsNullOrWhiteSpace(u))));
         }
 
-        private string FormatArgumentUsage(IReadOnlyCollection<IArgument> arguments)
+        private string FormatArgumentUsage(IReadOnlyList<IArgument> arguments)
         {
-            var sb = new StringBuilder();
-            var args = new List<IArgument>(arguments.Where(ShouldShowHelp));
-            var end = new Stack<string>();
+            var sb = StringBuilderPool.Default.Rent();
 
-            for (var i = 0; i < args.Count; i++)
+            try
             {
-                var argument = args.ElementAt(i);
+                var end = default(Stack<char>);
 
-                var arityIndicator =
-                    argument.Arity.MaximumNumberOfValues > 1
-                        ? "..."
-                        : "";
-
-                var isOptional = IsOptional(argument);
-
-                if (isOptional)
+                for (var i = 0; i < arguments.Count; i++)
                 {
-                    sb.Append($"[<{argument.Name}>{arityIndicator}");
-                }
-                else
-                {
-                    sb.Append($"<{argument.Name}>{arityIndicator}");
+                    var argument = arguments[i];
+                    if (!ShouldShowHelp(argument))
+                    {
+                        continue;
+                    }
+
+                    var arityIndicator =
+                        argument.Arity.MaximumNumberOfValues > 1
+                            ? "..."
+                            : "";
+
+                    var isOptional = IsOptional(argument);
+
+                    if (isOptional)
+                    {
+                        sb.Append($"[<{argument.Name}>{arityIndicator}");
+                        (end ??= new Stack<char>()).Push(']');
+                    }
+                    else
+                    {
+                        sb.Append($"<{argument.Name}>{arityIndicator}");
+                    }
+
+                    sb.Append(' ');
                 }
 
-                if (i < args.Count - 1)
+                if (sb.Length > 0)
                 {
-                    sb.Append(" ");
+                    sb.Length--;
+
+                    if (end is { })
+                    {
+                        while (end.Count > 0)
+                        {
+                            sb.Append(end.Pop());
+                        }
+                    }
                 }
 
-                if (isOptional)
-                {
-                    end.Push("]");
-                }
+                return sb.ToString();
             }
-
-            while (end.Count > 0)
+            finally
             {
-                sb.Append(end.Pop());
+                StringBuilderPool.Default.ReturnToPool(sb);
             }
-
-            return sb.ToString();
 
             bool IsMultiParented(IArgument argument) =>
                 argument is Argument a &&
@@ -743,24 +744,32 @@ namespace System.CommandLine.Help
         /// <param name="command"></param>
         protected virtual void AddArguments(ICommand command)
         {
-            var commands = new List<ICommand>();
+            var helpItems = new HashSet<HelpItem>();
 
             if (command is Command cmd &&
                 cmd.Parents.FirstOrDefault() is ICommand parent &&
                 ShouldDisplayArgumentHelp(parent))
             {
-                commands.Add(parent);
+                AddHelpItemsFor(parent);
             }
 
             if (ShouldDisplayArgumentHelp(command))
             {
-                commands.Add(command);
+                AddHelpItemsFor(command);
             }
 
             HelpSection.WriteItems(
                 this,
                 Arguments.Title,
-                commands.SelectMany(GetArgumentHelpItems).Distinct().ToArray());
+                helpItems);
+
+            void AddHelpItemsFor(ICommand command)
+            {
+                foreach (var helpItem in GetArgumentHelpItems(command))
+                {
+                    helpItems.Add(helpItem);
+                }
+            }
         }
 
         /// <summary>
@@ -771,8 +780,7 @@ namespace System.CommandLine.Help
         protected virtual void AddOptions(ICommand command)
         {
             var options = command
-                          .Children
-                          .OfType<IOption>()
+                          .Options
                           .Where(ShouldShowHelp)
                           .ToArray();
 
@@ -832,7 +840,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        private string ShortenWhitespace(string input)
+        private static string ShortenWhitespace(string input)
         {
             return Regex.Replace(input, @"\s+", " ").TrimEnd();
         }
