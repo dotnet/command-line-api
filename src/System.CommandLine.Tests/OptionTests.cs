@@ -332,7 +332,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_of_IEnumerable_defaults_to_empty_when_not_specified()
+        public void Option_of_IEnumerable_of_T_defaults_to_empty_when_not_specified()
         {
             var option = new Option<IEnumerable<string>>("-x");
 
@@ -391,6 +391,32 @@ namespace System.CommandLine.Tests
         public void Option_of_IList_defaults_to_empty_when_not_specified()
         {
             var option = new Option<System.Collections.IList>("-x");
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_ICollection_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<System.Collections.ICollection>("-x");
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_IEnumerable_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<System.Collections.IEnumerable>("-x");
             var result = option.Parse("");
             result.HasOption(option)
                 .Should()
