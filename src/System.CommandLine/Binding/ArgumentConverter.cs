@@ -195,7 +195,7 @@ namespace System.CommandLine.Binding
                       .GetInterfaces()
                       .FirstOrDefault(IsEnumerable);
 
-            return enumerableInterface?.GenericTypeArguments[0];
+            return enumerableInterface?.GenericTypeArguments.FirstOrDefault();
         }
 
         internal static bool IsEnumerable(this Type type)
@@ -342,29 +342,55 @@ namespace System.CommandLine.Binding
         [return: MaybeNull]
         internal static T GetDefaultValue<T>()
         {
-            var type = typeof(T);
-            if (GetItemTypeIfEnumerable(type) is Type itemType)
-            {
-                return (T)GetEmpty(itemType);
-            }
-            return default!;
+            return (T)GetDefaultValue(typeof(T));
         }
+
+        private static MethodInfo EnumerableEmptyMethod { get; }
+            = typeof(Enumerable).GetMethod(nameof(Enumerable.Empty));
 
         internal static object? GetDefaultValue(Type type)
         {
             if (GetItemTypeIfEnumerable(type) is Type itemType)
             {
-                return GetEmpty(itemType);
+                if (type.IsArray)
+                {
+                    return CreateEmptyArray(itemType);
+                }
+                if (type.IsGenericType)
+                {
+                    return type.GetGenericTypeDefinition() switch
+                    {
+                        Type enumerable when enumerable == typeof(IEnumerable<>) => GetEmptyEnumerable(itemType),
+                        Type list when list == typeof(List<>) => GetEmptyList(itemType),
+                        Type array when array == typeof(IList<>) || 
+                                        array == typeof(ICollection<>) => CreateEmptyArray(itemType),
+                        _ => null
+                    };
+                }
             }
-            return null;
-        }
+            return type switch
+            {
+                Type nonGeneric 
+                    when nonGeneric == typeof(IList) ||
+                         nonGeneric == typeof(ICollection) ||
+                         nonGeneric == typeof(IEnumerable)
+                    => CreateEmptyArray(typeof(object)),
+                _ => null
+            };
+            
+            static object GetEmptyList(Type itemType)
+            {
+                return Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+            }
 
-        private static MethodInfo EnumerableEmptyMethod { get; }
-            = typeof(Enumerable).GetMethod(nameof(Enumerable.Empty));
-        internal static IEnumerable GetEmpty(Type type)
-        {
-            var genericMethod = EnumerableEmptyMethod.MakeGenericMethod(type);
-            return (IEnumerable)genericMethod.Invoke(null, new object[0]);
+            static IEnumerable GetEmptyEnumerable(Type itemType)
+            {
+                var genericMethod = EnumerableEmptyMethod.MakeGenericMethod(itemType);
+                return (IEnumerable)genericMethod.Invoke(null, new object[0]);
+            }
+
+            static Array CreateEmptyArray(Type itemType)
+                => Array.CreateInstance(itemType, 0);
         }
 
         public static bool TryConvertBoolArgument(ArgumentResult argumentResult, out object? value)
