@@ -332,6 +332,20 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Option_of_string_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<string>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
         public void Option_of_IEnumerable_of_T_defaults_to_empty_when_not_specified()
         {
             var option = new Option<IEnumerable<string>>("-x");
