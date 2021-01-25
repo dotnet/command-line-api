@@ -195,7 +195,11 @@ namespace System.CommandLine.Binding
                       .GetInterfaces()
                       .FirstOrDefault(IsEnumerable);
 
-            return enumerableInterface?.GenericTypeArguments.FirstOrDefault();
+            return enumerableInterface?.GenericTypeArguments switch
+            {
+                { Length: 1 } genericTypeArguments => genericTypeArguments[0],
+                _ => null
+            };
         }
 
         internal static bool IsEnumerable(this Type type)
