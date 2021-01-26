@@ -5,10 +5,16 @@ using System.CommandLine.Binding;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Defines a symbol with an arity.
+    /// </summary>
     public interface IArgument : 
         ISymbol,
         IValueDescriptor
     {
+        /// <summary>
+        /// Gets the arity of the argument.
+        /// </summary>
         IArgumentArity Arity { get; }
     }
 }
