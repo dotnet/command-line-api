@@ -205,9 +205,7 @@ namespace System.CommandLine.Parsing
                 }
 
                 // don't unbundle if this is a known option
-                if (knownTokens.Values
-                    .Where(token => token.Type.Equals(TokenType.Option))
-                    .Any(token => token.Value.Equals(arg)))
+                if (knownTokens.ContainsKey(arg))
                 {
                     return false;
                 }
