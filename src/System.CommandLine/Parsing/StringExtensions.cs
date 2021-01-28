@@ -204,6 +204,14 @@ namespace System.CommandLine.Parsing
                     return false;
                 }
 
+                // don't unbundle if this is a known option
+                if (knownTokens.Values
+                    .Where(token => token.Type.Equals(TokenType.Option))
+                    .Any(token => token.Value.Equals(arg)))
+                {
+                    return false;
+                }
+
                 var (prefix, alias) = arg.SplitPrefix();
 
                 return prefix == "-" &&
