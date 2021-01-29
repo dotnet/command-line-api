@@ -378,6 +378,9 @@ namespace System.CommandLine.Tests
 
             var parseResult = option.Parse("-option value");
             parseResult.ValueForOption(option).Should().Be("value");
+
+            parseResult = option.Parse("-option:value");
+            parseResult.ValueForOption(option).Should().Be("value");
         }
 
         protected override Symbol CreateSymbol(string name) => new Option(name);
