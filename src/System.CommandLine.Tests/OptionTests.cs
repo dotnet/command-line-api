@@ -371,6 +371,15 @@ namespace System.CommandLine.Tests
             option.Aliases.Should().Contain("name");
         }
 
+        [Fact]
+        public void When_aliases_overlap_the_longer_alias_is_chosen()
+        {
+            var option = new Option<string>(new[] { "-o", "-option" });
+
+            var parseResult = option.Parse("-option value");
+            parseResult.ValueForOption(option).Should().Be("value");
+        }
+
         protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }
