@@ -205,7 +205,10 @@ namespace System.CommandLine.Parsing
                 }
 
                 // don't unbundle if this is a known option
-                if (knownTokens.ContainsKey(arg))
+                if (knownTokens.ContainsKey(arg) ||
+                    knownTokens
+                        .SelectMany(token => _argumentDelimiters.Select(delimiter => token.Key + delimiter))
+                        .Any(token => arg.Contains(token)))
                 {
                     return false;
                 }
