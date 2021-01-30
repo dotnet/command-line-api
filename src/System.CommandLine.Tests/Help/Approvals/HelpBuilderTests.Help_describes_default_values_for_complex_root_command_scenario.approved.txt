@@ -1,0 +1,30 @@
+Here's an example based on `dotnet-interactive`
+
+*Old:* 
+
+```console
+Usage:
+  dotnet-interactive jupyter [options] <connection-file> [command]
+
+Arguments:
+  <connection-file>
+
+Options:
+  --default-kernel <default-kernel>      The default language for the kernel 
+    default: csharp
+  --http-port-range <http-port-range>    Specifies the range of ports to use to enable HTTP
+                                         services
+    default: 
+  --log-path <log-path>                  Enable file logging to the specified directory
+  --verbose                              Enable verbose logging to the console
+  -?, -h, --help                         Show help and usage information
+
+Commands:
+  install    Install the .NET kernel for Jupyter
+```
+
+*New:*
+
+```console
+
+```

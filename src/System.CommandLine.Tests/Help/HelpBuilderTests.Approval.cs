@@ -77,10 +77,8 @@ namespace System.CommandLine.Tests.Help
             };
             command.Name = "the-root-command";
 
-            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
-            helpBuilder.Write(command);
-            var output = _console.Out.ToString();
-            Approvals.Verify(output);
+            GetHelpBuilder(LargeMaxWidth).Write(command);
+            Approvals.Verify(_console.Out.ToString());
         }
 
     }
