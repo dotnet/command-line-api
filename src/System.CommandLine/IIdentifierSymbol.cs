@@ -6,12 +6,12 @@ using System.Collections.Generic;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Defines a symbol with aliases.
+    /// Defines a symbol which is an identifier in the command line, such as a <see cref="ICommand">command</see> or <see cref="IOption">option</see>.
     /// </summary>
     public interface IIdentifierSymbol : ISymbol
     {
         /// <summary>
-        /// Gets the aliases for the symbol.
+        /// Gets the set of alternative strings that can be used on the command line to specify the symbol.
         /// </summary>
         IReadOnlyCollection<string> Aliases { get; }
 
@@ -19,7 +19,7 @@ namespace System.CommandLine
         /// Determines whether the alias has already been defined.
         /// </summary>
         /// <param name="alias">The alias to search for.</param>
-        /// <returns><c>true</c> if the alias has already been defined; otherwise <c>false</c>.</returns>
+        /// <returns><see langkeyword="true">true</see> if the alias has already been defined; otherwise <see langkeyword="true">false</see>.</returns>
         bool HasAlias(string alias);
     }
 }

@@ -6,18 +6,17 @@ namespace System.CommandLine
     /// <summary>
     /// Defines the arity of an argument.
     /// </summary>
-    /// <remarks>The arity of an option or command's argument refers to the number of values that can be passed if that
-    /// option or command is specified. Arity is expressed with a minimum value and a maximum value.
+    /// <remarks>The arity of an argument refers to the number of values that can be passed.
     /// </remarks>
     public interface IArgumentArity
     {
         /// <summary>
-        /// Gets the minimum number of values required for the argument.
+        /// Gets the minimum number of values required for an <see cref="IArgument">argument</see>.
         /// </summary>
         int MinimumNumberOfValues { get;  }
  
         /// <summary>
-        /// Gets the maximum number of values allowed for the argument.
+        /// Gets the maximum number of values allowed for an <see cref="IArgument">argument</see>.
         /// </summary>
         int MaximumNumberOfValues { get;  }
     }
