@@ -1,30 +1,24 @@
-Here's an example based on `dotnet-interactive`
+﻿the-root-command:
+  Test description
 
-*Old:* 
-
-```console
 Usage:
-  dotnet-interactive jupyter [options] <connection-file> [command]
+  the-root-command [options] <the-root-arg-no-description-no-default> [<the-root-arg-no-description-default> <the-root-arg-no-default> [<the-root-arg> [<the-root-arg-enum-default>]]]
 
 Arguments:
-  <connection-file>
+  <the-root-arg-no-description-no-default>
+  <the-root-arg-no-description-default>       [default: the-root-arg-no-description-default-value]
+  <the-root-arg-no-default>                   the-root-arg-no-default-description
+  <the-root-arg>                              the-root-arg-description [default: the-root-arg-one-value]
+  <Read|ReadWrite|Write>                      the-root-arg-enum-default-description [default: Read]
 
 Options:
-  --default-kernel <default-kernel>      The default language for the kernel 
-    default: csharp
-  --http-port-range <http-port-range>    Specifies the range of ports to use to enable HTTP
-                                         services
-    default: 
-  --log-path <log-path>                  Enable file logging to the specified directory
-  --verbose                              Enable verbose logging to the console
-  -?, -h, --help                         Show help and usage information
+  -trna, --the-root-option-no-arg (REQUIRED)                                                             the-root-option-no-arg-description
+  -trondda, --the-root-option-no-description-default-arg <the-root-option-no-description-default-arg>    [default: the-root-option--no-description-default-arg-value]
+  -tronda, --the-root-option-no-default-arg <the-root-option-arg-no-default-arg> (REQUIRED)              the-root-option-no-default-description
+  -troda, --the-root-option-default-arg <the-root-option-arg>                                            the-root-option-default-arg-description [default: the-root-option-arg-value]
+  -troea, --the-root-option-enum-arg <Read|ReadWrite|Write>                                              the-root-option-description [default: Read]
+  -trorea, --the-root-option-required-enum-arg <Read|ReadWrite|Write> (REQUIRED)                         the-root-option-description [default: Read]
+  -tromld, --the-root-option-multi-line-description                                                      the-root-option
+                                                                                                         multi-line
+                                                                                                         description
 
-Commands:
-  install    Install the .NET kernel for Jupyter
-```
-
-*New:*
-
-```console
-
-```
