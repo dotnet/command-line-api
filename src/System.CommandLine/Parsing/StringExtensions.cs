@@ -195,6 +195,12 @@ namespace System.CommandLine.Parsing
                     return false;
                 }
 
+                // don't unbundle if this is a known token
+                if (knownTokens.ContainsKey(arg))
+                {
+                    return false;
+                }
+
                 // don't unbundle if the last token is an option expecting an argument
                 if (tokenList[tokenList.Count - 1] is { } lastToken &&
                     lastToken.Type == TokenType.Option &&
@@ -204,11 +210,9 @@ namespace System.CommandLine.Parsing
                     return false;
                 }
 
-                // don't unbundle if this is a known option
-                if (knownTokens.ContainsKey(arg) ||
-                    knownTokens
-                        .SelectMany(token => _argumentDelimiters.Select(delimiter => token.Key + delimiter))
-                        .Any(token => arg.Contains(token)))
+                if (knownTokens
+                    .SelectMany(token => _argumentDelimiters.Select(delimiter => token.Key + delimiter))
+                    .Any(token => arg.Contains(token)))
                 {
                     return false;
                 }
