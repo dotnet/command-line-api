@@ -6,7 +6,7 @@ using System.CommandLine.Binding;
 namespace System.CommandLine
 {
     /// <summary>
-    /// A symbol defining a value that can be passed to a <see cref="ICommand">command</see> or <see cref="IOption">option</see>.
+    /// A symbol defining a value that can be passed on the command line to a <see cref="ICommand">command</see> or <see cref="IOption">option</see>.
     /// </summary>
     public interface IArgument : 
         ISymbol,

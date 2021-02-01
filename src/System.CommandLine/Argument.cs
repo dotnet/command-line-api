@@ -10,7 +10,7 @@ using System.Linq;
 namespace System.CommandLine
 {
     /// <summary>
-    /// A symbol defining a value that can be passed to a <see cref="ICommand">command</see> or <see cref="IOption">option</see>.
+    /// A symbol defining a value that can be passed on the command line to a <see cref="ICommand">command</see> or <see cref="IOption">option</see>.
     /// </summary>
     public class Argument : Symbol, IArgument
     {
@@ -108,7 +108,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Type" /> that the argument will be converted to.
+        /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
         /// </summary>
         public Type ArgumentType
         {

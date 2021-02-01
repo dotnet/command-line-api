@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Defines a symbol which is an identifier in the command line, such as a <see cref="ICommand">command</see> or <see cref="IOption">option</see>.
+    /// Defines a symbol which is an identifier on the command line, such as a <see cref="ICommand">command</see> or <see cref="IOption">option</see>.
     /// </summary>
     public interface IIdentifierSymbol : ISymbol
     {
