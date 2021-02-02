@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Xunit;
-using System.CommandLine.Help;
 using System.IO;
 using ApprovalTests;
 
@@ -77,10 +76,8 @@ namespace System.CommandLine.Tests.Help
             };
             command.Name = "the-root-command";
 
-            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
-            helpBuilder.Write(command);
-            var output = _console.Out.ToString();
-            Approvals.Verify(output);
+            GetHelpBuilder(LargeMaxWidth).Write(command);
+            Approvals.Verify(_console.Out.ToString());
         }
 
     }

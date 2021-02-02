@@ -6,12 +6,12 @@ using System.CommandLine.Binding;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Defines a symbol with an argument. 
+    /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
     public interface IOption : IIdentifierSymbol, IValueDescriptor
     {
         /// <summary>
-        /// Gets the argument for the option.
+        /// Gets the <see cref="IArgument">argument</see> for the option.
         /// </summary>
         IArgument Argument { get; }
 
@@ -21,8 +21,18 @@ namespace System.CommandLine
         bool IsRequired { get; }
 
         /// <summary>
-        /// Gets a value that indicates whether multiple argument values are allowed.
+        /// Gets a value that indicates whether multiple argument tokens are allowed for each option identifier token.
         /// </summary>
+        /// <example>
+        /// If set to <see langword="true"/>, the following command line is valid for passing multiple arguments:
+        /// <code>
+        /// > --opt 1 2 3
+        /// </code>
+        /// The following is equivalent is always valid:
+        /// <code>
+        /// > --opt 1 --opt 2 --opt 3
+        /// </code>
+        /// </example>
         bool AllowMultipleArgumentsPerToken { get; }
     }
 }
