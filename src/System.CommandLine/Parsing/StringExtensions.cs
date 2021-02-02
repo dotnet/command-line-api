@@ -190,7 +190,12 @@ namespace System.CommandLine.Parsing
             {
                 replacement = null;
 
-                if (arg.Length > 0 && arg[0] != '-')
+                if (arg.Length < 2)
+                {
+                    return false;
+                }
+
+                if (arg[0] != '-')
                 {
                     return false;
                 }
@@ -207,20 +212,28 @@ namespace System.CommandLine.Parsing
                     currentCommand?.Children.GetByAlias(lastToken.Value) is IOption option &&
                     option.Argument.Arity.MinimumNumberOfValues > 0)
                 {
-                    return false;
+                     return false;
                 }
 
-                if (knownTokens
-                    .SelectMany(token => _argumentDelimiters.Select(delimiter => token.Key + delimiter))
-                    .Any(token => arg.Contains(token)))
+                for (var i = 0; i < _argumentDelimiters.Length; i++)
                 {
-                    return false;
-                }
+                    var delimiter = _argumentDelimiters[i];
 
-                var (prefix, alias) = arg.SplitPrefix();
+                    if (arg.Contains(delimiter))
+                    {
+                        foreach (var knownToken in knownTokens.Keys)
+                        {
+                            if (arg.StartsWith(knownToken + delimiter))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }   
 
-                return prefix == "-" &&
-                       TryUnbundle(out replacement);
+                var alias = arg.Substring(1);
+
+                return TryUnbundle(out replacement);
 
                 Token? TokenForOptionAlias(char c)
                 {

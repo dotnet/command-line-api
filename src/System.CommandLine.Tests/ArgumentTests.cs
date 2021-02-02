@@ -662,59 +662,6 @@ namespace System.CommandLine.Tests
                          .Should()
                          .Be("OnlyTake can only be called once.");
             }
-
-
-            [Fact]
-            public async Task ISSUE_1166_related()
-            {
-                var fooOption = new Option<MyEnum>(
-                    "--foo",
-                    parseArgument: argResult =>
-                    {
-                        if (argResult.Tokens.Count < 10)
-                        {
-                            return MyEnum.False;
-                        }
-
-                        if (Enum.TryParse<MyEnum>(argResult.Tokens.Single().Value, true, out var value))
-                        {
-                            return value;
-                        }
-
-                        argResult.ErrorMessage = $"Can't parse {argResult.Tokens.Single().Value}";
-
-                        return default;
-                    },
-                    isDefault: true);
-
-                fooOption.Argument.Arity = ArgumentArity.ZeroOrOne;
-
-                var cmd = new RootCommand
-                {
-                    fooOption
-                };
-
-                cmd.Handler = CommandHandler.Create<MyEnum>(foo =>
-                {
-                    Console.WriteLine(foo);
-                });
-
-                var result = await cmd.InvokeAsync("--foo");
-
-                result.Should().Be(0);
-
-                // TODO-JOSEQU (ISSUE_1166) write test
-                Assert.True(false, "Test ISSUE_1166 is not written yet.");
-            }
-
-            public enum MyEnum
-            {
-                True,
-                False,
-                Apple,
-                Banana,
-                Cherry
-            }
         }
 
         protected override Symbol CreateSymbol(string name)
