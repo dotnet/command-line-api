@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Linq;
 using FluentAssertions;
@@ -55,7 +56,6 @@ namespace System.CommandLine.Tests
             option.Aliases.Should().Contain("--added");
             option.HasAlias("--added").Should().BeTrue();
         }
-
 
         [Fact]
         public void A_prefixed_alias_can_be_added_to_an_option()
@@ -329,6 +329,129 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { "ERR" });
+        }
+
+        [Fact]
+        public void Option_of_string_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<string>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_IEnumerable_of_T_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<IEnumerable<string>>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse(); 
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_Array_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<string[]>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_List_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<List<string>>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_IList_of_T_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<IList<string>>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_IList_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<System.Collections.IList>("-x");
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_ICollection_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<System.Collections.ICollection>("-x");
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_IEnumerable_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<System.Collections.IEnumerable>("-x");
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_ICollection_of_T_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<ICollection<string>>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
         }
 
         [Fact]
