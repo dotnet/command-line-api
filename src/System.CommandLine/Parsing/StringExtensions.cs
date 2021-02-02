@@ -215,6 +215,7 @@ namespace System.CommandLine.Parsing
                      return false;
                 }
 
+                // don't unbundle if arg contains an argument token, e.g. "value" in "-abc:value"
                 for (var i = 0; i < _argumentDelimiters.Length; i++)
                 {
                     var delimiter = _argumentDelimiters[i];
@@ -231,6 +232,7 @@ namespace System.CommandLine.Parsing
                     }
                 }   
 
+                // remove the leading "-"
                 var alias = arg.Substring(1);
 
                 return TryUnbundle(out replacement);
