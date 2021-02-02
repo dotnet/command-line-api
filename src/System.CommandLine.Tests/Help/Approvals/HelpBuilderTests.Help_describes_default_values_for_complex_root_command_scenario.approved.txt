@@ -1,4 +1,4 @@
-the-root-command:
+﻿the-root-command:
   Test description
 
 Usage:

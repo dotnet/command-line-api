@@ -121,7 +121,7 @@ namespace System.CommandLine
                 return Zero;
             }
 
-            var parent = parents.FirstOrDefault();
+            var parent = parents.Count > 0 ? parents[0] : default;
 
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
                 type != typeof(string))
