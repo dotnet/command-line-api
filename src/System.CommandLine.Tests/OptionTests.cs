@@ -502,6 +502,7 @@ namespace System.CommandLine.Tests
             var option = new Option<string>(new[] { "-o", "-option" });
 
             var parseResult = option.Parse(parseInput);
+
             parseResult.ValueForOption(option).Should().Be("value");
         }
 

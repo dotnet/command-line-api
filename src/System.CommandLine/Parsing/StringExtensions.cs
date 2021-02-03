@@ -190,7 +190,18 @@ namespace System.CommandLine.Parsing
             {
                 replacement = null;
 
-                if (arg.Length > 0 && arg[0] != '-')
+                if (arg.Length < 2)
+                {
+                    return false;
+                }
+
+                if (arg[0] != '-')
+                {
+                    return false;
+                }
+
+                // don't unbundle if this is a known token
+                if (knownTokens.ContainsKey(arg))
                 {
                     return false;
                 }
@@ -201,22 +212,30 @@ namespace System.CommandLine.Parsing
                     currentCommand?.Children.GetByAlias(lastToken.Value) is IOption option &&
                     option.Argument.Arity.MinimumNumberOfValues > 0)
                 {
-                    return false;
+                     return false;
                 }
 
-                // don't unbundle if this is a known option
-                if (knownTokens.ContainsKey(arg) ||
-                    knownTokens
-                        .SelectMany(token => _argumentDelimiters.Select(delimiter => token.Key + delimiter))
-                        .Any(token => arg.Contains(token)))
+                // don't unbundle if arg contains an argument token, e.g. "value" in "-abc:value"
+                for (var i = 0; i < _argumentDelimiters.Length; i++)
                 {
-                    return false;
-                }
+                    var delimiter = _argumentDelimiters[i];
 
-                var (prefix, alias) = arg.SplitPrefix();
+                    if (arg.Contains(delimiter))
+                    {
+                        foreach (var knownToken in knownTokens.Keys)
+                        {
+                            if (arg.StartsWith(knownToken + delimiter))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }   
 
-                return prefix == "-" &&
-                       TryUnbundle(out replacement);
+                // remove the leading "-"
+                var alias = arg.Substring(1);
+
+                return TryUnbundle(out replacement);
 
                 Token? TokenForOptionAlias(char c)
                 {
