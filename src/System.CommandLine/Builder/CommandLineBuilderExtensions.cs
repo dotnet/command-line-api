@@ -484,7 +484,7 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseValidationMessages(
             this CommandLineBuilder builder,
-            ValidationMessages validationMessages)
+            Resources validationMessages)
         {
             builder.ValidationMessages = validationMessages;
             return builder;

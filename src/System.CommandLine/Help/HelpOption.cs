@@ -12,7 +12,7 @@ namespace System.CommandLine.Help
             "--help",
             "-?",
             "/?"
-        }, "Show help and usage information")
+        }, Resources.Instance.HelpOptionDescription() )
         {
         }
 

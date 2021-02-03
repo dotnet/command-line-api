@@ -316,7 +316,7 @@ namespace System.CommandLine.Binding
                 case NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0:
                     return new MissingArgumentConversionResult(
                         conversionResult.Argument,
-                        ValidationMessages.Instance.RequiredArgumentMissing(symbolResult));
+                        Resources.Instance.RequiredArgumentMissing(symbolResult));
 
                 case NoArgumentConversionResult _ when conversionResult.Argument.Arity.MaximumNumberOfValues > 1:
                     return Success(

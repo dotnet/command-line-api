@@ -168,4 +168,7 @@
   <data name="ErrorReadingResponseFile" xml:space="preserve">
     <value>Error reading response file '{0}': {1}</value>
   </data>
+  <data name="HelpOptionDescription" xml:space="preserve">
+    <value>Show help and usage information</value>
+  </data>
 </root>

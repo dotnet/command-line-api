@@ -155,7 +155,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument(prefix));
+                  .Contain(Resources.Instance.UnrecognizedCommandOrArgument(prefix));
         }
 
         [Fact]
@@ -1804,7 +1804,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(ValidationMessages.Instance.RequiredArgumentMissing(result.CommandResult));
+                  .Contain(Resources.Instance.RequiredArgumentMissing(result.CommandResult));
         }
 
         [Fact]
@@ -1824,7 +1824,7 @@ namespace System.CommandLine.Tests
                    .Errors
                    .Select(e => e.Message)
                    .Should()
-                   .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument("4"));
+                   .Contain(Resources.Instance.UnrecognizedCommandOrArgument("4"));
         }
 
         [Fact]
@@ -1910,7 +1910,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(ValidationMessages.Instance.RequiredArgumentMissing(result.CommandResult.FindResultFor(option)));
+                  .Contain(Resources.Instance.RequiredArgumentMissing(result.CommandResult.FindResultFor(option)));
         }
 
         [Fact]
@@ -1931,7 +1931,7 @@ namespace System.CommandLine.Tests
                    .Errors
                    .Select(e => e.Message)
                    .Should()
-                   .Contain(ValidationMessages.Instance.UnrecognizedCommandOrArgument("4"));
+                   .Contain(Resources.Instance.UnrecognizedCommandOrArgument("4"));
         }
 
 

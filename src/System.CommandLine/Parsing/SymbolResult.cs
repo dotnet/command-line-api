@@ -8,7 +8,7 @@ namespace System.CommandLine.Parsing
     public abstract class SymbolResult
     {
         private protected readonly List<Token> _tokens = new List<Token>();
-        private ValidationMessages? _validationMessages;
+        private Resources? _validationMessages;
         private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new Dictionary<IArgument, ArgumentResult>();
 
         private protected SymbolResult(
@@ -53,9 +53,9 @@ namespace System.CommandLine.Parsing
             return value;
         }
 
-        protected internal ValidationMessages ValidationMessages
+        protected internal Resources ValidationMessages
         {
-            get => _validationMessages ??= Parent?.ValidationMessages ?? ValidationMessages.Instance;
+            get => _validationMessages ??= Parent?.ValidationMessages ?? Resources.Instance;
             set => _validationMessages = value;
         }
 

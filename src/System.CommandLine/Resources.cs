@@ -8,11 +8,11 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    public class ValidationMessages
+    public class Resources
     {
-        public static ValidationMessages Instance { get; } = new ValidationMessages();
+        public static Resources Instance { get; } = new Resources();
 
-        protected ValidationMessages()
+        protected Resources()
         {
         }
 
@@ -65,6 +65,9 @@ namespace System.CommandLine
 
         public virtual string ErrorReadingResponseFile(string filePath, IOException e) =>
             GetResourceString(Properties.Resources.ErrorReadingResponseFile, filePath, e.Message);
+
+        public virtual string HelpOptionDescription() =>
+            GetResourceString(Properties.Resources.HelpOptionDescription);
 
         protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
         {

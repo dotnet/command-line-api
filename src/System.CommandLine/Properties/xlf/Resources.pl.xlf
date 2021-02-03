@@ -42,6 +42,11 @@
         <target state="new">File or directory does not exist: {0}</target>
         <note />
       </trans-unit>
+      <trans-unit id="HelpOptionDescription">
+        <source>Show help and usage information</source>
+        <target state="new">Show help and usage information</target>
+        <note />
+      </trans-unit>
       <trans-unit id="InvalidCharactersInPath">
         <source>Character not allowed in a path: {0}</source>
         <target state="new">Character not allowed in a path: {0}</target>
