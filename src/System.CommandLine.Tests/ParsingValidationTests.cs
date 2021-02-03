@@ -762,7 +762,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
+                      e => e.Message.Equals(Resources.Instance.RequiredCommandWasNotProvided()) &&
                            e.SymbolResult.Symbol.Name.Equals("inner"));
         }
 
@@ -778,7 +778,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
+                      e => e.Message.Equals(Resources.Instance.RequiredCommandWasNotProvided()) &&
                            e.SymbolResult.Symbol == rootCommand);
         }
 
