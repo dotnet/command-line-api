@@ -346,6 +346,20 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Option_of_boolean_defaults_to_false_when_not_specified()
+        {
+            var option = new Option<bool>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeFalse();
+        }
+
+        [Fact]
         public void Option_of_IEnumerable_of_T_defaults_to_empty_when_not_specified()
         {
             var option = new Option<IEnumerable<string>>("-x");
