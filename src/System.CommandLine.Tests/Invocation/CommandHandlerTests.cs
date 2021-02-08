@@ -537,5 +537,47 @@ namespace System.CommandLine.Tests.Invocation
             boundName.Should().Be("Gandalf");
             boundAge.Should().Be(425);
         }
+
+        [Theory]
+        [InlineData(typeof(ConcreteTestCommandHandler), 42)]
+        [InlineData(typeof(VirtualTestCommandHandler), 42)]
+        [InlineData(typeof(OverridenVirtualTestCommandHandler), 41)]
+        public async Task Method_invoked_is_matching_to_the_interface_implementation(Type type, int expectedResult)
+        {
+            var command = new Command("command");
+            command.Handler = CommandHandler.Create(type.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+
+            var parser = new Parser(command);
+
+            int result = await parser.InvokeAsync("command", _console);
+
+            result.Should().Be(expectedResult);
+        }
+
+        public abstract class AbstractTestCommandHandler : ICommandHandler
+        {
+            public abstract Task<int> DoJobAsync();
+
+            public Task<int> InvokeAsync(InvocationContext context)
+                => DoJobAsync();
+        }
+
+        public sealed class ConcreteTestCommandHandler : AbstractTestCommandHandler
+        {
+            public override Task<int> DoJobAsync()
+                => Task.FromResult(42);
+        }
+
+        public class VirtualTestCommandHandler : ICommandHandler
+        {
+            public virtual Task<int> InvokeAsync(InvocationContext context)
+                => Task.FromResult(42);
+        }
+
+        public class OverridenVirtualTestCommandHandler : VirtualTestCommandHandler
+        {
+            public override Task<int> InvokeAsync(InvocationContext context)
+                => Task.FromResult(41);
+        }
     }
 }
