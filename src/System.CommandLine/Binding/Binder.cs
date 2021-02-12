@@ -44,7 +44,6 @@ namespace System.CommandLine.Binding
                 parameterNameIndex++;
             }
 
-            //return true;
             return aliasIndex == alias.Length && parameterNameIndex == parameterName.Length;
 
 
