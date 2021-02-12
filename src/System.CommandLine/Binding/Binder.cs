@@ -8,12 +8,11 @@ namespace System.CommandLine.Binding
         internal static bool IsMatch(this string parameterName, string alias)
         {
             var parameterNameIndex = 0;
+            var aliasIndex = IndexAfterPrefix(alias);
 
-            for (var aliasIndex = IndexAfterPrefix(alias); 
-                aliasIndex < alias.Length && parameterNameIndex < parameterName.Length;
-                aliasIndex++)
+            while (aliasIndex < alias.Length && parameterNameIndex < parameterName.Length)
             {
-                var aliasChar = alias[aliasIndex];
+                var aliasChar = alias[aliasIndex++];
 
                 if (aliasChar == '-')
                 {
@@ -45,7 +44,9 @@ namespace System.CommandLine.Binding
                 parameterNameIndex++;
             }
 
-            return true;
+            //return true;
+            return aliasIndex == alias.Length && parameterNameIndex == parameterName.Length;
+
 
             static int IndexAfterPrefix(string alias)
             {
