@@ -70,7 +70,7 @@ namespace System.CommandLine.Rendering
 
         public int Height { get; set; } = 100;
 
-        public int Width { get; set; } = 100;
+        public int Width { get; } = 100;
 
         public virtual void ResetColor()
         {
