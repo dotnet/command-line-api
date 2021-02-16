@@ -52,11 +52,6 @@ namespace System.CommandLine
             : base(aliases, description, new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
         { }
 
-        private protected override Argument GetDefaultArgument()
-        {
-            return new Argument<T> { Arity = ArgumentArity.Zero };
-        }
-
         internal override Argument Argument
         {
             set
