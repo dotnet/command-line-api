@@ -37,9 +37,6 @@ namespace System.CommandLine.Tests.Binding
             var command = new Command("the-command")
                           {
                               new Option("--value", argumentType: type)
-                              {
-                                  ArgumentName = "value"
-                              }
                           };
 
             var console = new TestConsole();
@@ -72,9 +69,6 @@ namespace System.CommandLine.Tests.Binding
             var command = new Command("the-command")
                           {
                               new Option("--value", argumentType: type)
-                              {
-                                  ArgumentName = "value"
-                              }
                           };
 
             var console = new TestConsole();
@@ -107,9 +101,6 @@ namespace System.CommandLine.Tests.Binding
             var command = new Command("the-command")
                           {
                               new Option("--value", argumentType: type)
-                              {
-                                  ArgumentName = "value"
-                              }
                           };
 
             var console = new TestConsole();
@@ -118,26 +109,6 @@ namespace System.CommandLine.Tests.Binding
                 new InvocationContext(command.Parse(commandLine), console));
 
             console.Out.ToString().Should().Be($"ClassWithCtorParameter<{type.Name}>: {expectedValue}");
-        }
-
-        [Fact]
-        public void When_name_is_not_among_aliases_then_binder_will_bind_option_by_name()
-        {
-            var rootCommand = new RootCommand
-            {
-                new Option<string[]>("-n")
-                {
-                    ArgumentName = "name"
-                }
-            };
-
-            string[] receivedHeaders = null;
-
-            rootCommand.Handler = CommandHandler.Create((string[] name) => receivedHeaders = name);
-
-            rootCommand.Invoke("-n one -n two");
-
-            receivedHeaders.Should().BeEquivalentTo("one", "two");
         }
 
         [Theory]
@@ -190,9 +161,6 @@ namespace System.CommandLine.Tests.Binding
             var command = new Command("command")
                           {
                               new Option("-x", argumentType: parameterType)
-                              {
-                                  ArgumentName = "value"
-                              }
                           };
 
             command.Handler = handler;

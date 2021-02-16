@@ -112,14 +112,6 @@ namespace System.CommandLine
             set => Argument.Description = value;
         }
 
-        public bool ArgumentIsHidden
-        {
-            get => Argument.IsHidden;
-            set => Argument.IsHidden = value;
-        }
-
-        public Type ArgumentType => Argument.ArgumentType;
-
         private IEnumerable<Argument> Arguments => Children.OfType<Argument>();
 
         internal bool DisallowBinding { get; set; } 
@@ -173,7 +165,7 @@ namespace System.CommandLine
 
         string IValueDescriptor.ValueName => Name;
 
-        Type IValueDescriptor.ValueType => Argument.ArgumentType;
+        public Type ValueType => Argument.ArgumentType;
 
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 

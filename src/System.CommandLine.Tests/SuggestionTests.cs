@@ -153,12 +153,9 @@ namespace System.CommandLine.Tests
         public void When_an_option_has_a_default_value_it_will_still_be_suggested()
         {
             var parser = new Parser(
-                new Option<string[]>("--apple", "kinds of apples")
-                {
-                    ArgumentName = "cortland"
-                },
-                new Option<string[]>("--banana", "kinds of bananas"),
-                new Option<string>("--cherry", "kinds of cherries"));
+                new Option<string>("--apple", getDefaultValue: () => "cortland"),
+                new Option<string>("--banana"),
+                new Option<string>("--cherry"));
 
             var result = parser.Parse("");
 

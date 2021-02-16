@@ -10,12 +10,6 @@ namespace System.CommandLine.Binding
             IValueDescriptor valueDescriptor,
             IValueSource valueSource)
         {
-            if (value != null &&
-                !valueDescriptor.ValueType.IsInstanceOfType(value))
-            {
-                throw new ArgumentException($"Value {value} ({value.GetType()}) must be an instance of type {valueDescriptor.ValueType}");
-            }
-
             Value = value;
             ValueDescriptor = valueDescriptor;
             ValueSource = valueSource;
@@ -53,5 +47,4 @@ namespace System.CommandLine.Binding
                 valueSource);
         }
     }
-
 }

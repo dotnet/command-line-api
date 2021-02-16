@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -69,17 +72,17 @@ namespace System.CommandLine.Binding
             {
                 throw new InvalidOperationException($"The type {ModelDescriptor.ModelType} cannot be bound");
             }
-            if (ShortCutTheBinding(bindingContext))
+            if (ShortCutTheBinding())
             {
                 return GetSimpleModelValue(MemberBindingSources, bindingContext);
             }
+
             var constructorAndArgs = GetBestConstructorAndArgs(bindingContext);
             var constructor = constructorAndArgs.Constructor;
             var boundValues = constructorAndArgs.BoundValues;
-            bool nonDefaultsUsed = constructorAndArgs.NonDefaultsUsed;
-            return constructor is null
-                ? GetSimpleModelValue(ConstructorArgumentBindingSources, bindingContext)
-                : InstanceFromSpecificConstructor(bindingContext, constructor, boundValues, ref nonDefaultsUsed);
+            var nonDefaultsUsed = constructorAndArgs.NonDefaultsUsed;
+
+            return InstanceFromSpecificConstructor(bindingContext, constructor, boundValues, ref nonDefaultsUsed);
         }
 
         private bool DisallowedBindingType()
@@ -89,7 +92,7 @@ namespace System.CommandLine.Binding
                 modelType.IsConstructedGenericTypeOf(typeof(ReadOnlySpan<>));
         }
 
-        private bool ShortCutTheBinding(BindingContext bindingContext)
+        private bool ShortCutTheBinding()
         {
             var modelType = ModelDescriptor.ModelType;
             return modelType.IsPrimitive ||
@@ -98,7 +101,7 @@ namespace System.CommandLine.Binding
         }
 
         private (bool success, object? newInstance, bool anyNonDefaults) GetSimpleModelValue(
-                IDictionary<IValueDescriptor, IValueSource>? bindingSources, BindingContext bindingContext)
+                IDictionary<IValueDescriptor, IValueSource> bindingSources, BindingContext bindingContext)
         {
             var valueSource = GetValueSource(bindingSources, bindingContext, ValueDescriptor, EnforceExplicitBinding);
             return bindingContext.TryBindToScalarValue(ValueDescriptor,
@@ -156,7 +159,9 @@ namespace System.CommandLine.Binding
                   ModelDescriptor
                       .ConstructorDescriptors
                       .OrderByDescending(d => d.ParameterDescriptors.Count);
+            
             ConstructorAndArgs? bestNonMatching = null;
+            
             foreach (var constructor in constructorDescriptors)
             {
                 var (boundValues, anyNonDefaults) = GetBoundValues(
@@ -171,19 +176,19 @@ namespace System.CommandLine.Binding
                 {
                     var match = new ConstructorAndArgs(constructor, boundValues, anyNonDefaults);
                     if (anyNonDefaults)
-                    { // based on parameter length, first usable constructor that utilizes CLI definition
+                    { 
+                        // based on parameter length, first usable constructor that utilizes CLI definition
                         return match;
                     }
                     bestNonMatching ??= match;
                 }
             }
-            return bestNonMatching is null
-                    ? new ConstructorAndArgs(null, null, false)
-                    : bestNonMatching;
+
+            return bestNonMatching!;
         }
 
         internal static (IReadOnlyList<BoundValue> boundValues, bool anyNonDefaults) GetBoundValues(
-                IDictionary<IValueDescriptor, IValueSource>? bindingSources,
+                IDictionary<IValueDescriptor, IValueSource> bindingSources,
                 BindingContext bindingContext,
                 IReadOnlyList<IValueDescriptor> valueDescriptors,
                 bool enforceExplicitBinding,
@@ -212,13 +217,12 @@ namespace System.CommandLine.Binding
             return (values, anyNonDefaults);
         }
 
-        internal static IValueSource GetValueSource(IDictionary<IValueDescriptor, IValueSource>? bindingSources,
+        internal static IValueSource GetValueSource(IDictionary<IValueDescriptor, IValueSource> bindingSources,
                                                     BindingContext bindingContext,
                                                     IValueDescriptor valueDescriptor,
                                                     bool enforceExplicitBinding)
         {
-            if (!(bindingSources is null) &&
-                bindingSources.TryGetValue(valueDescriptor, out IValueSource? valueSource))
+            if (bindingSources.TryGetValue(valueDescriptor, out IValueSource? valueSource))
             {
                 return valueSource;
             }
@@ -234,7 +238,7 @@ namespace System.CommandLine.Binding
                 // by name and type (or a possible conversion)
                 return new ParseResultMatchingValueSource();
             }
-
+        
             return new MissingValueSource();
         }
 
@@ -277,6 +281,7 @@ namespace System.CommandLine.Binding
                 // Logic dropped here - misnamed and purpose unclear: ShouldPassNullToConstructor(constructorDescriptor.Parent, constructorDescriptor))
                 return (BoundValue.DefaultForType(valueDescriptor), false);
             }
+
             return (null, false);
         }
 
@@ -336,19 +341,19 @@ namespace System.CommandLine.Binding
 
             public override string ToString() => $"{ValueType}";
         }
-    }
 
-    internal class ConstructorAndArgs
-    {
-        public ConstructorDescriptor? Constructor { get; }
-        public IReadOnlyList<BoundValue>? BoundValues { get; }
-        public bool NonDefaultsUsed { get; }
-
-        public ConstructorAndArgs(ConstructorDescriptor? constructor, IReadOnlyList<BoundValue>? boundValues, bool nonDefaultsUsed)
+        internal class ConstructorAndArgs
         {
-            Constructor = constructor;
-            BoundValues = boundValues;
-            NonDefaultsUsed = nonDefaultsUsed;
+            public ConstructorDescriptor Constructor { get; }
+            public IReadOnlyList<BoundValue>? BoundValues { get; }
+            public bool NonDefaultsUsed { get; }
+
+            public ConstructorAndArgs(ConstructorDescriptor constructor, IReadOnlyList<BoundValue>? boundValues, bool nonDefaultsUsed)
+            {
+                Constructor = constructor;
+                BoundValues = boundValues;
+                NonDefaultsUsed = nonDefaultsUsed;
+            }
         }
     }
 }
