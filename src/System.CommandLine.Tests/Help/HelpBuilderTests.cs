@@ -1162,30 +1162,6 @@ Arguments:
         }
 
         [Fact]
-        public void Options_section_does_not_contain_hidden_argument()
-        {
-            var command = new Command("the-command", "Does things.");
-            var opt1 = new Option<int>("option1")
-            {
-                ArgumentName = "the-hidden",
-                ArgumentIsHidden = true,
-            };
-            var opt2 = new Option<int>("option2")
-            {
-                ArgumentName = "the-visible",
-                ArgumentIsHidden = false
-            };
-            command.AddOption(opt1);
-            command.AddOption(opt2);
-
-            _helpBuilder.Write(command);
-            var help = _console.Out.ToString();
-
-            help.Should().NotContain("the-hidden");
-            help.Should().Contain("the-visible");
-        }
-
-        [Fact]
         public void Required_options_are_indicated()
         {
             var command = new RootCommand
@@ -1327,27 +1303,6 @@ Arguments:
             var help = _console.Out.ToString();
 
             help.Should().Contain($"[default: the-arg-value]");
-        }
-
-        [Fact]
-        public void Help_should_not_contain_default_value_for_hidden_argument_defined_for_option()
-        {
-            var command = new Command("the-command", "command help")
-            {
-                new Option(new[] { "-arg"}, getDefaultValue: () => "the-arg-value")
-                {
-                    ArgumentName = "the-arg",
-                    ArgumentIsHidden = true
-                }
-            };
-
-            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
-
-            helpBuilder.Write(command);
-
-            var help = _console.Out.ToString();
-
-            help.Should().NotContain($"[default: the-arg-value]");
         }
 
         [Fact]
