@@ -42,27 +42,23 @@ namespace System.CommandLine.Tests.Help
                 ),
                 new Option<string>(aliases: new string[] {"--the-root-option-no-default-arg", "-tronda"}) {
                     Description = "the-root-option-no-default-description",
-                    ArgumentName = "the-root-option-arg-no-default-arg",
-                    ArgumentDescription = "the-root-option-arg-no-default-description",
+                    ArgumentHelpName = "the-root-option-arg-no-default-arg",
                     IsRequired = true
                 },
                 new Option<string>(aliases: new string[] {"--the-root-option-default-arg", "-troda"}, () => "the-root-option-arg-value") 
                 {
                     Description = "the-root-option-default-arg-description",
-                    ArgumentName = "the-root-option-arg",
-                    ArgumentDescription = "the-root-option-arg-description"
+                    ArgumentHelpName = "the-root-option-arg",
                 },
                 new Option<FileAccess>(aliases: new string[] {"--the-root-option-enum-arg", "-troea"}, () => FileAccess.Read) 
                 {
                     Description = "the-root-option-description",
-                    ArgumentName = "the-root-option-arg",
-                    ArgumentDescription = "the-root-option-arg-description"
+                    ArgumentHelpName = "the-root-option-arg",
                 },
                 new Option<FileAccess>(aliases: new string[] {"--the-root-option-required-enum-arg", "-trorea"}, () => FileAccess.Read) 
                 {
                     Description = "the-root-option-description",
-                    ArgumentName = "the-root-option-arg",
-                    ArgumentDescription = "the-root-option-arg-description",
+                    ArgumentHelpName = "the-root-option-arg",
                     IsRequired = true
                 },
                 new Option(aliases: new string[] {"--the-root-option-multi-line-description", "-tromld"}) {
@@ -74,6 +70,5 @@ namespace System.CommandLine.Tests.Help
             GetHelpBuilder(LargeMaxWidth).Write(command);
             Approvals.Verify(_console.Out.ToString());
         }
-
     }
 }

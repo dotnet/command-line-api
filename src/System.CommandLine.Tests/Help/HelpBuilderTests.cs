@@ -514,7 +514,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option("-v", "Sets the verbosity.", arity: ArgumentArity.ExactlyOne)
                 {
-                    ArgumentName = "argument for options"
+                    ArgumentHelpName = "argument for options"
                 }
             };
 
@@ -530,7 +530,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option(new[] { "-v", "--verbosity" }, arity: ArgumentArity.ExactlyOne)
                 {
-                    ArgumentName = "LEVEL",
+                    ArgumentHelpName = "LEVEL",
                     Description = "Sets the verbosity."
                 }
             };
@@ -1188,7 +1188,7 @@ Arguments:
                 new Option<string>(new[] {"-r", "--required" })
                 {
                     IsRequired = true,
-                    ArgumentName = "ARG"
+                    ArgumentHelpName = "ARG"
                 }
             };
 
@@ -1292,7 +1292,7 @@ Arguments:
             {
                 new Option(new[] { "-arg"}, getDefaultValue: () => "the-arg-value")
                 {
-                    ArgumentName = "the-arg"
+                    ArgumentHelpName = "the-arg"
                 }
             };
 
