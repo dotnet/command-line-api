@@ -12,19 +12,15 @@ namespace System.CommandLine.Help
             "--help",
             "-?",
             "/?"
-        }, Resources.Instance.HelpOptionDescription() )
+        }, Resources.Instance.HelpOptionDescription())
         {
+            DisallowBinding = true;
         }
 
         internal override Argument Argument
         {
             get => Argument.None;
             set { }
-        }
-
-        protected bool Equals(HelpOption other)
-        {
-            return other != null;
         }
 
         public override bool Equals(object obj)

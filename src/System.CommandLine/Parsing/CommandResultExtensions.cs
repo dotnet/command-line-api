@@ -37,9 +37,10 @@ namespace System.CommandLine.Parsing
 
             for (var i = 0; i < options.Count; i++)
             {
-                var option = options[i];
+                var option = (Option) options[i];
 
-                if (valueDescriptor.ValueName.IsMatch(option))
+                if (!option.DisallowBinding &&
+                    valueDescriptor.ValueName.IsMatch(option))
                 {
                     var optionResult = commandResult.FindResultFor(option);
 

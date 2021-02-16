@@ -122,6 +122,8 @@ namespace System.CommandLine
 
         private IEnumerable<Argument> Arguments => Children.OfType<Argument>();
 
+        internal bool DisallowBinding { get; set; } 
+
         public override string Name
         {
             get => base.Name;
