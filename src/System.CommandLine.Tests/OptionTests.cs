@@ -460,6 +460,21 @@ namespace System.CommandLine.Tests
             parseResult.ValueForOption(option).Should().Be("value");
         }
 
+        [Fact]
+        public void Option_of_boolean_defaults_to_false_when_not_specified()
+        {
+            var option = new Option<bool>("-x");
+
+            var result = option.Parse("");
+
+            result.HasOption(option)
+                  .Should()
+                  .BeFalse();
+            result.ValueForOption(option)
+                  .Should()
+                  .BeFalse();
+        }
+
         protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }

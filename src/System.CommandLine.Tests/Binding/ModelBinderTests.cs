@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
@@ -624,6 +625,40 @@ namespace System.CommandLine.Tests.Binding
 
             first.Should().Be(1);
             second.Should().Be(2);
+        }
+
+        public class MyModel
+        {
+            public List<string> Abc { get; set; }
+
+            public string AbcDef { get; set; }
+        }
+
+        [Fact]
+        public void Binder_does_not_match_on_partial_name()
+        {
+            var command = new RootCommand
+            {
+                new Option<List<string>>("--abc")
+            };
+
+            MyModel boundValue = default;
+
+            command.Handler = CommandHandler.Create(
+                (MyModel s) =>
+                {
+                    boundValue = s;
+                }
+            );
+
+            command.Invoke(new[] { "--abc", "1" });
+
+            boundValue.Abc
+                      .Should()
+                      .ContainSingle()
+                      .Which
+                      .Should()
+                      .Be("1");
         }
     }
 }

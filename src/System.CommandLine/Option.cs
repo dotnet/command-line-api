@@ -85,8 +85,6 @@ namespace System.CommandLine
             return rv;
         }
 
-        private protected virtual Argument GetDefaultArgument() => Argument.None;
-
         internal virtual Argument Argument
         {
             get => Arguments.FirstOrDefault() ?? Argument.None;

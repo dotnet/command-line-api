@@ -111,7 +111,7 @@ namespace System.CommandLine.Binding
         {
             var itemType = type == typeof(string)
                                ? typeof(string)
-                               : GetItemTypeIfEnumerable(type);
+                               : Binder.GetItemTypeIfEnumerable(type);
 
             var (values, isArray) = type.IsArray
                              ? (CreateArray(itemType!, tokens.Count), true)
@@ -181,45 +181,9 @@ namespace System.CommandLine.Binding
             }
         }
 
-        private static Type? GetItemTypeIfEnumerable(Type type)
-        {
-            if (type.IsArray)
-            {
-                return type.GetElementType();
-            }
-
-            var enumerableInterface =
-                IsEnumerable(type)
-                    ? type
-                    : type
-                      .GetInterfaces()
-                      .FirstOrDefault(IsEnumerable);
-
-            return enumerableInterface?.GenericTypeArguments switch
-            {
-                { Length: 1 } genericTypeArguments => genericTypeArguments[0],
-                _ => null
-            };
-        }
-
-        internal static bool IsEnumerable(this Type type)
-        {
-            if (type == typeof(string))
-            {
-                return false;
-            }
-
-            return 
-                type.IsArray 
-                ||
-                typeof(IEnumerable).IsAssignableFrom(type);
-        }
-
-        private static bool HasStringTypeConverter(this Type type)
-        {
-            return TypeDescriptor.GetConverter(type) is { } typeConverter
-                && typeConverter.CanConvertFrom(typeof(string));
-        }
+        internal static bool HasStringTypeConverter(this Type type) =>
+            TypeDescriptor.GetConverter(type) is { } typeConverter
+            && typeConverter.CanConvertFrom(typeof(string));
 
         private static FailedArgumentConversionResult Failure(
             IArgument argument,
@@ -227,61 +191,6 @@ namespace System.CommandLine.Binding
             string value)
         {
             return new FailedArgumentTypeConversionResult(argument, expectedType, value);
-        }
-
-        public static bool CanBeBoundFromScalarValue(this Type type)
-        {
-            if (type.IsPrimitive ||
-                type.IsEnum)
-            {
-                return true;
-            }
-
-            if (type == typeof(string))
-            {
-                return true;
-            }
-
-            if (TypeDescriptor.GetConverter(type) is { } typeConverter &&
-                typeConverter.CanConvertFrom(typeof(string)))
-            {
-                return true;
-            }
-
-            if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _))
-            {
-                return true;
-            }
-
-            if (GetItemTypeIfEnumerable(type) is { } itemType)
-            {
-                return itemType.CanBeBoundFromScalarValue();
-            }
-
-            return false;
-        }
-
-        private static bool TryFindConstructorWithSingleParameterOfType(
-            this Type type,
-            Type parameterType,
-            [NotNullWhen(true)] out ConstructorInfo? ctor)
-        {
-            var (x, _) = type.GetConstructors()
-                             .Select(c => (ctor: c, parameters: c.GetParameters()))
-                             .SingleOrDefault(tuple => tuple.ctor.IsPublic &&
-                                                       tuple.parameters.Length == 1 &&
-                                                       tuple.parameters[0].ParameterType == parameterType);
-
-            if (x != null)
-            {
-                ctor = x;
-                return true;
-            }
-            else
-            {
-                ctor = null;
-                return false;
-            }
         }
 
         internal static ArgumentConversionResult ConvertIfNeeded(
@@ -328,9 +237,6 @@ namespace System.CommandLine.Binding
             }
         }
 
-        internal static object? GetValueOrDefault(this ArgumentConversionResult result) =>
-            result.GetValueOrDefault<object?>();
-
         [return: MaybeNull]
         internal static T GetValueOrDefault<T>(this ArgumentConversionResult result)
         {
@@ -341,61 +247,6 @@ namespace System.CommandLine.Binding
                 NoArgumentConversionResult _ => default!,
                 _ => default!,
             };
-        }
-
-        [return: MaybeNull]
-        internal static T GetDefaultValue<T>()
-        {
-            return (T)GetDefaultValue(typeof(T));
-        }
-
-        private static MethodInfo EnumerableEmptyMethod { get; }
-            = typeof(Enumerable).GetMethod(nameof(Enumerable.Empty));
-
-        internal static object? GetDefaultValue(Type type)
-        {
-            if (type == typeof(string)) return "";
-            if (GetItemTypeIfEnumerable(type) is Type itemType)
-            {
-                if (type.IsArray)
-                {
-                    return CreateEmptyArray(itemType);
-                }
-                if (type.IsGenericType)
-                {
-                    return type.GetGenericTypeDefinition() switch
-                    {
-                        Type enumerable when enumerable == typeof(IEnumerable<>) => GetEmptyEnumerable(itemType),
-                        Type list when list == typeof(List<>) => GetEmptyList(itemType),
-                        Type array when array == typeof(IList<>) || 
-                                        array == typeof(ICollection<>) => CreateEmptyArray(itemType),
-                        _ => null
-                    };
-                }
-            }
-            return type switch
-            {
-                Type nonGeneric 
-                    when nonGeneric == typeof(IList) ||
-                         nonGeneric == typeof(ICollection) ||
-                         nonGeneric == typeof(IEnumerable)
-                    => CreateEmptyArray(typeof(object)),
-                _ => null
-            };
-            
-            static object GetEmptyList(Type itemType)
-            {
-                return Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
-            }
-
-            static IEnumerable GetEmptyEnumerable(Type itemType)
-            {
-                var genericMethod = EnumerableEmptyMethod.MakeGenericMethod(itemType);
-                return (IEnumerable)genericMethod.Invoke(null, new object[0]);
-            }
-
-            static Array CreateEmptyArray(Type itemType)
-                => Array.CreateInstance(itemType, 0);
         }
 
         public static bool TryConvertBoolArgument(ArgumentResult argumentResult, out object? value)

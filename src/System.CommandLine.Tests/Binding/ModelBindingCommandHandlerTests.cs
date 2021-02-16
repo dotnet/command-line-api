@@ -173,7 +173,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Theory]
-        [InlineData(typeof(string), null)]
+        [InlineData(typeof(string), "")]
         [InlineData(typeof(FileInfo), null)]
         [InlineData(typeof(int), 0)]
         [InlineData(typeof(int?), null)]
@@ -365,7 +365,7 @@ namespace System.CommandLine.Tests.Binding
 
             testConsole.Error.ToString().Should().BeEmpty();
 
-            received.Should().BeNull();
+            received.Should().BeEmpty();
         }
 
         [Theory]
