@@ -142,7 +142,6 @@ node_modules/
 *.Tests/lib/
 *.userprefs
 *.vsp
-*.xml
 .idea
 _NCrunch_*/
 _ReSharper.*/

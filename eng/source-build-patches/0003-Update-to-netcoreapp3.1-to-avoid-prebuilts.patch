@@ -1,0 +1,95 @@
+From b9a21ec1c0a77ef4e1e44840a0526545fea456de Mon Sep 17 00:00:00 2001
+From: Davis Goodin <dagood@microsoft.com>
+Date: Thu, 29 Oct 2020 01:48:54 -0500
+Subject: [PATCH] Update to netcoreapp3.1 to avoid prebuilts
+
+netcoreapp3.1 avoids prebuilts (Microsoft.CSharp) but works with the
+rest of source-build: runtime and roslyn.
+
+Includes a code fix for ref nullability with the new framework.
+---
+ .../System.CommandLine.DragonFruit.csproj                  | 2 +-
+ .../System.CommandLine.Hosting.csproj                      | 2 +-
+ .../System.CommandLine.Rendering.csproj                    | 2 +-
+ src/System.CommandLine/Binding/BindingContext.cs           | 2 +-
+ src/System.CommandLine/System.CommandLine.csproj           | 7 +------
+ 5 files changed, 5 insertions(+), 10 deletions(-)
+
+diff --git a/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj b/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj
+index b3a542fd..06167997 100644
+--- a/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj
++++ b/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj
+@@ -1,7 +1,7 @@
+ ﻿<Project Sdk="Microsoft.NET.Sdk">
+   <PropertyGroup>
+     <IsPackable>true</IsPackable>
+-    <TargetFramework>netstandard2.0</TargetFramework>
++    <TargetFramework>netcoreapp3.1</TargetFramework>
+     <Description>This package includes the experimental DragonFruit app model for System.CommandLine, which allows you to create a command line application using only a Main method while getting support for complex type binding, error reporting, help, shell completions, and more.
+     </Description>
+   </PropertyGroup>
+diff --git a/src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj b/src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj
+index 1d00cff2..7342c1c5 100644
+--- a/src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj
++++ b/src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj
+@@ -2,7 +2,7 @@
+ 
+   <PropertyGroup>
+     <IsPackable>true</IsPackable>
+-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
++    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+     <LangVersion>latest</LangVersion>
+     <Description>This package provides support for using System.CommandLine with Microsoft.Extensions.Hosting.</Description>
+   </PropertyGroup>
+diff --git a/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj b/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj
+index d552286e..84026ebe 100644
+--- a/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj
++++ b/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj
+@@ -2,7 +2,7 @@
+ 
+   <PropertyGroup>
+     <IsPackable>true</IsPackable>
+-    <TargetFramework>netstandard2.0</TargetFramework>
++    <TargetFramework>netcoreapp3.1</TargetFramework>
+     <LangVersion>8</LangVersion>
+     <Description>This package provides support for structured command line output rendering. Write code once that renders correctly in multiple output modes, including System.Console, virtual terminal (using ANSI escape sequences), and plain text.
+     </Description>
+diff --git a/src/System.CommandLine/Binding/BindingContext.cs b/src/System.CommandLine/Binding/BindingContext.cs
+index b942ba6a..bbb83891 100644
+--- a/src/System.CommandLine/Binding/BindingContext.cs
++++ b/src/System.CommandLine/Binding/BindingContext.cs
+@@ -55,7 +55,7 @@ namespace System.CommandLine.Binding
+ 
+         public ModelBinder GetModelBinder(IValueDescriptor valueDescriptor)
+         {
+-            if (_modelBindersByValueDescriptor.TryGetValue(valueDescriptor.ValueType, out ModelBinder binder))
++            if (_modelBindersByValueDescriptor.TryGetValue(valueDescriptor.ValueType, out ModelBinder? binder))
+             {
+                 return binder;
+             }
+diff --git a/src/System.CommandLine/System.CommandLine.csproj b/src/System.CommandLine/System.CommandLine.csproj
+index aaa2c4a3..5e875a73 100644
+--- a/src/System.CommandLine/System.CommandLine.csproj
++++ b/src/System.CommandLine/System.CommandLine.csproj
+@@ -3,7 +3,7 @@
+   <PropertyGroup>
+     <IsPackable>true</IsPackable>
+     <PackageId>System.CommandLine</PackageId>
+-    <TargetFramework>netstandard2.0</TargetFramework>
++    <TargetFramework>netcoreapp3.1</TargetFramework>
+     <LangVersion>8</LangVersion>
+     <Nullable>enable</Nullable>
+     <Description>This package includes a powerful command line parser and other tools for building command line applications, including:
+@@ -18,9 +18,4 @@
+     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis.cs" />
+   </ItemGroup>
+ 
+-  <ItemGroup>
+-    <PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpPackageVersion)" />
+-    <PackageReference Include="system.memory" Version="$(SystemMemoryPackageVersion)" />
+-  </ItemGroup>
+-
+   <ItemGroup>
+-- 
+2.25.2
+
