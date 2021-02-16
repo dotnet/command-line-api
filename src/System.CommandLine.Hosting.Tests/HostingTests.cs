@@ -201,10 +201,7 @@ namespace System.CommandLine.Hosting.Tests
             MyOptions options = null;
 
             var rootCmd = new RootCommand();
-            rootCmd.AddOption(
-                new Option($"-{nameof(MyOptions.MyArgument)}")
-                { Argument = new Argument<int>() }
-                );
+            rootCmd.AddOption(new Option<int>($"-{nameof(MyOptions.MyArgument)}"));
             rootCmd.Handler = CommandHandler.Create((IHost host) =>
             {
                 options = host.Services

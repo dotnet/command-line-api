@@ -17,13 +17,7 @@ namespace System.CommandLine.Tests
                 new Command(
                     "the-command")
                   {
-                        new Option("-x")
-                        {
-                            Argument = new Argument
-                            {
-                                Arity = ArgumentArity.ExactlyOne
-                            }
-                        },
+                        new Option("-x", arity: ArgumentArity.ExactlyOne),
                         new Option("-y"),
                         new Argument
                         {
@@ -58,10 +52,7 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Option("-f")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<int>("-f")
             };
 
             var result = command.Parse("-f not-an-int");
@@ -76,18 +67,9 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Option(new[] { "-h", "--height" })
-                {
-                    Argument = new Argument<int>(getDefaultValue: () => 10)
-                },
-                new Option(new[] { "-w", "--width" })
-                {
-                    Argument = new Argument<int>(getDefaultValue: () => 15)
-                },
-                new Option(new[] { "-c", "--color" })
-                {
-                    Argument = new Argument<ConsoleColor>(() => ConsoleColor.Cyan)
-                }
+                new Option<int>(new[] { "-h", "--height" }, () => 10),
+                new Option<int>(new[] { "-w", "--width" }, () => 15),
+                new Option<ConsoleColor>(new[] { "-c", "--color" }, () => ConsoleColor.Cyan)
             };
 
             var result = rootCommand.Parse("-w 9000");

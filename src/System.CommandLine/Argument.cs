@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.CommandLine.Suggestions;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine
@@ -44,7 +45,8 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the arity of the argument.
         /// </summary>
-        public IArgumentArity Arity
+        [NotNull]
+        public IArgumentArity? Arity
         {
             get
             {

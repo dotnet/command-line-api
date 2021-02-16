@@ -15,12 +15,29 @@ namespace System.CommandLine
         private string? _implicitName;
         private protected readonly HashSet<string> _unprefixedAliases = new HashSet<string>();
 
-        public Option(string alias, string? description = null)
-            : this(new[] { alias }, description)
-        {
-        }
+        public Option(
+            string alias,
+            string? description = null,
+            Type? argumentType = null,
+            Func<object?>? getDefaultValue = null,
+            IArgumentArity? arity = null)
+            : this(new[] { alias }, description, argumentType, getDefaultValue, arity)
+        { }
 
-        public Option(string[] aliases, string? description = null) : base(description)
+        public Option(
+            string[] aliases,
+            string? description = null,
+            Type? argumentType = null,
+            Func<object?>? getDefaultValue = null,
+            IArgumentArity? arity = null)
+            : this(aliases, description, GetArgument(argumentType, getDefaultValue, arity))
+        { }
+
+        internal Option(
+            string[] aliases,
+            string? description,
+            Argument? argument)
+            : base(description)
         {
             if (aliases is null)
             {
@@ -37,13 +54,42 @@ namespace System.CommandLine
                 var alias = aliases[i];
                 AddAlias(alias);
             }
+            if (argument != null)
+            {
+                Argument = argument;
+            }
         }
 
-        public virtual Argument Argument
+        private static Argument? GetArgument(Type? argumentType, Func<object?>? getDefaultValue, IArgumentArity? arity)
         {
-            get => Children.Arguments.Count > 0
-                       ? Children.Arguments[0]
-                       : Argument.None;
+            if (argumentType is null &&
+                getDefaultValue is null &&
+                arity is null)
+            {
+                return null;
+            }
+
+            var rv = new Argument();
+            if (argumentType != null)
+            {
+                rv.ArgumentType = argumentType;
+            }
+            if (getDefaultValue != null)
+            {
+                rv.SetDefaultValueFactory(getDefaultValue);
+            }
+            if (arity != null)
+            {
+                rv.Arity = arity;
+            }
+            return rv;
+        }
+
+        private protected virtual Argument GetDefaultArgument() => Argument.None;
+
+        internal virtual Argument Argument
+        {
+            get => Arguments.FirstOrDefault() ?? Argument.None;
             set
             {
                 for (var i = 0; i < Children.Arguments.Count; i++)
@@ -54,6 +100,29 @@ namespace System.CommandLine
                 AddArgumentInner(value);
             }
         }
+
+        //TODO: Guard against Argument.None?
+        public string ArgumentName
+        {
+            get => Argument.Name;
+            set => Argument.Name = value;
+        }
+
+        public string? ArgumentDescription
+        {
+            get => Argument.Description;
+            set => Argument.Description = value;
+        }
+
+        public bool ArgumentIsHidden
+        {
+            get => Argument.IsHidden;
+            set => Argument.IsHidden = value;
+        }
+
+        public Type ArgumentType => Argument.ArgumentType;
+
+        private IEnumerable<Argument> Arguments => Children.OfType<Argument>();
 
         public override string Name
         {

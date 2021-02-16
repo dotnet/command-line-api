@@ -367,14 +367,11 @@ namespace System.CommandLine.Tests
                 {
                     Handler = CommandHandler.Create<int>(Run)
                 };
-                command.AddOption(new Option("--value")
+                command.AddOption(new Option<int>("--value", result =>
                 {
-                    Argument = new Argument<int>(result =>
-                    {
-                        callCount++;
-                        return int.Parse(result.Tokens.Single().Value);
-                    })
-                });
+                    callCount++;
+                    return int.Parse(result.Tokens.Single().Value);
+                }));
 
                 await command.InvokeAsync("--value 42");
 
@@ -439,14 +436,11 @@ namespace System.CommandLine.Tests
                 var command = new Command("the-command")
                 {
                     new Argument<string>(),
-                    new Option("-x")
-                    {
-                        Argument = new Argument<string>(argResult =>
+                    new Option<string>("-x", argResult =>
                         {
                             argResult.ErrorMessage = "nope";
                             return default;
                         })
-                    }
                 };
 
                 var result = command.Parse("the-command -x nope yep");
@@ -459,9 +453,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Option(new[] { "-o", "--one" })
-                    {
-                        Argument = new Argument<int>(argumentResult =>
+                    new Option<int>(new[] { "-o", "--one" }, argumentResult =>
                         {
                             if (int.TryParse(argumentResult.Tokens.Select(t => t.Value).Single(), out var value))
                             {
@@ -472,7 +464,6 @@ namespace System.CommandLine.Tests
 
                             return default;
                         })
-                    }
                 };
 
                 var result = command.Parse("the-command -o not-an-int");

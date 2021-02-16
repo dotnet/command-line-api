@@ -44,16 +44,8 @@ namespace System.CommandLine.Tests.Invocation
             }
 
             var command = new Command("command");
-            command.AddOption(
-                new Option("--name")
-                {
-                    Argument = new Argument<string>()
-                });
-            command.AddOption(
-                new Option("--age")
-                {
-                    Argument = new Argument<int>()
-                });
+            command.AddOption(new Option<string>("--name"));
+            command.AddOption(new Option<int>("--age"));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
@@ -75,16 +67,8 @@ namespace System.CommandLine.Tests.Invocation
             }
 
             var command = new Command("command");
-            command.AddOption(
-                new Option("--name")
-                {
-                    Argument = new Argument<string>()
-                });
-            command.AddOption(
-                new Option("--age")
-                {
-                    Argument = new Argument<int>()
-                });
+            command.AddOption(new Option<string>("--name"));
+            command.AddOption(new Option<string>("--age"));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
@@ -105,13 +89,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("--first-name")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                }
+                new Option("--first-name", arity: ArgumentArity.ExactlyOne)
             };
             command.Handler = CommandHandler.Create<string>(Execute);
 
@@ -133,14 +111,8 @@ namespace System.CommandLine.Tests.Invocation
             }
 
             var command = new Command("command");
-            command.AddOption(new Option("--NAME")
-            {
-                Argument = new Argument { Arity = ArgumentArity.ExactlyOne }
-            });
-            command.AddOption(new Option("--age")
-            {
-                Argument = new Argument<int>()
-            });
+            command.AddOption(new Option("--NAME", arity: ArgumentArity.ExactlyOne));
+            command.AddOption(new Option<int>("--age"));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command --age 425 --NAME Gandalf", _console);
@@ -163,14 +135,8 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("--name")
-                {
-                    Argument = new Argument<string>()
-                },
-                new Option("--age")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<string>("--name"),
+                new Option<int>("--age")
             };
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
@@ -194,14 +160,8 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option(new[] { "-n", "--NAME" })
-                {
-                    Argument = new Argument<string>()
-                },
-                new Option(new[] { "-a", "--age" })
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<string>(new[] { "-n", "--NAME" }),
+                new Option<int>(new[] { "-a", "--age" })
             };
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
@@ -219,14 +179,8 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("--name")
-                {
-                    Argument = new Argument<string>()
-                },
-                new Option("--age")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<string>("--name"),
+                new Option<int>("--age")
             };
             command.Handler = CommandHandler.Create<string, int>((name, age) =>
             {
@@ -247,10 +201,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("--age")
-                {
-                    Argument = new Argument<int?>()
-                }
+                new Option<int?>("--age")
             };
             command.Handler = CommandHandler.Create<int?>(age =>
             {
@@ -270,10 +221,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("--age")
-                {
-                    Argument = new Argument<int?>()
-                }
+                new Option<int?>("--age")
             };
             command.Handler = CommandHandler.Create<int?>(age =>
             {
@@ -295,10 +243,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("--dir")
-                {
-                    Argument = new Argument<DirectoryInfo>()
-                }
+                new Option<DirectoryInfo>("--dir")
             };
             command.Handler = CommandHandler.Create<DirectoryInfo>(dir =>
             {
@@ -317,10 +262,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<int>("-x")
             };
             command.Handler = CommandHandler.Create<ParseResult>(result => { boundParseResult = result; });
 
@@ -351,10 +293,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var command = new Command("command")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<int>("-x")
             };
             command.Handler = CommandHandler.Create<IConsole>(console => { console.Out.Write("Hello!"); });
 
@@ -370,10 +309,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("-x")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<int>("-x")
             };
             command.Handler = CommandHandler.Create<InvocationContext>(context => { boundContext = context; });
 
@@ -404,14 +340,8 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("--name")
-                {
-                    Argument = new Argument<string>()
-                },
-                new Option("--age")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<string>("--name"),
+                new Option<int>("--age")
             };
             command.Handler = CommandHandler.Create((ExecuteTestDelegate)testClass.Execute);
 
@@ -428,14 +358,8 @@ namespace System.CommandLine.Tests.Invocation
 
             var command = new Command("command")
             {
-                new Option("--name")
-                {
-                    Argument = new Argument<string>()
-                },
-                new Option("--age")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<string>("--name"),
+                new Option<int>("--age")
             };
             command.Handler = CommandHandler.Create(
                 testClass.GetType().GetMethod(nameof(ExecuteTestClass.Execute)),

@@ -88,10 +88,7 @@ namespace System.CommandLine.Tests
                     new Argument<string> { Name = "first" },
                     new Argument<string> { Name = "second" },
                     new Argument<string[]> { Name = "third" },
-                    new Option("--verbose")
-                    {
-                        Argument = new Argument<bool>()
-                    }
+                    new Option<bool>("--verbose")
                 };
 
                 var parseResult = command.Parse(commandLine);

@@ -61,10 +61,7 @@ namespace System.CommandLine.Tests
             var result = new RootCommand
                          {
                              new Option("--flag"),
-                             new Option("--flag2")
-                             {
-                                 Argument = new Argument<int>()
-                             }
+                             new Option<int>("--flag2")
                          }
                 .Parse($"@{responseFile}");
 
@@ -172,10 +169,7 @@ namespace System.CommandLine.Tests
                 "123");
 
             var result = new CommandLineBuilder()
-                         .AddOption(new Option("--flag")
-                         {
-                             Argument = new Argument<int>()
-                         })
+                         .AddOption(new Option<int>("--flag"))
                          .Build()
                          .Parse($"@{responseFile}");
 
@@ -270,14 +264,8 @@ namespace System.CommandLine.Tests
 
             var rootCommand = new RootCommand
             {
-                new Option("--flag")
-                {
-                    Argument = new Argument<string>()
-                },
-                new Option("--flag2")
-                {
-                    Argument = new Argument<int>()
-                }
+                new Option<string>("--flag"),
+                new Option<int>("--flag2")
             };
             var parser = new CommandLineBuilder(rootCommand)
                          .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
@@ -317,9 +305,9 @@ namespace System.CommandLine.Tests
             var file2 = ResponseFile($"@{file3}", "--two", "2");
             var file1 = ResponseFile("--one", "1", $"@{file2}");
 
-            var option1 = new Option("--one") { Argument = new Argument<int>() };
-            var option2 = new Option("--two") { Argument = new Argument<int>() };
-            var option3 = new Option("--three") { Argument = new Argument<int>() };
+            var option1 = new Option<int>("--one");
+            var option2 = new Option<int>("--two");
+            var option3 = new Option<int>("--three");
 
             var command = new RootCommand
                           {
@@ -342,8 +330,8 @@ namespace System.CommandLine.Tests
         {
             var responseFile = ResponseFile("--option1 ", "value1 ", "--option2\t", "2\t");
 
-            var option1 = new Option("--option1") { Argument = new Argument<string>() };
-            var option2 = new Option("--option2") { Argument = new Argument<int>() };
+            var option1 = new Option<string>("--option1");
+            var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
             result.ValueForOption("--option1").Should().Be("value1");
@@ -355,8 +343,8 @@ namespace System.CommandLine.Tests
         {
             var responseFile = ResponseFile(" --option1", " value1", "\t--option2", "\t2");
 
-            var option1 = new Option("--option1") { Argument = new Argument<string>() };
-            var option2 = new Option("--option2") { Argument = new Argument<int>() };
+            var option1 = new Option<string>("--option1");
+            var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
             result.ValueForOption("--option1").Should().Be("value1");
@@ -369,8 +357,8 @@ namespace System.CommandLine.Tests
         {
             var responseFile = ResponseFile(" --option1 ", " value1 ", "\t--option2\t", "\t2\t");
 
-            var option1 = new Option("--option1") { Argument = new Argument<string>() };
-            var option2 = new Option("--option2") { Argument = new Argument<int>() };
+            var option1 = new Option<string>("--option1");
+            var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
             result.ValueForOption("--option1").Should().Be("value1");

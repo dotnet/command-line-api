@@ -19,13 +19,9 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         private IEnumerable<Option> GenerateTestOptions(int count, IArgumentArity arity)
             => Enumerable.Range(0, count)
-                         .Select(i => new Option($"-option{i}")
+                         .Select(i => new Option($"-option{i}", arity: arity)
                              {
-                                 Description = $"Description for -option {i} ....",
-                                 Argument = new Argument
-                                 {
-                                     Arity = arity
-                                 }
+                                 Description = $"Description for -option {i} ...."
                              }
                          );
 
