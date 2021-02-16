@@ -88,28 +88,14 @@ namespace System.CommandLine
         internal virtual Argument Argument
         {
             get => Arguments.FirstOrDefault() ?? Argument.None;
-            set
-            {
-                for (var i = 0; i < Children.Arguments.Count; i++)
-                {
-                    Children.Remove(Children.Arguments[i]);
-                }
-
-                AddArgumentInner(value);
-            }
+            set => AddArgumentInner(value); // FIX: delete?
         }
 
         //TODO: Guard against Argument.None?
-        public string ArgumentName
+        public string ArgumentHelpName
         {
             get => Argument.Name;
             set => Argument.Name = value;
-        }
-
-        public string? ArgumentDescription
-        {
-            get => Argument.Description;
-            set => Argument.Description = value;
         }
 
         private IEnumerable<Argument> Arguments => Children.OfType<Argument>();

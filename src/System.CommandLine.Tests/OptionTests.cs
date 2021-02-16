@@ -235,7 +235,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Option("--alias", arity: ArgumentArity.ZeroOrOne);
 
-            command.ArgumentName.Should().Be("alias");
+            command.ArgumentHelpName.Should().Be("alias");
         }
 
         [Fact]
@@ -243,10 +243,10 @@ namespace System.CommandLine.Tests
         {
             var option = new Option("-alias", arity: ArgumentArity.ZeroOrOne)
             {
-                ArgumentName = "arg"
+                ArgumentHelpName = "arg"
             };
 
-            option.ArgumentName.Should().Be("arg");
+            option.ArgumentHelpName.Should().Be("arg");
         }
 
         [Fact]
