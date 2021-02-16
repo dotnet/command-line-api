@@ -515,6 +515,8 @@ namespace System.CommandLine.Builder
                     return true;
                 });
 
+            versionOption.DisallowBinding = true;
+
             command.AddOption(versionOption);
 
             builder.AddMiddleware(async (context, next) =>
