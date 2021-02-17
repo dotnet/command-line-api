@@ -51,19 +51,5 @@ namespace System.CommandLine
             string? description = null) 
             : base(aliases, description, new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
         { }
-
-        internal override Argument Argument
-        {
-            set
-            {
-                if (!(value is Argument<T>))
-                {
-
-                    throw new ArgumentException($"{nameof(Argument)} must be of type {typeof(Argument<T>)} but was {value?.GetType().ToString() ?? "null"}");
-                }
-
-                base.Argument = value;
-            }
-        }
     }
 }
