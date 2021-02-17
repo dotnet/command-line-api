@@ -30,7 +30,7 @@ namespace System.CommandLine
             Type? argumentType = null,
             Func<object?>? getDefaultValue = null,
             IArgumentArity? arity = null)
-            : this(aliases, description, GetArgument(argumentType, getDefaultValue, arity))
+            : this(aliases, description, CreateArgument(argumentType, getDefaultValue, arity))
         { }
 
         internal Option(
@@ -54,13 +54,14 @@ namespace System.CommandLine
                 var alias = aliases[i];
                 AddAlias(alias);
             }
+
             if (argument != null)
             {
-                Argument = argument;
+                AddArgumentInner(argument);
             }
         }
 
-        private static Argument? GetArgument(Type? argumentType, Func<object?>? getDefaultValue, IArgumentArity? arity)
+        private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, IArgumentArity? arity)
         {
             if (argumentType is null &&
                 getDefaultValue is null &&
@@ -87,8 +88,20 @@ namespace System.CommandLine
 
         internal virtual Argument Argument
         {
-            get => Arguments.FirstOrDefault() ?? Argument.None;
-            set => AddArgumentInner(value); // FIX: delete?
+            get
+            {
+                switch (Children.Arguments.Count)
+                {
+                    case 0:
+                        var none = Argument.None;
+                        Children.Add(none);
+                        return none;
+
+                    default:
+                        DebugAssert.ThrowIf(Children.Arguments.Count > 1, $"Unexpected number of option arguments: {Children.Arguments.Count}");
+                        return Children.Arguments[0];
+                }
+            }
         }
 
         //TODO: Guard against Argument.None?
@@ -97,8 +110,6 @@ namespace System.CommandLine
             get => Argument.Name;
             set => Argument.Name = value;
         }
-
-        private IEnumerable<Argument> Arguments => Children.OfType<Argument>();
 
         internal bool DisallowBinding { get; set; } 
 

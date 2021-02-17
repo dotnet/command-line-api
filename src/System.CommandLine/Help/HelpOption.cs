@@ -20,7 +20,6 @@ namespace System.CommandLine.Help
         internal override Argument Argument
         {
             get => Argument.None;
-            set { }
         }
 
         public override bool Equals(object obj)
