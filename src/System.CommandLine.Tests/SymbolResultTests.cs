@@ -12,10 +12,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_value_and_no_explicitly_provided_argument_has_an_empty_arguments_property()
         {
-            var option = new Option("-x")
-            {
-                Argument = new Argument<string>("default")
-            };
+            var option = new Option<string>("-x", () => "default");
 
             var result = new RootCommand
             {
@@ -44,10 +41,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option(new[] { "-c", "--count" })
-                {
-                    Argument = new Argument<int>(() => 5)
-                }
+                new Option<int>(new[] { "-c", "--count" }, () => 5)
             };
 
             var result = command.Parse("the-command");

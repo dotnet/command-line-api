@@ -220,7 +220,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var options = handlerMethod.BuildOptions();
 
             options.Should()
-                   .NotContain(o => o.Argument.ArgumentType == type);
+                   .NotContain(o => o.ValueType == type);
         }
 
         [Fact]

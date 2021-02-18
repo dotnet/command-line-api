@@ -44,7 +44,7 @@ namespace System.CommandLine.Binding
 
         public object? GetDefaultValue() =>
             _parameterInfo.DefaultValue is DBNull
-                ? ValueType.GetDefaultValueForType()
+                ? Binder.GetDefaultValue(ValueType)
                 : _parameterInfo.DefaultValue;
 
         public override string ToString() => $"{ValueType.Name} {ValueName}";

@@ -26,14 +26,8 @@ namespace System.CommandLine.Tests
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
             var parser = new Parser(
-                new Option("-x")
-                {
-                    Argument = new Argument
-                        {
-                            Arity = ArgumentArity.ExactlyOne 
-                        }
-                        .FromAmong("this", "that", "the-other-thing")
-                });
+                new Option("-x", arity: ArgumentArity.ExactlyOne)
+                    .FromAmong("this", "that", "the-other-thing"));
 
             var result = parser.Parse("-x none-of-those");
 
@@ -47,13 +41,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var option = new Option("-x")
-            {
-                Argument = new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }.FromAmong("this", "that")
-            };
+            var option = new Option("-x", arity: ArgumentArity.ExactlyOne)
+                .FromAmong("this", "that");
 
             var parser = new Parser(option);
 
@@ -68,13 +57,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(new Option("-x")
-            {
-                Argument = new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
-            });
+            var parser = new Parser(new Option("-x", arity: ArgumentArity.ExactlyOne));
 
             var result = parser.Parse("-x");
 
@@ -250,7 +233,7 @@ namespace System.CommandLine.Tests
         public void Validators_on_global_options_are_executed_when_invoking_a_subcommand(string commandLine)
         {
             var option = new Option<FileInfo>("--file");
-            option.Argument.AddValidator(r =>
+            option.AddValidator(r =>
             {
                 return "Invoked validator";
             });
@@ -266,7 +249,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .ContainSingle(e => e.SymbolResult.Symbol == option.Argument)
+                  .ContainSingle(e => e.SymbolResult.Symbol == option)
                   .Which
                   .Message
                   .Should()
@@ -601,13 +584,7 @@ namespace System.CommandLine.Tests
                     {
                         Arity = ArgumentArity.ZeroOrMore
                     }.ExistingOnly(),
-                    new Option("--to")
-                    {
-                        Argument = new Argument
-                        {
-                            Arity = ArgumentArity.ExactlyOne
-                        }
-                    }
+                    new Option("--to", arity: ArgumentArity.ExactlyOne)
                 };
 
                 var path = NonexistentPath();
@@ -762,7 +739,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
+                      e => e.Message.Equals(Resources.Instance.RequiredCommandWasNotProvided()) &&
                            e.SymbolResult.Symbol.Name.Equals("inner"));
         }
 
@@ -778,7 +755,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals(ValidationMessages.Instance.RequiredCommandWasNotProvided()) &&
+                      e => e.Message.Equals(Resources.Instance.RequiredCommandWasNotProvided()) &&
                            e.SymbolResult.Symbol == rootCommand);
         }
 
@@ -806,13 +783,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
         {
             var parser = new Parser(
-                new Option("-x")
-                {
-                    Argument = new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                });
+                new Option("-x", arity: ArgumentArity.ExactlyOne));
 
             var result = parser.Parse("-x 1 -x 2");
 
@@ -826,10 +797,7 @@ namespace System.CommandLine.Tests
         public void When_arity_is_ExactlyOne_it_validates_against_extra_arguments()
         {
             var parser = new Parser(
-                new Option("-x")
-                {
-                    Argument = new Argument<int>()
-                });
+                new Option<int>("-x"));
 
             var result = parser.Parse("-x 1 -x 2");
 
@@ -843,10 +811,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_has_a_default_value_it_is_not_valid_to_specify_the_option_without_an_argument()
         {
             var parser = new Parser(
-                new Option("-x")
-                {
-                    Argument = new Argument<int>(() => 123)
-                });
+                new Option<int>("-x", () => 123));
 
             var result = parser.Parse("-x");
 
@@ -860,14 +825,8 @@ namespace System.CommandLine.Tests
         public void When_an_option_has_a_default_value_then_the_default_should_apply_if_not_specified()
         {
             var parser = new Parser(
-                new Option("-x")
-                {
-                    Argument = (Argument) new Argument<int>(() => 123)
-                },
-                new Option("-y")
-                {
-                    Argument = (Argument) new Argument<int>(() => 456)
-                });
+                new Option<int>("-x", () => 123),
+                new Option<int>("-y", () => 456));
 
             var result = parser.Parse("");
 

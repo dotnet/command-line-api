@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Linq;
 using FluentAssertions;
@@ -55,7 +56,6 @@ namespace System.CommandLine.Tests
             option.Aliases.Should().Contain("--added");
             option.HasAlias("--added").Should().BeTrue();
         }
-
 
         [Fact]
         public void A_prefixed_alias_can_be_added_to_an_option()
@@ -209,15 +209,9 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
                               {
-                                  new Option(prefix + "a")
-                                  {
-                                      Argument = new Argument<string>()
-                                  },
+                                  new Option<string>(prefix + "a"),
                                   new Option(prefix + "b"),
-                                  new Option(prefix + "c")
-                                  {
-                                      Argument = new Argument<string>()
-                                  }
+                                  new Option<string>(prefix + "c")
                               };
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
@@ -239,56 +233,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_takes_option_alias_as_its_name_when_it_is_not_provided()
         {
-            var command = new Option("--alias")
-            {
-                Argument = new Argument
-                {
-                    Arity = ArgumentArity.ZeroOrOne
-                }
-            };
+            var command = new Option("--alias", arity: ArgumentArity.ZeroOrOne);
 
-            command.Argument.Name.Should().Be("alias");
+            command.ArgumentHelpName.Should().Be("alias");
         }
 
         [Fact]
         public void Argument_retains_name_when_it_is_provided()
         {
-            var option = new Option("-alias")
+            var option = new Option("-alias", arity: ArgumentArity.ZeroOrOne)
             {
-                Argument = new Argument
-                {
-                    Name = "arg",
-                    Arity = ArgumentArity.ZeroOrOne
-                }
+                ArgumentHelpName = "arg"
             };
 
-            option.Argument.Name.Should().Be("arg");
-        }
-
-        [Fact]
-        public void Option_T_Argument_returns_an_Argument_T_when_not_explicitly_initialized()
-        {
-            var option = new Option<int>("-i");
-
-            option.Argument.Should().BeOfType<Argument<int>>();
-        }
-
-        [Theory]
-        [InlineData(typeof(Argument))]
-        [InlineData(typeof(Argument<string>))]
-        public void Option_T_Argument_cannot_be_set_to_Argument_of_incorrect_type(Type argumentType)
-        {
-            var option = new Option<int>("i");
-
-            var argument = Activator.CreateInstance(argumentType);
-
-            option.Invoking(o => o.Argument = (Argument) argument)
-                  .Should()
-                  .Throw<ArgumentException>()
-                  .Which
-                  .Message
-                  .Should()
-                  .Be($"Argument must be of type {typeof(Argument<int>)} but was {argument.GetType()}");
+            option.ArgumentHelpName.Should().Be("arg");
         }
 
         [Fact]
@@ -310,18 +268,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_T_default_value_is_validated()
         {
-            var arg = new Argument<int>(() => 123);
-            arg.AddValidator( symbol =>
+            var option = new Option<int>("-x", () => 123);
+            option.AddValidator( symbol =>
                     symbol.Tokens
                     .Select(t => t.Value)
                     .Where(v => v == "123")
                     .Select(x => "ERR")
                     .FirstOrDefault());
 
-            var option = new Option("-x")
-            { 
-                Argument = arg
-            };
 
             option
                 .Parse("-x 123")
@@ -329,6 +283,129 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { "ERR" });
+        }
+
+        [Fact]
+        public void Option_of_string_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<string>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_IEnumerable_of_T_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<IEnumerable<string>>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse(); 
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_Array_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<string[]>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_List_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<List<string>>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_IList_of_T_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<IList<string>>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_IList_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<System.Collections.IList>("-x");
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_ICollection_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<System.Collections.ICollection>("-x");
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_IEnumerable_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<System.Collections.IEnumerable>("-x");
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Option_of_ICollection_of_T_defaults_to_empty_when_not_specified()
+        {
+            var option = new Option<ICollection<string>>("-x");
+
+            var result = option.Parse("");
+            result.HasOption(option)
+                .Should()
+                .BeFalse();
+            result.ValueForOption(option)
+                .Should()
+                .BeEmpty();
         }
 
         [Fact]
@@ -369,6 +446,33 @@ namespace System.CommandLine.Tests
             option.HasAlias("--name").Should().BeTrue();
             option.Aliases.Should().Contain("--name");
             option.Aliases.Should().Contain("name");
+        }
+
+        [Theory]
+        [InlineData("-option value")]
+        [InlineData("-option:value")]
+        public void When_aliases_overlap_the_longer_alias_is_chosen(string parseInput)
+        {
+            var option = new Option<string>(new[] { "-o", "-option" });
+
+            var parseResult = option.Parse(parseInput);
+
+            parseResult.ValueForOption(option).Should().Be("value");
+        }
+
+        [Fact]
+        public void Option_of_boolean_defaults_to_false_when_not_specified()
+        {
+            var option = new Option<bool>("-x");
+
+            var result = option.Parse("");
+
+            result.HasOption(option)
+                  .Should()
+                  .BeFalse();
+            result.ValueForOption(option)
+                  .Should()
+                  .BeFalse();
         }
 
         protected override Symbol CreateSymbol(string name) => new Option(name);

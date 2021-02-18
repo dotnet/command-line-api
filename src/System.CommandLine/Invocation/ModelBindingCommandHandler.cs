@@ -27,7 +27,7 @@ namespace System.CommandLine.Invocation
             _handlerMethodInfo = handlerMethodInfo ?? throw new ArgumentNullException(nameof(handlerMethodInfo));
             _invocationTargetBinder = _handlerMethodInfo.IsStatic
                                           ? null
-                                          : new ModelBinder(_handlerMethodInfo.DeclaringType);
+                                          : new ModelBinder(_handlerMethodInfo.ReflectedType);
             _methodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
         }
 

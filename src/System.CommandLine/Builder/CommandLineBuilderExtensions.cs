@@ -484,7 +484,7 @@ namespace System.CommandLine.Builder
 
         public static CommandLineBuilder UseValidationMessages(
             this CommandLineBuilder builder,
-            ValidationMessages validationMessages)
+            Resources validationMessages)
         {
             builder.ValidationMessages = validationMessages;
             return builder;
@@ -514,6 +514,8 @@ namespace System.CommandLine.Builder
 
                     return true;
                 });
+
+            versionOption.DisallowBinding = true;
 
             command.AddOption(versionOption);
 

@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.CommandLine.Suggestions;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine
 {
     /// <summary>
-    /// Represents a value passed to an <see cref="Option"/> or <see cref="Command"/>.
+    /// A symbol defining a value that can be passed on the command line to a <see cref="ICommand">command</see> or <see cref="IOption">option</see>.
     /// </summary>
     public class Argument : Symbol, IArgument
     {
@@ -44,7 +45,8 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the arity of the argument.
         /// </summary>
-        public IArgumentArity Arity
+        [NotNull]
+        public IArgumentArity? Arity
         {
             get
             {
@@ -108,7 +110,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="System.Type" /> that the argument will be converted to.
+        /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
         /// </summary>
         public Type ArgumentType
         {
@@ -226,13 +228,16 @@ namespace System.CommandLine
                    .Containing(textToMatch ?? "");
         }
 
+        /// <inheritdoc />
         public override string ToString() => $"{nameof(Argument)}: {Name}";
 
         /// <inheritdoc />
         IArgumentArity IArgument.Arity => Arity;
 
+        /// <inheritdoc />
         string IValueDescriptor.ValueName => Name;
 
+        /// <inheritdoc />
         Type IValueDescriptor.ValueType => ArgumentType;
     }
 }

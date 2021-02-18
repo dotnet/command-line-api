@@ -34,7 +34,7 @@ namespace System.CommandLine
             IReadOnlyList<Symbol> symbols,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
-            ValidationMessages? validationMessages = null,
+            Resources? validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null)
@@ -81,7 +81,7 @@ namespace System.CommandLine
 
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
-            ValidationMessages = validationMessages ?? ValidationMessages.Instance;
+            ValidationMessages = validationMessages ?? Resources.Instance;
             ResponseFileHandling = responseFileHandling;
             Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
             HelpBuilderFactory = helpBuilderFactory ?? (context => new HelpBuilder(context.Console));
@@ -128,7 +128,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the validation messages.
         /// </summary>
-        public ValidationMessages ValidationMessages { get; }
+        public Resources ValidationMessages { get; }
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; }
 

@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Xunit;
-using System.CommandLine.Help;
 using System.IO;
 using ApprovalTests;
 
@@ -41,34 +40,25 @@ namespace System.CommandLine.Tests.Help
                     parseArgument: _ => "the-root-option--no-description-default-arg-value",
                     isDefault: true
                 ),
-                new Option(aliases: new string[] {"--the-root-option-no-default-arg", "-tronda"}) {
+                new Option<string>(aliases: new string[] {"--the-root-option-no-default-arg", "-tronda"}) {
                     Description = "the-root-option-no-default-description",
-                    Argument = new Argument<string>("the-root-option-arg-no-default-arg")
-                    {
-                        Description = "the-root-option-arg-no-default-description"
-                    },
+                    ArgumentHelpName = "the-root-option-arg-no-default-arg",
                     IsRequired = true
                 },
-                new Option(aliases: new string[] {"--the-root-option-default-arg", "-troda"}) {
+                new Option<string>(aliases: new string[] {"--the-root-option-default-arg", "-troda"}, () => "the-root-option-arg-value") 
+                {
                     Description = "the-root-option-default-arg-description",
-                    Argument = new Argument<string>("the-root-option-arg", () => "the-root-option-arg-value")
-                    {
-                        Description = "the-root-option-arg-description"
-                    },
+                    ArgumentHelpName = "the-root-option-arg",
                 },
-                new Option(aliases: new string[] {"--the-root-option-enum-arg", "-troea"}) {
+                new Option<FileAccess>(aliases: new string[] {"--the-root-option-enum-arg", "-troea"}, () => FileAccess.Read) 
+                {
                     Description = "the-root-option-description",
-                    Argument = new Argument<FileAccess>("the-root-option-arg", () => FileAccess.Read)
-                    {
-                        Description = "the-root-option-arg-description",
-                    }
+                    ArgumentHelpName = "the-root-option-arg",
                 },
-                new Option(aliases: new string[] {"--the-root-option-required-enum-arg", "-trorea"}) {
+                new Option<FileAccess>(aliases: new string[] {"--the-root-option-required-enum-arg", "-trorea"}, () => FileAccess.Read) 
+                {
                     Description = "the-root-option-description",
-                    Argument = new Argument<FileAccess>("the-root-option-arg", () => FileAccess.Read)
-                    {
-                        Description = "the-root-option-arg-description",
-                    },
+                    ArgumentHelpName = "the-root-option-arg",
                     IsRequired = true
                 },
                 new Option(aliases: new string[] {"--the-root-option-multi-line-description", "-tromld"}) {
@@ -77,11 +67,8 @@ namespace System.CommandLine.Tests.Help
             };
             command.Name = "the-root-command";
 
-            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
-            helpBuilder.Write(command);
-            var output = _console.Out.ToString();
-            Approvals.Verify(output);
+            GetHelpBuilder(LargeMaxWidth).Write(command);
+            Approvals.Verify(_console.Out.ToString());
         }
-
     }
 }

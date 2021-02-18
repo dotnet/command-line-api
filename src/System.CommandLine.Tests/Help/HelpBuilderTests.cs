@@ -512,12 +512,9 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("command")
             {
-                new Option("-v", "Sets the verbosity.")
+                new Option("-v", "Sets the verbosity.", arity: ArgumentArity.ExactlyOne)
                 {
-                    Argument = new Argument
-                    {
-                        Name = "argument for options", Arity = ArgumentArity.ExactlyOne
-                    }
+                    ArgumentHelpName = "argument for options"
                 }
             };
 
@@ -531,12 +528,9 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "command help")
             {
-                new Option(new[] { "-v", "--verbosity" })
+                new Option(new[] { "-v", "--verbosity" }, arity: ArgumentArity.ExactlyOne)
                 {
-                    Argument = new Argument
-                    {
-                        Name = "LEVEL", Arity = ArgumentArity.ExactlyOne
-                    },
+                    ArgumentHelpName = "LEVEL",
                     Description = "Sets the verbosity."
                 }
             };
@@ -870,14 +864,7 @@ Arguments:
             var command = new Command(
                 "outer", "Help text for the outer command")
                           {
-                              new Option("--opt", description)
-                              {
-                                  Argument = new Argument
-                                             {
-                                                 Description = description,
-                                                 ArgumentType = type
-                                             }
-                              }
+                              new Option("--opt", description, argumentType: type)
                           };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -897,13 +884,7 @@ Arguments:
             var command = new Command(
                               "outer", "Help text for the outer command")
                           {
-                              new Option("--opt", description)
-                              {
-                                  Argument = new Argument
-                                             {
-                                                 ArgumentType = type
-                                             }
-                              }
+                              new Option("--opt", description, argumentType: type)
                           };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -1181,36 +1162,6 @@ Arguments:
         }
 
         [Fact]
-        public void Options_section_does_not_contain_hidden_argument()
-        {
-            var command = new Command("the-command", "Does things.");
-            var opt1 = new Option("option1")
-            {
-                Argument = new Argument<int>
-                {
-                    Name = "the-hidden",
-                    IsHidden = true
-                }
-            };
-            var opt2 = new Option("option2")
-            {
-                Argument = new Argument<int>
-                {
-                    Name = "the-visible",
-                    IsHidden = false
-                }
-            };
-            command.AddOption(opt1);
-            command.AddOption(opt2);
-
-            _helpBuilder.Write(command);
-            var help = _console.Out.ToString();
-
-            help.Should().NotContain("the-hidden");
-            help.Should().Contain("the-visible");
-        }
-
-        [Fact]
         public void Required_options_are_indicated()
         {
             var command = new RootCommand
@@ -1234,10 +1185,10 @@ Arguments:
         {
             var command = new RootCommand
             {
-                new Option(new[] {"-r", "--required" })
+                new Option<string>(new[] {"-r", "--required" })
                 {
                     IsRequired = true,
-                    Argument = new Argument<string>("ARG")
+                    ArgumentHelpName = "ARG"
                 }
             };
 
@@ -1337,17 +1288,11 @@ Arguments:
         [Fact]
         public void Help_describes_default_value_for_option_with_argument_having_default_value()
         {
-            var argument = new Argument
-            {
-                Name = "the-arg",
-            };
-            argument.SetDefaultValue("the-arg-value");
-
             var command = new Command("the-command", "command help")
             {
-                new Option(new[] { "-arg"})
+                new Option(new[] { "-arg"}, getDefaultValue: () => "the-arg-value")
                 {
-                    Argument = argument
+                    ArgumentHelpName = "the-arg"
                 }
             };
 
@@ -1358,32 +1303,6 @@ Arguments:
             var help = _console.Out.ToString();
 
             help.Should().Contain($"[default: the-arg-value]");
-        }
-
-        [Fact]
-        public void Help_should_not_contain_default_value_for_hidden_argument_defined_for_option()
-        {
-            var argument = new Argument
-            {
-                Name = "the-arg",
-                IsHidden = true
-            };
-            argument.SetDefaultValue("the-arg-value");
-            var command = new Command("the-command", "command help")
-            {
-                new Option(new[] { "-arg"})
-                {
-                    Argument = argument
-                }
-            };
-
-            HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
-
-            helpBuilder.Write(command);
-
-            var help = _console.Out.ToString();
-
-            help.Should().NotContain($"[default: the-arg-value]");
         }
 
         [Fact]

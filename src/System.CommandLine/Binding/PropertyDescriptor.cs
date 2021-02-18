@@ -27,7 +27,7 @@ namespace System.CommandLine.Binding
 
         public bool HasDefaultValue => false;
 
-        public object? GetDefaultValue() => ValueType.GetDefaultValueForType();
+        public object? GetDefaultValue() => Binder.GetDefaultValue(ValueType);
 
         public void SetValue(object? instance, object? value)
         {

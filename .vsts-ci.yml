@@ -110,10 +110,10 @@ stages:
             PathtoPublish: '$(Build.SourcesDirectory)\artifacts\SymStore\$(_BuildConfig)'
             ArtifactName: 'NativeSymbols'
 
-      - job: Ubuntu_16_04
-        displayName: 'Ubuntu 16.04'
+      - job: Ubuntu
+        displayName: Ubuntu
         pool:
-          name: Hosted Ubuntu 1604
+          vmImage: ubuntu-latest
         strategy:
           matrix:
             ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
@@ -133,11 +133,10 @@ stages:
             --prepareMachine
           displayName: Build
 
-      - job: OSX_10_13
-        displayName: 'OSX'
+      - job: MacOS
+        displayName: MacOS
         pool:
-          name: Hosted macOS
-          vmImage: macOS-10.13
+          vmImage: macOS-latest
         strategy:
           matrix:
             ${{ if in(variables['Build.Reason'], 'PullRequest') }}:

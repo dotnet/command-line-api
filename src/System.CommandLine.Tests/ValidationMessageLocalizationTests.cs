@@ -56,7 +56,7 @@ namespace System.CommandLine.Tests
                   .Contain("the-message");
         }
 
-        public class FakeValidationMessages : ValidationMessages
+        public class FakeValidationMessages : Resources
         {
             private readonly string message;
 

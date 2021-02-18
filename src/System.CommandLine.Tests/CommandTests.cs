@@ -19,13 +19,7 @@ namespace System.CommandLine.Tests
                 {
                     new Command("inner")
                     {
-                        new Option("--option")
-                        {
-                            Argument = new Argument
-                            {
-                                Arity = ArgumentArity.ExactlyOne
-                            }
-                        }
+                        new Option("--option", arity: ArgumentArity.ExactlyOne)
                     }
                 });
         }

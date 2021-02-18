@@ -26,20 +26,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
             var eatCommand = new Command("eat")
             {
-                new Option("--fruit")
-                {
-                    Argument = new Argument<string>()
-                    {
-                        Suggestions = {"apple", "banana", "cherry" }
-                    }
-                },
-                new Option("--vegetable")
-                {
-                    Argument = new Argument<string>()
-                    {
-                        Suggestions = {"asparagus", "broccoli", "carrot" }
-                    }
-                }
+                new Option<string>("--fruit").AddSuggestions("apple", "banana", "cherry"),
+                new Option<string>("--vegetable").AddSuggestions("asparagus", "broccoli", "carrot")
             };
 
             _testParser = new CommandLineBuilder(eatCommand)

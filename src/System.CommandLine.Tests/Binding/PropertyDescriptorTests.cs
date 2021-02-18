@@ -11,7 +11,7 @@ namespace System.CommandLine.Tests.Binding
     public class PropertyDescriptorTests
     {
         [Theory]
-        [InlineData(typeof(string), null)]
+        [InlineData(typeof(string), "")]
         [InlineData(typeof(int), 0)]
         [InlineData(typeof(int?), null)]
         public void GetDefaultValue_returns_the_default_for_the_type(Type type, object defaultValue)

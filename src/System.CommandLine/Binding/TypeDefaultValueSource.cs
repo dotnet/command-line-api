@@ -16,7 +16,7 @@ namespace System.CommandLine.Binding
             BindingContext? bindingContext,
             out object? boundValue)
         {
-            boundValue = valueDescriptor.ValueType.GetDefaultValueForType();
+            boundValue = Binder.GetDefaultValue(valueDescriptor.ValueType);
             return true;
         }
     }

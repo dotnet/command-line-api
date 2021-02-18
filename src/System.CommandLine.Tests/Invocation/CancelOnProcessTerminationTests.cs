@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests.Invocation
         private const int SIGTERM = 15;
 
         [LinuxOnlyTheory]
-        [InlineData(SIGINT)]  // Console.CancelKeyPress
+        [InlineData(SIGINT, Skip = "https://github.com/dotnet/command-line-api/issues/1206")]  // Console.CancelKeyPress
         [InlineData(SIGTERM)] // AppDomain.CurrentDomain.ProcessExit
         public async Task CancelOnProcessTermination_cancels_on_process_termination(int signo)
         {

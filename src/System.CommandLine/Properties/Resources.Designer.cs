@@ -133,6 +133,15 @@ namespace System.CommandLine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Show help and usage information.
+        /// </summary>
+        internal static string HelpOptionDescription {
+            get {
+                return ResourceManager.GetString("HelpOptionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Character not allowed in a path: {0}.
         /// </summary>
         internal static string InvalidCharactersInPath {

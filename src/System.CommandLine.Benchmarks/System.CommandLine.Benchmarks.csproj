@@ -9,8 +9,8 @@
     <UseSharedCompilation>false</UseSharedCompilation>
 
     <!-- Supported target frameworks -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)' == '' AND '$(OS)' == 'Windows_NT'">net461;netcoreapp3.1;</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">netcoreapp3.1;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetFrameworks)' == '' AND '$(OS)' == 'Windows_NT'">net461;net5.0;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">net5.0;</TargetFrameworks>
 
     <!-- Use the latest C# compiler features -->
     <LangVersion>latest</LangVersion>

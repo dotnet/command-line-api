@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -146,7 +147,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return default;
+            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType);
         }
 
         [return: MaybeNull]
@@ -158,7 +159,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return default;
+            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType);
         }
 
         [return: MaybeNull]

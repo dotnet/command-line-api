@@ -15,12 +15,29 @@ namespace System.CommandLine
         private string? _implicitName;
         private protected readonly HashSet<string> _unprefixedAliases = new HashSet<string>();
 
-        public Option(string alias, string? description = null)
-            : this(new[] { alias }, description)
-        {
-        }
+        public Option(
+            string alias,
+            string? description = null,
+            Type? argumentType = null,
+            Func<object?>? getDefaultValue = null,
+            IArgumentArity? arity = null)
+            : this(new[] { alias }, description, argumentType, getDefaultValue, arity)
+        { }
 
-        public Option(string[] aliases, string? description = null) : base(description)
+        public Option(
+            string[] aliases,
+            string? description = null,
+            Type? argumentType = null,
+            Func<object?>? getDefaultValue = null,
+            IArgumentArity? arity = null)
+            : this(aliases, description, CreateArgument(argumentType, getDefaultValue, arity))
+        { }
+
+        internal Option(
+            string[] aliases,
+            string? description,
+            Argument? argument)
+            : base(description)
         {
             if (aliases is null)
             {
@@ -37,23 +54,64 @@ namespace System.CommandLine
                 var alias = aliases[i];
                 AddAlias(alias);
             }
-        }
 
-        public virtual Argument Argument
-        {
-            get => Children.Arguments.Count > 0
-                       ? Children.Arguments[0]
-                       : Argument.None;
-            set
+            if (argument != null)
             {
-                for (var i = 0; i < Children.Arguments.Count; i++)
-                {
-                    Children.Remove(Children.Arguments[i]);
-                }
-
-                AddArgumentInner(value);
+                AddArgumentInner(argument);
             }
         }
+
+        private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, IArgumentArity? arity)
+        {
+            if (argumentType is null &&
+                getDefaultValue is null &&
+                arity is null)
+            {
+                return null;
+            }
+
+            var rv = new Argument();
+            if (argumentType != null)
+            {
+                rv.ArgumentType = argumentType;
+            }
+            if (getDefaultValue != null)
+            {
+                rv.SetDefaultValueFactory(getDefaultValue);
+            }
+            if (arity != null)
+            {
+                rv.Arity = arity;
+            }
+            return rv;
+        }
+
+        internal virtual Argument Argument
+        {
+            get
+            {
+                switch (Children.Arguments.Count)
+                {
+                    case 0:
+                        var none = Argument.None;
+                        Children.Add(none);
+                        return none;
+
+                    default:
+                        DebugAssert.ThrowIf(Children.Arguments.Count > 1, $"Unexpected number of option arguments: {Children.Arguments.Count}");
+                        return Children.Arguments[0];
+                }
+            }
+        }
+
+        //TODO: Guard against Argument.None?
+        public string ArgumentHelpName
+        {
+            get => Argument.Name;
+            set => Argument.Name = value;
+        }
+
+        internal bool DisallowBinding { get; set; } 
 
         public override string Name
         {
@@ -104,7 +162,7 @@ namespace System.CommandLine
 
         string IValueDescriptor.ValueName => Name;
 
-        Type IValueDescriptor.ValueType => Argument.ArgumentType;
+        public Type ValueType => Argument.ArgumentType;
 
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 

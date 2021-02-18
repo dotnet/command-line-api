@@ -290,24 +290,16 @@ namespace System.CommandLine.DragonFruit
 
         public static Option BuildOption(this ParameterDescriptor parameter)
         {
-            var argument = new Argument
-                           {
-                               ArgumentType = parameter.ValueType
-                           };
-
+            Func<object> getDefaultValue = null;
             if (parameter.HasDefaultValue)
             {
-                argument.SetDefaultValueFactory(parameter.GetDefaultValue);
+                getDefaultValue = parameter.GetDefaultValue;
             }
-
-            var option = new Option(
+            return new Option(
                 parameter.BuildAlias(),
-                parameter.ValueName)
-            {
-                Argument = argument
-            };
-
-            return option;
+                parameter.ValueName,
+                parameter.ValueType,
+                getDefaultValue);
         }
 
         private static string GetDefaultXmlDocsFileLocation(Assembly assembly)
