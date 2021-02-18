@@ -10,6 +10,7 @@ using System.IO;
 using FluentAssertions;
 using Xunit;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -627,12 +628,7 @@ namespace System.CommandLine.Tests.Binding
             second.Should().Be(2);
         }
 
-        public class MyModel
-        {
-            public List<string> Abc { get; set; }
-
-            public string AbcDef { get; set; }
-        }
+      
 
         [Fact]
         public void Binder_does_not_match_on_partial_name()
@@ -642,10 +638,10 @@ namespace System.CommandLine.Tests.Binding
                 new Option<List<string>>("--abc")
             };
 
-            MyModel boundValue = default;
+            ClassWithOnePropertyNameThatIsSubstringOfAnother boundValue = default;
 
             command.Handler = CommandHandler.Create(
-                (MyModel s) =>
+                (ClassWithOnePropertyNameThatIsSubstringOfAnother s) =>
                 {
                     boundValue = s;
                 }
@@ -659,6 +655,26 @@ namespace System.CommandLine.Tests.Binding
                       .Which
                       .Should()
                       .Be("1");
+        }
+
+        [Fact] 
+        public async Task Empty_input_is_bound_correctly_to_list_type_properties()
+        {
+            ClassWithListTypePropertiesAndDefaultCtor boundInstance = default;
+            
+            var cmd = new RootCommand
+            {
+                Handler = CommandHandler.Create((ClassWithListTypePropertiesAndDefaultCtor value) =>
+                {
+                    boundInstance = value;
+                })
+            };
+
+            var result = cmd.Parse();
+
+            await result.InvokeAsync();
+
+            boundInstance.Should().NotBeNull();
         }
     }
 }

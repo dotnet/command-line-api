@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Tests.Binding
@@ -29,21 +30,11 @@ namespace System.CommandLine.Tests.Binding
         public bool BoolOption { get; set; }
     }
 
-    public class ClassWithSettersAndCtorParametersWithDifferentNames
+    public class ClassWithListTypePropertiesAndDefaultCtor
     {
-        public ClassWithSettersAndCtorParametersWithDifferentNames(
-            int i = 123,
-            string s = "the default",
-            bool b = false)
-        {
-            IntOption = i;
-            StringOption = s;
-            BoolOption = b;
-        }
+        public List<string> Strings { get; set; }
 
-        public int IntOption { get; set; }
-        public string StringOption { get; set; }
-        public bool BoolOption { get; set; }
+        public IEnumerable<int> BoolOption { get; set; }
     }
 
     public class ClassWithCtorParameter<T>
@@ -92,7 +83,6 @@ namespace System.CommandLine.Tests.Binding
     {
         public ClassWithMultipleCtor()
         {
-
         }
 
         public ClassWithMultipleCtor(int intProperty)
@@ -101,5 +91,29 @@ namespace System.CommandLine.Tests.Binding
         }
 
         public int IntProperty { get; }
+    }
+
+    public class ClassWithSettersAndCtorParametersWithDifferentNames
+    {
+        public ClassWithSettersAndCtorParametersWithDifferentNames(
+            int i = 123,
+            string s = "the default",
+            bool b = false)
+        {
+            IntOption = i;
+            StringOption = s;
+            BoolOption = b;
+        }
+
+        public int IntOption { get; set; }
+        public string StringOption { get; set; }
+        public bool BoolOption { get; set; }
+    }
+
+    public class ClassWithOnePropertyNameThatIsSubstringOfAnother
+    {
+        public List<string> Abc { get; set; }
+
+        public string AbcDef { get; set; }
     }
 }
