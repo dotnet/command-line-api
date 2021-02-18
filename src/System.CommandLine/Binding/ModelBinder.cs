@@ -65,24 +65,32 @@ namespace System.CommandLine.Binding
             return newInstance;
         }
 
-        private (bool success, object? newInstance, bool anyNonDefaults) CreateInstanceInternal(
-                    BindingContext bindingContext)
+        private (bool success, object? newInstance, bool anyNonDefaults) CreateInstanceInternal(BindingContext bindingContext)
         {
             if (DisallowedBindingType())
             {
                 throw new InvalidOperationException($"The type {ModelDescriptor.ModelType} cannot be bound");
             }
+
             if (ShortCutTheBinding())
             {
                 return GetSimpleModelValue(MemberBindingSources, bindingContext);
             }
 
             var constructorAndArgs = GetBestConstructorAndArgs(bindingContext);
-            var constructor = constructorAndArgs.Constructor;
-            var boundValues = constructorAndArgs.BoundValues;
-            var nonDefaultsUsed = constructorAndArgs.NonDefaultsUsed;
 
-            return InstanceFromSpecificConstructor(bindingContext, constructor, boundValues, ref nonDefaultsUsed);
+            if (constructorAndArgs is null)
+            {
+                return GetSimpleModelValue(ConstructorArgumentBindingSources, bindingContext);
+            }
+            else
+            {
+                var constructor = constructorAndArgs.Constructor;
+                var boundValues = constructorAndArgs.BoundValues;
+                var nonDefaultsUsed = constructorAndArgs.NonDefaultsUsed;
+
+                return InstanceFromSpecificConstructor(bindingContext, constructor, boundValues, ref nonDefaultsUsed);
+            }
         }
 
         private bool DisallowedBindingType()
@@ -153,7 +161,7 @@ namespace System.CommandLine.Binding
             return anyNonDefaults;
         }
 
-        private ConstructorAndArgs GetBestConstructorAndArgs(BindingContext bindingContext)
+        private ConstructorAndArgs? GetBestConstructorAndArgs(BindingContext bindingContext)
         {
             var constructorDescriptors =
                   ModelDescriptor
@@ -184,7 +192,7 @@ namespace System.CommandLine.Binding
                 }
             }
 
-            return bestNonMatching!;
+            return bestNonMatching;
         }
 
         internal static (IReadOnlyList<BoundValue> boundValues, bool anyNonDefaults) GetBoundValues(
