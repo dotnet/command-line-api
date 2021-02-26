@@ -7,11 +7,11 @@ namespace System.CommandLine.Help
     {
         public HelpOption() : base(new[]
         {
+            "-?",
+            "/?",
             "-h",
             "/h",
-            "--help",
-            "-?",
-            "/?"
+            "--help"
         }, Resources.Instance.HelpOptionDescription())
         {
             DisallowBinding = true;
