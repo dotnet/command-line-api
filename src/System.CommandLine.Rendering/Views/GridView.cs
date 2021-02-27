@@ -96,9 +96,10 @@ namespace System.CommandLine.Rendering.Views
             Size[,] sizes = GetGridSizes(renderer, new Size(region.Width, region.Height));
 
             int top = region.Top;
+            int regionLeft = region.Left;
             for (int row = 0; row < _rows.Count; row++)
             {
-                int left = region.Left;
+                int left = regionLeft;
                 int maxRowHeight = 0;
                 for (int column = 0; column < _columns.Count; column++)
                 {
