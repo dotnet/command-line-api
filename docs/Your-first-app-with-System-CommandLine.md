@@ -13,6 +13,13 @@ Open a new console and run the following commands:
 
 ## Install the System.CommandLine package
 
+Use dotnet tool to install the package
+
+```
+dotnet add package System.CommandLine --prerelease
+```
+
+Or see more options on Nuget
 [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.svg)](https://nuget.org/packages/System.CommandLine)
 
 ## Add some code
