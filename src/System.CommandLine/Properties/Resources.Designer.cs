@@ -133,6 +133,51 @@ namespace System.CommandLine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Arguments passed to the application that is being run..
+        /// </summary>
+        internal static string HelpAdditionalArgumentsDescription {
+            get {
+                return ResourceManager.GetString("HelpAdditionalArgumentsDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Additional Arguments:.
+        /// </summary>
+        internal static string HelpAdditionalArgumentsTitle {
+            get {
+                return ResourceManager.GetString("HelpAdditionalArgumentsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to default.
+        /// </summary>
+        internal static string HelpArgumentDefaultValueTitle {
+            get {
+                return ResourceManager.GetString("HelpArgumentDefaultValueTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arguments:.
+        /// </summary>
+        internal static string HelpArgumentsTitle {
+            get {
+                return ResourceManager.GetString("HelpArgumentsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Commands:.
+        /// </summary>
+        internal static string HelpCommandsTitle {
+            get {
+                return ResourceManager.GetString("HelpCommandsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Show help and usage information.
         /// </summary>
         internal static string HelpOptionDescription {
@@ -147,6 +192,60 @@ namespace System.CommandLine.Properties {
         internal static string InvalidCharactersInFileName {
             get {
                 return ResourceManager.GetString("InvalidCharactersInFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (REQUIRED).
+        /// </summary>
+        internal static string HelpOptionsRequired {
+            get {
+                return ResourceManager.GetString("HelpOptionsRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Options:.
+        /// </summary>
+        internal static string HelpOptionsTitle {
+            get {
+                return ResourceManager.GetString("HelpOptionsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [[--] &lt;additional arguments&gt;...]].
+        /// </summary>
+        internal static string HelpUsageAdditionalArguments {
+            get {
+                return ResourceManager.GetString("HelpUsageAdditionalArguments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [command].
+        /// </summary>
+        internal static string HelpUsageCommandTitle {
+            get {
+                return ResourceManager.GetString("HelpUsageCommandTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [options].
+        /// </summary>
+        internal static string HelpUsageOptionsTitle {
+            get {
+                return ResourceManager.GetString("HelpUsageOptionsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage:.
+        /// </summary>
+        internal static string HelpUsageTile {
+            get {
+                return ResourceManager.GetString("HelpUsageTile", resourceCulture);
             }
         }
         

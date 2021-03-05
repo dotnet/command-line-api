@@ -76,14 +76,14 @@ namespace System.CommandLine.Rendering
                     BackgroundColorSpan.Reset());
             }
 
-            TextSpanVisitor visitor = null;
-
             if (_mode == OutputMode.Auto)
             {
                 _mode = _terminal?.DetectOutputMode() ??
                         OutputMode.PlainText;
             }
 
+
+            TextSpanVisitor visitor;
             switch (_mode)
             {
                 case OutputMode.NonAnsi:
