@@ -14,7 +14,7 @@ Package                          | Version                                      
 `System.CommandLine.Hosting`     | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Hosting.svg)](https://nuget.org/packages/System.CommandLine.Hosting)            | support for using System.CommandLine with [Microsoft.Extensions.Hosting](https://www.nuget.org/packages/Microsoft.Extensions.Hosting/)
 `dotnet-suggest`                 | [![Nuget](https://img.shields.io/nuget/v/dotnet-suggest.svg)](https://nuget.org/packages/dotnet-suggest)                                    | A command-line tool to provide shell completions for apps built using `System.CommandLine`.
 
-Daily builds are available if you add this feed to your nuget.config: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet5/nuget/v3/index.json.
+Daily builds are available if you add this feed to your nuget.config: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-libraries/nuget/v3/index.json.
 
 ## Documentation
 
@@ -43,30 +43,6 @@ Daily builds are available if you add this feed to your nuget.config: https://pk
 * [Pass parameters to a method](docs/How-To.md#Pass-parameters-to-a-method)
 * [Argument validation and binding](docs/How-To.md#Argument-validation-and-binding)
 * [Middleware Pipeline](docs/How-To.md#Middleware-Pipeline)
-
-## Interactive tutorials
-
-You can try out `System.CommandLine` using an interactive tutorial that showcases its features and APIs, powered by Try .NET.
-
-![binding](https://user-images.githubusercontent.com/547415/58752436-905aa880-8463-11e9-9ab7-c2a8136b0a93.gif)
-
-To use the tutorial, first clone the `command-line-api` repository:
-
-```console
-> git clone https://github.com/dotnet/command-line-api
-```
-
-Next, install the `dotnet try` global tool:
-
-```console
-> dotnet tool install -g Microsoft.dotnet-try
-```
-
-Finally, launch the `dotnet try` pointing to the tutorial directory inside the cloned repository:
-
-```console
-> dotnet try <PATH_TO_COMMAND_LINE_API_REPO>/docs
-```
 
 ## Code of Conduct
 
