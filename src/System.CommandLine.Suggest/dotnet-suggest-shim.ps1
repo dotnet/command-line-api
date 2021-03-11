@@ -12,5 +12,5 @@ $availableToCompleteArray = $availableToComplete.Split([Environment]::NewLine, [
             [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
         }
     }
-$env:DOTNET_SUGGEST_SCRIPT_VERSION = "1.0.0"
+$env:DOTNET_SUGGEST_SCRIPT_VERSION = "1.0.1"
 # dotnet suggest script end
