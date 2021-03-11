@@ -116,5 +116,12 @@ namespace System.CommandLine.Hosting
 
             return builder;
         }
+
+        public static IHost GetHost(this InvocationContext invocationContext)
+        {
+            _ = invocationContext ?? throw new ArgumentNullException(paramName: nameof(invocationContext));
+            var hostModelBinder = new ModelBinder<IHost>();
+            return (IHost)hostModelBinder.CreateInstance(invocationContext.BindingContext);
+        }
     }
 }
