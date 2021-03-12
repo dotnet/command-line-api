@@ -143,7 +143,7 @@ namespace System.CommandLine.Tests.Help
             var rootCommand = new RootCommand();
             rootCommand.AddCommand(command);
 
-            new HelpBuilderOld(_console).Write(command);
+            new HelpBuilder(_console).Write(command);
 
             var expected =
                 $"Usage:{NewLine}" +
@@ -192,8 +192,6 @@ namespace System.CommandLine.Tests.Help
             var expected =
                 $"Usage:{NewLine}" +
                 $"{_indentation}{_executableName} the-command {expectedDescriptor} [options]";
-
-            string foo = _console.Out.ToString();
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -245,7 +243,6 @@ namespace System.CommandLine.Tests.Help
                 $"Usage:{NewLine}" +
                 $"{_indentation}outer [<outer-args>...] inner [<inner-args>...] [options]";
 
-            string foo = _console.Out.ToString();
             _console.Out.ToString().Should().Contain(expected);
         }
 
@@ -352,7 +349,6 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}{_executableName} outer-command [<outer args long enough to wrap to a new {NewLine}" +
                 $"{_indentation}line>...] [command]{NewLine}{NewLine}";
 
-            string foo = _console.Out.ToString();
             _console.Out.ToString().Should().Contain(expected);
         }
 
@@ -586,7 +582,6 @@ namespace System.CommandLine.Tests.Help
 
             _helpBuilder.Write(inner);
 
-            string foo = _console.Out.ToString();
             _console.Out.ToString().Should().Contain(expected);
         }
 
@@ -697,7 +692,6 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}line>                            {_columnPadding}long enough to wrap to a new {NewLine}" +
                 $"{_indentation}                                 {_columnPadding}line.{NewLine}{NewLine}";
 
-            string foo = _console.Out.ToString();
             _console.Out.ToString().Should().Contain(expected);
         }
 
@@ -998,7 +992,6 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}         {_columnPadding} the{NewLine}" +
                 $"{_indentation}         {_columnPadding}option{NewLine}{NewLine}";
 
-            string foo = _console.Out.ToString();
             _console.Out.ToString().Should().Contain(expected);
         }
 
@@ -1042,8 +1035,6 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}-a, --aaa{_columnPadding}The option\twith some tabs that is long enough to wrap to {NewLine}" +
                 $"{_indentation}         {_columnPadding}a\tnew line{NewLine}{NewLine}";
 
-
-            string foo = _console.Out.ToString();
             _console.Out.ToString().Should().Contain(expected);
         }
 
