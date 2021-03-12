@@ -21,7 +21,6 @@ namespace System.CommandLine.Help
             Console = console ?? throw new ArgumentNullException(nameof(console));
         }
 
-
         public virtual void Write(ICommand command)
         {
             if (command is null)
@@ -52,6 +51,7 @@ namespace System.CommandLine.Help
         {
             string description = string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
             WriteHeading(Resources.Instance.HelpUsageTile(), description);
+            Console.Out.WriteLine();
 
             IEnumerable<string> GetUsageParts()
             {
@@ -64,11 +64,7 @@ namespace System.CommandLine.Help
                 {
                     yield return subcommand.Name;
 
-                    //TODO???
-                    //if (subcommand != command)
-                    //{
-                    //    usage.Add(FormatArgumentUsage(subcommand.Arguments));
-                    //}
+                    yield return FormatArgumentUsage(subcommand.Arguments);
                 }
 
                 var hasOptionWithHelp = command.Options.Any(x => !x.IsHidden);
@@ -77,9 +73,6 @@ namespace System.CommandLine.Help
                 {
                     yield return Resources.Instance.HelpUsageOptionsTile();
                 }
-
-                //TODO???
-                //usage.Add(FormatArgumentUsage(command.Arguments));
 
                 var hasCommandWithHelp = command.Children
                     .OfType<ICommand>()
@@ -99,14 +92,20 @@ namespace System.CommandLine.Help
 
         protected virtual void AddArguments(ICommand command)
         {
-            WriteHeading(Resources.Instance.HelpArgumentsTitle(), null);
             //TODO: This shows all parent arguments not just the first level
             (string, string)[]? commandArguments =
                     command.RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
+                    .Reverse()
                     .SelectMany(GetArguments)
+                    .Distinct()
                     .ToArray();
 
-            RenderAsColumns(commandArguments);
+            if (commandArguments.Length > 0)
+            {
+                WriteHeading(Resources.Instance.HelpArgumentsTitle(), null);
+                RenderAsColumns(commandArguments);
+                Console.Out.WriteLine();
+            }
 
             static IEnumerable<(string, string)> GetArguments(ICommand command)
             {
@@ -115,36 +114,42 @@ namespace System.CommandLine.Help
                 {
                     string argumentDescriptor = ArgumentDescriptor(argument);
 
-                    yield return (argumentDescriptor, string.Join(" ", GetArgumentDescription(argument, arguments.Count == 1)));
+                    yield return (argumentDescriptor, string.Join(" ", GetArgumentDescription(argument, true)));
                 }
             }
         }
 
         protected virtual void AddOptions(ICommand command)
         {
-            WriteHeading(Resources.Instance.HelpOptionsTitle(), null);
-            
             var options = command
                           .Options
                           .Where(x => !x.IsHidden)
                           .Select(GetSymbolParts)
                           .ToArray();
 
-            RenderAsColumns(options);
+            if (options.Length > 0)
+            {
+                WriteHeading(Resources.Instance.HelpOptionsTitle(), null);
+                RenderAsColumns(options);
+                Console.Out.WriteLine();
+            }
         }
 
         protected virtual void AddSubcommands(ICommand command)
         {
-            WriteHeading(Resources.Instance.HelpCommandsTitle(), null);
-
             var subcommands = command
                               .Children
                               .OfType<ICommand>()
                               .Where(x => !x.IsHidden)
                               .Select(GetSymbolParts)
                               .ToArray();
-            
-            RenderAsColumns(subcommands);
+
+            if (subcommands.Length > 0)
+            {
+                WriteHeading(Resources.Instance.HelpCommandsTitle(), null);
+                RenderAsColumns(subcommands);
+                Console.Out.WriteLine();
+            }
         }
 
         protected virtual void AddAdditionalArguments(ICommand command)
@@ -164,27 +169,177 @@ namespace System.CommandLine.Help
             {
                 Console.Out.WriteLine(name);
             }
-            if (!string.IsNullOrWhiteSpace(description))
+            WriteIndented(description);
+        }
+
+        protected void WriteIndented(string? text)
+        {
+            if (!string.IsNullOrWhiteSpace(text))
             {
-                Console.Out.Write(Indent);
-                Console.Out.WriteLine(description!);
+                int maxWidth = GetConsoleWindowWidth(Console) - Indent.Length;
+                foreach (var part in WrapItem(text!, maxWidth))
+                {
+                    Console.Out.Write(Indent);
+                    Console.Out.WriteLine(part);
+                }
             }
+        }
+
+        private string FormatArgumentUsage(IReadOnlyList<IArgument> arguments)
+        {
+            var sb = StringBuilderPool.Default.Rent();
+
+            try
+            {
+                var end = default(Stack<char>);
+
+                for (var i = 0; i < arguments.Count; i++)
+                {
+                    var argument = arguments[i];
+                    if (argument.IsHidden)
+                    {
+                        continue;
+                    }
+
+                    var arityIndicator =
+                        argument.Arity.MaximumNumberOfValues > 1
+                            ? "..."
+                            : "";
+
+                    var isOptional = IsOptional(argument);
+
+                    if (isOptional)
+                    {
+                        sb.Append($"[<{argument.Name}>{arityIndicator}");
+                        (end ??= new Stack<char>()).Push(']');
+                    }
+                    else
+                    {
+                        sb.Append($"<{argument.Name}>{arityIndicator}");
+                    }
+
+                    sb.Append(' ');
+                }
+
+                if (sb.Length > 0)
+                {
+                    sb.Length--;
+
+                    if (end is { })
+                    {
+                        while (end.Count > 0)
+                        {
+                            sb.Append(end.Pop());
+                        }
+                    }
+                }
+
+                return sb.ToString();
+            }
+            finally
+            {
+                StringBuilderPool.Default.ReturnToPool(sb);
+            }
+
+            bool IsMultiParented(IArgument argument) =>
+                argument is Argument a &&
+                a.Parents.Count > 1;
+
+            bool IsOptional(IArgument argument) =>
+                IsMultiParented(argument) ||
+                argument.Arity.MinimumNumberOfValues == 0;
         }
 
         private void RenderAsColumns(params (string First, string Second)[] items)
         {
+            //TODO: allow for more customization of this layout...
             if (items.Length == 0) return;
             int windowWidth = GetConsoleWindowWidth(Console);
+            //int firstColumnWidth = Math.Min(items.Select(x => x.First.Length).Max(), windowWidth / 2 - Indent.Length);
             int firstColumnWidth = items.Select(x => x.First.Length).Max();
+            int firstColumnMaxWidth = windowWidth / 2 - Indent.Length;
+            if (firstColumnWidth > firstColumnMaxWidth)
+            {
+                firstColumnWidth = items.SelectMany(x => WrapItem(x.First, firstColumnMaxWidth).Select(x => x.Length)).Max();
+            }
+            int secondColumnWidth = windowWidth - firstColumnWidth - Indent.Length - Indent.Length;
+
             foreach (var (name, value) in items)
             {
-                int padSize = firstColumnWidth - name.Length;
-                string padding = "";
-                if (padSize > 0)
+                IEnumerable<string> nameParts = WrapItem(name, firstColumnWidth);
+                IEnumerable<string> valueParts = WrapItem(value, secondColumnWidth);
+
+                foreach (var (first, second) in ZipWithEmpty(nameParts, valueParts))
                 {
-                    padding = new string(' ', padSize);
+                    Console.Out.Write($"{Indent}{first}");
+                    if (!string.IsNullOrWhiteSpace(second))
+                    {
+                        int padSize = firstColumnWidth - first.Length;
+                        string padding = "";
+                        if (padSize > 0)
+                        {
+                            padding = new string(' ', padSize);
+                        }
+                        Console.Out.Write($"{padding}{Indent}{second}");
+                    }
+                    Console.Out.WriteLine();
                 }
-                Console.Out.WriteLine($"{Indent}{name}{padding}{Indent}{value}");
+            }
+
+            static IEnumerable<(string, string)> ZipWithEmpty(IEnumerable<string> first, IEnumerable<string> second)
+            {
+                using var enum1 = first.GetEnumerator();
+                using var enum2 = second.GetEnumerator();
+                bool hasFirst = false, hasSecond = false;
+                while ((hasFirst = enum1.MoveNext()) | (hasSecond = enum2.MoveNext()))
+                {
+                    yield return (hasFirst ? enum1.Current : "", hasSecond ? enum2.Current : "");
+                }
+            }
+        }
+
+        private static IEnumerable<string> WrapItem(string item, int maxWidth)
+        {
+            if (string.IsNullOrWhiteSpace(item)) yield break;
+            //First handle existing new lines
+            var parts = item.Split(new string[] { "\r\n", "\n", }, StringSplitOptions.None);
+
+            foreach (string part in parts)
+            {
+                if (part.Length <= maxWidth)
+                {
+                    yield return part;
+                }
+                else
+                {
+                    //Long item, wrap it based on the width
+                    for (int i = 0; i < part.Length;)
+                    {
+                        if (part.Length - i < maxWidth)
+                        {
+                            yield return part.Substring(i);
+                            break;
+                        }
+                        else
+                        {
+                            int length = -1;
+                            for (int j = 0; j + i < part.Length && j < maxWidth; j++)
+                            {
+                                if (char.IsWhiteSpace(part[i + j]))
+                                {
+                                    length = j + 1;
+                                }
+                            }
+                            if (length == -1)
+                            {
+                                length = maxWidth;
+                            }
+                            yield return part.Substring(i, length);
+
+                            i += length;
+                        }
+                    }
+                }
             }
         }
 
@@ -248,6 +403,7 @@ namespace System.CommandLine.Help
             return $"[{string.Join(", ", argumentDefaultValues)}]";
         }
 
+        //TODO: isSingleArgument is a bad name. Appears to be more about default display
         private static IEnumerable<string> GetArgumentDescription(IArgument argument, bool isSingleArgument)
         {
             string? description = argument.Description;
@@ -258,7 +414,7 @@ namespace System.CommandLine.Help
 
             if (argument.HasDefaultValue)
             {
-                yield return GetArgumentDefaultValue(argument, isSingleArgument);
+                yield return $"[{GetArgumentDefaultValue(argument, isSingleArgument)}]";
             }
         }
 
@@ -267,7 +423,7 @@ namespace System.CommandLine.Help
             string name = isSingleArgument ?
                 Resources.Instance.HelpArgumentDefaultValueTitle() :
                 argument.Name;
-            
+
             return $"{name}: {argument.GetDefaultValue()}";
         }
 
@@ -296,11 +452,12 @@ namespace System.CommandLine.Help
             }
             return descriptor;
         }
+
         private int GetConsoleWindowWidth(IConsole console)
         {
-            if (console is SystemConsole systemConsole)
+            if (console is IConsoleWindow consoleWindow)
             {
-                return systemConsole.GetConsoleWindowWidth();
+                return consoleWindow.GetWindowWidth();
             }
             else
             {

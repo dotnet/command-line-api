@@ -6,7 +6,7 @@ using System.Text;
 
 namespace System.CommandLine.IO
 {
-    public class TestConsole : IConsole
+    public class TestConsole : IConsole, IConsoleWindow
     {
         public TestConsole()
         {
@@ -23,6 +23,10 @@ namespace System.CommandLine.IO
         public bool IsErrorRedirected { get; protected set; }
 
         public bool IsInputRedirected { get; protected set; }
+
+        public int WindowWidth { get; set; } = int.MaxValue;
+
+        int IConsoleWindow.GetWindowWidth() => WindowWidth;
 
         internal class StandardStreamWriter : TextWriter, IStandardStreamWriter
         {

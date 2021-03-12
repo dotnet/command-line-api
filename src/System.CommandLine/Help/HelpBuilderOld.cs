@@ -10,7 +10,6 @@ using static System.CommandLine.Help.DefaultHelpText;
 
 namespace System.CommandLine.Help
 {
-
     public class HelpBuilderOld : IHelpBuilder
     {
         protected const int DefaultColumnGutter = 4;
@@ -833,7 +832,7 @@ namespace System.CommandLine.Help
         {
             if (console is SystemConsole systemConsole)
             {
-                return systemConsole.GetConsoleWindowWidth();
+                return systemConsole.GetWindowWidth();
             }
             else
             {
