@@ -12,7 +12,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+
 using static System.Environment;
+
 using Process = System.CommandLine.Invocation.Process;
 
 namespace System.CommandLine.Builder
@@ -123,6 +125,45 @@ namespace System.CommandLine.Builder
                     }
                 }
             }, MiddlewareOrderInternal.Startup);
+
+            return builder;
+        }
+
+        public static CommandLineBuilder AbandonOnRepeatCancellation(
+            this CommandLineBuilder builder,
+            int repeatThreshold = 1)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                var initialCancelToken = context.GetCancellationToken();
+                var repeatCancelTaskCompletionSource = new TaskCompletionSource<object>();
+                ConsoleCancelEventHandler repeatCancelEventHandler = (sender, e) =>
+                {
+                    var newCountValue = Interlocked.Decrement(ref repeatThreshold);
+                    if (newCountValue < 1)
+                    {
+                        _ = repeatCancelTaskCompletionSource.TrySetCanceled();
+                    }
+                };
+
+                using var initialCancelRegistration = initialCancelToken.Register(state =>
+                {
+                    Console.CancelKeyPress += (ConsoleCancelEventHandler)state;
+                }, repeatCancelEventHandler);
+
+                try
+                {
+                    using var nextTask = next(context);
+                    using var repeatCancelTask = repeatCancelTaskCompletionSource.Task;
+                    var returnedTask = await Task.WhenAny(nextTask, repeatCancelTask)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+                }
+                finally
+                {
+                    Console.CancelKeyPress -= repeatCancelEventHandler;
+                }
+
+            }, MiddlewareOrderInternal.ExceptionHandler);
 
             return builder;
         }
