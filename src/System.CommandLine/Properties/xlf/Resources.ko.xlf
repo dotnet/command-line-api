@@ -47,6 +47,11 @@
         <target state="new">Show help and usage information</target>
         <note />
       </trans-unit>
+      <trans-unit id="InvalidCharactersInFileName">
+        <source>Character not allowed in a file name: {0}</source>
+        <target state="new">Character not allowed in a file name: {0}</target>
+        <note />
+      </trans-unit>
       <trans-unit id="InvalidCharactersInPath">
         <source>Character not allowed in a path: {0}</source>
         <target state="new">Character not allowed in a path: {0}</target>

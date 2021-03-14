@@ -114,7 +114,7 @@ namespace System.CommandLine
             where TArgument : Argument
         {
             var invalidPathChars = Path.GetInvalidPathChars();
-            
+
             argument.AddValidator(symbol =>
             {
                 for (var i = 0; i < symbol.Tokens.Count; i++)
@@ -128,6 +128,31 @@ namespace System.CommandLine
                     if (invalidCharactersIndex >= 0)
                     {
                         return symbol.ValidationMessages.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
+                    }
+                }
+
+                return null;
+            });
+
+            return argument;
+        }
+
+        public static TArgument LegalFileNamesOnly<TArgument>(
+            this TArgument argument)
+            where TArgument : Argument
+        {
+            var invalidFileNameChars = Path.GetInvalidFileNameChars();
+
+            argument.AddValidator(symbol =>
+            {
+                for (var i = 0; i < symbol.Tokens.Count; i++)
+                {
+                    var token = symbol.Tokens[i];
+                    var invalidCharactersIndex = token.Value.IndexOfAny(invalidFileNameChars);
+
+                    if (invalidCharactersIndex >= 0)
+                    {
+                        return symbol.ValidationMessages.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]);
                     }
                 }
 

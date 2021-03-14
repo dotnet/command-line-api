@@ -142,6 +142,15 @@ namespace System.CommandLine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Character not allowed in a file name: {0}.
+        /// </summary>
+        internal static string InvalidCharactersInFileName {
+            get {
+                return ResourceManager.GetString("InvalidCharactersInFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Character not allowed in a path: {0}.
         /// </summary>
         internal static string InvalidCharactersInPath {

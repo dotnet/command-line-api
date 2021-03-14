@@ -171,4 +171,7 @@
   <data name="HelpOptionDescription" xml:space="preserve">
     <value>Show help and usage information</value>
   </data>
+  <data name="InvalidCharactersInFileName" xml:space="preserve">
+    <value>Character not allowed in a file name: {0}</value>
+  </data>
 </root>
