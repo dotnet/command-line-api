@@ -147,7 +147,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} the-command [options] {expectedDescriptor}";
+                $"{_indentation}{_executableName} the-command {expectedDescriptor} [options]";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -337,7 +337,10 @@ namespace System.CommandLine.Tests.Help
                     }
                 }
             };
-            _ = new RootCommand
+            //NB: Using Command with a fixed name, rather than RootCommand here
+            //because RootCommand.ExecutableName returns different values when
+            //run under net5 vs net462
+            _ = new Command("System.CommandLine")
             {
                 outerCommand
             };
@@ -346,8 +349,8 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} outer-command [<outer args long enough to wrap to a new {NewLine}" +
-                $"{_indentation}line>...] [command]{NewLine}{NewLine}";
+                $"{_indentation}System.CommandLine outer-command [<outer args long enough to wrap {NewLine}" +
+                $"{_indentation}to a new line>...] [command]{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
