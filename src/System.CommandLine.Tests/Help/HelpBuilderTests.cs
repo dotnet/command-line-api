@@ -865,7 +865,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "command help")
             {
-                new Argument<List<int>>("filter-size", 
+                new Argument<List<int>>("filter-size",
                     getDefaultValue: () => new List<int>() { 0, 2, 4 })
             };
 
@@ -1259,6 +1259,26 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        public void Option_arguments_with_default_values_that_are_array_display_pipe_delimited_list()
+        {
+            var command = new Command("the-command", "command help")
+            {
+                new Option<string[]>(
+                    "--prefixes",
+                    getDefaultValue: () => new[]{ "^(TODO|BUG|HACK)" })
+                { }
+            };
+
+            _helpBuilder.Write(command);
+            var expected =
+                $"Options:{NewLine}" +
+                $"{_indentation}--prefixes <prefixes>{_columnPadding}[default: ^(TODO|BUG|HACK)]{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+
+        [Fact]
         public void Option_arguments_can_customize_default_value()
         {
             var option = new Option<string>("--the-option", getDefaultValue: () => "not 42");
@@ -1573,7 +1593,7 @@ namespace System.CommandLine.Tests.Help
 
         private class CustomizableHelpBuilder : HelpBuilder
         {
-            public CustomizableHelpBuilder(IConsole console) 
+            public CustomizableHelpBuilder(IConsole console)
                 : base(console)
             { }
 
