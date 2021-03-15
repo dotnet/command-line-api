@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
@@ -105,14 +106,14 @@ namespace System.CommandLine.Help
                 Console.Out.WriteLine();
             }
 
-            static IEnumerable<(string, string)> GetArguments(ICommand command)
+            IEnumerable<(string, string)> GetArguments(ICommand command)
             {
                 var arguments = command.Arguments.Where(x => !x.IsHidden).ToList();
                 foreach (IArgument argument in arguments)
                 {
                     string argumentDescriptor = ArgumentDescriptor(argument);
 
-                    yield return (argumentDescriptor, string.Join(" ", GetArgumentDescription(argument, true)));
+                    yield return (argumentDescriptor, string.Join(" ", GetArgumentDescription(argument)));
                 }
             }
         }
@@ -341,7 +342,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        private static (string, string) GetSymbolParts(IIdentifierSymbol symbol)
+        private (string, string) GetSymbolParts(IIdentifierSymbol symbol)
         {
             var rawAliases = symbol
                              .Aliases
@@ -374,7 +375,7 @@ namespace System.CommandLine.Help
 
             return (invocation, string.Join(" ", GetDescriptionParts(symbol)));
 
-            static IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol)
+            IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol)
             {
                 string? description = symbol.Description;
                 if (!string.IsNullOrWhiteSpace(description))
@@ -389,7 +390,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        private static string GetArgumentsDescription(IEnumerable<IArgument> arguments)
+        private string GetArgumentsDescription(IEnumerable<IArgument> arguments)
         {
             var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
 
@@ -401,8 +402,7 @@ namespace System.CommandLine.Help
             return $"[{string.Join(", ", argumentDefaultValues)}]";
         }
 
-        //TODO: isSingleArgument is a bad name. Appears to be more about default display
-        private static IEnumerable<string> GetArgumentDescription(IArgument argument, bool isSingleArgument)
+        private IEnumerable<string> GetArgumentDescription(IArgument argument)
         {
             string? description = argument.Description;
             if (!string.IsNullOrWhiteSpace(description))
@@ -412,20 +412,30 @@ namespace System.CommandLine.Help
 
             if (argument.HasDefaultValue)
             {
-                yield return $"[{GetArgumentDefaultValue(argument, isSingleArgument)}]";
+                yield return $"[{GetArgumentDefaultValue(argument, true)}]";
             }
         }
 
-        private static string GetArgumentDefaultValue(IArgument argument, bool isSingleArgument)
+        private string GetArgumentDefaultValue(IArgument argument, bool displayArgumentName)
         {
-            string name = isSingleArgument ?
+            string name = displayArgumentName ?
                 Resources.Instance.HelpArgumentDefaultValueTitle() :
                 argument.Name;
 
-            return $"{name}: {argument.GetDefaultValue()}";
+            return $"{name}: {GetArgumentDefaultValue(argument)}";
         }
 
-        protected static string ArgumentDescriptor(IArgument argument)
+        protected virtual string? GetArgumentDefaultValue(IArgument argument)
+        {
+            object? defaultValue = argument.GetDefaultValue();
+            if (defaultValue is IEnumerable enumerable && !(defaultValue is string))
+            {
+                return string.Join("|", enumerable.OfType<object>().ToArray());
+            }
+            return defaultValue?.ToString();
+        }
+
+        protected virtual string ArgumentDescriptor(IArgument argument)
         {
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))

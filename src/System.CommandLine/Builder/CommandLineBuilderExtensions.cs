@@ -360,7 +360,8 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, Func<BindingContext, IHelpBuilder> getHelpBuilder)
+        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, 
+            Func<BindingContext, IHelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
         {
             if (builder is null)

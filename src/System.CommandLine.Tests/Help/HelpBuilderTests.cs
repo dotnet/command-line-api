@@ -52,6 +52,17 @@ namespace System.CommandLine.Tests.Help
             );
         }
 
+        private CustomizableHelpBuilder GetCustomHelpBuilder(int maxWidth)
+        {
+            _console.WindowWidth = maxWidth;
+            return new CustomizableHelpBuilder(
+                console: _console
+            //columnGutter: ColumnGutterWidth,
+            //indentationSize: IndentationWidth,
+            );
+        }
+
+
         #region Synopsis
 
         [Fact]
@@ -849,6 +860,43 @@ namespace System.CommandLine.Tests.Help
             help.Should().Contain(expected);
         }
 
+        [Fact]
+        public void Command_arguments_with_default_values_that_are_enumerable_display_pipe_delimited_list()
+        {
+            var command = new Command("the-command", "command help")
+            {
+                new Argument<List<int>>("filter-size", 
+                    getDefaultValue: () => new List<int>() { 0, 2, 4 })
+            };
+
+            _helpBuilder.Write(command);
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}<filter-size>{_columnPadding}[default: 0|2|4]{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Command_arguments_can_customize_default_value()
+        {
+            var argument = new Argument<string>("some-arg", getDefaultValue: () => "not 42");
+            var command = new Command("the-command", "command help")
+            {
+                argument
+            };
+
+            CustomizableHelpBuilder helpBuilder = GetCustomHelpBuilder(LargeMaxWidth);
+            helpBuilder.WithDefaultValue(argument, "42");
+
+            helpBuilder.Write(command);
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}<some-arg>{_columnPadding}[default: 42]{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
         #endregion Arguments
 
         #region Options
@@ -996,23 +1044,6 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}         {_columnPadding}option{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
-        }
-
-        public static int DifferAtIndex(string a, string b)
-        {
-            int index;
-            for (index = 0; index < Math.Min(a.Length, b.Length); index++)
-            {
-                if (a[index] != b[index])
-                {
-                    return index;
-                }
-            }
-            if (a.Length == b.Length)
-            {
-                return -1;
-            }
-            return index;
         }
 
         [Fact]
@@ -1208,27 +1239,44 @@ namespace System.CommandLine.Tests.Help
             help.Should().Contain($"[default: the-arg-value]");
         }
 
-        //[Fact]
-        //public void Option_help_can_be_requested_in_isolation()
-        //{
-        //    var option = new Option(
-        //        new[] { "-z", "-a", "--zzz", "--aaa" },
-        //        "from a to z");
-        //
-        //    _helpBuilder.Write(option);
-        //
-        //    using var _ = new AssertionScope();
-        //
-        //    var output = _console.Out.ToString();
-        //
-        //    output
-        //        .Should()
-        //        .NotContain("Options");
-        //
-        //    output
-        //        .Should()
-        //        .Be("-a, -z, --aaa, --zzz    from a to z");
-        //}
+        [Fact]
+        public void Option_arguments_with_default_values_that_are_enumerable_display_pipe_delimited_list()
+        {
+            var command = new Command("the-command", "command help")
+            {
+                new Option<List<int>>(
+                    "--filter-size",
+                    getDefaultValue: () => new List<int>() { 0, 2, 4 })
+                { }
+            };
+
+            _helpBuilder.Write(command);
+            var expected =
+                $"Options:{NewLine}" +
+                $"{_indentation}--filter-size <filter-size>{_columnPadding}[default: 0|2|4]{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Option_arguments_can_customize_default_value()
+        {
+            var option = new Option<string>("--the-option", getDefaultValue: () => "not 42");
+            var command = new Command("the-command", "command help")
+            {
+                option
+            };
+
+            CustomizableHelpBuilder helpBuilder = GetCustomHelpBuilder(LargeMaxWidth);
+            helpBuilder.WithDefaultValue("the-option", "42");
+
+            helpBuilder.Write(command);
+            var expected =
+                $"Options:{NewLine}" +
+                $"{_indentation}--the-option <the-option>{_columnPadding}[default: 42]{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
 
         #endregion Options
 
@@ -1519,7 +1567,32 @@ namespace System.CommandLine.Tests.Help
             public override void Write(ICommand command)
             {
                 base.Write(command);
-                base.Console.Out.Write(_theTextToAdd);
+                Console.Out.Write(_theTextToAdd);
+            }
+        }
+
+        private class CustomizableHelpBuilder : HelpBuilder
+        {
+            public CustomizableHelpBuilder(IConsole console) 
+                : base(console)
+            { }
+
+            private Dictionary<string, string> ArgumentDefaultValueProviders { get; }
+                = new();
+
+            public void WithDefaultValue(IArgument argument, string defaultValue)
+                => ArgumentDefaultValueProviders[argument.Name] = defaultValue;
+
+            public void WithDefaultValue(string argumentName, string defaultValue)
+                => ArgumentDefaultValueProviders[argumentName] = defaultValue;
+
+            protected override string GetArgumentDefaultValue(IArgument argument)
+            {
+                if (ArgumentDefaultValueProviders.TryGetValue(argument.Name, out string defaultValue))
+                {
+                    return defaultValue;
+                }
+                return base.GetArgumentDefaultValue(argument);
             }
         }
     }
