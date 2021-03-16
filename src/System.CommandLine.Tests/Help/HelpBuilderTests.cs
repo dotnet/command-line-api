@@ -52,16 +52,6 @@ namespace System.CommandLine.Tests.Help
             );
         }
 
-        private CustomizableHelpBuilder GetCustomHelpBuilder(int maxWidth)
-        {
-            _console.WindowWidth = maxWidth;
-            return new CustomizableHelpBuilder(
-                console: _console
-            //columnGutter: ColumnGutterWidth,
-            //indentationSize: IndentationWidth,
-            );
-        }
-
 
         #region Synopsis
 
@@ -886,10 +876,9 @@ namespace System.CommandLine.Tests.Help
                 argument
             };
 
-            CustomizableHelpBuilder helpBuilder = GetCustomHelpBuilder(LargeMaxWidth);
-            helpBuilder.WithDefaultValue(argument, "42");
+            _helpBuilder.Customize(argument, defaultValue: "42");
 
-            helpBuilder.Write(command);
+            _helpBuilder.Write(command);
             var expected =
                 $"Arguments:{NewLine}" +
                 $"{_indentation}<some-arg>{_columnPadding}[default: 42]{NewLine}{NewLine}";
@@ -1265,21 +1254,20 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option<string[]>(
                     "--prefixes",
-                    getDefaultValue: () => new[]{ "^(TODO|BUG|HACK)" })
+                    getDefaultValue: () => new[]{ "^(TODO|BUG)", "^HACK" })
                 { }
             };
 
             _helpBuilder.Write(command);
             var expected =
                 $"Options:{NewLine}" +
-                $"{_indentation}--prefixes <prefixes>{_columnPadding}[default: ^(TODO|BUG|HACK)]{NewLine}{NewLine}";
+                $"{_indentation}--prefixes <prefixes>{_columnPadding}[default: ^(TODO|BUG)|^HACK]{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
 
-
         [Fact]
-        public void Option_arguments_can_customize_default_value()
+        public void Option_can_customize_default_value()
         {
             var option = new Option<string>("--the-option", getDefaultValue: () => "not 42");
             var command = new Command("the-command", "command help")
@@ -1287,13 +1275,50 @@ namespace System.CommandLine.Tests.Help
                 option
             };
 
-            CustomizableHelpBuilder helpBuilder = GetCustomHelpBuilder(LargeMaxWidth);
-            helpBuilder.WithDefaultValue("the-option", "42");
-
-            helpBuilder.Write(command);
+            _helpBuilder.Customize(option, defaultValue: "42");
+            
+            _helpBuilder.Write(command);
             var expected =
                 $"Options:{NewLine}" +
                 $"{_indentation}--the-option <the-option>{_columnPadding}[default: 42]{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Option_can_customize_name()
+        {
+            var option = new Option<string>("--the-option");
+            var command = new Command("the-command", "command help")
+            {
+                option
+            };
+
+            _helpBuilder.Customize(option, name: "other-name");
+
+            _helpBuilder.Write(command);
+            var expected =
+                $"Options:{NewLine}" +
+                $"{_indentation}other-name <the-option>{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Option_can_customize_aliases()
+        {
+            var option = new Option<string>(new[] { "--the-option", "--option", "--o" });
+            var command = new Command("the-command", "command help")
+            {
+                option
+            };
+
+            _helpBuilder.Customize(option, aliases: new[] { "--option", "--o" });
+
+            _helpBuilder.Write(command);
+            var expected =
+                $"Options:{NewLine}" +
+                $"{_indentation}--o, --option <the-option>{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -1588,31 +1613,6 @@ namespace System.CommandLine.Tests.Help
             {
                 base.Write(command);
                 Console.Out.Write(_theTextToAdd);
-            }
-        }
-
-        private class CustomizableHelpBuilder : HelpBuilder
-        {
-            public CustomizableHelpBuilder(IConsole console)
-                : base(console)
-            { }
-
-            private Dictionary<string, string> ArgumentDefaultValueProviders { get; }
-                = new();
-
-            public void WithDefaultValue(IArgument argument, string defaultValue)
-                => ArgumentDefaultValueProviders[argument.Name] = defaultValue;
-
-            public void WithDefaultValue(string argumentName, string defaultValue)
-                => ArgumentDefaultValueProviders[argumentName] = defaultValue;
-
-            protected override string GetArgumentDefaultValue(IArgument argument)
-            {
-                if (ArgumentDefaultValueProviders.TryGetValue(argument.Name, out string defaultValue))
-                {
-                    return defaultValue;
-                }
-                return base.GetArgumentDefaultValue(argument);
             }
         }
     }

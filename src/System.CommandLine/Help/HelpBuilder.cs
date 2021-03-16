@@ -9,9 +9,13 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
+
     public class HelpBuilder : IHelpBuilder
     {
         private const string Indent = "  ";
+
+        private Dictionary<ISymbol, Customization> Customizations { get; }
+            = new Dictionary<ISymbol, Customization>();
 
         protected IConsole Console { get; }
 
@@ -34,10 +38,47 @@ namespace System.CommandLine.Help
 
             AddSynopsis(command);
             AddUsage(command);
-            AddArguments(command);
+            AddCommandArguments(command);
             AddOptions(command);
             AddSubcommands(command);
             AddAdditionalArguments(command);
+        }
+
+        public void Customize(IOption option,
+            Func<string?>? name = null,
+            Func<string[]?>? aliases = null,
+            Func<string?>? defaultValue = null)
+        {
+            if (option is null)
+            {
+                throw new ArgumentNullException(nameof(option));
+            }
+
+            Customizations[option] = new Customization(name, aliases, defaultValue);
+        }
+
+        public void Customize(ICommand command,
+            Func<string?>? name = null,
+            Func<string?>? defaultValue = null)
+        {
+            if (command is null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
+
+            Customizations[command] = new Customization(name, null, defaultValue);
+        }
+
+        public void Customize(IArgument argument,
+            Func<string?>? name = null,
+            Func<string?>? defaultValue = null)
+        {
+            if (argument is null)
+            {
+                throw new ArgumentNullException(nameof(argument));
+            }
+
+            Customizations[argument] = new Customization(name, null, defaultValue);
         }
 
         protected virtual void AddSynopsis(ICommand command)
@@ -89,7 +130,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        protected virtual void AddArguments(ICommand command)
+        protected virtual void AddCommandArguments(ICommand command)
         {
             //TODO: This shows all parent arguments not just the first level
             (string, string)[]? commandArguments =
@@ -113,7 +154,21 @@ namespace System.CommandLine.Help
                 {
                     string argumentDescriptor = ArgumentDescriptor(argument);
 
-                    yield return (argumentDescriptor, string.Join(" ", GetArgumentDescription(argument)));
+                    yield return (argumentDescriptor, string.Join(" ", GetArgumentDescription(command, argument)));
+                }
+            }
+
+            IEnumerable<string> GetArgumentDescription(IIdentifierSymbol parent, IArgument argument)
+            {
+                string? description = argument.Description;
+                if (!string.IsNullOrWhiteSpace(description))
+                {
+                    yield return description!;
+                }
+
+                if (argument.HasDefaultValue)
+                {
+                    yield return $"[{GetArgumentDefaultValue(parent, argument, true)}]";
                 }
             }
         }
@@ -168,15 +223,10 @@ namespace System.CommandLine.Help
             {
                 Console.Out.WriteLine(name);
             }
-            WriteIndented(description);
-        }
-
-        protected void WriteIndented(string? text)
-        {
-            if (!string.IsNullOrWhiteSpace(text))
+            if (!string.IsNullOrWhiteSpace(description))
             {
                 int maxWidth = GetConsoleWindowWidth(Console) - Indent.Length;
-                foreach (var part in WrapItem(text!, maxWidth))
+                foreach (var part in WrapItem(description!, maxWidth))
                 {
                     Console.Out.Write(Indent);
                     Console.Out.WriteLine(part);
@@ -254,14 +304,19 @@ namespace System.CommandLine.Help
             //TODO: allow for more customization of this layout...
             if (items.Length == 0) return;
             int windowWidth = GetConsoleWindowWidth(Console);
-            //int firstColumnWidth = Math.Min(items.Select(x => x.First.Length).Max(), windowWidth / 2 - Indent.Length);
+
             int firstColumnWidth = items.Select(x => x.First.Length).Max();
-            int firstColumnMaxWidth = windowWidth / 2 - Indent.Length;
-            if (firstColumnWidth > firstColumnMaxWidth)
+            int secondColumnWidth = items.Select(x => x.Second.Length).Max();
+
+            if (firstColumnWidth + secondColumnWidth + Indent.Length + Indent.Length > windowWidth)
             {
-                firstColumnWidth = items.SelectMany(x => WrapItem(x.First, firstColumnMaxWidth).Select(x => x.Length)).Max();
+                int firstColumnMaxWidth = windowWidth / 2 - Indent.Length;
+                if (firstColumnWidth > firstColumnMaxWidth)
+                {
+                    firstColumnWidth = items.SelectMany(x => WrapItem(x.First, firstColumnMaxWidth).Select(x => x.Length)).Max();
+                }
+                secondColumnWidth = windowWidth - firstColumnWidth - Indent.Length - Indent.Length;
             }
-            int secondColumnWidth = windowWidth - firstColumnWidth - Indent.Length - Indent.Length;
 
             foreach (var (name, value) in items)
             {
@@ -344,16 +399,7 @@ namespace System.CommandLine.Help
 
         private (string, string) GetSymbolParts(IIdentifierSymbol symbol)
         {
-            var rawAliases = symbol
-                             .Aliases
-                             .Select(r => r.SplitPrefix())
-                             .OrderBy(r => r.prefix, StringComparer.OrdinalIgnoreCase)
-                             .ThenBy(r => r.alias, StringComparer.OrdinalIgnoreCase)
-                             .GroupBy(t => t.alias)
-                             .Select(t => t.First())
-                             .Select(t => $"{t.prefix}{t.alias}");
-
-            var invocation = string.Join(", ", rawAliases);
+            string invocation = GetInvocation();
 
             foreach (var argument in symbol.Arguments())
             {
@@ -382,57 +428,86 @@ namespace System.CommandLine.Help
                 {
                     yield return description!;
                 }
-                string argumentsDescription = GetArgumentsDescription(symbol.Arguments());
+                string argumentsDescription = GetArgumentsDescription(symbol);
                 if (!string.IsNullOrWhiteSpace(argumentsDescription))
                 {
                     yield return argumentsDescription;
                 }
             }
-        }
 
-        private string GetArgumentsDescription(IEnumerable<IArgument> arguments)
-        {
-            var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
-
-            if (defaultArguments.Length == 0) return "";
-
-            var isSingleArgument = defaultArguments.Length == 1;
-            var argumentDefaultValues = defaultArguments
-                .Select(argument => GetArgumentDefaultValue(argument, isSingleArgument));
-            return $"[{string.Join(", ", argumentDefaultValues)}]";
-        }
-
-        private IEnumerable<string> GetArgumentDescription(IArgument argument)
-        {
-            string? description = argument.Description;
-            if (!string.IsNullOrWhiteSpace(description))
+            IReadOnlyCollection<string> GetAliases()
             {
-                yield return description!;
+                if (Customizations.TryGetValue(symbol, out Customization customization) &&
+                    customization.GetAliases?.Invoke() is { } setAliases)
+                {
+                    return setAliases;
+                }
+                return symbol.Aliases;
             }
 
-            if (argument.HasDefaultValue)
+            string GetInvocation()
             {
-                yield return $"[{GetArgumentDefaultValue(argument, true)}]";
+                if (Customizations.TryGetValue(symbol, out Customization customization) &&
+                    customization.GetName?.Invoke() is { } setName)
+                {
+                    return setName;
+                }
+                var rawAliases = GetAliases()
+                                 .Select(r => r.SplitPrefix())
+                                 .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
+                                 .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
+                                 .GroupBy(t => t.Alias)
+                                 .Select(t => t.First())
+                                 .Select(t => $"{t.Prefix}{t.Alias}");
+
+                return string.Join(", ", rawAliases);
+            }
+
+            string GetArgumentsDescription(IIdentifierSymbol symbol)
+            {
+                IEnumerable<IArgument> arguments = symbol.Arguments();
+                var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
+
+                if (defaultArguments.Length == 0) return "";
+
+                var isSingleArgument = defaultArguments.Length == 1;
+                var argumentDefaultValues = defaultArguments
+                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument));
+                return $"[{string.Join(", ", argumentDefaultValues)}]";
             }
         }
 
-        private string GetArgumentDefaultValue(IArgument argument, bool displayArgumentName)
+        private string GetArgumentDefaultValue(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName)
         {
+            string? defaultValue;
+            if (Customizations.TryGetValue(parent, out Customization customization) &&
+                customization.GetDefaultValue?.Invoke() is { } parentSetDefaultValue)
+            {
+                defaultValue = parentSetDefaultValue;
+            }
+            else if (Customizations.TryGetValue(argument, out customization) &&
+                customization.GetDefaultValue?.Invoke() is { } setDefaultValue)
+            {
+                defaultValue = setDefaultValue;
+            }
+            else
+            {
+                object? argumentDefaultValue = argument.GetDefaultValue();
+                if (argumentDefaultValue is IEnumerable enumerable && !(argumentDefaultValue is string))
+                {
+                    defaultValue =  string.Join("|", enumerable.OfType<object>().ToArray());
+                }
+                else
+                {
+                    defaultValue = argumentDefaultValue?.ToString();
+                }
+            }
+
             string name = displayArgumentName ?
                 Resources.Instance.HelpArgumentDefaultValueTitle() :
                 argument.Name;
 
-            return $"{name}: {GetArgumentDefaultValue(argument)}";
-        }
-
-        protected virtual string? GetArgumentDefaultValue(IArgument argument)
-        {
-            object? defaultValue = argument.GetDefaultValue();
-            if (defaultValue is IEnumerable enumerable && !(defaultValue is string))
-            {
-                return string.Join("|", enumerable.OfType<object>().ToArray());
-            }
-            return defaultValue?.ToString();
+            return $"{name}: {defaultValue}";
         }
 
         protected virtual string ArgumentDescriptor(IArgument argument)
@@ -471,6 +546,22 @@ namespace System.CommandLine.Help
             {
                 return int.MaxValue;
             }
+        }
+
+        private class Customization
+        {
+            public Customization(Func<string?>? getName,
+                Func<string[]?>? getAliases,
+                Func<string?>? getDefaultValue)
+            {
+                GetName = getName;
+                GetAliases = getAliases;
+                GetDefaultValue = getDefaultValue;
+            }
+
+            public Func<string?>? GetName { get; }
+            public Func<string[]?>? GetAliases { get; }
+            public Func<string?>? GetDefaultValue { get; }
         }
     }
 }
