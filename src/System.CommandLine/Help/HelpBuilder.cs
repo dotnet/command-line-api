@@ -9,7 +9,6 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
-
     public class HelpBuilder : IHelpBuilder
     {
         private const string Indent = "  ";
@@ -89,9 +88,14 @@ namespace System.CommandLine.Help
 
         protected virtual void AddUsage(ICommand command)
         {
-            string description = string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
+            string description = GetUsage(command);
             WriteHeading(Resources.Instance.HelpUsageTile(), description);
             Console.Out.WriteLine();
+        }
+
+        protected string GetUsage(ICommand command)
+        {
+            return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
 
             IEnumerable<string> GetUsageParts()
             {
@@ -132,13 +136,7 @@ namespace System.CommandLine.Help
 
         protected virtual void AddCommandArguments(ICommand command)
         {
-            //TODO: This shows all parent arguments not just the first level
-            (string, string)[]? commandArguments =
-                    command.RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
-                    .Reverse()
-                    .SelectMany(GetArguments)
-                    .Distinct()
-                    .ToArray();
+            HelpItem[] commandArguments = GetCommandArguments(command).ToArray();
 
             if (commandArguments.Length > 0)
             {
@@ -146,15 +144,25 @@ namespace System.CommandLine.Help
                 RenderAsColumns(commandArguments);
                 Console.Out.WriteLine();
             }
+        }
 
-            IEnumerable<(string, string)> GetArguments(ICommand command)
+        protected IEnumerable<HelpItem> GetCommandArguments(ICommand command)
+        {
+            //TODO: This shows all parent arguments not just the first level
+            return command.RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
+                    .Reverse()
+                    .SelectMany(GetArguments)
+                    .Distinct();
+
+
+            IEnumerable<HelpItem> GetArguments(ICommand command)
             {
                 var arguments = command.Arguments.Where(x => !x.IsHidden).ToList();
                 foreach (IArgument argument in arguments)
                 {
                     string argumentDescriptor = ArgumentDescriptor(argument);
 
-                    yield return (argumentDescriptor, string.Join(" ", GetArgumentDescription(command, argument)));
+                    yield return new HelpItem(argumentDescriptor, string.Join(" ", GetArgumentDescription(command, argument)));
                 }
             }
 
@@ -175,11 +183,7 @@ namespace System.CommandLine.Help
 
         protected virtual void AddOptions(ICommand command)
         {
-            var options = command
-                          .Options
-                          .Where(x => !x.IsHidden)
-                          .Select(GetSymbolParts)
-                          .ToArray();
+            var options = GetOptions(command).ToArray();
 
             if (options.Length > 0)
             {
@@ -189,14 +193,12 @@ namespace System.CommandLine.Help
             }
         }
 
+        protected IEnumerable<HelpItem> GetOptions(ICommand command)
+            => command.Options.Where(x => !x.IsHidden).Select(GetHelpItem);
+
         protected virtual void AddSubcommands(ICommand command)
         {
-            var subcommands = command
-                              .Children
-                              .OfType<ICommand>()
-                              .Where(x => !x.IsHidden)
-                              .Select(GetSymbolParts)
-                              .ToArray();
+            var subcommands = GetSubcommands(command).ToArray();
 
             if (subcommands.Length > 0)
             {
@@ -205,6 +207,9 @@ namespace System.CommandLine.Help
                 Console.Out.WriteLine();
             }
         }
+
+        protected IEnumerable<HelpItem> GetSubcommands(ICommand command)
+            => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(GetHelpItem);
 
         protected virtual void AddAdditionalArguments(ICommand command)
         {
@@ -299,21 +304,21 @@ namespace System.CommandLine.Help
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
-        private void RenderAsColumns(params (string First, string Second)[] items)
+        private void RenderAsColumns(params HelpItem[] items)
         {
             //TODO: allow for more customization of this layout...
             if (items.Length == 0) return;
             int windowWidth = GetConsoleWindowWidth(Console);
 
-            int firstColumnWidth = items.Select(x => x.First.Length).Max();
-            int secondColumnWidth = items.Select(x => x.Second.Length).Max();
+            int firstColumnWidth = items.Select(x => x.Name.Length).Max();
+            int secondColumnWidth = items.Select(x => x.Value.Length).Max();
 
             if (firstColumnWidth + secondColumnWidth + Indent.Length + Indent.Length > windowWidth)
             {
                 int firstColumnMaxWidth = windowWidth / 2 - Indent.Length;
                 if (firstColumnWidth > firstColumnMaxWidth)
                 {
-                    firstColumnWidth = items.SelectMany(x => WrapItem(x.First, firstColumnMaxWidth).Select(x => x.Length)).Max();
+                    firstColumnWidth = items.SelectMany(x => WrapItem(x.Name, firstColumnMaxWidth).Select(x => x.Length)).Max();
                 }
                 secondColumnWidth = windowWidth - firstColumnWidth - Indent.Length - Indent.Length;
             }
@@ -397,7 +402,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        private (string, string) GetSymbolParts(IIdentifierSymbol symbol)
+        protected HelpItem GetHelpItem(IIdentifierSymbol symbol)
         {
             string invocation = GetInvocation();
 
@@ -419,7 +424,7 @@ namespace System.CommandLine.Help
                 invocation += $" {Resources.Instance.HelpOptionsRequired()}";
             }
 
-            return (invocation, string.Join(" ", GetDescriptionParts(symbol)));
+            return new HelpItem(invocation, string.Join(" ", GetDescriptionParts(symbol)));
 
             IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol)
             {
