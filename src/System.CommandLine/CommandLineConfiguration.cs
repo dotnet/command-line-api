@@ -6,6 +6,7 @@ using System.CommandLine.Binding;
 using System.CommandLine.Collections;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
 
@@ -84,7 +85,15 @@ namespace System.CommandLine
             ValidationMessages = validationMessages ?? Resources.Instance;
             ResponseFileHandling = responseFileHandling;
             Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
-            HelpBuilderFactory = helpBuilderFactory ?? (context => new HelpBuilder(context.Console));
+            HelpBuilderFactory = helpBuilderFactory ?? (context => 
+            {
+                int maxWidth = int.MaxValue;
+                if (context.Console is SystemConsole systemConsole)
+                {
+                    maxWidth = systemConsole.GetWindowWidth();
+                }
+                return new HelpBuilder(context.Console, maxWidth);
+            });
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)

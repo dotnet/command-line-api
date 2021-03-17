@@ -17,10 +17,13 @@ namespace System.CommandLine.Help
             = new Dictionary<ISymbol, Customization>();
 
         protected IConsole Console { get; }
+        public int MaxWidth { get; }
 
-        public HelpBuilder(IConsole console)
+        public HelpBuilder(IConsole console, int maxWidth = int.MaxValue)
         {
             Console = console ?? throw new ArgumentNullException(nameof(console));
+            if (maxWidth <= 0) throw new ArgumentOutOfRangeException(nameof(maxWidth), "Max width must be positive");
+            MaxWidth = maxWidth;
         }
 
         public virtual void Write(ICommand command)
@@ -229,7 +232,7 @@ namespace System.CommandLine.Help
             }
             if (!string.IsNullOrWhiteSpace(description))
             {
-                int maxWidth = GetConsoleWindowWidth(Console) - Indent.Length;
+                int maxWidth = MaxWidth - Indent.Length;
                 foreach (var part in WrapItem(description!, maxWidth))
                 {
                     Console.Out.Write(Indent);
@@ -306,7 +309,7 @@ namespace System.CommandLine.Help
         protected void RenderAsColumns(params HelpItem[] items)
         {
             if (items.Length == 0) return;
-            int windowWidth = GetConsoleWindowWidth(Console);
+            int windowWidth = MaxWidth;
 
             int firstColumnWidth = items.Select(x => x.Descriptor.Length).Max();
             int secondColumnWidth = items.Select(x => x.Description.Length).Max();
@@ -531,18 +534,6 @@ namespace System.CommandLine.Help
                 return $"<{descriptor}>";
             }
             return descriptor;
-        }
-
-        private int GetConsoleWindowWidth(IConsole console)
-        {
-            if (console is IConsoleWindow consoleWindow)
-            {
-                return consoleWindow.GetWindowWidth();
-            }
-            else
-            {
-                return int.MaxValue;
-            }
         }
 
         private class Customization

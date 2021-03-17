@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.IO
 {
-    public class SystemConsole : IConsole, IConsoleWindow
+    public class SystemConsole : IConsole
     {
         public SystemConsole()
         {

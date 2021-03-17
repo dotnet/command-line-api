@@ -44,9 +44,9 @@ namespace System.CommandLine.Tests.Help
 
         private HelpBuilder GetHelpBuilder(int maxWidth)
         {
-            _console.WindowWidth = maxWidth;
             return new HelpBuilder(
-                console: _console
+                console: _console,
+                maxWidth
             //columnGutter: ColumnGutterWidth,
             //indentationSize: IndentationWidth,
             );
@@ -144,7 +144,7 @@ namespace System.CommandLine.Tests.Help
             var rootCommand = new RootCommand();
             rootCommand.AddCommand(command);
 
-            new HelpBuilder(_console).Write(command);
+            new HelpBuilder(_console, LargeMaxWidth).Write(command);
 
             var expected =
                 $"Usage:{NewLine}" +
@@ -1581,11 +1581,22 @@ namespace System.CommandLine.Tests.Help
             help.Should().Contain($"[the-arg: the-arg-value, the-other-arg: the-other-arg-value]");
         }
 
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(int.MinValue)]
+        public void Constructor_max_width_must_be_positive(int maxWidth)
+        {
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new HelpBuilder(_console, maxWidth));
+            Assert.Equal("maxWidth", ex.ParamName);
+        }
+
         private class CustomHelpBuilderThatAddsTextAfterDefaultText : HelpBuilder
         {
             private readonly string _theTextToAdd;
 
-            public CustomHelpBuilderThatAddsTextAfterDefaultText(IConsole console, string theTextToAdd) : base(console)
+            public CustomHelpBuilderThatAddsTextAfterDefaultText(IConsole console, string theTextToAdd) 
+                : base(console)
             {
                 _theTextToAdd = theTextToAdd;
             }
