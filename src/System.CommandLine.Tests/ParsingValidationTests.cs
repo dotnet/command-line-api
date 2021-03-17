@@ -383,6 +383,77 @@ namespace System.CommandLine.Tests
             }
         }
 
+        public class FileNameValidity
+        {
+            [Fact]
+            public void LegalFileNamesOnly_rejects_command_arguments_containing_invalid_file_name_characters()
+            {
+                var command = new Command("the-command")
+                {
+                    new Argument<string>().LegalFileNamesOnly()
+                };
+
+                var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
+
+                var result = command.Parse($"the-command {invalidCharacter}");
+
+                result.Errors
+                      .Should()
+                      .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
+                                    e.Message == $"Character not allowed in a file name: {invalidCharacter}");
+            }
+
+            [Fact]
+            public void LegalFileNamesOnly_rejects_option_arguments_containing_invalid_file_name_characters()
+            {
+                var command = new Command("the-command")
+                {
+                    new Option<string>("-x").LegalFileNamesOnly()
+                };
+
+                var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
+
+                var result = command.Parse($"the-command -x {invalidCharacter}");
+
+                result.Errors
+                      .Should()
+                      .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
+                                    e.Message == $"Character not allowed in a file name: {invalidCharacter}");
+            }
+
+            [Fact]
+            public void LegalFileNamesOnly_accepts_command_arguments_containing_valid_file_name_characters()
+            {
+                var command = new Command("the-command")
+                {
+                    new Argument<string[]>().LegalFileNamesOnly()
+                };
+
+                var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
+                var validNonExistingFileName = Guid.NewGuid().ToString();
+
+                var result = command.Parse($"the-command {validFileName} {validNonExistingFileName}");
+
+                result.Errors.Should().BeEmpty();
+            }
+
+            [Fact]
+            public void LegalFileNamesOnly_accepts_option_arguments_containing_valid_file_name_characters()
+            {
+                var command = new Command("the-command")
+                {
+                    new Option<string[]>("-x").LegalFileNamesOnly()
+                };
+
+                var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
+                var validNonExistingFileName = Guid.NewGuid().ToString();
+
+                var result = command.Parse($"the-command -x {validFileName} {validNonExistingFileName}");
+
+                result.Errors.Should().BeEmpty();
+            }
+        }
+
         public class FileExistence
         {
             [Fact]
