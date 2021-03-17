@@ -7,26 +7,25 @@ namespace System.CommandLine.Help
     {
         public static void Customize(this HelpBuilder helpBuilder, 
             IOption option, 
-            string? name = null, 
-            string[]? aliases = null,
+            string? descriptor = null, 
             string? defaultValue = null)
         {
-            helpBuilder.Customize(option, () => name, () => aliases, () => defaultValue);
+            helpBuilder.Customize(option, () => descriptor, () => defaultValue);
         }
 
         public static void Customize(this HelpBuilder helpBuilder,
             ICommand command,
-            string? name = null)
+            string? descriptor = null)
         {
-            helpBuilder.Customize(command, () => name);
+            helpBuilder.Customize(command, () => descriptor);
         }
 
         public static void Customize(this HelpBuilder helpBuilder,
             IArgument argument,
-            string? name = null,
+            string? descriptor = null,
             string? defaultValue = null)
         {
-            helpBuilder.Customize(argument, () => name, () => defaultValue);
+            helpBuilder.Customize(argument, () => descriptor, () => defaultValue);
         }
     }
 }

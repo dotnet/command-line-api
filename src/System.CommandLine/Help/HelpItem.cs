@@ -7,19 +7,19 @@ namespace System.CommandLine.Help
 {
     public class HelpItem : IEquatable<HelpItem?>
     {
-        public string Name { get; }
-        public string Value { get; }
+        public string Descriptor { get; }
+        public string Description { get; }
 
         public HelpItem(string name, string value)
         {
-            Name = name;
-            Value = value;
+            Descriptor = name;
+            Description = value;
         }
 
-        public void Deconstruct(out string name, out string value)
+        public void Deconstruct(out string descriptor, out string description)
         {
-            name = Name;
-            value = Value;
+            descriptor = Descriptor;
+            description = Description;
         }
 
         public override bool Equals(object? obj)
@@ -30,15 +30,15 @@ namespace System.CommandLine.Help
         public bool Equals(HelpItem? other)
         {
             return other != null &&
-                   Name == other.Name &&
-                   Value == other.Value;
+                   Descriptor == other.Descriptor &&
+                   Description == other.Description;
         }
 
         public override int GetHashCode()
         {
             int hashCode = -244751520;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Value);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Descriptor);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
             return hashCode;
         }
 

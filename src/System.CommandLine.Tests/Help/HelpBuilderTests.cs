@@ -1286,39 +1286,20 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Option_can_customize_name()
+        public void Option_can_customize_descriptor()
         {
-            var option = new Option<string>("--the-option");
+            var option = new Option<string>("--the-option", "option description");
             var command = new Command("the-command", "command help")
             {
                 option
             };
 
-            _helpBuilder.Customize(option, name: "other-name");
+            _helpBuilder.Customize(option, descriptor: "other-name");
 
             _helpBuilder.Write(command);
             var expected =
                 $"Options:{NewLine}" +
-                $"{_indentation}other-name <the-option>{NewLine}{NewLine}";
-
-            _console.Out.ToString().Should().Contain(expected);
-        }
-
-        [Fact]
-        public void Option_can_customize_aliases()
-        {
-            var option = new Option<string>(new[] { "--the-option", "--option", "--o" });
-            var command = new Command("the-command", "command help")
-            {
-                option
-            };
-
-            _helpBuilder.Customize(option, aliases: new[] { "--option", "--o" });
-
-            _helpBuilder.Write(command);
-            var expected =
-                $"Options:{NewLine}" +
-                $"{_indentation}--o, --option <the-option>{NewLine}{NewLine}";
+                $"{_indentation}other-name{_columnPadding}option description{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
         }

@@ -44,8 +44,7 @@ namespace System.CommandLine.Help
         }
 
         public void Customize(IOption option,
-            Func<string?>? name = null,
-            Func<string[]?>? aliases = null,
+            Func<string?>? descriptor = null,
             Func<string?>? defaultValue = null)
         {
             if (option is null)
@@ -53,11 +52,11 @@ namespace System.CommandLine.Help
                 throw new ArgumentNullException(nameof(option));
             }
 
-            Customizations[option] = new Customization(name, aliases, defaultValue);
+            Customizations[option] = new Customization(descriptor, defaultValue);
         }
 
         public void Customize(ICommand command,
-            Func<string?>? name = null,
+            Func<string?>? descriptor = null,
             Func<string?>? defaultValue = null)
         {
             if (command is null)
@@ -65,11 +64,11 @@ namespace System.CommandLine.Help
                 throw new ArgumentNullException(nameof(command));
             }
 
-            Customizations[command] = new Customization(name, null, defaultValue);
+            Customizations[command] = new Customization(descriptor, defaultValue);
         }
 
         public void Customize(IArgument argument,
-            Func<string?>? name = null,
+            Func<string?>? descriptor = null,
             Func<string?>? defaultValue = null)
         {
             if (argument is null)
@@ -77,7 +76,7 @@ namespace System.CommandLine.Help
                 throw new ArgumentNullException(nameof(argument));
             }
 
-            Customizations[argument] = new Customization(name, null, defaultValue);
+            Customizations[argument] = new Customization(descriptor, defaultValue);
         }
 
         protected virtual void AddSynopsis(ICommand command)
@@ -160,7 +159,7 @@ namespace System.CommandLine.Help
                 var arguments = command.Arguments.Where(x => !x.IsHidden).ToList();
                 foreach (IArgument argument in arguments)
                 {
-                    string argumentDescriptor = ArgumentDescriptor(argument);
+                    string argumentDescriptor = GetArgumentDescriptor(argument);
 
                     yield return new HelpItem(argumentDescriptor, string.Join(" ", GetArgumentDescription(command, argument)));
                 }
@@ -222,11 +221,11 @@ namespace System.CommandLine.Help
                 Resources.Instance.HelpAdditionalArgumentsDescription());
         }
 
-        protected void WriteHeading(string name, string? description)
+        protected void WriteHeading(string descriptor, string? description)
         {
-            if (!string.IsNullOrWhiteSpace(name))
+            if (!string.IsNullOrWhiteSpace(descriptor))
             {
-                Console.Out.WriteLine(name);
+                Console.Out.WriteLine(descriptor);
             }
             if (!string.IsNullOrWhiteSpace(description))
             {
@@ -304,31 +303,30 @@ namespace System.CommandLine.Help
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
-        private void RenderAsColumns(params HelpItem[] items)
+        protected void RenderAsColumns(params HelpItem[] items)
         {
-            //TODO: allow for more customization of this layout...
             if (items.Length == 0) return;
             int windowWidth = GetConsoleWindowWidth(Console);
 
-            int firstColumnWidth = items.Select(x => x.Name.Length).Max();
-            int secondColumnWidth = items.Select(x => x.Value.Length).Max();
+            int firstColumnWidth = items.Select(x => x.Descriptor.Length).Max();
+            int secondColumnWidth = items.Select(x => x.Description.Length).Max();
 
             if (firstColumnWidth + secondColumnWidth + Indent.Length + Indent.Length > windowWidth)
             {
                 int firstColumnMaxWidth = windowWidth / 2 - Indent.Length;
                 if (firstColumnWidth > firstColumnMaxWidth)
                 {
-                    firstColumnWidth = items.SelectMany(x => WrapItem(x.Name, firstColumnMaxWidth).Select(x => x.Length)).Max();
+                    firstColumnWidth = items.SelectMany(x => WrapItem(x.Descriptor, firstColumnMaxWidth).Select(x => x.Length)).Max();
                 }
                 secondColumnWidth = windowWidth - firstColumnWidth - Indent.Length - Indent.Length;
             }
 
-            foreach (var (name, value) in items)
+            foreach (var (descriptor, description) in items)
             {
-                IEnumerable<string> nameParts = WrapItem(name, firstColumnWidth);
-                IEnumerable<string> valueParts = WrapItem(value, secondColumnWidth);
+                IEnumerable<string> descriptorParts = WrapItem(descriptor, firstColumnWidth);
+                IEnumerable<string> descriptionParts = WrapItem(description, secondColumnWidth);
 
-                foreach (var (first, second) in ZipWithEmpty(nameParts, valueParts))
+                foreach (var (first, second) in ZipWithEmpty(descriptorParts, descriptionParts))
                 {
                     Console.Out.Write($"{Indent}{first}");
                     if (!string.IsNullOrWhiteSpace(second))
@@ -404,27 +402,49 @@ namespace System.CommandLine.Help
 
         protected HelpItem GetHelpItem(IIdentifierSymbol symbol)
         {
-            string invocation = GetInvocation();
-
-            foreach (var argument in symbol.Arguments())
+            string descriptor;
+            if (Customizations.TryGetValue(symbol, out Customization customization) &&
+                    customization.GetDescriptor?.Invoke() is { } setDescriptor)
             {
-                if (!argument.IsHidden)
+                descriptor = setDescriptor;
+            }
+            else
+            {
+                var rawAliases = symbol.Aliases
+                                 .Select(r => r.SplitPrefix())
+                                 .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
+                                 .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
+                                 .GroupBy(t => t.Alias)
+                                 .Select(t => t.First())
+                                 .Select(t => $"{t.Prefix}{t.Alias}");
+
+                descriptor = string.Join(", ", rawAliases);
+
+                foreach (var argument in symbol.Arguments())
                 {
-                    var argumentDescriptor = ArgumentDescriptor(argument);
-                    if (!string.IsNullOrWhiteSpace(argumentDescriptor))
+                    if (!argument.IsHidden)
                     {
-                        invocation += $" {argumentDescriptor}";
+                        var argumentDescriptor = GetArgumentDescriptor(argument);
+                        if (!string.IsNullOrWhiteSpace(argumentDescriptor))
+                        {
+                            descriptor += $" {argumentDescriptor}";
+                        }
                     }
+                }
+
+                if (symbol is IOption option &&
+                    option.IsRequired)
+                {
+                    descriptor += $" {Resources.Instance.HelpOptionsRequired()}";
                 }
             }
 
-            if (symbol is IOption option &&
-                option.IsRequired)
-            {
-                invocation += $" {Resources.Instance.HelpOptionsRequired()}";
-            }
+            return new HelpItem(descriptor, GetDescription(symbol));
+        }
 
-            return new HelpItem(invocation, string.Join(" ", GetDescriptionParts(symbol)));
+        protected string GetDescription(IIdentifierSymbol symbol)
+        {
+            return string.Join(" ", GetDescriptionParts(symbol));
 
             IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol)
             {
@@ -438,34 +458,6 @@ namespace System.CommandLine.Help
                 {
                     yield return argumentsDescription;
                 }
-            }
-
-            IReadOnlyCollection<string> GetAliases()
-            {
-                if (Customizations.TryGetValue(symbol, out Customization customization) &&
-                    customization.GetAliases?.Invoke() is { } setAliases)
-                {
-                    return setAliases;
-                }
-                return symbol.Aliases;
-            }
-
-            string GetInvocation()
-            {
-                if (Customizations.TryGetValue(symbol, out Customization customization) &&
-                    customization.GetName?.Invoke() is { } setName)
-                {
-                    return setName;
-                }
-                var rawAliases = GetAliases()
-                                 .Select(r => r.SplitPrefix())
-                                 .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
-                                 .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
-                                 .GroupBy(t => t.Alias)
-                                 .Select(t => t.First())
-                                 .Select(t => $"{t.Prefix}{t.Alias}");
-
-                return string.Join(", ", rawAliases);
             }
 
             string GetArgumentsDescription(IIdentifierSymbol symbol)
@@ -515,7 +507,7 @@ namespace System.CommandLine.Help
             return $"{name}: {defaultValue}";
         }
 
-        protected virtual string ArgumentDescriptor(IArgument argument)
+        protected string GetArgumentDescriptor(IArgument argument)
         {
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
@@ -555,17 +547,14 @@ namespace System.CommandLine.Help
 
         private class Customization
         {
-            public Customization(Func<string?>? getName,
-                Func<string[]?>? getAliases,
+            public Customization(Func<string?>? getDescriptor,
                 Func<string?>? getDefaultValue)
             {
-                GetName = getName;
-                GetAliases = getAliases;
+                GetDescriptor = getDescriptor;
                 GetDefaultValue = getDefaultValue;
             }
 
-            public Func<string?>? GetName { get; }
-            public Func<string[]?>? GetAliases { get; }
+            public Func<string?>? GetDescriptor { get; }
             public Func<string?>? GetDefaultValue { get; }
         }
     }
