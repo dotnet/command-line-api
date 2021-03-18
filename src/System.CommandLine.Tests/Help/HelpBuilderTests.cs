@@ -21,22 +21,19 @@ namespace System.CommandLine.Tests.Help
     {
         private const int SmallMaxWidth = 70;
         private const int LargeMaxWidth = 200;
-        private const int WindowMargin = 2;
         private const int ColumnGutterWidth = 2;
         private const int IndentationWidth = 2;
 
         private readonly HelpBuilder _helpBuilder;
         private readonly TestConsole _console;
-        private readonly ITestOutputHelper _output;
         private readonly string _executableName;
         private readonly string _columnPadding;
         private readonly string _indentation;
 
-        public HelpBuilderTests(ITestOutputHelper output)
+        public HelpBuilderTests()
         {
             _console = new TestConsole();
             _helpBuilder = GetHelpBuilder(LargeMaxWidth);
-            _output = output;
             _columnPadding = new string(' ', ColumnGutterWidth);
             _indentation = new string(' ', IndentationWidth);
             _executableName = RootCommand.ExecutableName;
