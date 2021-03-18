@@ -46,40 +46,16 @@ namespace System.CommandLine.Help
             AddAdditionalArguments(command);
         }
 
-        public void Customize(IOption option,
+        protected internal void Customize(ISymbol symbol,
             Func<string?>? descriptor = null,
             Func<string?>? defaultValue = null)
         {
-            if (option is null)
+            if (symbol is null)
             {
-                throw new ArgumentNullException(nameof(option));
+                throw new ArgumentNullException(nameof(symbol));
             }
 
-            Customizations[option] = new Customization(descriptor, defaultValue);
-        }
-
-        public void Customize(ICommand command,
-            Func<string?>? descriptor = null,
-            Func<string?>? defaultValue = null)
-        {
-            if (command is null)
-            {
-                throw new ArgumentNullException(nameof(command));
-            }
-
-            Customizations[command] = new Customization(descriptor, defaultValue);
-        }
-
-        public void Customize(IArgument argument,
-            Func<string?>? descriptor = null,
-            Func<string?>? defaultValue = null)
-        {
-            if (argument is null)
-            {
-                throw new ArgumentNullException(nameof(argument));
-            }
-
-            Customizations[argument] = new Customization(descriptor, defaultValue);
+            Customizations[symbol] = new Customization(descriptor, defaultValue);
         }
 
         protected virtual void AddSynopsis(ICommand command)
@@ -407,7 +383,7 @@ namespace System.CommandLine.Help
         {
             string descriptor;
             if (Customizations.TryGetValue(symbol, out Customization customization) &&
-                    customization.GetDescriptor?.Invoke() is { } setDescriptor)
+                customization.GetDescriptor?.Invoke() is { } setDescriptor)
             {
                 descriptor = setDescriptor;
             }
@@ -512,14 +488,20 @@ namespace System.CommandLine.Help
 
         protected string GetArgumentDescriptor(IArgument argument)
         {
+            if (Customizations.TryGetValue(argument, out Customization customization) &&
+                customization.GetDescriptor?.Invoke() is { } setDescriptor)
+            {
+                return setDescriptor;
+            }
+
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
             {
                 return "";
             }
 
-            var suggestions = argument.GetSuggestions().ToArray();
             string descriptor;
+            var suggestions = argument.GetSuggestions().ToArray();
             if (suggestions.Length > 0)
             {
                 descriptor = string.Join("|", suggestions);

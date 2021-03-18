@@ -47,11 +47,8 @@ namespace System.CommandLine.Tests.Help
             return new HelpBuilder(
                 console: _console,
                 maxWidth
-            //columnGutter: ColumnGutterWidth,
-            //indentationSize: IndentationWidth,
             );
         }
-
 
         #region Synopsis
 
@@ -886,6 +883,25 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Command_arguments_can_customize_dedescriptor()
+        {
+            var argument = new Argument<string>("some-arg", getDefaultValue: () => "not 42");
+            var command = new Command("the-command", "command help")
+            {
+                argument
+            };
+
+            _helpBuilder.Customize(argument, descriptor: "some-other-arg");
+
+            _helpBuilder.Write(command);
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}some-other-arg{_columnPadding}[default: not 42]{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
+        }
+
         #endregion Arguments
 
         #region Options
@@ -1486,6 +1502,25 @@ namespace System.CommandLine.Tests.Help
 
             help.Should().NotContain("the-hidden");
             help.Should().Contain("the-visible");
+        }
+
+        [Fact]
+        public void Subcommand_can_customize_descriptor()
+        {
+            var subcommand = new Command("subcommand", "subcommand description");
+            var command = new Command("the-command", "command help")
+            {
+                subcommand
+            };
+
+            _helpBuilder.Customize(subcommand, descriptor: "other-name");
+
+            _helpBuilder.Write(command);
+            var expected =
+                $"Commands:{NewLine}" +
+                $"{_indentation}other-name{_columnPadding}subcommand description{NewLine}{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
         }
 
         #endregion Subcommands
