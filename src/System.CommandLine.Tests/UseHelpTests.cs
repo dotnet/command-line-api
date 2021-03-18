@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
@@ -210,6 +211,84 @@ namespace System.CommandLine.Tests
             parser2.Invoke(commandline, console2);
 
             console2.Should().ShowHelp();
+        }
+
+        [Fact]
+        public void UseHelp_allows_help_builder_to_be_customized()
+        {
+            var option = new Option<string>("-x");
+            var command = new RootCommand
+            {
+                option
+            };
+
+            var console = new TestConsole();
+
+            new CommandLineBuilder(command)
+                         .UseHelp<HelpBuilder>(builder =>
+                         {
+                             builder.Customize(option, descriptor: "-x (eXtreme)");
+                         })
+                         .Build()
+                         .Invoke("-h", console);
+
+            console.Should().ShowHelp();
+            console.Out.ToString().Should().Contain("-x (eXtreme)");
+        }
+
+        [Fact]
+        public void UseHelp_specifying_multiple_delegates_the_last_one_in_wins()
+        {
+            var option = new Option<string>("-x");
+            var command = new RootCommand
+            {
+                option
+            };
+
+            var console = new TestConsole();
+
+            new CommandLineBuilder(command)
+                         .UseHelp<HelpBuilder>(builder =>
+                         {
+                             builder.Customize(option, descriptor: "-x (eXtreme)");
+                         })
+                         .UseHelp<HelpBuilder>(null)
+                         .Build()
+                         .Invoke("-h", console);
+
+            console.Should().ShowHelp();
+            console.Out.ToString().Should().NotContain("-x (eXTreme)");
+        }
+
+        [Fact]
+        public void UseHelp_specifying_wrong_type_for_the_help_builder_throws_exception()
+        {
+            var option = new Option<string>("-x");
+            var command = new RootCommand
+            {
+                option
+            };
+
+
+            var console = new TestConsole();
+            var parser = new CommandLineBuilder(command)
+                         .UseHelp<HelpBuilder>(builder =>
+                         {
+                             builder.Customize(option, descriptor: "-x (eXtreme)");
+                         })
+                         .UseHelpBuilder(context => new CustomHelpBuilder())
+                         .Build();
+
+            Action action = () => parser.Invoke("-h", console);
+            action.Should().Throw<InvalidCastException>();
+        }
+
+        private class CustomHelpBuilder : IHelpBuilder
+        {
+            public void Write(ICommand command)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

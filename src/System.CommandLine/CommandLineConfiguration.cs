@@ -38,7 +38,8 @@ namespace System.CommandLine
             Resources? validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
-            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null)
+            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null,
+            Action<IHelpBuilder>? configureHelp = null)
         {
             if (symbols is null)
             {
@@ -94,6 +95,16 @@ namespace System.CommandLine
                 }
                 return new HelpBuilder(context.Console, maxWidth);
             });
+            if (configureHelp != null)
+            {
+                var factory = HelpBuilderFactory;
+                HelpBuilderFactory = context =>
+                {
+                    IHelpBuilder helpBuilder = factory(context);
+                    configureHelp(helpBuilder);
+                    return helpBuilder;
+                };
+            }
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)

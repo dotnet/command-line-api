@@ -902,6 +902,13 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Null_argument_on_customize_throws()
+        {
+            Action action = () => _helpBuilder.Customize((IArgument)null);
+            action.Should().Throw<ArgumentNullException>();
+        }
+
         #endregion Arguments
 
         #region Options
@@ -1320,6 +1327,13 @@ namespace System.CommandLine.Tests.Help
             _console.Out.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Null_option_on_customize_throws()
+        {
+            Action action = () => _helpBuilder.Customize((IOption)null);
+            action.Should().Throw<ArgumentNullException>();
+        }
+
         #endregion Options
 
         #region Subcommands
@@ -1521,6 +1535,13 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}other-name{_columnPadding}subcommand description{NewLine}{NewLine}";
 
             _console.Out.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Null_command_on_customize_throws()
+        {
+            Action action = () => _helpBuilder.Customize((ICommand)null);
+            action.Should().Throw<ArgumentNullException>();
         }
 
         #endregion Subcommands

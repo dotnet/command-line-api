@@ -44,7 +44,7 @@ namespace System.CommandLine.Help
 
         public static bool operator ==(HelpItem? left, HelpItem? right)
         {
-            return EqualityComparer<HelpItem>.Default.Equals(left, right);
+            return EqualityComparer<HelpItem?>.Default.Equals(left, right);
         }
 
         public static bool operator !=(HelpItem? left, HelpItem? right)
