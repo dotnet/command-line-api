@@ -116,5 +116,27 @@ namespace System.CommandLine.Hosting
 
             return builder;
         }
+
+        public static InvocationContext GetInvocationContext(this IHostBuilder hostBuilder)
+        {
+            _ = hostBuilder ?? throw new ArgumentNullException(nameof(hostBuilder));
+
+            if (hostBuilder.Properties.TryGetValue(typeof(InvocationContext), out var ctxObj) &&
+                ctxObj is InvocationContext invocationContext)
+                return invocationContext;
+
+            throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
+        }
+
+        public static InvocationContext GetInvocationContext(this HostBuilderContext context)
+        {
+            _ = context ?? throw new ArgumentNullException(nameof(context));
+
+            if (context.Properties.TryGetValue(typeof(InvocationContext), out var ctxObj) &&
+                ctxObj is InvocationContext invocationContext)
+                return invocationContext;
+
+            throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
+        }
     }
 }
