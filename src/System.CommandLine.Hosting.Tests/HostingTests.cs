@@ -254,5 +254,46 @@ namespace System.CommandLine.Hosting.Tests
                 Service.SomeValue = myArgument;
             }
         }
+
+        [Fact]
+        public static void GetHost_returns_non_null_instance_in_subsequent_middleware()
+        {
+            bool hostAsserted = false;
+            var parser = new CommandLineBuilder()
+                .UseHost()
+                .UseMiddleware((invCtx, next) =>
+                {
+                    IHost host = invCtx.GetHost();
+                    host.Should().NotBeNull();
+                    hostAsserted = true;
+
+                    return next(invCtx);
+                })
+                .Build();
+
+            _ = parser.Invoke(string.Empty);
+
+            hostAsserted.Should().BeTrue();
+        }
+
+        [Fact]
+        public static void GetHost_returns_null_when_no_host_in_invocation()
+        {
+            bool hostAsserted = false;
+            var parser = new CommandLineBuilder()
+                .UseMiddleware((invCtx, next) =>
+                {
+                    IHost host = invCtx.GetHost();
+                    host.Should().BeNull();
+                    hostAsserted = true;
+
+                    return next(invCtx);
+                })
+                .Build();
+
+            _ = parser.Invoke(string.Empty);
+
+            hostAsserted.Should().BeTrue();
+        }
     }
 }
