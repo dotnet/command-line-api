@@ -136,12 +136,14 @@ namespace System.CommandLine.Builder
             builder.AddMiddleware(async (context, next) =>
             {
                 var initialCancelToken = context.GetCancellationToken();
-                var repeatCancelTaskCompletionSource = new TaskCompletionSource<object>();
+                var repeatCancelTaskCompletionSource = new TaskCompletionSource<object>(
+                    TaskCreationOptions.RunContinuationsAsynchronously);
                 ConsoleCancelEventHandler repeatCancelEventHandler = (sender, e) =>
                 {
                     var newCountValue = Interlocked.Decrement(ref repeatThreshold);
                     if (newCountValue < 1)
                     {
+                        // Won't block because TCS specifies RunContinuationsAsynchronously
                         _ = repeatCancelTaskCompletionSource.TrySetCanceled();
                     }
                 };
@@ -153,10 +155,14 @@ namespace System.CommandLine.Builder
 
                 try
                 {
-                    using var nextTask = next(context);
-                    using var repeatCancelTask = repeatCancelTaskCompletionSource.Task;
+                    // Next invocation might be a synchronous implementation
+                    // Use Task.Run to be able to call Task.WhenAny.
+                    var nextTask = Task.Run(() => next(context));
+                    var repeatCancelTask = repeatCancelTaskCompletionSource.Task;
                     var returnedTask = await Task.WhenAny(nextTask, repeatCancelTask)
                         .ConfigureAwait(continueOnCapturedContext: false);
+                    // Will always execute synchronously, since task is guaranteed to be in final state
+                    returnedTask.GetAwaiter().GetResult();
                 }
                 finally
                 {
