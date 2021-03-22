@@ -16,7 +16,7 @@ Open a new console and run the following commands:
 Use dotnet tool to install the package
 
 ```
-dotnet add package System.CommandLine --prerelease
+> dotnet add package System.CommandLine --prerelease
 ```
 
 Or see more options on Nuget
@@ -97,4 +97,3 @@ The value for --file-option is: null
 This program is equivalent to the one demonstrated in [Your first app with System.CommandLine.DragonFruit](Your-first-app-with-System-CommandLine-DragonFruit.md).
 
 To explore its features, take a look at [Features: overview](Features-overview.md)
-
