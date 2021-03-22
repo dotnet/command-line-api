@@ -13,7 +13,7 @@ Open a new console and run the following commands:
 
 ## Install the System.CommandLine package
 
-Use dotnet tool to install the package
+Use `dotnet` to add the package to your project. From the project directory, run:
 
 ```console
 > dotnet add package System.CommandLine --prerelease
