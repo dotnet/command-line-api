@@ -15,7 +15,7 @@ Open a new console and run the following commands:
 
 Use dotnet tool to install the package
 
-```
+```console
 > dotnet add package System.CommandLine --prerelease
 ```
 
