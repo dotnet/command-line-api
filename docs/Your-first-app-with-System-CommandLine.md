@@ -13,6 +13,13 @@ Open a new console and run the following commands:
 
 ## Install the System.CommandLine package
 
+Use `dotnet` to add the package to your project. From the project directory, run:
+
+```console
+> dotnet add package System.CommandLine --prerelease
+```
+
+Or see more options on Nuget
 [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.svg)](https://nuget.org/packages/System.CommandLine)
 
 ## Add some code
@@ -90,4 +97,3 @@ The value for --file-option is: null
 This program is equivalent to the one demonstrated in [Your first app with System.CommandLine.DragonFruit](Your-first-app-with-System-CommandLine-DragonFruit.md).
 
 To explore its features, take a look at [Features: overview](Features-overview.md)
-
