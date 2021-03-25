@@ -105,7 +105,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return default!;
+            return (T)Binder.GetDefaultValue(argument.ArgumentType);
         }
 
         [return: MaybeNull]
@@ -117,7 +117,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return default;
+            return (T)Binder.GetDefaultValue(argument.ArgumentType);
         }
 
         [return: MaybeNull]
