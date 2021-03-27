@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+
 using Xunit;
 
 namespace System.CommandLine.Hosting.Tests
@@ -253,6 +254,117 @@ namespace System.CommandLine.Hosting.Tests
             {
                 Service.SomeValue = myArgument;
             }
+        }
+
+        [Fact]
+        public static void GetInvocationContext_returns_non_null_instance()
+        {
+            bool ctxAsserted = false;
+            var parser = new CommandLineBuilder()
+                .UseHost(hostBuilder =>
+                {
+                    InvocationContext ctx = hostBuilder.GetInvocationContext();
+                    ctx.Should().NotBeNull();
+                    ctxAsserted = true;
+                })
+                .Build();
+
+            _ = parser.Invoke(string.Empty);
+            ctxAsserted.Should().BeTrue();
+        }
+
+        [Fact]
+        public static void GetInvocationContext_in_ConfigureServices_returns_non_null_instance()
+        {
+            bool ctxAsserted = false;
+            var parser = new CommandLineBuilder()
+                .UseHost(hostBuilder =>
+                {
+                    hostBuilder.ConfigureServices((hostingCtx, services) =>
+                    {
+                        InvocationContext invocationCtx = hostingCtx.GetInvocationContext();
+                        invocationCtx.Should().NotBeNull();
+                        ctxAsserted = true;
+                    });
+                })
+                .Build();
+
+            _ = parser.Invoke(string.Empty);
+            ctxAsserted.Should().BeTrue();
+        }
+
+        [Fact]
+        public static void GetInvocationContext_returns_same_instance_as_outer_middleware()
+        {
+            InvocationContext ctxCustom = null;
+            InvocationContext ctxHosting = null;
+
+            var parser = new CommandLineBuilder()
+                .UseMiddleware((context, next) =>
+                {
+                    ctxCustom = context;
+                    return next(context);
+                })
+                .UseHost(hostBuilder =>
+                {
+                    ctxHosting = hostBuilder.GetInvocationContext();
+                })
+                .Build();
+
+            _ = parser.Invoke(string.Empty);
+
+            ctxHosting.Should().BeSameAs(ctxCustom);
+        }
+
+        [Fact]
+        public static void GetInvocationContext_in_ConfigureServices_returns_same_instance_as_outer_middleware()
+        {
+            InvocationContext ctxCustom = null;
+            InvocationContext ctxConfigureServices = null;
+
+            var parser = new CommandLineBuilder()
+                .UseMiddleware((context, next) =>
+                {
+                    ctxCustom = context;
+                    return next(context);
+                })
+                .UseHost(hostBuilder =>
+                {
+                    hostBuilder.ConfigureServices((hostingCtx, services) =>
+                    {
+                        ctxConfigureServices = hostingCtx.GetInvocationContext();
+                    });
+                })
+                .Build();
+
+            _ = parser.Invoke(string.Empty);
+
+            ctxConfigureServices.Should().BeSameAs(ctxCustom);
+        }
+
+        [Fact]
+        public static void GetInvocationContext_throws_if_not_within_invocation()
+        {
+            var hostBuilder = new HostBuilder();
+            hostBuilder.Invoking(b =>
+            {
+                _ = b.GetInvocationContext();
+            })
+                .Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public static void GetInvocationContext_in_ConfigureServices_throws_if_not_within_invocation()
+        {
+            new HostBuilder().Invoking(b =>
+            {
+                b.ConfigureServices((hostingCtx, services) =>
+                {
+                    _ = hostingCtx.GetInvocationContext();
+                });
+                _ = b.Build();
+            })
+                .Should().Throw<InvalidOperationException>();
         }
 
         [Fact]

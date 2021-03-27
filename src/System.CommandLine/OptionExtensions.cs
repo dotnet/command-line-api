@@ -101,6 +101,15 @@ namespace System.CommandLine
             return option;
         }
 
+        public static TOption LegalFileNamesOnly<TOption>(
+            this TOption option)
+            where TOption : Option
+        {
+            option.Argument.LegalFileNamesOnly();
+
+            return option;
+        }
+
         public static ParseResult Parse(
             this Option option,
             string commandLine) =>

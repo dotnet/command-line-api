@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Linq;
 using Xunit;
@@ -305,7 +306,6 @@ namespace System.CommandLine.Tests
                 .Be("Alias '--same' is already in use.");
         }
 
-
         [Fact]
         public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
         {
@@ -317,6 +317,142 @@ namespace System.CommandLine.Tests
             command.Aliases.Should().Contain("name");
             command.Aliases.Should().Contain("name");
         }
+
+        [Fact]
+        public void Command_argument_of_string_defaults_to_empty_when_not_specified()
+        {
+            var argument = new Argument<string>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.ValueForArgument(argument)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Command_argument_of_IEnumerable_of_T_defaults_to_empty_when_not_specified()
+        {
+            var argument = new Argument<IEnumerable<string>>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.ValueForArgument(argument)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Command_argument_of_Array_defaults_to_empty_when_not_specified()
+        {
+            var argument = new Argument<string[]>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.ValueForArgument(argument)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Command_argument_of_List_defaults_to_empty_when_not_specified()
+        {
+            var argument = new Argument<List<string>>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.ValueForArgument(argument)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Command_argument_of_IList_of_T_defaults_to_empty_when_not_specified()
+        {
+            var argument = new Argument<IList<string>>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.ValueForArgument(argument)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Command_argument_of_IList_defaults_to_empty_when_not_specified()
+        {
+            var argument = new Argument<System.Collections.IList>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.ValueForArgument(argument)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Command_argument_of_ICollection_defaults_to_empty_when_not_specified()
+        {
+            var argument = new Argument<System.Collections.ICollection>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.ValueForArgument(argument)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Command_argument_of_IEnumerable_defaults_to_empty_when_not_specified()
+        {
+            var argument = new Argument<System.Collections.IEnumerable>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.ValueForArgument(argument)
+                .Should()
+                .BeEmpty();
+        }
+
+        [Fact]
+        public void Command_argument_of_ICollection_of_T_defaults_to_empty_when_not_specified()
+        {
+            var argument = new Argument<ICollection<string>>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.ValueForArgument(argument)
+                .Should()
+                .BeEmpty();
+        }
+
 
         protected override Symbol CreateSymbol(string name) => new Command(name);
     }

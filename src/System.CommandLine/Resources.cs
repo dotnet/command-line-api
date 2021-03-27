@@ -46,6 +46,9 @@ namespace System.CommandLine
         public virtual string InvalidCharactersInPath(char invalidChar) =>
             GetResourceString(Properties.Resources.InvalidCharactersInPath, invalidChar);
 
+        public virtual string InvalidCharactersInFileName(char invalidChar) =>
+            GetResourceString(Properties.Resources.InvalidCharactersInFileName, invalidChar);
+
         public virtual string RequiredArgumentMissing(SymbolResult symbolResult) =>
             symbolResult is CommandResult
                 ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, symbolResult.Token().Value)
