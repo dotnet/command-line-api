@@ -138,5 +138,12 @@ namespace System.CommandLine.Hosting
 
             throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
         }
+
+        public static IHost GetHost(this InvocationContext invocationContext)
+        {
+            _ = invocationContext ?? throw new ArgumentNullException(paramName: nameof(invocationContext));
+            var hostModelBinder = new ModelBinder<IHost>();
+            return (IHost)hostModelBinder.CreateInstance(invocationContext.BindingContext);
+        }
     }
 }
