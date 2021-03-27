@@ -72,11 +72,13 @@ namespace System.CommandLine
         /// <param name="name">The name of the argument.</param>
         /// <param name="parse">A custom argument parser.</param>
         /// <param name="isDefault"><c>true</c> to use the <paramref name="parse"/> result as default value.</param>
+        /// <param name="description">The description of the argument, shown in help.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="parse"/> is null.</exception>
         public Argument(
             string? name,
             ParseArgument<T> parse, 
-            bool isDefault = false) : this()
+            bool isDefault = false,
+            string? description = null) : this()
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -108,6 +110,8 @@ namespace System.CommandLine
                     return false;
                 }
             };
+
+            Description = description;
         }
 
         /// <summary>
