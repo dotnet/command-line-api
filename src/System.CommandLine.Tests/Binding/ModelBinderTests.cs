@@ -548,6 +548,28 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public async Task Foo()
+        {
+            var rootCommand = new RootCommand("Collection arguments can be null when they are the only argument of a command.")
+            {
+                //new Argument<string>("id"),
+                new Argument<string[]>("names"),
+            };
+            rootCommand.Handler = CommandHandler.Create<string[]>(DoIt);
+
+            await rootCommand.InvokeAsync("");
+
+            static int DoIt(string[] names)
+            {
+                if (names == null)
+                    Console.WriteLine("Null!");
+                else
+                    Console.WriteLine("Not null!");
+                return 0;
+            }
+        }
+
+        [Fact]
         public void Custom_ModelBinders_specified_via_BindingContext_can_be_used_for_option_binding()
         {
             ClassWithSetter<int> boundInstance = null;
