@@ -552,19 +552,17 @@ namespace System.CommandLine.Tests.Binding
         {
             var rootCommand = new RootCommand("Collection arguments can be null when they are the only argument of a command.")
             {
-                //new Argument<string>("id"),
                 new Argument<string[]>("names"),
             };
             rootCommand.Handler = CommandHandler.Create<string[]>(DoIt);
-
+            string[] passedNames = null;
             await rootCommand.InvokeAsync("");
 
-            static int DoIt(string[] names)
+            passedNames.Should().BeEmpty();
+
+            int DoIt(string[] names)
             {
-                if (names == null)
-                    Console.WriteLine("Null!");
-                else
-                    Console.WriteLine("Not null!");
+                passedNames = names;
                 return 0;
             }
         }
