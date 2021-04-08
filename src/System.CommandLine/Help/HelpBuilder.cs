@@ -82,12 +82,13 @@ namespace System.CommandLine.Help
                     command
                         .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
                         .Reverse();
-                
+
                 var displayOptionTitle = command.Options.Any(x => !x.IsHidden);
-                
+
                 foreach (ICommand parentCommand in parentCommands)
                 {
                     yield return parentCommand.Name;
+
                     if (displayOptionTitle)
                     {
                         yield return Resources.Instance.HelpUsageOptionsTile();
@@ -96,6 +97,7 @@ namespace System.CommandLine.Help
 
                     yield return FormatArgumentUsage(parentCommand.Arguments);
                 }
+
 
                 var hasCommandWithHelp = command.Children
                     .OfType<ICommand>()
@@ -472,7 +474,7 @@ namespace System.CommandLine.Help
                 object? argumentDefaultValue = argument.GetDefaultValue();
                 if (argumentDefaultValue is IEnumerable enumerable && !(argumentDefaultValue is string))
                 {
-                    defaultValue =  string.Join("|", enumerable.OfType<object>().ToArray());
+                    defaultValue = string.Join("|", enumerable.OfType<object>().ToArray());
                 }
                 else
                 {

@@ -10,10 +10,10 @@ namespace System.CommandLine.Help
         public string Descriptor { get; }
         public string Description { get; }
 
-        public HelpItem(string name, string value)
+        public HelpItem(string descriptor, string description)
         {
-            Descriptor = name;
-            Description = value;
+            Descriptor = descriptor;
+            Description = description;
         }
 
         public void Deconstruct(out string descriptor, out string description)
