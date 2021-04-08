@@ -77,23 +77,24 @@ namespace System.CommandLine.Help
 
             IEnumerable<string> GetUsageParts()
             {
+
                 IEnumerable<ICommand> parentCommands =
                     command
                         .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
                         .Reverse();
-
-                foreach (var subcommand in parentCommands)
+                
+                var displayOptionTitle = command.Options.Any(x => !x.IsHidden);
+                
+                foreach (ICommand parentCommand in parentCommands)
                 {
-                    yield return subcommand.Name;
+                    yield return parentCommand.Name;
+                    if (displayOptionTitle)
+                    {
+                        yield return Resources.Instance.HelpUsageOptionsTile();
+                        displayOptionTitle = false;
+                    }
 
-                    yield return FormatArgumentUsage(subcommand.Arguments);
-                }
-
-                var hasOptionWithHelp = command.Options.Any(x => !x.IsHidden);
-
-                if (hasOptionWithHelp)
-                {
-                    yield return Resources.Instance.HelpUsageOptionsTile();
+                    yield return FormatArgumentUsage(parentCommand.Arguments);
                 }
 
                 var hasCommandWithHelp = command.Children

@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand");
+            _console.Out.ToString().Should().Contain($"{RootCommand.ExecutableName} [options] command subcommand");
         }
          
         [Fact]
