@@ -548,6 +548,86 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public async Task Bound_array_command_arguments_default_to_an_empty_array_when_not_specified()
+        {
+            var rootCommand = new RootCommand("Command")
+            {
+                new Argument<string[]>("names"),
+            };
+            rootCommand.Handler = CommandHandler.Create<string[]>(Handler);
+            string[] passedNames = null;
+            await rootCommand.InvokeAsync("");
+
+            passedNames.Should().BeEmpty();
+
+            int Handler(string[] names)
+            {
+                passedNames = names;
+                return 0;
+            }
+        }
+
+        [Fact]
+        public async Task Bound_enumerable_command_arguments_default_to_an_empty_array_when_not_specified()
+        {
+            var rootCommand = new RootCommand("Command")
+            {
+                new Argument<IEnumerable<string>>("names"),
+            };
+            rootCommand.Handler = CommandHandler.Create<IEnumerable<string>>(Handler);
+            IEnumerable<string> passedNames = null;
+            await rootCommand.InvokeAsync("");
+
+            passedNames.Should().BeEmpty();
+
+            int Handler(IEnumerable<string> names)
+            {
+                passedNames = names;
+                return 0;
+            }
+        }
+
+        [Fact]
+        public async Task Bound_array_options_default_to_an_empty_array_when_not_specified()
+        {
+            var rootCommand = new RootCommand("Command")
+            {
+                new Option<string[]>("--names"),
+            };
+            rootCommand.Handler = CommandHandler.Create<string[]>(Handler);
+            string[] passedNames = null;
+            await rootCommand.InvokeAsync("");
+
+            passedNames.Should().BeEmpty();
+
+            int Handler(string[] names)
+            {
+                passedNames = names;
+                return 0;
+            }
+        }
+
+        [Fact]
+        public async Task Bound_enumerable_options_default_to_an_empty_array_when_not_specified()
+        {
+            var rootCommand = new RootCommand("Command")
+            {
+                new Option<IEnumerable<string>>("--names"),
+            };
+            rootCommand.Handler = CommandHandler.Create<IEnumerable<string>>(Handler);
+            IEnumerable<string> passedNames = null;
+            await rootCommand.InvokeAsync("");
+
+            passedNames.Should().BeEmpty();
+
+            int Handler(IEnumerable<string> names)
+            {
+                passedNames = names;
+                return 0;
+            }
+        }
+
+        [Fact]
         public void Custom_ModelBinders_specified_via_BindingContext_can_be_used_for_option_binding()
         {
             ClassWithSetter<int> boundInstance = null;
@@ -627,8 +707,6 @@ namespace System.CommandLine.Tests.Binding
             first.Should().Be(1);
             second.Should().Be(2);
         }
-
-      
 
         [Fact]
         public void Binder_does_not_match_on_partial_name()
