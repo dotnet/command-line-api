@@ -1275,14 +1275,14 @@ Arguments:
         {
             var command = new RootCommand
             {
-                new Option(new[] { "-z", "-a", "--zzz", "--aaa" })
+                new Option(new[] { "--aaa", "--zzz", "-z", "-a" })
             };
 
             _helpBuilder.Write(command);
 
             _console
                 .Out
-                .ToString().Should().Contain("-a, -z, --aaa, --zzz");
+                .ToString().Should().Contain("-z, -a, --aaa, --zzz");
         }
 
         [Fact]
@@ -1324,7 +1324,7 @@ Arguments:
 
             output
                 .Should()
-                .Be("-a, -z, --aaa, --zzz    from a to z");
+                .Be("-z, -a, --zzz, --aaa    from a to z");
         }
 
         #endregion Options
