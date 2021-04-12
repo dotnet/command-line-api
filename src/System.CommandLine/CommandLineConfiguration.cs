@@ -6,6 +6,7 @@ using System.CommandLine.Binding;
 using System.CommandLine.Collections;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
 
@@ -37,7 +38,8 @@ namespace System.CommandLine
             Resources? validationMessages = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
-            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null)
+            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null,
+            Action<IHelpBuilder>? configureHelp = null)
         {
             if (symbols is null)
             {
@@ -84,7 +86,25 @@ namespace System.CommandLine
             ValidationMessages = validationMessages ?? Resources.Instance;
             ResponseFileHandling = responseFileHandling;
             Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
-            HelpBuilderFactory = helpBuilderFactory ?? (context => new HelpBuilder(context.Console));
+            HelpBuilderFactory = helpBuilderFactory ?? (context => 
+            {
+                int maxWidth = int.MaxValue;
+                if (context.Console is SystemConsole systemConsole)
+                {
+                    maxWidth = systemConsole.GetWindowWidth();
+                }
+                return new HelpBuilder(context.Console, maxWidth);
+            });
+            if (configureHelp != null)
+            {
+                var factory = HelpBuilderFactory;
+                HelpBuilderFactory = context =>
+                {
+                    IHelpBuilder helpBuilder = factory(context);
+                    configureHelp(helpBuilder);
+                    return helpBuilder;
+                };
+            }
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)

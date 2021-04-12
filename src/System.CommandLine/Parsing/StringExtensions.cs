@@ -42,7 +42,7 @@ namespace System.CommandLine.Parsing
             return rawAlias;
         }
 
-        internal static (string? prefix, string alias) SplitPrefix(this string rawAlias)
+        internal static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
         {
             for (var i = 0; i < _optionPrefixStrings.Length; i++)
             {

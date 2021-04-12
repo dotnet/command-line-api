@@ -174,4 +174,37 @@
   <data name="InvalidCharactersInFileName" xml:space="preserve">
     <value>Character not allowed in a file name: {0}</value>
   </data>
+  <data name="HelpUsageAdditionalArguments" xml:space="preserve">
+    <value>[[--] &lt;additional arguments&gt;...]]</value>
+  </data>
+  <data name="HelpUsageCommandTitle" xml:space="preserve">
+    <value>[command]</value>
+  </data>
+  <data name="HelpUsageOptionsTitle" xml:space="preserve">
+    <value>[options]</value>
+  </data>
+  <data name="HelpUsageTile" xml:space="preserve">
+    <value>Usage:</value>
+  </data>
+  <data name="HelpArgumentDefaultValueTitle" xml:space="preserve">
+    <value>default</value>
+  </data>
+  <data name="HelpArgumentsTitle" xml:space="preserve">
+    <value>Arguments:</value>
+  </data>
+  <data name="HelpOptionsRequired" xml:space="preserve">
+    <value>(REQUIRED)</value>
+  </data>
+  <data name="HelpOptionsTitle" xml:space="preserve">
+    <value>Options:</value>
+  </data>
+  <data name="HelpAdditionalArgumentsDescription" xml:space="preserve">
+    <value>Arguments passed to the application that is being run.</value>
+  </data>
+  <data name="HelpAdditionalArgumentsTitle" xml:space="preserve">
+    <value>Additional Arguments:</value>
+  </data>
+  <data name="HelpCommandsTitle" xml:space="preserve">
+    <value>Commands:</value>
+  </data>
 </root>

@@ -1,55 +1,31 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
-using System.Text.RegularExpressions;
-using static System.CommandLine.Help.DefaultHelpText;
 
 namespace System.CommandLine.Help
 {
     public class HelpBuilder : IHelpBuilder
     {
-        protected const int DefaultColumnGutter = 4;
-        protected const int DefaultIndentationSize = 2;
-        protected const int WindowMargin = 2;
-        private int _indentationLevel;
+        private const string Indent = "  ";
+
+        private Dictionary<ISymbol, Customization> Customizations { get; }
+            = new Dictionary<ISymbol, Customization>();
 
         protected IConsole Console { get; }
-
-        public int ColumnGutter { get; }
-
-        public int IndentationSize { get; }
-
         public int MaxWidth { get; }
 
-        /// <summary>
-        /// Brokers the generation and output of help text of <see cref="Symbol"/>
-        /// and the <see cref="IConsole"/>
-        /// </summary>
-        /// <param name="console"><see cref="IConsole"/> instance to write the help text output</param>
-        /// <param name="columnGutter">
-        /// Number of characters to pad invocation information from their descriptions
-        /// </param>
-        /// <param name="indentationSize">Number of characters to indent new lines</param>
-        /// <param name="maxWidth">
-        /// Maximum number of characters available for each line to write to the console
-        /// </param>
-        public HelpBuilder(
-            IConsole console,
-            int? columnGutter = null,
-            int? indentationSize = null,
-            int? maxWidth = null)
+        public HelpBuilder(IConsole console, int maxWidth = int.MaxValue)
         {
             Console = console ?? throw new ArgumentNullException(nameof(console));
-            ColumnGutter = columnGutter ?? DefaultColumnGutter;
-            IndentationSize = indentationSize ?? DefaultIndentationSize;
-            MaxWidth = maxWidth ?? GetConsoleWindowWidth(Console);
+            if (maxWidth <= 0) throw new ArgumentOutOfRangeException(nameof(maxWidth), "Max width must be positive");
+            MaxWidth = maxWidth;
         }
 
-        /// <inheritdoc />
         public virtual void Write(ICommand command)
         {
             if (command is null)
@@ -57,620 +33,191 @@ namespace System.CommandLine.Help
                 throw new ArgumentNullException(nameof(command));
             }
 
+            if (command.IsHidden)
+            {
+                return;
+            }
+
             AddSynopsis(command);
             AddUsage(command);
-            AddArguments(command);
+            AddCommandArguments(command);
             AddOptions(command);
             AddSubcommands(command);
             AddAdditionalArguments(command);
         }
 
-        public virtual void Write(IOption option)
+        protected internal void Customize(ISymbol symbol,
+            Func<string?>? descriptor = null,
+            Func<string?>? defaultValue = null)
         {
-            if (option is null)
+            if (symbol is null)
             {
-                throw new ArgumentNullException(nameof(option));
+                throw new ArgumentNullException(nameof(symbol));
             }
 
-            var item = GetOptionHelpItems(option).ToList()[0];
-
-            Console.Out.Write($"{item.Invocation}    {item.Description}");
+            Customizations[symbol] = new Customization(descriptor, defaultValue);
         }
 
-        protected int CurrentIndentation => _indentationLevel * IndentationSize;
-
-        /// <summary>
-        /// Increases the current indentation level
-        /// </summary>
-        protected void Indent(int levels = 1)
+        protected virtual void AddSynopsis(ICommand command)
         {
-            _indentationLevel += levels;
-        }
-
-        /// <summary>
-        /// Decreases the current indentation level
-        /// </summary>
-        protected void Outdent(int levels = 1)
-        {
-            if (_indentationLevel == 0)
-            {
-                throw new InvalidOperationException("Cannot outdent any further");
-            }
-
-            _indentationLevel -= levels;
-        }
-
-        /// <summary>
-        /// Gets the currently available space based on the <see cref="MaxWidth"/>
-        /// of the window and the current indentation level.
-        /// </summary>
-        /// <returns>
-        /// The number of characters available on the current line. If no space is
-        /// available then <see cref="int.MaxValue"/> is returned.
-        /// </returns>
-        protected int GetAvailableWidth()
-        {
-            var width = MaxWidth - CurrentIndentation - WindowMargin;
-            return (width > 0) ? width : int.MaxValue;
-        }
-
-        /// <summary>
-        /// Create a string of whitespace for the supplied number of characters
-        /// </summary>
-        /// <param name="width">The length of whitespace required</param>
-        /// <returns>A string of <see cref="width"/> whitespace characters</returns>
-        protected static string GetPadding(int width)
-        {
-            return new string(' ', width);
-        }
-
-        /// <summary>
-        /// Writes a blank line to the console
-        /// </summary>
-        private void AppendBlankLine()
-        {
+            WriteHeading(command.Name, command.Description);
             Console.Out.WriteLine();
         }
 
-        /// <summary>
-        /// Writes whitespace to the console based on the provided offset,
-        /// defaulting to the <see cref="CurrentIndentation"/>
-        /// </summary>
-        /// <param name="offset">Number of characters to pad</param>
-        private void AppendPadding(int? offset = null)
+        protected virtual void AddUsage(ICommand command)
         {
-            var padding = GetPadding(offset ?? CurrentIndentation);
-            Console.Out.Write(padding);
+            string description = GetUsage(command);
+            WriteHeading(Resources.Instance.HelpUsageTile(), description);
+            Console.Out.WriteLine();
         }
 
-        /// <summary>
-        /// Writes a new line of text to the console, padded with a supplied offset
-        /// defaulting to the <see cref="CurrentIndentation"/>
-        /// </summary>
-        /// <param name="text">The text content to write to the console</param>
-        /// <param name="offset">Number of characters to pad the text</param>
-        private void AppendLine(string text, int? offset = null)
+        protected string GetUsage(ICommand command)
         {
-            if (string.IsNullOrEmpty(text))
+            return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
+
+            IEnumerable<string> GetUsageParts()
             {
+
+                IEnumerable<ICommand> parentCommands =
+                    command
+                        .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
+                        .Reverse();
+
+                var displayOptionTitle = command.Options.Any(x => !x.IsHidden);
+
+                foreach (ICommand parentCommand in parentCommands)
+                {
+                    yield return parentCommand.Name;
+
+                    if (displayOptionTitle)
+                    {
+                        yield return Resources.Instance.HelpUsageOptionsTile();
+                        displayOptionTitle = false;
+                    }
+
+                    yield return FormatArgumentUsage(parentCommand.Arguments);
+                }
+
+
+                var hasCommandWithHelp = command.Children
+                    .OfType<ICommand>()
+                    .Any(x => !x.IsHidden);
+
+                if (hasCommandWithHelp)
+                {
+                    yield return Resources.Instance.HelpUsageCommandTile();
+                }
+
+                if (!command.TreatUnmatchedTokensAsErrors)
+                {
+                    yield return Resources.Instance.HelpUsageAdditionalArguments();
+                }
+            }
+        }
+
+        protected virtual void AddCommandArguments(ICommand command)
+        {
+            HelpItem[] commandArguments = GetCommandArguments(command).ToArray();
+
+            if (commandArguments.Length > 0)
+            {
+                WriteHeading(Resources.Instance.HelpArgumentsTitle(), null);
+                RenderAsColumns(commandArguments);
                 Console.Out.WriteLine();
             }
-            else
-            {
-                AppendPadding(offset);
-                Console.Out.WriteLine(text);
-            }
         }
 
-        /// <summary>
-        /// Writes text to the console, padded with a supplied offset
-        /// </summary>
-        /// <param name="text">Text content to write to the console</param>
-        /// <param name="offset">Number of characters to pad the text</param>
-        private void AppendText(string text, int? offset = null)
+        protected IEnumerable<HelpItem> GetCommandArguments(ICommand command)
         {
-            AppendPadding(offset);
-            Console.Out.Write(text ?? "");
-        }
+            //TODO: This shows all parent arguments not just the first level
+            return command.RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
+                    .Reverse()
+                    .SelectMany(GetArguments)
+                    .Distinct();
 
-        /// <summary>
-        /// Writes heading text to the console.
-        /// </summary>
-        /// <param name="heading">Heading text content to write to the console</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        private void AppendHeading(string? heading)
-        {
-            if (heading is null)
+
+            IEnumerable<HelpItem> GetArguments(ICommand command)
             {
-                throw new ArgumentNullException(nameof(heading));
-            }
-
-            AppendLine(heading);
-        }
-
-        /// <summary>
-        /// Writes a description block to the console
-        /// </summary>
-        /// <param name="description">Description text to write to the console</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        private void AppendDescription(string description)
-        {
-            if (description is null)
-            {
-                throw new ArgumentNullException(nameof(description));
-            }
-
-            var availableWidth = GetAvailableWidth();
-            var descriptionLines = SplitText(description, availableWidth);
-
-            foreach (var descriptionLine in descriptionLines)
-            {
-                AppendLine(descriptionLine, CurrentIndentation);
-            }
-        }
-
-        /// <summary>
-        /// Writes a collection of <see cref="HelpItem"/> to the console.
-        /// </summary>
-        /// <param name="helpItems">
-        /// Collection of <see cref="HelpItem"/> to write to the console.
-        /// </param>
-        /// <exception cref="ArgumentNullException"></exception>
-        protected virtual void AppendHelpItems(IReadOnlyCollection<HelpItem> helpItems)
-        {
-            if (helpItems is null)
-            {
-                throw new ArgumentNullException(nameof(helpItems));
-            }
-
-            var table = CreateTable(helpItems, item => new[]
-            {
-                item.Invocation,
-                JoinNonEmpty(" ", item.Description, item.DefaultValueHint)
-            });
-
-            var columnWidths = ColumnWidths(table);
-            AppendTable(table, columnWidths);
-        }
-
-        /// <summary>
-        /// Create a table of strings using the projection of a collection.
-        /// </summary>
-        /// <typeparam name="T">The type of the elements of <paramref name="collection"/>.</typeparam>
-        /// <param name="collection">The collection of values to create the table from.</param>
-        /// <param name="selector">A transformation function to apply to each element of <paramref name="collection"/>.</param>
-        /// <returns>
-        /// A table of strings whose elements are the projection of the collection with whitespace formatting removed.
-        /// </returns>
-        protected virtual IReadOnlyList<IReadOnlyList<string>> CreateTable<T>(IEnumerable<T> collection, Func<T, IEnumerable<string>> selector)
-        {
-            return collection.Select(selector)
-                .Select(row => row.ToList())
-                .ToList();
-        }
-
-        /// <summary>
-        /// Allocate space for columns favoring minimal rows. Wider columns are allocated more space if it is available.
-        /// </summary>
-        /// <param name="table">The table of values to determine column widths for.</param>
-        /// <returns>A collection of column widths.</returns>
-        private IReadOnlyList<int> ColumnWidths(IReadOnlyList<IReadOnlyList<string>> table)
-        {
-            if (table.Count == 0)
-            {
-                return Array.Empty<int>();
-            }
-
-            var columns = table[0].Count;
-            var unsetWidth = -1;
-            var widths = new int[columns];
-            for (var i = 0; i < columns; ++i)
-            {
-                widths[i] = unsetWidth;
-            }
-            var maxWidths = new int[columns];
-            for (var i = 0; i < columns; ++i)
-            {
-                maxWidths[i] = table.Max(row => row[i].Length);
-            }
-
-            var nonEmptyColumns = maxWidths.Count(width => width > 0);
-
-            // Usable width is the total available width minus space between columns.
-            var available = GetAvailableWidth() - (ColumnGutter * (nonEmptyColumns - 1));
-            // If available space is not sufficent then do not wrap.
-            // If all columns are empty then return array of zeros.
-            if (available - nonEmptyColumns < 0 || nonEmptyColumns == 0)
-            {
-                return maxWidths;
-            }
-
-            // Loop variables.
-            var unset = nonEmptyColumns;
-            var previousUnset = 0;
-            // Limit looping to avoid O(columns^2) runtime.
-            var loopLimit = 5;
-
-            while (unset > 0)
-            {
-                var equal = (available - widths.Where(width => width > 0).Sum()) / unset;
-                // Allocate remaining space equally if no other columns fit on a single line. Or if loop limit has been reached.
-                var allocateRemaining = unset == previousUnset || loopLimit <= 1;
-                for (var i = 0; i < columns; ++i)
+                var arguments = command.Arguments.Where(x => !x.IsHidden).ToList();
+                foreach (IArgument argument in arguments)
                 {
-                    // If width has not been set.
-                    if (widths[i] == unsetWidth)
-                    {
-                        // Attempt to fit column to single line.
-                        var width = maxWidths[i];
-                        if (allocateRemaining)
-                        {
-                            width = Math.Min(width, equal);
-                        }
-                        if (width <= equal)
-                        {
-                            widths[i] = width;
-                        }
-                    }
+                    string argumentDescriptor = GetArgumentDescriptor(argument);
+
+                    yield return new HelpItem(argumentDescriptor, string.Join(" ", GetArgumentDescription(command, argument)));
                 }
-                previousUnset = unset;
-                unset = widths.Count(width => width < 0);
-                --loopLimit;
             }
 
-            return widths;
-        }
-
-        /// <summary>
-        /// Writes a table of strings to the console.
-        /// </summary>
-        /// <param name="table">The table of values to write.</param>
-        /// <param name="columnWidths">The width of each column of the table.</param>
-        private void AppendTable(IEnumerable<IEnumerable<string>> table, IReadOnlyList<int> columnWidths)
-        {
-            foreach (var row in table)
-                AppendRow(row, columnWidths);
-        }
-
-        /// <summary>
-        /// Writes a row of strings to the console with columns of the given width.
-        /// </summary>
-        /// <param name="row">The row of elements to write.</param>
-        /// <param name="columnWidths">The width of each column of the table.</param>
-        private void AppendRow(IEnumerable<string> row, IReadOnlyList<int> columnWidths)
-        {
-            var split = row.Select((element, index) => SplitText(element, columnWidths[index])).ToArray();
-            var longest = split.Max(lines => lines.Count);
-            for (var line = 0; line < longest; ++line)
+            IEnumerable<string> GetArgumentDescription(IIdentifierSymbol parent, IArgument argument)
             {
-                var columnStart = 0;
-                var appended = 0;
-                AppendPadding(CurrentIndentation);
-
-                for (var column = 0; column < split.Length; ++column)
+                string? description = argument.Description;
+                if (!string.IsNullOrWhiteSpace(description))
                 {
-                    var lines = split[column];
-                    if (line < lines.Count)
-                    {
-                        var text = lines[line];
-                        if (!string.IsNullOrEmpty(text))
-                        {
-                            var offset = columnStart - appended;
-                            AppendText(text, offset);
-                            appended += offset + text.Length;
-                        }
-                    }
-                    columnStart += columnWidths[column] + ColumnGutter;
-                }
-                AppendBlankLine();
-            }
-        }
-
-        /// <summary>
-        /// Takes a string of text and breaks it into lines of <paramref name="width"/>
-        /// characters. Whitespace formatting of the incoming text is removed.
-        /// </summary>
-        /// <param name="text">Text content to split into lines.</param>
-        /// <param name="width">Maximum number of characters allowed per line.</param>
-        /// <returns>
-        /// Collection of lines of at most <paramref name="width"/> characters
-        /// generated from the supplied <paramref name="text"/>.
-        /// </returns>
-        // TODO: Consider making this an extensions string instead of an instance virtual method.
-        protected virtual IReadOnlyList<string> SplitText(string text, int width)
-        {
-            if (text is null)
-            {
-                throw new ArgumentNullException(nameof(text), $"{nameof(text)} cannot be null.");
-            }
-
-            if (width < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(width), $"{nameof(width)} must be non-negative.");
-            }
-
-
-            if (width == 0)
-            {
-                return Array.Empty<string>();
-            }
-
-            const char separator = ' ';
-
-            var lines = new List<string>();
-            var isWhiteSpace = false;
-            var lastWordIndex = -1;
-            var lineBuilderOffset = 0;
-
-            var lineBuilder = StringBuilderPool.Default.Rent();
-
-            try
-            {
-                foreach (var c in text)
-                {
-                    if (c == '\n')
-                    {
-                        truncateLineAndAppendIfNeeded();
-                        appendLine();
-                        lineBuilder.Clear();
-                        isWhiteSpace = false;
-                        lastWordIndex = -1;
-                        lineBuilderOffset = 0;
-                        continue;
-                    }
-
-                    if (c == '\r')
-                    {
-                        continue;
-                    }
-
-                    if (char.IsWhiteSpace(c))
-                    {
-                        if (!isWhiteSpace)
-                        {
-                            isWhiteSpace = true;
-
-                            truncateLineAndAppendIfNeeded();
-
-                            lastWordIndex = lineBuilder.Length - 1;
-
-                            lineBuilder.Append(separator);
-                        }
-
-                        lastWordIndex++;
-
-                        continue;
-                    }
-
-                    isWhiteSpace = false;
-
-                    lineBuilder.Append(c);
+                    yield return description!;
                 }
 
-                truncateLineAndAppendIfNeeded();
-
-                appendLine();
-
-                return lines;
-            }
-            finally
-            {
-                StringBuilderPool.Default.ReturnToPool(lineBuilder);
-            }
-
-            void appendLine()
-            {
-                lines.Add(lineBuilder.ToString(lineBuilderOffset, (isWhiteSpace ? lineBuilder.Length - 1 : lineBuilder.Length) - lineBuilderOffset));
-            }
-
-            void truncateLineAndAppendIfNeeded()
-            {
-                // If last word starts before width / 2 include entire width.
-                while (lineBuilder.Length - lineBuilderOffset > width)
+                if (argument.HasDefaultValue)
                 {
-                    var length = (lastWordIndex > lineBuilderOffset) ? lastWordIndex - lineBuilderOffset : width;
-
-                    lines.Add(lineBuilder.ToString(lineBuilderOffset, length));
-
-                    lineBuilderOffset += length;
-
-                    while (lineBuilderOffset < lineBuilder.Length && lineBuilder[lineBuilderOffset] == separator)
-                    {
-                        lineBuilderOffset++;
-                    }
-
-                    isWhiteSpace = false;
-
-                    if (lastWordIndex < lineBuilderOffset)
-                    {
-                        lastWordIndex = lineBuilderOffset - 1;
-                    }
+                    yield return $"[{GetArgumentDefaultValue(parent, argument, true)}]";
                 }
             }
         }
 
-        /// <summary>
-        /// Formats the help rows for a given argument
-        /// </summary>
-        /// <param name="symbol"></param>
-        /// <returns>A new <see cref="HelpItem"/></returns>
-        private IEnumerable<HelpItem> GetArgumentHelpItems(ISymbol symbol)
+        protected virtual void AddOptions(ICommand command)
         {
-            var arguments = symbol.Arguments();
+            var options = GetOptions(command).ToArray();
 
-            for (var i = 0; i < arguments.Count; i++)
+            if (options.Length > 0)
             {
-                var argument = arguments[i];
-                if (ShouldShowHelp(argument))
-                {
-                    var argumentDescriptor = ArgumentDescriptor(argument);
-
-                    var invocation = string.IsNullOrWhiteSpace(argumentDescriptor)
-                                         ? ""
-                                         : $"<{argumentDescriptor}>";
-
-                    var argumentDescription = argument?.Description ?? "";
-                    var defaultValueHint = argument != null
-                                               ? BuildDefaultValueHint(argument)
-                                               : null;
-                    yield return new HelpItem(invocation, argumentDescription, defaultValueHint);
-                }
-            }
-
-            string? BuildDefaultValueHint(IArgument argument)
-            {
-                var hint = DefaultValueHint(argument);
-                return !string.IsNullOrWhiteSpace(hint) ? $"[{hint}]" : null;
+                WriteHeading(Resources.Instance.HelpOptionsTitle(), null);
+                RenderAsColumns(options);
+                Console.Out.WriteLine();
             }
         }
 
-        protected virtual string ArgumentDescriptor(IArgument argument)
+        protected IEnumerable<HelpItem> GetOptions(ICommand command)
+            => command.Options.Where(x => !x.IsHidden).Select(GetHelpItem);
+
+        protected virtual void AddSubcommands(ICommand command)
         {
-            if (argument.ValueType == typeof(bool) ||
-                argument.ValueType == typeof(bool?))
+            var subcommands = GetSubcommands(command).ToArray();
+
+            if (subcommands.Length > 0)
             {
-                return "";
-            }
-
-            var suggestions = argument.GetSuggestions().ToArray();
-            if (suggestions.Length > 0)
-            {
-                return string.Join("|", suggestions);
-            }
-
-            return argument.Name;
-        }
-
-        protected virtual string DefaultValueHint(IArgument argument, bool isSingleArgument = true) =>
-            (argument.HasDefaultValue, isSingleArgument, ShouldShowDefaultValueHint(argument)) switch
-            {
-                (true, true, true) => $"default: {argument.GetDefaultValue()}",
-                (true, false, true) => $"{argument.Name}: {argument.GetDefaultValue()}",
-                _ => ""
-            };
-
-        private IEnumerable<HelpItem> GetOptionHelpItems(IIdentifierSymbol symbol)
-        {
-            var rawAliases = symbol
-                             .Aliases
-                             .Select(r => r.SplitPrefix())
-                             .OrderBy(r => r.prefix, StringComparer.OrdinalIgnoreCase)
-                             .ThenBy(r => r.alias, StringComparer.OrdinalIgnoreCase)
-                             .GroupBy(t => t.alias)
-                             .Select(t => t.First())
-                             .Select(t => $"{t.prefix}{t.alias}");
-
-            var invocation = string.Join(", ", rawAliases);
-
-            if (ShouldShowHelp(symbol))
-            {
-                foreach (var argument in symbol.Arguments())
-                {
-                    if (ShouldShowHelp(argument))
-                    {
-                        var argumentDescriptor = ArgumentDescriptor(argument);
-                        if (!string.IsNullOrWhiteSpace(argumentDescriptor))
-                        {
-                            invocation = $"{invocation} <{argumentDescriptor}>";
-                        }
-                    }
-                }
-            }
-
-            if (symbol is IOption option &&
-                option.IsRequired)
-            {
-                invocation += " (REQUIRED)";
-            }
-
-            yield return new HelpItem(invocation,
-                                      symbol.Description,
-                                      BuildDefaultValueHint(symbol.Arguments()));
-
-            string? BuildDefaultValueHint(IEnumerable<IArgument> arguments)
-            {
-                var defaultableArgumentCount = arguments
-                    .Count(ShouldShowDefaultValueHint);
-                var isSingleDefault = defaultableArgumentCount == 1;
-                var argumentDefaultValues = arguments
-                    .Where(ShouldShowDefaultValueHint)
-                    .Select(argument => DefaultValueHint(argument, isSingleDefault));
-                return defaultableArgumentCount > 0
-                    ? $"[{string.Join(", ", argumentDefaultValues)}]"
-                    : null;
+                WriteHeading(Resources.Instance.HelpCommandsTitle(), null);
+                RenderAsColumns(subcommands);
+                Console.Out.WriteLine();
             }
         }
 
-        /// <summary>
-        /// Writes a summary, if configured, for the supplied <see cref="command"/>
-        /// </summary>
-        /// <param name="command"></param>
-        protected virtual void AddSynopsis(ICommand command)
+        protected IEnumerable<HelpItem> GetSubcommands(ICommand command)
+            => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(GetHelpItem);
+
+        protected virtual void AddAdditionalArguments(ICommand command)
         {
-            if (!ShouldShowHelp(command))
+            if (command.TreatUnmatchedTokensAsErrors)
             {
                 return;
             }
 
-            var title = $"{command.Name}:";
-            HelpSection.WriteHeading(this, title, command.Description);
+            WriteHeading(Resources.Instance.HelpAdditionalArgumentsTitle(),
+                Resources.Instance.HelpAdditionalArgumentsDescription());
         }
 
-        /// <summary>
-        /// Writes the usage summary for the supplied <see cref="command"/>
-        /// </summary>
-        /// <param name="command"></param>
-        protected virtual void AddUsage(ICommand command)
+        protected void WriteHeading(string descriptor, string? description)
         {
-            var usage = new List<string>();
-
-            IEnumerable<ICommand> subcommands;
-
-            if (command is Command cmd)
+            if (!string.IsNullOrWhiteSpace(descriptor))
             {
-                subcommands = cmd
-                    .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<Command>())
-                    .Reverse();
+                Console.Out.WriteLine(descriptor);
             }
-            else
+            if (!string.IsNullOrWhiteSpace(description))
             {
-                subcommands = Enumerable.Empty<ICommand>();
-            }
-
-            foreach (var subcommand in subcommands)
-            {
-                usage.Add(subcommand.Name);
-
-                if (subcommand != command)
+                int maxWidth = MaxWidth - Indent.Length;
+                foreach (var part in WrapItem(description!, maxWidth))
                 {
-                    usage.Add(FormatArgumentUsage(subcommand.Arguments));
+                    Console.Out.Write(Indent);
+                    Console.Out.WriteLine(part);
                 }
             }
-
-            var hasOptionHelp = command.Options.Any(ShouldShowHelp);
-
-            if (hasOptionHelp)
-            {
-                usage.Add(Usage.Options);
-            }
-
-            usage.Add(FormatArgumentUsage(command.Arguments));
-
-            var hasCommandHelp = command.Children
-                .OfType<ICommand>()
-                .Any(ShouldShowHelp);
-
-            if (hasCommandHelp)
-            {
-                usage.Add(Usage.Command);
-            }
-
-            if (!command.TreatUnmatchedTokensAsErrors)
-            {
-                usage.Add(Usage.AdditionalArguments);
-            }
-
-            HelpSection.WriteHeading(this, Usage.Title, string.Join(" ", usage.Where(u => !string.IsNullOrWhiteSpace(u))));
         }
 
         private string FormatArgumentUsage(IReadOnlyList<IArgument> arguments)
@@ -684,7 +231,7 @@ namespace System.CommandLine.Help
                 for (var i = 0; i < arguments.Count; i++)
                 {
                     var argument = arguments[i];
-                    if (!ShouldShowHelp(argument))
+                    if (argument.IsHidden)
                     {
                         continue;
                     }
@@ -738,230 +285,253 @@ namespace System.CommandLine.Help
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
-        /// <summary>
-        /// Writes the arguments, if any, for the supplied <see cref="command"/>
-        /// </summary>
-        /// <param name="command"></param>
-        protected virtual void AddArguments(ICommand command)
+        protected void RenderAsColumns(params HelpItem[] items)
         {
-            var helpItems = new HashSet<HelpItem>();
+            if (items.Length == 0) return;
+            int windowWidth = MaxWidth;
 
-            if (command is Command cmd &&
-                cmd.Parents.FirstOrDefault() is ICommand parent &&
-                ShouldDisplayArgumentHelp(parent))
+            int firstColumnWidth = items.Select(x => x.Descriptor.Length).Max();
+            int secondColumnWidth = items.Select(x => x.Description.Length).Max();
+
+            if (firstColumnWidth + secondColumnWidth + Indent.Length + Indent.Length > windowWidth)
             {
-                AddHelpItemsFor(parent);
-            }
-
-            if (ShouldDisplayArgumentHelp(command))
-            {
-                AddHelpItemsFor(command);
-            }
-
-            HelpSection.WriteItems(
-                this,
-                Arguments.Title,
-                helpItems);
-
-            void AddHelpItemsFor(ICommand command)
-            {
-                foreach (var helpItem in GetArgumentHelpItems(command))
+                int firstColumnMaxWidth = windowWidth / 2 - Indent.Length;
+                if (firstColumnWidth > firstColumnMaxWidth)
                 {
-                    helpItems.Add(helpItem);
+                    firstColumnWidth = items.SelectMany(x => WrapItem(x.Descriptor, firstColumnMaxWidth).Select(x => x.Length)).Max();
+                }
+                secondColumnWidth = windowWidth - firstColumnWidth - Indent.Length - Indent.Length;
+            }
+
+            foreach (var (descriptor, description) in items)
+            {
+                IEnumerable<string> descriptorParts = WrapItem(descriptor, firstColumnWidth);
+                IEnumerable<string> descriptionParts = WrapItem(description, secondColumnWidth);
+
+                foreach (var (first, second) in ZipWithEmpty(descriptorParts, descriptionParts))
+                {
+                    Console.Out.Write($"{Indent}{first}");
+                    if (!string.IsNullOrWhiteSpace(second))
+                    {
+                        int padSize = firstColumnWidth - first.Length;
+                        string padding = "";
+                        if (padSize > 0)
+                        {
+                            padding = new string(' ', padSize);
+                        }
+                        Console.Out.Write($"{padding}{Indent}{second}");
+                    }
+                    Console.Out.WriteLine();
+                }
+            }
+
+            static IEnumerable<(string, string)> ZipWithEmpty(IEnumerable<string> first, IEnumerable<string> second)
+            {
+                using var enum1 = first.GetEnumerator();
+                using var enum2 = second.GetEnumerator();
+                bool hasFirst = false, hasSecond = false;
+                while ((hasFirst = enum1.MoveNext()) | (hasSecond = enum2.MoveNext()))
+                {
+                    yield return (hasFirst ? enum1.Current : "", hasSecond ? enum2.Current : "");
                 }
             }
         }
 
-        /// <summary>
-        /// Writes the <see cref="Option"/> help content, if any,
-        /// for the supplied <see cref="command"/>
-        /// </summary>
-        /// <param name="command"></param>
-        protected virtual void AddOptions(ICommand command)
+        private static IEnumerable<string> WrapItem(string item, int maxWidth)
         {
-            var options = command
-                          .Options
-                          .Where(ShouldShowHelp)
-                          .ToArray();
+            if (string.IsNullOrWhiteSpace(item)) yield break;
+            //First handle existing new lines
+            var parts = item.Split(new string[] { "\r\n", "\n", }, StringSplitOptions.None);
 
-            HelpSection.WriteItems(
-                this,
-                Options.Title,
-                options.SelectMany(GetOptionHelpItems).Distinct().ToArray());
-        }
-
-        /// <summary>
-        /// Writes the help content of the <see cref="Command"/> subcommands, if any,
-        /// for the supplied <see cref="command"/>
-        /// </summary>
-        /// <param name="command"></param>
-        protected virtual void AddSubcommands(ICommand command)
-        {
-            var subcommands = command
-                              .Children
-                              .OfType<ICommand>()
-                              .Where(ShouldShowHelp)
-                              .ToArray();
-
-            HelpSection.WriteItems(this,
-                              Commands.Title,
-                              subcommands.SelectMany(GetOptionHelpItems).ToArray());
-        }
-
-        protected virtual void AddAdditionalArguments(ICommand command)
-        {
-            if (command.TreatUnmatchedTokensAsErrors)
+            foreach (string part in parts)
             {
-                return;
+                if (part.Length <= maxWidth)
+                {
+                    yield return part;
+                }
+                else
+                {
+                    //Long item, wrap it based on the width
+                    for (int i = 0; i < part.Length;)
+                    {
+                        if (part.Length - i < maxWidth)
+                        {
+                            yield return part.Substring(i);
+                            break;
+                        }
+                        else
+                        {
+                            int length = -1;
+                            for (int j = 0; j + i < part.Length && j < maxWidth; j++)
+                            {
+                                if (char.IsWhiteSpace(part[i + j]))
+                                {
+                                    length = j + 1;
+                                }
+                            }
+                            if (length == -1)
+                            {
+                                length = maxWidth;
+                            }
+                            yield return part.Substring(i, length);
+
+                            i += length;
+                        }
+                    }
+                }
             }
-
-            HelpSection.WriteHeading(this, AdditionalArguments.Title, AdditionalArguments.Description);
         }
 
-        private bool ShouldDisplayArgumentHelp(ICommand? command)
+        protected HelpItem GetHelpItem(IIdentifierSymbol symbol)
         {
-            if (command is null)
+            string descriptor;
+            if (Customizations.TryGetValue(symbol, out Customization customization) &&
+                customization.GetDescriptor?.Invoke() is { } setDescriptor)
             {
-                return false;
-            }
-
-            return command.Arguments.Any(ShouldShowHelp);
-        }
-
-        private int GetConsoleWindowWidth(IConsole console)
-        {
-            if (console is SystemConsole systemConsole)
-            {
-                return systemConsole.GetConsoleWindowWidth();
+                descriptor = setDescriptor;
             }
             else
             {
-                return int.MaxValue;
-            }
-        }
+                var rawAliases = symbol.Aliases
+                                 .Select(r => r.SplitPrefix())
+                                 .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
+                                 .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
+                                 .GroupBy(t => t.Alias)
+                                 .Select(t => t.First())
+                                 .Select(t => $"{t.Prefix}{t.Alias}");
 
-        private static string ShortenWhitespace(string input)
-        {
-            return Regex.Replace(input, @"\s+", " ").TrimEnd();
-        }
+                descriptor = string.Join(", ", rawAliases);
 
-        private string JoinNonEmpty(string separator, params string?[] values)
-        {
-            return string.Join(separator, values.Where(str => !string.IsNullOrEmpty(str)));
-        }
-
-        protected class HelpItem
-        {
-            public HelpItem(
-                string invocation,
-                string? description = null,
-                string? defaultValueHint = null)
-            {
-                Invocation = invocation;
-                Description = description ?? "";
-                DefaultValueHint = defaultValueHint ?? "";
-            }
-
-            public string Invocation { get; }
-
-            public string Description { get; }
-
-            public string DefaultValueHint { get; }
-
-            protected bool Equals(HelpItem other) =>
-                (Invocation, Description) == (other.Invocation, other.Description);
-
-            public override bool Equals(object obj) => Equals((HelpItem)obj);
-
-            public override int GetHashCode() => (Invocation, Description).GetHashCode();
-
-            public bool HasDefaultValueHint => !string.IsNullOrWhiteSpace(DefaultValueHint);
-        }
-
-        private static class HelpSection
-        {
-            public static void WriteHeading(
-                HelpBuilder builder,
-                string title,
-                string? description = null)
-            {
-                if (!ShouldWrite(description, Array.Empty<ISymbol>()))
+                foreach (var argument in symbol.Arguments())
                 {
-                    return;
+                    if (!argument.IsHidden)
+                    {
+                        var argumentDescriptor = GetArgumentDescriptor(argument);
+                        if (!string.IsNullOrWhiteSpace(argumentDescriptor))
+                        {
+                            descriptor += $" {argumentDescriptor}";
+                        }
+                    }
                 }
 
-                AppendHeading(builder, title);
-                builder.Indent();
-                AddDescription(builder, description);
-                builder.Outdent();
-                builder.AppendBlankLine();
-            }
-
-            public static void WriteItems(
-                HelpBuilder builder,
-                string title,
-                IReadOnlyCollection<HelpItem> usageItems,
-                string? description = null)
-            {
-                if (usageItems.Count == 0)
+                if (symbol is IOption option &&
+                    option.IsRequired)
                 {
-                    return;
+                    descriptor += $" {Resources.Instance.HelpOptionsRequired()}";
                 }
-
-                AppendHeading(builder, title);
-                builder.Indent();
-
-                AddDescription(builder, description);
-                AddInvocation(builder, usageItems);
-
-                builder.Outdent();
-                builder.AppendBlankLine();
             }
 
-            private static bool ShouldWrite(string? description, IReadOnlyCollection<ISymbol> usageItems)
+            return new HelpItem(descriptor, GetDescription(symbol));
+        }
+
+        protected string GetDescription(IIdentifierSymbol symbol)
+        {
+            return string.Join(" ", GetDescriptionParts(symbol));
+
+            IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol)
             {
+                string? description = symbol.Description;
                 if (!string.IsNullOrWhiteSpace(description))
                 {
-                    return true;
+                    yield return description!;
                 }
-
-                return usageItems.Count > 0;
-            }
-
-            private static void AppendHeading(HelpBuilder builder, string? title = null)
-            {
-                if (string.IsNullOrWhiteSpace(title))
+                string argumentsDescription = GetArgumentsDescription(symbol);
+                if (!string.IsNullOrWhiteSpace(argumentsDescription))
                 {
-                    return;
+                    yield return argumentsDescription;
                 }
-
-                builder.AppendHeading(title);
             }
 
-            private static void AddDescription(HelpBuilder builder, string? description = null)
+            string GetArgumentsDescription(IIdentifierSymbol symbol)
             {
-                if (string.IsNullOrWhiteSpace(description))
-                {
-                    return;
-                }
+                IEnumerable<IArgument> arguments = symbol.Arguments();
+                var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
 
-                builder.AppendDescription(description!);
-            }
+                if (defaultArguments.Length == 0) return "";
 
-            private static void AddInvocation(HelpBuilder builder, IReadOnlyCollection<HelpItem> helpItems)
-            {
-                builder.AppendHelpItems(helpItems);
+                var isSingleArgument = defaultArguments.Length == 1;
+                var argumentDefaultValues = defaultArguments
+                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument));
+                return $"[{string.Join(", ", argumentDefaultValues)}]";
             }
         }
 
-        internal bool ShouldShowHelp(ISymbol symbol)
+        private string GetArgumentDefaultValue(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName)
         {
-            return !symbol.IsHidden;
+            string? defaultValue;
+            if (Customizations.TryGetValue(parent, out Customization customization) &&
+                customization.GetDefaultValue?.Invoke() is { } parentSetDefaultValue)
+            {
+                defaultValue = parentSetDefaultValue;
+            }
+            else if (Customizations.TryGetValue(argument, out customization) &&
+                customization.GetDefaultValue?.Invoke() is { } setDefaultValue)
+            {
+                defaultValue = setDefaultValue;
+            }
+            else
+            {
+                object? argumentDefaultValue = argument.GetDefaultValue();
+                if (argumentDefaultValue is IEnumerable enumerable && !(argumentDefaultValue is string))
+                {
+                    defaultValue = string.Join("|", enumerable.OfType<object>().ToArray());
+                }
+                else
+                {
+                    defaultValue = argumentDefaultValue?.ToString();
+                }
+            }
+
+            string name = displayArgumentName ?
+                Resources.Instance.HelpArgumentDefaultValueTitle() :
+                argument.Name;
+
+            return $"{name}: {defaultValue}";
         }
 
-        internal bool ShouldShowDefaultValueHint(IArgument argument)
+        protected string GetArgumentDescriptor(IArgument argument)
         {
-            return argument.HasDefaultValue && ShouldShowHelp(argument);
+            if (Customizations.TryGetValue(argument, out Customization customization) &&
+                customization.GetDescriptor?.Invoke() is { } setDescriptor)
+            {
+                return setDescriptor;
+            }
+
+            if (argument.ValueType == typeof(bool) ||
+                argument.ValueType == typeof(bool?))
+            {
+                return "";
+            }
+
+            string descriptor;
+            var suggestions = argument.GetSuggestions().ToArray();
+            if (suggestions.Length > 0)
+            {
+                descriptor = string.Join("|", suggestions);
+            }
+            else
+            {
+                descriptor = argument.Name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(descriptor))
+            {
+                return $"<{descriptor}>";
+            }
+            return descriptor;
+        }
+
+        private class Customization
+        {
+            public Customization(Func<string?>? getDescriptor,
+                Func<string?>? getDefaultValue)
+            {
+                GetDescriptor = getDescriptor;
+                GetDefaultValue = getDefaultValue;
+            }
+
+            public Func<string?>? GetDescriptor { get; }
+            public Func<string?>? GetDefaultValue { get; }
         }
     }
 }

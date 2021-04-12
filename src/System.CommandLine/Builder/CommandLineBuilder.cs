@@ -26,6 +26,7 @@ namespace System.CommandLine.Builder
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
         internal Func<BindingContext, IHelpBuilder>? HelpBuilderFactory { get; set; }
+        internal Action<IHelpBuilder>? ConfigureHelp { get; set; }
 
         internal HelpOption? HelpOption { get; set; }
 
@@ -45,7 +46,8 @@ namespace System.CommandLine.Builder
                     middlewarePipeline: _middlewareList.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
                                                        .ToArray(),
-                    helpBuilderFactory: HelpBuilderFactory));
+                    helpBuilderFactory: HelpBuilderFactory,
+                    configureHelp: ConfigureHelp));
 
             Command.ImplicitParser = parser;
 

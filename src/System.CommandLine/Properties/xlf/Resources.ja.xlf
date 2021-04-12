@@ -42,6 +42,31 @@
         <target state="new">File or directory does not exist: {0}</target>
         <note />
       </trans-unit>
+      <trans-unit id="HelpAdditionalArgumentsDescription">
+        <source>Arguments passed to the application that is being run.</source>
+        <target state="new">Arguments passed to the application that is being run.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpAdditionalArgumentsTitle">
+        <source>Additional Arguments:</source>
+        <target state="new">Additional Arguments:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpArgumentDefaultValueTitle">
+        <source>default</source>
+        <target state="new">default</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpArgumentsTitle">
+        <source>Arguments:</source>
+        <target state="new">Arguments:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpCommandsTitle">
+        <source>Commands:</source>
+        <target state="new">Commands:</target>
+        <note />
+      </trans-unit>
       <trans-unit id="HelpOptionDescription">
         <source>Show help and usage information</source>
         <target state="new">Show help and usage information</target>
@@ -50,6 +75,36 @@
       <trans-unit id="InvalidCharactersInFileName">
         <source>Character not allowed in a file name: {0}</source>
         <target state="new">Character not allowed in a file name: {0}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpOptionsRequired">
+        <source>(REQUIRED)</source>
+        <target state="new">(REQUIRED)</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpOptionsTitle">
+        <source>Options:</source>
+        <target state="new">Options:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageAdditionalArguments">
+        <source>[[--] &lt;additional arguments&gt;...]]</source>
+        <target state="new">[[--] &lt;additional arguments&gt;...]]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageCommandTitle">
+        <source>[command]</source>
+        <target state="new">[command]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageOptionsTitle">
+        <source>[options]</source>
+        <target state="new">[options]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageTile">
+        <source>Usage:</source>
+        <target state="new">Usage:</target>
         <note />
       </trans-unit>
       <trans-unit id="InvalidCharactersInPath">

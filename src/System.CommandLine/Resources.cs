@@ -72,6 +72,39 @@ namespace System.CommandLine
         public virtual string HelpOptionDescription() =>
             GetResourceString(Properties.Resources.HelpOptionDescription);
 
+        public virtual string HelpUsageTile() =>
+            GetResourceString(Properties.Resources.HelpUsageTile);
+
+        public virtual string HelpUsageOptionsTile() =>
+            GetResourceString(Properties.Resources.HelpUsageOptionsTitle);
+
+        public virtual string HelpUsageCommandTile() =>
+            GetResourceString(Properties.Resources.HelpUsageCommandTitle);
+
+        public virtual string HelpUsageAdditionalArguments() =>
+            GetResourceString(Properties.Resources.HelpUsageAdditionalArguments);
+
+        public virtual string HelpArgumentsTitle() =>
+            GetResourceString(Properties.Resources.HelpArgumentsTitle);
+
+        public virtual string HelpOptionsTitle() =>
+            GetResourceString(Properties.Resources.HelpOptionsTitle);
+
+        public virtual string HelpOptionsRequired() =>
+            GetResourceString(Properties.Resources.HelpOptionsRequired);
+
+        public virtual string HelpArgumentDefaultValueTitle() =>
+            GetResourceString(Properties.Resources.HelpArgumentDefaultValueTitle);
+
+        public virtual string HelpCommandsTitle() =>
+            GetResourceString(Properties.Resources.HelpCommandsTitle);
+
+        public virtual string HelpAdditionalArgumentsTitle() =>
+            GetResourceString(Properties.Resources.HelpAdditionalArgumentsTitle);
+
+        public virtual string HelpAdditionalArgumentsDescription() =>
+            GetResourceString(Properties.Resources.HelpAdditionalArgumentsDescription);
+
         protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
         {
             if (resourceString is null)

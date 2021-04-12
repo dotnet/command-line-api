@@ -356,11 +356,36 @@ namespace System.CommandLine.Builder
                     }
                 }, MiddlewareOrderInternal.HelpOption);
             }
-
             return builder;
         }
 
-        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, Func<BindingContext, IHelpBuilder> getHelpBuilder)
+        public static CommandLineBuilder UseHelp<THelpBuilder>(
+            this CommandLineBuilder builder,
+            Action<THelpBuilder>? configureHelp)
+            where THelpBuilder : IHelpBuilder
+        {
+            return builder.UseHelp(new HelpOption(), configureHelp);
+        }
+
+        internal static CommandLineBuilder UseHelp<THelpBuilder>(
+            this CommandLineBuilder builder,
+            HelpOption helpOption,
+            Action<THelpBuilder>? configureHelp)
+            where THelpBuilder : IHelpBuilder
+        {
+            if (configureHelp is { })
+            {
+                builder.ConfigureHelp = helpBuilder => configureHelp((THelpBuilder)helpBuilder);
+            }
+            else
+            {
+                builder.ConfigureHelp = null;
+            }
+            return builder.UseHelp(helpOption);
+        }
+
+        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, 
+            Func<BindingContext, IHelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
         {
             if (builder is null)
