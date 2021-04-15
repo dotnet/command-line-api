@@ -8,7 +8,7 @@ namespace System.CommandLine.Parsing
     public abstract class SymbolResult
     {
         private protected readonly List<Token> _tokens = new List<Token>();
-        private Resources? _validationMessages;
+        private Resources? _resources;
         private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new Dictionary<IArgument, ArgumentResult>();
 
         private protected SymbolResult(
@@ -53,10 +53,10 @@ namespace System.CommandLine.Parsing
             return value;
         }
 
-        protected internal Resources ValidationMessages
+        protected internal Resources Resources
         {
-            get => _validationMessages ??= Parent?.ValidationMessages ?? Resources.Instance;
-            set => _validationMessages = value;
+            get => _resources ??= Parent?.Resources ?? Resources.Instance;
+            set => _resources = value;
         }
 
         internal void AddToken(Token token) => _tokens.Add(token);
@@ -92,7 +92,7 @@ namespace System.CommandLine.Parsing
                     if (!argument.AllowedValues.Contains(token.Value))
                     {
                         return new ParseError(
-                            ValidationMessages
+                            Resources
                                 .UnrecognizedArgument(token.Value, argument.AllowedValues),
                             this);
                     }

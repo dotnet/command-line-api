@@ -71,14 +71,14 @@ namespace System.CommandLine
 
                 return new MissingArgumentConversionResult(
                     argument,
-                    symbolResult.ValidationMessages.RequiredArgumentMissing(symbolResult));
+                    symbolResult.Resources.RequiredArgumentMissing(symbolResult));
             }
 
             if (tokenCount > maximumNumberOfValues)
             {
                 return new TooManyArgumentsConversionResult(
                     argument,
-                    symbolResult!.ValidationMessages.ExpectsOneArgument(symbolResult));
+                    symbolResult!.Resources.ExpectsOneArgument(symbolResult));
             }
 
             return null;

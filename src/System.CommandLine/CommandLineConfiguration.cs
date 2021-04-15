@@ -25,7 +25,7 @@ namespace System.CommandLine
         /// <param name="symbols">The symbols to parse.</param>
         /// <param name="enablePosixBundling"><c>true</c> to enable POSIX bundling; otherwise, <c>false</c>.</param>
         /// <param name="enableDirectives"><c>true</c> to enable directive parsing; otherwise, <c>false</c>.</param>
-        /// <param name="validationMessages">Provide custom validation messages.</param>
+        /// <param name="resources">Provide custom validation messages.</param>
         /// <param name="responseFileHandling">One of the enumeration values that specifies how response files (.rsp) are handled.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
@@ -35,7 +35,7 @@ namespace System.CommandLine
             IReadOnlyList<Symbol> symbols,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
-            Resources? validationMessages = null,
+            Resources? resources = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null,
@@ -83,7 +83,7 @@ namespace System.CommandLine
 
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
-            ValidationMessages = validationMessages ?? Resources.Instance;
+            Resources = resources ?? Resources.Instance;
             ResponseFileHandling = responseFileHandling;
             Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
             HelpBuilderFactory = helpBuilderFactory ?? (context => 
@@ -146,9 +146,9 @@ namespace System.CommandLine
         public bool EnablePosixBundling { get; }
 
         /// <summary>
-        /// Gets the validation messages.
+        /// Gets the localizable resources.
         /// </summary>
-        public Resources ValidationMessages { get; }
+        public Resources Resources { get; }
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; }
 

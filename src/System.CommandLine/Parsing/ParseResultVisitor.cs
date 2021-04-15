@@ -52,7 +52,7 @@ namespace System.CommandLine.Parsing
             _rootCommandResult = new RootCommandResult(
                 rootCommandNode.Command,
                 rootCommandNode.Token);
-            _rootCommandResult.ValidationMessages = _parser.Configuration.ValidationMessages;
+            _rootCommandResult.Resources = _parser.Configuration.Resources;
 
             _innermostCommandResult = _rootCommandResult;
         }
@@ -290,7 +290,7 @@ namespace System.CommandLine.Parsing
             _errors.Insert(
                 0,
                 new ParseError(
-                    _innermostCommandResult.ValidationMessages.RequiredCommandWasNotProvided(),
+                    _innermostCommandResult.Resources.RequiredCommandWasNotProvided(),
                     _innermostCommandResult));
         }
 

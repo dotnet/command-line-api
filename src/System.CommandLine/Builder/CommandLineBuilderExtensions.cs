@@ -506,11 +506,11 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        public static CommandLineBuilder UseValidationMessages(
+        public static CommandLineBuilder UseResources(
             this CommandLineBuilder builder,
             Resources validationMessages)
         {
-            builder.ValidationMessages = validationMessages;
+            builder.Resources = validationMessages;
             return builder;
         }
 

@@ -346,7 +346,7 @@ namespace System.CommandLine.Parsing
                 }
                 catch (FileNotFoundException)
                 {
-                    var message = configuration.ValidationMessages
+                    var message = configuration.Resources
                                                .ResponseFileNotFound(filePath);
 
                     errorList.Add(
@@ -354,7 +354,7 @@ namespace System.CommandLine.Parsing
                 }
                 catch (IOException e)
                 {
-                    var message = configuration.ValidationMessages
+                    var message = configuration.Resources
                                                .ErrorReadingResponseFile(filePath, e);
 
                     errorList.Add(
