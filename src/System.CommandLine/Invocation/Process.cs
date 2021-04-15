@@ -8,24 +8,6 @@ namespace System.CommandLine.Invocation
 {
     public static class Process
     {
-        public static async Task<int> ExecuteAsync(
-            string command,
-            string args,
-            string? workingDir = null,
-            Action<string>? stdOut = null,
-            Action<string>? stdErr = null,
-            params (string key, string value)[] environmentVariables)
-        {
-            var process = StartProcess(command,
-                                       args,
-                                       workingDir,
-                                       stdOut,
-                                       stdErr,
-                                       environmentVariables);
-
-            return await process.CompleteAsync();
-        }
-
         public static async Task<int> CompleteAsync(
             this Diagnostics.Process process,
             CancellationToken? cancellationToken = null) =>
@@ -44,7 +26,7 @@ namespace System.CommandLine.Invocation
             Action<string>? stdErr = null,
             params (string key, string value)[] environmentVariables)
         {
-            args = args ?? "";
+            args ??= "";
 
             var process = new Diagnostics.Process
             {
@@ -64,12 +46,12 @@ namespace System.CommandLine.Invocation
                 process.StartInfo.WorkingDirectory = workingDir;
             }
 
-            if (environmentVariables?.Length > 0)
+            if (environmentVariables.Length > 0)
             {
                 for (var i = 0; i < environmentVariables.Length; i++)
                 {
-                    var tuple = environmentVariables[i];
-                    process.StartInfo.Environment.Add(tuple.key, tuple.value);
+                    var (key, value) = environmentVariables[i];
+                    process.StartInfo.Environment.Add(key, value);
                 }
             }
 
