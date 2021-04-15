@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Invocation;
@@ -66,7 +66,7 @@ namespace System.CommandLine.Suggest.Tests
             }
         }
 
-        private void PrepareTestHomeDirectoryToAvoidPolluteBuildMachineHome()
+        private static void PrepareTestHomeDirectoryToAvoidPolluteBuildMachineHome()
         {
             _testRoot = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(_testRoot);
@@ -77,7 +77,7 @@ namespace System.CommandLine.Suggest.Tests
         {
             var stdOut = new StringBuilder();
 
-            await Process.ExecuteAsync(
+            await ExecuteAsync(
                 _endToEndTestApp.FullName,
                 "[suggest:1] \"a\"",
                 stdOut: value => stdOut.AppendLine(value),
@@ -92,7 +92,7 @@ namespace System.CommandLine.Suggest.Tests
         public async Task Dotnet_suggest_provides_suggestions_for_app()
         {
             // run once to trigger a call to dotnet-suggest register
-            await Process.ExecuteAsync(
+            await ExecuteAsync(
                 _endToEndTestApp.FullName,
                 "-h",
                 stdOut: s => _output.WriteLine(s),
@@ -104,7 +104,7 @@ namespace System.CommandLine.Suggest.Tests
 
             var commandLineToComplete = "a";
 
-            await Process.ExecuteAsync(
+            await ExecuteAsync(
                 _dotnetSuggest.FullName,
                 $"get -e \"{_endToEndTestApp.FullName}\" --position {commandLineToComplete.Length} -- \"{commandLineToComplete}\"",
                 stdOut: value => stdOut.AppendLine(value),
@@ -127,7 +127,7 @@ namespace System.CommandLine.Suggest.Tests
         public async Task Dotnet_suggest_provides_suggestions_for_app_with_only_commandname()
         {
             // run once to trigger a call to dotnet-suggest register
-            await Process.ExecuteAsync(
+            await ExecuteAsync(
                 _endToEndTestApp.FullName,
                 "-h",
                 stdOut: s => _output.WriteLine(s),
@@ -139,7 +139,7 @@ namespace System.CommandLine.Suggest.Tests
 
             var commandLineToComplete = "a ";
 
-            await Process.ExecuteAsync(
+            await ExecuteAsync(
                 _dotnetSuggest.FullName,
                 $"get -e \"{_endToEndTestApp.FullName}\" --position {commandLineToComplete.Length} -- \"{commandLineToComplete}\"",
                 stdOut: value => stdOut.AppendLine(value),
@@ -156,6 +156,67 @@ namespace System.CommandLine.Suggest.Tests
             stdOut.ToString()
                 .Should()
                 .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
+        }
+
+        public static async Task<int> ExecuteAsync(
+            string command,
+            string args,
+            Action<string> stdOut = null,
+            Action<string> stdErr = null,
+            params (string key, string value)[] environmentVariables)
+        {
+            args ??= "";
+
+            var process = new Diagnostics.Process
+            {
+                StartInfo =
+                {
+                    Arguments = args,
+                    FileName = command,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardInput = true,
+                    UseShellExecute = false
+                }
+            };
+
+            if (environmentVariables.Length > 0)
+            {
+                for (var i = 0; i < environmentVariables.Length; i++)
+                {
+                    var (key, value) = environmentVariables[i];
+                    process.StartInfo.Environment.Add(key, value);
+                }
+            }
+
+            if (stdOut != null)
+            {
+                process.OutputDataReceived += (sender, eventArgs) =>
+                {
+                    if (eventArgs.Data != null)
+                    {
+                        stdOut(eventArgs.Data);
+                    }
+                };
+            }
+
+            if (stdErr != null)
+            {
+                process.ErrorDataReceived += (sender, eventArgs) =>
+                {
+                    if (eventArgs.Data != null)
+                    {
+                        stdErr(eventArgs.Data);
+                    }
+                };
+            }
+
+            process.Start();
+
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+
+            return await process.CompleteAsync();
         }
     }
 }
