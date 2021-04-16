@@ -1,10 +1,9 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
+using FluentAssertions;
 using System.CommandLine.Tests.Utility;
 using System.IO;
-using FluentAssertions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -158,7 +157,7 @@ namespace System.CommandLine.Suggest.Tests
                 .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
         }
 
-        public static async Task<int> ExecuteAsync(
+        private static async Task ExecuteAsync(
             string command,
             string args,
             Action<string> stdOut = null,
@@ -216,7 +215,7 @@ namespace System.CommandLine.Suggest.Tests
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            return await process.CompleteAsync();
+            await process.WaitForExitAsync();
         }
     }
 }

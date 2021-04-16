@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public static class Process
+    internal static class Process
     {
         public static async Task<int> CompleteAsync(
             this Diagnostics.Process process,
